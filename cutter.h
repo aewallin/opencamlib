@@ -15,6 +15,9 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+
+
 #ifndef CUTTER_H
 #define CUTTER_H
 #include <boost/foreach.hpp>

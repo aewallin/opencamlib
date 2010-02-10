@@ -15,6 +15,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+
 #ifndef OCL_H
 #define OCL_H
 
