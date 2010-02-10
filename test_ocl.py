@@ -1,4 +1,4 @@
-import camala as cam
+import ocl as cam
 
 def printP(p):
 	print "p=(",p.x, p.y, p.z, ")"

@@ -1,7 +1,7 @@
 import vtk
 import time
 import datetime
-import camala as cam
+import ocl as cam
 
 class VTKScreen():
     """
