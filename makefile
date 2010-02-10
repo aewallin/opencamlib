@@ -1,10 +1,10 @@
-all: camala
+all: ocl
 
-camala: camala.o point.o triangle.o stlsurf.o cutter.o
-	g++ camala.o point.o triangle.o stlsurf.o cutter.o -shared -o camala.so  -lboost_python-mt  -lpython2.6
+ocl: ocl.o point.o triangle.o stlsurf.o cutter.o
+	g++ ocl.o point.o triangle.o stlsurf.o cutter.o -shared -o ocl.so  -lboost_python-mt  -lpython2.6
 
-camala.o: camala.cpp camala.h
-	g++  -fPIC -o camala.o -I/usr/include/python2.6 -c camala.cpp 
+ocl.o: ocl.cpp ocl.h
+	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 
 
 point.o: point.cpp point.h
 	g++  -fPIC -o point.o -c point.cpp 
@@ -21,8 +21,8 @@ cutter.o: cutter.cpp cutter.h
 doc: Doxyfile point.h triangle.h stlsurf.h cutter.h
 	doxygen
 
-pdf:
-	cd ./doc/latex ; pwd ; make pdf ; cd ../.. ; cp ./doc/latex/refman.pdf ./camala.pdf
+pdf: doc
+	cd ./doc/latex ; make pdf ; cd ../.. ; cp ./doc/latex/refman.pdf ./ocl.pdf
 
 clean:
 	rm -rf *.o *.so
