@@ -25,7 +25,7 @@ pdf: doc
 	cd ./doc/latex ; make pdf ; cd ../.. ; cp ./doc/latex/refman.pdf ./ocl.pdf
 
 clean:
-	rm -rf *.o *.so
+	rm -rf *.o *.so *.pyc *.pdf ; rm -Rf doc
 
 # learn more from here:
 # http://mrbook.org/tutorials/make/
