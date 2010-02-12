@@ -28,8 +28,9 @@
 class STLSurf {
 	public:
 		STLSurf();
+        ~STLSurf();
         /// add Triangle t to this surface
-        void addTriangle(const Triangle t);
+        void addTriangle(const Triangle &t);
 		std::string str();
 		friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
 		
@@ -37,7 +38,6 @@ class STLSurf {
         int id;
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
-        
         
     private:
         void setId();

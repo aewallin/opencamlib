@@ -37,6 +37,10 @@ STLSurf::STLSurf() {
 	std::cout << "STLSurf default constructor" << std::endl;
 }
 
+STLSurf::~STLSurf()
+{
+    //delete tris;
+}
 
 void STLSurf::setId()
 {      
@@ -44,7 +48,7 @@ void STLSurf::setId()
     ++count;
 }
 
-void STLSurf::addTriangle(Triangle t)
+void STLSurf::addTriangle(const Triangle &t)
 {
 	tris.push_back(t);
 	return;

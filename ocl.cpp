@@ -40,6 +40,7 @@ BOOST_PYTHON_MODULE(ocl) {
 		.def("cross", &Point::cross)
         .def("isRight", &Point::isRight)
         .def("isInside", &Point::isInside)
+        .def("isInsidePoints", &Point::isInside)
         .def("xyDistance", &Point::xyDistance)
 		.def("str", &Point::str)
 		.def_readwrite("x", &Point::x)
@@ -52,7 +53,7 @@ BOOST_PYTHON_MODULE(ocl) {
 		.def(bp::init<Point,Point,Point>())
 		.def("str", &Triangle::str) // FIXME
 		.def_readonly("p", &Triangle::p)
-		.def_readonly("n", &Triangle::n)
+		//.def_readonly("n", &Triangle::n)
 		.def_readonly("id", &Triangle::id)
 	;
 	

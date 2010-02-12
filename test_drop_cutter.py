@@ -3,20 +3,20 @@ import camvtk
 import time
 
 if __name__ == "__main__":
-    s= cam.STLSurf()
-    print s.str()
-    myscreen = camvtk.VTKScreen()
-    stl = camvtk.STLSurf("sphere.stl")
-    print "STL surface read"
-    myscreen.addActor(stl)
-    stl.SetWireframe()
+    #s= cam.STLSurf()
+    #print s.str()
+    #myscreen = camvtk.VTKScreen()
+    #stl = camvtk.STLSurf("sphere.stl")
+    #print "STL surface read"
+    #myscreen.addActor(stl)
+    #stl.SetWireframe()
     
-    polydata = stl.src.GetOutput()
-    camvtk.vtkPolyData2CamalaSTL(polydata, s)
+    #polydata = stl.src.GetOutput()
+    #camvtk.vtkPolyData2OCLSTL(polydata, s)
     
-    print s.str()
+    #print s.str()
+    
     c = cam.CylCutter()
-    print c
     print c.str()
     print "diam=", c.diameter
     c2 = cam.CylCutter(.1)
@@ -26,24 +26,29 @@ if __name__ == "__main__":
     b=cam.Point(0,1,0)
     c=cam.Point(0,0,1)
     t = cam.Triangle(a,b,c)
-
-    cl = cam.Point(0.3,0.3,0)
-   
+    print "triangle created  t=", t.str()
+    cl = cam.Point(0.01,0.3,0)
+    print "CL= ", cl.str()
+       
     cc = c2.vertexDrop( cl , t )
     print "vertex CL=", cl.str()
     print "vertex CC=", cc.str()
     print "before FacetDrop"
     print "t=",t.str()
-    print "t.n", t.n.str()
+    #print "t.n", t.n.str()
 
     cc2 = c2.facetDrop( cl, t)
     print "after facetDrop"
     print "t=",t.str()
-    print "t.n", t.n.str()
+    #print "t.n", t.n.str()
     print "facet CL=", cl.str()
     print "facet CC=", cc2.str()
     print "cl.xyDistance(cc)=", cl.xyDistance(cc2)
-
-    myscreen.iren.Start()
+    
+    cc3 = c2.edgeDrop(cl, t)
+    print "after edgeDrop"
+    print "cl =", cl.str()
+    
+    #myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
     

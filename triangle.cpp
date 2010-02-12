@@ -38,16 +38,31 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
     p[0]=p1;
     p[1]=p2;
     p[2]=p3;
+    //std::cout << "Triangle(p1,p2,p3) before calcNormal()\n";
     calcNormal();
+    //std::cout << "Triangle(p1,p2,p3) AFTER calcNormal()\n";
+}
+
+Triangle::~Triangle()
+{
+    //delete [] p;
+    //delete n;
 }
 
 void Triangle::calcNormal()
 {
-    Vector v1=p[0]-p[1];
-    Vector v2=p[0]-p[2];
+    Point v1=p[0]-p[1];
+    Point v2=p[0]-p[2];
+    
     // the normal is in the direction of the cross product between the edge vectors
-    n = v1.cross(v2); 
-    n =  n*(1 / n.norm()); // normalize to length==1
+    Point ntemp = v1.cross(v2);
+    ntemp.normalize();
+    std::cout << "creating normal=" << ntemp << "\n";
+    n = new Point(ntemp.x,ntemp.y,ntemp.z);
+    std::cout << "normal is =" << *n << "\n";
+    //n->normalize(); 
+    //no =  no*(1 / no.norm()); // normalize to length==1
+    //n = &no;
 }
 
 void Triangle::setId()
@@ -66,6 +81,6 @@ std::string Triangle::str()
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t)
 {
-  stream <<  "Tri(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] ;
+  stream <<  "Tri(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) <<"\n" ;
   return stream;
 }

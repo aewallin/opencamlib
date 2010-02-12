@@ -26,6 +26,7 @@
 class Triangle {
 	public:
 		Triangle();
+        ~Triangle();
 		Triangle(Point p1, Point p2, Point p3);   
         
         // text output     
@@ -40,7 +41,7 @@ class Triangle {
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
         /// normal vector
-        Vector n;    // surface normal
+        Point *n;    // surface normal
         static int count;
         int id;
     private:

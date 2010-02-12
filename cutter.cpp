@@ -88,13 +88,14 @@ Point CylCutter::vertexDrop(Point &cl, const Triangle &t)
 	/// drop down cutter at (cl.x, cl.y) against Point p
     Point cc;
     std::cout << "vertexDrop triangle=" << t << "\n";
-    std::cout << "vertexDrop normal=" << t.n << "\n";
+    //std::cout << "here?\n";
+    // std::cout << "vertexDrop normal=" << *(t.n) << "\n";
     
     BOOST_FOREACH( Point p, t.p)
     {
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
-        std::cout << "xyDistance(cl, vertex) is: " << q << "\n";
+        std::cout << "xyDistance(cl, vertex) is: " << q << " ";
         if (q<= diameter/2) { // p is inside the cutter
             std::cout << "inside case\n";
             if (p.z > cl.z) { // we need to lift the cutter
@@ -115,18 +116,18 @@ Point CylCutter::facetDrop(Point &cl, const Triangle &t)
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point cc;
     std::cout << "facetDrop triangle=" << t << "\n";
-    std::cout << "facetDrop normal=" << t.n << "\n";
+    std::cout << "facetDrop normal=" << *t.n << "\n";
     Point normal; // facet surface normal
     
-    if (t.n.z == 0)  {// vertical surface
+    if (t.n->z == 0)  {// vertical surface
         std::cout << "facetDrop vertical case. bye.\n";
         return cc;  //can't drop against vertical surface
-    } else if (t.n.z < 0) {  // normal is pointing down
-        normal = -1*t.n; // flip normal
+    } else if (t.n->z < 0) {  // normal is pointing down
+        normal = -1* (*t.n); // flip normal
         std::cout << "facetDrop flip normal\n";
     } else {
         std::cout << "facetDrop normal case\n";
-        normal = t.n;
+        normal = *t.n;
     }
     std::cout << "facetDrop normal="<<normal<<"\n";
     // define plane containing facet
@@ -152,7 +153,7 @@ Point CylCutter::facetDrop(Point &cl, const Triangle &t)
     return cc;
 }
 
-// FIXME: place this somewhere better
+// FIXME: place this somewhere better (purely static class of helper functions?)
 double sign(double x) {
     if (x<0.0)
         return -1;
@@ -174,9 +175,11 @@ Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
         // 1) distance from point to line
         int start=n;
         int end=(n+1)%3;
+        std::cout << "testing poinst " << start<< " to " << end << " :";
         double d = cl.xyDistanceToLine(t.p[start],t.p[end]);
+        std::cout << "xyDistance=" << d ;
         if (d<=diameter/2) { // potential hit
-        
+            std::cout << " potential hit\n";
             // 2) calculate intersection points w. cutter circle
             // points are on line and diameter/2 from cl
             // see http://mathworld.wolfram.com/Circle-LineIntersection.html
@@ -189,28 +192,84 @@ Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
             double dr = sqrt( dx*dx + dy*dy);
             double D = x1*y2 - x2*y1;
             double discr = pow(diameter/2,2) * pow(dr,2) - pow(D,2);
+            std::cout << "discr=" << discr << "\n";
             
             if (discr < 0) {
                 std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr<0 !!\n";
-                return cc;
+                // return cc;
             } else if (discr == 0.0) {// tangent line
                 cc.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
                 cc.y = -D*dx / pow(dr,2) + cl.y;
                 // 3) check if cc is in edge
-                // determine height of point. must be on line, so:
+                if ( cc.isInsidePoints(t.p[start], t.p[end]) ) { 
+                    // determine height of point. must be on line, so:
+                    std::cout << "tangent-case: isInside=true!\n";
+                    // two point formula for line:
+                    // z-z1 = ((z2-z1)/(x2-x1)) * (x - x1)
+                    // z = z1 + ((z2-z1)/(x2-x1)) * (x-x1)
+                    double z1 = t.p[start].z;
+                    double z2 = t.p[end].z;
+                    double x1 = t.p[start].x;
+                    double x2 = t.p[end].x;
+                    double y1 = t.p[start].y;
+                    double y2 = t.p[end].y;
+                    if (x1 != x2) {
+                        cc.z = z1 + ((z2-z1)/(x2-x1)) * (cc.x-x1);
+                        cl.liftZ(cc.z);
+                    } else if (y1 != y2) {
+                        cc.z = z1 + ((z2-z1)/(y2-y1)) * (cc.y-y1);
+                        cl.liftZ(cc.z);
+                    }
+                }
             
             } else { // discr > 0, two intersection points
                 Point cc1;
                 Point cc2;
-                cc1.x= (D*dy  + sign(dy)*dx*sqrt(discr)) / pow(dr,2);
-                cc1.y= (-D*dx + fabs(dy)*sqrt(discr)   ) / pow(dr,2);
-                cc2.x= (D*dy  - sign(dy)*dx*sqrt(discr)) / pow(dr,2);
-                cc2.y= (-D*dx - fabs(dy)*sqrt(discr)   ) / pow(dr,2);
+                // remember to translate back to cl
+                cc1.x= (D*dy  + sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
+                cc1.y= (-D*dx + fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
+                cc1.z=0;
+                cc2.x= (D*dy  - sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
+                cc2.y= (-D*dx - fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
+                cc2.z=0;
                 // 3) check if in edge
+                double z1 = t.p[start].z;
+                double z2 = t.p[end].z;
+                double x1 = t.p[start].x;
+                double x2 = t.p[end].x;
+                double y1 = t.p[start].y;
+                double y2 = t.p[end].y;
+                if ( cc1.isInsidePoints(t.p[start], t.p[end]) ) {
+                    // determine height of point. must be on line, so:
+                    if (x1 != x2) {
+                        cc1.z = z1 + ((z2-z1)/(x2-x1)) * (cc1.x-x1);
+                        cl.liftZ(cc1.z);
+                    } else if (y1 != y2) {
+                        cc1.z = z1 + ((z2-z1)/(y2-y1)) * (cc1.y-y1);
+                        cl.liftZ(cc1.z);
+                    }
+                    std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
+                }
+                if ( cc2.isInsidePoints(t.p[start], t.p[end]) ) {
+                    // determine height of point. must be on line, so:
+                    if (x1 != x2) {
+                        cc2.z = z1 + ((z2-z1)/(x2-x1)) * (cc2.x-x1);
+                        cl.liftZ(cc2.z);
+                    } else if (y1 != y2) {
+                        cc2.z = z1 + ((z2-z1)/(y2-y1)) * (cc2.y-y1);
+                        cl.liftZ(cc2.z);
+                    }
+                    std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
+                }
                 
-            }
+                
+            } //end two intersection points case
+            
+        }// end if(potential hit)
+        else {
+            std::cout << " no edge hit\n";
         }
-    }
+    } // end loop through all edges
         
     
     return cc;

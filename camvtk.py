@@ -255,8 +255,8 @@ class Plane(vtk.vtkActor):
 #----------------------------------------------------------------
 
 #---- misc helper functions
-def vtkPolyData2CamalaSTL(vtkPolyData,camalaSTL):
-	""" read vtkPolyData and add each triangle to a camala.STLSurf """
+def vtkPolyData2OCLSTL(vtkPolyData,oclSTL):
+	""" read vtkPolyData and add each triangle to a ocl.STLSurf """
 	for cellId in range(0,vtkPolyData.GetNumberOfCells()):
 		cell = vtkPolyData.GetCell(cellId)
 		points = cell.GetPoints()
@@ -266,4 +266,4 @@ def vtkPolyData2CamalaSTL(vtkPolyData,camalaSTL):
 			p = cam.Point(vertex[0],vertex[1],vertex[2])
 			plist.append(p)
 		t = cam.Triangle(plist[0],plist[1],plist[2])
-		camalaSTL.addTriangle(t)
+		oclSTL.addTriangle(t)

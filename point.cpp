@@ -57,12 +57,12 @@ void Point::setID()
 		count++;
 }
 
-double Point::norm()
+double Point::norm() const
 {
     return sqrt(x*x+y*y+z*z);
 }
 
-const Point Point::cross(const Point &p)
+Point Point::cross(const Point &p)
 {
     double xc = y * p.z - z * p.y;
     double yc = z * p.x - x * p.z;
@@ -70,19 +70,19 @@ const Point Point::cross(const Point &p)
     return Point(xc, yc, zc);
 }
 
-double Point::dot(const Point &p)
+double Point::dot(const Point &p) const
 {
     return x * p.x + y * p.y + z * p.z;
 }
 
 void Point::normalize()
 {
-	if (this->norm() != 0) {
+	if (this->norm() != 0.0) {
 		*this *=(1/this->norm());
 	}
 }
 
-double Point::xyNorm()
+double Point::xyNorm() const
 {
     return sqrt(x*x+y*y);
 }
@@ -95,7 +95,7 @@ void Point::xyNormalize()
 }
 
 
-double Point::xyDistance(Point p)
+double Point::xyDistance(Point &p) const
 {
     return sqrt(pow(x - p.x, 2) + pow((y - p.y), 2));
 }
@@ -106,11 +106,11 @@ void Point::liftZ(double zin)
         z=zin;
 }
 
-double Point::xyDistanceToLine(const Point &p1, const Point &p2)
+double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
 {
         // see for example
         // http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
-        if ((p1.x == p2.x) && (p2.y == p2.y)) {// no line in xy plane
+        if ((p1.x == p2.x) && (p1.y == p2.y)) {// no line in xy plane
             return -1;
         }
         else {
@@ -121,11 +121,10 @@ double Point::xyDistanceToLine(const Point &p1, const Point &p2)
         }
 }
 
-// geometric predicates
 
-bool Point::isRight(const Point p1, const Point p2)
+bool Point::isRight(const Point &p1, const Point &p2) const
 {
-    // is point right of line through points p1 and p2 ?
+    // is Point right of line through points p1 and p2 ?, in the XY plane.
 	// this is an ugly way of doing a determinant
 	// should be prettyfied sometime...
     // FIXME: what if p1==p2 ? (in the XY plane)
@@ -143,7 +142,7 @@ bool Point::isRight(const Point p1, const Point p2)
 		return false;    
 }
 
-bool Point::isInside(const Triangle t)
+bool Point::isInside(const Triangle &t) const
 {
     // point in triangle test
     
@@ -151,9 +150,6 @@ bool Point::isInside(const Triangle t)
     Point p1 = Point(t.p[0].x, t.p[0].y, 0.0);
     Point p2 = Point(t.p[1].x, t.p[1].y, 0.0);
     Point p3 = Point(t.p[2].x, t.p[2].y, 0.0);
-	//double p1[3] = {t.m_p[0], t.m_p[1], 0};
-	//double p2[3] = {t.m_p[3], t.m_p[4], 0};
-	//double p3[3] = {t.m_p[6], t.m_p[7], 0};
     
     // a new point projected onto the XY plane
 	Point p = Point(x, y, 0.0);
@@ -173,6 +169,43 @@ bool Point::isInside(const Triangle t)
 		return false;
     }
 }
+
+#define TOLERANCE 0.000001
+
+bool Point::isInsidePoints(const Point &p1, const Point &p2) const
+{
+    double minx,maxx,miny,maxy;
+    if (p1.x > p2.x) {
+        minx = p2.x;
+        maxx = p1.x;
+    } else {
+        minx = p1.x;
+        maxx = p2.x;
+    }
+    if (p1.y > p2.y) {
+        miny = p2.y;
+        maxy = p1.y;
+    } else {
+        miny = p1.y;
+        maxy = p2.y;
+    }
+    //std::cout << "minx=" << minx << "maxx=" << maxx << "miny=" << miny << "maxy=" << maxy << "\n";
+    //std::cout << "x=" << x << " y=" << y << "\n";
+    bool b1 = (x>= (minx-TOLERANCE));
+    bool b2 = (x<= (maxx+TOLERANCE));
+    bool b3 = (y>= (miny-TOLERANCE));
+    bool b4 = (y<= (maxy+TOLERANCE));
+    //std::cout << "b1=" << b1 << " b2=" << b2 << " b3=" << b3 << " b4=" << b4 << "\n";
+    if ( b1 && b2 && b3 && b4) {
+        //std::cout << "returning true\n";
+        return true;
+    } else {
+        //std::cout << "returning false\n";
+        return false;
+    }
+}
+
+
 
 /* **************** Operators ***************  
 /*  see

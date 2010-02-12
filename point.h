@@ -34,25 +34,34 @@ class Point {
 	public:
 		Point();
 		Point(double x, double y, double z);
-        Point(const Point&);
+        Point(const Point &p);
         
         /// dot product
-        double dot(const Point &p);
+        double dot(const Point &p) const;
+        
         /// cross product
-        const Point cross(const Point &p);
+        Point cross(const Point &p);
+        
         /// distance to point from (0,0,0)
-        double norm(); // norm of vector, or distance to (0,0,0) for a point
+        double norm() const; // norm of vector, or distance to (0,0,0) for a point
+        
         /// scales vector so that norm()==1.0
         void normalize();
+        
         /// distance from Point to another Point p in the XY plane
-        double xyDistance(Point p);
+        double xyDistance(Point &p) const;
+        
         /// length of vector in xy plane
-        double xyNorm();
+        double xyNorm() const;
+        
         /// normalize so that length in xy plane is 1
         void xyNormalize();
-	    /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
+	    
+        /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
         void liftZ(double zin);
-        double xyDistanceToLine(const Point &p1, const Point &p2);
+        
+        /// distance from Point to infinite line through p1 and p2. In the XY plane.
+        double xyDistanceToLine(const Point &p1, const Point &p2) const;
 		
         Point &operator=(const Point &p);
         Point &operator+=(const Point &p);
@@ -72,10 +81,12 @@ class Point {
         
         // geometric predicates
         /// returns true if point is right of line through p1 and p2 (works in the XY-plane)
-        bool isRight(const Point p1, const Point p2); 
+        bool isRight(const Point &p1, const Point &p2) const;
+         
         /// retruns true if point is inside Triangle t (works in the XY-plane)
-        bool isInside(const Triangle t); // is point inside triangle t?
-       
+        bool isInside(const Triangle &t) const; // is point inside triangle t?
+        
+        bool isInsidePoints(const Point &p1, const Point &p2) const;
 
 		/// X coordinate
         double x;
