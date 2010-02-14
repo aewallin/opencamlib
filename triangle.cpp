@@ -45,8 +45,8 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
 
 Triangle::~Triangle()
 {
-    //delete [] p;
     //delete n;
+    //n = 0;
 }
 
 void Triangle::calcNormal()
@@ -57,12 +57,10 @@ void Triangle::calcNormal()
     // the normal is in the direction of the cross product between the edge vectors
     Point ntemp = v1.cross(v2);
     ntemp.normalize();
-    std::cout << "creating normal=" << ntemp << "\n";
+    //std::cout << "creating normal=" << ntemp << "\n";
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
-    std::cout << "normal is =" << *n << "\n";
-    //n->normalize(); 
-    //no =  no*(1 / no.norm()); // normalize to length==1
-    //n = &no;
+    //std::cout << "normal is =" << *n << "\n";
+    
 }
 
 void Triangle::setId()

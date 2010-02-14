@@ -145,23 +145,25 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 	double a = normal.x;
 	double b = normal.y;
 	double c = normal.z;
-	double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    std::cout << "facetDrop plane d="<<d<<"\n";
-
-    
+	//double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
+    double d = - normal.dot(t.p[0]);
+        
     normal.xyNormalize(); // make length of normal in xy plane == 1.0
-    std::cout << "xyNormalized : n="<<normal<<"\n";
+    //std::cout << "xyNormalized : n="<<normal<<"\n";
     // the contact point with the plane is on the periphery
     // of the cutter, a length diameter/2 from cl in the direction of -n
-    cc = cl - (diameter/2)*normal;
-    std::cout <<"facetDrop cc="<<cc;
-    if (cc.isInside(t)) { // NOTE: cc.z is ignored in isInside()
-        cc.z = (1.0/c)*(-d-a*cc.x-b*cc.y); // NOTE: potential for divide-by-zero (?!)
-        std::cout << " isInside!, cc="<<cc<<"\n";
-        cl.liftZ(cc.z);
-        return 1;
+    Point cc_tmp = cl - (diameter/2)*normal;
+    //std::cout <<"facetDrop potential cc="<<cc_tmp <<" (wrong Z!)\n";
+    if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()
+        cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
+        //std::cout << " isInside!, cc="<<cc_tmp<<"\n";
+        if (cl.liftZ(cc_tmp.z)) {
+            cc = cc_tmp;
+            cc.type = FACET;
+            return 1;
+        }
     } else {
-		std::cout << " NOT isInside!, cc="<<cc<<"\n";
+		//std::cout << " NOT isInside!, cc="<<cc<<"\n";
 		return 0;
 	}
 }
@@ -228,15 +230,13 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
                     double x2 = t.p[end].x;
                     double y1 = t.p[start].y;
                     double y2 = t.p[end].y;
-                    if (x1 != x2) {
+                    if (x1 != x2) 
                         cc.z = z1 + ((z2-z1)/(x2-x1)) * (cc.x-x1);
-                        cl.liftZ(cc.z);
-                        result = 1;
-                    } else if (y1 != y2) {
+                    else if (y1 != y2) 
                         cc.z = z1 + ((z2-z1)/(y2-y1)) * (cc.y-y1);
-                        cl.liftZ(cc.z);
-                        result = 1;
-                    }
+                       
+                    if (cl.liftZ(cc.z))
+                        cc.type = EDGE;
                 }
             } else { // discr > 0, two intersection points
                 Point cc1;
@@ -257,23 +257,27 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
                 double y2 = t.p[end].y;
                 if ( cc1.isInsidePoints(t.p[start], t.p[end]) ) {
                     // determine height of point. must be on line, so:
-                    if (x1 != x2) {
+                    if (x1 != x2) 
                         cc1.z = z1 + ((z2-z1)/(x2-x1)) * (cc1.x-x1);
-                        cl.liftZ(cc1.z);
-                    } else if (y1 != y2) {
+                    else if (y1 != y2) 
                         cc1.z = z1 + ((z2-z1)/(y2-y1)) * (cc1.y-y1);
-                        cl.liftZ(cc1.z);
+           
+                    if (cl.liftZ(cc1.z)) {
+                        cc=cc1;
+                        cc.type = EDGE;
                     }
                     std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
                 }
                 if ( cc2.isInsidePoints(t.p[start], t.p[end]) ) {
                     // determine height of point. must be on line, so:
-                    if (x1 != x2) {
+                    if (x1 != x2) 
                         cc2.z = z1 + ((z2-z1)/(x2-x1)) * (cc2.x-x1);
-                        cl.liftZ(cc2.z);
-                    } else if (y1 != y2) {
+                    else if (y1 != y2) 
                         cc2.z = z1 + ((z2-z1)/(y2-y1)) * (cc2.y-y1);
-                        cl.liftZ(cc2.z);
+                        
+                    if (cl.liftZ(cc2.z)) {
+                        cc = cc2;
+                        cc.type = EDGE;
                     }
                     std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
                 }

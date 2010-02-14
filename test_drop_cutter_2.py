@@ -15,6 +15,7 @@ if __name__ == "__main__":
     cutter.dropCutter(cl,cc,t)
     print "CL= ", cl.str()
     print "CC=", cc.str()
+    
        
     #c2.vertexDrop( cl , cc, t )
     #print "after vertex CL=", cl.str()
