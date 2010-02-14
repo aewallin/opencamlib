@@ -58,7 +58,7 @@ class Point {
         void xyNormalize();
 	    
         /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
-        void liftZ(double zin);
+        int liftZ(double zin);
         
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
@@ -105,7 +105,14 @@ class Point {
 // scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
 
-// call it Vector also just for fun (?)
-typedef Point Vector;
+enum CCType {VERTEX, EDGE, FACET};
+
+class CCPoint : public Point {
+	public:
+		CCType type;
+		CCPoint &operator=(const Point &p);
+		std::string str();
+	private:		
+};
 
 #endif

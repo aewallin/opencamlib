@@ -68,6 +68,14 @@ double MillingCutter::getLength()
 }
 
 
+int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
+{
+	
+	vertexDrop(cl,cc,t);
+	
+	facetDrop(cl,cc,t); //if we are already above the triangle we don't need these
+	edgeDrop(cl,cc,t);
+}
 
 
 //********   CylCutter ********************** */
@@ -82,14 +90,14 @@ CylCutter::CylCutter(const double d)
 }
 
 //********   drop-cutter methods ********************** */
-Point CylCutter::vertexDrop(Point &cl, const Triangle &t)
+int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     /// loop through each vertex p of Triangle t
 	/// drop down cutter at (cl.x, cl.y) against Point p
-    Point cc;
+    //Point cc;
     std::cout << "vertexDrop input =" << t << "\n";
-    // std::cout << "here?\n";
     // std::cout << "vertexDrop normal=" << *(t.n) << "\n";
+    int result = 0;
     
     BOOST_FOREACH( const Point& p, t.p)
     {
@@ -98,30 +106,30 @@ Point CylCutter::vertexDrop(Point &cl, const Triangle &t)
         std::cout << "xyDistance(cl, vertex) is: " << q << " ";
         if (q<= diameter/2) { // p is inside the cutter
             std::cout << "inside case\n";
-            if (p.z > cl.z) { // we need to lift the cutter
-                cl.liftZ(p.z);
+            if (cl.liftZ(p.z)) { // we need to lift the cutter
                 cc = p;
+                cc.type = VERTEX;
                 std::cout << "cl=" << cl << " cc=" << cc << "\n";
+                result = 1;
             }
         } else {
             std::cout << "outside case\n";
             std::cout << "cl=" << cl << " cc=" << cc << "\n";
         }
     }
-    return cc;
+    return result;
 }
 
-Point CylCutter::facetDrop(Point &cl, const Triangle &t)
+int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
-    Point cc;
     std::cout << "facetDrop triangle=" << t << "\n";
     std::cout << "facetDrop input normal=" << *t.n << "\n";
     Point normal; // facet surface normal
     
     if (t.n->z == 0)  {// vertical surface
         std::cout << "facetDrop vertical case. bye.\n";
-        return cc;  //can't drop against vertical surface
+        return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
         std::cout << "facetDrop flip normal\n";
@@ -151,10 +159,10 @@ Point CylCutter::facetDrop(Point &cl, const Triangle &t)
         cc.z = (1.0/c)*(-d-a*cc.x-b*cc.y); // NOTE: potential for divide-by-zero (?!)
         std::cout << " isInside!, cc="<<cc<<"\n";
         cl.liftZ(cc.z);
-        return cc;
+        return 1;
     } else {
 		std::cout << " NOT isInside!, cc="<<cc<<"\n";
-		return cc;
+		return 0;
 	}
 }
 
@@ -166,15 +174,16 @@ double sign(double x) {
         return 1;
 }
 
-Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
+int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
     // 1) calculate distance to infinite line
     // 2) calculate intersection points w. cutter
     // 3) pick the higher intersection point and test if it is in the edge
-    Point cc;
-  
+    //Point cc;
+	int result = 0;
+	
     for (int n=0;n<3;n++) { // loop through all three edges
     
         // 1) distance from point to line
@@ -183,6 +192,7 @@ Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
         std::cout << "testing poinst " << start<< " to " << end << " :";
         double d = cl.xyDistanceToLine(t.p[start],t.p[end]);
         std::cout << "xyDistance=" << d ;
+        
         if (d<=diameter/2) { // potential hit
             std::cout << " potential hit\n";
             // 2) calculate intersection points w. cutter circle
@@ -201,7 +211,7 @@ Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
             
             if (discr < 0) {
                 std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr<0 !!\n";
-                // return cc;
+                
             } else if (discr == 0.0) {// tangent line
                 cc.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
                 cc.y = -D*dx / pow(dr,2) + cl.y;
@@ -221,12 +231,13 @@ Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
                     if (x1 != x2) {
                         cc.z = z1 + ((z2-z1)/(x2-x1)) * (cc.x-x1);
                         cl.liftZ(cc.z);
+                        result = 1;
                     } else if (y1 != y2) {
                         cc.z = z1 + ((z2-z1)/(y2-y1)) * (cc.y-y1);
                         cl.liftZ(cc.z);
+                        result = 1;
                     }
                 }
-            
             } else { // discr > 0, two intersection points
                 Point cc1;
                 Point cc2;
@@ -277,7 +288,7 @@ Point CylCutter::edgeDrop(Point &cl, const Triangle &t)
     } // end loop through all edges
         
     
-    return cc;
+    return result;
 }
 
 

@@ -11,25 +11,27 @@ if __name__ == "__main__":
     t = cam.Triangle(a,b,c)
     print "triangle created  t=", t.str()
     cl = cam.Point(0.2,0.2,0)
+    cc = cam.Point()
     print "CL= ", cl.str()
-       
-    cc = c2.vertexDrop( cl , t )
+    print "CC=", cc.str()   
+    c2.vertexDrop( cl , cc, t )
     print "after vertex CL=", cl.str()
     print "after vertex CC=", cc.str()
     print "t=",t.str()
     #print "t.n", t.n.str()
 
-    cc2 = c2.facetDrop( cl, t )
+    c2.facetDrop( cl, cc, t )
     #print "after facetDrop"
     print "after facet t=",t.str()
     #print "t.n", t.n.str()
     print "after facet CL=", cl.str()
-    print "after facet CC=", cc2.str()
-    print "after facet cl.xyDistance(cc)=", cl.xyDistance(cc2)
+    print "after facet CC=", cc.str()
+    print "after facet cl.xyDistance(cc)=", cl.xyDistance(cc)
     
-    cc3 = c2.edgeDrop( cl, t )
+    c2.edgeDrop( cl, cc, t )
     print "after edge cl =", cl.str()
-    
+    cc2=cam.Point()
+    c2.dropCutter(cl,cc2,t)
     #myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
     

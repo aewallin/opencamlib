@@ -42,13 +42,13 @@ class MillingCutter {
         // drop-cutter methods
         /// \brief drop cutter at (cl.x, cl.y) against vertices of Triangle t.
         /// returns the cc point
-        virtual Point vertexDrop(Point &cl, const Triangle &t) = 0;
+        virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
-        virtual Point facetDrop(Point &cl, const Triangle &t) = 0;
+        virtual int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
-        virtual Point edgeDrop(Point &cl, const Triangle &t) = 0;
+        virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         
-        //virtual Point dropCutter(Point &cl, const Triangle &t) = 0;
+        int dropCutter(Point &cl, CCPoint &cc, const Triangle &t);
         
     protected:
         static int count;
@@ -73,11 +73,13 @@ class CylCutter : public MillingCutter {
         
         // dropCutter methods
         /// drop cutter at (cl.x, cl.y) against vertices of Triangle t
-        Point vertexDrop(Point &cl, const Triangle &t);
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
-        Point facetDrop(Point &cl, const Triangle &t);
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
-        Point edgeDrop(Point &cl, const Triangle &t);
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        
+        
         
         // text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
@@ -91,11 +93,9 @@ class CylCutter : public MillingCutter {
 class BallCutter : public MillingCutter {
     public:
         BallCutter();
-        Point vertexDrop(Point &cl, const Triangle &t);
-        Point facetDrop(Point &cl, const Triangle &t);
-        Point edgeDrop(Point &cl, const Triangle &t);
-        
-        
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
 };
 
 #endif

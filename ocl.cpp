@@ -48,7 +48,10 @@ BOOST_PYTHON_MODULE(ocl) {
 		.def_readwrite("z", &Point::z)
 		.def_readonly("id", &Point::id)
     ;   
-    
+    bp::class_<CCPoint>("CCPoint") 
+		.def(bp::init<CCPoint>())
+		.def("str", &CCPoint::str)
+	;
     bp::class_<Triangle>("Triangle")
 		.def(bp::init<Point,Point,Point>())
 		.def("str", &Triangle::str) // FIXME
@@ -63,11 +66,13 @@ BOOST_PYTHON_MODULE(ocl) {
 		.def_readonly("tris", &STLSurf::tris)
 		.def_readonly("id", &STLSurf::id)
 	;
+
     bp::class_<CylCutter>("CylCutter")
         .def(bp::init<double>())
         .def("vertexDrop", &CylCutter::vertexDrop)
         .def("facetDrop", &CylCutter::facetDrop)
         .def("edgeDrop", &CylCutter::edgeDrop)
+        .def("dropCutter", &CylCutter::dropCutter)
         .def("str", &CylCutter::str)
         .add_property("diameter", &CylCutter::getDiameter, &CylCutter::setDiameter )
     ;

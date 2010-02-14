@@ -100,10 +100,14 @@ double Point::xyDistance(const Point &p) const
     return sqrt(pow(x - p.x, 2) + pow((y - p.y), 2));
 }
 
-void Point::liftZ(double zin)
+int Point::liftZ(double zin)
 {
-    if (zin>z)
+    if (zin>z) {
         z=zin;
+        return 1;
+	} else {
+		return 0;
+	}
 }
 
 double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
@@ -114,9 +118,9 @@ double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
             return -1;
         }
         else {
-            Vector v = Vector(p2.y-p1.y, -(p2.x-p1.x), 0 );
+            Point v = Point(p2.y-p1.y, -(p2.x-p1.x), 0 );
             v.normalize();
-            Vector r = Vector(p1.x - x, p1.y - y, 0);
+            Point r = Point(p1.x - x, p1.y - y, 0);
             return fabs( v.dot(r));
         }
 }
@@ -286,4 +290,19 @@ std::ostream& operator<<(std::ostream &stream, const Point& p)
 {
   stream << "P" << p.id << "(" << p.x << ", " << p.y << ", " << p.z << ")";
   return stream;
+}
+
+/* CCPoint */
+CCPoint& CCPoint::operator=(const Point &p) {
+	x=p.x;
+    y=p.y;
+    z=p.z;
+    return *this;
+}
+
+std::string CCPoint::str()
+{
+	std::ostringstream o;
+	o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
+	return o.str();
 }
