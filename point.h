@@ -49,7 +49,7 @@ class Point {
         void normalize();
         
         /// distance from Point to another Point p in the XY plane
-        double xyDistance(Point &p) const;
+        double xyDistance(const Point &p) const;
         
         /// length of vector in xy plane
         double xyNorm() const;
@@ -76,7 +76,7 @@ class Point {
         bool operator!=(const Point &p);
 
         // text output
-        friend std::ostream& operator<<(std::ostream &stream, Point p);
+        friend std::ostream& operator<<(std::ostream &stream, const Point &p);
         std::string str();
         
         // geometric predicates

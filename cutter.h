@@ -48,6 +48,7 @@ class MillingCutter {
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
         virtual Point edgeDrop(Point &cl, const Triangle &t) = 0;
         
+        //virtual Point dropCutter(Point &cl, const Triangle &t) = 0;
         
     protected:
         static int count;

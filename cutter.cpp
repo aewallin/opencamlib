@@ -87,11 +87,11 @@ Point CylCutter::vertexDrop(Point &cl, const Triangle &t)
     /// loop through each vertex p of Triangle t
 	/// drop down cutter at (cl.x, cl.y) against Point p
     Point cc;
-    std::cout << "vertexDrop triangle=" << t << "\n";
-    //std::cout << "here?\n";
+    std::cout << "vertexDrop input =" << t << "\n";
+    // std::cout << "here?\n";
     // std::cout << "vertexDrop normal=" << *(t.n) << "\n";
     
-    BOOST_FOREACH( Point p, t.p)
+    BOOST_FOREACH( const Point& p, t.p)
     {
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
@@ -116,7 +116,7 @@ Point CylCutter::facetDrop(Point &cl, const Triangle &t)
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point cc;
     std::cout << "facetDrop triangle=" << t << "\n";
-    std::cout << "facetDrop normal=" << *t.n << "\n";
+    std::cout << "facetDrop input normal=" << *t.n << "\n";
     Point normal; // facet surface normal
     
     if (t.n->z == 0)  {// vertical surface
@@ -129,7 +129,7 @@ Point CylCutter::facetDrop(Point &cl, const Triangle &t)
         std::cout << "facetDrop normal case\n";
         normal = *t.n;
     }
-    std::cout << "facetDrop normal="<<normal<<"\n";
+    std::cout << "facetDrop up-flipped normal="<<normal<<"\n";
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
@@ -137,20 +137,25 @@ Point CylCutter::facetDrop(Point &cl, const Triangle &t)
 	double a = normal.x;
 	double b = normal.y;
 	double c = normal.z;
-	double d = - normal.x * t.p[0].x - normal.y * t.p[0].y - normal.z * t.p[0].z;
+	double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
     std::cout << "facetDrop plane d="<<d<<"\n";
 
     
     normal.xyNormalize(); // make length of normal in xy plane == 1.0
-    
+    std::cout << "xyNormalized : n="<<normal<<"\n";
     // the contact point with the plane is on the periphery
     // of the cutter, a length diameter/2 from cl in the direction of -n
     cc = cl - (diameter/2)*normal;
+    std::cout <<"facetDrop cc="<<cc;
     if (cc.isInside(t)) { // NOTE: cc.z is ignored in isInside()
         cc.z = (1.0/c)*(-d-a*cc.x-b*cc.y); // NOTE: potential for divide-by-zero (?!)
+        std::cout << " isInside!, cc="<<cc<<"\n";
         cl.liftZ(cc.z);
-    }        
-    return cc;
+        return cc;
+    } else {
+		std::cout << " NOT isInside!, cc="<<cc<<"\n";
+		return cc;
+	}
 }
 
 // FIXME: place this somewhere better (purely static class of helper functions?)

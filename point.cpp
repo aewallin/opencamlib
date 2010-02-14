@@ -95,7 +95,7 @@ void Point::xyNormalize()
 }
 
 
-double Point::xyDistance(Point &p) const
+double Point::xyDistance(const Point &p) const
 {
     return sqrt(pow(x - p.x, 2) + pow((y - p.y), 2));
 }
@@ -282,7 +282,7 @@ std::string Point::str()
 	return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, Point p)
+std::ostream& operator<<(std::ostream &stream, const Point& p)
 {
   stream << "P" << p.id << "(" << p.x << ", " << p.y << ", " << p.z << ")";
   return stream;
