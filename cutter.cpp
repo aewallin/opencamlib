@@ -73,7 +73,7 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
 	
 	vertexDrop(cl,cc,t);
 	
-	facetDrop(cl,cc,t); //if we are already above the triangle we don't need these
+	facetDrop(cl,cc,t); // optimisation: if we are already above the triangle we don't need these
 	edgeDrop(cl,cc,t);
 }
 
@@ -95,7 +95,7 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
     /// loop through each vertex p of Triangle t
 	/// drop down cutter at (cl.x, cl.y) against Point p
     //Point cc;
-    std::cout << "vertexDrop input =" << t << "\n";
+    //std::cout << "vertexDrop input =" << t << "\n";
     // std::cout << "vertexDrop normal=" << *(t.n) << "\n";
     int result = 0;
     
@@ -103,18 +103,18 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
     {
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
-        std::cout << "xyDistance(cl, vertex) is: " << q << " ";
+        //std::cout << "xyDistance(cl, vertex) is: " << q << " ";
         if (q<= diameter/2) { // p is inside the cutter
-            std::cout << "inside case\n";
+            //std::cout << "inside case\n";
             if (cl.liftZ(p.z)) { // we need to lift the cutter
                 cc = p;
                 cc.type = VERTEX;
-                std::cout << "cl=" << cl << " cc=" << cc << "\n";
+                //std::cout << "cl=" << cl << " cc=" << cc << "\n";
                 result = 1;
             }
         } else {
-            std::cout << "outside case\n";
-            std::cout << "cl=" << cl << " cc=" << cc << "\n";
+            //std::cout << "outside case\n";
+            //std::cout << "cl=" << cl << " cc=" << cc << "\n";
         }
     }
     return result;
@@ -123,21 +123,21 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
 int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
-    std::cout << "facetDrop triangle=" << t << "\n";
-    std::cout << "facetDrop input normal=" << *t.n << "\n";
+    //std::cout << "facetDrop triangle=" << t << "\n";
+    //std::cout << "facetDrop input normal=" << *t.n << "\n";
     Point normal; // facet surface normal
     
     if (t.n->z == 0)  {// vertical surface
-        std::cout << "facetDrop vertical case. bye.\n";
+        //std::cout << "facetDrop vertical case. bye.\n";
         return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
-        std::cout << "facetDrop flip normal\n";
+        //std::cout << "facetDrop flip normal\n";
     } else {
-        std::cout << "facetDrop normal case\n";
+        //std::cout << "facetDrop normal case\n";
         normal = *t.n;
     }
-    std::cout << "facetDrop up-flipped normal="<<normal<<"\n";
+    //std::cout << "facetDrop up-flipped normal="<<normal<<"\n";
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
@@ -191,12 +191,12 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
         // 1) distance from point to line
         int start=n;
         int end=(n+1)%3;
-        std::cout << "testing poinst " << start<< " to " << end << " :";
+        //std::cout << "testing poinst " << start<< " to " << end << " :";
         double d = cl.xyDistanceToLine(t.p[start],t.p[end]);
-        std::cout << "xyDistance=" << d ;
+        //std::cout << "xyDistance=" << d ;
         
         if (d<=diameter/2) { // potential hit
-            std::cout << " potential hit\n";
+            //std::cout << " potential hit\n";
             // 2) calculate intersection points w. cutter circle
             // points are on line and diameter/2 from cl
             // see http://mathworld.wolfram.com/Circle-LineIntersection.html
@@ -209,7 +209,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
             double dr = sqrt( dx*dx + dy*dy);
             double D = x1*y2 - x2*y1;
             double discr = pow(diameter/2,2) * pow(dr,2) - pow(D,2);
-            std::cout << "discr=" << discr << "\n";
+            //std::cout << "discr=" << discr << "\n";
             
             if (discr < 0) {
                 std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr<0 !!\n";
@@ -220,7 +220,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
                 // 3) check if cc is in edge
                 if ( cc.isInsidePoints(t.p[start], t.p[end]) ) { 
                     // determine height of point. must be on line, so:
-                    std::cout << "tangent-case: isInside=true!\n";
+                    // std::cout << "tangent-case: isInside=true!\n";
                     // two point formula for line:
                     // z-z1 = ((z2-z1)/(x2-x1)) * (x - x1)
                     // z = z1 + ((z2-z1)/(x2-x1)) * (x-x1)
@@ -266,7 +266,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
                         cc=cc1;
                         cc.type = EDGE;
                     }
-                    std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
+                    //std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
                 }
                 if ( cc2.isInsidePoints(t.p[start], t.p[end]) ) {
                     // determine height of point. must be on line, so:
@@ -279,7 +279,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
                         cc = cc2;
                         cc.type = EDGE;
                     }
-                    std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
+                    //std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
                 }
                 
                 
@@ -287,7 +287,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
             
         }// end if(potential hit)
         else {
-            std::cout << " no edge hit\n";
+            //std::cout << " no edge hit\n";
         }
     } // end loop through all edges
         
