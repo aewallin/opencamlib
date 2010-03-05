@@ -83,6 +83,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("facetDrop", &CylCutter::facetDrop)
         .def("edgeDrop", &CylCutter::edgeDrop)
         .def("dropCutter", &CylCutter::dropCutter)
+        .def("dropCutterSTL", &CylCutter::dropCutterSTL)
         .def("str", &CylCutter::str)
         .add_property("diameter", &CylCutter::getDiameter, &CylCutter::setDiameter )
     ;

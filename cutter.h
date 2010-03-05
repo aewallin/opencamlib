@@ -25,6 +25,7 @@
 #include <string>
 #include "point.h"
 #include "triangle.h"
+#include "stlsurf.h"
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
 ///
@@ -49,6 +50,7 @@ class MillingCutter {
         virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         
         int dropCutter(Point &cl, CCPoint &cc, const Triangle &t);
+        int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s);
         
     protected:
         static int count;
@@ -88,7 +90,7 @@ class CylCutter : public MillingCutter {
 };
 
 ///
-/// \brief Ball/Spherical milling cutter (ball-nose endmill)
+/// \brief Ball or Spherical milling cutter (ball-nose endmill)
 ///
 class BallCutter : public MillingCutter {
     public:

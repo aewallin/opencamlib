@@ -8,13 +8,13 @@ if __name__ == "__main__":
 	s= cam.STLSurf()
 	print s.str()
 	myscreen = camvtk.VTKScreen()
-	stl = camvtk.STLSurf("sphere.stl")
+	stl = camvtk.STLSurf("demo.stl")
 	print "STL surface read"
 	myscreen.addActor(stl)
 	stl.SetWireframe()
 	
 	polydata = stl.src.GetOutput()
-	camvtk.vtkPolyData2CamalaSTL(polydata, s)
+	camvtk.vtkPolyData2OCLSTL(polydata, s)
 
 	print s.str()
 

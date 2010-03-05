@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
+#include <boost/progress.hpp>
+
 #include "cutter.h"
 #include "point.h"
 #include "triangle.h"
@@ -76,6 +78,17 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
 	
 	facetDrop(cl,cc,t); // optimisation: if we are already above the triangle we don't need these
 	edgeDrop(cl,cc,t);
+}
+
+int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
+{
+	/* template-method, or "self-delegation" pattern */
+    //boost::progress_display show_progress( s.tris.size() );
+
+    BOOST_FOREACH( const Triangle& t, s.tris) {
+	    dropCutter(cl,cc,t);
+        //++show_progress;
+    }
 }
 
 
