@@ -293,6 +293,14 @@ std::ostream& operator<<(std::ostream &stream, const Point& p)
 }
 
 /* CCPoint */
+
+CCPoint::CCPoint() {
+    x = 0.0;
+    y = 0.0;
+    z = 0.0;
+    type = NONE;
+}
+
 CCPoint& CCPoint::operator=(const Point &p) {
 	x=p.x;
     y=p.y;

@@ -70,7 +70,8 @@ double MillingCutter::getLength()
 
 int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
 {
-	
+	/* template-method, or "self-delegation" pattern */
+    
 	vertexDrop(cl,cc,t);
 	
 	facetDrop(cl,cc,t); // optimisation: if we are already above the triangle we don't need these

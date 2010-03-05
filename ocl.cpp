@@ -52,7 +52,16 @@ BOOST_PYTHON_MODULE(ocl) {
 		.def(bp::init<CCPoint>())
 		.def("str", &CCPoint::str)
         .def_readonly("type", &CCPoint::type)
+        .def_readwrite("x", &CCPoint::x)
+		.def_readwrite("y", &CCPoint::y)
+		.def_readwrite("z", &CCPoint::z)
 	;
+    bp::enum_<CCType>("CCType")
+        .value("NONE", NONE)
+        .value("VERTEX",VERTEX)
+        .value("EDGE",EDGE)
+        .value("FACET", FACET)
+    ;
     bp::class_<Triangle>("Triangle")
 		.def(bp::init<Point,Point,Point>())
 		.def("str", &Triangle::str) // FIXME

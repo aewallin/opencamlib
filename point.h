@@ -105,13 +105,16 @@ class Point {
 // scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
 
-enum CCType {VERTEX, EDGE, FACET};
+enum CCType {NONE, VERTEX, EDGE, FACET};
 
 class CCPoint : public Point {
 	public:
+        CCPoint();
+        
 		CCType type;
 		CCPoint &operator=(const Point &p);
 		std::string str();
+        
 	private:		
 };
 
