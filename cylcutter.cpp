@@ -25,13 +25,8 @@
 #include "point.h"
 #include "triangle.h"
 #include "cutter.h"
-// FIXME: place this somewhere better (purely static class of helper functions?)
-double sign(double x) {
-    if (x<0.0)
-        return -1;
-    else
-        return 1;
-}
+#include "numeric.h"
+
 
 
 //********   CylCutter ********************** */
@@ -167,13 +162,13 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
             double discr = pow(diameter/2,2) * pow(dr,2) - pow(D,2);
             //std::cout << "discr=" << discr << "\n";
             
-            if (discr < 0) {
+            if (Numeric::isNegative(discr)) {
                 std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
                 
                 cc.type = ERROR;
                 return -1;
                 
-            } else if (discr == 0.0) {// tangent line
+            } else if (Numeric::isZero(discr)) {// tangent line
                 cc.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
                 cc.y = -D*dx / pow(dr,2) + cl.y;
                 // 3) check if cc is in edge
@@ -201,10 +196,10 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
                 Point cc1;
                 Point cc2;
                 // remember to translate back to cl
-                cc1.x= (D*dy  + sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
+                cc1.x= (D*dy  + Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
                 cc1.y= (-D*dx + fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
                 cc1.z=0;
-                cc2.x= (D*dy  - sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
+                cc2.x= (D*dy  - Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
                 cc2.y= (-D*dx - fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
                 cc2.z=0;
                 // 3) check if in edge
@@ -259,7 +254,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
 
 
 
-//********  CylCutter other  methods ********************** */
+//********  CylCutter string output ********************** */
 std::string CylCutter::str()
 {
     std::ostringstream o;

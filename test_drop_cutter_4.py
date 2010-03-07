@@ -44,17 +44,17 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = cam.Triangle(a,b,c)
     
-    cutter = cam.CylCutter(0.6)
+    cutter = cam.CylCutter(0.06)
     #print cutter.str()
     
     
     #print cc.type
-    minx=-1.2
+    minx=-2.2
     dx=0.02
-    maxx=2.2
-    miny=-1.2
+    maxx=3.2
+    miny=-2.2
     dy=0.2
-    maxy=2.2
+    maxy=3.2
     z=-0.2
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
@@ -68,9 +68,9 @@ if __name__ == "__main__":
         #cutter.dropCutter(cl,cc,t)
         cc = cam.CCPoint()
         #cutter.vertexDrop(cl,cc,t)
-        cutter.edgeDrop(cl,cc,t)
+        #cutter.edgeDrop(cl,cc,t)
         #cutter.facetDrop(cl,cc,t)
-        #cutter.dropCutter(cl,cc,t)
+        cutter.dropCutter(cl,cc,t)
 
         ccpoints.append(cc)
        
