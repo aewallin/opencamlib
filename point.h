@@ -31,9 +31,9 @@ class Triangle;
 /// longer documentation here.
 ///
 class Point {
-	public:
-		Point();
-		Point(double x, double y, double z);
+    public:
+        Point();
+        Point(double x, double y, double z);
         Point(const Point &p);
         
         /// dot product
@@ -56,13 +56,13 @@ class Point {
         
         /// normalize so that length in xy plane is 1
         void xyNormalize();
-	    
+        
         /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
         int liftZ(double zin);
         
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
-		
+        
         Point &operator=(const Point &p);
         Point &operator+=(const Point &p);
         Point &operator-=(const Point &p);
@@ -88,7 +88,7 @@ class Point {
         
         bool isInsidePoints(const Point &p1, const Point &p2) const;
 
-		/// X coordinate
+        /// X coordinate
         double x;
         /// Y coordinate
         double y;
@@ -97,25 +97,25 @@ class Point {
 
         static int count;
         int id;
-	private:
-		void setID();
+    private:
+        void setID();
 
 };
 
 // scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
 
-enum CCType {NONE, VERTEX, EDGE, FACET};
+enum CCType {NONE, VERTEX, EDGE, FACET, ERROR};
 
 class CCPoint : public Point {
-	public:
+    public:
         CCPoint();
         
-		CCType type;
-		CCPoint &operator=(const Point &p);
-		std::string str();
+        CCType type;
+        CCPoint &operator=(const Point &p);
+        std::string str();
         
-	private:		
+    private:        
 };
 
 #endif

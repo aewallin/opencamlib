@@ -1,7 +1,7 @@
 all: ocl
 
-ocl: ocl.o point.o triangle.o stlsurf.o cutter.o
-	g++ ocl.o point.o triangle.o stlsurf.o cutter.o -shared -o ocl.so  -lboost_python-mt  -lpython2.6
+ocl: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o
+	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o -shared -o ocl.so  -lboost_python-mt  -lpython2.6
 
 ocl.o: ocl.cpp ocl.h
 	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 
@@ -17,6 +17,9 @@ stlsurf.o: stlsurf.cpp stlsurf.h
 
 cutter.o: cutter.cpp cutter.h
 	g++  -fPIC -o cutter.o -c cutter.cpp 
+
+cylcutter.o: cylcutter.cpp cutter.h
+	g++  -fPIC -o cylcutter.o -c cylcutter.cpp 
 
 doc: Doxyfile point.h triangle.h stlsurf.h cutter.h
 	doxygen
