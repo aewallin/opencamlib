@@ -30,6 +30,7 @@ Triangle::Triangle()
     p[1]=Point(0,1,0);
     p[2]=Point(0,0,1);
     calcNormal();
+    calcBB();
 }
 
 Triangle::Triangle(Point p1, Point p2, Point p3)
@@ -40,6 +41,7 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
     p[2]=p3;
     //std::cout << "Triangle(p1,p2,p3) before calcNormal()\n";
     calcNormal();
+    calcBB();
     //std::cout << "Triangle(p1,p2,p3) AFTER calcNormal()\n";
 }
 
@@ -47,6 +49,35 @@ Triangle::~Triangle()
 {
     //delete n;
     //n = 0;
+}
+
+/// calculate bounding box values
+void Triangle::calcBB() {
+    minx=p[0].x;
+    maxx=p[0].x;
+    miny=p[0].y;
+    maxy=p[0].y;
+    
+    // FIXME: ugly...
+    if (p[1].x < minx)
+        minx = p[1].x;
+    if (p[2].x < minx)
+        minx = p[2].x;
+        
+    if (p[1].x > maxx)
+        maxx = p[1].x;
+    if (p[2].x > maxx)
+        maxx = p[2].x;
+        
+    if (p[1].y < miny)
+        miny = p[1].y;
+    if (p[2].y < miny)
+        miny = p[2].y;
+        
+    if (p[1].y > maxy)
+        maxy = p[1].y;
+    if (p[2].y > maxy)
+        maxy = p[2].y;
 }
 
 void Triangle::calcNormal()
@@ -71,9 +102,9 @@ void Triangle::setId()
 
 std::string Triangle::str()
 {
-	std::ostringstream o;
-	o << "T"<< id <<"(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
-	return o.str();
+    std::ostringstream o;
+    o << "T"<< id <<"(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
+    return o.str();
 }
 
 

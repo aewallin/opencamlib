@@ -24,17 +24,16 @@
 /// \brief a Triangle defined by its three vertices
 ///
 class Triangle {
-	public:
-		Triangle();
+    public:
+        Triangle();
         ~Triangle();
-		Triangle(Point p1, Point p2, Point p3);   
+        Triangle(Point p1, Point p2, Point p3);   
         
         // text output     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
-		std::string str();
-		
+        std::string str();
+                
 
-        // FIXME: need also bounding-box
         
         
         // DATA
@@ -44,9 +43,14 @@ class Triangle {
         Point *n;    // surface normal
         static int count;
         int id;
+        double maxx;
+        double maxy;
+        double minx;
+        double miny;
     private:
         void setId();
         void calcNormal();
+        void calcBB();
 };
 
 #endif
