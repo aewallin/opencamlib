@@ -32,6 +32,16 @@
 /// this is also briefly explained in a paper by Yau et al. 
 /// http://dx.doi.org/10.1080/00207540410001671651
 
+class Spread {
+    public:
+        Spread(int dim, double v, double s);
+        int d;
+        double val;
+        double start;
+        int sp_comp(Spread x, Spread y);
+};
+
+
 class KDNode {
     public:
         KDNode(int d, double cv, KDNode *hi_c, 
@@ -51,23 +61,14 @@ class KDNode {
         std::list<Triangle> *tris;
 };
 
-class Spread {
-    public:
-        Spread(int dim, double v, double s);
-        int d;
-        double val;
-        double start;
-        int sp_comp(Spread x, Spread y);
-};
 
 class KDTree {
     public:
-        KDNode* build_kdtree(std::list<Triangle> *tris);
-        Spread* spread(std::list<Triangle> *tris);
-        void search_kdtree(std::list<Triangle> *tris, Point &p, 
+        static KDNode* build_kdtree(std::list<Triangle> *tris);
+        static Spread* spread(std::list<Triangle> *tris);
+        static void search_kdtree(std::list<Triangle> *tris, Point &p, 
                     MillingCutter &c, KDNode *node);
-        void str();
-        
+        static void str();
 };
 
 #endif

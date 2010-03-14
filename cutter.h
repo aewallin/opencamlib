@@ -22,10 +22,10 @@
 #define CUTTER_H
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/wrapper.hpp>
-#include <boost/python/call.hpp>
+//#include <boost/python/module.hpp>
+//#include <boost/python/class.hpp>
+//#include <boost/python/wrapper.hpp>
+//#include <boost/python/call.hpp>
 
 
 
@@ -78,11 +78,11 @@ class MillingCutter {
 /// \brief Cylindrical milling cutter (flat-endmill)
 ///
 class CylCutter : public MillingCutter {
-	public:
-		/// create CylCutter with radius = 1.0
-		CylCutter();
-		/// create CylCutter with diameter = d
-		CylCutter(const double d);
+    public:
+        /// create CylCutter with radius = 1.0
+        CylCutter();
+        /// create CylCutter with diameter = d
+        CylCutter(const double d);
         
         // dropCutter methods
         /// drop cutter at (cl.x, cl.y) against vertices of Triangle t
@@ -97,7 +97,7 @@ class CylCutter : public MillingCutter {
         // text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
         std::string str();
-		
+        
 };
 
 ///
@@ -114,7 +114,7 @@ class BallCutter : public MillingCutter {
 /* required wrapper class for virtual functions in boost-python */
 
 
-class MillingCutterWrap : MillingCutter, bp::wrapper<MillingCutter>
+class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
 {
     public:
     int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
@@ -137,3 +137,4 @@ class MillingCutterWrap : MillingCutter, bp::wrapper<MillingCutter>
 
 
 #endif
+

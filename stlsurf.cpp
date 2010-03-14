@@ -34,7 +34,7 @@ int STLSurf::count=0;
 
 STLSurf::STLSurf() {
     setId();
-	std::cout << "STLSurf default constructor" << std::endl;
+        //std::cout << "STLSurf default constructor" << std::endl;
 }
 
 STLSurf::~STLSurf()
@@ -50,15 +50,20 @@ void STLSurf::setId()
 
 void STLSurf::addTriangle(const Triangle &t)
 {
-	tris.push_back(t);
-	return;
+        tris.push_back(t);
+        return;
+}
+
+int STLSurf::size()
+{
+    return tris.size();
 }
 
 std::string STLSurf::str()
 {
-	std::ostringstream o;
-	o << "S"<< id <<"(N="<< tris.size() << ")";
-	return o.str();
+        std::ostringstream o;
+        o << "S"<< id <<"(N="<< tris.size() << ")";
+        return o.str();
 }
 
 std::ostream &operator<<(std::ostream &stream, const STLSurf s)

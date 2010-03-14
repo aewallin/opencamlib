@@ -19,6 +19,7 @@
 #ifndef PFINISH_H
 #define PFINISH_H
 #include <boost/foreach.hpp>
+#include <boost/python.hpp>
 #include <iostream>
 #include <string>
 #include <list>
@@ -33,10 +34,14 @@ class ParallelFinish {
     public:
         ParallelFinish();
         
-        void dropCutterSTL1(MillingCutter &cutter, STLSurf &s);        
+        void dropCutterSTL1(MillingCutter &cutter, STLSurf &s);      
+        void dropCutterSTL2(MillingCutter &cutter, STLSurf &s); 
+          
         void initCLpoints(double minx,double dx, double maxx, 
                        double miny, double dy,double maxy,double base_z);
-                       
+        boost::python::list getCLPoints();
+        boost::python::list getCCPoints();
+        
         std::list<Point> *clpoints;
         std::list<CCPoint> *ccpoints;
 };

@@ -7,25 +7,27 @@ import datetime
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    stl = camvtk.STLSurf("gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("demo.stl")
     print "STL surface read"
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
-	
+    
     polydata = stl.src.GetOutput()
     s= cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
+    print "STLSurf with ", s.size(), " triangles"
     
     cutter = cam.CylCutter(0.6)
     #print cutter.str()
     #print cc.type
-    minx=-0.2
+    minx=-1
     dx=0.1
-    maxx=10.2
-    miny=-0.2
+    maxx=11
+    
+    miny=-1
     dy=1
-    maxy=12.2
+    maxy=11
     z=-0.2
     
     pftp = cam.ParallelFinish()
@@ -33,16 +35,18 @@ if __name__ == "__main__":
     
     pftp.dropCutterSTL1(cutter, s) 
     
-    clpoints = []
+    clpoints = pftp.getCLPoints()
+    ccpoints = pftp.getCCPoints()
+    
     #CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0
     ne=0
     nf=0
-    for cl in clpoints:
+    for cl,cc in zip(clpoints,ccpoints):
         #cutter.dropCutter(cl,cc,t)
-        cc = cam.CCPoint()
-        cutter.dropCutterSTL(cl,cc,s)
+        #cc = cam.CCPoint()
+        #cutter.dropCutterSTL(cl,cc,s)
         #    cutter.vertexDrop(cl,cc,t)
         #    cutter.edgeDrop(cl,cc,t)
         #    cutter.facetDrop(cl,cc,t)
@@ -60,20 +64,19 @@ if __name__ == "__main__":
             #print "type=NONE!"
             nn+=1
             col = (1,1,1)
-        
         #if cl.isInside(t):
         #    col = (0, 1, 0)
         #else:
         #    col = (1, 0, 0)
-       
-        
+               
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
         #print cc.type
+        
     print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
     print len(clpoints), " cl points evaluated"
     myscreen.camera.SetPosition(3, 23, 15)
-    myscreen.camera.SetFocalPoint(4, 5, 0)
+    myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()
     
     w2if = vtk.vtkWindowToImageFilter()
@@ -88,7 +91,7 @@ if __name__ == "__main__":
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     myscreen.addActor( t)
      
-    for n in range(1,3):
+    for n in range(1,45):
         t.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         myscreen.camera.Azimuth( 1 )
         time.sleep(0.01)

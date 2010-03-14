@@ -77,15 +77,15 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::class_<STLSurf>("STLSurf")
         .def("addTriangle", &STLSurf::addTriangle)
         .def("str", &STLSurf::str)
+        .def("size", &STLSurf::size)
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("id", &STLSurf::id)
     ;
-    bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter")
-        .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop)
-        .def("facetDrop", bp::pure_virtual(&MillingCutter::facetDrop)
-        .def("edgeDrop", bp::pure_virtual(&MillingCutter::edgeDrop)
+    bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter", bp::no_init)
+        .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop) )
+        .def("facetDrop", bp::pure_virtual(&MillingCutter::facetDrop) )
+        .def("edgeDrop", bp::pure_virtual(&MillingCutter::edgeDrop) )
     ;
-    /*
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double>())
         .def("vertexDrop", &CylCutter::vertexDrop)
@@ -95,10 +95,17 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
         .def("str", &CylCutter::str)
         .add_property("diameter", &CylCutter::getDiameter, &CylCutter::setDiameter )
-    ;*/
+    ;
+    
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
         .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)
+        .def("dropCutterSTL2", &ParallelFinish::dropCutterSTL2)
+        .def("getCLPoints", &ParallelFinish::getCLPoints)
+        .def("getCCPoints", &ParallelFinish::getCCPoints)
     ;
+   /* bp::class_<Spread>("Spread", bp::no_init)
+        .def(bp::init<int, double, double>())
+    ;*/
 }
 

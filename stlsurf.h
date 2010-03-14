@@ -26,14 +26,15 @@
 /// \brief STL surface
 ///
 class STLSurf {
-	public:
-		STLSurf();
+        public:
+                STLSurf();
         ~STLSurf();
         /// add Triangle t to this surface
         void addTriangle(const Triangle &t);
-		std::string str();
-		friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
-		
+                std::string str();
+                friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
+        int size();
+        
         static int count;
         int id;
         /// list of Triangles in this surface

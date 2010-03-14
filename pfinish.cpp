@@ -24,6 +24,7 @@
 #include "cutter.h"
 #include "point.h"
 #include "triangle.h"
+#include "kdtree.h"
 #include "pfinish.h"
 
 //********   ********************** */
@@ -37,7 +38,8 @@ void ParallelFinish::dropCutterSTL1(MillingCutter &cutter, STLSurf &s)
 {
     // very simple drop-cutter
     std::cout << "ParallelFinish::dropCutterSTL1 " << clpoints->size() << " cl-points and " << s.tris.size() << " triangles...";
-    BOOST_FOREACH(Point cl, *clpoints) {
+    std::cout.flush();
+    BOOST_FOREACH(Point &cl, *clpoints) {
         // test against all triangles in s
         CCPoint cc;
         BOOST_FOREACH( const Triangle& t, s.tris) {
@@ -46,9 +48,39 @@ void ParallelFinish::dropCutterSTL1(MillingCutter &cutter, STLSurf &s)
         ccpoints->push_back(cc);
     }
     std::cout << "done.\n";
+    std::cout.flush();
+    return;
 }
 
 
+void ParallelFinish::dropCutterSTL2(MillingCutter &cutter, STLSurf &s)
+{
+    std::cout << "ParallelFinish::dropCutterSTL2 " << clpoints->size() << " cl-points and " << s.tris.size() << " triangles.\n";
+    std::cout.flush();
+    
+    // build a kd-tree of triangles which can later be searched
+    std::cout << "Buildind kd-tree...";
+    std::cout.flush();
+    KDNode *root = KDTree::build_kdtree( &s.tris );
+    std::cout << " done.\n";
+    
+    BOOST_FOREACH(Point &cl, *clpoints) { //loop through each CL-point
+    
+        // find triangles under cutter
+        std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
+        KDTree::search_kdtree( triangles_under_cutter, cl, cutter, root);
+        std::cout << "found " << triangles_under_cutter->size() << " triangles under cutter\n";
+        
+        CCPoint cc;
+        BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
+            cutter.dropCutter(cl,cc,t);
+        }
+        ccpoints->push_back(cc);
+    }
+    std::cout << "done.\n";
+    std::cout.flush();
+    return;
+}
 
 void ParallelFinish::initCLpoints(double minx,double dx, double maxx, 
                        double miny, double dy,double maxy, double base_z)
@@ -62,13 +94,28 @@ void ParallelFinish::initCLpoints(double minx,double dx, double maxx,
     for (int n=0; n<Nmax ; ++n) {
         for (int m=0; m<Mmax ; ++m) {
             xtemp = minx + n*dx;
-            ytemp = miny + n*dy;
+            ytemp = miny + m*dy;
             clpoints->push_back( Point(xtemp, ytemp, base_z) );
         } 
     }
     std::cout << clpoints->size() << " cl-points initialized \n";
 }
 
+boost::python::list ParallelFinish::getCLPoints()
+{
+    boost::python::list plist;
+    BOOST_FOREACH(Point p, *clpoints) {
+        plist.append(p);
+    }
+    return plist;
+}
 
-
+boost::python::list ParallelFinish::getCCPoints()
+{
+    boost::python::list plist;
+    BOOST_FOREACH(CCPoint p, *ccpoints) {
+        plist.append(p);
+    }
+    return plist;
+}
 
