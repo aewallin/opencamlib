@@ -15,6 +15,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+// this is mostly a translation to c++ of the earlier c# code
+// http://code.google.com/p/monocam/source/browse/trunk/Project2/monocam_console/monocam_console/kdtree.cs
+
 #include <iostream>
 #include <stdio.h>
 #include <sstream>
@@ -67,20 +71,66 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris) {
     Spread* spr = KDTree::spread(tris);
     
     // if max spread is 0, return bucket node (?when does this happen?)
+    if (spr->val == 0.0) {
+        KDNode *bucket = new KDNode(0, 0, NULL, NULL, tris);
+        return bucket;
+    }
     
-    // select along which dimension to cut
+    
+    // calculate cut value
+    double cutvalue = spr->start + spr->val/2;
     
     // build lists of triangles for hi and lo child nodes
+    std::list<Triangle> *lolist = new std::list<Triangle>();
+    std::list<Triangle> *hilist = new std::list<Triangle>();
+    
+    BOOST_FOREACH(Triangle t, *tris) {
+        if (spr->d == 0) { // cut along maxx
+            if (t.maxx > cutvalue)
+                hilist->push_back(t);
+            else
+                lolist->push_back(t);
+        } else if (spr->d == 1) { // cut along minx
+            if (t.minx > cutvalue)
+                 hilist->push_back(t);
+            else
+                lolist->push_back(t);           
+        } else if (spr->d == 2) { // cut along maxy
+            if (t.maxy > cutvalue)
+                 hilist->push_back(t);
+            else
+                lolist->push_back(t);           
+        } else if (spr->d == 3) { // cut along miny
+            if (t.miny > cutvalue)
+                 hilist->push_back(t);
+            else
+                lolist->push_back(t);           
+        }
+            
+    } // end loop through each triangle
+    
+    if (hilist->size() == 0) // an error ??
+        std::cout << "hilist.size()==0!\n";
+    if (lolist->size() == 0)
+        std::cout << "lolist.size()==0!\n";
+    
+    KDNode *node = new KDNode(0,0,NULL,NULL,NULL);
+    node->dim = spr->d;
+    node->cutval = cutvalue;
+    
+    // recursion:
+    node->hi = KDTree::build_kdtree(hilist);
+    node->lo = KDTree::build_kdtree(lolist);
     
     // return a new node
-    return 0;
+    return node;
 }
 
-
-int spread_compare(Spread x, Spread y) {
-    if (x.val > y.val)
+// FIXME, this is not part of any class...
+int spread_compare(Spread *x, Spread *y) {
+    if (x->val > y->val)
         return 1;
-    if (y.val > x.val)
+    if (y->val > x->val)
         return -1;
     else
         return 0;
@@ -158,11 +208,74 @@ Spread* KDTree::spread(std::list<Triangle> *tris) {
         std::sort(spreads.begin(), spreads.end(), spread_compare);
         // spreads->sort(Spread::sp_comp);
         // select the biggest spread and return
+        //return new Spread(0, spr_xplus, min_xplus); //
         return spreads[ spreads.size()-1 ];
         
     } // end tris->size != 0
 
 } // end spread()
+
+
+/// search kd-tree starting at KDNode node for triangles.
+/// find the ones which overlap (in the xy-plane)
+/// with the MillingCutter cutter positioned at  Point cl
+/// these triangles are added to the tris list.
+void KDTree::search_kdtree(std::list<Triangle> *tris,
+                            Point &cl, 
+                            MillingCutter &cutter, 
+                            KDNode *node)
+{
+    // we found a bucket node, so add all triangles and return.
+    if (node->tris != NULL) { 
+        BOOST_FOREACH(Triangle t, *(node->tris)) {
+            tris->push_back(t); // overlap check could be added here??
+        }
+        return;
+    }
+    
+    // not a bucket node, so recursevily seach hi/lo branches of KDNode
+    
+    switch(node->dim) { // ugly, solve with polymorphism?
+        case 0: // cut along xplus
+            // if one child node is not overlapping, search only the other
+            if ( node->cutval <= cl.x - cutter.getRadius() )
+                KDTree::search_kdtree(tris, cl, cutter, node->hi);
+            // else we need to search both child-nodes
+            else {
+                KDTree::search_kdtree(tris, cl, cutter, node->hi);
+                KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            }
+            break;
+        case 1: // cut along xminus
+            if ( node->cutval >= cl.x + cutter.getRadius() )
+                KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            else {
+                KDTree::search_kdtree(tris, cl, cutter, node->hi);
+                KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            }
+            break;
+        case 2: // cut along yplus
+            if ( node->cutval <= cl.y - cutter.getRadius() )
+                KDTree::search_kdtree(tris, cl, cutter, node->hi);
+            else {
+                KDTree::search_kdtree(tris, cl, cutter, node->hi);
+                KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            }        
+            break;
+        case 3: // cut along yminus
+            if ( node->cutval >= cl.y + cutter.getRadius() )
+                KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            else {
+                KDTree::search_kdtree(tris, cl, cutter, node->hi);
+                KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            }      
+            break;
+    } // end of switch(dim)
+    
+    return; // do we ever get here?
+    
+
+} // end search_kdtree()
 
 //*********** Spread ****************
 int Spread::sp_comp(Spread x, Spread y) {

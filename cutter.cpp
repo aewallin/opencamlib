@@ -64,6 +64,11 @@ double MillingCutter::getDiameter()
     return diameter;
 }
 
+double MillingCutter::getRadius()
+{
+    return diameter/2;
+}
+
 double MillingCutter::getLength()
 {
     return length;

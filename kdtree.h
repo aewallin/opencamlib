@@ -21,17 +21,17 @@
 #include <boost/foreach.hpp>
 #include <iostream>
 #include <string>
+#include <list>
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
 ///
 /// \brief K-D tree
 /// http://en.wikipedia.org/wiki/Kd-tree
-/// this is also briefly explained by Yau et al. in 
+///
+/// this is also briefly explained in a paper by Yau et al. 
 /// http://dx.doi.org/10.1080/00207540410001671651
 
-
-      
 class KDNode {
     public:
         KDNode(int d, double cv, KDNode *hi_c, 
@@ -69,8 +69,5 @@ class KDTree {
         void str();
         
 };
-
-
-
 
 #endif

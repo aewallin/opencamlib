@@ -21,11 +21,21 @@
 #ifndef CUTTER_H
 #define CUTTER_H
 #include <boost/foreach.hpp>
+#include <boost/python.hpp>
+#include <boost/python/module.hpp>
+#include <boost/python/class.hpp>
+#include <boost/python/wrapper.hpp>
+#include <boost/python/call.hpp>
+
+
+
 #include <iostream>
 #include <string>
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
+namespace bp = boost::python;
+
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
 ///
@@ -36,6 +46,7 @@ class MillingCutter {
         
         void setDiameter(double d);
         double getDiameter();
+        double getRadius();
         void setLength(double l);
         double getLength();
         void setId();
@@ -99,5 +110,30 @@ class BallCutter : public MillingCutter {
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
 };
+
+/* required wrapper class for virtual functions in boost-python */
+
+
+class MillingCutterWrap : MillingCutter, bp::wrapper<MillingCutter>
+{
+    public:
+    int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+    {
+        return this->get_override("vertexDrop")(cl,cc,t);
+    }
+
+    int facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
+    {
+        return this->get_override("facetDrop")(cl,cc,t);
+    }
+    
+    int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
+    {
+        return this->get_override("edgeDrop")(cl,cc,t);
+    }    
+    
+};
+
+
 
 #endif

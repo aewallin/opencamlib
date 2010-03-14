@@ -23,6 +23,9 @@
 
 namespace bp = boost::python;
 
+
+
+
 BOOST_PYTHON_MODULE(ocl) {
 
     bp::class_<Point>("Point") 
@@ -77,8 +80,13 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("id", &STLSurf::id)
     ;
-
-    bp::class_<CylCutter>("CylCutter")
+    bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter")
+        .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop)
+        .def("facetDrop", bp::pure_virtual(&MillingCutter::facetDrop)
+        .def("edgeDrop", bp::pure_virtual(&MillingCutter::edgeDrop)
+    ;
+    /*
+    bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double>())
         .def("vertexDrop", &CylCutter::vertexDrop)
         .def("facetDrop", &CylCutter::facetDrop)
@@ -87,6 +95,10 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
         .def("str", &CylCutter::str)
         .add_property("diameter", &CylCutter::getDiameter, &CylCutter::setDiameter )
+    ;*/
+    bp::class_<ParallelFinish>("ParallelFinish")
+        .def("initCLPoints", &ParallelFinish::initCLpoints)
+        .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)
     ;
 }
 

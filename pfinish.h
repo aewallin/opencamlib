@@ -16,40 +16,30 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#ifndef OCL_H
-#define OCL_H
-
+#ifndef PFINISH_H
+#define PFINISH_H
+#include <boost/foreach.hpp>
 #include <iostream>
-#include <iterator>
-#include <algorithm>
 #include <string>
 #include <list>
-
-#include <math.h>
-
-#include <boost/progress.hpp>
-#include <boost/timer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/wrapper.hpp>
-#include <boost/python/call.hpp>
-
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
 #include "cutter.h"
-#include "kdtree.h"
-#include "pfinish.h"
+///
+/// \brief parallel finish toolpath generation
+      
+class ParallelFinish {
+    public:
+        ParallelFinish();
+        
+        void dropCutterSTL1(MillingCutter &cutter, STLSurf &s);        
+        void initCLpoints(double minx,double dx, double maxx, 
+                       double miny, double dy,double maxy,double base_z);
+                       
+        std::list<Point> *clpoints;
+        std::list<CCPoint> *ccpoints;
+};
 
 
 #endif
-
-/*
- * some info here: http://www.eventhelix.com/realtimemantra/HeaderFileIncludePatterns.htm
- * 
- */
