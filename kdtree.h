@@ -18,13 +18,12 @@
 
 #ifndef KDTREE_H
 #define KDTREE_H
-#include <boost/foreach.hpp>
+
 #include <iostream>
-#include <string>
 #include <list>
 #include "point.h"
 #include "triangle.h"
-#include "stlsurf.h"
+
 ///
 /// \brief K-D tree
 /// http://en.wikipedia.org/wiki/Kd-tree

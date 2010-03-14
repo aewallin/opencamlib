@@ -32,18 +32,24 @@ if __name__ == "__main__":
     
     pftp = cam.ParallelFinish()
     pftp.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
-    
     pftp.dropCutterSTL1(cutter, s) 
+    
+    pf2 = cam.ParallelFinish()
+    pf2.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
+    pf2.dropCutterSTL2(cutter, s) 
     
     clpoints = pftp.getCLPoints()
     ccpoints = pftp.getCCPoints()
+    
+    cl2p = pf2.getCLPoints()
+    cc2p = pf2.getCCPoints()
     
     #CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0
     ne=0
     nf=0
-    for cl,cc in zip(clpoints,ccpoints):
+    for cl,cc,cl2 in zip(clpoints,ccpoints,cl2p):
         #cutter.dropCutter(cl,cc,t)
         #cc = cam.CCPoint()
         #cutter.dropCutterSTL(cl,cc,s)
@@ -70,6 +76,7 @@ if __name__ == "__main__":
         #    col = (1, 0, 0)
                
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
+        myscreen.addActor( camvtk.Point(center=(cl2.x,cl2.y,cl2.z+0.2) , color=(0.1,0.2,0.3)) )  
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
         #print cc.type
         

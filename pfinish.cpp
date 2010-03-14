@@ -69,7 +69,11 @@ void ParallelFinish::dropCutterSTL2(MillingCutter &cutter, STLSurf &s)
         // find triangles under cutter
         std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
         KDTree::search_kdtree( triangles_under_cutter, cl, cutter, root);
-        std::cout << "found " << triangles_under_cutter->size() << " triangles under cutter\n";
+        /*
+        std::cout << "found " << triangles_under_cutter->size() << " triangles at cl=" << cl << "\n";
+        char c;
+        std::cin >> c; 
+        */
         
         CCPoint cc;
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {

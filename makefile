@@ -1,7 +1,7 @@
 all: ocl
 
 ocl: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o numeric.o kdtree.o pfinish.o
-	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o numeric.o kdtree.o pfinish.o -shared -o ocl.so  -lboost_python-mt  -lpython2.6
+	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o numeric.o kdtree.o pfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
 
 ocl.o: ocl.cpp ocl.h
 	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 

@@ -32,6 +32,7 @@
 #include "triangle.h"
 #include "cutter.h"
 #include "numeric.h"
+
 #include "kdtree.h"
 
 
@@ -48,10 +49,10 @@ KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
     tris = tlist;
 }
 
-//** KDTREE
+//** KDTree
 
-/// given a list of triangles, build and return a kd-tree
-/// returns the root of the kd-tree
+/// given a list of triangles, build and return the root node of a kd-tree with the triangles
+
 KDNode* KDTree::build_kdtree(std::list<Triangle> *tris) {
     if (tris->size() == 0) {
         std::cout << "kdtree.cpp ERROR: build_kdtree called with tris->size()==0 ! \n";
@@ -143,7 +144,7 @@ Spread* KDTree::spread(std::list<Triangle> *tris) {
     double spr_xplus = 0, spr_xminus = 0, spr_yplus = 0, spr_yminus = 0;
     
     if (tris->size() == 0)
-        return new Spread(0,0,0);
+        return new Spread(0,0.0,0.0); // probably an error if we get here?
     else {
         int n=1;
         BOOST_FOREACH(Triangle t, *tris) {
@@ -200,16 +201,17 @@ Spread* KDTree::spread(std::list<Triangle> *tris) {
         // put the spreads in a list
         std::vector<Spread*> spreads;
         // = new std::vector<Spread*>();
-        spreads.push_back(new Spread(0, spr_xplus, min_xplus));
-        spreads.push_back(new Spread(1, spr_xminus, min_xminus));
-        spreads.push_back(new Spread(2, spr_yplus, min_yplus));
-        spreads.push_back(new Spread(3, spr_yminus, min_yminus));
+        spreads.push_back( new Spread(0, spr_xplus, min_xplus)   );
+        spreads.push_back( new Spread(1, spr_xminus, min_xminus) );
+        spreads.push_back( new Spread(2, spr_yplus, min_yplus)   );
+        spreads.push_back( new Spread(3, spr_yminus, min_yminus) );
         // sort the list
         std::sort(spreads.begin(), spreads.end(), spread_compare);
         // spreads->sort(Spread::sp_comp);
         // select the biggest spread and return
         //return new Spread(0, spr_xplus, min_xplus); //
-        return spreads[ spreads.size()-1 ];
+        //return spreads[ spreads.size()-1 ];
+        return spreads[ 0 ];
         
     } // end tris->size != 0
 
@@ -278,6 +280,14 @@ void KDTree::search_kdtree(std::list<Triangle> *tris,
 } // end search_kdtree()
 
 //*********** Spread ****************
+
+Spread::Spread(int dim, double v, double s)
+{
+    d = dim;
+    val = v;
+    start = s;
+}
+
 int Spread::sp_comp(Spread x, Spread y) {
     if (x.val > y.val)
         return 1;
