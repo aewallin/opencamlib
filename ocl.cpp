@@ -103,6 +103,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("dropCutterSTL2", &ParallelFinish::dropCutterSTL2)
         .def("getCLPoints", &ParallelFinish::getCLPoints)
         .def("getCCPoints", &ParallelFinish::getCCPoints)
+        .def_readonly("dcCalls", &ParallelFinish::dcCalls)
     ;
    /* bp::class_<Spread>("Spread", bp::no_init)
         .def(bp::init<int, double, double>())

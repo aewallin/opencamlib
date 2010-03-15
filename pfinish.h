@@ -44,6 +44,7 @@ class ParallelFinish {
         
         std::list<Point> *clpoints;
         std::list<CCPoint> *ccpoints;
+        int dcCalls;
 };
 
 

@@ -33,10 +33,12 @@ if __name__ == "__main__":
     pftp = cam.ParallelFinish()
     pftp.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
     pftp.dropCutterSTL1(cutter, s) 
+    print " made ", pftp.dcCalls, " drop-cutter calls"
     
     pf2 = cam.ParallelFinish()
     pf2.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
     pf2.dropCutterSTL2(cutter, s) 
+    print " made ", pf2.dcCalls, " drop-cutter calls"
     
     clpoints = pftp.getCLPoints()
     ccpoints = pftp.getCCPoints()
@@ -76,7 +78,7 @@ if __name__ == "__main__":
         #    col = (1, 0, 0)
                
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
-        myscreen.addActor( camvtk.Point(center=(cl2.x,cl2.y,cl2.z+0.2) , color=(0.1,0.2,0.3)) )  
+        myscreen.addActor( camvtk.Point(center=(cl2.x,cl2.y,cl2.z+0.2) , color=(0.6,0.2,0.9)) )  
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
         #print cc.type
         

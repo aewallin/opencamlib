@@ -128,6 +128,7 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris) {
 }
 
 // FIXME, this is not part of any class...
+/*
 int spread_compare(Spread *x, Spread *y) {
     if (x->val > y->val)
         return 1;
@@ -135,6 +136,13 @@ int spread_compare(Spread *x, Spread *y) {
         return -1;
     else
         return 0;
+}*/
+
+bool spread_compare(Spread *x, Spread *y) {
+    if (x->val > y->val)
+        return true;
+    else
+        return false;
 }
 
 /// find the maximum 'extent' of triangles in list tris along dimension d
@@ -202,11 +210,18 @@ Spread* KDTree::spread(std::list<Triangle> *tris) {
         std::vector<Spread*> spreads;
         // = new std::vector<Spread*>();
         spreads.push_back( new Spread(0, spr_xplus, min_xplus)   );
+        //std::cout <<"0: spread=" << spr_xplus << "\n";
         spreads.push_back( new Spread(1, spr_xminus, min_xminus) );
+        //std::cout <<"1: spread=" << spr_xminus << "\n";
         spreads.push_back( new Spread(2, spr_yplus, min_yplus)   );
+        //std::cout <<"2: spread=" << spr_yplus << "\n";
         spreads.push_back( new Spread(3, spr_yminus, min_yminus) );
+        //std::cout <<"3: spread=" << spr_yminus << "\n";
         // sort the list
         std::sort(spreads.begin(), spreads.end(), spread_compare);
+        //std::cout << " selecting " << (spreads[0])->d << " with s="<< (spreads[0])->val << "\n";
+        //char c;
+        //std::cin >> c;
         // spreads->sort(Spread::sp_comp);
         // select the biggest spread and return
         //return new Spread(0, spr_xplus, min_xplus); //
