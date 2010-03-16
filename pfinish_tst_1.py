@@ -100,14 +100,14 @@ if __name__ == "__main__":
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     myscreen.addActor( t)
      
-    for n in range(1,45):
+    for n in range(1,360):
         t.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         myscreen.camera.Azimuth( 1 )
         time.sleep(0.01)
         myscreen.render()
-        lwr.SetFileName("frame"+ ('%03d' % n)+".png")
+        lwr.SetFileName("kd_frame"+ ('%03d' % n)+".png")
         w2if.Modified() 
-        #lwr.Write()
+        lwr.Write()
 
         
 
