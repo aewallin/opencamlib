@@ -8,7 +8,8 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     myscreen.setAmbient(20,20,20)
     
-    stl = camvtk.STLSurf(filename="demo.stl")
+    #stl = camvtk.STLSurf(filename="demo.stl")
+    stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
     myscreen.addActor(stl)
     stl.SetWireframe()
@@ -22,13 +23,13 @@ if __name__ == "__main__":
     cutter = cam.CylCutter(cutterDiameter)
     #print cutter.str()
     #print cc.type
-    minx=-1
+    minx=-20
     dx=1
-    maxx=11
+    maxx=20
     
-    miny=-1
-    dy=0.1
-    maxy=11
+    miny=-20
+    dy=01
+    maxy=20
     z=-0.2
     
     bucketSize = 20
@@ -57,8 +58,8 @@ if __name__ == "__main__":
     nn=0
     ne=0
     nf=0
-    myscreen.camera.SetPosition(3, 23, 15)
-    myscreen.camera.SetFocalPoint(5, 5, 0)
+    myscreen.camera.SetPosition(3, 100, 15)
+    myscreen.camera.SetFocalPoint(50, 50, 0)
     t = camvtk.Text()
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     
@@ -148,7 +149,7 @@ if __name__ == "__main__":
         myscreen.render()
         w2if.Modified() 
         lwr.SetFileName("kdmov"+ ('%05d' % n)+".png")
-        lwr.Write()
+        #lwr.Write()
 
 
         #raw_input("Press Enter to continue") 

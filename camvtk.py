@@ -22,7 +22,7 @@ class VTKScreen():
         interactorstyle.SetCurrentStyleToTrackballCamera()     
            
         self.camera = vtk.vtkCamera()
-        self.camera.SetClippingRange(1, 100)
+        self.camera.SetClippingRange(0.1, 500)
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetPosition(0, 35, 5)
         self.camera.SetViewAngle(30)
@@ -287,7 +287,7 @@ class STLSurf(vtk.vtkActor):
 
      
     def SetWireframe(self):
-		self.GetProperty().SetRepresentationToWireframe()
+        self.GetProperty().SetRepresentationToWireframe()
         
     def SetFlat(self):     
         self.GetProperty().SetInterPolationToFlat()
@@ -331,14 +331,14 @@ class Plane(vtk.vtkActor):
 
 #---- misc helper functions
 def vtkPolyData2OCLSTL(vtkPolyData,oclSTL):
-	""" read vtkPolyData and add each triangle to an ocl.STLSurf """
-	for cellId in range(0,vtkPolyData.GetNumberOfCells()):
-		cell = vtkPolyData.GetCell(cellId)
-		points = cell.GetPoints()
-		plist = []
-		for pointId in range(0,points.GetNumberOfPoints()):
-			vertex = points.GetPoint(pointId)
-			p = cam.Point(vertex[0],vertex[1],vertex[2])
-			plist.append(p)
-		t = cam.Triangle(plist[0],plist[1],plist[2])
-		oclSTL.addTriangle(t)
+    """ read vtkPolyData and add each triangle to an ocl.STLSurf """
+    for cellId in range(0,vtkPolyData.GetNumberOfCells()):
+        cell = vtkPolyData.GetCell(cellId)
+        points = cell.GetPoints()
+        plist = []
+        for pointId in range(0,points.GetNumberOfPoints()):
+            vertex = points.GetPoint(pointId)
+            p = cam.Point(vertex[0],vertex[1],vertex[2])
+            plist.append(p)
+        t = cam.Triangle(plist[0],plist[1],plist[2])
+        oclSTL.addTriangle(t)
