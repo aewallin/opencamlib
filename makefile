@@ -7,13 +7,13 @@ ocl.o: ocl.cpp ocl.h
 	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 
 
 point.o: point.cpp point.h
-	g++  -fPIC -o point.o -c point.cpp 
+	g++  -fPIC -o point.o -I/usr/include/python2.6 -c point.cpp 
 
 triangle.o: triangle.cpp triangle.h
 	g++  -fPIC -o triangle.o -I/usr/include/python2.6 -c triangle.cpp 
 
 stlsurf.o: stlsurf.cpp stlsurf.h
-	g++  -fPIC -o stlsurf.o -c stlsurf.cpp 
+	g++  -fPIC -o stlsurf.o -I/usr/include/python2.6 -c stlsurf.cpp 
 
 cutter.o: cutter.cpp cutter.h
 	g++  -fPIC -o cutter.o -I/usr/include/python2.6 -c cutter.cpp 
@@ -22,7 +22,7 @@ cylcutter.o: cylcutter.cpp cutter.h
 	g++  -fPIC -o cylcutter.o -I/usr/include/python2.6 -c cylcutter.cpp 
 
 numeric.o: numeric.h numeric.cpp
-	g++  -fPIC -o numeric.o -c numeric.cpp
+	g++  -fPIC -o numeric.o -I/usr/include/python2.6 -c numeric.cpp
 
 kdtree.o: kdtree.h kdtree.cpp
 	g++  -fPIC -o kdtree.o -I/usr/include/python2.6 -c kdtree.cpp
