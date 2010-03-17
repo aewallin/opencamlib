@@ -37,17 +37,18 @@ class Spread {
         int d;
         double val;
         double start;
-        int sp_comp(Spread x, Spread y);
+        //int sp_comp(Spread x, Spread y);
 };
 
 
 class KDNode {
     public:
         KDNode(int d, double cv, KDNode *hi_c, 
-               KDNode *lo_c, std::list<Triangle> *tlist);
+               KDNode *lo_c, std::list<Triangle> *tlist, int lev);
         std::string str();
         
-        
+        /// level
+        int level;
         /// dimension of cut
         int dim;
         /// cut value
@@ -63,11 +64,13 @@ class KDNode {
 
 class KDTree {
     public:
-        static KDNode* build_kdtree(std::list<Triangle> *tris);
-        static Spread* spread(std::list<Triangle> *tris);
+        static KDNode* build_kdtree(std::list<Triangle> *tris, int bucketSize);
+        static Spread* spread(const std::list<Triangle> *tris);
         static void search_kdtree(std::list<Triangle> *tris, Point &p, 
                     MillingCutter &c, KDNode *node);
-        static void str();
+        static void str(KDNode *root);
+        static int level;
+        
 };
 
 #endif

@@ -10,7 +10,7 @@ point.o: point.cpp point.h
 	g++  -fPIC -o point.o -c point.cpp 
 
 triangle.o: triangle.cpp triangle.h
-	g++  -fPIC -o triangle.o -c triangle.cpp 
+	g++  -fPIC -o triangle.o -I/usr/include/python2.6 -c triangle.cpp 
 
 stlsurf.o: stlsurf.cpp stlsurf.h
 	g++  -fPIC -o stlsurf.o -c stlsurf.cpp 

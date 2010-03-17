@@ -34,16 +34,16 @@ ParallelFinish::ParallelFinish() {
     ccpoints = new std::list<CCPoint>();
 }
 
-void ParallelFinish::dropCutterSTL1(MillingCutter &cutter, STLSurf &s)
+void ParallelFinish::dropCutterSTL1(MillingCutter &cutter)
 {
     // very simple drop-cutter
-    std::cout << "ParallelFinish::dropCutterSTL1 " << clpoints->size() << " cl-points and " << s.tris.size() << " triangles...";
+    std::cout << "ParallelFinish::dropCutterSTL1 " << clpoints->size() << " cl-points and " << surf->tris.size() << " triangles...";
     std::cout.flush();
     dcCalls = 0;
     BOOST_FOREACH(Point &cl, *clpoints) {
         // test against all triangles in s
         CCPoint cc;
-        BOOST_FOREACH( const Triangle& t, s.tris) {
+        BOOST_FOREACH( const Triangle& t, surf->tris) {
             cutter.dropCutter(cl,cc,t);
             ++dcCalls;
         }
@@ -55,21 +55,16 @@ void ParallelFinish::dropCutterSTL1(MillingCutter &cutter, STLSurf &s)
 }
 
 
-void ParallelFinish::dropCutterSTL2(MillingCutter &cutter, STLSurf &s)
+void ParallelFinish::dropCutterSTL2(MillingCutter &cutter)
 {
-    std::cout << "ParallelFinish::dropCutterSTL2 " << clpoints->size() << " cl-points and " << s.tris.size() << " triangles.\n";
+    std::cout << "ParallelFinish::dropCutterSTL2 " << clpoints->size() << " cl-points and " << surf->tris.size() << " triangles.\n";
     std::cout.flush();
-    
-    // build a kd-tree of triangles which can later be searched
-    std::cout << "Buildind kd-tree...";
-    std::cout.flush();
-    KDNode *root = KDTree::build_kdtree( &s.tris );
-    std::cout << " done.\n";
     dcCalls = 0;
     BOOST_FOREACH(Point &cl, *clpoints) { //loop through each CL-point
     
         // find triangles under cutter
         std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
+        triangles_under_cutter->clear();
         KDTree::search_kdtree( triangles_under_cutter, cl, cutter, root);
         
         //std::cout << "found " << triangles_under_cutter->size() << " triangles at cl=" << cl << "\n";
@@ -90,6 +85,16 @@ void ParallelFinish::dropCutterSTL2(MillingCutter &cutter, STLSurf &s)
     return;
 }
 
+void ParallelFinish::initSTLSurf(STLSurf &s, int bucketSize)
+{
+    surf = &s;
+    std::cout << "Buildind kd-tree...";
+    std::cout.flush();
+    root = KDTree::build_kdtree( &(surf->tris), bucketSize );
+    std::cout << " done.\n";
+    KDTree::str(root);
+}
+
 void ParallelFinish::initCLpoints(double minx,double dx, double maxx, 
                        double miny, double dy,double maxy, double base_z)
 {
@@ -108,6 +113,20 @@ void ParallelFinish::initCLpoints(double minx,double dx, double maxx,
     }
     std::cout << clpoints->size() << " cl-points initialized \n";
 }
+
+boost::python::list ParallelFinish::getTrianglesUnderCutter(Point &cl, MillingCutter &cutter)
+{
+    boost::python::list trilist;
+    std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
+    triangles_under_cutter->clear();
+    KDTree::search_kdtree( triangles_under_cutter, cl, cutter, root);
+    BOOST_FOREACH(Triangle t, *triangles_under_cutter)
+    {
+        trilist.append(t);
+    }
+    return trilist;
+}
+
 
 boost::python::list ParallelFinish::getCLPoints()
 {

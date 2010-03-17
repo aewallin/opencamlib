@@ -51,6 +51,15 @@ Triangle::~Triangle()
     //n = 0;
 }
 
+boost::python::list Triangle::getPoints()
+{
+    boost::python::list plist;
+    BOOST_FOREACH(Point vertex, p) {
+        plist.append(vertex);
+    }
+    return plist;
+}
+
 /// calculate bounding box values
 void Triangle::calcBB() {
     minx=p[0].x;
@@ -78,6 +87,13 @@ void Triangle::calcBB() {
         maxy = p[1].y;
     if (p[2].y > maxy)
         maxy = p[2].y;
+    /*
+     *     
+    std::cout << "BB of " << *this << "\n";
+    std::cout << minx << ", " << miny << " to " << maxx << ", " << maxy << "\n";
+    char c;
+    std::cin >> c; 
+    */
 }
 
 void Triangle::calcNormal()

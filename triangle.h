@@ -19,6 +19,9 @@
 #define TRIANGLE_H
 
 #include "point.h"
+#include <boost/foreach.hpp>
+#include <boost/python.hpp>
+
 
 ///
 /// \brief a Triangle defined by its three vertices
@@ -32,7 +35,7 @@ class Triangle {
         // text output     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
         std::string str();
-                
+        boost::python::list getPoints();        
 
         
         

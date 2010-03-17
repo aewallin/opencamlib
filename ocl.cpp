@@ -68,6 +68,7 @@ BOOST_PYTHON_MODULE(ocl) {
     ;
     bp::class_<Triangle>("Triangle")
         .def(bp::init<Point,Point,Point>())
+        .def("getPoints", &Triangle::getPoints)
         .def("str", &Triangle::str) // FIXME
         .def_readonly("p", &Triangle::p)
         //.def_readonly("n", &Triangle::n)
@@ -103,8 +104,12 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("dropCutterSTL2", &ParallelFinish::dropCutterSTL2)
         .def("getCLPoints", &ParallelFinish::getCLPoints)
         .def("getCCPoints", &ParallelFinish::getCCPoints)
+        .def("initSTLSurf", &ParallelFinish::initSTLSurf)
+        .def("getTrianglesUnderCutter", &ParallelFinish::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &ParallelFinish::dcCalls)
     ;
+    //bp::class_<KDTree>("KDTree")
+    
    /* bp::class_<Spread>("Spread", bp::no_init)
         .def(bp::init<int, double, double>())
     ;*/

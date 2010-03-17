@@ -27,6 +27,8 @@
 #include "triangle.h"
 #include "stlsurf.h"
 #include "cutter.h"
+#include "kdtree.h"
+
 ///
 /// \brief parallel finish toolpath generation
       
@@ -34,16 +36,21 @@ class ParallelFinish {
     public:
         ParallelFinish();
         
-        void dropCutterSTL1(MillingCutter &cutter, STLSurf &s);      
-        void dropCutterSTL2(MillingCutter &cutter, STLSurf &s); 
-          
+        void dropCutterSTL1(MillingCutter &cutter);      
+        void dropCutterSTL2(MillingCutter &cutter);
+         
+        void initSTLSurf(STLSurf &s, int bucketSize);
         void initCLpoints(double minx,double dx, double maxx, 
                        double miny, double dy,double maxy,double base_z);
         boost::python::list getCLPoints();
         boost::python::list getCCPoints();
+        boost::python::list getTrianglesUnderCutter(Point &cl, MillingCutter &cutter);
         
         std::list<Point> *clpoints;
         std::list<CCPoint> *ccpoints;
+        KDNode *root;
+        STLSurf *surf;
+        
         int dcCalls;
 };
 
