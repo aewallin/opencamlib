@@ -99,6 +99,7 @@ const char* Ttc(const wchar_t* str)
 
 void STLSurf::read_from_file(const wchar_t* filepath)
 {
+    /*
 	// read the stl file
 	std::ifstream ifs(Ttc(filepath), ios::binary);
 	if(!ifs)return;
@@ -194,5 +195,5 @@ void STLSurf::read_from_file(const wchar_t* filepath)
 				}
 			}
 		}
-	}
+	} */
 }

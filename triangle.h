@@ -50,6 +50,7 @@ class Triangle {
         double maxy;
         double minx;
         double miny;
+        
     private:
         void setId();
         void calcNormal();

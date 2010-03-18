@@ -44,7 +44,9 @@ class Spread {
 class KDNode {
     public:
         KDNode(int d, double cv, KDNode *hi_c, 
-               KDNode *lo_c, std::list<Triangle> *tlist, int lev);
+                                 KDNode *lo_c, 
+                                 std::list<Triangle> *tlist, 
+                                 int lev);
         std::string str();
         friend std::ostream &operator<<(std::ostream &stream, const KDNode node);
         
@@ -69,7 +71,8 @@ class KDTree {
         static Spread* spread(const std::list<Triangle> *tris);
         static void search_kdtree(std::list<Triangle> *tris, Point &p, 
                     MillingCutter &c, KDNode *node);
-        static bool overlap(KDNode *node, Point &cl, MillingCutter &cutter);
+        static bool overlap(const KDNode *node, const Point &cl, MillingCutter &cutter);
+        static bool overlap(const Triangle &t, const Point &cl, MillingCutter &cutter);
         static void str(KDNode *root);
         static int level;
         

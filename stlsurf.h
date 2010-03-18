@@ -28,13 +28,18 @@
 class STLSurf {
 	public:
 		STLSurf();
+        ~STLSurf();
+        
+        /// read STL surface from file
 		STLSurf(const std::wstring &stl_file_path);
-
-		~STLSurf();
+		
 		/// add Triangle t to this surface
 		void addTriangle(const Triangle &t);
+
 		std::string str();
 		friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
+        
+        /// return number of triangles in surface
 		int size();
 
 		static int count;
