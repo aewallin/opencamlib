@@ -56,6 +56,7 @@ KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
 int KDTree::level = 0;
 KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, int bucketSize) 
 {
+    
     if (tris->size() == 0) {
         std::cout << "kdtree.cpp ERROR: build_kdtree called with tris->size()==0 ! \n";
         return 0;
@@ -76,7 +77,7 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, int bucketSize)
     
     // if max spread is 0, return bucket node (?when does this happen?)
     if (spr->val == 0.0) {
-        std::cout << "kdtree.cpp ERROR(?) spr->val==0 !! tris.size()= " << tris->size() << "\n";
+        //std::cout << "kdtree.cpp ERROR(?) spr->val==0 !! tris.size()= " << tris->size() << "\n";
         KDNode *bucket = new KDNode(spr->d, spr->start, NULL, NULL, tris, ++level);
         return bucket;
     }
@@ -258,6 +259,14 @@ bool KDTree::overlap(KDNode *node, Point &cl, MillingCutter &cutter)
     } // end of switch(dim)
 }
 
+
+
+void getcharacter()
+{
+    char c;
+    std::cin >> c;
+}
+
 /// search kd-tree starting at KDNode node for triangles.
 /// find the ones which overlap (in the xy-plane)
 /// with the MillingCutter cutter positioned at  Point cl
@@ -267,10 +276,16 @@ void KDTree::search_kdtree(std::list<Triangle> *tris,
                             MillingCutter &cutter, 
                             KDNode *node)
 {
+    
+    
+    
     // we found a bucket node, so add all triangles and return.
     if (node->tris != NULL) { 
+        std::cout << "bucket: cl=" << cl << "r=" << cutter.getRadius() 
+                  << " len(tris)=" << node->tris->size() << " KDNode:" << *node << "\n";
         if ( KDTree::overlap(node,cl,cutter) ) {
             BOOST_FOREACH(Triangle t, *(node->tris)) {
+                std::cout << t << "\n";
                 tris->push_back(t); // overlap check could be added here??
             }
 
@@ -279,38 +294,59 @@ void KDTree::search_kdtree(std::list<Triangle> *tris,
     }
     
     // not a bucket node, so recursevily seach hi/lo branches of KDNode
-    
+    std::cout << "cl=" << cl << "r=" << cutter.getRadius() 
+                  << " Internal KDNode:" << *node << "\n";
+                  
     switch(node->dim) { // ugly, solve with polymorphism?
         case 0: // cut along xplus
             // if one child node is not overlapping, search only the other
-            if ( node->cutval <= cl.x - cutter.getRadius() )
+            if ( node->cutval <= cl.x - cutter.getRadius() ) {
+                std::cout << "branch high:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->hi); //hi
-            // else we need to search both child-nodes
-            else {
+            }
+            else { // else we need to search both child-nodes
+                std::cout << "branch BOTH:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->hi);
                 KDTree::search_kdtree(tris, cl, cutter, node->lo);
             }
             break;
         case 1: // cut along xminus
-            if ( node->cutval >= cl.x + cutter.getRadius() )
+            if ( node->cutval >= cl.x + cutter.getRadius() ) {
+                std::cout << "branch lo:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            }
             else {
+                std::cout << "branch BOTH:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->hi);
                 KDTree::search_kdtree(tris, cl, cutter, node->lo);
             }
             break;
         case 2: // cut along yplus
-            if ( node->cutval <= cl.y - cutter.getRadius() )
+            if ( node->cutval <= cl.y - cutter.getRadius() ) {
+                std::cout << "branch high:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->hi);
+            }
             else {
+                std::cout << "branch BOTH:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->hi);
                 KDTree::search_kdtree(tris, cl, cutter, node->lo);
             }        
             break;
         case 3: // cut along yminus
-            if ( node->cutval >= cl.y + cutter.getRadius() )
+            if ( node->cutval >= cl.y + cutter.getRadius() ) {
+                std::cout << "branch lo:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->lo);
+            }
             else {
+                std::cout << "branch BOTH:\n";
+                getcharacter();
                 KDTree::search_kdtree(tris, cl, cutter, node->hi);
                 KDTree::search_kdtree(tris, cl, cutter, node->lo);
             }      
@@ -366,8 +402,9 @@ std::string KDNode::str()
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, KDNode root)
+std::ostream& operator<<(std::ostream &stream, const KDNode root)
 {
+    /*
     if (root.tris) {
         if (root.tris->size() > 0)
             stream << "Bucket node with"<< root.tris->size() <<" triangles\n";
@@ -376,6 +413,8 @@ std::ostream& operator<<(std::ostream &stream, KDNode root)
         stream << *(root.hi);
     if (root.lo)
         stream << *(root.lo);
+    */
+    stream << "d:" << root.dim << " cv:" << root.cutval;    
     return stream;
 }
 

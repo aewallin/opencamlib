@@ -46,6 +46,7 @@ class KDNode {
         KDNode(int d, double cv, KDNode *hi_c, 
                KDNode *lo_c, std::list<Triangle> *tlist, int lev);
         std::string str();
+        friend std::ostream &operator<<(std::ostream &stream, const KDNode node);
         
         /// level
         int level;

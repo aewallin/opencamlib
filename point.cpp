@@ -288,7 +288,8 @@ std::string Point::str()
 
 std::ostream& operator<<(std::ostream &stream, const Point& p)
 {
-  stream << "P" << p.id << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+  // PRINTS ID stream << "P" << p.id << "(" << p.x << ", " << p.y << ", " << p.z << ")";
+  stream << "(" << p.x << ", " << p.y << ", " << p.z << ")"; // no ID
   return stream;
 }
 

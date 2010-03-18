@@ -126,6 +126,6 @@ std::string Triangle::str()
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t)
 {
-  stream <<  "Tri(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) <<"\n" ;
+  stream <<  "Tri(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) ;
   return stream;
 }

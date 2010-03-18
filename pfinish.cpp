@@ -88,11 +88,11 @@ void ParallelFinish::dropCutterSTL2(MillingCutter &cutter)
 void ParallelFinish::initSTLSurf(STLSurf &s, int bucketSize)
 {
     surf = &s;
-    std::cout << "Buildind kd-tree...";
+    std::cout << "Building kd-tree...";
     std::cout.flush();
     root = KDTree::build_kdtree( &(surf->tris), bucketSize );
     std::cout << " done.\n";
-    KDTree::str(root);
+    //KDTree::str(root);
 }
 
 void ParallelFinish::initCLpoints(double minx,double dx, double maxx, 
