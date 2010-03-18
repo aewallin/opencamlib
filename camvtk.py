@@ -22,7 +22,7 @@ class VTKScreen():
         interactorstyle.SetCurrentStyleToTrackballCamera()     
            
         self.camera = vtk.vtkCamera()
-        self.camera.SetClippingRange(0.1, 500)
+        self.camera.SetClippingRange(10, 1000)
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetPosition(0, 35, 5)
         self.camera.SetViewAngle(30)

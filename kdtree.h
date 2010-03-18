@@ -68,6 +68,7 @@ class KDTree {
         static Spread* spread(const std::list<Triangle> *tris);
         static void search_kdtree(std::list<Triangle> *tris, Point &p, 
                     MillingCutter &c, KDNode *node);
+        static bool overlap(KDNode *node, Point &cl, MillingCutter &cutter);
         static void str(KDNode *root);
         static int level;
         

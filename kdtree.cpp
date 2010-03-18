@@ -61,27 +61,25 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, int bucketSize)
         return 0;
     }
     
+    // calculate spread in order to know how to cut
+    Spread* spr = KDTree::spread(tris);
+    // calculate cut value
+    double cutvalue = spr->start + spr->val/2;
+    
     // if triangles contained within sufficiently small rectangle (FIXME?)
     // OR number of triangles is smaller than bucketSzie 
     // then return a bucket node
     if (tris->size() <= bucketSize) {
-        KDNode *bucket = new KDNode(0, 0, NULL, NULL, tris, ++level);
+        KDNode *bucket = new KDNode(spr->d, spr->start, NULL, NULL, tris, ++level);
         return bucket;
     }
-    
-    // calculate spread in order to know how to cut
-    Spread* spr = KDTree::spread(tris);
     
     // if max spread is 0, return bucket node (?when does this happen?)
     if (spr->val == 0.0) {
         std::cout << "kdtree.cpp ERROR(?) spr->val==0 !! tris.size()= " << tris->size() << "\n";
-        KDNode *bucket = new KDNode(0, 0, NULL, NULL, tris, ++level);
+        KDNode *bucket = new KDNode(spr->d, spr->start, NULL, NULL, tris, ++level);
         return bucket;
     }
-    
-    
-    // calculate cut value
-    double cutvalue = spr->start + spr->val/2;
     
     // build lists of triangles for hi and lo child nodes
     std::list<Triangle> *lolist = new std::list<Triangle>();
@@ -132,16 +130,7 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, int bucketSize)
     return node;
 }
 
-// FIXME, this is not part of any class...
-/*
-int spread_compare(Spread *x, Spread *y) {
-    if (x->val > y->val)
-        return 1;
-    if (y->val > x->val)
-        return -1;
-    else
-        return 0;
-}*/
+
 
 bool spread_compare(Spread *x, Spread *y) {
     if (x->val > y->val)
@@ -212,6 +201,9 @@ Spread* KDTree::spread(const std::list<Triangle> *tris) {
         spr_xminus = max_xminus - min_xminus;
         spr_yplus = max_yplus - min_yplus;
         spr_yminus = max_yminus - min_yminus;
+        //std::cout << "spreads:" << spr_xplus << ", " << spr_xminus << ", " << spr_yplus << ", " << spr_yminus << "\n";
+        //char c;
+        //std::cin >> c;
         
         // put the spreads in a list
         std::vector<Spread*> spreads;
@@ -236,6 +228,35 @@ Spread* KDTree::spread(const std::list<Triangle> *tris) {
 
 } // end spread()
 
+bool KDTree::overlap(KDNode *node, Point &cl, MillingCutter &cutter)
+{
+    switch(node->dim) { 
+        case 0: // cut along xplus
+            if ( node->cutval <= cl.x - cutter.getRadius() )
+                return false;
+            else 
+                return true;
+            break;
+        case 1: // cut along xminus
+            if ( node->cutval >= cl.x + cutter.getRadius() )
+                return false;
+            else 
+                return true;
+            break;
+        case 2: // cut along yplus
+            if ( node->cutval <= cl.y - cutter.getRadius() )
+                return false;
+            else 
+                return true;
+            break;
+        case 3: // cut along yminus
+            if ( node->cutval >= cl.y + cutter.getRadius() )
+                return false;
+            else 
+                return true;
+            break;
+    } // end of switch(dim)
+}
 
 /// search kd-tree starting at KDNode node for triangles.
 /// find the ones which overlap (in the xy-plane)
@@ -248,8 +269,11 @@ void KDTree::search_kdtree(std::list<Triangle> *tris,
 {
     // we found a bucket node, so add all triangles and return.
     if (node->tris != NULL) { 
-        BOOST_FOREACH(Triangle t, *(node->tris)) {
-            tris->push_back(t); // overlap check could be added here??
+        if ( KDTree::overlap(node,cl,cutter) ) {
+            BOOST_FOREACH(Triangle t, *(node->tris)) {
+                tris->push_back(t); // overlap check could be added here??
+            }
+
         }
         return;
     }
