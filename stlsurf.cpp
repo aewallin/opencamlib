@@ -93,17 +93,8 @@ const char* Ttc(const wchar_t* str)
 		str_for_Ttc.push_back((char) *str++);
 	return str_for_Ttc.c_str();
 }
-
-static std::wstring wstr_for_Ttc;
-
-const wchar_t* Ctt(const char* str)
-{
-	// convert a char* string into a wchar_t* string
-	wstr_for_Ttc.clear();
-	while (*str)
-		wstr_for_Ttc.push_back((wchar_t) *str++);
-	return wstr_for_Ttc.c_str();
-}
+#else
+#define Ttc(x) x
 #endif
 
 void STLSurf::read_from_file(const wchar_t* filepath)
