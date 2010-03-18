@@ -26,22 +26,25 @@
 /// \brief STL surface
 ///
 class STLSurf {
-        public:
-                STLSurf();
-        ~STLSurf();
-        /// add Triangle t to this surface
-        void addTriangle(const Triangle &t);
-                std::string str();
-                friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
-        int size();
-        
-        static int count;
-        int id;
-        /// list of Triangles in this surface
-        std::list<Triangle> tris; 
-        
-    private:
-        void setId();
+	public:
+		STLSurf();
+		STLSurf(const std::wstring &stl_file_path);
+
+		~STLSurf();
+		/// add Triangle t to this surface
+		void addTriangle(const Triangle &t);
+		std::string str();
+		friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
+		int size();
+
+		static int count;
+		int id;
+		/// list of Triangles in this surface
+		std::list<Triangle> tris; 
+
+	private:
+		void setId();
+		void read_from_file(const wchar_t* filepath);
 };
 
 #endif

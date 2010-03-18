@@ -82,6 +82,8 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
     vertexDrop(cl,cc,t);
     facetDrop(cl,cc,t); // optimisation: if we are already above the triangle we don't need these
     edgeDrop(cl,cc,t);
+
+	return 0; // void
 }
 
 int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
@@ -93,6 +95,8 @@ int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
         dropCutter(cl,cc,t);
         //++show_progress;
     }
+
+	return 0; // void
 }
 
 

@@ -124,6 +124,7 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
         //std::cout << " NOT isInside!, cc="<<cc<<"\n";
         return 0;
     }
+	return 0;
 }
 
 
