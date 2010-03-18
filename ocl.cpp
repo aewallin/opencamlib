@@ -76,6 +76,7 @@ BOOST_PYTHON_MODULE(ocl) {
     ;
     
     bp::class_<STLSurf>("STLSurf")
+		.def(bp::init<const std::wstring&>())
         .def("addTriangle", &STLSurf::addTriangle)
         .def("str", &STLSurf::str)
         .def("size", &STLSurf::size)
