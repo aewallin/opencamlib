@@ -125,6 +125,36 @@ double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
         }
 }
 
+Point Point::xyClosestPoint(const Point &p1, const Point &p2)
+{
+    // one explanation is here
+    // http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/
+    // double x1
+    // double y1
+    // double x2
+    // double y2
+    // double x3
+    // double y3
+    Point pt1 = p1;
+    Point pt2 = p2;
+    Point v = pt1 - pt2;
+    if ( v.xyNorm() == 0.0 ) {
+        std::cout << "point.cpp: xyClosestPoint ERROR!\n";
+        return Point(0,0,0);
+    }
+        
+    double u;
+    // vector notation:
+    // u = (p3-p1) dot v / (v dot v)
+    u = (this->x - p1.x) * (v.x) + (this->y - p1.y)*(v.y);
+    u = u/ (v.x*v.x + v.y*v.y);
+    
+    // coordinates for closest point
+    double x = p1.x + u*v.x;
+    double y = p1.y + u*v.y;
+    return Point(x,y,0);
+}
+
 
 bool Point::isRight(const Point &p1, const Point &p2) const
 {

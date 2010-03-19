@@ -146,9 +146,18 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
         if (d<=diameter/2) { // potential hit
         
             // the plane of the line will slice the spherical cutter at
-            // a distance q from the center of the cutter
+            // a distance d from the center of the cutter
             // here the radius of the circular section is
-            double rs = sqrt( radius*radius - d*d );
+            double s = sqrt( radius*radius - d*d );
+            
+            // the center-point of this circle, in the xy plane lies at
+            Point sc = cl.xyClosestPoint( t.p[start], t.p[end] );
+            
+            // a vertical line through sc intersects the line at Point e
+            double l = (sc.x-t.p[start].x)*(t.p[end].x - t.p[start].x) + (sc.y-t.p[start].y)*(t.p[end].y - t.p[start].y) ;
+            l = l / ( t.p[start].x*t.p[start].x + t.p[start].y*t.p[start].y );
+            
+            Point e = Point(sc.x, sc.y, t.p[start].z+l*(t.p[end].z - t.p[start].z) );
             
             // 2) calculate intersection points w. cutter circle
             // points are on line and diameter/2 from cl

@@ -63,6 +63,10 @@ class Point {
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
         
+        /// return closest Point to line through p1 and p2. Works in the XY plane.
+        Point xyClosestPoint(const Point &p1, const Point &p2);
+        
+        
         Point &operator=(const Point &p);
         Point &operator+=(const Point &p);
         Point &operator-=(const Point &p);
