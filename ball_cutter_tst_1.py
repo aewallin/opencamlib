@@ -4,6 +4,7 @@ import time
 import vtk
 
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
+    """ generate and return a rectangular grid of points """
     plist = []
     xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
@@ -13,6 +14,8 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     return plist
 
 def ccColor(cc):
+    """ this function returns a different color depending on the type of
+        the CC-point. Useful for visualizing CL or CC points """
     if cc.type==cam.CCType.FACET:
         #nf+=1
         col = (0,0,1)
@@ -44,8 +47,10 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = cam.Triangle(a,b,c)
     
-    cutter = cam.BullCutter(1,0.2)
-    #print cutter.str()
+    #cutter = cam.BullCutter(1,0.2)
+    cutter = cam.BallCutter(1.1)
+    
+    print cutter.str()
     
     
     #print cc.type

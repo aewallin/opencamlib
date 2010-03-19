@@ -152,7 +152,7 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, unsigned int bucketSize)
 }
 
 
-
+// FIXME: does not belong to any class...
 bool spread_compare(Spread *x, Spread *y) {
     if (x->val > y->val)
         return true;
@@ -281,32 +281,6 @@ bool KDTree::overlap(const KDNode *node, const Point &cl, MillingCutter &cutter)
 	return false;
 }
 
-
-/*
-void getcharacter()
-{
-    char c;
-    std::cin >> c;
-}
-*/
-
-/*
-bool KDTree::overlap(const Triangle &t, const Point &cl, MillingCutter &cutter)
-{
-    double r = cutter.getRadius();
-    if ( t.maxx < cl.x-r )
-        return false;
-    else if ( t.minx > cl.x+r )
-        return false;
-    else if ( t.maxy < cl.y-r )
-        return false;
-    else if ( t.miny > cl.y+r )
-        return false;
-    else
-        return true;
-}
-*/
-
 /// search kd-tree starting at KDNode node for triangles.
 /// find the ones which overlap (in the xy-plane)
 /// with the MillingCutter cutter positioned at  Point cl
@@ -400,16 +374,6 @@ Spread::Spread(int dim, double v, double s)
     start = s;
 }
 
-/*
-int Spread::sp_comp(Spread x, Spread y) {
-    if (x.val > y.val)
-        return 1;
-    if (y.val > x.val)
-        return -1;
-    else
-        return 0;
-}*/
-
 void KDTree::str(KDNode *root)
 {
     //static int level=0;
@@ -436,16 +400,6 @@ std::string KDNode::str()
 
 std::ostream& operator<<(std::ostream &stream, const KDNode root)
 {
-    /*
-    if (root.tris) {
-        if (root.tris->size() > 0)
-            stream << "Bucket node with"<< root.tris->size() <<" triangles\n";
-    }
-    if (root.hi)
-        stream << *(root.hi);
-    if (root.lo)
-        stream << *(root.lo);
-    */
     stream << "d:" << root.dim << " cv:" << root.cutval;    
     return stream;
 }

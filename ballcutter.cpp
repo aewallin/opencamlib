@@ -44,8 +44,6 @@ BallCutter::BallCutter(const double d)
 //********   drop-cutter methods ********************** */
 int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
-
-    
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     
     int result = 0;
@@ -127,8 +125,6 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 }
 
 
-
-// FIXME FIXME FIXME. this is totally wrong for now...
 int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
@@ -142,14 +138,18 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
     for (int n=0;n<3;n++) { // loop through all three edges
     
         // 1) distance from point to line
-        int start=n;
-        int end=(n+1)%3;
-        //std::cout << "testing poinst " << start<< " to " << end << " :";
+        int start=n;      // index of the start-point of the edge
+        int end=(n+1)%3;  // index of the end-point of the edge
+        
         double d = cl.xyDistanceToLine(t.p[start],t.p[end]);
-        //std::cout << "xyDistance=" << d ;
         
         if (d<=diameter/2) { // potential hit
-            //std::cout << " potential hit\n";
+        
+            // the plane of the line will slice the spherical cutter at
+            // a distance q from the center of the cutter
+            // here the radius of the circular section is
+            double rs = sqrt( radius*radius - d*d );
+            
             // 2) calculate intersection points w. cutter circle
             // points are on line and diameter/2 from cl
             // see http://mathworld.wolfram.com/Circle-LineIntersection.html
@@ -165,7 +165,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
             //std::cout << "discr=" << discr << "\n";
             
             if (Numeric::isNegative(discr)) {
-                std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
+                std::cout << "ballcutter.cpp ERROR: BallCutter::edgeTest discr= "<<discr<<" <0 !!\n";
                 
                 cc.type = ERROR;
                 return -1;
@@ -244,8 +244,6 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
         }// end if(potential hit)
         else {
             // edge is too far away from cutter. nothing to do.
-            
-            //std::cout << " no edge hit\n";
         }
         
     } // end loop through all edges
