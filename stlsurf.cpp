@@ -81,8 +81,6 @@ std::ostream &operator<<(std::ostream &stream, const STLSurf s)
 
 using namespace std;
 
-#ifdef UNICODE
-
 static std::string str_for_Ttc;
 
 const char* Ttc(const wchar_t* str)
@@ -93,13 +91,9 @@ const char* Ttc(const wchar_t* str)
 		str_for_Ttc.push_back((char) *str++);
 	return str_for_Ttc.c_str();
 }
-#else
-#define Ttc(x) x
-#endif
 
 void STLSurf::read_from_file(const wchar_t* filepath)
 {
-    /*
 	// read the stl file
 	std::ifstream ifs(Ttc(filepath), ios::binary);
 	if(!ifs)return;
@@ -195,5 +189,6 @@ void STLSurf::read_from_file(const wchar_t* filepath)
 				}
 			}
 		}
-	} */
+	}
 }
+
