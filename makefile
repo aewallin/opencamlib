@@ -1,6 +1,7 @@
-all: ocl
+.PHONY: all
+all: ocl.so
 
-ocl: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o
+ocl.so: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o
 	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
 
 ocl.o: ocl.cpp ocl.h
@@ -36,12 +37,15 @@ kdtree.o: kdtree.h kdtree.cpp
 pfinish.o: pfinish.h pfinish.cpp
 	g++  -fPIC -o pfinish.o -I/usr/include/python2.6 -c pfinish.cpp
 
+.PHONY: doc
 doc: Doxyfile point.h triangle.h stlsurf.h cutter.h
 	doxygen
 
+.PHONY: pdf
 pdf: doc
 	cd ./doc/latex ; make pdf ; cd ../.. ; cp ./doc/latex/refman.pdf ./ocl.pdf
 
+.PHONY: clean
 clean:
 	rm -rf *.o *.so *.pyc *.pdf ; rm -Rf doc
 
