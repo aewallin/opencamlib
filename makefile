@@ -1,7 +1,7 @@
 all: ocl
 
-ocl: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o numeric.o kdtree.o pfinish.o
-	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o numeric.o kdtree.o pfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
+ocl: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o numeric.o kdtree.o pfinish.o
+	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o numeric.o kdtree.o pfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
 
 ocl.o: ocl.cpp ocl.h
 	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 
@@ -20,6 +20,9 @@ cutter.o: cutter.cpp cutter.h
 
 cylcutter.o: cylcutter.cpp cutter.h
 	g++  -fPIC -o cylcutter.o -I/usr/include/python2.6 -c cylcutter.cpp 
+
+ballcutter.o: ballcutter.cpp cutter.h
+	g++  -fPIC -o ballcutter.o -I/usr/include/python2.6 -c ballcutter.cpp 
 
 numeric.o: numeric.h numeric.cpp
 	g++  -fPIC -o numeric.o -I/usr/include/python2.6 -c numeric.cpp

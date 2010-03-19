@@ -148,8 +148,8 @@ if __name__ == "__main__":
         #time.sleep(0.01)
         myscreen.render()
         w2if.Modified() 
-        lwr.SetFileName("kdmov/kdbetter"+ ('%05d' % n)+".png")
-        lwr.Write()
+        lwr.SetFileName("frames/kdbetter"+ ('%05d' % n)+".png")
+        #lwr.Write()
 
 
         #raw_input("Press Enter to continue") 

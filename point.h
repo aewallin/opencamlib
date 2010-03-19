@@ -86,6 +86,7 @@ class Point {
         /// retruns true if point is inside Triangle t (works in the XY-plane)
         bool isInside(const Triangle &t) const; // is point inside triangle t?
         
+        /// retruns true if point is inside p1-p2 line (xy-plane)
         bool isInsidePoints(const Point &p1, const Point &p2) const;
 
         /// X coordinate

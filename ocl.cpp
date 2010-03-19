@@ -87,6 +87,8 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop) )
         .def("facetDrop", bp::pure_virtual(&MillingCutter::facetDrop) )
         .def("edgeDrop", bp::pure_virtual(&MillingCutter::edgeDrop) )
+        .add_property("radius", &MillingCutter::getRadius )
+        .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
     ;
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double>())
@@ -96,9 +98,18 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("dropCutter", &CylCutter::dropCutter)
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
         .def("str", &CylCutter::str)
-        .add_property("diameter", &CylCutter::getDiameter, &CylCutter::setDiameter )
     ;
-    
+    bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
+        .def(bp::init<double>())
+        .def("vertexDrop", &BallCutter::vertexDrop)
+        .def("facetDrop", &BallCutter::facetDrop)
+        .def("edgeDrop", &BallCutter::edgeDrop)
+        //.def("dropCutter", &BallCutter::dropCutter)
+        //.def("dropCutterSTL", &CylCutter::dropCutterSTL)
+        .def("str", &BallCutter::str)
+        // .add_property("diameter", &BallCutter::getDiameter, &BallCutter::setDiameter )
+        //.add_property("radius", &BallCutter::getRadius )
+    ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
         .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)

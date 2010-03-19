@@ -50,6 +50,8 @@ class MillingCutter {
         void setLength(double l);
         double getLength();
         void setId();
+        
+        /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t? 
         bool overlaps(Point &cl, Triangle &t);
         
         // drop-cutter methods
@@ -93,8 +95,6 @@ class CylCutter : public MillingCutter {
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
         
-        
-        
         // text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
         std::string str();
@@ -107,14 +107,33 @@ class CylCutter : public MillingCutter {
 class BallCutter : public MillingCutter {
     public:
         BallCutter();
+        BallCutter(const double d);
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        
+        friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
+        std::string str();
+        
+    protected:
+        double radius;
 };
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* required wrapper class for virtual functions in boost-python */
-
-
 class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
 {
     public:
