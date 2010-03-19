@@ -67,7 +67,7 @@ class KDNode {
 
 class KDTree {
     public:
-        static KDNode* build_kdtree(std::list<Triangle> *tris, int bucketSize);
+        static KDNode* build_kdtree(std::list<Triangle> *tris, unsigned int bucketSize);
         static Spread* spread(const std::list<Triangle> *tris);
         static void search_kdtree(std::list<Triangle> *tris, Point &p, 
                     MillingCutter &c, KDNode *node);

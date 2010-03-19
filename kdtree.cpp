@@ -56,7 +56,7 @@ KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
 
 int KDTree::level = 0;
 /// given a list of triangles, build and return the root node of a kd-tree with the triangles
-KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, int bucketSize) 
+KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, unsigned int bucketSize) 
 {
     
     if (tris->size() == 0) {
@@ -277,6 +277,8 @@ bool KDTree::overlap(const KDNode *node, const Point &cl, MillingCutter &cutter)
                 return true;
             break;
     } // end of switch(dim)
+
+	return false;
 }
 
 
