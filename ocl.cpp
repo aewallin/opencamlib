@@ -104,11 +104,14 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("vertexDrop", &BallCutter::vertexDrop)
         .def("facetDrop", &BallCutter::facetDrop)
         .def("edgeDrop", &BallCutter::edgeDrop)
-        //.def("dropCutter", &BallCutter::dropCutter)
-        //.def("dropCutterSTL", &CylCutter::dropCutterSTL)
         .def("str", &BallCutter::str)
-        // .add_property("diameter", &BallCutter::getDiameter, &BallCutter::setDiameter )
-        //.add_property("radius", &BallCutter::getRadius )
+    ;
+    bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
+        .def(bp::init<double, double>())
+        .def("vertexDrop", &BullCutter::vertexDrop)
+        .def("facetDrop", &BullCutter::facetDrop)
+        .def("edgeDrop", &BullCutter::edgeDrop)
+        .def("str", &BallCutter::str)
     ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)

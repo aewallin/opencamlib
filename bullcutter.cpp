@@ -30,50 +30,68 @@
 
 
 //********   CylCutter ********************** */
-BallCutter::BallCutter()
+BullCutter::BullCutter()
 {
     setDiameter(1.0);
+    radius1= 0.3;
+    radius2= 0.2;
+    setRadius();
 }
 
-BallCutter::BallCutter(const double d)
+BullCutter::BullCutter(const double d, const double r)
 {
     setDiameter(d);
     radius = d/2;
+    radius1 = d/2 - r;
+    radius2 = r;
 }
 
-//********   drop-cutter methods ********************** */
-int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+void BullCutter::setRadius()
 {
+    radius= radius1+radius2;
+}
 
-    
+
+//********   drop-cutter methods ********************** */
+int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+{
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
-    
     int result = 0;
-    
     BOOST_FOREACH( const Point& p, t.p)
     {
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
-        
-        if (q<= diameter/2) { // p is inside the cutter
-            // q^2 + h2^2 = r^2
-            // h2 = sqrt( r^2 - q^2 )
-            // h1 = r - h2
-            // cutter_tip = p.z - h1
-            double h1 = radius - sqrt( radius*radius - q*q );
-            if (cl.liftZ(p.z - h1)) { // we need to lift the cutter
+    
+        if ( q <= radius1 ) { // p is inside the cylindrrical part of the cutter
+            if (cl.liftZ(p.z)) { // we need to lift the cutter
                 cc = p;
                 cc.type = VERTEX;
                 result = 1;
             }
-        } else {
+        }
+        else if ( q <= radius ) { // p is in the toroidal part of the cutter
+            // (q-r1)^2 + h2^2 = r2^2
+            // h2 = sqrt( r2^2 - (q-r1)^2 )
+            // h1 = r2 - h2
+            // cutter_tip = p.z - h1
+            double h1 = radius2 - sqrt( radius2*radius2 - (q-radius1)*(q-radius1) );
+            if ( cl.liftZ(p.z - h1) ) { // we need to lift the cutter
+                cc = p;
+                cc.type = VERTEX;
+                result = 1;
+            }
+        }
+        else {
             // point outside cutter, nothing to do.
         }
     }
     return result;
 }
 
-int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
+
+
+// FIXME: this is the code for Spherical...
+int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
 
@@ -129,7 +147,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 
 
 // FIXME FIXME FIXME. this is totally wrong for now...
-int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
@@ -244,8 +262,6 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
         }// end if(potential hit)
         else {
             // edge is too far away from cutter. nothing to do.
-            
-            //std::cout << " no edge hit\n";
         }
         
     } // end loop through all edges
@@ -257,16 +273,16 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
 
 
 //********  CylCutter string output ********************** */
-std::string BallCutter::str()
+std::string BullCutter::str()
 {
     std::ostringstream o;
-    o << "BallCutter"<< id <<"(d=" << diameter << ", radius=" << radius << ")";
+    o << "BullCutter"<< id <<"(d=" << diameter << ", radius1=" << radius1 << ", radius2=" << radius2 << ")";
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, BallCutter c)
+std::ostream& operator<<(std::ostream &stream, BullCutter c)
 {
-  stream << "BallCutter"<< c.id <<"(d=" << c.diameter << ", radius=" << c.radius << ")";
+  stream << "BallCutter"<< c.id <<"(d=" << c.diameter << ", radius1=" << c.radius1 << " radius2=" << c.radius2 << ")";
   return stream;
 }
 

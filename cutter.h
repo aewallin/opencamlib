@@ -55,15 +55,24 @@ class MillingCutter {
         bool overlaps(Point &cl, Triangle &t);
         
         // drop-cutter methods
-        /// \brief drop cutter at (cl.x, cl.y) against vertices of Triangle t.
-        /// returns the cc point
+        /// drop cutter at (cl.x, cl.y) against vertices of Triangle t.
+        /// loop through each vertex p of Triangle t
+        /// drop down cutter at (cl.x, cl.y) against Point p
         virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         virtual int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
         virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         
+        /// drop the MillingCutter at Point cl down along the z-axis
+        /// until it makes contact with Triangle t
+        /// this function calls vertexDrop, facetDrop, and edgeDrop to do its job
         int dropCutter(Point &cl, CCPoint &cc, const Triangle &t);
+        
+        /// drop the MillingCutter at Point cl down along the z-axis
+        /// until it makes contact with a triangle in the STLSurf s
+        /// NOTE: no kd-tree optimization, this function will make 
+        /// dropCutter() calls for each and every Triangle in s.
         int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s);
         
     protected:
@@ -79,7 +88,7 @@ class MillingCutter {
 
 ///
 /// \brief Cylindrical milling cutter (flat-endmill)
-///
+/// defined by its radius
 class CylCutter : public MillingCutter {
     public:
         /// create CylCutter with radius = 1.0
@@ -101,9 +110,9 @@ class CylCutter : public MillingCutter {
         
 };
 
-///
+
 /// \brief Ball or Spherical milling cutter (ball-nose endmill)
-///
+/// defined by its radius
 class BallCutter : public MillingCutter {
     public:
         BallCutter();
@@ -120,7 +129,25 @@ class BallCutter : public MillingCutter {
 };
 
 
-
+/// \brief Bull or Toroidal milling cutter (bull-nose endmill, filleted endmill)
+/// defined by radius1, the cylindrical middle part of the cutter
+/// and radius2, the corner radius of the fillet/torus.
+class BullCutter : public MillingCutter {
+    public:
+        BullCutter();
+        BullCutter(const double d, const double r);
+        void setRadius();
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        
+        friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
+        std::string str();
+    protected:
+        double radius;
+        double radius1;
+        double radius2;
+};
 
 
 

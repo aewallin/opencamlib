@@ -44,7 +44,7 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = cam.Triangle(a,b,c)
     
-    cutter = cam.BallCutter(1)
+    cutter = cam.BullCutter(1,0.2)
     #print cutter.str()
     
     
@@ -69,7 +69,7 @@ if __name__ == "__main__":
         cc = cam.CCPoint()
         cutter.vertexDrop(cl,cc,t)
         #cutter.edgeDrop(cl,cc,t)
-        cutter.facetDrop(cl,cc,t)
+        #cutter.facetDrop(cl,cc,t)
         #cutter.dropCutter(cl,cc,t)
 
         ccpoints.append(cc)

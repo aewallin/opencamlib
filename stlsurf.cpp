@@ -35,7 +35,6 @@ int STLSurf::count=0;
 
 STLSurf::STLSurf() {
     setId();
-        //std::cout << "STLSurf default constructor" << std::endl;
 }
 
 STLSurf::STLSurf(const std::wstring &stl_file_path)
@@ -122,7 +121,9 @@ void STLSurf::read_from_file(const wchar_t* filepath)
 			ifs.read((char*)(x[0]), 36);
 			short attr;
 			ifs.read((char*)(&attr), 2);
-						addTriangle(Triangle(Point(x[0][0], x[0][1], x[0][2]), Point(x[1][0], x[1][1], x[1][2]), Point(x[2][0], x[2][1], x[2][2])));
+						addTriangle(Triangle(Point(x[0][0], x[0][1], x[0][2]), 
+                                             Point(x[1][0], x[1][1], x[1][2]), 
+                                             Point(x[2][0], x[2][1], x[2][2])));
 		}
 	}
 	else
@@ -184,7 +185,9 @@ void STLSurf::read_from_file(const wchar_t* filepath)
 				{
 					if(vertex == 2)
 					{
-						addTriangle(Triangle(Point(x[0][0], x[0][1], x[0][2]), Point(x[1][0], x[1][1], x[1][2]), Point(x[2][0], x[2][1], x[2][2])));
+						addTriangle(Triangle(Point(x[0][0], x[0][1], x[0][2]), 
+                                             Point(x[1][0], x[1][1], x[1][2]), 
+                                             Point(x[2][0], x[2][1], x[2][2])));
 					}
 				}
 			}
