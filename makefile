@@ -1,3 +1,29 @@
+
+# if the user doesn't say, install into /usr/local by default
+PREFIX ?= /usr/local
+
+
+PROGS =                       \
+    drop_cutter_tst_1.py      \
+    drop_cutter_tst_2.py      \
+    drop_cutter_tst_3.py      \
+    drop_cutter_tst_4.py      \
+    drop_cutter_tst_5.py      \
+    kdtree_movie1.py          \
+    kdtree_movie2.py          \
+    kdtree_tst_1.py           \
+    kdtree_tst.py             \
+    ocl_tst.py                \
+    pfinish_tst_1.py          \
+    stl2ocl_tst.py            \
+    stlsurf_tst.py
+
+STLS =                        \
+    demo.stl                  \
+    gnu_tux_mod.stl           \
+    sphere.stl
+
+
 .PHONY: all
 all: ocl.so
 
@@ -36,6 +62,18 @@ kdtree.o: kdtree.h kdtree.cpp
 
 pfinish.o: pfinish.h pfinish.cpp
 	g++  -fPIC -o pfinish.o -I/usr/include/python2.6 -c pfinish.cpp
+
+.PHONY: install
+install: ocl.so
+	strip $^
+
+	mkdir -p $(DESTDIR)$(PREFIX)/lib/python`python -c "import sys; print sys.version[:3]"`/dist-packages/
+	install -m 0644 $^ $(DESTDIR)$(PREFIX)/lib/python`python -c "import sys; print sys.version[:3]"`/dist-packages/
+	install -m 0644 camvtk.py $(DESTDIR)$(PREFIX)/lib/python`python -c "import sys; print sys.version[:3]"`/dist-packages/
+
+	mkdir -p $(DESTDIR)$(PREFIX)/share/doc/python-opencam/examples
+	install -m 0644 $(PROGS) $(DESTDIR)$(PREFIX)/share/doc/python-opencam/examples
+	install -m 0644 $(STLS) $(DESTDIR)$(PREFIX)/share/doc/python-opencam/examples
 
 .PHONY: doc
 doc: Doxyfile point.h triangle.h stlsurf.h cutter.h
