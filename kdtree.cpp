@@ -288,6 +288,7 @@ void getcharacter()
 }
 */
 
+/*
 bool KDTree::overlap(const Triangle &t, const Point &cl, MillingCutter &cutter)
 {
     double r = cutter.getRadius();
@@ -302,6 +303,7 @@ bool KDTree::overlap(const Triangle &t, const Point &cl, MillingCutter &cutter)
     else
         return true;
 }
+*/
 
 /// search kd-tree starting at KDNode node for triangles.
 /// find the ones which overlap (in the xy-plane)
@@ -326,7 +328,7 @@ void KDTree::search_kdtree(std::list<Triangle> *tris,
                 //std::cout << "T: " << t.minx << "\t" << t.maxx << "\t" << t.miny << "\t" << t.maxy << "\n";
                 //std::cout << "C: " << cl.x-r << "\t" << cl.x+r << "\t" << cl.y-r << "\t" << cl.y+r << "\n";
                 //std::cout << "overlap?:" << KDTree::overlap(node,cl,cutter) << "\n";
-                if ( KDTree::overlap(t,cl,cutter) ) {
+                if ( cutter.overlaps(cl,t) ) {
                     tris->push_back(t); 
                 }
             }

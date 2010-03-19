@@ -50,6 +50,7 @@ class MillingCutter {
         void setLength(double l);
         double getLength();
         void setId();
+        bool overlaps(Point &cl, Triangle &t);
         
         // drop-cutter methods
         /// \brief drop cutter at (cl.x, cl.y) against vertices of Triangle t.

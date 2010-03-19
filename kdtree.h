@@ -72,7 +72,7 @@ class KDTree {
         static void search_kdtree(std::list<Triangle> *tris, Point &p, 
                     MillingCutter &c, KDNode *node);
         static bool overlap(const KDNode *node, const Point &cl, MillingCutter &cutter);
-        static bool overlap(const Triangle &t, const Point &cl, MillingCutter &cutter);
+        //static bool overlap(const Triangle &t, const Point &cl, MillingCutter &cutter);
         static void str(KDNode *root);
         static int level;
         
