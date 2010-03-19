@@ -1,0 +1,7 @@
+opencamlib for Debian
+---------------------
+
+To get started, copy /usr/share/doc/python-opencam/examples to your home
+directory, gunzip everything, and run "python kdtree_tst_1.py".
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 19 Mar 2010 10:25:52 -0600

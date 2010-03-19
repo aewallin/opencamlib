@@ -1,0 +1,17 @@
+Source: opencamlib
+Section: python
+Priority: extra
+Maintainer: Anders Wallin <anders.e.e.wallin@gmail.com>
+Build-Depends: debhelper (>= 7), libboost-dev, python-dev, python-support
+Standards-Version: 3.8.3
+Homepage: http://code.google.com/p/opencamlib/
+
+Package: python-opencam
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: a fast Python module for creating toolpaths for CNC machines
+ Loads and visualizes STL files.  Applies the drop-cutter algorithm for
+ cylindrical tools.
+ .
+ Implemented in C++ for blazing speed.
+

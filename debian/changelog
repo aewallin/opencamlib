@@ -1,0 +1,5 @@
+opencamlib (0.0.0) unstable; urgency=low
+
+  * Initial Release.  Based on rev 49 of the SVN repo on Google Code.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 19 Mar 2010 10:25:52 -0600
