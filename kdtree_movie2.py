@@ -8,8 +8,8 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     myscreen.setAmbient(20,20,20)
     
-    #stl = camvtk.STLSurf(filename="demo.stl")
-    stl = camvtk.STLSurf(filename="demo2.stl")
+    stl = camvtk.STLSurf(filename="demo.stl")
+    #stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
     myscreen.addActor(stl)
     stl.SetWireframe()

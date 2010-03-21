@@ -28,9 +28,8 @@ class VTKScreen():
         self.camera.SetViewAngle(30)
         self.camera.SetViewUp(0, 0, 1)
         self.ren.SetActiveCamera(self.camera)
-
-
         self.iren.Initialize()
+        
     def setAmbient(self, r, g, b):
         self.ren.SetAmbient(r, g, b)
                     
