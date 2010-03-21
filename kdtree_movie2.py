@@ -79,12 +79,12 @@ if __name__ == "__main__":
     n=0
     precl = cam.Point()
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("tux1.png")
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
+    #w2if.Modified()
+    #lwr.SetFileName("tux1.png")
     
     for cl,cc in zip(clpoints,ccpoints):
         
@@ -147,8 +147,8 @@ if __name__ == "__main__":
         myscreen.camera.Azimuth( 0.2 )
         #time.sleep(0.01)
         myscreen.render()
-        w2if.Modified() 
-        lwr.SetFileName("kdbig"+ ('%05d' % n)+".png")
+        #w2if.Modified() 
+        #lwr.SetFileName("kdbig"+ ('%05d' % n)+".png")
         #lwr.Write()
 
 
@@ -171,8 +171,8 @@ if __name__ == "__main__":
         myscreen.camera.Azimuth( 1 )
         time.sleep(0.01)
         myscreen.render()
-        lwr.SetFileName("kd_frame"+ ('%03d' % n)+".png")
-        w2if.Modified() 
+        #lwr.SetFileName("kd_frame"+ ('%03d' % n)+".png")
+        #w2if.Modified() 
         #lwr.Write()
 
         

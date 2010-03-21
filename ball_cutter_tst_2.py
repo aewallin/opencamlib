@@ -4,6 +4,7 @@ import time
 import vtk
 import datetime
 
+
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     """ generate and return a rectangular grid of points """
     plist = []
@@ -36,8 +37,10 @@ def ccColor(cc):
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.5, 3, 6)
-    myscreen.camera.SetFocalPoint(0, 0, 0)
+    myscreen.setAmbient(20,20,20)
+    
+    myscreen.camera.SetPosition(4, 4, 3)
+    myscreen.camera.SetFocalPoint(0.6, 0.6, 0)
     myscreen.setAmbient(1,1,1)
 
     a=cam.Point(1,0,0)
@@ -61,10 +64,10 @@ if __name__ == "__main__":
     
     #print cc.type
     minx=-0.7
-    dx=0.04
+    dx=0.03
     maxx=1.7
     miny=-0.7
-    dy=0.06
+    dy=0.03
     maxy=1.7
     z=-0.5
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
@@ -75,63 +78,42 @@ if __name__ == "__main__":
     print len(clpoints), "cl-points to evaluate"
     n=0
     ccpoints=[]
-    for cl in clpoints:
-        #cutter.dropCutter(cl,cc,t)
-        cc = cam.CCPoint()
-        cutter.vertexDrop(cl,cc,t)
-        #cutter.edgeDrop(cl,cc,t)
-        #cutter.facetDrop(cl,cc,t)
-        #cutter.dropCutter(cl,cc,t)
-
-        ccpoints.append(cc)
-       
-        #if (n % 2 == 0):
-        #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) ) 
-        
-        #myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
-        #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
-
-        #print cc.type
-        n=n+1
-        if (n % int(len(clpoints)/10)) == 0:
-            print n/int(len(clpoints)/10), " ",
-              
-            
-            
-    print "done."
-    print "rendering...",
-    for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
-        #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=(0,1,0)) )
-    print "done."
     
-    #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
-    #print len(clpoints), " cl points evaluated"
-    
-
-    myscreen.render()
+    tx = camvtk.Text()
+    tx.SetPos( (myscreen.width-200, myscreen.height-30) )
+    myscreen.addActor( tx)
     
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
     w2if.Modified()
-    lwr.SetFileName("sphere_1.png")
-    #lwr.Write()
-
-    myscreen.render()
-    tx = camvtk.Text()
-    tx.SetPos( (myscreen.width-200, myscreen.height-30) )
     
-    myscreen.addActor( tx)
-    for n in range(1,360):
+    for cl in clpoints:
+        cc = cam.CCPoint()
+        cutter.vertexDrop(cl,cc,t)
+        cutter.edgeDrop(cl,cc,t)
+        cutter.facetDrop(cl,cc,t)
+        ccpoints.append(cc)
+        n=n+1
+        if (n % int(len(clpoints)/10)) == 0:
+            print n/int(len(clpoints)/10), " ",
+            
+    print "done."
+    print "rendering...",
+    for cl,cc in zip(clpoints,ccpoints):
+        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
+        
+    print "done."   
+    
+    for n in range(1,90):
         tx.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        myscreen.camera.Azimuth( 1 )
-        time.sleep(0.01)
+        myscreen.camera.Azimuth( 4 )
+        #time.sleep(0.01)
         myscreen.render()
-        lwr.SetFileName("kd_frame"+ ('%03d' % n)+".png")
+        lwr.SetFileName("frames/ball_all"+ ('%05d' % n)+".png")
         w2if.Modified() 
-        #lwr.Write()
+        lwr.Write()
 
     myscreen.iren.Start()
     raw_input("Press Enter to terminate") 

@@ -22,13 +22,14 @@ class VTKScreen():
         interactorstyle.SetCurrentStyleToTrackballCamera()     
            
         self.camera = vtk.vtkCamera()
-        self.camera.SetClippingRange(10, 1000)
+        self.camera.SetClippingRange(0.1, 10)
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetPosition(0, 35, 5)
         self.camera.SetViewAngle(30)
         self.camera.SetViewUp(0, 0, 1)
         self.ren.SetActiveCamera(self.camera)
         self.iren.Initialize()
+        
         
     def setAmbient(self, r, g, b):
         self.ren.SetAmbient(r, g, b)
