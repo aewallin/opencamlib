@@ -37,30 +37,31 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     
     a=cam.Point(1,0,0)
-    myscreen.addActor(camvtk.Point(center=(1,0,0), color=(1,0,1)));
+    myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)));
     b=cam.Point(0,1,0)    
-    myscreen.addActor(camvtk.Point(center=(0,1,0), color=(1,0,1)));
+    myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)));
     c=cam.Point(0,0,0.3)
-    myscreen.addActor(camvtk.Point(center=(0,0,0.3), color=(1,0,1)));
-    myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,0,0.3)) )
-    myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
-    myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
+    myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)));
+    #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
+    #myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
+    #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = cam.Triangle(a,b,c)
     
     #cutter = cam.BullCutter(1,0.2)
-    cutter = cam.BallCutter(1.1)
+    #cutter = cam.CylCutter(0.5)
+    cutter = cam.BallCutter(0.5)
     
     print cutter.str()
     
     
     #print cc.type
     minx=-0.7
-    dx=0.02
+    dx=0.04
     maxx=1.7
     miny=-0.7
-    dy=0.02
+    dy=0.06
     maxy=1.7
-    z=-1
+    z=-0.5
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0
@@ -69,11 +70,13 @@ if __name__ == "__main__":
     print len(clpoints), "cl-points to evaluate"
     n=0
     ccpoints=[]
+    print "triangle before=", t.str()
+    print "cutter before=", cutter.str()
     for cl in clpoints:
         #cutter.dropCutter(cl,cc,t)
         cc = cam.CCPoint()
-        cutter.vertexDrop(cl,cc,t)
-        #cutter.edgeDrop(cl,cc,t)
+        #cutter.vertexDrop(cl,cc,t)
+        cutter.edgeDrop(cl,cc,t)
         #cutter.facetDrop(cl,cc,t)
         #cutter.dropCutter(cl,cc,t)
 
@@ -93,10 +96,12 @@ if __name__ == "__main__":
             
             
     print "done."
-    
+    print "triangle after=", t.str()
+    print "cutter after=", cutter.str()
     print "rendering...",
     for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc)) ) 
+        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
+        myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=(0,1,0)) )
     print "done."
     
     #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf

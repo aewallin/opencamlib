@@ -129,16 +129,10 @@ Point Point::xyClosestPoint(const Point &p1, const Point &p2)
 {
     // one explanation is here
     // http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/
-    // double x1
-    // double y1
-    // double x2
-    // double y2
-    // double x3
-    // double y3
-    Point pt1 = p1;
+    Point pt1 = p1; // this required because of "const" arguments above.
     Point pt2 = p2;
-    Point v = pt1 - pt2;
-    if ( v.xyNorm() == 0.0 ) {
+    Point v = pt2 - pt1;
+    if ( v.xyNorm() == 0.0 ) { // if p1 and p2 do not make a line in the xy-plane
         std::cout << "point.cpp: xyClosestPoint ERROR!\n";
         return Point(0,0,0);
     }
@@ -161,7 +155,7 @@ bool Point::isRight(const Point &p1, const Point &p2) const
     // is Point right of line through points p1 and p2 ?, in the XY plane.
 	// this is an ugly way of doing a determinant
 	// should be prettyfied sometime...
-    // FIXME: what if p1==p2 ? (in the XY plane)
+    /// \todo FIXME: what if p1==p2 ? (in the XY plane)
 	double a1 = p2.x - p1.x;
 	double a2 = p2.y - p1.y;
 	double t1 = a2;
@@ -170,7 +164,7 @@ bool Point::isRight(const Point &p1, const Point &p2) const
 	double b2 = y - p1.y;
 
 	double t = t1 * b1 + t2 * b2;
-	if (t > 0.00000000000001) //FIXME: hardcoded magic number...
+	if (t > 0.00000000000001) /// \todo FIXME: hardcoded magic number...
 		return true;
 	else
 		return false;    
@@ -233,7 +227,8 @@ bool Point::isInsidePoints(const Point &p1, const Point &p2) const
     if ( b1 && b2 && b3 && b4) {
         //std::cout << "returning true\n";
         return true;
-    } else {
+    } 
+    else {
         //std::cout << "returning false\n";
         return false;
     }

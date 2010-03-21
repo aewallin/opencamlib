@@ -65,16 +65,22 @@ class Point {
         /// return closest Point to line through p1 and p2. Works in the XY plane.
         Point xyClosestPoint(const Point &p1, const Point &p2);
         
+        /// returns true if point is right of line through p1 and p2 (works in the XY-plane)
+        bool isRight(const Point &p1, const Point &p2) const;
+         
+        /// retruns true if point is inside Triangle t (works in the XY-plane)
+        bool isInside(const Triangle &t) const; 
+        
+        /// retruns true if point is inside p1-p2 line (xy-plane)
+        bool isInsidePoints(const Point &p1, const Point &p2) const;
         
         Point &operator=(const Point &p);
         Point &operator+=(const Point &p);
         Point &operator-=(const Point &p);
         const Point operator+(const Point &p);
-        const Point operator-(const Point &p);
-                
+        const Point operator-(const Point &p);                
         Point &operator*=(const double &a);  // scalar multiplication
         const Point operator*(const double &a);     // Point*scalar 
-        
         bool operator==(const Point &p);
         bool operator!=(const Point &p);
 
@@ -82,15 +88,7 @@ class Point {
         friend std::ostream& operator<<(std::ostream &stream, const Point &p);
         std::string str();
         
-        // geometric predicates
-        /// returns true if point is right of line through p1 and p2 (works in the XY-plane)
-        bool isRight(const Point &p1, const Point &p2) const;
-         
-        /// retruns true if point is inside Triangle t (works in the XY-plane)
-        bool isInside(const Triangle &t) const; // is point inside triangle t?
-        
-        /// retruns true if point is inside p1-p2 line (xy-plane)
-        bool isInsidePoints(const Point &p1, const Point &p2) const;
+
 
         /// X coordinate
         double x;

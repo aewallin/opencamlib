@@ -132,123 +132,70 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
     // 1) calculate distance to infinite line
     // 2) calculate intersection points w. cutter
     // 3) pick the higher intersection point and test if it is in the edge
-    //Point cc;
+    
     int result = 0;
     
     for (int n=0;n<3;n++) { // loop through all three edges
     
-        // 1) distance from point to line
+        // 1) distance from point to line in xy plane
         int start=n;      // index of the start-point of the edge
         int end=(n+1)%3;  // index of the end-point of the edge
-        
-        double d = cl.xyDistanceToLine(t.p[start],t.p[end]);
-        
-        if (d<=diameter/2) { // potential hit
+        //std::cout << "testing edge " << start << " to " << end << "\n";
+        Point p1 = t.p[start];
+        Point p2 = t.p[end];
+        //std::cout << "Points " << p1 << " to " << p2 << "\n";
+        double d = cl.xyDistanceToLine(p1, p2);
+        if (d < 0.0)
+            std::cout << "ballcutter.cpp: d<0 ERROR!\n";
+            
+        if (d<=radius) { // potential hit
         
             // the plane of the line will slice the spherical cutter at
             // a distance d from the center of the cutter
             // here the radius of the circular section is
             double s = sqrt( radius*radius - d*d );
-            
+                
             // the center-point of this circle, in the xy plane lies at
-            Point sc = cl.xyClosestPoint( t.p[start], t.p[end] );
+            Point sc = cl.xyClosestPoint( p1, p2 );           
             
-            // a vertical line through sc intersects the line at Point e
-            double l = (sc.x-t.p[start].x)*(t.p[end].x - t.p[start].x) + (sc.y-t.p[start].y)*(t.p[end].y - t.p[start].y) ;
-            l = l / ( t.p[start].x*t.p[start].x + t.p[start].y*t.p[start].y );
+            Point v = p2 - p1;
+            Point start2sc_dir = sc - p1;
+            start2sc_dir.xyNormalize();
+            start2sc_dir.z=0;
+            double dz = p2.z - p1.z;
+            double p2u = v.dot(start2sc_dir); // xyNorm(); // u-coord of p2 in plane coordinates.
+            // was: dot(start2sc_dir); ??  
+             
+            //v.normalize(); // 3D
             
-            Point e = Point(sc.x, sc.y, t.p[start].z+l*(t.p[end].z - t.p[start].z) );
+            // in the vertical plane of the line:
+            // (du,dz) points in the direction of the line
+            // so (dz, -du) is a normal to the line
+            Point tangent = Point(p2u,dz,0);
+            tangent.xyNormalize();
+            Point normal = Point (dz, -p2u, 0);
+            normal.xyNormalize();
+            if (normal.y < 0) { // flip normal so it points upward
+                normal = -1*normal;
+            }
             
-            // 2) calculate intersection points w. cutter circle
-            // points are on line and diameter/2 from cl
-            // see http://mathworld.wolfram.com/Circle-LineIntersection.html
-            double x1 = t.p[start].x - cl.x; // translate to cl=(0,0)
-            double y1 = t.p[start].y - cl.y;
-            double x2 = t.p[end].x - cl.x;
-            double y2 = t.p[end].y - cl.y;
-            double dx = x2-x1;
-            double dy = y2-y1;
-            double dr = sqrt( dx*dx + dy*dy);
-            double D = x1*y2 - x2*y1;
-            double discr = pow(diameter/2,2) * pow(dr,2) - pow(D,2);
-            //std::cout << "discr=" << discr << "\n";
+            Point start2sc = sc - p1;
+            double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
             
-            if (Numeric::isNegative(discr)) {
-                std::cout << "ballcutter.cpp ERROR: BallCutter::edgeTest discr= "<<discr<<" <0 !!\n";
-                
-                cc.type = ERROR;
-                return -1;
-                
-            } else if (Numeric::isZero(discr)) {// tangent line
-                cc.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
-                cc.y = -D*dx / pow(dr,2) + cl.y;
-                // 3) check if cc is in edge
-                if ( cc.isInsidePoints(t.p[start], t.p[end]) ) { 
-                    // determine height of point. must be on line, so:
-                    // std::cout << "tangent-case: isInside=true!\n";
-                    // two point formula for line:
-                    // z-z1 = ((z2-z1)/(x2-x1)) * (x - x1)
-                    // z = z1 + ((z2-z1)/(x2-x1)) * (x-x1)
-                    double z1 = t.p[start].z;
-                    double z2 = t.p[end].z;
-                    double x1 = t.p[start].x;
-                    double x2 = t.p[end].x;
-                    double y1 = t.p[start].y;
-                    double y2 = t.p[end].y;
-                    if (x1 != x2) 
-                        cc.z = z1 + ((z2-z1)/(x2-x1)) * (cc.x-x1);
-                    else if (y1 != y2) 
-                        cc.z = z1 + ((z2-z1)/(y2-y1)) * (cc.y-y1);
-                       
-                    if (cl.liftZ(cc.z))
-                        cc.type = EDGE;
+            double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
+            
+            Point cc_tmp = p1 + (cc_u/p2u)*v;
+            
+            double cl_z = cc_tmp.z + s*normal.y - radius;
+            
+            // test if cc-point is in edge
+            if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
+                if (cl.liftZ(cl_z)) {
+                    cc = cc_tmp;
+                    cc.type = EDGE;
                 }
-            } else { // discr > 0, two intersection points
-                Point cc1;
-                Point cc2;
-                // remember to translate back to cl
-                cc1.x= (D*dy  + Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
-                cc1.y= (-D*dx + fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
-                cc1.z=0;
-                cc2.x= (D*dy  - Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
-                cc2.y= (-D*dx - fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
-                cc2.z=0;
-                // 3) check if in edge
-                double z1 = t.p[start].z;
-                double z2 = t.p[end].z;
-                double x1 = t.p[start].x;
-                double x2 = t.p[end].x;
-                double y1 = t.p[start].y;
-                double y2 = t.p[end].y;
-                if ( cc1.isInsidePoints(t.p[start], t.p[end]) ) {
-                    // determine height of point. must be on line, so:
-                    if (x1 != x2) 
-                        cc1.z = z1 + ((z2-z1)/(x2-x1)) * (cc1.x-x1);
-                    else if (y1 != y2) 
-                        cc1.z = z1 + ((z2-z1)/(y2-y1)) * (cc1.y-y1);
-           
-                    if (cl.liftZ(cc1.z)) {
-                        cc=cc1;
-                        cc.type = EDGE;
-                    }
-                    //std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
-                }
-                if ( cc2.isInsidePoints(t.p[start], t.p[end]) ) {
-                    // determine height of point. must be on line, so:
-                    if (x1 != x2) 
-                        cc2.z = z1 + ((z2-z1)/(x2-x1)) * (cc2.x-x1);
-                    else if (y1 != y2) 
-                        cc2.z = z1 + ((z2-z1)/(y2-y1)) * (cc2.y-y1);
-                        
-                    if (cl.liftZ(cc2.z)) {
-                        cc = cc2;
-                        cc.type = EDGE;
-                    }
-                    //std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
-                }
-                
-                
-            } //end two intersection points case
+            
+            }
             
         }// end if(potential hit)
         else {
