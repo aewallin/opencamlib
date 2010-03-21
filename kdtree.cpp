@@ -152,8 +152,7 @@ KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, unsigned int bucketSize)
 }
 
 
-// FIXME: does not belong to any class...
-bool spread_compare(Spread *x, Spread *y) {
+bool Spread::spread_compare(Spread *x, Spread *y) {
     if (x->val > y->val)
         return true;
     else
@@ -238,7 +237,7 @@ Spread* KDTree::spread(const std::list<Triangle> *tris) {
         spreads.push_back( new Spread(3, spr_yminus, min_yminus) );
         //std::cout <<"3: spread=" << spr_yminus << "\n";
         // sort the list
-        std::sort(spreads.begin(), spreads.end(), spread_compare);
+        std::sort(spreads.begin(), spreads.end(), Spread::spread_compare);
         //std::cout << " selecting " << (spreads[0])->d << " with s="<< (spreads[0])->val << "\n";
         //char c;
         //std::cin >> c;
@@ -278,7 +277,7 @@ bool KDTree::overlap(const KDNode *node, const Point &cl, MillingCutter &cutter)
             break;
     } // end of switch(dim)
 
-	return false;
+    return false;
 }
 
 /// search kd-tree starting at KDNode node for triangles.
@@ -290,9 +289,6 @@ void KDTree::search_kdtree(std::list<Triangle> *tris,
                             MillingCutter &cutter, 
                             KDNode *node)
 {
-    
-    
-    
     // we found a bucket node, so add all triangles and return.
     if (node->tris != NULL) { 
         //std::cout << "bucket: cl=" << cl << "r=" << cutter.getRadius() 

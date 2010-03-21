@@ -30,25 +30,29 @@ class Triangle {
     public:
         Triangle();
         ~Triangle();
+        /// Create a triangle with the vertices p1, p2, and p3.
         Triangle(Point p1, Point p2, Point p3);   
         
         // text output     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
         std::string str();
+        
+        /// Returns a list of the vertices to Python
         boost::python::list getPoints();        
 
-        
-        
-        // DATA
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
         /// normal vector
         Point *n;    // surface normal
         static int count;
         int id;
+        /// bounding-box maximum x-coordinate
         double maxx;
+        /// bounding-box maximum y-coordinate
         double maxy;
+        /// bounding-box minimum x-coordinate
         double minx;
+        /// bounding-box minimum y-coordinate
         double miny;
         
     private:

@@ -39,7 +39,6 @@ namespace bp = boost::python;
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
 ///
-      
 class MillingCutter {
     public:
         MillingCutter();
@@ -65,8 +64,9 @@ class MillingCutter {
         virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
         
         /// drop the MillingCutter at Point cl down along the z-axis
-        /// until it makes contact with Triangle t
-        /// this function calls vertexDrop, facetDrop, and edgeDrop to do its job
+        /// until it makes contact with Triangle t.
+        /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
+        /// Follows the template-method, or "self-delegation" design pattern.
         int dropCutter(Point &cl, CCPoint &cc, const Triangle &t);
         
         /// drop the MillingCutter at Point cl down along the z-axis
@@ -116,15 +116,20 @@ class CylCutter : public MillingCutter {
 class BallCutter : public MillingCutter {
     public:
         BallCutter();
+        /// create a BallCutter with diameter d and radius d/2
         BallCutter(const double d);
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        /// edge-test for BallCutter
+        /// \todo the edge-test for spherical cutter is currently unfinished.
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
         
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         std::string str();
         
     protected:
+        /// the radius of a BallCutter is by definition always half of the diameter, i.e.
+        /// radius = diameter/2
         double radius;
 };
 
@@ -134,11 +139,16 @@ class BallCutter : public MillingCutter {
 /// and radius2, the corner radius of the fillet/torus.
 class BullCutter : public MillingCutter {
     public:
+        /// Create bull-cutter with default diameter and corner radius.
         BullCutter();
+        /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
         void setRadius();
+        /// bull-cutter vertex drop
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        /// \todo facet-test toroid 
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        /// \todo edge-test for toroid
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
         
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);

@@ -22,34 +22,36 @@
 #include "triangle.h"
 #include <list>
 
-///
-/// \brief STL surface
-///
+
+/// \brief STL surface.
+/// STL surfaces consist of triangles. There is by definition no structure
+/// or order among the triangles, i.e. they can be positioned or connected in arbitrary ways.
 class STLSurf {
-	public:
-		STLSurf();
+    public:
+        /// Create an empty STL-surface
+        STLSurf();
         ~STLSurf();
         
         /// read STL surface from file
-		STLSurf(const std::wstring &stl_file_path);
-		
-		/// add Triangle t to this surface
-		void addTriangle(const Triangle &t);
+        STLSurf(const std::wstring &stl_file_path);
+                
+        /// add Triangle t to this surface
+        void addTriangle(const Triangle &t);
 
-		std::string str();
-		friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
+        std::string str();
+        friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
         
         /// return number of triangles in surface
-		int size();
+        int size();
 
-		static int count;
-		int id;
-		/// list of Triangles in this surface
-		std::list<Triangle> tris; 
+        static int count;
+        int id;
+        /// list of Triangles in this surface
+        std::list<Triangle> tris; 
 
-	private:
-		void setId();
-		void read_from_file(const wchar_t* filepath);
+    private:
+        void setId();
+        void read_from_file(const wchar_t* filepath);
 };
 
 #endif

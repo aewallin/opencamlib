@@ -24,16 +24,15 @@
 // forward declaration
 class Triangle;
 ///
-/// \brief a point or vector in 3D space specified by its coordinate (p.x, p.y, p.z)
-///
-
-///
-/// longer documentation here.
+/// \brief a point or vector in 3D space specified by its coordinates (x, y, z)
 ///
 class Point {
     public:
+        /// create a point at (0,0,0)
         Point();
+        /// create a point at (x,y,z)
         Point(double x, double y, double z);
+        /// create a point at p
         Point(const Point &p);
         
         /// dot product
@@ -114,8 +113,9 @@ enum CCType {NONE, VERTEX, EDGE, FACET, ERROR};
 
 class CCPoint : public Point {
     public:
+        /// create a CCPoint at (0,0,0)
         CCPoint();
-        
+        /// specifies the type of the Cutter Contact point. Possible values are NONE, VERTEX, EDGE, FACET, ERROR.
         CCType type;
         CCPoint &operator=(const Point &p);
         std::string str();

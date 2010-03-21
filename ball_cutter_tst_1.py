@@ -54,13 +54,13 @@ if __name__ == "__main__":
     
     
     #print cc.type
-    minx=-0.2
+    minx=-0.7
     dx=0.02
-    maxx=1.2
-    miny=-0.2
+    maxx=1.7
+    miny=-0.7
     dy=0.02
-    maxy=1.2
-    z=-0.2
+    maxy=1.7
+    z=-1
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0

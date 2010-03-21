@@ -76,7 +76,7 @@ install: ocl.so
 	install -m 0644 $(STLS) $(DESTDIR)$(PREFIX)/share/doc/python-opencam/examples
 
 .PHONY: doc
-doc: Doxyfile point.h triangle.h stlsurf.h cutter.h
+doc: Doxyfile manual.h point.h triangle.h stlsurf.h cutter.h numeric.h kdtree.h
 	doxygen
 
 .PHONY: pdf

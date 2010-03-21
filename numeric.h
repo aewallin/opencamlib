@@ -20,15 +20,17 @@
 
 
 ///
-/// \brief Numeric is a collection of static functions
+/// \brief Numeric is a collection of static functions for dealing
+/// with the joys of floating-point arithmetic.
 ///
 class Numeric {
-	public:
+    public:
+        /// return 1 of x>0, return -1 if x<0.
         static double sign(double x);
+        /// return true if x is negative, to within tolerance
         static bool isNegative(double x);
+        /// return true if x is zero, to within tolerance
         static bool isZero(double x);
-        
-  
 };
 
 #endif
