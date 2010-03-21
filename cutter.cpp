@@ -80,10 +80,10 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
     /* template-method, or "self-delegation" pattern */
     
     vertexDrop(cl,cc,t);
-    facetDrop(cl,cc,t); // optimisation: if we are already above the triangle we don't need these
+    facetDrop(cl,cc,t); /// \todo optimisation: if we are already above the triangle we don't need facet and edge
     edgeDrop(cl,cc,t);
 
-	return 0; // void
+    return 0; // void
 }
 
 int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
@@ -96,7 +96,7 @@ int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
         //++show_progress;
     }
 
-	return 0; // void
+    return 0; // void
 }
 
 bool MillingCutter::overlaps(Point &cl, Triangle &t)

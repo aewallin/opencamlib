@@ -110,11 +110,10 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
     
     // the contact point with the plane is on the periphery
     // of the cutter, a length diameter/2 from cl in the direction of -n
-    Point cc_tmp = cl - (diameter/2)*normal;
-    //std::cout <<"facetDrop potential cc="<<cc_tmp <<" (wrong Z!)\n";
+    Point cc_tmp = cl - (diameter/2)*normal; // Note: at this point the z-coord is rubbish.
+    
     if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()
         cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
-        //std::cout << " isInside!, cc="<<cc_tmp<<"\n";
         if (cl.liftZ(cc_tmp.z)) {
             cc = cc_tmp;
             cc.type = FACET;
@@ -124,7 +123,7 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
         //std::cout << " NOT isInside!, cc="<<cc<<"\n";
         return 0;
     }
-	return 0;
+    return 0;
 }
 
 
