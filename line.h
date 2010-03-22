@@ -22,16 +22,15 @@
 #include "point.h"
 
 ///
-/// \brief a finite line in 3D space specified by its end points (p1, p2)
+/// \brief A finite line segment in 3D space specified by its end points (p1, p2)
 ///
 
-///
-/// longer documentation here.
-///
 class Line {
     public:
 		Line(){}
+        /// create a line from p1 to p2
         Line(const Point &p1, const Point &p2);
+        /// create a copy of line l.
         Line(const Line &l);
 
         // text output
@@ -41,9 +40,12 @@ class Line {
         Point p1;
         /// end point
         Point p2;
-
+        
+        /// return the length of the line-segment in the xy-plane
 		double length2d()const;
-		Point getPoint(double fraction)const;
+        /// return a Point on the Line at parameter value t [0,1]
+		Point getPoint(double t)const;
+        /// return the point on the Line which is closest to Point p.
 		Point Near(const Point& p)const;
 };
 

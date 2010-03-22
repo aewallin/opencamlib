@@ -18,6 +18,7 @@
 #ifndef NUMERIC_H
 #define NUMERIC_H
 
+#define PI 3.1415926535897932
 
 ///
 /// \brief Numeric is a collection of static functions for dealing

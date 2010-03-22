@@ -57,12 +57,14 @@ std::ostream& operator<<(std::ostream &stream, const Arc& a)
   return stream;
 }
 
-Point Arc::getPoint(double param)const {
+Point Arc::getPoint(double t)const {
 	/// returns a point which is 0-1 along span
-	if(fabs(param) < 0.00000000000001)return p1;
-	if(fabs(param - 1.0) < 0.00000000000001)return p2;
+	if(fabs(t) < 0.00000000000001)
+        return p1;
+	if(fabs(t - 1.0) < 0.00000000000001)
+        return p2;
 
-	double d = param * length;
+	double d = t * length;
 	if(!dir)d = -d;
 	Point v(c, p1);
 	v.xyRotate(d * dir / radius);
@@ -70,18 +72,22 @@ Point Arc::getPoint(double param)const {
 }
 
 double Arc::xyIncludedAngle(const Point& v1, const Point& v2, bool dir) {
-	// returns the absolute included angle between 2 vectors in the direction of dir ( true=acw  false=cw)
+	// returns the absolute included angle between 2 vectors in 
+    // the direction of dir ( true=acw  false=cw )
 	int d = dir ? 1 : (-1);
 	double inc_ang = v1.dot(v2);
-	if(inc_ang > 1. - 1.0e-10) return 0;
+	if(inc_ang > 1. - 1.0e-10) 
+        return 0;
 	if(inc_ang < -1. + 1.0e-10)
-		inc_ang = 3.1415926535897932;
-	else {									// dot product,   v1 . v2  =  cos ang
-		if(inc_ang > 1.0) inc_ang = 1.0;
-		inc_ang = acos(inc_ang);									// 0 to pi radians
+        inc_ang = PI;
+	else {  // dot product,   v1 . v2  =  cos(alfa)
+		if(inc_ang > 1.0) 
+            inc_ang = 1.0;
+		inc_ang = acos(inc_ang); // 0 to pi radians
 
 		double x = v1.x * v2.x + v1.y * v2.y; 
-		if(d * x < 0) inc_ang = 2 * 3.1415926535897932 - inc_ang ;		// cp
+		if(d * x < 0) 
+            inc_ang = 2 * PI - inc_ang ; // cp
 	}
 	return d * inc_ang;
 }

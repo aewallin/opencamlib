@@ -121,7 +121,8 @@ class Point {
 const Point operator*(const double &a, const Point &p);
 
 enum CCType {NONE, VERTEX, EDGE, FACET, ERROR};
-
+/// Cutter-Contact (CC) Point.
+/// A Point which also contains the type of cutter-contact.
 class CCPoint : public Point {
     public:
         /// create a CCPoint at (0,0,0)

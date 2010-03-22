@@ -41,9 +41,8 @@ enum SpanType{
 class Span{
 public:
 	virtual SpanType type()const = 0;
-
 	virtual double length2d()const = 0;
-	virtual Point getPoint(double fraction)const = 0; // 0.0 to 1.0
+	virtual Point getPoint(double t)const = 0; // 0.0 to 1.0
 };
 
 class LineSpan : public Span {
@@ -54,7 +53,7 @@ class LineSpan : public Span {
 		// Span's virtual functions
 		SpanType type()const{return LineSpanType;}
 		double length2d()const{return line.length2d();}
-		Point getPoint(double fraction)const{return line.getPoint(fraction);}
+		Point getPoint(double t)const{return line.getPoint(t);}
 };
 
 class ArcSpan : public Span {
@@ -65,7 +64,7 @@ class ArcSpan : public Span {
 		// Span's virtual functions
 		SpanType type()const{return ArcSpanType;}
 		double length2d()const{return arc.length2d();}
-		Point getPoint(double fraction)const{return arc.getPoint(fraction);}
+		Point getPoint(double t)const{return arc.getPoint(t);}
 };
 
 class Path {

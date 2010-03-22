@@ -44,9 +44,9 @@ double Line::length2d()const
 	return Point(p1, p2).xyNorm();
 }
 
-Point Line::getPoint(double param)const
+Point Line::getPoint(double t)const
 {
-	return Point(p1, p2) * param + p1;
+	return Point(p1, p2) * t + p1;
 }
 
 Point Line::Near(const Point& p)const{

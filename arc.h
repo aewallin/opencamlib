@@ -20,21 +20,23 @@
 
 #include <iostream>
 #include "point.h"
+#include "numeric.h"
 
 ///
-/// \brief a finite line in 3D space specified by its end points (p1, p2)
-///
-
-///
-/// longer documentation here.
+/// \brief a finite arc segment in 3D space specified by its end points (p1, p2)
 ///
 class Arc {
+        /// 2D length of the segment in the xy-plane
 		double length; // 2d length
+        /// radius of the arc
 		double radius;
 
     public:
 		Arc(){}
+        /// create an arc from point p1 to point p2 with center c and direction dir.
+        /// direction is true for anti-clockwise arcs.
         Arc(const Point &p1, const Point &p2, const Point &c, bool dir);
+        /// create a copy of an arc a.
         Arc(const Arc &a);
 
         // text output
@@ -48,11 +50,16 @@ class Arc {
         Point c;
 		/// direction true for anti-clockwise
 		bool dir;
-
+        /// return the length of the arc
 		double length2d()const{return length;}
-		Point getPoint(double fraction)const;
-		void setProperties();
+        /// return a point along the arc at parameter value t [0,1]
+		Point getPoint(double t)const;
+		
+        /// returns the absolute included angle (in radians) between 
+        /// two vectors v1 and v2 in the direction of dir ( true=acw  false=cw)
 		double xyIncludedAngle(const Point& v1, const Point& v2, bool dir = true);
+    private:
+        void setProperties();
 };
 
 #endif

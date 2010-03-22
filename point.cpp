@@ -257,8 +257,8 @@ bool Point::isInsidePoints(const Point &p1, const Point &p2) const
 
 
 /* **************** Operators ***************  
-/*  see
-/*  http://www.cs.caltech.edu/courses/cs11/material/cpp/donnie/cpp-ops.html
+ *  see
+ *  http://www.cs.caltech.edu/courses/cs11/material/cpp/donnie/cpp-ops.html
 */
 
 Point& Point::operator=(const Point &p)
