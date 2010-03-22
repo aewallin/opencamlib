@@ -104,6 +104,8 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("vertexDrop", &BallCutter::vertexDrop)
         .def("facetDrop", &BallCutter::facetDrop)
         .def("edgeDrop", &BallCutter::edgeDrop)
+        .def("dropCutter", &BallCutter::dropCutter)
+        .def("dropCutterSTL", &BallCutter::dropCutterSTL)
         .def("str", &BallCutter::str)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
@@ -128,5 +130,26 @@ BOOST_PYTHON_MODULE(ocl) {
    /* bp::class_<Spread>("Spread", bp::no_init)
         .def(bp::init<int, double, double>())
     ;*/
+    bp::class_<Line>("Line")
+        .def(bp::init<Point,Point>())
+        .def(bp::init<Line>())
+    ;
+    bp::class_<Arc>("Arc")
+        .def(bp::init<Point,Point,Point,bool>())
+        .def(bp::init<Arc>())
+    ;
+    bp::class_<Path>("Path")
+		.def(bp::init<>())
+        .def(bp::init<Path>())
+        .def("getSpans", &Path::getSpans)
+ 		.def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
+		.def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
+    ;
+    bp::class_<PathDropCutterFinish>("PathDropCutterFinish")
+		.def(bp::init<Path,MillingCutter*,STLSurf*>())
+        .def(bp::init<PathDropCutterFinish>())
+        .def_readonly("outputPath", &PathDropCutterFinish::outputPath)
+        //.def("run", &PathDropCutterFinish::run)
+    ;
 }
 

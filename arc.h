@@ -15,44 +15,44 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-#ifndef OCL_H
-#define OCL_H
+#ifndef ARC_H
+#define ARC_H
 
 #include <iostream>
-#include <iterator>
-#include <algorithm>
-#include <string>
-#include <list>
-
-#include <math.h>
-
-#include <boost/progress.hpp>
-#include <boost/timer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/wrapper.hpp>
-#include <boost/python/call.hpp>
-
 #include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "cutter.h"
-//#include "kdtree.h"
-#include "pfinish.h"
-#include "line.h"
-#include "arc.h"
-#include "path.h"
-#include "pathfinish.h"
+
+///
+/// \brief a finite line in 3D space specified by its end points (p1, p2)
+///
+
+///
+/// longer documentation here.
+///
+class Arc {
+		double length; // 2d length
+		double radius;
+
+    public:
+		Arc(){}
+        Arc(const Point &p1, const Point &p2, const Point &c, bool dir);
+        Arc(const Arc &a);
+
+        // text output
+        friend std::ostream& operator<<(std::ostream &stream, const Arc &a);
+
+        /// start point
+        Point p1;
+        /// end point
+        Point p2;
+        /// centre point
+        Point c;
+		/// direction true for anti-clockwise
+		bool dir;
+
+		double length2d()const{return length;}
+		Point getPoint(double fraction)const;
+		void setProperties();
+		double xyIncludedAngle(const Point& v1, const Point& v2, bool dir = true);
+};
 
 #endif
-
-/*
- * some info here: http://www.eventhelix.com/realtimemantra/HeaderFileIncludePatterns.htm
- * 
- */

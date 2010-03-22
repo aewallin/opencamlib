@@ -15,44 +15,34 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-#ifndef OCL_H
-#define OCL_H
-
 #include <iostream>
-#include <iterator>
-#include <algorithm>
-#include <string>
-#include <list>
-
+#include <stdio.h>
+#include <sstream>
 #include <math.h>
-
-#include <boost/progress.hpp>
-#include <boost/timer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/wrapper.hpp>
-#include <boost/python/call.hpp>
-
-#include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "cutter.h"
-//#include "kdtree.h"
-#include "pfinish.h"
-#include "line.h"
-#include "arc.h"
 #include "path.h"
-#include "pathfinish.h"
 
-#endif
+Path::Path() {
+}
 
-/*
- * some info here: http://www.eventhelix.com/realtimemantra/HeaderFileIncludePatterns.htm
- * 
- */
+Path::Path(const Path &p) {
+}
+
+Path::~Path() {
+}
+
+boost::python::list Path::getSpans() {
+    boost::python::list slist;
+    BOOST_FOREACH(Span* span, span_list) {
+		if(span->type() == LineSpanType)slist.append(((LineSpan*)span)->line);
+		else if(span->type() == ArcSpanType)slist.append(((ArcSpan*)span)->arc);
+    }
+    return slist;
+}
+
+void Path::append(const Line &l) {
+	span_list.push_back(new LineSpan(l));
+}
+
+void Path::append(const Arc &a) {
+	span_list.push_back(new ArcSpan(a));
+}

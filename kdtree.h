@@ -49,7 +49,7 @@ class KDNode {
         /// lev is an experimental parameter (supposed to be the level of the node, but not working currently...)
         KDNode(int d, double cv, KDNode *hi_c, 
                                  KDNode *lo_c, 
-                                 std::list<Triangle> *tlist, 
+                                 const std::list<Triangle> *tlist, 
                                  int lev);
         std::string str();
         friend std::ostream &operator<<(std::ostream &stream, const KDNode node);
@@ -68,7 +68,7 @@ class KDNode {
         /// Child-node lo.
         KDNode *lo;
         /// A list of triangles, if this is a bucket-node
-        std::list<Triangle> *tris;
+        const std::list<Triangle> *tris;
 };
 
 ///
@@ -80,7 +80,7 @@ class KDNode {
 class KDTree {
     public:
         /// build a kd-tree from a list of triangles. return root of tree.
-        static KDNode* build_kdtree(std::list<Triangle> *tris, unsigned int bucketSize);
+        static KDNode* build_kdtree(const std::list<Triangle> *tris, unsigned int bucketSize);
         /// calculate along which dimension kd-tree should cut
         static Spread* spread(const std::list<Triangle> *tris);
         /// search KDTree for triangles under the cutter positioned at cl

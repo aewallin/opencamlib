@@ -176,7 +176,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\arc.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\ballcutter.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\bullcutter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -246,6 +270,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\line.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\numeric.cpp"
 				>
 				<FileConfiguration
@@ -272,6 +308,30 @@
 			<File
 				RelativePath=".\OpenCamLib.cpp"
 				>
+			</File>
+			<File
+				RelativePath="..\path.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\pathfinish.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\pfinish.cpp"
@@ -348,6 +408,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\arc.h"
+				>
+			</File>
+			<File
 				RelativePath="..\cutter.h"
 				>
 			</File>
@@ -356,11 +420,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\line.h"
+				>
+			</File>
+			<File
 				RelativePath="..\numeric.h"
 				>
 			</File>
 			<File
 				RelativePath="..\ocl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\path.h"
+				>
+			</File>
+			<File
+				RelativePath="..\pathfinish.h"
 				>
 			</File>
 			<File

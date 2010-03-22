@@ -15,44 +15,36 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-
-
-#ifndef OCL_H
-#define OCL_H
-
 #include <iostream>
-#include <iterator>
-#include <algorithm>
-#include <string>
-#include <list>
-
+#include <stdio.h>
+#include <sstream>
 #include <math.h>
-
-#include <boost/progress.hpp>
-#include <boost/timer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/wrapper.hpp>
-#include <boost/python/call.hpp>
-
-#include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "cutter.h"
-//#include "kdtree.h"
-#include "pfinish.h"
 #include "line.h"
-#include "arc.h"
-#include "path.h"
-#include "pathfinish.h"
 
-#endif
+Line::Line(const Point &p1in, const Point &p2in)
+{
+    p1=p1in;
+	p2=p2in;
+}
 
-/*
- * some info here: http://www.eventhelix.com/realtimemantra/HeaderFileIncludePatterns.htm
- * 
- */
+Line::Line(const Line &l)
+{
+    p1=l.p1;
+	p2=l.p2;
+}
+
+std::ostream& operator<<(std::ostream &stream, const Line& l)
+{
+  stream << "(" << l.p1 << ", " << l.p2 << ")";
+  return stream;
+}
+
+double Line::length2d()const
+{
+	return Point(p1, p2).xyNorm();
+}
+
+Point Line::getPoint(double param)const
+{
+	return Point(p1, p2) * param + p1;
+}

@@ -27,8 +27,8 @@ STLS =                        \
 .PHONY: all
 all: ocl.so
 
-ocl.so: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o
-	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
+ocl.so: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o
+	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
 
 ocl.o: ocl.cpp ocl.h
 	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 
@@ -63,6 +63,18 @@ kdtree.o: kdtree.h kdtree.cpp
 pfinish.o: pfinish.h pfinish.cpp
 	g++  -fPIC -o pfinish.o -I/usr/include/python2.6 -c pfinish.cpp
 
+arc.o: arc.h arc.cpp
+	g++  -fPIC -o arc.o -I/usr/include/python2.6 -c arc.cpp
+
+line.o: line.h line.cpp
+	g++  -fPIC -o line.o -I/usr/include/python2.6 -c line.cpp
+
+path.o: path.h path.cpp
+	g++  -fPIC -o path.o -I/usr/include/python2.6 -c path.cpp
+
+pathfinish.o: pathfinish.h pathfinish.cpp
+	g++  -fPIC -o pathfinish.o -I/usr/include/python2.6 -c pathfinish.cpp
+
 .PHONY: install
 install: ocl.so
 	strip $^
@@ -76,7 +88,7 @@ install: ocl.so
 	install -m 0644 $(STLS) $(DESTDIR)$(PREFIX)/share/doc/python-opencam/examples
 
 .PHONY: doc
-doc: Doxyfile manual.h point.h triangle.h stlsurf.h cutter.h numeric.h kdtree.h
+doc: Doxyfile manual.h point.h triangle.h stlsurf.h cutter.h numeric.h kdtree.h arc.h line.h path.h pathfinish.h
 	doxygen
 
 .PHONY: pdf

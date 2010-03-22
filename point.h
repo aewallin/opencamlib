@@ -32,14 +32,18 @@ class Point {
         Point();
         /// create a point at (x,y,z)
         Point(double x, double y, double z);
-        /// create a point at p
+
+		/// vector from p1 to p2
+        Point(const Point &p1, const Point &p2);
+
+		/// create a point at p
         Point(const Point &p);
         
         /// dot product
         double dot(const Point &p) const;
         
         /// cross product
-        Point cross(const Point &p);
+        Point cross(const Point &p) const;
         
         /// distance to point from (0,0,0)
         double norm() const; // norm of vector, or distance to (0,0,0) for a point
@@ -55,6 +59,13 @@ class Point {
         
         /// normalize so that length in xy plane is 1
         void xyNormalize();
+
+		/// perpendicular in the xy plane, rotated 90 degree to the left
+		Point xyPerp() const;
+
+		// rotate the vector around x0 y0
+		void xyRotate(double cosa, double sina);
+		void xyRotate(double angle);
         
         /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
         int liftZ(double zin);
@@ -77,10 +88,12 @@ class Point {
         Point &operator=(const Point &p);
         Point &operator+=(const Point &p);
         Point &operator-=(const Point &p);
-        const Point operator+(const Point &p);
-        const Point operator-(const Point &p);                
+        const Point operator+(const Point &p)const;
+        const Point operator-(const Point &p)const;
+
+		const Point operator-(void)const;
         Point &operator*=(const double &a);  // scalar multiplication
-        const Point operator*(const double &a);     // Point*scalar 
+        const Point operator*(const double &a)const;     // Point*scalar 
         bool operator==(const Point &p);
         bool operator!=(const Point &p);
 

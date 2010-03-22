@@ -41,7 +41,7 @@
 
 
 KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
-            std::list<Triangle> *tlist, int lev) 
+            const std::list<Triangle> *tlist, int lev) 
 {
     dim = d;
     cutval = cv;
@@ -56,7 +56,7 @@ KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
 
 int KDTree::level = 0;
 /// given a list of triangles, build and return the root node of a kd-tree with the triangles
-KDNode* KDTree::build_kdtree(std::list<Triangle> *tris, unsigned int bucketSize) 
+KDNode* KDTree::build_kdtree(const std::list<Triangle> *tris, unsigned int bucketSize) 
 {
     
     if (tris->size() == 0) {

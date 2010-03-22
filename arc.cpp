@@ -1,0 +1,87 @@
+/*  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  
+ *  This file is part of OpenCAMlib.
+ *
+ *  OpenCAMlib is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  OpenCAMlib is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
+*/
+#include <iostream>
+#include <stdio.h>
+#include <sstream>
+#include <math.h>
+#include "arc.h"
+
+Arc::Arc(const Point &p1in, const Point &p2in, const Point &cin, bool dirin) {
+    p1=p1in;
+	p2=p2in;
+	c=cin;
+	dir=dirin;
+	setProperties();
+}
+
+Arc::Arc(const Arc &a) {
+    p1=a.p1;
+	p2=a.p2;
+	c=a.c;
+	dir=a.dir;
+	setProperties();
+}
+
+void Arc::setProperties() {
+	// arc properties
+	Point vs = Point(c, p1).xyPerp();
+	Point ve = Point(c, p2).xyPerp();
+
+	if(!dir) {
+		vs = -vs;				// reverse directions for CW arc
+		ve = -ve;
+	}
+
+	radius = vs.xyNorm();
+	length = fabs(xyIncludedAngle(vs, ve, dir)) * radius;
+}
+
+std::ostream& operator<<(std::ostream &stream, const Arc& a)
+{
+  stream << "(" << a.p1 << ", " << a.p2 << ", " << a.c << ", " << a.dir << ")";
+  return stream;
+}
+
+Point Arc::getPoint(double param)const {
+	/// returns a point which is 0-1 along span
+	if(fabs(param) < 0.00000000000001)return p1;
+	if(fabs(param - 1.0) < 0.00000000000001)return p2;
+
+	double d = param * length;
+	if(!dir)d = -d;
+	Point v(c, p1);
+	v.xyRotate(d * dir / radius);
+	return v + c;
+}
+
+double Arc::xyIncludedAngle(const Point& v1, const Point& v2, bool dir) {
+	// returns the absolute included angle between 2 vectors in the direction of dir ( true=acw  false=cw)
+	int d = dir ? 1 : (-1);
+	double inc_ang = v1.dot(v2);
+	if(inc_ang > 1. - 1.0e-10) return 0;
+	if(inc_ang < -1. + 1.0e-10)
+		inc_ang = 3.1415926535897932;
+	else {									// dot product,   v1 . v2  =  cos ang
+		if(inc_ang > 1.0) inc_ang = 1.0;
+		inc_ang = acos(inc_ang);									// 0 to pi radians
+
+		double x = v1.x * v2.x + v1.y * v2.y; 
+		if(d * x < 0) inc_ang = 2 * 3.1415926535897932 - inc_ang ;		// cp
+	}
+	return d * inc_ang;
+}

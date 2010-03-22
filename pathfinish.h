@@ -16,43 +16,36 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#ifndef OCL_H
-#define OCL_H
-
+#ifndef PATH_FINISH_H
+#define PATH_FINISH_H
+#include <boost/foreach.hpp>
+#include <boost/python.hpp>
 #include <iostream>
-#include <iterator>
-#include <algorithm>
 #include <string>
 #include <list>
-
-#include <math.h>
-
-#include <boost/progress.hpp>
-#include <boost/timer.hpp>
-#include <boost/foreach.hpp>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/python.hpp>
-#include <boost/python/module.hpp>
-#include <boost/python/class.hpp>
-#include <boost/python/wrapper.hpp>
-#include <boost/python/call.hpp>
-
-#include "point.h"
+#include "path.h"
 #include "triangle.h"
 #include "stlsurf.h"
 #include "cutter.h"
-//#include "kdtree.h"
-#include "pfinish.h"
-#include "line.h"
-#include "arc.h"
-#include "path.h"
-#include "pathfinish.h"
+#include "kdtree.h"
+
+///
+/// \brief path drop cutter finish Path generation
+      
+class PathDropCutterFinish {
+    public:
+		const Path *path;
+		const MillingCutter *cutter;
+        const STLSurf *surf;
+        KDNode *root;
+
+		Path outputPath;
+
+		PathDropCutterFinish();
+		PathDropCutterFinish(const Path &path, const MillingCutter *cutter, const STLSurf *surf);
+		void run();
+		void run(const Span* span);
+		void refinePointList(std::list<Point> &point_list);
+};
 
 #endif
-
-/*
- * some info here: http://www.eventhelix.com/realtimemantra/HeaderFileIncludePatterns.htm
- * 
- */

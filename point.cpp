@@ -40,6 +40,13 @@ Point::Point(double xin, double yin, double zin)
     setID();
 }
 
+Point::Point(const Point &p1, const Point &p2)
+{
+	x = p2.x - p1.x;
+	y = p2.y - p1.y;
+	z = p2.z - p1.z;
+}
+
 Point::Point(const Point &p)
 {
     x=p.x;
@@ -62,7 +69,7 @@ double Point::norm() const
     return sqrt(x*x+y*y+z*z);
 }
 
-Point Point::cross(const Point &p)
+Point Point::cross(const Point &p) const
 {
     double xc = y * p.z - z * p.y;
     double yc = z * p.x - x * p.z;
@@ -93,7 +100,20 @@ void Point::xyNormalize()
 		*this *=(1/this->xyNorm());
 	}
 }
+Point Point::xyPerp() const
+{
+	return Point(-y, x, z);
+}
 
+void Point::xyRotate(double cosa, double sina) {															// rotate vector by angle
+	double temp = -y * sina + x * cosa;
+	y = x * sina + cosa * y;
+	x = temp;
+}
+
+void Point::xyRotate(double angle) {
+	xyRotate(cos(angle), sin(angle));
+}
 
 double Point::xyDistance(const Point &p) const
 {
@@ -274,17 +294,22 @@ Point& Point::operator-=(const Point &p)
     return *this;
 }
 
-const Point Point::operator+(const Point &p)
+const Point Point::operator+(const Point &p)const
 {
     return Point(*this) += p;
 }
 
-const Point Point::operator-(const Point &p)
+const Point Point::operator-(const Point &p)const
 {
     return Point(*this) -= p;
 }
 
-const Point Point::operator*(const double &a)
+const Point Point::operator-(void)const
+{
+	return Point(-x, -y, -z);
+}
+
+const Point Point::operator*(const double &a)const
 {
     return Point(*this) *= a;
 }
