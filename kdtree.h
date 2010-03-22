@@ -86,9 +86,9 @@ class KDTree {
         /// search KDTree for triangles under the cutter positioned at cl
         /// the triangles found are returned in the triangle list tris.
         static void search_kdtree(std::list<Triangle> *tris, Point &cl, 
-                    MillingCutter &cutter, KDNode *node);
+                    const MillingCutter &cutter, KDNode *node);
         /// do the triangles at KDNode overlap with the cutter positioned at cl?
-        static bool overlap(const KDNode *node, const Point &cl, MillingCutter &cutter);
+        static bool overlap(const KDNode *node, const Point &cl, const MillingCutter &cutter);
         static void str(KDNode *root);
         static int level;
         

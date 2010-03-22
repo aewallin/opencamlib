@@ -42,7 +42,7 @@ BallCutter::BallCutter(const double d)
 }
 
 //********   drop-cutter methods ********************** */
-int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     
@@ -71,7 +71,7 @@ int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
     return result;
 }
 
-int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
 
@@ -125,7 +125,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 }
 
 
-int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:

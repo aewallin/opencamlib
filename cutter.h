@@ -44,36 +44,36 @@ class MillingCutter {
         MillingCutter();
         
         void setDiameter(double d);
-        double getDiameter();
-        double getRadius();
+        double getDiameter() const;
+        double getRadius() const;
         void setLength(double l);
-        double getLength();
+        double getLength() const;
         void setId();
         
         /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t? 
-        bool overlaps(Point &cl, Triangle &t);
+        bool overlaps(Point &cl, Triangle &t) const;
         
         // drop-cutter methods
         /// drop cutter at (cl.x, cl.y) against vertices of Triangle t.
         /// loop through each vertex p of Triangle t
         /// drop down cutter at (cl.x, cl.y) against Point p
-        virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
+        virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
-        virtual int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
+        virtual int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
-        virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) = 0;
+        virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
         
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
         /// Follows the template-method, or "self-delegation" design pattern.
-        int dropCutter(Point &cl, CCPoint &cc, const Triangle &t);
+        int dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const;
         
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
-        int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s);
+        int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const;
         
     protected:
         static int count;
@@ -98,11 +98,11 @@ class CylCutter : public MillingCutter {
         
         // dropCutter methods
         /// drop cutter at (cl.x, cl.y) against vertices of Triangle t
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
-        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
         // text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
@@ -118,11 +118,11 @@ class BallCutter : public MillingCutter {
         BallCutter();
         /// create a BallCutter with diameter d and radius d/2
         BallCutter(const double d);
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
-        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// edge-test for BallCutter
         /// \todo the edge-test for spherical cutter is currently unfinished.
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         std::string str();
@@ -145,11 +145,11 @@ class BullCutter : public MillingCutter {
         BullCutter(const double d, const double r);
         void setRadius();
         /// bull-cutter vertex drop
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// \todo facet-test toroid 
-        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// \todo edge-test for toroid
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t);
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
         std::string str();
@@ -174,17 +174,17 @@ class BullCutter : public MillingCutter {
 class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
 {
     public:
-    int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+    int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     {
         return this->get_override("vertexDrop")(cl,cc,t);
     }
 
-    int facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
+    int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     {
         return this->get_override("facetDrop")(cl,cc,t);
     }
     
-    int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
+    int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     {
         return this->get_override("edgeDrop")(cl,cc,t);
     }    

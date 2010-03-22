@@ -39,13 +39,17 @@ class PathDropCutterFinish {
         const STLSurf *surf;
         KDNode *root;
 
-		Path outputPath;
+        std::list<Point> clpoints;
 
 		PathDropCutterFinish();
-		PathDropCutterFinish(const Path &path, const MillingCutter *cutter, const STLSurf *surf);
+		PathDropCutterFinish(const STLSurf *surf);
 		void run();
 		void run(const Span* span);
 		void refinePointList(std::list<Point> &point_list);
+		void setCutter(const MillingCutter *cutter);
+		void setPath(const Path *path);
+        /// return CC-points to Python
+        boost::python::list getCLPoints();
 };
 
 #endif

@@ -48,3 +48,11 @@ Point Line::getPoint(double param)const
 {
 	return Point(p1, p2) * param + p1;
 }
+
+Point Line::Near(const Point& p)const{
+	// returns the near point from a line on the extended line
+	Point v(p1, p2);
+	v.normalize();
+	double dp = Point(p1, p).dot(v);
+	return p1 + (v * dp);
+}

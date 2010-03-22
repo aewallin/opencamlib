@@ -248,7 +248,7 @@ Spread* KDTree::spread(const std::list<Triangle> *tris) {
 
 } // end spread()
 
-bool KDTree::overlap(const KDNode *node, const Point &cl, MillingCutter &cutter)
+bool KDTree::overlap(const KDNode *node, const Point &cl, const MillingCutter &cutter)
 {
     switch(node->dim) { 
         case 0: // cut along xplus
@@ -286,7 +286,7 @@ bool KDTree::overlap(const KDNode *node, const Point &cl, MillingCutter &cutter)
 /// these triangles are added to the tris list.
 void KDTree::search_kdtree(std::list<Triangle> *tris,
                             Point &cl, 
-                            MillingCutter &cutter, 
+                            const MillingCutter &cutter, 
                             KDNode *node)
 {
     // we found a bucket node, so add all triangles and return.

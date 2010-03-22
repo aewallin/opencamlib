@@ -146,10 +146,12 @@ BOOST_PYTHON_MODULE(ocl) {
 		.def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
     ;
     bp::class_<PathDropCutterFinish>("PathDropCutterFinish")
-		.def(bp::init<Path,MillingCutter*,STLSurf*>())
+		.def(bp::init<STLSurf*>())
         .def(bp::init<PathDropCutterFinish>())
-        .def_readonly("outputPath", &PathDropCutterFinish::outputPath)
-        //.def("run", &PathDropCutterFinish::run)
+        .def("getCLPoints", &PathDropCutterFinish::getCLPoints)
+		.def("run",static_cast< void (PathDropCutterFinish::*)(void)>(&PathDropCutterFinish::run))
+        .def("setCutter", &PathDropCutterFinish::setCutter)
+        .def("setPath", &PathDropCutterFinish::setPath)
     ;
 }
 

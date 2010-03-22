@@ -53,7 +53,7 @@ void BullCutter::setRadius()
 
 
 //********   drop-cutter methods ********************** */
-int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     int result = 0;
@@ -91,7 +91,7 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
 
 
 // FIXME: this is the code for Spherical...
-int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
 
@@ -147,7 +147,7 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 
 
 // FIXME FIXME FIXME. this is totally wrong for now...
-int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:

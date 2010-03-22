@@ -59,23 +59,23 @@ void MillingCutter::setId()
         count++;
 }
 
-double MillingCutter::getDiameter()
+double MillingCutter::getDiameter() const
 {
     return diameter;
 }
 
-double MillingCutter::getRadius()
+double MillingCutter::getRadius() const
 {
     return diameter/2;
 }
 
-double MillingCutter::getLength()
+double MillingCutter::getLength() const
 {
     return length;
 }
 
 
-int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
+int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     /* template-method, or "self-delegation" pattern */
     
@@ -86,7 +86,7 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t)
     return 0; // void
 }
 
-int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
+int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const
 {
     /* template-method, or "self-delegation" pattern */
     //boost::progress_display show_progress( s.tris.size() );
@@ -99,7 +99,7 @@ int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s)
     return 0; // void
 }
 
-bool MillingCutter::overlaps(Point &cl, Triangle &t)
+bool MillingCutter::overlaps(Point &cl, Triangle &t) const
 {
     double r = this->getRadius();
     if ( t.maxx < cl.x-r )

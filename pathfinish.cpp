@@ -32,19 +32,23 @@
 PathDropCutterFinish::PathDropCutterFinish() {
 }
 
-PathDropCutterFinish::PathDropCutterFinish(const Path &p, const MillingCutter *c, const STLSurf *s) {
-	cutter = c;
+PathDropCutterFinish::PathDropCutterFinish(const STLSurf *s) {
+	cutter = NULL;
     surf = s;
     root = KDTree::build_kdtree( &(surf->tris), 20 );
-	path = &p;
+	path = NULL;
+}
+
+void PathDropCutterFinish::setCutter(const MillingCutter *c) {
+	cutter = c;
+}
+
+void PathDropCutterFinish::setPath(const Path *p) {
+	path = p;
 }
 
 void PathDropCutterFinish::run() {
-	// to do
-
-	// test, just add some spans to the output path
-	outputPath.append(Line(Point(0.0, 0.0, 0.0), Point(10.0, 0.0, 0.0)));
-	outputPath.append(Arc(Point(10.0, 0.0, 0.0), Point(20.0, 10.0, 0.0), Point(10.0, 10.0, 0.0), true));
+	clpoints.clear();
 
 	// loop through the input path, splitting each input span into 0.1mm steps
 	for(std::list<Span*>::const_iterator It = path->span_list.begin(); It != path->span_list.end(); It++)
@@ -67,19 +71,22 @@ void PathDropCutterFinish::run(const Span* span)
 	{
 		double fraction = (double)i / num_steps;
 		Point p = span->getPoint(fraction);
-		point_list.push_back(p);
+
+        // find triangles under cutter
+        std::list<Triangle> triangles_under_cutter;
+        KDTree::search_kdtree( &triangles_under_cutter, p, *cutter, root);
+        
+        CCPoint cc;
+        BOOST_FOREACH( const Triangle& t, triangles_under_cutter) {
+            cutter->dropCutter(p,cc,t);
+        }
+        point_list.push_back(p);
 	}
 
 	refinePointList(point_list);
 
-	Point* prev_p = NULL;
 	for(std::list<Point>::iterator It = point_list.begin(); It != point_list.end(); It++)
-	{
-		Point& p = *It;
-		if(prev_p)
-			outputPath.append(Line(*prev_p, p));
-		prev_p = &p;
-	}
+		clpoints.push_back(*It);
 }
 
 static Point* refineStart = NULL;
@@ -91,7 +98,10 @@ static bool middlePointsFit()
 	for(std::list<Point*>::iterator It = refineMiddlePoints.begin(); It != refineMiddlePoints.end(); It++)
 	{
 		Point* p = *It;
-		if(p->xyDistanceToLine(*refineStart, *refineEnd) > PATH_DROP_CUTTER_TOLERANCE)return false;
+		Line l(*refineStart, *refineEnd);
+		Point pnear = l.Near(*p);
+		double dist = Point(*p, pnear).norm();
+		if(dist > PATH_DROP_CUTTER_TOLERANCE)return false;
 	}
 	return true;
 }
@@ -118,6 +128,7 @@ void PathDropCutterFinish::refinePointList(std::list<Point> &point_list)
 			Point* ok_point = refineMiddlePoints.back();
 			new_points.push_back(*ok_point);
 			refineStart = ok_point;
+			refineMiddlePoints.clear();
 		}
 	}
 
@@ -126,3 +137,13 @@ void PathDropCutterFinish::refinePointList(std::list<Point> &point_list)
 
 	point_list = new_points;
 }
+
+boost::python::list PathDropCutterFinish::getCLPoints()
+{
+    boost::python::list plist;
+    BOOST_FOREACH(Point p, clpoints) {
+        plist.append(p);
+    }
+    return plist;
+}
+

@@ -41,7 +41,7 @@ CylCutter::CylCutter(const double d)
 }
 
 //********   drop-cutter methods ********************** */
-int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     /// loop through each vertex p of Triangle t
     /// drop down cutter at (cl.x, cl.y) against Point p
@@ -73,7 +73,7 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t)
     return result;
 }
 
-int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     
@@ -127,7 +127,7 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t)
 }
 
 
-int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t)
+int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
