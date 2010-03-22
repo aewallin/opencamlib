@@ -44,7 +44,7 @@ class Line {
 
 		double length2d()const;
 		Point getPoint(double fraction)const;
-		Point Line::Near(const Point& p)const;
+		Point Near(const Point& p)const;
 };
 
 #endif
