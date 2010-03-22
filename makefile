@@ -23,57 +23,63 @@ STLS =                        \
     gnu_tux_mod.stl           \
     sphere.stl
 
+# compiler
+CC=g++
+# compiler options
+CFLAGS=-fPIC -I/usr/include/python2.6 -Wall -c
+# link options
+LFLAGS=-shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
 
 .PHONY: all
 all: ocl.so
 
 ocl.so: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o
-	g++ ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o -shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
+	$(CC) $(LFLAGS) ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o
 
 ocl.o: ocl.cpp ocl.h
-	g++  -fPIC -o ocl.o -I/usr/include/python2.6 -c ocl.cpp 
+	$(CC)  $(CFLAGS) ocl.cpp 
 
 point.o: point.cpp point.h
-	g++  -fPIC -o point.o -I/usr/include/python2.6 -c point.cpp 
+	$(CC)  $(CFLAGS) point.cpp 
 
 triangle.o: triangle.cpp triangle.h
-	g++  -fPIC -o triangle.o -I/usr/include/python2.6 -c triangle.cpp 
+	$(CC)  $(CFLAGS) triangle.cpp 
 
 stlsurf.o: stlsurf.cpp stlsurf.h
-	g++  -fPIC -o stlsurf.o -I/usr/include/python2.6 -c stlsurf.cpp 
+	$(CC)  $(CFLAGS) stlsurf.cpp 
 
 cutter.o: cutter.cpp cutter.h
-	g++  -fPIC -o cutter.o -I/usr/include/python2.6 -c cutter.cpp 
+	$(CC)  $(CFLAGS) cutter.cpp 
 
 cylcutter.o: cylcutter.cpp cutter.h
-	g++  -fPIC -o cylcutter.o -I/usr/include/python2.6 -c cylcutter.cpp 
+	$(CC)  $(CFLAGS) cylcutter.cpp 
 
 ballcutter.o: ballcutter.cpp cutter.h
-	g++  -fPIC -o ballcutter.o -I/usr/include/python2.6 -c ballcutter.cpp 
+	$(CC)  $(CFLAGS) ballcutter.cpp 
 
 bullcutter.o: bullcutter.cpp cutter.h
-	g++  -fPIC -o bullcutter.o -I/usr/include/python2.6 -c bullcutter.cpp 
+	$(CC)  $(CFLAGS) bullcutter.cpp 
 
 numeric.o: numeric.h numeric.cpp
-	g++  -fPIC -o numeric.o -I/usr/include/python2.6 -c numeric.cpp
+	$(CC)  $(CFLAGS) numeric.cpp
 
 kdtree.o: kdtree.h kdtree.cpp
-	g++  -fPIC -o kdtree.o -I/usr/include/python2.6 -c kdtree.cpp
+	$(CC)  $(CFLAGS) kdtree.cpp
 
 pfinish.o: pfinish.h pfinish.cpp
-	g++  -fPIC -o pfinish.o -I/usr/include/python2.6 -c pfinish.cpp
+	$(CC)  $(CFLAGS) pfinish.cpp
 
 arc.o: arc.h arc.cpp
-	g++  -fPIC -o arc.o -I/usr/include/python2.6 -c arc.cpp
+	$(CC)  $(CFLAGS) arc.cpp
 
 line.o: line.h line.cpp
-	g++  -fPIC -o line.o -I/usr/include/python2.6 -c line.cpp
+	$(CC)  $(CFLAGS) line.cpp
 
 path.o: path.h path.cpp
-	g++  -fPIC -o path.o -I/usr/include/python2.6 -c path.cpp
+	$(CC)  $(CFLAGS) path.cpp
 
 pathfinish.o: pathfinish.h pathfinish.cpp
-	g++  -fPIC -o pathfinish.o -I/usr/include/python2.6 -c pathfinish.cpp
+	$(CC)  $(CFLAGS) pathfinish.cpp
 
 .PHONY: install
 install: ocl.so
