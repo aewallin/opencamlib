@@ -99,7 +99,7 @@ static bool middlePointsFit()
 		Point* p = *It;
 		Line l(*refineStart, *refineEnd);
 		Point pnear = l.Near(*p);
-		double dist = Point(*p, pnear).norm();
+		double dist = (pnear - *p).norm();
 		if(dist > PATH_DROP_CUTTER_TOLERANCE)return false;
 	}
 	return true;

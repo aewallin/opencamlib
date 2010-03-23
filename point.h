@@ -33,9 +33,6 @@ class Point {
         /// create a point at (x,y,z)
         Point(double x, double y, double z);
 
-		/// vector from p1 to p2
-        Point(const Point &p1, const Point &p2);
-
 		/// create a point at p
         Point(const Point &p);
         

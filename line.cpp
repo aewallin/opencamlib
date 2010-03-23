@@ -41,18 +41,18 @@ std::ostream& operator<<(std::ostream &stream, const Line& l)
 
 double Line::length2d()const
 {
-	return Point(p1, p2).xyNorm();
+	return (p2 - p1).xyNorm();
 }
 
 Point Line::getPoint(double t)const
 {
-	return Point(p1, p2) * t + p1;
+	return (p2 - p1) * t + p1;
 }
 
 Point Line::Near(const Point& p)const{
 	// returns the near point from a line on the extended line
-	Point v(p1, p2);
+	Point v = p2 - p1;
 	v.normalize();
-	double dp = Point(p1, p).dot(v);
+	double dp = (p - p1).dot(v);
 	return p1 + (v * dp);
 }

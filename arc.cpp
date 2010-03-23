@@ -39,8 +39,8 @@ Arc::Arc(const Arc &a) {
 
 void Arc::setProperties() {
 	// arc properties
-	Point vs = Point(c, p1).xyPerp();
-	Point ve = Point(c, p2).xyPerp();
+	Point vs = (p1 - c).xyPerp();
+	Point ve = (p2 - c).xyPerp();
 
 	if(!dir) {
 		vs = -vs;				// reverse directions for CW arc
@@ -66,7 +66,7 @@ Point Arc::getPoint(double t)const {
 
 	double d = t * length;
 	if(!dir)d = -d;
-	Point v(c, p1);
+	Point v = p1 - c;
 	v.xyRotate(d * dir / radius);
 	return v + c;
 }

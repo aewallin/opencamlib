@@ -31,7 +31,6 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::class_<Point>("Point") 
         .def(bp::init<double, double, double>())
         .def(bp::init<Point>())
-        .def(bp::init<Point, Point>())
         .def(bp::other<double>() * bp::self)
         .def(bp::self * bp::other<double>())
         .def(bp::self -= bp::other<Point>())
