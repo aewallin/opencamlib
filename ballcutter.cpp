@@ -85,6 +85,24 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         normal = *t.n;
     }   
     
+    if ( (normal.x == 0) && (normal.y == 0) ) { // horizontal plane
+        // so any vertex is at the correct height
+        Point cc_tmp;
+        cc_tmp.x = cl.x;
+        cc_tmp.y = cl.y;
+        cc_tmp.z = t.p[0].z;
+        if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
+            if ( cl.liftZ(cc_tmp.z) ) {
+                cc = cc_tmp;
+                cc.type = FACET;
+                return 1;
+            }
+        } else { // not inside facet
+                return 0;
+        }
+    } // end horizontal plane case.
+    
+    
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
