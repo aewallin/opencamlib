@@ -42,9 +42,10 @@ Point::Point(double xin, double yin, double zin)
 
 Point::Point(const Point &p1, const Point &p2)
 {
-	x = p2.x - p1.x;
-	y = p2.y - p1.y;
-	z = p2.z - p1.z;
+        x = p2.x - p1.x;
+        y = p2.y - p1.y;
+        z = p2.z - p1.z;
+        setID();
 }
 
 Point::Point(const Point &p)
@@ -60,8 +61,8 @@ Point::Point(const Point &p)
 
 void Point::setID()
 {
-		id = count;
-		count++;
+                id = count;
+                count++;
 }
 
 double Point::norm() const
@@ -84,9 +85,9 @@ double Point::dot(const Point &p) const
 
 void Point::normalize()
 {
-	if (this->norm() != 0.0) {
-		*this *=(1/this->norm());
-	}
+        if (this->norm() != 0.0) {
+                *this *=(1/this->norm());
+        }
 }
 
 double Point::xyNorm() const
@@ -97,22 +98,22 @@ double Point::xyNorm() const
 void Point::xyNormalize()
 {
     if (this->xyNorm() != 0) {
-		*this *=(1/this->xyNorm());
-	}
+                *this *=(1/this->xyNorm());
+        }
 }
 Point Point::xyPerp() const
 {
-	return Point(-y, x, z);
+        return Point(-y, x, z);
 }
 
-void Point::xyRotate(double cosa, double sina) {															// rotate vector by angle
-	double temp = -y * sina + x * cosa;
-	y = x * sina + cosa * y;
-	x = temp;
+void Point::xyRotate(double cosa, double sina) {                                                                                                                        // rotate vector by angle
+        double temp = -y * sina + x * cosa;
+        y = x * sina + cosa * y;
+        x = temp;
 }
 
 void Point::xyRotate(double angle) {
-	xyRotate(cos(angle), sin(angle));
+        xyRotate(cos(angle), sin(angle));
 }
 
 double Point::xyDistance(const Point &p) const
@@ -125,9 +126,9 @@ int Point::liftZ(double zin)
     if (zin>z) {
         z=zin;
         return 1;
-	} else {
-		return 0;
-	}
+        } else {
+                return 0;
+        }
 }
 
 double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
@@ -173,48 +174,48 @@ Point Point::xyClosestPoint(const Point &p1, const Point &p2)
 bool Point::isRight(const Point &p1, const Point &p2) const
 {
     // is Point right of line through points p1 and p2 ?, in the XY plane.
-	// this is an ugly way of doing a determinant
-	// should be prettyfied sometime...
+        // this is an ugly way of doing a determinant
+        // should be prettyfied sometime...
     /// \todo FIXME: what if p1==p2 ? (in the XY plane)
-	double a1 = p2.x - p1.x;
-	double a2 = p2.y - p1.y;
-	double t1 = a2;
-	double t2 = -a1;
-	double b1 = x - p1.x;
-	double b2 = y - p1.y;
+        double a1 = p2.x - p1.x;
+        double a2 = p2.y - p1.y;
+        double t1 = a2;
+        double t2 = -a1;
+        double b1 = x - p1.x;
+        double b2 = y - p1.y;
 
-	double t = t1 * b1 + t2 * b2;
-	if (t > 0.00000000000001) /// \todo FIXME: hardcoded magic number...
-		return true;
-	else
-		return false;    
+        double t = t1 * b1 + t2 * b2;
+        if (t > 0.00000000000001) /// \todo FIXME: hardcoded magic number...
+                return true;
+        else
+                return false;    
 }
 
 bool Point::isInside(const Triangle &t) const
 {
     // point in triangle test
     
-	// a new Triangle projected onto the XY plane
+        // a new Triangle projected onto the XY plane
     Point p1 = Point(t.p[0].x, t.p[0].y, 0.0);
     Point p2 = Point(t.p[1].x, t.p[1].y, 0.0);
     Point p3 = Point(t.p[2].x, t.p[2].y, 0.0);
     
     // a new point projected onto the XY plane
-	Point p = Point(x, y, 0.0);
+        Point p = Point(x, y, 0.0);
     
-	bool b1 = p.isRight(p1, p2);
-	bool b2 = p.isRight(p3, p1);
-	bool b3 = p.isRight(p2, p3);
+        bool b1 = p.isRight(p1, p2);
+        bool b2 = p.isRight(p3, p1);
+        bool b3 = p.isRight(p2, p3);
 
     
-	if ((b1) && (b2) && (b3)) {
-		return true;
+        if ((b1) && (b2) && (b3)) {
+                return true;
     }
-	else if ((!b1) && (!b2) && (!b3)) {
-		return true;
+        else if ((!b1) && (!b2) && (!b3)) {
+                return true;
     }
-	else {
-		return false;
+        else {
+                return false;
     }
 }
 
@@ -306,7 +307,7 @@ const Point Point::operator-(const Point &p)const
 
 const Point Point::operator-(void)const
 {
-	return Point(-x, -y, -z);
+        return Point(-x, -y, -z);
 }
 
 const Point Point::operator*(const double &a)const
@@ -331,9 +332,9 @@ bool Point::operator!=(const Point &p)
 
 std::string Point::str()
 {
-	std::ostringstream o;
-	o << "P"<< id <<"(" << x << ", " << y << ", " << z << ")";
-	return o.str();
+        std::ostringstream o;
+        o << "P"<< id <<"(" << x << ", " << y << ", " << z << ")";
+        return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, const Point& p)
@@ -353,7 +354,7 @@ CCPoint::CCPoint() {
 }
 
 CCPoint& CCPoint::operator=(const Point &p) {
-	x=p.x;
+        x=p.x;
     y=p.y;
     z=p.z;
     return *this;
@@ -361,7 +362,7 @@ CCPoint& CCPoint::operator=(const Point &p) {
 
 std::string CCPoint::str()
 {
-	std::ostringstream o;
-	o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
-	return o.str();
+        std::ostringstream o;
+        o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
+        return o.str();
 }

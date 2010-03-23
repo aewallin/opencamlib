@@ -31,6 +31,7 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::class_<Point>("Point") 
         .def(bp::init<double, double, double>())
         .def(bp::init<Point>())
+        .def(bp::init<Point, Point>())
         .def(bp::other<double>() * bp::self)
         .def(bp::self * bp::other<double>())
         .def(bp::self -= bp::other<Point>())
@@ -76,7 +77,7 @@ BOOST_PYTHON_MODULE(ocl) {
     ;
     
     bp::class_<STLSurf>("STLSurf")
-		.def(bp::init<const std::wstring&>())
+        .def(bp::init<const std::wstring&>())
         .def("addTriangle", &STLSurf::addTriangle)
         .def("str", &STLSurf::str)
         .def("size", &STLSurf::size)
@@ -139,17 +140,17 @@ BOOST_PYTHON_MODULE(ocl) {
         .def(bp::init<Arc>())
     ;
     bp::class_<Path>("Path")
-		.def(bp::init<>())
+        .def(bp::init<>())
         .def(bp::init<Path>())
         .def("getSpans", &Path::getSpans)
- 		.def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
-		.def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
+        .def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
+        .def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
     ;
     bp::class_<PathDropCutterFinish>("PathDropCutterFinish")
-		.def(bp::init<STLSurf*>())
+        .def(bp::init<STLSurf*>())
         .def(bp::init<PathDropCutterFinish>())
         .def("getCLPoints", &PathDropCutterFinish::getCLPoints)
-		.def("run",static_cast< void (PathDropCutterFinish::*)(void)>(&PathDropCutterFinish::run))
+        .def("run",static_cast< void (PathDropCutterFinish::*)(void)>(&PathDropCutterFinish::run))
         .def("setCutter", &PathDropCutterFinish::setCutter)
         .def("setPath", &PathDropCutterFinish::setPath)
     ;
