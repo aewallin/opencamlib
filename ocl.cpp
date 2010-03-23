@@ -113,7 +113,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("vertexDrop", &BullCutter::vertexDrop)
         .def("facetDrop", &BullCutter::facetDrop)
         .def("edgeDrop", &BullCutter::edgeDrop)
-        .def("str", &BallCutter::str)
+        .def("str", &BullCutter::str)
     ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)

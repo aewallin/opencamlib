@@ -22,13 +22,6 @@
 #define CUTTER_H
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
-//#include <boost/python/module.hpp>
-//#include <boost/python/class.hpp>
-//#include <boost/python/wrapper.hpp>
-//#include <boost/python/call.hpp>
-
-
-
 #include <iostream>
 #include <string>
 #include "point.h"
@@ -42,18 +35,22 @@ namespace bp = boost::python;
 class MillingCutter {
     public:
         MillingCutter();
-        
+        /// set the diameter of the cutter to d
         void setDiameter(double d);
+        /// return the diameter of the cutter
         double getDiameter() const;
+        /// return the radius of the cutter
         double getRadius() const;
+        /// set the length of the cutter to l
         void setLength(double l);
+        /// return the length of the cutter
         double getLength() const;
-        void setId();
         
-        /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t? 
+        
+        /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
+        /// works in the xy-plane 
         bool overlaps(Point &cl, Triangle &t) const;
         
-        // drop-cutter methods
         /// drop cutter at (cl.x, cl.y) against vertices of Triangle t.
         /// loop through each vertex p of Triangle t
         /// drop down cutter at (cl.x, cl.y) against Point p
@@ -83,6 +80,7 @@ class MillingCutter {
         double diameter;
         /// length of cutter
         double length;
+        void setId();
 };
 
 
@@ -91,7 +89,7 @@ class MillingCutter {
 /// defined by its radius
 class CylCutter : public MillingCutter {
     public:
-        /// create CylCutter with radius = 1.0
+        /// create CylCutter with diameter = 1.0
         CylCutter();
         /// create CylCutter with diameter = d
         CylCutter(const double d);
@@ -143,7 +141,7 @@ class BullCutter : public MillingCutter {
         BullCutter();
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
-        void setRadius();
+        
         /// bull-cutter vertex drop
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// \todo facet-test toroid 
@@ -154,8 +152,14 @@ class BullCutter : public MillingCutter {
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
         std::string str();
     protected:
-        double radius;
+        
+        void setRadius();
+        /// cutter radius. 
+        /// radius = radius1 + radius2
+        double radius;  
+        /// radius of cylindrical part of cutter
         double radius1;
+        /// tube radius of toroid
         double radius2;
 };
 

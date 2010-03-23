@@ -89,21 +89,36 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 }
 
 
-
-// FIXME: this is the code for Spherical...
 int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
-
     Point normal; // facet surface normal
     
     if (t.n->z == 0)  {// vertical surface
         return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
-        normal = -1* (*t.n); // flip normal
+        normal = -1 * (*t.n); // flip normal
     } else {
         normal = *t.n;
     }   
+    
+    if ( (normal.x == 0) && (normal.y == 0) ) { // horizontal plane
+        // so any vertex is at the correct height
+        Point cc_tmp;
+        cc_tmp.x = cl.x;
+        cc_tmp.y = cl.y;
+        cc_tmp.z = t.p[0].z;
+        if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
+            if ( cl.liftZ(cc_tmp.z) ) {
+                cc = cc_tmp;
+                cc.type = FACET;
+                return 1;
+            }
+        } else { // not inside facet
+                return 0;
+        }
+    } // end horizontal plane case.
+    
     
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
@@ -116,10 +131,13 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     double d = - normal.dot(t.p[0]);
         
     normal.normalize(); // make length of normal == 1.0
+    Point xyNormal = normal;
+    xyNormal.z = 0;
+    xyNormal.xyNormalize();
     
     // define the radiusvector which points from the 
-    // ball-center to the cc-point.
-    Point radiusvector = -radius*normal;
+    // torus-center to the cc-point.
+    Point radiusvector = -radius2*normal - radius1*xyNormal;
     
     // find the xy-coordinates of the cc-point
     Point cc_tmp = cl + radiusvector;
@@ -129,7 +147,7 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
     
     // now find the z-coordinate of the cl-point
-    double tip_z = cc_tmp.z - radiusvector.z - radius;
+    double tip_z = cc_tmp.z + radius2*normal.z - radius2;
         
     if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()       
         if ( cl.liftZ(tip_z) ) {
@@ -146,7 +164,8 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
 
 
-// FIXME FIXME FIXME. this is totally wrong for now...
+/// \todo FIXME FIXME FIXME. this is totally wrong for now...
+/// just a copy of what we had for Cyl/BallCutter
 int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t

@@ -346,7 +346,7 @@ CCPoint::CCPoint() {
 }
 
 CCPoint& CCPoint::operator=(const Point &p) {
-        x=p.x;
+    x=p.x;
     y=p.y;
     z=p.z;
     return *this;

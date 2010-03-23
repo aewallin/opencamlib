@@ -17,21 +17,31 @@ def ccColor(cc):
     """ this function returns a different color depending on the type of
         the CC-point. Useful for visualizing CL or CC points """
     if cc.type==cam.CCType.FACET:
-        #nf+=1
         col = (0,0,1)
     elif cc.type == cam.CCType.VERTEX:
-        #nv+=1
         col = (0,1,0)
     elif cc.type == cam.CCType.EDGE:
-        #ne+=1
         col = (1,0,0)
     elif cc.type == cam.CCType.NONE:
-        #print "type=NONE!"
-        #nn+=1
         col = (1,1,1)  
     elif cc.type == cam.CCType.ERROR:
         col = (0,1,1)
     return col
+    
+def ccColor2(cc):
+    """ this function returns a different color depending on the type of
+        the CC-point. Useful for visualizing CL or CC points """
+    if cc.type==cam.CCType.FACET:
+        col = (1,0,1)
+    elif cc.type == cam.CCType.VERTEX:
+        col = (1,1,0)
+    elif cc.type == cam.CCType.EDGE:
+        col = (0,1,1)
+    elif cc.type == cam.CCType.NONE:
+        col = (1,1,1)  
+    elif cc.type == cam.CCType.ERROR:
+        col = (0,0.5,1)
+    return col    
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
@@ -47,9 +57,9 @@ if __name__ == "__main__":
     #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = cam.Triangle(a,b,c)
     
-    #cutter = cam.BullCutter(1,0.2)
+    cutter = cam.BullCutter(1,0.2)
     #cutter = cam.CylCutter(0.5)
-    cutter = cam.BallCutter(0.5)
+    #cutter = cam.BallCutter(0.5)
     
     print cutter.str()
     
@@ -70,14 +80,12 @@ if __name__ == "__main__":
     print len(clpoints), "cl-points to evaluate"
     n=0
     ccpoints=[]
-    print "triangle before=", t.str()
-    print "cutter before=", cutter.str()
+    
     for cl in clpoints:
-        #cutter.dropCutter(cl,cc,t)
         cc = cam.CCPoint()
-        #cutter.vertexDrop(cl,cc,t)
-        cutter.edgeDrop(cl,cc,t)
-        #cutter.facetDrop(cl,cc,t)
+        cutter.vertexDrop(cl,cc,t)
+        #cutter.edgeDrop(cl,cc,t)
+        cutter.facetDrop(cl,cc,t)
         #cutter.dropCutter(cl,cc,t)
 
         ccpoints.append(cc)
@@ -96,12 +104,13 @@ if __name__ == "__main__":
             
             
     print "done."
-    print "triangle after=", t.str()
-    print "cutter after=", cutter.str()
     print "rendering...",
     for cl,cc in zip(clpoints,ccpoints):
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
-        myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=(0,1,0)) )
+        if cc.type != cam.CCType.NONE: # only render interesting cc-points
+            myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=ccColor2(cc) ) )
+
+                        
     print "done."
     
     #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
