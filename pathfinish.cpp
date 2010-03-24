@@ -30,6 +30,11 @@
 //********   ********************** */
 
 PathDropCutterFinish::PathDropCutterFinish() {
+	cutter = NULL;
+    surf = NULL;
+    root = NULL;
+	path = NULL;
+	minimumZ = 0.0;
 }
 
 PathDropCutterFinish::PathDropCutterFinish(const STLSurf *s) {
@@ -37,6 +42,7 @@ PathDropCutterFinish::PathDropCutterFinish(const STLSurf *s) {
     surf = s;
     root = KDTree::build_kdtree( &(surf->tris), 20 );
 	path = NULL;
+	minimumZ = 0.0;
 }
 
 void PathDropCutterFinish::setCutter(const MillingCutter *c) {
@@ -76,6 +82,7 @@ void PathDropCutterFinish::run(const Span* span)
         KDTree::search_kdtree( &triangles_under_cutter, p, *cutter, root);
         
         CCPoint cc;
+		p.z = minimumZ;
         BOOST_FOREACH( const Triangle& t, triangles_under_cutter) {
             cutter->dropCutter(p,cc,t);
         }

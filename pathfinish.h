@@ -42,6 +42,8 @@ class PathDropCutterFinish {
         const STLSurf *surf;
         /// root of a kd-tree that holds the triangles of the surface
         KDNode *root;
+		/// the lowest z height, used when no triangles are touched
+		double minimumZ;
 
         /// list of CL-points
         std::list<Point> clpoints;

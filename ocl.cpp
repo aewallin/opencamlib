@@ -152,6 +152,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("run",static_cast< void (PathDropCutterFinish::*)(void)>(&PathDropCutterFinish::run))
         .def("setCutter", &PathDropCutterFinish::setCutter)
         .def("setPath", &PathDropCutterFinish::setPath)
+        .def_readwrite("minimumZ", &PathDropCutterFinish::minimumZ)
     ;
 }
 
