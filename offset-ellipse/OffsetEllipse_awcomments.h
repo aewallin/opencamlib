@@ -19,7 +19,7 @@ struct TruncEllipseOffset;
 
 
 //////////////////////////////////////////////////////////////////////
-// we gradually poke the values in until the functions can be called.  
+// we gradually poke the values in until the functions can be called.  (?)
 struct Ellipse
 {
 	P2 ecen;	// ellipse centre
@@ -37,7 +37,11 @@ struct Ellipse
 	double perp_s; 
 	double perp_t; 
 
-	void SetEllipseVals(const P2& lecen, const P2& lj, const P2& ln, double lnlen, double leccen); 
+	void SetEllipseVals(const P2& lecen,  // ellipse center
+                        const P2& lj,     // major axis
+                        const P2& ln,     // minor axis
+                        double lnlen,     // length of minor axis
+                        double leccen);   // eccentricity
 
 	#ifdef MDEBUG
 		P2 D_EEval(double s, double t) const; 
@@ -53,21 +57,46 @@ struct EllipseOffset : Ellipse
 	double offrad;	// offset radius we will apply 
 	double radrat;  // offrad / nlen; 
 
-	void SetOffsetRadius(double loffrad); // tiny function to make the reloading in the test harness easier.  
+    // tiny function to make the reloading in the test harness easier. 
+	void SetOffsetRadius(double loffrad);  
 
 	// interface used by the edge torus function
-	void SetOffsetEllipseVals(const P2& lecen, const P2& veaxis, double veaxislen, double crad, double jlenfac, double loffrad); 
+	void SetOffsetEllipseVals(const P2& lecen,      // ellipse center
+                              const P2& veaxis,     
+                              double veaxislen, 
+                              double crad,          // cutter radius (torus tube radius??)
+                              double jlenfac, 
+                              double loffrad);      // offset radius (torus radius?)
 
 	#ifdef MDEBUG
 		P2 D_Eval(double s, double t) const; 
 	#endif
 
 	// solves for points (positions) on the offset ellipse where eopm.p.u == 0
-	double EllInters(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp); 
-	double EllIntersMono(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp); 
-	bool EllIntersMonoByHalf(EllipsOffsetPos& eopa, bool bst, EllipsOffsetPos& eopb, bool bjp, bool bnp); 
-	bool EllIntersMonoByParap(EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp); 
-	double EllIntersMonoByNR(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp); 
+	double EllInters(EllipsOffsetPos& eopm, 
+                     EllipsOffsetPos& eopa, 
+                     EllipsOffsetPos& eopb, 
+                     bool bjp, 
+                     bool bnp); 
+	double EllIntersMono(EllipsOffsetPos& eopm, 
+                         EllipsOffsetPos& eopa, 
+                         EllipsOffsetPos& eopb, 
+                        bool bjp, 
+                        bool bnp); 
+	bool EllIntersMonoByHalf(EllipsOffsetPos& eopa, 
+                             bool bst, 
+                             EllipsOffsetPos& eopb, 
+                             bool bjp, 
+                             bool bnp); 
+	bool EllIntersMonoByParap(EllipsOffsetPos& eopa, 
+                              EllipsOffsetPos& eopb, 
+                              bool bjp, 
+                              bool bnp); 
+	double EllIntersMonoByNR(EllipsOffsetPos& eopm, 
+                             EllipsOffsetPos& eopa, 
+                             EllipsOffsetPos& eopb, 
+                             bool bjp, 
+                             bool bnp); 
 }; 
 
 
@@ -75,10 +104,16 @@ struct EllipseOffset : Ellipse
 //////////////////////////////////////////////////////////////////////
 struct EllipsOffsetPos
 {
-	double s; 
+    // (s, t) where:  s^2 + t^2 = 1
+    // point of ellipse is:  ecen + j s + n t
+    // tangent at point is:  -j t + n s
+    // normal at point is:  j (s / eccen) + n (t * eccen)
+    // point on offset-ellipse:  point on ellipse + offrad*normal
+    
+	double s;   
 	double t; 
 	double k; // 1.0 / sqrt(eoff.eccensq * tsq + ssq); 
-	P2 p; 
+	P2 p;     // a point on the offset-ellipse?
 
 	#ifdef MDEBUG
 		bool D_CheckVal(const EllipseOffset& eoff); 
@@ -89,15 +124,20 @@ struct EllipsOffsetPos
 
 	// generating positions at the cardinal points of tangency and so forth.  
 	void SetPosCardinal(const EllipseOffset& eoff, bool btangnorm, bool bgopos); 
-	void SetPosGirth(const EllipseOffset& eoff, bool bnposgirth); 
+	
+    void SetPosGirth(const EllipseOffset& eoff, 
+                     bool bnposgirth); // set s=0,  t=1 if bnposgirth=true and t=-1 if false
 
 	// generates the points are the truncated sides 
 	void SetPosFromTruncatedCorner(const TruncEllipseOffset& teoff, bool boffup, bool bsidepn); 
 
-
-
 	// generates position for s value here that's a midpoint between the two here.  
-	void SetPos(const EllipseOffset& eoff, bool bst, bool bgopos, double lam, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb); 
+	void SetPos(const EllipseOffset& eoff, 
+                bool bst, 
+                bool bgopos, 
+                double lam, 
+                EllipsOffsetPos& eopa, 
+                EllipsOffsetPos& eopb); 
 
 	// calculates the derivative by ds at this position
 	double dpds(const EllipseOffset& eoff, bool bgopos); 
@@ -160,10 +200,15 @@ struct AlignedEllipsOffsetPos
 	P2 p; 
 	double dubds; 
 	double dubdt; 
-
-	void SetPosFN(const AlignedEllipseOffset& aeoff, double hxsq, double hysq); // set by normal being parallel to this pair of squares of a vector
-	void SetPos(const AlignedEllipseOffset& aeoff, double lst, bool bIsS); 
-	void SetPosHalfNR(const AlignedEllipseOffset& aeoff, AlignedEllipsOffsetPos& aeopa, AlignedEllipsOffsetPos& aeopb, double u); 
+    
+    // set by normal being parallel to this pair of squares of a vector
+	void SetPosFN(const AlignedEllipseOffset& aeoff, double hxsq, double hysq); 
+	
+    void SetPos(const AlignedEllipseOffset& aeoff, double lst, bool bIsS); 
+	void SetPosHalfNR(const AlignedEllipseOffset& aeoff, 
+                            AlignedEllipsOffsetPos& aeopa, 
+                            AlignedEllipsOffsetPos& aeopb, 
+                            double u); 
 }; 
 
 
@@ -172,12 +217,12 @@ struct AlignedEllipseOffset
 {
 	double j; // major radius (along u)
 	double n; // minor radius (along v)
-	double offrad; 
-	double jsq; 
+	double offrad; // offset radius
+	double jsq; // squares?
 	double nsq; 
 	double osq; 
-	double uprecision; 
-	int aeoiterations; 
+	double uprecision;  // ?
+	int aeoiterations;  // ?
 
 	AlignedEllipseOffset(double lj, double ln, double loffrad); 
 	void LowerIntersectU(AlignedEllipsOffsetPos& aeopm, double u); 
