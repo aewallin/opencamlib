@@ -2,6 +2,7 @@ import vtk
 import time
 import datetime
 import ocl as cam
+import math
 
 class VTKScreen():
     """
@@ -95,7 +96,7 @@ class Cube(vtk.vtkActor):
 
 class Cylinder(vtk.vtkActor):
     def __init__(self,center=(0,-2,0) , radius=0.5, height=2, color=(0,1,1),
-                    rotWXYZ=(0,1,0,0), resolution=50 ):
+                    rotXYZ=(0,0,0), resolution=50 ):
         self.src = vtk.vtkCylinderSource()
         self.src.SetCenter(0,0,0)
         self.src.SetHeight(height)
@@ -105,16 +106,16 @@ class Cylinder(vtk.vtkActor):
         # SetCapping(int)
         # CappingOn() CappingOff()
         
+        # this transform rotates the cylinder so it is vertical
+        # and then translates the lower tip to the center point
         transform = vtk.vtkTransform()
         transform.Translate(center[0], center[1], center[2]+height/2)
-        transform.RotateX(90)
+        transform.RotateX(rotXYZ[0])
         transformFilter=vtk.vtkTransformPolyDataFilter()
         transformFilter.SetTransform(transform)
         transformFilter.SetInputConnection(self.src.GetOutputPort())
         transformFilter.Update()
 
-        #self.src.SetCenter(center)
-        transformFilter.Update()
         
         self.mapper = vtk.vtkPolyDataMapper()
         #self.mapper.SetInput(self.src.GetOutput())
@@ -127,7 +128,6 @@ class Cylinder(vtk.vtkActor):
 
 
 class Line(vtk.vtkActor):
-    # Get/SetResolution(int)
     def __init__(self,p1=(0,0,0) , p2=(1,1,1), color=(0,1,1) ):   
         self.src = vtk.vtkLineSource()
         self.src.SetPoint1(p1)
@@ -141,6 +141,72 @@ class Line(vtk.vtkActor):
     def SetColor(self, color):
         self.GetProperty().SetColor(color)
 
+class Circle(vtk.vtkActor):
+    def __init__(self,center=(0,0,0) , radius=1, color=(0,1,1), resolution=50 ):   
+        lines =vtk.vtkCellArray()
+        id = 0
+        points = vtk.vtkPoints()
+        for n in xrange(0,resolution):
+            line = vtk.vtkLine()
+            angle1 = (float(n)/(float(resolution)))*2*math.pi
+            angle2 = (float(n+1)/(float(resolution)))*2*math.pi
+            p1 = (center[0]+radius*math.cos(angle1), center[1]+radius*math.sin(angle1), 0)
+            p2 = (center[0]+radius*math.cos(angle2), center[1]+radius*math.sin(angle2), 0)
+            points.InsertNextPoint(p1)
+            points.InsertNextPoint(p2)
+            line.GetPointIds().SetId(0,id)
+            id=id+1
+            line.GetPointIds().SetId(1,id)
+            id=id+1
+            lines.InsertNextCell(line)
+            
+
+        self.pdata = vtk.vtkPolyData()
+        self.pdata.SetPoints(points)
+        self.pdata.SetLines(lines)
+        
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInput(self.pdata)
+        self.SetMapper(self.mapper)
+        self.SetColor(color)
+
+    def SetColor(self, color):
+        self.GetProperty().SetColor(color)
+        
+    def SetOpacity(self, op=0.5):
+        self.GetProperty().SetOpacity(op)   
+        
+        
+class Tube(vtk.vtkActor):
+    def __init__(self, p1=(0,0,0) , p2=(1,1,1), radius=0.2, color=(0,1,1) ):   
+        points = vtk.vtkPoints()
+        points.InsertNextPoint(p1)
+        points.InsertNextPoint(p2)
+        line = vtk.vtkLine()
+        line.GetPointIds().SetId(0,0)
+        line.GetPointIds().SetId(1,1)
+        lines =vtk.vtkCellArray()
+        lines.InsertNextCell(line)
+        self.pdata = vtk.vtkPolyData()
+        self.pdata.SetPoints(points)
+        self.pdata.SetLines(lines)
+
+        tubefilter=vtk.vtkTubeFilter()
+        tubefilter.SetInput(self.pdata)
+        tubefilter.SetRadius(0.25)
+        tubefilter.SetNumberOfSides(50)
+        tubefilter.Update()
+        
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInput(tubefilter.GetOutput())
+        self.SetMapper(self.mapper)
+        self.SetColor(color)
+
+    def SetColor(self, color):
+        self.GetProperty().SetColor(color)
+        
+    def SetOpacity(self, op=0.5):
+        self.GetProperty().SetOpacity(op)     
 
 class Point(vtk.vtkActor):
     """ vtkPointSource is a source object that creates a user-specified number of points within a specified radius about a specified center point. By default location of the points is random within the sphere. It is also possible to generate random points only on the surface of the sphere.
@@ -164,12 +230,23 @@ class Point(vtk.vtkActor):
 
 
 class Arrow(vtk.vtkActor):
-    def __init__(self, center=(0,0,0), color=(0,0,1) ):
+    def __init__(self, center=(0,0,0), color=(0,0,1), rotXYZ=(0,0,0) ):
         self.src = vtk.vtkArrowSource()
         #self.src.SetCenter(center)
+        
+        transform = vtk.vtkTransform()
+        transform.Translate(center[0], center[1], center[2])
+        transform.RotateX(rotXYZ[0])
+        transform.RotateY(rotXYZ[1])
+        transform.RotateZ(rotXYZ[2])
+        transformFilter=vtk.vtkTransformPolyDataFilter()
+        transformFilter.SetTransform(transform)
+        transformFilter.SetInputConnection(self.src.GetOutputPort())
+        transformFilter.Update()
+        
 
         self.mapper = vtk.vtkPolyDataMapper()
-        self.mapper.SetInput(self.src.GetOutput())
+        self.mapper.SetInput( transformFilter.GetOutput() )
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
@@ -216,6 +293,41 @@ class Axes(vtk.vtkActor):
     
     def SetOrigin(self, center=(0,0,0)):
         self.src.SetOrigin(center[0], center[1], center[2])
+
+class Toroid(vtk.vtkActor):
+    def __init__(self, r1=1, r2=0.25, center=(0,0,0), rotXYZ=(0,0,0), color=(1,0,0)):
+        self.parfun = vtk.vtkParametricSuperToroid()
+        self.parfun.SetRingRadius(r1)
+        self.parfun.SetCrossSectionRadius(r2)
+        self.parfun.SetN1(1)
+        self.parfun.SetN2(1)
+         
+        self.src = vtk.vtkParametricFunctionSource()
+        self.src.SetParametricFunction(self.parfun)
+        
+        transform = vtk.vtkTransform()
+        transform.Translate(center[0], center[1], center[2])
+        transform.RotateX(rotXYZ[0])
+        transform.RotateY(rotXYZ[1])
+        transform.RotateZ(rotXYZ[2])
+        transformFilter=vtk.vtkTransformPolyDataFilter()
+        transformFilter.SetTransform(transform)
+        transformFilter.SetInputConnection(self.src.GetOutputPort())
+        transformFilter.Update()
+        
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInput(transformFilter.GetOutput())
+        self.SetMapper(self.mapper)
+        self.SetColor(color)    
+        
+    def SetColor(self, color):
+        self.GetProperty().SetColor(color)
+        
+    def SetWireframe(self):
+        self.GetProperty().SetRepresentationToWireframe()
+        
+    def SetSurface(self):
+        self.GetProperty().SetRepresentationToSurface() 
 
 class TrilistReader(vtk.vtkPolyDataAlgorithm):
     def __init__(self, triangleList):
