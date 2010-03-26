@@ -63,13 +63,13 @@ class Cone(vtk.vtkActor):
 
 
 class Sphere(vtk.vtkActor):
-    def __init__(self, radius=1, thetaresolution=5, phiresolution=5, center=(0,2,0),
+    def __init__(self, radius=1, resolution=20, center=(0,2,0),
                 color=(1,0,0)):
         self.src = vtk.vtkSphereSource()
         self.src.SetRadius(radius)
         self.src.SetCenter(center)
-        self.src.SetThetaResolution(thetaresolution)
-        self.src.SetPhiResolution(phiresolution)
+        self.src.SetThetaResolution(resolution)
+        self.src.SetPhiResolution(resolution)
 
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInput(self.src.GetOutput())
