@@ -26,9 +26,10 @@ STLS =                        \
 # compiler
 CC=g++
 # compiler options
-CFLAGS=-fPIC -I/usr/include/python2.6 -Wall -c
+CFLAGS=-fPIC `python-config --includes` -Wall -c
 # link options
-LFLAGS=-shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  -lpython2.6
+LFLAGS=-shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  `python-config --ldflags`
+
 
 .PHONY: all
 all: ocl.so
