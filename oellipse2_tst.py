@@ -142,8 +142,8 @@ class EPos():
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    myscreen.camera.SetPosition(6, 4, 2)
-    myscreen.camera.SetFocalPoint(1.38,2, 0)
+    myscreen.camera.SetPosition(5, 3, 2)
+    myscreen.camera.SetFocalPoint(1.38,1, 0)
     
     a=cam.Point(3,2,-2)
     b=cam.Point(-1,2,3)    
@@ -278,15 +278,22 @@ if __name__ == "__main__":
     
     myscreen.addActor( t)
     t2 = camvtk.Text()
-    t2.SetPos( (myscreen.width-400, 30) )
+    t2.SetPos( (50, myscreen.height-150) )
     
     myscreen.addActor( t2)
         
-    epos5.sets(1,0)
+    epos5.sets(0.5,1)
     Nsteps=10
     endcondition = 0
     n = 1
     NRStep=0.1
+    
+    w2if = vtk.vtkWindowToImageFilter()
+    w2if.SetInput(myscreen.renWin)
+    lwr = vtk.vtkPNGWriter()
+    lwr.SetInput( w2if.GetOutput() )
+        
+    
     while not endcondition:
     #for n in xrange(0,Nsteps):
         t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
@@ -308,6 +315,7 @@ if __name__ == "__main__":
         # take Newton rhapson step
         NRStep = (-current_error/deriv)
         print " step=", NRStep
+        #NRStep=0.05 # debug/demo
         epos5.stepTang(oe, NRStep)
         
         p5 = oe.ePoint(epos5)
@@ -330,7 +338,7 @@ if __name__ == "__main__":
         
         if abs(current_error) < 1e-8:
             endcondition=1
-        if n>200:
+        if n>125:
             endcondition=1
             
         if not endcondition:
@@ -338,6 +346,15 @@ if __name__ == "__main__":
             myscreen.removeActor(tangline)
             myscreen.removeActor(normline)
             myscreen.removeActor(oesphere)
+            
+
+        w2if.Modified()
+        #lwr.SetFileName("5_all.png")
+        """
+        for i in xrange(0,10):
+            lwr.SetFileName("frames/oe_nrx"+ ('%05d%02d' % (n,i))+".png")
+            lwr.Write()
+        """
         n=n+1
          
     print "rendering...",
