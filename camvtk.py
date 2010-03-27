@@ -273,6 +273,38 @@ class Text(vtk.vtkTextActor):
     def SetText(self, text):
         self.SetInput(text)
 
+class Text3D(vtk.vtkActor):
+    def __init__(self, color=(1,1,1), center=(0,0,0), text="hello", scale=1):
+        self.src = vtk.vtkVectorText()
+        self.SetText(text)
+        #self.SetCamera(camera)
+        transform = vtk.vtkTransform()
+        transform.Translate(center[0], center[1], center[2])
+        transform.Scale(scale, scale, scale)
+        
+        #transform.RotateY(90)
+        #transform2 = vtk.vtkTransform()
+        
+        #transform.Concatenate(transform2)
+        #transformFilter=vtk.vtkTransformPolyDataFilter()
+        #transformFilter.SetTransform(transform)
+        #transformFilter.SetInputConnection(self.src.GetOutputPort())
+        #transformFilter.Update()
+        self.SetUserTransform(transform)
+        
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInputConnection(self.src.GetOutputPort())
+        self.SetMapper(self.mapper)
+        
+        self.SetColor(color)
+        
+        
+    def SetText(self, text):
+        self.src.SetText(text)
+        
+    def SetColor(self,color):
+        self.GetProperty().SetColor(color)        
+
 class Axes(vtk.vtkActor):
     def __init__(self, center=(0,0,0), color=(0,0,1) ):
         self.src = vtk.vtkAxes()
