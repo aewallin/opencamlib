@@ -111,6 +111,11 @@ class OCTNode():
     def childCenter(self, index):
         return self.center + 0.5 * self.scale * self.posDir(index)
 
+def nodeColor(oct):
+    offset = 2
+    n = oct.level-offset
+    return (float(n)/(OCTMax-offset), float(OCTMax-offset - n)/(OCTMax-offset), 0)
+
 def addNodes(myscreen, oct):
     if oct.type == 1:
         return # don't draw intermediate nodes
@@ -139,7 +144,8 @@ def addNodes(myscreen, oct):
     if oct.type == 1:
         color = camvtk.green
     if oct.type == 2:
-        color = camvtk.red
+        color = nodeColor(oct)
+        
         
     for li in lines:
         li.SetColor( color )
