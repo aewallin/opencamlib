@@ -16,7 +16,7 @@ orange = ( float(255)/255,float(165)/255,float(0)/255)
 
 
 #OCType = Enum('black', 'grey', 'white')
-OCTMax = 6
+OCTMax = 8
 
 def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     # build octree of volume, return root node

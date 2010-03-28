@@ -34,8 +34,8 @@ LFLAGS=-shared -o ocl.so -Wl,-no-undefined -lboost_python-mt  `python-config --l
 .PHONY: all
 all: ocl.so
 
-ocl.so: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o
-	$(CC) $(LFLAGS) ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o
+ocl.so: ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o oellipse.o
+	$(CC) $(LFLAGS) ocl.o point.o triangle.o stlsurf.o cutter.o cylcutter.o ballcutter.o bullcutter.o numeric.o kdtree.o pfinish.o arc.o line.o path.o pathfinish.o oellipse.o
 
 ocl.o: ocl.cpp ocl.h
 	$(CC)  $(CFLAGS) ocl.cpp 
@@ -81,6 +81,9 @@ path.o: path.h path.cpp
 
 pathfinish.o: pathfinish.h pathfinish.cpp
 	$(CC)  $(CFLAGS) pathfinish.cpp
+
+oellipse.o: oellipse.h oellipse.cpp
+	$(CC)  $(CFLAGS) oellipse.cpp
 
 .PHONY: install
 install: ocl.so
