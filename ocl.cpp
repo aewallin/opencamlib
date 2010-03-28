@@ -115,6 +115,20 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("edgeDrop", &BullCutter::edgeDrop)
         .def("str", &BullCutter::str)
     ;
+    bp::class_<Epos>("Epos")
+        .def("setS", &Epos::setS)
+        .def("setT", &Epos::setT)
+        .def("stepTangent", &Epos::stepTangent)
+        .def_readonly("s", &Epos::s)
+        .def_readonly("t", &Epos::t)
+    ;
+    bp::class_<Ellipse>("Ellipse")
+        .def(bp::init<Point&, double, double, double>())
+        .def("ePoint", &Ellipse::ePoint)
+        .def("oePoint", &Ellipse::oePoint)
+        .def("normal", &Ellipse::normal)
+        .def("tangent", &Ellipse::tangent)
+    ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
         .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)

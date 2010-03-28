@@ -52,6 +52,7 @@ class Epos {
 /// An Ellipse. 
 class Ellipse {
     public:
+        Ellipse(){}; // dummy constructor, required??
         /// create an Ellipse with centerpoint center, X-axis a, Y-axis b, and offset distance offset.
         Ellipse(Point& centerin, double a, double b, double offset);
         

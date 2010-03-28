@@ -49,6 +49,7 @@
 #include "arc.h"
 #include "path.h"
 #include "pathfinish.h"
+#include "oellipse.h"
 
 #endif
 
