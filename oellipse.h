@@ -70,6 +70,9 @@ class Ellipse {
         /// return a normalized tangent to the ellipse at Epos
         Point tangent(Epos& position);
         
+        /// offset-ellipse solver
+        static void solver(Ellipse& e, Epos& pos, Point& p);
+        
         /// error function for the solver
         double error(Epos& position, Point& p);
         

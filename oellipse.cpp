@@ -130,6 +130,45 @@ Point Ellipse::tangent(Epos& pos)
     t.normalize();
     return t;
 }        
+
+void Ellipse::solver(Ellipse& e, Epos& pos, Point& p)
+{
+    // newton-rhapson solver to find Epos, starting at pos, which minimizes
+    // e.error(p)
+    int iters = 0;
+    bool endcondition = false;
+    double nr_step = 0.1; // arbitrary start-value for NR-step
+    double current_error, new_error, deriv, dt;
+    Epos epos_tmp;
+    
+    while (!endcondition) {
+        current_error = e.error(pos, p);
+        
+        // check endcondition    
+        if (fabs(current_error) < 1e-8)    /// \todo magic number tolerance
+            endcondition=true;
+        if (iters>125)  /// \todo magix number max_iterations
+            endcondition=true;
+            
+        // #print "current error=", current_error
+        epos_tmp.s = pos.s;
+        epos_tmp.t = pos.t;
+        // # take a small step, to determine rerivative:
+        dt = 0.2*nr_step; /// \todo 0.2 value here is quite arbitrary...
+        epos_tmp.stepTangent(e,dt);
+        new_error = e.error(epos_tmp, p);
+        //#print "new_error=", new_error
+        deriv = (new_error-current_error)/dt;
+        //#print "derivative = ", deriv
+        //# take Newton rhapson step
+        nr_step = (-current_error/deriv);
+        //#print " NRstep=", NRStep
+        //#NRStep=0.05 # debug/demo
+        pos.stepTangent(e, nr_step);
+
+        iters=iters+1;
+    }
+}
         
 double Ellipse::error(Epos& pos, Point& p)
 {
