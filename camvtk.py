@@ -4,6 +4,15 @@ import datetime
 import ocl as cam
 import math
 
+red= (1,0,0)
+green= (0,1,0)
+blue= (0,0,1)
+cyan=  (0,1,1)
+yellow= (1,1,0)
+pink = ( float(255)/255,float(192)/255,float(203)/255)
+grey = ( float(127)/255,float(127)/255,float(127)/255)
+orange = ( float(255)/255,float(165)/255,float(0)/255)
+
 class VTKScreen():
     """
     a vtk render window for displaying geometry
@@ -45,24 +54,51 @@ class VTKScreen():
         self.renWin.Render()
 
 
+class CamvtkActor(vtk.vtkActor):
+    def __init__(self):
+        pass
+        
+    def SetColor(self, color):
+        self.GetProperty().SetColor(color)
+    
+    def SetOpacity(self, op=0.5):
+        self.GetProperty().SetOpacity(op)   
+    
+    def SetWireframe(self):
+        self.GetProperty().SetRepresentationToWireframe()
+        
+    def SetSurface(self):
+        self.GetProperty().SetRepresentationToSurface() 
+        
+    def SetPoints(self):
+        self.GetProperty().SetRepresentationToPoints()
+        
+    def SetFlat(self):     
+        self.GetProperty().SetInterpolationToFlat()
+    
+    def SetGouraud(self):
+        self.GetProperty().SetInterpolationToGouraud()
+    
+    def SetPhong(self):
+        self.GetProperty().SetInterpolationToPhong()
+    
+    # possible TODOs
+    # specular
+    # diffuse
+    # ambient
+    
 
-
-class Cone(vtk.vtkActor):
+class Cone(CamvtkActor):
     def __init__(self, resolution=60, center=(-2,0,0), color=(1,1,0) ):
         self.src = vtk.vtkConeSource()
         self.src.SetResolution(resolution)
         self.src.SetCenter(center)
-
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInput(self.src.GetOutput())
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
-
-
-class Sphere(vtk.vtkActor):
+class Sphere(CamvtkActor):
     def __init__(self, radius=1, resolution=20, center=(0,2,0),
                 color=(1,0,0)):
         self.src = vtk.vtkSphereSource()
@@ -76,10 +112,7 @@ class Sphere(vtk.vtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
-
-class Cube(vtk.vtkActor):
+class Cube(CamvtkActor):
     def __init__(self,center=(2,2,0) , color=(0,1,0) ):
         self.src = vtk.vtkCubeSource()
         self.src.SetCenter(center)
@@ -89,12 +122,7 @@ class Cube(vtk.vtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
-
-
-
-class Cylinder(vtk.vtkActor):
+class Cylinder(CamvtkActor):
     def __init__(self,center=(0,-2,0) , radius=0.5, height=2, color=(0,1,1),
                     rotXYZ=(0,0,0), resolution=50 ):
         self.src = vtk.vtkCylinderSource()
@@ -123,25 +151,19 @@ class Cylinder(vtk.vtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
 
-
-class Line(vtk.vtkActor):
+class Line(CamvtkActor):
     def __init__(self,p1=(0,0,0) , p2=(1,1,1), color=(0,1,1) ):   
         self.src = vtk.vtkLineSource()
         self.src.SetPoint1(p1)
         self.src.SetPoint2(p2)
-
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInput(self.src.GetOutput())
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
 
-class Circle(vtk.vtkActor):
+class Circle(CamvtkActor):
     def __init__(self,center=(0,0,0) , radius=1, color=(0,1,1), resolution=50 ):   
         lines =vtk.vtkCellArray()
         id = 0
@@ -169,15 +191,8 @@ class Circle(vtk.vtkActor):
         self.mapper.SetInput(self.pdata)
         self.SetMapper(self.mapper)
         self.SetColor(color)
-
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
         
-    def SetOpacity(self, op=0.5):
-        self.GetProperty().SetOpacity(op)   
-        
-        
-class Tube(vtk.vtkActor):
+class Tube(CamvtkActor):
     def __init__(self, p1=(0,0,0) , p2=(1,1,1), radius=0.2, color=(0,1,1) ):   
         points = vtk.vtkPoints()
         points.InsertNextPoint(p1)
@@ -202,16 +217,8 @@ class Tube(vtk.vtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
-        
-    def SetOpacity(self, op=0.5):
-        self.GetProperty().SetOpacity(op)     
 
-class Point(vtk.vtkActor):
-    """ vtkPointSource is a source object that creates a user-specified number of points within a specified radius about a specified center point. By default location of the points is random within the sphere. It is also possible to generate random points only on the surface of the sphere.
-    """
-    # Get/SetResolution(int) (?)
+class Point(CamvtkActor):
     def __init__(self, center=(0,0,0), color=(1,2,3) ):   
         self.src = vtk.vtkPointSource()
         self.src.SetCenter(center)
@@ -223,13 +230,7 @@ class Point(vtk.vtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
-
-
-
-
-class Arrow(vtk.vtkActor):
+class Arrow(CamvtkActor):
     def __init__(self, center=(0,0,0), color=(0,0,1), rotXYZ=(0,0,0) ):
         self.src = vtk.vtkArrowSource()
         #self.src.SetCenter(center)
@@ -249,9 +250,6 @@ class Arrow(vtk.vtkActor):
         self.mapper.SetInput( transformFilter.GetOutput() )
         self.SetMapper(self.mapper)
         self.SetColor(color)
-
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
 
 
 class Text(vtk.vtkTextActor):
@@ -326,7 +324,7 @@ class Axes(vtk.vtkActor):
     def SetOrigin(self, center=(0,0,0)):
         self.src.SetOrigin(center[0], center[1], center[2])
 
-class Toroid(vtk.vtkActor):
+class Toroid(CamvtkActor):
     def __init__(self, r1=1, r2=0.25, center=(0,0,0), rotXYZ=(0,0,0), color=(1,0,0)):
         self.parfun = vtk.vtkParametricSuperToroid()
         self.parfun.SetRingRadius(r1)
@@ -351,21 +349,11 @@ class Toroid(vtk.vtkActor):
         self.mapper.SetInput(transformFilter.GetOutput())
         self.SetMapper(self.mapper)
         self.SetColor(color)    
-        
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)
-        
-    def SetWireframe(self):
-        self.GetProperty().SetRepresentationToWireframe()
-        
-    def SetSurface(self):
-        self.GetProperty().SetRepresentationToSurface() 
 
 class TrilistReader(vtk.vtkPolyDataAlgorithm):
     def __init__(self, triangleList):
         vtk.vtkPolyDataAlgorithm.__init__(self)
         self.FileName = None
-             
         self.SetNumberOfInputPorts(0)
         self.SetNumberOfOutputPorts(1)
         
@@ -386,7 +374,7 @@ class TrilistReader(vtk.vtkPolyDataAlgorithm):
         output.ShallowCopy(polydata)
         return 1
 
-class STLSurf(vtk.vtkActor):
+class STLSurf(CamvtkActor):
     def __init__(self, filename=None, triangleList=[], color=(1,1,1) ):
         self.src=[];
         
@@ -429,22 +417,10 @@ class STLSurf(vtk.vtkActor):
         # SetScaleFactor(double)
         # GetOrigin
 
-     
-    def SetWireframe(self):
-        self.GetProperty().SetRepresentationToWireframe()
-        
-    def SetFlat(self):     
-        self.GetProperty().SetInterPolationToFlat()
-
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)    
-
-
-class Plane(vtk.vtkActor):
+class Plane(CamvtkActor):
     def __init__(self, center=(0,0,0), color=(0,0,1) ):
         self.src = vtk.vtkPlaneSource()
         #self.src.SetCenter(center)
-
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInput(self.src.GetOutput())
         self.SetMapper(self.mapper)
@@ -454,9 +430,6 @@ class Plane(vtk.vtkActor):
         # SetScaleFactor(double)
         # GetOrigin
      
-
-    def SetColor(self, color):
-        self.GetProperty().SetColor(color)    
 
 
 # TODO:
