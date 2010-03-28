@@ -190,10 +190,13 @@ if __name__ == "__main__":
     print cutter.str()
     
     xar = camvtk.Arrow(color=red, rotXYZ=(0,0,0))
+    #xar.SetFlat()
     myscreen.addActor(xar)
     yar = camvtk.Arrow(color=green, rotXYZ=(0,0,90))
+    #yar.SetGouraud()
     myscreen.addActor(yar)
     zar = camvtk.Arrow(color=blue, rotXYZ=(0,-90,0))
+    #zar.SetPhong()
     myscreen.addActor(zar)
     
     cl = cam.Point(2.193, 1, 0)
