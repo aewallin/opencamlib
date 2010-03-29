@@ -172,6 +172,16 @@ int Ellipse::solver(Ellipse& e, Epos& pos, Point& p)
             endcondition=true;
             
     }
+    
+    // sometimes we find the wrone pos
+    // we want the pos which also minimizes the x-distance to p
+    Point p1 = e.oePoint(pos);
+    Epos pos2;
+    pos2.s=pos.s;
+    pos2.t=-pos.t;
+    Point p2 = e.oePoint(pos2);
+    std::cout << "solutions: " << p1 << " and " << p2 << "\n";
+    
     return iters;
 }
         

@@ -5,13 +5,25 @@ import vtk
 import math
 import datetime
 
-if __name__ == "__main__":  
+def drawellipse(myscreen, ellcenter, a_axis, b_axis):
+    resolution=50
+    for n in xrange(0,resolution):
+        angle1= (float(n)/float(resolution))*2*math.pi
+        angle2= (float(n+1)/float(resolution))*2*math.pi
+        x=ellcenter.x + a_axis*math.cos(angle1)
+        y=ellcenter.y + b_axis*math.sin(angle1)
+        z=ellcenter.z
+        x2=ellcenter.x + a_axis*math.cos(angle2)
+        y2=ellcenter.y + b_axis*math.sin(angle2)
+        myscreen.addActor( camvtk.Line(p1=(x,y,z),p2=(x2,y2,z), color=camvtk.grey)  )
+
+def main(ycoord=2.2, filename="test"):
     myscreen = camvtk.VTKScreen()
     
-    myscreen.camera.SetPosition(5, 3, 2)
+    myscreen.camera.SetPosition(2, 5, 5)
     myscreen.camera.SetFocalPoint(1.38,1, 0)
     
-    ycoord = 1.5
+    #ycoord = 1.1
     
     a=cam.Point(3,ycoord,-2)
     b=cam.Point(-1,ycoord,3)    
@@ -51,11 +63,12 @@ if __name__ == "__main__":
     tube.SetOpacity(0.2)
     myscreen.addActor(tube)
     
-    cir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,cl.z), color=camvtk.yellow)
-    myscreen.addActor(cir)
+    # cylindrical-cutter circle at z=0 plane
+    #cir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,cl.z), color=camvtk.yellow)
+    #myscreen.addActor(cir)
     
-    clp = camvtk.Point(center=(cl.x,cl.y,cl.z))
-    myscreen.addActor(clp)
+    #clp = camvtk.Point(center=(cl.x,cl.y,cl.z))
+    #myscreen.addActor(clp)
     
     # short axis of ellipse = radius2
     # long axis of ellipse = radius2/sin(theta)
@@ -87,18 +100,8 @@ if __name__ == "__main__":
     # center of the 
     # ecen_tmp=cam.Point(ellcenter,a.y,0)
     
-    
-    resolution=50
-    for n in xrange(0,resolution):
-        angle1= (float(n)/float(resolution))*2*math.pi
-        angle2= (float(n+1)/float(resolution))*2*math.pi
-        x=ellcenter.x + a_axis*math.cos(angle1)
-        y=ellcenter.y + b_axis*math.sin(angle1)
-        x2=ellcenter.x + a_axis*math.cos(angle2)
-        y2=ellcenter.y + b_axis*math.sin(angle2)
-        
-        #myscreen.addActor(camvtk.Point(center=(x,y,0), color=(1,0,1)))
-        myscreen.addActor( camvtk.Line(p1=(x,y,0),p2=(x2,y2,0), color=camvtk.grey)  )
+    #drawellipse(myscreen, ellcenter, a_axis, b_axis)
+
     
     
     oe = cam.Ellipse(ellcenter, a_axis, b_axis, radius1)
@@ -107,82 +110,123 @@ if __name__ == "__main__":
 
         
     nmax=20
-    delta=0.05
-    td = 1
-    epos1 = cam.Epos() 
-    #epos2 = EPos() 
-    #epos3 = EPos()
-    #epos4 = EPos()
-    epos5 = cam.Epos()
+    #delta=0.05
+    #td = 1
+
+    
     
     t = camvtk.Text()
     t.SetPos( (myscreen.width-450, myscreen.height-30) )
+
     
     myscreen.addActor( t)
     t2 = camvtk.Text()
-    t2.SetPos( (50, myscreen.height-150) )
-    
+    ytext = "Y: %3.3f" % (ycoord)
+    t2.SetText(ytext)
+    t2.SetPos( (50, myscreen.height-150) )   
     myscreen.addActor( t2)
         
-    #epos5.sets(0.5,1)
-    #Nsteps=4*62
-    #endcondition = 0
-    #n = 1
-    #NRStep=0.1
+
     
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
   
-        
-    epos5.setS(0,1)
-    epos1.setS(0,1)
+    epos = cam.Epos()
+    epos.setS(0,1)
+    #epos1.setS(0,1)
 
     t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    epos5.s=epos1.s
-    epos5.t=epos1.t
 
-    p5 = oe.ePoint(epos5)
-    pt = oe2.oePoint(epos5)
+
+    #p5 = oe.ePoint(epos5)
+    #pt = oe2.oePoint(epos5)
     #print "before= ", epos5.s, " , ", epos5.t
-    nsteps = cam.Ellipse.solver(oe, epos5, cl)
-    cce = oe.ePoint(epos5)
-    cle = oe.oePoint(epos5)
+    nsteps = cam.Ellipse.solver(oe, epos, cl)
+    cce = oe.ePoint(epos)
+    cle = oe.oePoint(epos)
+    epos2 = cam.Epos()
+    epos2.s = epos.s
+    epos2.t = -epos.t
     #print nsteps
-    print "solution at: ", epos5.s , " , ", epos5.t 
+    print "solution1 at: ", epos.s , " , ", epos.t 
+    print "solution2 at: ", epos2.s , " , ", epos2.t 
     print " cl =", cl.str()
     print " cle=", cle.str()
-    #convlist.append(nsteps)
     
-    convtext = "%i" % (nsteps)
+    xoffset = cl.x - cle.x
+    print "xoffset= ", xoffset
+    # we slide xoffset along the x-axis from ellcenter 
+    # to find the correct z-plane
+    # line is: a + t*(b-a)
+    # find t so that x-component is ellcenter.x + xoffset
+    # a.x + t( b.x -a.y) = ellcenter.x + offset
+    # t= (ellcenter.x + xoffset - a.x) / (b.x - a.x)
+    tparam2 = (ellcenter.x + xoffset - a.x) / (b.x - a.x)
+    elc2 = a + tparam2*(b-a)
+    print "ellcenter2=", elc2.str()
+    #convlist.append(nsteps)
+    fe = cam.Ellipse(elc2, a_axis, b_axis, radius1)
+    fecen = camvtk.Sphere(center=(elc2.x,elc2.y,elc2.z), radius=0.01, color=camvtk.pink)
+    myscreen.addActor(fecen)
+    fccp = fe.ePoint(epos)
+    fclp = fe.oePoint(epos)
+    print "solver cl=", fclp.str(), " == ", cl.str(), " ??"
+    
+    fcir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,elc2.z), color=camvtk.yellow)
+    myscreen.addActor(fcir)
+    
+    fccpoint = camvtk.Sphere(center=(fccp.x,fccp.y,fccp.z), radius=0.01, color=camvtk.green)
+    myscreen.addActor(fccpoint)
+    
+    fclpoint = camvtk.Sphere(center=(fclp.x,fclp.y,fclp.z), radius=0.01, color=camvtk.blue)
+    myscreen.addActor(fclpoint)
+    
+    # line from ellipse center to fcc
+    myscreen.addActor(camvtk.Line( p1=(elc2.x,elc2.y,elc2.z),p2=(fccp.x,fccp.y,fccp.z), color=camvtk.cyan ))
+    # the offset normal
+    myscreen.addActor(camvtk.Line( p1=(fclp.x,fclp.y,fclp.z),p2=(fccp.x,fccp.y,fccp.z), color=camvtk.yellow ))
+    
+    drawellipse(myscreen, elc2, a_axis, b_axis)
+    #convtext = "%i" % (nsteps)
     #print (pt.x, pt.y, pt.z)
     #center=(pt.x, pt.y, pt.z)    
-    tst = camvtk.Text3D( color=(1,1,1), center=(pt.x, pt.y, 0)  , 
-                        text=convtext, scale=0.02)
+    #tst = camvtk.Text3D( color=(1,1,1), center=(pt.x, pt.y, 0)  , 
+    #text=convtext, scale=0.02)
     #tst.SetCamera(myscreen.camera)
-    myscreen.addActor(tst)
+    #myscreen.addActor(tst)
             
     colmax=11
     colmin=4
     nsteps = nsteps - colmin
     colmax = colmax - colmin
     convcolor=( float(nsteps*nsteps)/(colmax), float((colmax-nsteps))/colmax, 0 )
-    esphere = camvtk.Sphere(center=(p5.x,p5.y,0), radius=0.01, color=convcolor)
+    #esphere = camvtk.Sphere(center=(p5.x,p5.y,0), radius=0.01, color=convcolor)
     end_sphere = camvtk.Sphere(center=(cce.x,cce.y,0), radius=0.01, color=camvtk.green)
     cl_sphere = camvtk.Sphere(center=(cle.x,cle.y,0), radius=0.01, color=camvtk.pink)
-    #cl_sphere.SetOpacity(0.4)
+    cl_sphere.SetOpacity(0.4)
     
     clcir= camvtk.Circle(radius=radius1, center=(cle.x,cle.y,cle.z), color=camvtk.pink)
-    myscreen.addActor(clcir)
+    #myscreen.addActor(clcir)
     
-    myscreen.addActor(esphere)
-    myscreen.addActor(end_sphere)
-    myscreen.addActor(cl_sphere)
-    myscreen.render()
+    #myscreen.addActor(esphere)
+    #myscreen.addActor(end_sphere)
+    #myscreen.addActor(cl_sphere)
+    #myscreen.render()
   
     print "done."
     myscreen.render()
+    lwr.SetFileName(filename)
+    lwr.Write()
+    #raw_input("Press Enter to terminate")         
+    #time.sleep(0.5)
+    #myscreen.iren.Start()
+
+
+if __name__ == "__main__":
+    main()
     myscreen.iren.Start()
+    raw_input("Press Enter to terminate")    
 
     

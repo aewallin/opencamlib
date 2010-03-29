@@ -189,8 +189,8 @@ class Circle(CamvtkActor):
             line = vtk.vtkLine()
             angle1 = (float(n)/(float(resolution)))*2*math.pi
             angle2 = (float(n+1)/(float(resolution)))*2*math.pi
-            p1 = (center[0]+radius*math.cos(angle1), center[1]+radius*math.sin(angle1), 0)
-            p2 = (center[0]+radius*math.cos(angle2), center[1]+radius*math.sin(angle2), 0)
+            p1 = (center[0]+radius*math.cos(angle1), center[1]+radius*math.sin(angle1), center[2])
+            p2 = (center[0]+radius*math.cos(angle2), center[1]+radius*math.sin(angle2), center[2])
             points.InsertNextPoint(p1)
             points.InsertNextPoint(p2)
             line.GetPointIds().SetId(0,id)
