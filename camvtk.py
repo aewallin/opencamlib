@@ -4,6 +4,7 @@ import datetime
 import ocl as cam
 import math
 
+white = (1,1,1)
 red= (1,0,0)
 green= (0,1,0)
 blue= (0,0,1)
@@ -14,17 +15,17 @@ pink = ( float(255)/255,float(192)/255,float(203)/255)
 grey = ( float(127)/255,float(127)/255,float(127)/255)
 orange = ( float(255)/255,float(165)/255,float(0)/255)
 
-def ccColor2(cc):
+def ccColor(cc):
     """ this function returns a different color depending on the type of
         the CC-point. Useful for visualizing CL or CC points """
     if cc.type==cam.CCType.FACET:
         col = (1,0,1)
     elif cc.type == cam.CCType.VERTEX:
-        col = (1,1,0)
+        col = yellow
     elif cc.type == cam.CCType.EDGE:
-        col = (0,1,1)
+        col = cyan
     elif cc.type == cam.CCType.NONE:
-        col = (1,1,1)  
+        col = white 
     elif cc.type == cam.CCType.ERROR:
         col = (0,0.5,1)
     return col   
@@ -49,7 +50,7 @@ class VTKScreen():
         interactorstyle.SetCurrentStyleToTrackballCamera()     
            
         self.camera = vtk.vtkCamera()
-        self.camera.SetClippingRange(0.1, 10)
+        self.camera.SetClippingRange(0.01, 1000)
         self.camera.SetFocalPoint(0, 0, 0)
         self.camera.SetPosition(0, 35, 5)
         self.camera.SetViewAngle(30)
