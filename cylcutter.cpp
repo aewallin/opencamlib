@@ -27,7 +27,7 @@
 #include "cutter.h"
 #include "numeric.h"
 
-#define EDGEDROP_DEBUG
+// #define EDGEDROP_DEBUG
 
 //********   CylCutter ********************** */
 CylCutter::CylCutter()
