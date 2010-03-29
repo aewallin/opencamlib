@@ -14,6 +14,22 @@ pink = ( float(255)/255,float(192)/255,float(203)/255)
 grey = ( float(127)/255,float(127)/255,float(127)/255)
 orange = ( float(255)/255,float(165)/255,float(0)/255)
 
+def ccColor2(cc):
+    """ this function returns a different color depending on the type of
+        the CC-point. Useful for visualizing CL or CC points """
+    if cc.type==cam.CCType.FACET:
+        col = (1,0,1)
+    elif cc.type == cam.CCType.VERTEX:
+        col = (1,1,0)
+    elif cc.type == cam.CCType.EDGE:
+        col = (0,1,1)
+    elif cc.type == cam.CCType.NONE:
+        col = (1,1,1)  
+    elif cc.type == cam.CCType.ERROR:
+        col = (0,0.5,1)
+    return col   
+    
+
 class VTKScreen():
     """
     a vtk render window for displaying geometry

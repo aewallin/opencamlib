@@ -131,7 +131,7 @@ Point Ellipse::tangent(Epos& pos)
     return t;
 }        
 
-void Ellipse::solver(Ellipse& e, Epos& pos, Point& p)
+int Ellipse::solver(Ellipse& e, Epos& pos, Point& p)
 {
     // newton-rhapson solver to find Epos, starting at pos, which minimizes
     // e.error(p)
@@ -140,15 +140,12 @@ void Ellipse::solver(Ellipse& e, Epos& pos, Point& p)
     double nr_step = 0.1; // arbitrary start-value for NR-step
     double current_error, new_error, deriv, dt;
     Epos epos_tmp;
+    current_error = e.error(pos, p);
     
     while (!endcondition) {
-        current_error = e.error(pos, p);
         
-        // check endcondition    
-        if (fabs(current_error) < 1e-8)    /// \todo magic number tolerance
-            endcondition=true;
-        if (iters>125)  /// \todo magix number max_iterations
-            endcondition=true;
+        
+
             
         // #print "current error=", current_error
         epos_tmp.s = pos.s;
@@ -165,14 +162,24 @@ void Ellipse::solver(Ellipse& e, Epos& pos, Point& p)
         //#print " NRstep=", NRStep
         //#NRStep=0.05 # debug/demo
         pos.stepTangent(e, nr_step);
-
+        
         iters=iters+1;
+        current_error = e.error(pos, p);
+        // check endcondition    
+        if (fabs(current_error) < 1e-8)    /// \todo magic number tolerance
+            endcondition=true;
+        if (iters>125)  /// \todo magix number max_iterations
+            endcondition=true;
+            
     }
+    return iters;
 }
         
 double Ellipse::error(Epos& pos, Point& p)
 {
-    return 0;
+    Point p1 = oePoint(pos);
+    double dy = p1.y - p.y;
+    return dy;
 }
 
 // end of file oellipse.cpp

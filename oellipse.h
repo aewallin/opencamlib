@@ -72,7 +72,7 @@ class Ellipse {
         Point tangent(Epos& position);
         
         /// offset-ellipse solver
-        static void solver(Ellipse& e, Epos& pos, Point& p);
+        static int solver(Ellipse& e, Epos& pos, Point& p);
         
         /// error function for the solver
         double error(Epos& position, Point& p);
