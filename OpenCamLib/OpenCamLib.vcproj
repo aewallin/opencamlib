@@ -306,6 +306,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\oellipse.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\OpenCamLib.cpp"
 				>
 			</File>
@@ -429,6 +441,10 @@
 			</File>
 			<File
 				RelativePath="..\ocl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\oellipse.h"
 				>
 			</File>
 			<File
