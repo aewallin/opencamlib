@@ -15,6 +15,33 @@
  * 
  * Building requires the Boost libraries. Visualizations require VTK.
  * \subsubsection ubuntu On Ubuntu
+ *
+ * As of SVN r95, OCL builds easily on Ubuntu Hardy through Karmic.
+ * OCL will build on Lucid with some tweaks, which are not covered in these
+ * brief instructions; proper support for Lucid is planned for the near
+ * future.
+ * 
+ * Use apt-get to install some software that helps build Debian packages:
+ *
+ * shell> apt-get install devscripts build-essential
+ *
+ * Use apt-get to install the packages used by OCL.  The build dependencies
+ * are listed in the debian/control file, on the "Build-Depends" line.
+ * The following command is appropriate for SVN r95, check the source file
+ * for current dependencies for your version:
+ *
+ * shell> apt-get install debhelper libboost-python-dev python-dev python-support
+ *
+ * Next build the OCL source tree into a debian package:
+ *
+ * shell> debuild -us -uc
+ *
+ * This will produce a Debian package (a ".deb" file) of OCL in the parent
+ * directory "../", which can be installed with dpkg:
+ *
+ * shell> dpkg -i ../python-opencamlib_*.deb
+ *
+ *
  * \subsubsection windows On Windows
  * \subsection heekscnc HeeksCNC
  * How to get opencamlib installed and working with HeeksCNC.
