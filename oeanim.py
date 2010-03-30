@@ -1,11 +1,18 @@
 import oellipse5_tst as oe
+import math
 
 Nsteps = 500
 ystart = -0.2
 ystop = 2.2
 
 ystep = (ystop-ystart)/(Nsteps-1)
+fiangle = 55
+
+def radian(deg):
+    return (float(deg)/360)*2*math.pi
+
 for n in xrange(0,Nsteps):
     yc = ystart + n*ystep
-    fname = "frames/oe"+ ('%05d' % n)+".png"
-    oe.main(ycoord=yc, filename=fname)
+    fname = "frames/oett"+ ('%05d' % n)+".png"
+    oe.main(ycoord=yc, filename=fname, theta=70, fi=radian(fiangle))
+    #fiangle = fiangle + 2

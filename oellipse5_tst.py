@@ -43,11 +43,16 @@ def calcEcenter(oe,a,b,cl,sln):
     
     
 
-def main(ycoord=1.2, filename="test"):
+def main(ycoord=1.2, filename="test", theta=60, fi=45):
     myscreen = camvtk.VTKScreen()
+    focal = cam.Point(2.17, 1, 0)
+    r = 14
+    theta = (float(theta)/360)*2*math.pi
     
-    myscreen.camera.SetPosition(7, 12, 10)
-    myscreen.camera.SetFocalPoint(1.38,1, 0)
+    
+    campos = cam.Point( r*math.sin(theta)*math.cos(fi), r*math.sin(theta)*math.sin(fi), r*math.cos(theta) ) 
+    myscreen.camera.SetPosition(campos.x, campos.y, campos.z)
+    myscreen.camera.SetFocalPoint(focal.x,focal.y, focal.z)
     
     #ycoord = 1.1
     
@@ -74,7 +79,7 @@ def main(ycoord=1.2, filename="test"):
     radius1=1
     radius2=0.25
     
-    tor = camvtk.Toroid(r1=radius1, r2=radius2, center=(cl.x, cl.y, cl.z),rotXYZ=(0,0,0))
+    
     #tor.SetWireframe()
     #myscreen.addActor(tor)
     
@@ -86,14 +91,14 @@ def main(ycoord=1.2, filename="test"):
     myscreen.addActor(cl_line)
     
     cl_tube = camvtk.Tube(p1=(cl.x,cl.y,-100),p2=(cl.x,cl.y,+100),radius=radius1, color=camvtk.green)
-    cl_tube.SetOpacity(0.2)
+    cl_tube.SetOpacity(0.1)
     myscreen.addActor(cl_tube)
     
     a_inf = a + (-100*(b-a))
     b_inf = a + (+100*(b-a))
 
-    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),radius=radius2, color=camvtk.red)
-    tube.SetOpacity(0.2)
+    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),radius=0.1*radius2, color=camvtk.red)
+    tube.SetOpacity(0.6)
     myscreen.addActor(tube)
     
     # cylindrical-cutter circle at z=0 plane
@@ -205,8 +210,16 @@ def main(ycoord=1.2, filename="test"):
     
     # circles
     myscreen.addActor( camvtk.Circle(radius=radius1, center=(cl1.x,cl1.y,cl1.z), color=camvtk.green) )
-    myscreen.addActor( camvtk.Circle(radius=radius1, center=(cl2.x,cl2.y,cl2.z), color=camvtk.red) )
-
+    myscreen.addActor( camvtk.Circle(radius=radius1, center=(cl2.x,cl2.y,cl2.z), color=camvtk.pink) )
+    
+    # torus
+    tor = camvtk.Toroid(r1=radius1, r2=radius2, center=(cl1.x, cl1.y, cl1.z),rotXYZ=(0,0,0), color=camvtk.green)
+    tor.SetOpacity(0.4)
+    myscreen.addActor( tor)
+    tor = camvtk.Toroid(r1=radius1, r2=radius2, center=(cl2.x, cl2.y, cl2.z),rotXYZ=(0,0,0), color=camvtk.pink)
+    tor.SetOpacity(0.4)
+    myscreen.addActor( tor)
+    
     # line: ellipse-center to cc-point
     myscreen.addActor(camvtk.Line( p1=(elc1.x,elc1.y,elc1.z),p2=(ccp1.x,ccp1.y,ccp1.z), color=camvtk.cyan ))
     myscreen.addActor(camvtk.Line( p1=(elc2.x,elc2.y,elc2.z),p2=(ccp2.x,ccp2.y,ccp2.z), color=camvtk.cyan ))
