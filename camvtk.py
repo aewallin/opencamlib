@@ -7,6 +7,7 @@ import math
 white = (1,1,1)
 red= (1,0,0)
 green= (0,1,0)
+lgreen = ( float(170)/255,float(255)/255,float(170)/255)
 blue= (0,0,1)
 cyan=  (0,1,1)
 yellow= (1,1,0)
@@ -14,6 +15,7 @@ black = (0,0,0)
 pink = ( float(255)/255,float(192)/255,float(203)/255)
 grey = ( float(127)/255,float(127)/255,float(127)/255)
 orange = ( float(255)/255,float(165)/255,float(0)/255)
+
 
 def ccColor(cc):
     """ this function returns a different color depending on the type of
@@ -226,7 +228,7 @@ class Tube(CamvtkActor):
 
         tubefilter=vtk.vtkTubeFilter()
         tubefilter.SetInput(self.pdata)
-        tubefilter.SetRadius(0.25)
+        tubefilter.SetRadius(radius)
         tubefilter.SetNumberOfSides(50)
         tubefilter.Update()
         

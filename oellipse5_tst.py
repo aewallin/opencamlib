@@ -85,10 +85,14 @@ def main(ycoord=1.2, filename="test"):
     cl_line = camvtk.Line( p1=(cl.x,cl.y,-100),p2=(cl.x,cl.y,+100), color=camvtk.red )
     myscreen.addActor(cl_line)
     
+    cl_tube = camvtk.Tube(p1=(cl.x,cl.y,-100),p2=(cl.x,cl.y,+100),radius=radius1, color=camvtk.green)
+    cl_tube.SetOpacity(0.2)
+    myscreen.addActor(cl_tube)
+    
     a_inf = a + (-100*(b-a))
     b_inf = a + (+100*(b-a))
 
-    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),color=(1,1,0))
+    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),radius=radius2, color=camvtk.red)
     tube.SetOpacity(0.2)
     myscreen.addActor(tube)
     
@@ -180,54 +184,47 @@ def main(ycoord=1.2, filename="test"):
     print "elc2=", elc2.str()
     #exit()
     
-    """
-    epos = oe.epos1
-    cce = oe.ePoint(epos)
-    cle = oe.oePoint(epos)
-    print "solution at: ", epos.str() 
-    print " cl =", cl.str()
-    print " cle=", cle.str()
+    #elc2 = elc2
+    #epos = oe.epos2
     
-    xoffset = cl.x - cle.x
-    print "xoffset= ", xoffset
-    # we slide xoffset along the x-axis from ellcenter 
-    # to find the correct z-plane
-    # line is: a + t*(b-a)
-    # find t so that x-component is ellcenter.x + xoffset
-    # a.x + t(b.x-a.x) = ellcenter.x + xoffset
-    # t= (ellcenter.x + xoffset - a.x) / (b.x - a.x)
-    tparam2 = (ellcenter.x + xoffset - a.x) / (b.x - a.x)
-    slide = tparam2*(b-a)
-    print "sliding z-delta: ", slide.z
-    elc2 = a + tparam2*(b-a)
-    print "ellcenter2=", elc2.str()
-    """
-    elc2 = elc2
-    epos = oe.epos2
+    fe1 = cam.Ellipse(elc1, a_axis, b_axis, radius1)
+    fe2 = cam.Ellipse(elc2, a_axis, b_axis, radius1)
     
-    #convlist.append(nsteps)
-    fe = cam.Ellipse(elc2, a_axis, b_axis, radius1)
-    fecen = camvtk.Sphere(center=(elc2.x,elc2.y,elc2.z), radius=0.01, color=camvtk.pink)
-    myscreen.addActor(fecen)
-    fccp = fe.ePoint(epos)
-    fclp = fe.oePoint(epos)
-    print "solver cl=", fclp.str(), " == ", cl.str(), " ??"
+    # draw ellipse-centers
+    myscreen.addActor( camvtk.Sphere(center=(elc1.x,elc1.y,elc1.z), radius=0.01, color=camvtk.lgreen) )
+    myscreen.addActor( camvtk.Sphere(center=(elc2.x,elc2.y,elc2.z), radius=0.01, color=camvtk.pink) )
     
-    fcir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,elc2.z), color=camvtk.yellow)
-    myscreen.addActor(fcir)
+    # cc-points on the ellipse
+    ccp1 = fe1.ePoint(oe.epos1)
+    ccp2 = fe2.ePoint(oe.epos2)
+    myscreen.addActor( camvtk.Sphere(center=(ccp1.x,ccp1.y,ccp1.z), radius=0.01, color=camvtk.lgreen) )
+    myscreen.addActor( camvtk.Sphere(center=(ccp2.x,ccp2.y,ccp2.z), radius=0.01, color=camvtk.pink) )
     
-    fccpoint = camvtk.Sphere(center=(fccp.x,fccp.y,fccp.z), radius=0.01, color=camvtk.green)
-    myscreen.addActor(fccpoint)
+    cl1 = fe1.oePoint(oe.epos1)
+    cl2 = fe2.oePoint(oe.epos2)
     
-    fclpoint = camvtk.Sphere(center=(fclp.x,fclp.y,fclp.z), radius=0.01, color=camvtk.blue)
-    myscreen.addActor(fclpoint)
+    # circles
+    myscreen.addActor( camvtk.Circle(radius=radius1, center=(cl1.x,cl1.y,cl1.z), color=camvtk.green) )
+    myscreen.addActor( camvtk.Circle(radius=radius1, center=(cl2.x,cl2.y,cl2.z), color=camvtk.red) )
+
+    # line: ellipse-center to cc-point
+    myscreen.addActor(camvtk.Line( p1=(elc1.x,elc1.y,elc1.z),p2=(ccp1.x,ccp1.y,ccp1.z), color=camvtk.cyan ))
+    myscreen.addActor(camvtk.Line( p1=(elc2.x,elc2.y,elc2.z),p2=(ccp2.x,ccp2.y,ccp2.z), color=camvtk.cyan ))
+    
+    # line: cc-point to cl-point
+    myscreen.addActor(camvtk.Line( p1=(cl1.x,cl1.y,cl1.z),p2=(ccp1.x,ccp1.y,ccp1.z), color=camvtk.yellow ))
+    myscreen.addActor(camvtk.Line( p1=(cl2.x,cl2.y,cl2.z),p2=(ccp2.x,ccp2.y,ccp2.z), color=camvtk.yellow ))    
+    
+    #fclpoint = camvtk.Sphere(center=(fclp.x,fclp.y,fclp.z), radius=0.01, color=camvtk.blue)
+    #myscreen.addActor(fclpoint)
     
     # line from ellipse center to fcc
-    myscreen.addActor(camvtk.Line( p1=(elc2.x,elc2.y,elc2.z),p2=(fccp.x,fccp.y,fccp.z), color=camvtk.cyan ))
     # the offset normal
-    myscreen.addActor(camvtk.Line( p1=(fclp.x,fclp.y,fclp.z),p2=(fccp.x,fccp.y,fccp.z), color=camvtk.yellow ))
+    #myscreen.addActor(camvtk.Line( p1=(fclp.x,fclp.y,fclp.z),p2=(fccp.x,fccp.y,fccp.z), color=camvtk.yellow ))
     
+    drawellipse(myscreen, elc1, a_axis, b_axis)
     drawellipse(myscreen, elc2, a_axis, b_axis)
+
     #convtext = "%i" % (nsteps)
     #print (pt.x, pt.y, pt.z)
     #center=(pt.x, pt.y, pt.z)    
@@ -236,32 +233,33 @@ def main(ycoord=1.2, filename="test"):
     #tst.SetCamera(myscreen.camera)
     #myscreen.addActor(tst)
             
-    colmax=11
-    colmin=4
-    nsteps = nsteps - colmin
-    colmax = colmax - colmin
-    convcolor=( float(nsteps*nsteps)/(colmax), float((colmax-nsteps))/colmax, 0 )
+    #colmax=11
+    #colmin=4
+    #nsteps = nsteps - colmin
+    #colmax = colmax - colmin
+    #convcolor=( float(nsteps*nsteps)/(colmax), float((colmax-nsteps))/colmax, 0 )
     #esphere = camvtk.Sphere(center=(p5.x,p5.y,0), radius=0.01, color=convcolor)
-    cce = oe.ePoint(epos)
-    cle = oe.oePoint(epos)
-    end_sphere = camvtk.Sphere(center=(cce.x,cce.y,0), radius=0.01, color=camvtk.green)
-    cl_sphere = camvtk.Sphere(center=(cle.x,cle.y,0), radius=0.01, color=camvtk.pink)
-    cl_sphere.SetOpacity(0.4)
+    #cce = oe.ePoint(epos)
+    #cle = oe.oePoint(epos)
+    #end_sphere = camvtk.Sphere(center=(cce.x,cce.y,0), radius=0.01, color=camvtk.green)
+    #cl_sphere = camvtk.Sphere(center=(cle.x,cle.y,0), radius=0.01, color=camvtk.pink)
+    #cl_sphere.SetOpacity(0.4)
     
     #clcir= camvtk.Circle(radius=radius1, center=(cle.x,cle.y,cle.z), color=camvtk.pink)
     #myscreen.addActor(clcir)
     
     #myscreen.addActor(esphere)
-    myscreen.addActor(end_sphere)
-    myscreen.addActor(cl_sphere)
+    #myscreen.addActor(end_sphere)
+    #myscreen.addActor(cl_sphere)
     #myscreen.render()
   
     print "done."
     myscreen.render()
     lwr.SetFileName(filename)
-    #lwr.Write()
+    
     #raw_input("Press Enter to terminate")         
-    time.sleep(0.5)
+    time.sleep(0.2)
+    lwr.Write()
     #myscreen.iren.Start()
 
 
