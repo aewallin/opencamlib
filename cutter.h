@@ -119,7 +119,6 @@ class BallCutter : public MillingCutter {
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// edge-test for BallCutter
-        /// \todo the edge-test for spherical cutter is currently unfinished.
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
@@ -144,7 +143,7 @@ class BullCutter : public MillingCutter {
         
         /// bull-cutter vertex drop
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
-        /// \todo facet-test toroid 
+        /// bull-cutter facet-test 
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         /// \todo edge-test for toroid
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;

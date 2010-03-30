@@ -45,6 +45,10 @@ class Epos {
         /// t-parameter in [-1, 1]
         double t;
         
+        friend std::ostream& operator<<(std::ostream &stream, Epos pos);
+        
+        Epos &operator=(const Epos &pos);
+        std::string str();
 };
 
 
@@ -72,7 +76,7 @@ class Ellipse {
         Point tangent(Epos& position);
         
         /// offset-ellipse solver
-        static int solver(Ellipse& e, Epos& pos, Point& p);
+        static int solver(Ellipse& e, Point& p);
         
         /// error function for the solver
         double error(Epos& position, Point& p);
@@ -86,6 +90,9 @@ class Ellipse {
         double b;
         /// offset
         double offset;
+        
+        Epos epos1;
+        Epos epos2;
         
 };
 

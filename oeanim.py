@@ -1,6 +1,6 @@
-import oellipse4_tst as oe
+import oellipse5_tst as oe
 
-Nsteps = 500
+Nsteps = 5
 ystart = -0.2
 ystop = 2.2
 

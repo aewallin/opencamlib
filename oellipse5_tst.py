@@ -17,10 +17,36 @@ def drawellipse(myscreen, ellcenter, a_axis, b_axis):
         y2=ellcenter.y + b_axis*math.sin(angle2)
         myscreen.addActor( camvtk.Line(p1=(x,y,z),p2=(x2,y2,z), color=camvtk.grey)  )
 
-def main(ycoord=0.970, filename="test"):
+def calcEcenter(oe,a,b,cl,sln):
+    pos = cam.Epos()
+    if sln == 1:
+        pos = oe.epos1
+    if sln == 2:
+        pos = oe.epos2
+    
+    cce = oe.ePoint(pos)
+    cle = oe.oePoint(pos)
+    print "solution at: ", pos.str() 
+    print "  cce=", cce.str()
+    print "  cle=", cle.str()
+    
+    xoffset = cl.x - cle.x
+    print " xoffset= ", xoffset
+    # we slide xoffset along the x-axis from ellcenter 
+    # to find the correct z-plane
+    # line is: a + t*(b-a)
+    # find t so that x-component is ellcenter.x + xoffset
+    # a.x + t(b.x-a.x) = ellcenter.x + xoffset
+    # t= (ellcenter.x + xoffset - a.x) / (b.x - a.x)
+    tparam = (oe.center.x + xoffset - a.x) / (b.x - a.x)
+    return a + tparam*(b-a)
+    
+    
+
+def main(ycoord=1.2, filename="test"):
     myscreen = camvtk.VTKScreen()
     
-    myscreen.camera.SetPosition(2, 5, 5)
+    myscreen.camera.SetPosition(7, 12, 10)
     myscreen.camera.SetFocalPoint(1.38,1, 0)
     
     #ycoord = 1.1
@@ -58,8 +84,11 @@ def main(ycoord=0.970, filename="test"):
     
     cl_line = camvtk.Line( p1=(cl.x,cl.y,-100),p2=(cl.x,cl.y,+100), color=camvtk.red )
     myscreen.addActor(cl_line)
+    
+    a_inf = a + (-100*(b-a))
+    b_inf = a + (+100*(b-a))
 
-    tube = camvtk.Tube(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z),color=(1,1,0))
+    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),color=(1,1,0))
     tube.SetOpacity(0.2)
     myscreen.addActor(tube)
     
@@ -101,8 +130,6 @@ def main(ycoord=0.970, filename="test"):
     # ecen_tmp=cam.Point(ellcenter,a.y,0)
     
     #drawellipse(myscreen, ellcenter, a_axis, b_axis)
-
-    
     
     oe = cam.Ellipse(ellcenter, a_axis, b_axis, radius1)
     
@@ -135,7 +162,6 @@ def main(ycoord=0.970, filename="test"):
   
     epos = cam.Epos()
     epos.setS(0,1)
-    #epos1.setS(0,1)
 
     t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -143,15 +169,22 @@ def main(ycoord=0.970, filename="test"):
     #p5 = oe.ePoint(epos5)
     #pt = oe2.oePoint(epos5)
     #print "before= ", epos5.s, " , ", epos5.t
-    nsteps = cam.Ellipse.solver(oe, epos, cl)
+    nsteps = cam.Ellipse.solver(oe,  cl)
+    print "solver done. back to python:"
+    print "1st (s,t) solution=", oe.epos1.str()
+    print "2st (s,t) solution=", oe.epos2.str()
+    
+    elc1 = calcEcenter(oe,a,b, cl,1)
+    elc2 = calcEcenter(oe,a,b, cl,2)
+    print "elc1=", elc1.str()
+    print "elc2=", elc2.str()
+    #exit()
+    
+    """
+    epos = oe.epos1
     cce = oe.ePoint(epos)
     cle = oe.oePoint(epos)
-    #epos2 = cam.Epos()
-    #epos.s = epos.s
-    #epos.t = epos.t
-    #print nsteps
-    print "solution1 at: ", epos.s , " , ", epos.t 
-    #print "solution2 at: ", epos2.s , " , ", epos2.t 
+    print "solution at: ", epos.str() 
     print " cl =", cl.str()
     print " cle=", cle.str()
     
@@ -168,6 +201,10 @@ def main(ycoord=0.970, filename="test"):
     print "sliding z-delta: ", slide.z
     elc2 = a + tparam2*(b-a)
     print "ellcenter2=", elc2.str()
+    """
+    elc2 = elc2
+    epos = oe.epos2
+    
     #convlist.append(nsteps)
     fe = cam.Ellipse(elc2, a_axis, b_axis, radius1)
     fecen = camvtk.Sphere(center=(elc2.x,elc2.y,elc2.z), radius=0.01, color=camvtk.pink)
@@ -205,12 +242,14 @@ def main(ycoord=0.970, filename="test"):
     colmax = colmax - colmin
     convcolor=( float(nsteps*nsteps)/(colmax), float((colmax-nsteps))/colmax, 0 )
     #esphere = camvtk.Sphere(center=(p5.x,p5.y,0), radius=0.01, color=convcolor)
+    cce = oe.ePoint(epos)
+    cle = oe.oePoint(epos)
     end_sphere = camvtk.Sphere(center=(cce.x,cce.y,0), radius=0.01, color=camvtk.green)
     cl_sphere = camvtk.Sphere(center=(cle.x,cle.y,0), radius=0.01, color=camvtk.pink)
     cl_sphere.SetOpacity(0.4)
     
-    clcir= camvtk.Circle(radius=radius1, center=(cle.x,cle.y,cle.z), color=camvtk.pink)
-    myscreen.addActor(clcir)
+    #clcir= camvtk.Circle(radius=radius1, center=(cle.x,cle.y,cle.z), color=camvtk.pink)
+    #myscreen.addActor(clcir)
     
     #myscreen.addActor(esphere)
     myscreen.addActor(end_sphere)
@@ -220,10 +259,10 @@ def main(ycoord=0.970, filename="test"):
     print "done."
     myscreen.render()
     lwr.SetFileName(filename)
-    lwr.Write()
+    #lwr.Write()
     #raw_input("Press Enter to terminate")         
-    #time.sleep(0.5)
-    myscreen.iren.Start()
+    time.sleep(0.5)
+    #myscreen.iren.Start()
 
 
 if __name__ == "__main__":

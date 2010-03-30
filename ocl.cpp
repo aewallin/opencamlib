@@ -121,6 +121,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("stepTangent", &Epos::stepTangent)
         .def_readwrite("s", &Epos::s)
         .def_readwrite("t", &Epos::t)
+        .def("str", &Epos::str)
     ;
     bp::class_<Ellipse>("Ellipse")
         .def(bp::init<Point&, double, double, double>())
@@ -130,6 +131,9 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("tangent", &Ellipse::tangent)
         .def("error", &Ellipse::error)
         .def("solver", &Ellipse::solver)
+        .def_readonly("epos1", &Ellipse::epos1)
+        .def_readonly("epos2", &Ellipse::epos2)
+        .def_readonly("center", &Ellipse::center)
     ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
