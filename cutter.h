@@ -87,7 +87,8 @@ class MillingCutter {
 
 
 ///
-/// \brief Cylindrical milling cutter (flat-endmill)
+/// \brief Cylindrical MillingCutter (flat-endmill)
+///
 /// defined by its radius
 class CylCutter : public MillingCutter {
     public:
@@ -112,7 +113,8 @@ class CylCutter : public MillingCutter {
 };
 
 
-/// \brief Ball or Spherical milling cutter (ball-nose endmill)
+/// \brief Ball or Spherical MillingCutter (ball-nose endmill)
+///
 /// defined by its radius
 class BallCutter : public MillingCutter {
     public:
@@ -136,7 +138,8 @@ class BallCutter : public MillingCutter {
 };
 
 
-/// \brief Bull or Toroidal milling cutter (bull-nose endmill, filleted endmill)
+/// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
+///
 /// defined by radius1, the cylindrical middle part of the cutter
 /// and radius2, the corner radius of the fillet/torus.
 class BullCutter : public MillingCutter {
@@ -182,6 +185,7 @@ class BullCutter : public MillingCutter {
 
 
 /* required wrapper class for virtual functions in boost-python */
+/// \brief a wrapper required for boost-python
 class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
 {
     public:

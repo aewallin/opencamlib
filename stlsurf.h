@@ -23,7 +23,8 @@
 #include <list>
 
 
-/// \brief STL surface.
+/// \brief STL surface, essentially an unordered list of Triangle objects
+///
 /// STL surfaces consist of triangles. There is by definition no structure
 /// or order among the triangles, i.e. they can be positioned or connected in arbitrary ways.
 class STLSurf {

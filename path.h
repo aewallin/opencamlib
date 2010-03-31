@@ -28,14 +28,15 @@
 
 
 
-/// span type
+/// Span type
 enum SpanType{
 	LineSpanType,
 	ArcSpanType,
 };
 
-/// a span is a finite curve which returns Points along its length
-/// based on a parameter t for which 0 <= t <= 1.0
+/// \brief A finite curve which returns Point objects along its length.
+/// 
+/// location along span is based on a parameter t for which 0 <= t <= 1.0
 class Span{
 public:
     /// return type of span
@@ -46,7 +47,7 @@ public:
 	virtual Point getPoint(double t)const = 0; // 0.0 to 1.0
 };
 
-/// line span
+/// Line Span
 class LineSpan : public Span {
 	public:
         /// create a line span from Line l
@@ -63,7 +64,7 @@ class LineSpan : public Span {
 		Point getPoint(double t)const{return line.getPoint(t);}
 };
 
-/// circular arc span
+/// circular Arc Span
 class ArcSpan : public Span {
 	public:
         /// create span
@@ -81,7 +82,7 @@ class ArcSpan : public Span {
 };
 
 ///
-/// \brief a Path is simply a list of lines and arcs
+/// \brief A collection of Span objects
 ///
 class Path {
     public:

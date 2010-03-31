@@ -1,21 +1,44 @@
 // opencamlib documentation in Doxygen format
 
-/*! \mainpage OpenCAMLib user manual
+/*! \mainpage OpenCAMLib manual
  * 
  * \section intro_sec Introduction
- * OpenCAMLib is a C++ library with Python bindings for creating toolpaths for cnc machines.
+ * OpenCAMLib is a C++ library with Python bindings under GPL license 
+ * for creating toolpaths for cnc machines.
  * 
- * This section of the manual describes how to install and use OpenCAMLib.
+ *      - hosted at: http://code.google.com/p/opencamlib/
+ *      - mailing-list at: http://groups.google.com/group/opencamlib
+ *      - svn-commits at: http://groups.google.com/group/opencamlib-svn
+ * 
+ * This section describes how to obtain, build, and install OpenCAMLib.
+ * 
+ * The \ref usr-manual section describes how to install and use OpenCAMLib.
+ * 
+ * The \ref dev-manual section describes the CAM-algorithms in more detail.
+ * 
  * \section install_sec Installation
- *
- * \subsection deb Debian package
+ * As of 2010 March there is no release yet. You have to build from source.
  *  
  * \subsection source Building from source
- * How to get the source code and compile it.
+ * The project is hosted at google-code: http://code.google.com/p/opencamlib/
  * 
- * Building requires the Boost libraries. Visualizations require VTK.
- * \subsubsection ubuntu On Ubuntu
- *
+ * To checkout the newest OpenCAMLib, run:
+ * 
+ * <kbd>svn checkout http://opencamlib.googlecode.com/svn/trunk/ opencamlib-read-only
+ * </kbd>
+ * 
+ * Building requires the Boost libraries. Visualizations require VTK. It should be as simple as:
+ * 
+ * <kbd>cmake .
+ * 
+ * make
+ * 
+ * make install
+ * </kbd>
+ * 
+ * all done!
+ * 
+ * \subsubsection ubuntu Debian package On Ubuntu
  * As of SVN r95, OCL builds easily on Ubuntu Hardy through Karmic.
  * OCL will build on Lucid with some tweaks, which are not covered in these
  * brief instructions; proper support for Lucid is planned for the near
@@ -23,34 +46,53 @@
  * 
  * Use apt-get to install some software that helps build Debian packages:
  *
- * shell> apt-get install devscripts build-essential
+ * <kbd>shell> apt-get install devscripts build-essential</kbd>
  *
  * Use apt-get to install the packages used by OCL.  The build dependencies
  * are listed in the debian/control file, on the "Build-Depends" line.
  * The following command is appropriate for SVN r95, check the source file
  * for current dependencies for your version:
  *
- * shell> apt-get install debhelper libboost-python-dev python-dev python-support
+ * <kbd>shell> apt-get install debhelper libboost-python-dev python-dev python-support </kbd>
  *
  * Next build the OCL source tree into a debian package:
  *
- * shell> debuild -us -uc
+ * <kbd>shell> debuild -us -uc</kbd>
  *
  * This will produce a Debian package (a ".deb" file) of OCL in the parent
  * directory "../", which can be installed with dpkg:
  *
- * shell> dpkg -i ../python-opencamlib_*.deb
+ * <kbd>shell> dpkg -i ../python-opencamlib_*.deb</kbd>
  *
  *
- * \subsubsection windows On Windows
+ * \subsubsection windows Building On Windows
+ * Text here on how to build on windows.
+ * 
  * \subsection heekscnc HeeksCNC
  * How to get opencamlib installed and working with HeeksCNC.
+ * 
+ */
+ 
+  
+ 
+/*! \page usr-manual OpenCAMLib user manual
+ * 
+ * Here text on how to use the library.
  * 
  * \section Drop-Cutter
  * Tutorial and examples using drop-cutter.
  */
 
-/*! \page p2 OpenCAMLib developer manual
+
+
+
+
+
+
+
+
+
+/*! \page dev-manual OpenCAMLib developer manual
  * 
  * \section intro_dev Introduction
  * This section of the manual describes the computational geometry and algorithms used in OpenCAMLib.

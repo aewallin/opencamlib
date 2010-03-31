@@ -24,7 +24,8 @@
 #include "point.h"
 #include "triangle.h"
 
-
+/// \brief KDTree spread, a measure of how spread-out a list of triangles are.
+///
 /// simple struct-like class for storing the "spread" or maximum 
 /// extent of a list of triangles. Used by the kd-tree algorithm.
 class Spread {

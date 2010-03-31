@@ -24,8 +24,9 @@
 #include "point.h"
 
 class Ellipse;
-
-/// Epos defines a position in (s,t) coordinates on an ellipse.
+///
+/// \brief Epos defines a position in (s,t) coordinates on an ellipse.
+/// 
 /// s^2 + t^2 = 1 should be true at all times.
 class Epos {
     public:
