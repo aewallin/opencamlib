@@ -33,7 +33,7 @@ class Line {
         /// create a copy of line l.
         Line(const Line &l);
 
-        // text output
+        /// text output
         friend std::ostream& operator<<(std::ostream &stream, const Line &l);
 
         /// start point

@@ -39,7 +39,7 @@ class Arc {
         /// create a copy of an arc a.
         Arc(const Arc &a);
 
-        // text output
+        /// text output
         friend std::ostream& operator<<(std::ostream &stream, const Arc &a);
 
         /// start point

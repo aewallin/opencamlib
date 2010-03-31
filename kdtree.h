@@ -29,6 +29,7 @@
 /// extent of a list of triangles. Used by the kd-tree algorithm.
 class Spread {
     public:
+        /// constructor
         Spread(int dim, double v, double s);
         /// dimension
         int d;
@@ -51,13 +52,14 @@ class KDNode {
                                  KDNode *lo_c, 
                                  const std::list<Triangle> *tlist, 
                                  int lev);
+        /// string repr
         std::string str();
+        /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const KDNode node);
         
         /// level of node in tree (FIXME...)
         int level;
         /// dimension of cut or partition.
-        
         int dim;
         /// Cut or partition value.
         /// Child node hi should contain only triangles with a higher value than this.
@@ -89,7 +91,9 @@ class KDTree {
                     const MillingCutter &cutter, KDNode *node);
         /// do the triangles at KDNode overlap with the cutter positioned at cl?
         static bool overlap(const KDNode *node, const Point &cl, const MillingCutter &cutter);
+        /// string repr
         static void str(KDNode *root);
+        /// level of node in tree
         static int level;
         
 };

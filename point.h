@@ -61,7 +61,10 @@ class Point {
 		Point xyPerp() const;
 
 		// rotate the vector around x0 y0
+        /// rotate point in the xy-plane by angle theta
+        /// inputs are cos(theta) and sin(theta)
 		void xyRotate(double cosa, double sina);
+        /// rotate point in xy-plane bu angle theta (radians or degrees??)
 		void xyRotate(double angle);
         
         /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
@@ -82,20 +85,31 @@ class Point {
         /// retruns true if point is inside p1-p2 line (xy-plane)
         bool isInsidePoints(const Point &p1, const Point &p2) const;
         
+        /// assignment
         Point &operator=(const Point &p);
+        /// addition
         Point &operator+=(const Point &p);
+        /// subtraction
         Point &operator-=(const Point &p);
+        /// addition
         const Point operator+(const Point &p)const;
+        /// subtraction
         const Point operator-(const Point &p)const;
-
+        /// what is this??
 		const Point operator-(void)const;
+        /// scalar multiplication
         Point &operator*=(const double &a);  // scalar multiplication
+        /// Point * scalar
         const Point operator*(const double &a)const;     // Point*scalar 
+        /// equality
         bool operator==(const Point &p);
+        /// inequality
         bool operator!=(const Point &p);
 
         // text output
+        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Point &p);
+        /// string repr
         std::string str();
         
 
@@ -106,18 +120,23 @@ class Point {
         double y;
         /// Z coordinate
         double z;
-
+        
+        /// id-count
         static int count;
+        /// id-number
         int id;
     private:
+        /// set id-number
         void setID();
 
 };
 
-// scalar multiplication   scalar*Point
+/// scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
 
+/// type of cc-point
 enum CCType {NONE, VERTEX, EDGE, FACET, ERROR};
+
 /// Cutter-Contact (CC) Point.
 /// A Point which also contains the type of cutter-contact.
 class CCPoint : public Point {
@@ -126,7 +145,9 @@ class CCPoint : public Point {
         CCPoint();
         /// specifies the type of the Cutter Contact point. Possible values are NONE, VERTEX, EDGE, FACET, ERROR.
         CCType type;
+        /// assignment
         CCPoint &operator=(const Point &p);
+        /// string repr
         std::string str();
         
     private:        

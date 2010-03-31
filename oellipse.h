@@ -29,6 +29,7 @@ class Ellipse;
 /// s^2 + t^2 = 1 should be true at all times.
 class Epos {
     public:
+        /// create an epos
         Epos();
         
         /// set s=sin and compute t
@@ -45,9 +46,13 @@ class Epos {
         /// t-parameter in [-1, 1]
         double t;
         
+        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, Epos pos);
         
+        /// set rhs Epos (s,t) values equal to lhs Epos
         Epos &operator=(const Epos &pos);
+        
+        /// string repr
         std::string str();
 };
 
@@ -56,7 +61,8 @@ class Epos {
 /// An Ellipse. 
 class Ellipse {
     public:
-        Ellipse(){}; // dummy constructor, required??
+        /// dummy constructor
+        Ellipse(){}; 
         /// create an Ellipse with centerpoint center, X-axis a, Y-axis b, and offset distance offset.
         Ellipse(Point& centerin, double a, double b, double offset);
         
@@ -91,7 +97,9 @@ class Ellipse {
         /// offset
         double offset;
         
+        /// first Epos solution found by solver()
         Epos epos1;
+        /// second Epos solution found by solver()
         Epos epos2;
         
 };

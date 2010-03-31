@@ -1,3 +1,7 @@
+"""@camvtk docstring
+This module provides classes for visualizing CAD/CAM algorithms using VTK.
+"""
+
 import vtk
 import time
 import datetime
@@ -38,6 +42,7 @@ class VTKScreen():
     a vtk render window for displaying geometry
     """
     def __init__(self, width=1280, height=720):
+        """ create a screen """
         self.width=width
         self.height=height
 
@@ -62,44 +67,58 @@ class VTKScreen():
         
         
     def setAmbient(self, r, g, b):
+        """ set ambient color """
         self.ren.SetAmbient(r, g, b)
                     
     def addActor(self, actor):
+        """ add an actor """
         self.ren.AddActor(actor)
     
     def removeActor(self, actor):
+        """ remove an actor"""
         self.ren.RemoveActor(actor)
 
     def render(self):
+        """ render scene"""
         self.renWin.Render()
 
 
 class CamvtkActor(vtk.vtkActor):
+    """ base class for actors"""
     def __init__(self):
+        """ do nothing"""
         pass
         
     def SetColor(self, color):
+        """ set color of actor"""
         self.GetProperty().SetColor(color)
     
     def SetOpacity(self, op=0.5):
+        """ set opacity of actor, 0 is see-thru (invisible)"""
         self.GetProperty().SetOpacity(op)   
     
     def SetWireframe(self):
+        """ set surface to wireframe"""
         self.GetProperty().SetRepresentationToWireframe()
         
     def SetSurface(self):
+        """ set surface rendering on"""
         self.GetProperty().SetRepresentationToSurface() 
         
     def SetPoints(self):
+        """ render only points"""
         self.GetProperty().SetRepresentationToPoints()
         
     def SetFlat(self):     
+        """ set flat shading"""
         self.GetProperty().SetInterpolationToFlat()
     
     def SetGouraud(self):
+        """ set gouraud shading"""
         self.GetProperty().SetInterpolationToGouraud()
     
     def SetPhong(self):
+        """ set phong shading"""
         self.GetProperty().SetInterpolationToPhong()
     
     # possible TODOs
@@ -109,7 +128,9 @@ class CamvtkActor(vtk.vtkActor):
     
 
 class Cone(CamvtkActor):
+    """ a cone"""
     def __init__(self, resolution=60, center=(-2,0,0), color=(1,1,0) ):
+        """ cone"""
         self.src = vtk.vtkConeSource()
         self.src.SetResolution(resolution)
         self.src.SetCenter(center)
@@ -119,8 +140,10 @@ class Cone(CamvtkActor):
         self.SetColor(color)
 
 class Sphere(CamvtkActor):
+    """ a sphere"""
     def __init__(self, radius=1, resolution=20, center=(0,2,0),
                 color=(1,0,0)):
+        """ create sphere"""
         self.src = vtk.vtkSphereSource()
         self.src.SetRadius(radius)
         self.src.SetCenter(center)
@@ -133,7 +156,9 @@ class Sphere(CamvtkActor):
         self.SetColor(color)
 
 class Cube(CamvtkActor):
+    """ a cube"""
     def __init__(self,center=(2,2,0) , color=(0,1,0) ):
+        """ create cube"""
         self.src = vtk.vtkCubeSource()
         self.src.SetCenter(center)
 
@@ -143,8 +168,10 @@ class Cube(CamvtkActor):
         self.SetColor(color)
 
 class Cylinder(CamvtkActor):
+    """ cylinder """
     def __init__(self,center=(0,-2,0) , radius=0.5, height=2, color=(0,1,1),
                     rotXYZ=(0,0,0), resolution=50 ):
+        """ cylinder """
         self.src = vtk.vtkCylinderSource()
         self.src.SetCenter(0,0,0)
         self.src.SetHeight(height)
@@ -173,7 +200,9 @@ class Cylinder(CamvtkActor):
 
 
 class Line(CamvtkActor):
+    """ line """
     def __init__(self,p1=(0,0,0) , p2=(1,1,1), color=(0,1,1) ):   
+        """ line """
         self.src = vtk.vtkLineSource()
         self.src.SetPoint1(p1)
         self.src.SetPoint2(p2)
@@ -184,7 +213,9 @@ class Line(CamvtkActor):
 
 
 class Circle(CamvtkActor):
+    """ circle"""
     def __init__(self,center=(0,0,0) , radius=1, color=(0,1,1), resolution=50 ):   
+        """ create circle """
         lines =vtk.vtkCellArray()
         id = 0
         points = vtk.vtkPoints()
@@ -213,7 +244,9 @@ class Circle(CamvtkActor):
         self.SetColor(color)
         
 class Tube(CamvtkActor):
+    """ a Tube is a line with thickness"""
     def __init__(self, p1=(0,0,0) , p2=(1,1,1), radius=0.2, color=(0,1,1) ):   
+        """ tube"""
         points = vtk.vtkPoints()
         points.InsertNextPoint(p1)
         points.InsertNextPoint(p2)
@@ -239,7 +272,9 @@ class Tube(CamvtkActor):
 
 
 class Point(CamvtkActor):
+    """ point"""
     def __init__(self, center=(0,0,0), color=(1,2,3) ):   
+        """ create point """
         self.src = vtk.vtkPointSource()
         self.src.SetCenter(center)
         self.src.SetRadius(0)
@@ -251,7 +286,9 @@ class Point(CamvtkActor):
         self.SetColor(color)
 
 class Arrow(CamvtkActor):
+    """ arrow """
     def __init__(self, center=(0,0,0), color=(0,0,1), rotXYZ=(0,0,0) ):
+        """ arrow """
         self.src = vtk.vtkArrowSource()
         #self.src.SetCenter(center)
         
@@ -273,7 +310,9 @@ class Arrow(CamvtkActor):
 
 
 class Text(vtk.vtkTextActor):
+    """ 2D text, HUD-type"""
     def __init__(self, text="text",size=18,color=(1,1,1),pos=(100,100)):
+        """create text"""
         self.SetText(text)
         self.properties=self.GetTextProperty()
         self.properties.SetFontFamilyToArial()
@@ -283,16 +322,21 @@ class Text(vtk.vtkTextActor):
         self.SetPos(pos)
     
     def SetColor(self,color):
+        """ set color of text """
         self.properties.SetColor(color)
     
     def SetPos(self, pos):
+        """ set position on screen """
         self.SetDisplayPosition(pos[0], pos[1])
 
     def SetText(self, text):
+        """ set text to be displayed """
         self.SetInput(text)
 
 class Text3D(vtk.vtkActor):
+    """ 3D text rendered in the scene"""
     def __init__(self, color=(1,1,1), center=(0,0,0), text="hello", scale=1):
+        """ create text """
         self.src = vtk.vtkVectorText()
         self.SetText(text)
         #self.SetCamera(camera)
@@ -318,13 +362,17 @@ class Text3D(vtk.vtkActor):
         
         
     def SetText(self, text):
+        """ set text to be displayed"""
         self.src.SetText(text)
         
     def SetColor(self,color):
+        """ set color of text"""
         self.GetProperty().SetColor(color)        
 
 class Axes(vtk.vtkActor):
+    """ axes (x,y,z) """
     def __init__(self, center=(0,0,0), color=(0,0,1) ):
+        """ create axes """
         self.src = vtk.vtkAxes()
         #self.src.SetCenter(center)
 

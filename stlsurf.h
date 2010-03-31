@@ -30,6 +30,7 @@ class STLSurf {
     public:
         /// Create an empty STL-surface
         STLSurf();
+        /// destructor
         ~STLSurf();
         
         /// read STL surface from file
@@ -37,20 +38,26 @@ class STLSurf {
                 
         /// add Triangle t to this surface
         void addTriangle(const Triangle &t);
-
+        
+        /// string repr
         std::string str();
+        /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
         
         /// return number of triangles in surface
         int size();
-
+        
+        /// id-number count (obsolete?)
         static int count;
+        /// id-number (obsolete?)
         int id;
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
 
     private:
+        /// set the id-number
         void setId();
+        /// read STL-surface from file
         void read_from_file(const wchar_t* filepath);
 };
 

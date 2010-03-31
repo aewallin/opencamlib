@@ -73,6 +73,7 @@ class MillingCutter {
         int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const;
         
     protected:
+        /// id-number count
         static int count;
         /// cutter id number
         int id;
@@ -80,6 +81,7 @@ class MillingCutter {
         double diameter;
         /// length of cutter
         double length;
+        /// set id-number
         void setId();
 };
 
@@ -102,8 +104,9 @@ class CylCutter : public MillingCutter {
         /// drop cutter at (cl.x, cl.y) against edges of Triangle t
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
-        // text output
+        /// text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
+        /// string repr
         std::string str();
         
 };
@@ -121,7 +124,9 @@ class BallCutter : public MillingCutter {
         /// edge-test for BallCutter
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
+        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
+        /// string repr
         std::string str();
         
     protected:
@@ -148,10 +153,13 @@ class BullCutter : public MillingCutter {
         /// \todo edge-test for toroid
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
+        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
+        /// string repr
         std::string str();
     protected:
         
+        /// set radius of cutter
         void setRadius();
         /// cutter radius. 
         /// radius = radius1 + radius2

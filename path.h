@@ -25,58 +25,80 @@
 #include "line.h"
 #include "arc.h"
 
-///
-/// \brief a path, simply a list of lines and arcs
-///
 
-///
-/// longer documentation here.
-///
 
+
+/// span type
 enum SpanType{
 	LineSpanType,
 	ArcSpanType,
 };
 
+/// a span is a finite curve which returns Points along its length
+/// based on a parameter t for which 0 <= t <= 1.0
 class Span{
 public:
+    /// return type of span
 	virtual SpanType type()const = 0;
+    /// return the length of the span in the xy-plane
 	virtual double length2d()const = 0;
+    /// return a point at parameter value 0 <= t <= 1.0
 	virtual Point getPoint(double t)const = 0; // 0.0 to 1.0
 };
 
+/// line span
 class LineSpan : public Span {
 	public:
+        /// create a line span from Line l
 		LineSpan(const Line& l) : line(l){}
+        /// the line
 		Line line;
 
 		// Span's virtual functions
+        /// return span type
 		SpanType type()const{return LineSpanType;}
+        /// return span length
 		double length2d()const{return line.length2d();}
+        /// return point on span
 		Point getPoint(double t)const{return line.getPoint(t);}
 };
 
+/// circular arc span
 class ArcSpan : public Span {
 	public:
+        /// create span
 		ArcSpan(const Arc& a) : arc(a){}
+        /// arc
 		Arc arc;
 
 		// Span's virtual functions
+        /// return type
 		SpanType type()const{return ArcSpanType;}
+        /// return length in xy-plane
 		double length2d()const{return arc.length2d();}
+        /// return a point on the span
 		Point getPoint(double t)const{return arc.getPoint(t);}
 };
 
+///
+/// \brief a Path is simply a list of lines and arcs
+///
 class Path {
     public:
+        /// create empty path
 		Path();
+        /// copy constructor
         Path(const Path &p);
+        /// destructor
 		~Path();
-
+        /// return the span-list to python
         boost::python::list getSpans();
+        /// list of spans in this path
 		std::list<Span*> span_list;
-
+        
+        /// append a Line to this path
 		void append(const Line &l);
+        /// append an Arc to this path
 		void append(const Arc &a);
 };
 

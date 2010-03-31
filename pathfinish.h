@@ -31,9 +31,13 @@
 
 ///
 /// \brief path drop cutter finish Path generation
-      
 class PathDropCutterFinish {
     public:
+        /// constructor
+        PathDropCutterFinish();
+        /// create a PathDropCutterFinish operation with surface surf.
+		PathDropCutterFinish(const STLSurf *surf);
+        
         /// the path to follow
 		const Path *path;
         /// the cutter used for this operation
@@ -44,17 +48,14 @@ class PathDropCutterFinish {
         KDNode *root;
 		/// the lowest z height, used when no triangles are touched
 		double minimumZ;
-
         /// list of CL-points
         std::list<Point> clpoints;
-
-		PathDropCutterFinish();
-        /// create a PathDropCutterFinish operation with surface surf.
-		PathDropCutterFinish(const STLSurf *surf);
         /// run drop-cutter on the whole Path
 		void run();
         /// run drop-cutter on Span
 		void run(const Span* span);
+        /// refines list of points (FIXME: more documentation here please)
+        /// \todo explain.
 		void refinePointList(std::list<Point> &point_list);
         /// set the cutter
 		void setCutter(const MillingCutter *cutter);

@@ -28,13 +28,16 @@
 ///
 class Triangle {
     public:
+        /// default constructor
         Triangle();
+        /// destructor
         ~Triangle();
         /// Create a triangle with the vertices p1, p2, and p3.
         Triangle(Point p1, Point p2, Point p3);   
         
-        // text output     
+        /// string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
+        /// string repr
         std::string str();
         
         /// Returns a list of the vertices to Python
@@ -44,7 +47,9 @@ class Triangle {
         Point p[3]; // vertices
         /// normal vector
         Point *n;    // surface normal
+        /// id-number count (obsolete?)
         static int count;
+        /// id-number (obsolete?)
         int id;
         /// bounding-box maximum x-coordinate
         double maxx;
@@ -56,8 +61,11 @@ class Triangle {
         double miny;
         
     private:
+        /// set id-number
         void setId();
+        /// calculate and set Triangle normal
         void calcNormal();
+        /// calculate bounding-box
         void calcBB();
 };
 
