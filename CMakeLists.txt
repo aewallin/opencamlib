@@ -5,6 +5,17 @@ cmake_minimum_required(VERSION 2.4)
 
 
 #
+# Turn compiler warnings up to 11, at least with gcc.  I dont know how to
+# do this with other compilers we might support and I'm leaving it up to
+# the relevant platform maintainers...
+#
+
+if (CMAKE_BUILD_TOOL MATCHES "make")
+    add_definitions(-Wall -Werror)
+endif ()
+
+
+#
 # this figures out the Python include directories and adds them to the
 # header file search path
 #
