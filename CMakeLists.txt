@@ -114,3 +114,27 @@ install(
         share/doc/python-opencam/examples
 )
 
+# build documentation 
+FIND_PACKAGE(Doxygen)
+IF (DOXYGEN_FOUND)
+    MESSAGE(STATUS "Found doxygen")
+    FIND_PACKAGE(LATEX)
+    IF    (NOT LATEX_COMPILER)
+        MESSAGE(STATUS "latex command LATEX_COMPILER not found but usually required. You will probably get warnings and user inetraction on doxy run.")
+    ENDIF (NOT LATEX_COMPILER)
+    IF    (NOT MAKEINDEX_COMPILER)
+        MESSAGE(STATUS "makeindex command MAKEINDEX_COMPILER not found but usually required.")
+    ENDIF (NOT MAKEINDEX_COMPILER)
+    IF    (NOT DVIPS_CONVERTER)
+        MESSAGE(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
+    ENDIF (NOT DVIPS_CONVERTER)
+    
+    IF   (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
+        SET(DOXY_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
+    ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
+        
+        
+    ADD_CUSTOM_TARGET(doc ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG})
+
+
+ENDIF(DOXYGEN_FOUND)
