@@ -40,7 +40,7 @@ PathDropCutterFinish::PathDropCutterFinish() {
 PathDropCutterFinish::PathDropCutterFinish(const STLSurf *s) {
 	cutter = NULL;
     surf = s;
-    root = KDTree::build_kdtree( &(surf->tris), 20 );
+    root = KDNode::build_kdtree( &(surf->tris) );
 	path = NULL;
 	minimumZ = 0.0;
 }
@@ -56,7 +56,8 @@ void PathDropCutterFinish::setPath(const Path *p) {
 void PathDropCutterFinish::run() {
 	clpoints.clear();
 	// loop through the input path, splitting each input span into 0.1mm steps
-    // FIXME: replace with BOOST_FOREACH
+    /// \todo FIXME: can we replace with BOOST_FOREACH ?
+    /// \todo FIXME: 0.1mm resolution is arbitrary, allow user to change/set this
 	for(std::list<Span*>::const_iterator It = path->span_list.begin(); It != path->span_list.end(); It++)
 	{
 		const Span* span = *It;
@@ -64,6 +65,8 @@ void PathDropCutterFinish::run() {
 	}
 }
 
+/// \todo these should be static members of the class, so they can be set by the user
+/// to something else than the defaults, if desired.
 #define SPLIT_STEP 0.1
 #define PATH_DROP_CUTTER_TOLERANCE 0.01
 
@@ -79,7 +82,7 @@ void PathDropCutterFinish::run(const Span* span)
 
         // find triangles under cutter
         std::list<Triangle> triangles_under_cutter;
-        KDTree::search_kdtree( &triangles_under_cutter, p, *cutter, root);
+        KDNode::search_kdtree( &triangles_under_cutter, p, *cutter, root);
         
         CCPoint cc;
 		p.z = minimumZ;

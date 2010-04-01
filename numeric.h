@@ -21,17 +21,30 @@
 #define PI 3.1415926535897932
 
 ///
-/// \brief Numeric is a collection of static functions for dealing
+/// \brief Numeric is a collection of functions for dealing
 /// with the joys of floating-point arithmetic.
 ///
-class Numeric {
-    public:
-        /// return 1 of x>0, return -1 if x<0.
-        static double sign(double x);
-        /// return true if x is negative, to within tolerance
-        static bool isNegative(double x);
-        /// return true if x is zero, to within tolerance
-        static bool isZero(double x);
-};
+
+/// return 1 of x>0, return -1 if x<0.
+double sign(double x);
+
+inline double square(double x) {  return x*x; };
+
+
+/// return true if x is negative, to within tolerance
+bool isNegative(double x);
+
+/// return true if x is negative, to within tolerance
+bool isPositive(double x);
+
+/// return true if x is zero, to within tolerance
+bool isZero_tol(double x);
+
+
+/// check that x is positive within tolerance
+void assert_isPositive( double x );
+
+/// check that x is zero, within tolerance
+void assert_isZero_tol( double x );
 
 #endif

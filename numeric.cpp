@@ -19,33 +19,53 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-#include <boost/progress.hpp>
+#include <cassert>
 #include "numeric.h"
 
-//#include "cutter.h"
-//#include "point.h"
-//#include "triangle.h"
 #define TOLERANCE 0.0000001
-#define NEGATIVE -TOLERANCE
+#define NEGATIVE_TOL -TOLERANCE
 
-double Numeric::sign(double x) {
+double sign(double x) {
     if (x<0.0)
         return -1;
     else
         return 1;
 }
 
-bool Numeric::isNegative(double x) {
-    if (x<NEGATIVE)
+bool isPositive(double x) {
+    if (x > 0.0 )
         return true;
     else
         return false;
 }
 
-bool Numeric::isZero(double x) {
+bool isNegative(double x) {
+    if ( x < 0.0 )
+        return true;
+    else
+        return false;
+}
+
+bool isZero_tol(double x) {
     if (fabs(x)<TOLERANCE)
         return true;
     else
         return false;
 }
+
+/* ********* assert-type stuff */
+
+void assert_isPositive( double x )
+{   
+    if ( !isPositive( x ) )
+        assert(0);
+}
+
+void assert_isZero_tol( double x )
+{
+    if ( !isZero_tol( x ) )
+        assert(0);
+}
+
+
 

@@ -64,8 +64,8 @@ void ParallelFinish::dropCutterSTL2(MillingCutter &cutter)
     
         // find triangles under cutter
         std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-        triangles_under_cutter->clear();
-        KDTree::search_kdtree( triangles_under_cutter, cl, cutter, root);
+        //triangles_under_cutter->clear();
+        KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
         
         //std::cout << "found " << triangles_under_cutter->size() << " triangles at cl=" << cl << "\n";
         //char c;
@@ -90,7 +90,7 @@ void ParallelFinish::initSTLSurf(STLSurf &s, int bucketSize)
     surf = &s;
     std::cout << "Building kd-tree...";
     std::cout.flush();
-    root = KDTree::build_kdtree( &(surf->tris), bucketSize );
+    root = KDNode::build_kdtree( &(surf->tris), bucketSize );
     std::cout << " done.\n";
     //KDTree::str(root);
 }
@@ -118,8 +118,8 @@ boost::python::list ParallelFinish::getTrianglesUnderCutter(Point &cl, MillingCu
 {
     boost::python::list trilist;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-    triangles_under_cutter->clear();
-    KDTree::search_kdtree( triangles_under_cutter, cl, cutter, root);
+    //triangles_under_cutter->clear();
+    KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
     BOOST_FOREACH(Triangle t, *triangles_under_cutter)
     {
         trilist.append(t);

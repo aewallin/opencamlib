@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-#include <boost/progress.hpp>
+#include <cassert>
 
 #include "cutter.h"
 #include "point.h"
@@ -46,28 +46,18 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     /// loop through each vertex p of Triangle t
     /// drop down cutter at (cl.x, cl.y) against Point p
     
-    //std::cout << "vertexDrop input =" << t << "\n";
-    // std::cout << "vertexDrop normal=" << *(t.n) << "\n";
     int result = 0;
-    
     BOOST_FOREACH( const Point& p, t.p)
     {
-        // distance in XY-plane from cl to p
-        double q = cl.xyDistance(p);
-        //std::cout << "xyDistance(cl, vertex) is: " << q << " ";
+        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if (q<= diameter/2) { // p is inside the cutter
-            //std::cout << "inside case\n";
             if (cl.liftZ(p.z)) { // we need to lift the cutter
                 cc = p;
                 cc.type = VERTEX;
-                //std::cout << "cl=" << cl << " cc=" << cc << "\n";
                 result = 1;
             }
         } else {
             // point outside cutter, nothing to do.
-            
-            //std::cout << "outside case\n";
-            //std::cout << "cl=" << cl << " cc=" << cc << "\n";
         }
     }
     return result;
@@ -81,9 +71,9 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     //std::cout << "facetDrop input normal=" << *t.n << "\n";
     Point normal; // facet surface normal
     
-    if (t.n->z == 0)  {// vertical surface
+    if ( isZero_tol( t.n->z ) )  { // vertical surface
         //std::cout << "facetDrop vertical case. bye.\n";
-        return -1;  //can't drop against vertical surface
+        return -1;  // can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
         //std::cout << "facetDrop flip normal\n";
@@ -91,6 +81,9 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         //std::cout << "facetDrop normal case\n";
         normal = *t.n;
     }
+    
+    assert_isPositive( normal.z ); // we are in trouble if n.z is not positive by now...
+    
     //std::cout << "facetDrop up-flipped normal="<<normal<<"\n";
     
     
@@ -166,18 +159,18 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             double dy = y2-y1;
             double dr = sqrt( dx*dx + dy*dy);
             double D = x1*y2 - x2*y1;
-            double discr = pow(diameter/2,2) * pow(dr,2) - pow(D,2);
+            double discr = pow(diameter/2,2) * square(dr) - square(D);
             #ifdef EDGEDROP_DEBUG
                 std::cout << "discr=" << discr << "\n";
             #endif
             
-            if (Numeric::isNegative(discr)) {
+            if ( isNegative(discr) ) {
                 std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
-                
                 cc.type = ERROR;
+                assert(0);
                 return -1;
                 
-            } else if (Numeric::isZero(discr)) {// tangent line
+            } else if ( isZero_tol(discr) ) {// tangent line
                 #ifdef EDGEDROP_DEBUG
                     std::cout << "discr= zero, tangent case.\n";
                 #endif
@@ -211,10 +204,10 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 Point cc1;
                 Point cc2;
                 // remember to translate back to cl
-                cc1.x= (D*dy  + Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
+                cc1.x= (D*dy  + sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
                 cc1.y= (-D*dx + fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
                 cc1.z=0;
-                cc2.x= (D*dy  - Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
+                cc2.x= (D*dy  - sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
                 cc2.y= (-D*dx - fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
                 cc2.z=0;
                 #ifdef EDGEDROP_DEBUG
@@ -233,13 +226,13 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         std::cout << "cc1 is in edge!\n";
                     #endif
                     // determine height of point. must be on line, so:
-                    if ( fabs(x1 - x2) > 1E-8 ) {
+                    if ( !isZero_tol( fabs(x1 - x2) )  ) {  // can compute using x-coords
                         #ifdef EDGEDROP_DEBUG
                             std::cout << "computing cc1 height from x-coords\n";
                         #endif
                         cc1.z = z1 + ((z2-z1)/(x2-x1)) * (cc1.x-x1);
                     }
-                    else if ( fabs(y1 - y2) > 1E-8 ) {
+                    else if ( !isZero_tol( fabs(y1 - y2) ) ) {
                         #ifdef EDGEDROP_DEBUG
                             std::cout << "computing cc1 height from y-coords\n";
                         #endif
@@ -247,6 +240,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     }
                     else {// we are in trouble.
                         std::cout << "cyclutter edge-test, unable to compute cc-point. stop.\n";
+                        assert(0);
                     }
                     
                     if (cl.liftZ(cc1.z)) {
@@ -260,13 +254,13 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         std::cout << "cc2 is in edge!\n";
                     #endif
                     // determine height of point. must be on line, so:
-                    if ( fabs(x1 - x2) > 1E-8 ) {
+                    if ( !isZero_tol( fabs(x1 - x2) ) ) {
                         #ifdef EDGEDROP_DEBUG
                             std::cout << "computing cc2 height from x-coords\n";
                         #endif
                         cc2.z = z1 + ((z2-z1)/(x2-x1)) * (cc2.x-x1);
                     }
-                    else if (fabs(y1 - y2) > 1E-8 ) {
+                    else if ( !isZero_tol( fabs(y1 - y2) )  ) {
                         #ifdef EDGEDROP_DEBUG
                             std::cout << "computing cc2 height from y-coords\n";
                         #endif
@@ -274,6 +268,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     }
                     else {// we are in trouble.
                         std::cout << "cyclutter edge-test, unable to compute cc-point. stop.\n";
+                        assert(0);
                     }
                         
                     if (cl.liftZ(cc2.z)) {
@@ -289,8 +284,6 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         }// end if(potential hit)
         else {
             // edge is too far away from cutter. nothing to do.
-            
-            //std::cout << " no edge hit\n";
         }
         
     } // end loop through all edges

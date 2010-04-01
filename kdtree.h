@@ -72,6 +72,28 @@ class KDNode {
         KDNode *lo;
         /// A list of triangles, if this is a bucket-node
         const std::list<Triangle> *tris;
+        
+        
+        /* static functions to build and search KD-trees) */
+        /// build a kd-tree from a list of triangles. return root of tree.
+        static KDNode* build_kdtree(const std::list<Triangle> *tris, 
+                                    unsigned int bucketSize = 1,
+                                    int level = 0);
+        
+        /// calculate along which dimension kd-tree should cut
+        static Spread* spread(const std::list<Triangle> *tris);
+        
+        /// search KDTree, starting at KDNode root for triangles under the 
+        /// MillingCutter c positioned at Point cl.
+        /// The triangles found are pushed into the Triangle list tris.
+        static void search_kdtree( std::list<Triangle> *tris, 
+                                   Point &cl, 
+                                   const MillingCutter &cutter, 
+                                   KDNode *root);
+        
+        /// do the triangles at KDNode root overlap with the MillingCutter c positioned at Point cl?
+        static bool overlap(const KDNode *root, const Point &cl, const MillingCutter &c);
+        
 };
 
 ///
@@ -80,23 +102,5 @@ class KDNode {
 ///
 /// this is also briefly explained in a paper by Yau et al. 
 /// http://dx.doi.org/10.1080/00207540410001671651
-class KDTree {
-    public:
-        /// build a kd-tree from a list of triangles. return root of tree.
-        static KDNode* build_kdtree(const std::list<Triangle> *tris, unsigned int bucketSize);
-        /// calculate along which dimension kd-tree should cut
-        static Spread* spread(const std::list<Triangle> *tris);
-        /// search KDTree for triangles under the cutter positioned at cl
-        /// the triangles found are returned in the triangle list tris.
-        static void search_kdtree(std::list<Triangle> *tris, Point &cl, 
-                    const MillingCutter &cutter, KDNode *node);
-        /// do the triangles at KDNode overlap with the cutter positioned at cl?
-        static bool overlap(const KDNode *node, const Point &cl, const MillingCutter &cutter);
-        /// string repr
-        static void str(KDNode *root);
-        /// level of node in tree
-        static int level;
-        
-};
 
 #endif

@@ -50,9 +50,7 @@ int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     BOOST_FOREACH( const Point& p, t.p)
     {
-        // distance in XY-plane from cl to p
-        double q = cl.xyDistance(p);
-        
+        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if (q<= diameter/2) { // p is inside the cutter
             // q^2 + h2^2 = r^2
             // h2 = sqrt( r^2 - q^2 )
@@ -77,7 +75,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
     Point normal; // facet surface normal
     
-    if (t.n->z == 0)  {// vertical surface
+    if ( isZero_tol( t.n->z ) )  {// vertical surface
         return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
@@ -85,7 +83,9 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         normal = *t.n;
     }   
     
-    if ( (normal.x == 0) && (normal.y == 0) ) { // horizontal plane
+    assert_isPositive( normal.z );
+    
+    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane
         // so any vertex is at the correct height
         Point cc_tmp;
         cc_tmp.x = cl.x;
@@ -139,6 +139,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         return 0;
     }
     
+    
 	return 0; // we never get here (?)
 }
 
@@ -163,28 +164,25 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         Point p2 = t.p[end];
         //std::cout << "Points " << p1 << " to " << p2 << "\n";
         double d = cl.xyDistanceToLine(p1, p2);
-        if (d < 0.0)
-            std::cout << "ballcutter.cpp: d<0 ERROR!\n";
+        assert_isPositive(d);
             
         if (d<=radius) { // potential hit
         
             // the plane of the line will slice the spherical cutter at
             // a distance d from the center of the cutter
             // here the radius of the circular section is
-            double s = sqrt( radius*radius - d*d );
+            double s = sqrt( square(radius) - square(d) );
                 
             // the center-point of this circle, in the xy plane lies at
-            Point sc = cl.xyClosestPoint( p1, p2 );           
+            Point sc = cl.xyClosestPoint( p1, p2 );   
+                   
             
             Point v = p2 - p1;
             Point start2sc_dir = sc - p1;
             start2sc_dir.xyNormalize();
             start2sc_dir.z=0;
             double dz = p2.z - p1.z;
-            double p2u = v.dot(start2sc_dir); // xyNorm(); // u-coord of p2 in plane coordinates.
-            // was: dot(start2sc_dir); ??  
-             
-            //v.normalize(); // 3D
+            double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
             
             // in the vertical plane of the line:
             // (du,dz) points in the direction of the line
@@ -196,6 +194,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             if (normal.y < 0) { // flip normal so it points upward
                 normal = -1*normal;
             }
+            assert_isPositive( normal.y);
             
             Point start2sc = sc - p1;
             double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
@@ -211,6 +210,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 if (cl.liftZ(cl_z)) {
                     cc = cc_tmp;
                     cc.type = EDGE;
+                    result = 1;
                 }
             
             }

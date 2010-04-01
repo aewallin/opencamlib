@@ -219,6 +219,7 @@
  * \subsection Books
  * \li O'Rourke, Computational Geometry in C.
  * \li deBerg, Computational Geometry: Algorithms and Applications
+ * \li Ghali, Introduction to Geometric Computing
  * 
  * \subsection Papers  
  * \li Chuang2002  http://dx.doi.org/10.1007/PL00003965 "A Reverse Engineering Approach to Generating Interference-Free Tool 

@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-#include <boost/progress.hpp>
+#include <cassert>
 
 #include "point.h"
 #include "oellipse.h"
@@ -41,11 +41,13 @@ void Epos::setT(double tin, bool side)
         tin = -1.0;
     
     t = tin;
-    double ssq = 1 - t*t; 
+    double ssq = 1 - square(t); 
     if (side == true)
         s =  1 * sqrt(ssq);
     else
         s = -1 * sqrt(ssq);
+        
+    assert_isZero_tol( square(s) + square(t) - 1.0 );
 }
 
 void Epos::setS(double sin, bool side)
@@ -56,11 +58,13 @@ void Epos::setS(double sin, bool side)
         sin = -1.0;
     
     s = sin;
-    double tsq = 1 - s*s; 
+    double tsq = 1 - square(s); 
     if (side == true)
         t =  1 * sqrt(tsq);
     else
         t = -1 * sqrt(tsq);
+    
+    assert_isZero_tol( square(s) + square(t) - 1.0 );
 }
 
 void Epos::stepTangent(Ellipse e, double delta)
@@ -161,6 +165,7 @@ int Ellipse::solver(Ellipse& e, Point& p)
     Epos pos;
     Epos bestpos;
     double abs_err; 
+    // check the four different sign-permutations if (s,t)
     for (int n=0; n<4 ; n++) {
         double s;
 
@@ -177,18 +182,16 @@ int Ellipse::solver(Ellipse& e, Point& p)
         double err = e.error(pos, p);
         
         if (n==0) {
-            bestpos = pos;
+            bestpos = pos; 
             abs_err = fabs(err);
         }
         else if (abs_err > fabs(err) ) {
             abs_err = fabs(err);
-            bestpos = pos;
+            bestpos = pos; // pick the best position to start the iterative-solution with
         }
         #ifdef DEBUG_SOLVER
             std::cout << n << " pos=" << pos << " err=" << err << "\n";
         #endif
-        
-        //pos
     }   
     pos = bestpos;
     #ifdef DEBUG_SOLVER
@@ -210,24 +213,22 @@ int Ellipse::solver(Ellipse& e, Point& p)
         epos_tmp.t = pos.t;
         // # take a small step, to determine rerivative:
         dt = 0.2*nr_step; /// \todo 0.2 value here is quite arbitrary...
-        epos_tmp.stepTangent(e,dt);
+        epos_tmp.stepTangent(e,dt);  // a temporary new position, to evaluate derivative
         new_error = e.error(epos_tmp, p);
-        //#print "new_error=", new_error
-        deriv = (new_error-current_error)/dt;
-        //#print "derivative = ", deriv
-        //# take Newton rhapson step
-        nr_step = (-current_error/deriv);
-        //#print " NRstep=", NRStep
-        //#NRStep=0.05 # debug/demo
-        pos.stepTangent(e, nr_step);
+        deriv = (new_error-current_error)/dt; // evaluate derivative
+        nr_step = (-current_error/deriv);  // Newton-rhapson step
+        pos.stepTangent(e, nr_step); // take step
         
         iters=iters+1;
         current_error = e.error(pos, p);
         // check endcondition    
         if (fabs(current_error) < OE_ERROR_TOLERANCE)    
             endcondition=true;
-        if (iters>125)  /// \todo magix number max_iterations
-            endcondition=true;       
+        if (iters>100) {  // if it goes on and on, stop with an error.
+            std::cout << "oellipse.cpp: Newton-Rhapson solver did not converge.\n";
+            assert(0);
+        }
+       
     }
     
     // there are two positions which are optimal
@@ -270,34 +271,8 @@ int Ellipse::solver(Ellipse& e, Point& p)
         }
     }
     
-    /*
-    Epos pos3;
-    pos3.s=-pos.s;
-    pos3.t=pos.t;
-    Point p3 = e.oePoint(pos3);
-    double e3 = e.error(pos3, p);
-    if  (fabs(e1) < OE_ERROR_TOLERANCE)     {   
-        std::cout << "(s, t)= " << pos << " oePoint()= " << p1 << " e=" << e1 << "\n";
-        epos2 = pos2;
-        return iters;
-    }
-    
-    Epos pos4;
-    pos4.s=-pos.s;
-    pos4.t=-pos.t;
-    Point p4 = e.oePoint(pos4);
-    double e4 = e.error(pos4, p);
-    
-
-    if (fabs(e2) < OE_ERROR_TOLERANCE)
-        std::cout << "(s, t)= " << pos2 << " oePoint()= " << p2 << " e=" << e2 << "\n";
-    if (fabs(e3) < OE_ERROR_TOLERANCE)
-        std::cout << "(s, t)= " << pos3 << " oePoint()= " << p3 << " e=" << e3 << "\n";
-    if (fabs(e4) < OE_ERROR_TOLERANCE)
-        std::cout << "(s, t)= " << pos4 << " oePoint()= " << p4 << " e=" << e4 << "\n";
-    */
-    
-    std::cout << " Ellipse::solver() error, did not find optimal (s,t) point(s)!";
+    std::cout << "oellipse.cpp:  Ellipse::solver() error, did not find optimal (s,t) point(s)!";
+    assert(0);
     return iters;
 }
         

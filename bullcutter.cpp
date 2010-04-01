@@ -61,6 +61,7 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     {
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
+        assert_isPositive(q);
     
         if ( q <= radius1 ) { // p is inside the cylindrrical part of the cutter
             if (cl.liftZ(p.z)) { // we need to lift the cutter
@@ -74,7 +75,7 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             // h2 = sqrt( r2^2 - (q-r1)^2 )
             // h1 = r2 - h2
             // cutter_tip = p.z - h1
-            double h1 = radius2 - sqrt( radius2*radius2 - (q-radius1)*(q-radius1) );
+            double h1 = radius2 - sqrt( square(radius2) - square(q-radius1) );
             if ( cl.liftZ(p.z - h1) ) { // we need to lift the cutter
                 cc = p;
                 cc.type = VERTEX;
@@ -94,15 +95,17 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
     
-    if (t.n->z == 0)  {// vertical surface
+    if ( isZero_tol( t.n->z ) )  {// vertical surface
         return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1 * (*t.n); // flip normal
     } else {
         normal = *t.n;
     }   
+    assert_isPositive( normal.z );
     
-    if ( (normal.x == 0) && (normal.y == 0) ) { // horizontal plane
+    
+    if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { // horizontal plane
         // so any vertex is at the correct height
         Point cc_tmp;
         cc_tmp.x = cl.x;
@@ -201,13 +204,13 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             double discr = pow(diameter/2,2) * pow(dr,2) - pow(D,2);
             //std::cout << "discr=" << discr << "\n";
             
-            if (Numeric::isNegative(discr)) {
+            if ( isNegative(discr)) {
                 std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
                 
                 cc.type = ERROR;
                 return -1;
                 
-            } else if (Numeric::isZero(discr)) {// tangent line
+            } else if ( isZero_tol(discr)) {// tangent line
                 cc.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
                 cc.y = -D*dx / pow(dr,2) + cl.y;
                 // 3) check if cc is in edge
@@ -232,13 +235,15 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         cc.type = EDGE;
                 }
             } else { // discr > 0, two intersection points
+                assert_isPositive(discr);
+                
                 Point cc1;
                 Point cc2;
                 // remember to translate back to cl
-                cc1.x= (D*dy  + Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
+                cc1.x= (D*dy  + sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x; 
                 cc1.y= (-D*dx + fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
                 cc1.z=0;
-                cc2.x= (D*dy  - Numeric::sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
+                cc2.x= (D*dy  - sign(dy)*dx*sqrt(discr)) / pow(dr,2) + cl.x;
                 cc2.y= (-D*dx - fabs(dy)*sqrt(discr)   ) / pow(dr,2) + cl.y;
                 cc2.z=0;
                 // 3) check if in edge
