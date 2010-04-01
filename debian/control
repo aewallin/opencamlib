@@ -2,7 +2,7 @@ Source: opencamlib
 Section: python
 Priority: extra
 Maintainer: Anders Wallin <anders.e.e.wallin@gmail.com>
-Build-Depends: debhelper (>= 6), libboost-python-dev, python-dev, python-support
+Build-Depends: debhelper (>= 6), cmake, libboost-python-dev, python-dev, python-support
 Standards-Version: 3.8.3
 Homepage: http://code.google.com/p/opencamlib/
 

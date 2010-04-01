@@ -16,7 +16,7 @@
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-
+	cmake -D CMAKE_INSTALL_PREFIX=/usr .
 	touch configure-stamp
 
 
@@ -24,10 +24,7 @@ build: build-stamp
 
 build-stamp: configure-stamp  
 	dh_testdir
-
-	$(MAKE)
-	#docbook-to-man debian/opencamlib.sgml > opencamlib.1
-
+	$(MAKE) -j4
 	touch $@
 
 
@@ -35,9 +32,10 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp configure-stamp
-
-	$(MAKE) clean
-
+	if [ -f Makefile ]; then $(MAKE) clean; fi
+	rm -f Makefile
+	rm -rf CMakeCache.txt CMakeFiles cmake_install.cmake install_manifest.txt
+	rm -rf doc
 	dh_clean 
 
 
@@ -46,8 +44,7 @@ install: build
 	dh_testroot
 	dh_clean -k
 	dh_installdirs
-
-	$(MAKE) DESTDIR=$(CURDIR)/debian/python-opencam PREFIX=/usr install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/python-opencam install
 
 
 # Build architecture-independent files here.
