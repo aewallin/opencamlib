@@ -82,6 +82,13 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("size", &STLSurf::size)
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("id", &STLSurf::id)
+        .def("build_kdtree", &STLSurf::build_kdtree)
+        .def("get_kd_triangles", &STLSurf::get_kd_triangles)
+        .def("jump_kd_up", &STLSurf::jump_kd_up)
+        .def("jump_kd_hi", &STLSurf::jump_kd_hi)
+        .def("jump_kd_lo", &STLSurf::jump_kd_lo)
+        .def("jump_kd_reset", &STLSurf::jump_kd_reset)
+        .def("get_kd_level", &STLSurf::get_kd_level)
     ;
     bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter", bp::no_init)
         .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop) )
@@ -145,8 +152,12 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getTrianglesUnderCutter", &ParallelFinish::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &ParallelFinish::dcCalls)
     ;
-    //bp::class_<KDTree>("KDTree")
-    
+    /*
+    bp::class_<KDNode>("KDNode", bp::no_init) 
+        .def("stlSurf2KDTree", &KDNode::stlSurf2KDTree)
+        .def("str", &KDNode::str)
+    ;
+    */
    /* bp::class_<Spread>("Spread", bp::no_init)
         .def(bp::init<int, double, double>())
     ;*/

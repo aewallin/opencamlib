@@ -24,6 +24,7 @@
 #include "cutter.h"
 #include "point.h"
 #include "triangle.h"
+#include "stlsurf.h"
 #include "cutter.h"
 #include "numeric.h"
 

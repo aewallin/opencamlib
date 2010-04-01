@@ -27,6 +27,9 @@
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
+
+//class STLSurf;
+
 namespace bp = boost::python;
 
 ///

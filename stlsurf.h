@@ -18,9 +18,12 @@
 #ifndef STLSURF_H
 #define STLSURF_H
 
+#include <list>
+
 #include "point.h"
 #include "triangle.h"
-#include <list>
+#include "kdtree.h"
+
 
 
 /// \brief STL surface, essentially an unordered list of Triangle objects
@@ -54,6 +57,25 @@ class STLSurf {
         int id;
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
+        
+        /// build a kd-tree from the triangles in the surface
+        void build_kdtree();
+        
+        int jump_kd_up();
+        int jump_kd_hi();
+        int jump_kd_lo();
+        void jump_kd_reset();
+        
+        int get_kd_level();
+        
+        /// return triangles in node root
+        boost::python::list get_kd_triangles();
+        
+        /// root of kd-tree
+        KDNode *root;
+        
+        /// node of kd-tree
+        KDNode *node;
 
     private:
         /// set the id-number

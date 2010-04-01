@@ -39,11 +39,12 @@
 //********   KDNode ********************** */
 
 
-KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
+KDNode::KDNode(int d, double cv, KDNode *parent, KDNode *hi_c, KDNode *lo_c,
             const std::list<Triangle> *tlist, int lev) 
 {
     dim = d;
     cutval = cv;
+    up = parent;
     hi = hi_c;
     lo = lo_c;
     tris = tlist;
@@ -51,8 +52,12 @@ KDNode::KDNode(int d, double cv, KDNode *hi_c, KDNode *lo_c,
 }
 
 
+
 /// given a list of triangles, build and return the root node of a kd-tree with the triangles
-KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris, unsigned int bucketSize, int level) 
+KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris, 
+                             unsigned int bucketSize,   // defaults to 1
+                             int level,                 // defualts to 0 == root
+                             KDNode *parent)            // defaults to NULL    
 {
     
     if (tris->size() == 0) { //this is a fatal error.
@@ -72,10 +77,10 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris, unsigned int bucke
     if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {
         //std::cout << "Bucket with len(tris)=" << tris->size() << "\n";
         KDNode *bucket;
-        if ( (spr->d == 0) || (spr->d == 2) )
-            bucket = new KDNode(spr->d, spr->start+spr->val, NULL, NULL, tris, level);
-        else
-            bucket = new KDNode(spr->d, spr->start, NULL, NULL, tris, level);
+        if ( (spr->d == 0) || (spr->d == 2) ) // maxx or maxy cut
+            bucket = new KDNode(spr->d, spr->start+spr->val, parent , NULL, NULL, tris, level);
+        else // the min cut case:
+            bucket = new KDNode(spr->d, spr->start, parent , NULL, NULL, tris, level);
         
         return bucket;
     }
@@ -141,13 +146,13 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris, unsigned int bucke
     std::cin >> c;
     */
     
-    KDNode *node = new KDNode(0,0,NULL,NULL,NULL, level);
+    KDNode *node = new KDNode(0,0,parent, NULL,NULL,NULL, level);
     node->dim = spr->d;
     node->cutval = cutvalue;
     
     // recursion:
-    node->hi = KDNode::build_kdtree(hilist, bucketSize, level+1);
-    node->lo = KDNode::build_kdtree(lolist, bucketSize, level+1);    
+    node->hi = KDNode::build_kdtree(hilist, bucketSize, level+1, node);
+    node->lo = KDNode::build_kdtree(lolist, bucketSize, level+1, node);    
      
     // return a new node
     return node;
@@ -280,6 +285,22 @@ bool KDNode::overlap(const KDNode *node, const Point &cl, const MillingCutter &c
     } // end of switch(dim)
 
     return false;
+}
+
+void KDNode::getTriangles( std::list<Triangle> *tris, KDNode *node)
+{
+    if (node->tris != NULL) { 
+        // found a bucket node, add all triangles
+        BOOST_FOREACH(Triangle t, *(node->tris)) {
+            tris->push_back(t); 
+        }
+        return;
+    }
+    
+    // not a bucket node, so search recursively high and low:
+    KDNode::getTriangles(tris, node->hi);
+    KDNode::getTriangles(tris, node->lo);
+    return;
 }
 
 /// search kd-tree starting at KDNode node for triangles.

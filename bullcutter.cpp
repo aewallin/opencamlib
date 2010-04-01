@@ -24,7 +24,6 @@
 #include "cutter.h"
 #include "point.h"
 #include "triangle.h"
-#include "cutter.h"
 #include "numeric.h"
 
 

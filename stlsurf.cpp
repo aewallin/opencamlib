@@ -65,6 +65,67 @@ int STLSurf::size()
     return tris.size();
 }
 
+void STLSurf::build_kdtree()
+{
+    root = KDNode::build_kdtree( &tris );
+}
+
+int STLSurf::get_kd_level() 
+{
+    return node->level;
+}
+
+int STLSurf::jump_kd_up()
+{
+    if (node->up) {
+        node = node->up;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int STLSurf::jump_kd_hi()
+{
+    if (node->hi) {
+        node = node->hi;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int STLSurf::jump_kd_lo()
+{
+    if (node->lo) {
+        node = node->lo;
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+void STLSurf::jump_kd_reset()
+{
+    node = root;
+}
+
+boost::python::list STLSurf::get_kd_triangles()
+{
+    boost::python::list trilist;
+    std::list<Triangle> *triangles = new std::list<Triangle>();
+    
+    KDNode::getTriangles( triangles, node);
+    
+    BOOST_FOREACH(Triangle t, *triangles)
+    {
+        trilist.append(t);
+    }
+    
+    return trilist;
+}
+
+
 std::string STLSurf::str()
 {
         std::ostringstream o;
@@ -82,6 +143,7 @@ using namespace std;
 
 static std::string str_for_Ttc;
 
+/// consider renaming?
 const char* Ttc(const wchar_t* str)
 {
 	// convert a wchar_t* string into a char* string
