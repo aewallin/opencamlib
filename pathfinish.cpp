@@ -56,7 +56,7 @@ void PathDropCutterFinish::setPath(const Path *p) {
 void PathDropCutterFinish::run() {
 	clpoints.clear();
 	// loop through the input path, splitting each input span into 0.1mm steps
-    /// \todo FIXME: can we replace with BOOST_FOREACH ?
+    /// \todo FIXME: can we replace with BOOST_FOREACH ?
     /// \todo FIXME: 0.1mm resolution is arbitrary, allow user to change/set this
 	for(std::list<Span*>::const_iterator It = path->span_list.begin(); It != path->span_list.end(); It++)
 	{
