@@ -141,7 +141,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     }
     
     
-	return 0; // we never get here (?)
+    return 0; // we never get here (?)
 }
 
 
@@ -163,63 +163,68 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         //std::cout << "testing edge " << start << " to " << end << "\n";
         Point p1 = t.p[start];
         Point p2 = t.p[end];
-        //std::cout << "Points " << p1 << " to " << p2 << "\n";
-        double d = cl.xyDistanceToLine(p1, p2);
-        assert_isPositive(d);
-            
-        if (d<=radius) { // potential hit
         
-            // the plane of the line will slice the spherical cutter at
-            // a distance d from the center of the cutter
-            // here the radius of the circular section is
-            double s = sqrt( square(radius) - square(d) );
+        // check that there is an edge in the xy-plane
+        // can't drop against vertical edges!
+        if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
+        
+            //std::cout << "Points " << p1 << " to " << p2 << "\n";
+            double d = cl.xyDistanceToLine(p1, p2);
+            assert_isPositive(d);
                 
-            // the center-point of this circle, in the xy plane lies at
-            Point sc = cl.xyClosestPoint( p1, p2 );   
-                   
+            if (d<=radius) { // potential hit
             
-            Point v = p2 - p1;
-            Point start2sc_dir = sc - p1;
-            start2sc_dir.xyNormalize();
-            start2sc_dir.z=0;
-            double dz = p2.z - p1.z;
-            double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
-            
-            // in the vertical plane of the line:
-            // (du,dz) points in the direction of the line
-            // so (dz, -du) is a normal to the line
-            Point tangent = Point(p2u,dz,0);
-            tangent.xyNormalize();
-            Point normal = Point (dz, -p2u, 0);
-            normal.xyNormalize();
-            if (normal.y < 0) { // flip normal so it points upward
-                normal = -1*normal;
-            }
-            assert_isPositive( normal.y);
-            
-            Point start2sc = sc - p1;
-            double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
-            
-            double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
-            
-            Point cc_tmp = p1 + (cc_u/p2u)*v;
-            
-            double cl_z = cc_tmp.z + s*normal.y - radius;
-            
-            // test if cc-point is in edge
-            if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
-                if (cl.liftZ(cl_z)) {
-                    cc = cc_tmp;
-                    cc.type = EDGE;
-                    result = 1;
+                // the plane of the line will slice the spherical cutter at
+                // a distance d from the center of the cutter
+                // here the radius of the circular section is
+                double s = sqrt( square(radius) - square(d) );
+                    
+                // the center-point of this circle, in the xy plane lies at
+                Point sc = cl.xyClosestPoint( p1, p2 );   
+                
+                Point v = p2 - p1;
+                Point start2sc_dir = sc - p1;
+                start2sc_dir.xyNormalize();
+                start2sc_dir.z=0;
+                double dz = p2.z - p1.z;
+                double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
+                
+                // in the vertical plane of the line:
+                // (du,dz) points in the direction of the line
+                // so (dz, -du) is a normal to the line
+                Point tangent = Point(p2u,dz,0);
+                tangent.xyNormalize();
+                Point normal = Point (dz, -p2u, 0);
+                normal.xyNormalize();
+                if (normal.y < 0) { // flip normal so it points upward
+                    normal = -1*normal;
                 }
-            
+                assert_isPositive( normal.y);
+                
+                Point start2sc = sc - p1;
+                double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
+                
+                double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
+                
+                Point cc_tmp = p1 + (cc_u/p2u)*v;
+                
+                double cl_z = cc_tmp.z + s*normal.y - radius;
+                
+                // test if cc-point is in edge
+                if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
+                    if (cl.liftZ(cl_z)) {
+                        cc = cc_tmp;
+                        cc.type = EDGE;
+                        result = 1;
+                    }
+                
+                }
+                
+            }// end if(potential hit)
+            else {
+                // edge is too far away from cutter. nothing to do.
             }
-            
-        }// end if(potential hit)
-        else {
-            // edge is too far away from cutter. nothing to do.
-        }
+        }// end if(vertical edge)
         
     } // end loop through all edges
         

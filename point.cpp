@@ -21,6 +21,7 @@
 #include <math.h>
 #include "point.h"
 #include "triangle.h"
+#include "numeric.h"
 
 int Point::count = 0;
 
@@ -128,6 +129,11 @@ double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
         // see for example
         // http://mathworld.wolfram.com/Point-LineDistance2-Dimensional.html
         if ((p1.x == p2.x) && (p1.y == p2.y)) {// no line in xy plane
+            std::cout << "point.cpp: xyDistanceToLine ERROR!: can't calculate distance from \n";
+            std::cout << "point.cpp: xyDistanceToLine ERROR!: *this ="<<*this <<" to line through\n";
+            std::cout << "point.cpp: xyDistanceToLine ERROR!: p1="<<p1<<" and \n";
+            std::cout << "point.cpp: xyDistanceToLine ERROR!: p2="<<p2<< "\n";
+            std::cout << "point.cpp: xyDistanceToLine ERROR!: in the xy-plane\n";
             return -1;
         }
         else {
@@ -145,9 +151,13 @@ Point Point::xyClosestPoint(const Point &p1, const Point &p2)
     Point pt1 = p1; // this required because of "const" arguments above.
     Point pt2 = p2;
     Point v = pt2 - pt1;
-    if ( v.xyNorm() == 0.0 ) { // if p1 and p2 do not make a line in the xy-plane
-        std::cout << "point.cpp: xyClosestPoint ERROR!\n";
-        return Point(0,0,0);
+    if ( isZero_tol( v.xyNorm() ) ) { // if p1 and p2 do not make a line in the xy-plane
+        std::cout << "point.cpp: xyClosestPoint ERROR!: can't calculate closest point from \n";
+        std::cout << "point.cpp: xyClosestPoint ERROR!: *this ="<<*this <<" to line through\n";
+        std::cout << "point.cpp: xyClosestPoint ERROR!: p1="<<p1<<" and \n";
+        std::cout << "point.cpp: xyClosestPoint ERROR!: p2="<<p2<< "\n";
+        std::cout << "point.cpp: xyClosestPoint ERROR!: in the xy-plane\n";
+        return Point(0,0,0); // conside assert(0) ?
     }
         
     double u;

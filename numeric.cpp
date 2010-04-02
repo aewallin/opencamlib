@@ -54,7 +54,7 @@ bool isZero_tol(double x) {
 }
 
 /* ********* assert-type stuff */
-
+/*
 void assert_isPositive( double x )
 {   
     if ( !isPositive( x ) )
@@ -69,3 +69,4 @@ void assert_isZero_tol( double x )
 
 
 
+*/

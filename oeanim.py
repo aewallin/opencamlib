@@ -13,6 +13,6 @@ def radian(deg):
 
 for n in xrange(0,Nsteps):
     yc = ystart + n*ystep
-    fname = "frames/oett"+ ('%05d' % n)+".png"
+    fname = "frames/oet"+ ('%05d' % n)+".png"
     oe.main(ycoord=yc, filename=fname, theta=70, fi=radian(fiangle))
     #fiangle = fiangle + 2

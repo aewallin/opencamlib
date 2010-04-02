@@ -97,8 +97,8 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     a_inf = a + (-100*(b-a))
     b_inf = a + (+100*(b-a))
 
-    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),radius=0.1*radius2, color=camvtk.red)
-    tube.SetOpacity(0.6)
+    tube = camvtk.Tube(p1=(a_inf.x,a_inf.y,a_inf.z),p2=(b_inf.x,b_inf.y,b_inf.z),radius=0.05*radius2, color=camvtk.red)
+    tube.SetOpacity(0.3)
     myscreen.addActor(tube)
     
     # cylindrical-cutter circle at z=0 plane

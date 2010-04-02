@@ -20,6 +20,8 @@
 
 #define PI 3.1415926535897932
 
+#include <cassert>
+
 ///
 /// \brief Numeric is a collection of functions for dealing
 /// with the joys of floating-point arithmetic.
@@ -42,9 +44,17 @@ bool isZero_tol(double x);
 
 
 /// check that x is positive within tolerance
-void assert_isPositive( double x );
+inline void assert_isPositive( double x )
+{   
+    if ( !isPositive( x ) )
+        assert(0);
+};
 
 /// check that x is zero, within tolerance
-void assert_isZero_tol( double x );
+inline void assert_isZero_tol( double x )
+{
+    if ( !isZero_tol( x ) )
+        assert(0);
+};
 
 #endif
