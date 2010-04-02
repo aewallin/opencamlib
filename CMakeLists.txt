@@ -107,11 +107,14 @@ install(
         pfinish_tst_1.py
         stl2ocl_tst.py
         stlsurf_tst.py
-        demo.stl
-        gnu_tux_mod.stl
-        sphere.stl
     DESTINATION
         share/doc/python-opencam/examples
+)
+
+install(
+    DIRECTORY stl/
+    DESTINATION share/doc/python-opencam/examples/stl
+    PATTERN .svn EXCLUDE
 )
 
 
