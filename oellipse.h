@@ -55,6 +55,9 @@ class Epos {
         
         /// string repr
         std::string str();
+        
+        /// check that (s,t) is valid
+        bool isValid();
 };
 
 

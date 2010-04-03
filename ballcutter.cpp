@@ -84,7 +84,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         normal = *t.n;
     }   
     
-    assert_isPositive( normal.z );
+    assert( isPositive( normal.z ) );
     
     if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane
         // so any vertex is at the correct height
@@ -170,7 +170,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         
             //std::cout << "Points " << p1 << " to " << p2 << "\n";
             double d = cl.xyDistanceToLine(p1, p2);
-            assert_isPositive(d);
+            assert( isPositive(d) );
                 
             if (d<=radius) { // potential hit
             
@@ -199,7 +199,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 if (normal.y < 0) { // flip normal so it points upward
                     normal = -1*normal;
                 }
-                assert_isPositive( normal.y);
+                assert( isPositive(normal.y) );
                 
                 Point start2sc = sc - p1;
                 double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc

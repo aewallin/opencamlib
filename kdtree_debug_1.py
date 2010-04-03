@@ -10,8 +10,8 @@ import datetime
 
 def main():
     myscreen = camvtk.VTKScreen()
-    focal = cam.Point(5, 5, 0)
-    r = 30
+    focal = cam.Point(50, 0, 0)
+    r = 300
     theta = (float(45)/360)*2*math.pi
     fi=45
     
@@ -43,7 +43,7 @@ def main():
     
     #ycoord = 1.1
     
-    stl = camvtk.STLSurf(filename="stl/demo.stl")
+    stl = camvtk.STLSurf(filename="stl/demo2.stl")
     #stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
     #myscreen.addActor(stl)

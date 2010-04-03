@@ -53,20 +53,3 @@ bool isZero_tol(double x) {
         return false;
 }
 
-/* ********* assert-type stuff */
-/*
-void assert_isPositive( double x )
-{   
-    if ( !isPositive( x ) )
-        assert(0);
-}
-
-void assert_isZero_tol( double x )
-{
-    if ( !isZero_tol( x ) )
-        assert(0);
-}
-
-
-
-*/

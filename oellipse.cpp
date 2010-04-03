@@ -46,8 +46,16 @@ void Epos::setT(double tin, bool side)
         s =  1 * sqrt(ssq);
     else
         s = -1 * sqrt(ssq);
-        
-    assert_isZero_tol( square(s) + square(t) - 1.0 );
+    
+    assert( this->isValid() );
+}
+
+bool Epos::isValid()
+{
+    if ( isZero_tol( square(s) + square(t) - 1.0 ) )
+        return true;
+    else
+        return false;
 }
 
 void Epos::setS(double sin, bool side)
@@ -64,7 +72,7 @@ void Epos::setS(double sin, bool side)
     else
         t = -1 * sqrt(tsq);
     
-    assert_isZero_tol( square(s) + square(t) - 1.0 );
+    assert( this->isValid() );
 }
 
 void Epos::stepTangent(Ellipse e, double delta)
@@ -85,6 +93,7 @@ void Epos::stepTangent(Ellipse e, double delta)
         else
             setT( newt,0);
     }
+    assert( this->isValid() );
 }
 
 Epos& Epos::operator=(const Epos &pos) 

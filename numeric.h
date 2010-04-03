@@ -44,17 +44,20 @@ bool isZero_tol(double x);
 
 
 /// check that x is positive within tolerance
-inline void assert_isPositive( double x )
+/*
+ * inline void assert_isPositive( double x )
 {   
     if ( !isPositive( x ) )
         assert(0);
 };
+* */
 
 /// check that x is zero, within tolerance
+/*
 inline void assert_isZero_tol( double x )
 {
     if ( !isZero_tol( x ) )
         assert(0);
 };
-
+*/
 #endif

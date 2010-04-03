@@ -118,7 +118,6 @@ boost::python::list ParallelFinish::getTrianglesUnderCutter(Point &cl, MillingCu
 {
     boost::python::list trilist;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-    //triangles_under_cutter->clear();
     KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
     BOOST_FOREACH(Triangle t, *triangles_under_cutter)
     {

@@ -60,7 +60,7 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     {
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
-        assert_isPositive(q);
+        assert( isPositive(q) );
     
         if ( q <= radius1 ) { // p is inside the cylindrrical part of the cutter
             if (cl.liftZ(p.z)) { // we need to lift the cutter
@@ -101,7 +101,7 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     } else {
         normal = *t.n;
     }   
-    assert_isPositive( normal.z );
+    assert( isPositive( normal.z ) );
     
     
     if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { // horizontal plane
@@ -234,7 +234,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         cc.type = EDGE;
                 }
             } else { // discr > 0, two intersection points
-                assert_isPositive(discr);
+                assert( isPositive(discr) );
                 
                 Point cc1;
                 Point cc2;

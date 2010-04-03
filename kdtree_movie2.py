@@ -8,7 +8,10 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     myscreen.setAmbient(20,20,20)
     
-    stl = camvtk.STLSurf(filename="demo.stl")
+    myscreen.camera.SetPosition(20, 30, 50)
+    myscreen.camera.SetFocalPoint(5, 5, 0)
+    
+    stl = camvtk.STLSurf(filename="stl/demo.stl")
     #stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
     myscreen.addActor(stl)
@@ -19,17 +22,17 @@ if __name__ == "__main__":
     s= cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STLSurf with ", s.size(), " triangles"
-    cutterDiameter=10
+    cutterDiameter=1
     cutter = cam.CylCutter(cutterDiameter)
     #print cutter.str()
     #print cc.type
     minx=0
-    dx=5
-    maxx=150
+    dx=1
+    maxx=10
     
-    miny=-90
+    miny=0
     dy=1
-    maxy=70
+    maxy=10
     z=-10
     
     bucketSize = 20
@@ -58,8 +61,7 @@ if __name__ == "__main__":
     nn=0
     ne=0
     nf=0
-    myscreen.camera.SetPosition(3, 300, 200)
-    myscreen.camera.SetFocalPoint(75, 0, 0)
+
     t = camvtk.Text()
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     
@@ -128,11 +130,16 @@ if __name__ == "__main__":
         trilist=[]
         
         
-        cutactor = camvtk.Cylinder(center=(cl.x,cl.y,cl.z), radius=cutterDiameter/2, height=20, color=(0.7,0,1))
+        cutactor = camvtk.Cylinder(center=(cl.x,cl.y,cl.z), 
+                                   radius=cutterDiameter/2, 
+                                   height=20, 
+                                   rotXYZ=(90,0,0),
+                                   color=(0.7,0,1))
         myscreen.addActor( cutactor )
         
-        #myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
+        myscreen.addActor( camvtk.Sphere(center=(cl.x,cl.y,cl.z) ,radius=0.03,  color=col) )    
         
+        """
         if n==0:
             precl = cl
         else:
@@ -140,12 +147,14 @@ if __name__ == "__main__":
             if (d.norm() < 90):
                 myscreen.addActor( camvtk.Line( p1=(precl.x, precl.y, precl.z), p2=(cl.x, cl.y, cl.z), color=(0,1,1) ) )
             precl = cl
+        """
+        
         n=n+1
         #myscreen.addActor( camvtk.Point(center=(cl2.x,cl2.y,cl2.z+0.2) , color=(0.6,0.2,0.9)) )  
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
         #print cc.type
-        myscreen.camera.Azimuth( 0.2 )
-        #time.sleep(0.01)
+        #myscreen.camera.Azimuth( 0.2 )
+        time.sleep(0.1)
         myscreen.render()
         #w2if.Modified() 
         #lwr.SetFileName("kdbig"+ ('%05d' % n)+".png")

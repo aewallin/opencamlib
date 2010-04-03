@@ -418,6 +418,7 @@ class Toroid(CamvtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)    
 
+"""
 class TrilistReader(vtk.vtkPolyDataAlgorithm):
     def __init__(self, triangleList):
         vtk.vtkPolyDataAlgorithm.__init__(self)
@@ -441,6 +442,7 @@ class TrilistReader(vtk.vtkPolyDataAlgorithm):
         
         output.ShallowCopy(polydata)
         return 1
+"""
 
 class STLSurf(CamvtkActor):
     def __init__(self, filename=None, triangleList=[], color=(1,1,1) ):

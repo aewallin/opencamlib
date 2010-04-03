@@ -35,6 +35,7 @@
 #include "kdtree.h"
 
 
+//#define DEBUG_KD
 
 //********   KDNode ********************** */
 
@@ -61,7 +62,7 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris,
 {
     
     if (tris->size() == 0) { //this is a fatal error.
-        std::cout << "kdtree.cpp ERROR: build_kdtree called with tris->size()==0 ! \n";
+        std::cout << "kdtree.cpp ERROR: build_kdtree() called with tris->size()==0 ! \n";
         assert(0);
         return 0;
     }
@@ -69,7 +70,7 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris,
     // calculate spread in order to know how to cut
     Spread* spr = KDNode::spread(tris);
     // calculate cut value
-    double cutvalue = spr->start + spr->val/2;
+    double cutvalue = spr->start + spr->val/2; // cut in the middle
     
     // if spr.val==0 (no need/possibility to subdivide anymore)
     // OR number of triangles is smaller than bucketSize 
@@ -78,8 +79,10 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris,
         //std::cout << "Bucket with len(tris)=" << tris->size() << "\n";
         KDNode *bucket;
         if ( (spr->d == 0) || (spr->d == 2) ) // maxx or maxy cut
+            // does the node spread value make a difference here??
             bucket = new KDNode(spr->d, spr->start+spr->val, parent , NULL, NULL, tris, level);
         else // the min cut case:
+            // does the node spread value make a difference here??
             bucket = new KDNode(spr->d, spr->start, parent , NULL, NULL, tris, level);
         
         return bucket;
@@ -92,11 +95,14 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris,
     std::list<Triangle> *hilist = new std::list<Triangle>();
     
     // these are probably not required
-    //lolist->clear();
-    //hilist->clear();
+    // lolist->clear();
+    // hilist->clear();
     
-    BOOST_FOREACH(Triangle t, *tris) { // loop thorugh each triangle and put it in either lolist or hilist
-        
+    BOOST_FOREACH(Triangle t, *tris) { // loop through each triangle and put it in either lolist or hilist
+        #ifdef DEBUG_KD
+            std::cout << "adding tri=" << t;
+            std::cout << " dim=" << spr->d << "\n";
+        #endif
         if (spr->d == 0) { // cut along maxx
             if (t.maxx > cutvalue) {
                 hilist->push_back(t);
@@ -166,7 +172,7 @@ bool Spread::spread_compare(Spread *x, Spread *y) {
         return false;
 }
 
-/// find the maximum 'extent' of triangles in list tris along dimension d
+/// find the maximum 'extent' of Triangle list tris along dimension d
 Spread* KDNode::spread(const std::list<Triangle> *tris) {
     double max_xplus=0, min_xplus=0, max_xminus=0, min_xminus=0;
     double max_yplus = 0, min_yplus = 0, max_yminus = 0, min_yminus = 0;
@@ -234,20 +240,21 @@ Spread* KDNode::spread(const std::list<Triangle> *tris) {
         
         // put the spreads in a list
         std::vector<Spread*> spreads;
-        // = new std::vector<Spread*>();
-        spreads.push_back( new Spread(0, spr_xplus, min_xplus)   );
+
+        spreads.push_back( new Spread(0, spr_xplus, min_xplus)   );  // dim=0  is maxx
         //std::cout <<"0: spread=" << spr_xplus << "\n";
-        spreads.push_back( new Spread(1, spr_xminus, min_xminus) );
+        spreads.push_back( new Spread(1, spr_xminus, min_xminus) );  // dim=1  is minx
         //std::cout <<"1: spread=" << spr_xminus << "\n";
-        spreads.push_back( new Spread(2, spr_yplus, min_yplus)   );
+        spreads.push_back( new Spread(2, spr_yplus, min_yplus)   );  // dim=2  is maxy
         //std::cout <<"2: spread=" << spr_yplus << "\n";
-        spreads.push_back( new Spread(3, spr_yminus, min_yminus) );
+        spreads.push_back( new Spread(3, spr_yminus, min_yminus) );  // dim=3  is miny
         //std::cout <<"3: spread=" << spr_yminus << "\n";
         // sort the list
         std::sort(spreads.begin(), spreads.end(), Spread::spread_compare);
         //std::cout << " selecting " << (spreads[0])->d << " with s="<< (spreads[0])->val << "\n";
         //char c;
         //std::cin >> c;
+        
         // select the biggest spread and return
         return spreads[ 0 ];
         
@@ -282,6 +289,8 @@ bool KDNode::overlap(const KDNode *node, const Point &cl, const MillingCutter &c
             else 
                 return true;
             break;
+        default:
+            assert(0);
     } // end of switch(dim)
 
     return false;
@@ -316,21 +325,26 @@ void KDNode::search_kdtree(std::list<Triangle> *tris,
     if (node->tris != NULL) { 
         //std::cout << "bucket: cl=" << cl << "r=" << cutter.getRadius() 
         //          << " len(tris)=" << node->tris->size() << " KDNode:" << *node << "\n";
-        if ( KDNode::overlap(node,cl,cutter) ) {
-            BOOST_FOREACH(Triangle t, *(node->tris)) {
+        
+        
+        //if ( KDNode::overlap(node,cl,cutter) ) {  // check if node overlaps
+            BOOST_FOREACH( Triangle t, *(node->tris) ) {
                 //std::cout << t << "\n";
                 //double r = cutter.getRadius();
                 //std::cout << "T: " << t.minx << "\t" << t.maxx << "\t" << t.miny << "\t" << t.maxy << "\n";
                 //std::cout << "C: " << cl.x-r << "\t" << cl.x+r << "\t" << cl.y-r << "\t" << cl.y+r << "\n";
                 //std::cout << "overlap?:" << KDTree::overlap(node,cl,cutter) << "\n";
-                if ( cutter.overlaps(cl,t) ) {
+                
+                
+                //if ( cutter.overlaps(cl,t) ) { // explicit cutter-overlap check
                     tris->push_back(t); 
-                }
+                //}
+                
+                
             }
 
-        }
-        //char c;
-        //std::cin >> c;
+        //}
+
         return;
     }
     
@@ -376,10 +390,14 @@ void KDNode::search_kdtree(std::list<Triangle> *tris,
                 KDNode::search_kdtree(tris, cl, cutter, node->lo);
             }      
             break;
+        default:
+            // error
+            std::cout << "kdtree.cpp ERROR!\n";
+            assert(0);
     } // end of switch(dim)
     
-   
-    return; // do we ever get here?
+    // we get here after all the recursive calls above.
+    return; 
     
 
 } // end search_kdtree()
@@ -393,21 +411,7 @@ Spread::Spread(int dim, double v, double s)
     start = s;
 }
 
-/*
-void KDTree::str(KDNode *root)
-{
-    std::cout << "L: " << root->level << " d:" << root->dim << " v:" << root->cutval <<" ";
-    if (root->tris)
-        std::cout << "tris.size()=" << root->tris->size() << "\n";
-    else
-        std::cout << "INT \n";    
-        
-    if (root->hi) {
-        KDTree::str(root->hi);
-        KDTree::str(root->lo);
-    }
-}
-*/
+
 
 //********  string output ********************** */
 std::string KDNode::str()

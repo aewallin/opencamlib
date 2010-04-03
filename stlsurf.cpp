@@ -110,6 +110,16 @@ void STLSurf::jump_kd_reset()
     node = root;
 }
 
+boost::python::list STLSurf::get_kd_cut()
+{
+    boost::python::list cutlist;
+    cutlist.append( node->dim );
+    cutlist.append( node->cutval );
+    
+    return cutlist;
+}
+
+
 boost::python::list STLSurf::get_kd_triangles()
 {
     boost::python::list trilist;

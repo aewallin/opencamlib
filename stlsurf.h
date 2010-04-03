@@ -61,15 +61,20 @@ class STLSurf {
         /// build a kd-tree from the triangles in the surface
         void build_kdtree();
         
+        /// jump up in the kd-tree
         int jump_kd_up();
+        /// jump hi
         int jump_kd_hi();
+        /// jumo lo
         int jump_kd_lo();
+        /// set node = root
         void jump_kd_reset();
-        
+        /// return level of node
         int get_kd_level();
-        
-        /// return triangles in node root
+        /// return triangles in node
         boost::python::list get_kd_triangles();
+        /// return cut-dim and value of node
+        boost::python::list get_kd_cut();
         
         /// root of kd-tree
         KDNode *root;
