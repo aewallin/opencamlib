@@ -80,10 +80,12 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris,
         KDNode *bucket;
         if ( (spr->d == 0) || (spr->d == 2) ) // maxx or maxy cut
             // does the node spread value make a difference here??
-            bucket = new KDNode(spr->d, spr->start+spr->val, parent , NULL, NULL, tris, level);
+            //bucket = new KDNode(spr->d, spr->start+spr->val, parent , NULL, NULL, tris, level);
+            bucket = new KDNode(spr->d, 0.0 , parent , NULL, NULL, tris, level);
         else // the min cut case:
             // does the node spread value make a difference here??
-            bucket = new KDNode(spr->d, spr->start, parent , NULL, NULL, tris, level);
+            // bucket = new KDNode(spr->d, spr->start, parent , NULL, NULL, tris, level);
+            bucket = new KDNode(spr->d, 0.0 , parent , NULL, NULL, tris, level);
         
         return bucket;
     }
@@ -152,11 +154,10 @@ KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris,
     std::cin >> c;
     */
     
-    KDNode *node = new KDNode(0,0,parent, NULL,NULL,NULL, level);
-    node->dim = spr->d;
-    node->cutval = cutvalue;
+    //                         dim     value    parent  hi   lo   trilist  level
+    KDNode *node = new KDNode(spr->d, cutvalue, parent, NULL,NULL,NULL, level);
     
-    // recursion:
+    // recursion:                   list    bucketsize   level   parent
     node->hi = KDNode::build_kdtree(hilist, bucketSize, level+1, node);
     node->lo = KDNode::build_kdtree(lolist, bucketSize, level+1, node);    
      
@@ -296,6 +297,8 @@ bool KDNode::overlap(const KDNode *node, const Point &cl, const MillingCutter &c
     return false;
 }
 
+
+/// returns all triangles under KDNode node in the tree
 void KDNode::getTriangles( std::list<Triangle> *tris, KDNode *node)
 {
     if (node->tris != NULL) { 
@@ -355,7 +358,7 @@ void KDNode::search_kdtree(std::list<Triangle> *tris,
     switch(node->dim) { // ugly, solve with polymorphism?
         case 0: // cut along xplus
             // if one child node is not overlapping, search only the other
-            if ( node->cutval <= ( cl.x - cutter.getRadius() ) ) {
+            if ( node->cutval < ( cl.x - cutter.getRadius() ) ) {
                 KDNode::search_kdtree(tris, cl, cutter, node->hi); //hi
             } 
             else { // else we need to search both child-nodes
@@ -364,7 +367,7 @@ void KDNode::search_kdtree(std::list<Triangle> *tris,
             }
             break;
         case 1: // cut along xminus
-            if ( node->cutval >= ( cl.x + cutter.getRadius() ) ) {
+            if ( node->cutval > ( cl.x + cutter.getRadius() ) ) {
                 KDNode::search_kdtree(tris, cl, cutter, node->lo);
             }
             else {
@@ -373,7 +376,7 @@ void KDNode::search_kdtree(std::list<Triangle> *tris,
             }
             break;
         case 2: // cut along yplus
-            if ( node->cutval <= ( cl.y - cutter.getRadius() ) ) {
+            if ( node->cutval < ( cl.y - cutter.getRadius() ) ) {
                 KDNode::search_kdtree(tris, cl, cutter, node->hi);
             }
             else {
@@ -382,7 +385,7 @@ void KDNode::search_kdtree(std::list<Triangle> *tris,
             }        
             break;
         case 3: // cut along yminus
-            if ( node->cutval >= ( cl.y + cutter.getRadius() ) ) {
+            if ( node->cutval > ( cl.y + cutter.getRadius() ) ) {
                 KDNode::search_kdtree(tris, cl, cutter, node->lo);
             }
             else {

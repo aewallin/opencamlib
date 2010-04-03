@@ -34,6 +34,8 @@ ParallelFinish::ParallelFinish() {
     ccpoints = new std::list<CCPoint>();
 }
 
+
+// drop cutter against all triangles in surface
 void ParallelFinish::dropCutterSTL1(MillingCutter &cutter)
 {
     // very simple drop-cutter
@@ -55,6 +57,8 @@ void ParallelFinish::dropCutterSTL1(MillingCutter &cutter)
 }
 
 
+// first search for triangles under the cutter
+// then only drop cutter against found triangles
 void ParallelFinish::dropCutterSTL2(MillingCutter &cutter)
 {
     std::cout << "ParallelFinish::dropCutterSTL2 " << clpoints->size() << " cl-points and " << surf->tris.size() << " triangles.\n";
@@ -64,7 +68,6 @@ void ParallelFinish::dropCutterSTL2(MillingCutter &cutter)
     
         // find triangles under cutter
         std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-        //triangles_under_cutter->clear();
         KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
         
         //std::cout << "found " << triangles_under_cutter->size() << " triangles at cl=" << cl << "\n";
@@ -123,6 +126,7 @@ boost::python::list ParallelFinish::getTrianglesUnderCutter(Point &cl, MillingCu
     {
         trilist.append(t);
     }
+    delete triangles_under_cutter;
     return trilist;
 }
 
