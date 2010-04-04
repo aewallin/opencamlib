@@ -76,6 +76,9 @@ class STLSurf {
         /// return cut-dim and value of node
         boost::python::list get_kd_cut();
         
+        /// return list of triangles under cutter
+        boost::python::list getTrianglesUnderCutter(Point &cl, MillingCutter &cutter);
+        
         /// root of kd-tree
         KDNode *root;
         

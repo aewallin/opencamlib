@@ -11,6 +11,9 @@ def kdtreesearch(myscreen, tlist, s, cutter, cl, depth):
     #print "surface=", s.str()
     #print "cutter=", cutter.str()
     #print "cl=", cl.str()
+    myscreen.render()
+    #raw_input("Press Enter to terminate")
+    #time.sleep(1)
     if (depth==1): # stop jumping and return all triangles
         tris = s.get_kd_triangles()
         for t in tris:
@@ -23,48 +26,128 @@ def kdtreesearch(myscreen, tlist, s, cutter, cl, depth):
     dim = cut[0]
     cval = cut[1]
     if dim == 0: # cut along xmax
-        myscreen.addActor( camvtk.Line( p1=(cval,100,0), p2=(cval,-100,0), color = camvtk.green ) )
+        
         print cval, " < ", cl.x - cutter.radius, " ??"
         if ( cval < ( cl.x - cutter.radius) ):
+            myscreen.addActor( camvtk.Line( p1=(cval,100,0), p2=(cval,-100,0), color = camvtk.green ) )
+            s.jump_kd_lo()
+            trilist = s.get_kd_triangles()
+            drawtriangles(myscreen, trilist, camvtk.blue)
+            s.jump_kd_up()
             print "xmax: jump ONLY hi" 
             s.jump_kd_hi()
             print "search hi at level=", s.get_kd_level()
-            kdtreesearch(tlist, s, cutter, cl, depth-1)
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
             print "len tlist=", len(tlist), " now level=", s.get_kd_level()
         else:
-            print "xmax: jump both hi and lo"
+            #print "xmax: jump both hi and lo"
             s.jump_kd_hi()
-            print "search hi at level=", s.get_kd_level()
+            #print "search hi at level=", s.get_kd_level()
             kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
-            print "len tlist=", len(tlist), " now level=", s.get_kd_level()
+            #print "len tlist=", len(tlist), " now level=", s.get_kd_level()
             s.jump_kd_up()
             s.jump_kd_lo()
-            print "search lo at level=", s.get_kd_level()
+            #print "search lo at level=", s.get_kd_level()
             kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
-            print "len tlist=", len(tlist), " now level=", s.get_kd_level()
+            #print "len tlist=", len(tlist), " now level=", s.get_kd_level()
     if dim == 1:
-        print "ERROR"
-        pass
+        
+        print cval, " > ", cl.x + cutter.radius, " ??"
+        if ( cval > ( cl.x + cutter.radius) ):
+            myscreen.addActor( camvtk.Line( p1=(cval,100,0), p2=(cval,-100,0), color = camvtk.lgreen ) )
+            s.jump_kd_hi()
+            trilist = s.get_kd_triangles()
+            drawtriangles(myscreen, trilist, camvtk.blue)
+            s.jump_kd_up()
+            print "xmin: jump only lo"
+            s.jump_kd_lo()
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
+        else:
+            #print "xmin: jump both hi and lo"
+            s.jump_kd_lo()
+            kdtreesearch(tlist, s, cutter, cl, depth-1)
+            s.jump_kd_up()
+            s.jump_kd_hi()
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
     if dim == 2:
-        print "ERROR"
-        pass
+        print cval, " < ", cl.y - cutter.radius, " ??"
+        if ( cval < ( cl.y - cutter.radius) ):
+            myscreen.addActor( camvtk.Line( p1=(100,cval,0), p2=(-100,cval,0), color = camvtk.red ) )
+            s.jump_kd_lo()
+            trilist = s.get_kd_triangles()
+            drawtriangles(myscreen, trilist, camvtk.yellow)
+            s.jump_kd_up()
+            
+            s.jump_kd_hi()
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
+        else:
+            #print "ymax: jump both hi and lo"
+            s.jump_kd_lo()
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
+            s.jump_kd_up()
+            s.jump_kd_hi()
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
     if dim == 3: # cut along ymin
-        myscreen.addActor( camvtk.Line( p1=(100,cval,0), p2=(-100,cval,0), color = camvtk.pink ) )
+        
         print cval, " > ", cl.y + cutter.radius, " ??"
         if ( cval > ( cl.y + cutter.radius) ):
-            print "ymin: jump ONLY lo"
-        else:
-            print "ymin: jump both hi and lo"
+            myscreen.addActor( camvtk.Line( p1=(100,cval,0), p2=(-100,cval,0), color = camvtk.pink ) )
+            
             s.jump_kd_hi()
-            print "search hi at level=", s.get_kd_level()
+            trilist = s.get_kd_triangles()
+            drawtriangles(myscreen, trilist, camvtk.yellow)
+            s.jump_kd_up()
+            
+            print "ymin: jump ONLY lo"
+            s.jump_kd_lo()
             kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
-            print "len tlist=", len(tlist), " now level=", s.get_kd_level()
+        else:
+            #print "ymin: jump both hi and lo"
+            s.jump_kd_hi()
+            #print "search hi at level=", s.get_kd_level()
+            kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
+            #print "len tlist=", len(tlist), " now level=", s.get_kd_level()
             s.jump_kd_up()
             s.jump_kd_lo()
-            print "search lo at level=", s.get_kd_level()
+            #print "search lo at level=", s.get_kd_level()
             kdtreesearch(myscreen, tlist, s, cutter, cl, depth-1)
         
     return
+
+def drawtriangles(myscreen, trilist, color):
+    cpp = camvtk.STLSurf(triangleList=trilist)
+    cpp.SetColor(color)
+    cpp.SetWireframe()
+    myscreen.addActor(cpp)
+
+def drawcuts(myscreen, s):
+    cut = s.get_kd_cut()
+    if ( cut[0] < 2 ):
+        print "x cut ",
+        if ( cut[0] == 0):
+            print "max" 
+            myscreen.addActor( camvtk.Line( p1=(cut[1],100,0), p2=(cut[1],-100,0), color = camvtk.green ) )
+        else:
+            print "min" 
+            myscreen.addActor( camvtk.Line( p1=(cut[1],100,0), p2=(cut[1],-100,0), color = camvtk.lgreen ) )
+    else:
+        print "y cut ",
+        if ( cut[0] == 2):
+            print "max" 
+            myscreen.addActor( camvtk.Line( p1=(100,cut[1],0), p2=(-100,cut[1],0), color = camvtk.red ) )
+        else:
+            print "min"
+            myscreen.addActor( camvtk.Line( p1=(100,cut[1],0), p2=(-100,cut[1],0), color = camvtk.pink ) )
+                
+    if (s.jump_kd_hi()):
+        drawcuts(myscreen, s)
+        s.jump_kd_up()
+    if (s.jump_kd_lo()):
+        drawcuts(myscreen, s)
+        s.jump_kd_up()
+    return
+    
+    
 
 def main():
     myscreen = camvtk.VTKScreen()
@@ -104,9 +187,9 @@ def main():
     stl = camvtk.STLSurf(filename="stl/carpet2.stl")
     #stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
-    #myscreen.addActor(stl)
-    #stl.SetWireframe()
-    #stl.SetColor((0.5,0.5,0.5))
+    myscreen.addActor(stl)
+    stl.SetWireframe()
+    stl.SetColor((0.5,0.5,0.5))
     polydata = stl.src.GetOutput()
     s= cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
@@ -131,16 +214,32 @@ def main():
     print "built kd-tree"
     s.jump_kd_reset()
     
-    tlist2 = []
-    depth = 4
-    kdtreesearch(myscreen, tlist2, s, cutter, cl, depth)
-    print "len(list) after search=", len(tlist2)
+
+    cpp_tlist = s.getTrianglesUnderCutter(cl, cutter)
     
-    shi = camvtk.STLSurf(triangleList=tlist2)
-    shi.SetColor(camvtk.lgreen)
-    shi.SetWireframe()
-    myscreen.addActor(shi)
+    py_tlist = []
+    depth = 6
+    kdtreesearch(myscreen, py_tlist, s, cutter, cl, depth)
+    
+    print "len(cpp_list) after search=", len(cpp_tlist)
+    print "len(py_list) after search=", len(py_tlist)
+    
+    cpp = camvtk.STLSurf(triangleList=cpp_tlist)
+    cpp.SetColor(camvtk.lgreen)
+    cpp.SetWireframe()
+    myscreen.addActor(cpp)
+    
+    py = camvtk.STLSurf(triangleList=py_tlist)
+    py.SetColor(camvtk.pink)
+    py.SetWireframe()
+    myscreen.addActor(py)
+    
+    
+    
+    #drawcuts(myscreen, s)
+    
     myscreen.render()
+    myscreen.iren.Start()
     time.sleep(2)
     exit()
     

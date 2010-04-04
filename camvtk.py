@@ -11,7 +11,7 @@ import math
 white = (1,1,1)
 red= (1,0,0)
 green= (0,1,0)
-lgreen = ( float(170)/255,float(255)/255,float(170)/255)
+lgreen = ( float(190)/255,float(255)/255,float(190)/255)
 blue= (0,0,1)
 cyan=  (0,1,1)
 yellow= (1,1,0)

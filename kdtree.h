@@ -83,6 +83,7 @@ class KDNode {
         KDNode *hi;
         /// Child-node lo.
         KDNode *lo;
+        
         /// A list of triangles, if this is a bucket-node
         const std::list<Triangle> *tris;
         
@@ -114,6 +115,7 @@ class KDNode {
         /// do the triangles at KDNode root overlap with the MillingCutter c positioned at Point cl?
         static bool overlap(const KDNode *root, const Point& cl, const MillingCutter& c);
         
+        static int cutcount;        
 };
 
 

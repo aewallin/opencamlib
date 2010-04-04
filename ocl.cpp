@@ -90,6 +90,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("jump_kd_reset", &STLSurf::jump_kd_reset)
         .def("get_kd_level", &STLSurf::get_kd_level)
         .def("get_kd_cut", &STLSurf::get_kd_cut)
+        .def("getTrianglesUnderCutter", &STLSurf::getTrianglesUnderCutter)
     ;
     bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter", bp::no_init)
         .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop) )
