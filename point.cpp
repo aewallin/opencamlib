@@ -144,6 +144,16 @@ double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
         }
 }
 
+Point Point::closestPoint(const Point &p1, const Point &p2)
+{
+    Point v = p2 - p1;
+    assert( v.norm() > 0.0 );
+    // vector notation:
+    // u = (p3-p1) dot v / (v dot v)
+    double u = (*this - p1).dot(v) / v.dot(v);
+    return p1 + u*v;
+}
+
 Point Point::xyClosestPoint(const Point &p1, const Point &p2)
 {
     // one explanation is here

@@ -54,7 +54,7 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::class_<CCPoint>("CCPoint") 
         .def(bp::init<CCPoint>())
         .def("str", &CCPoint::str)
-        .def_readonly("type", &CCPoint::type)
+        .def_readwrite("type", &CCPoint::type)
         .def_readwrite("x", &CCPoint::x)
         .def_readwrite("y", &CCPoint::y)
         .def_readwrite("z", &CCPoint::z)

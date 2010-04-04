@@ -91,6 +91,9 @@ class Ellipse {
         /// error function for the solver
         double error(Epos& position, Point& p);
         
+        /// calculate ellipse center
+        Point calcEcenter(Point& cl, Point& up1, Point& up2, int sln);
+        
         /// the center point of the ellipse
         Point center;
         

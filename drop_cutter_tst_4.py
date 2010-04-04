@@ -2,6 +2,7 @@ import ocl as cam
 import camvtk
 import time
 import vtk
+import datetime
 
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     plist = []
@@ -12,23 +13,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
             plist.append( cam.Point(x,y,z) )
     return plist
 
-def ccColor(cc):
-    if cc.type==cam.CCType.FACET:
-        #nf+=1
-        col = (0,0,1)
-    elif cc.type == cam.CCType.VERTEX:
-        #nv+=1
-        col = (0,1,0)
-    elif cc.type == cam.CCType.EDGE:
-        #ne+=1
-        col = (1,0,0)
-    elif cc.type == cam.CCType.NONE:
-        #print "type=NONE!"
-        #nn+=1
-        col = (1,1,1)  
-    elif cc.type == cam.CCType.ERROR:
-        col = (0,1,1)
-    return col
+
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
@@ -39,22 +24,23 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(0,1,0), color=(1,0,1)));
     c=cam.Point(0,0,0.3)
     myscreen.addActor(camvtk.Point(center=(0,0,0.3), color=(1,0,1)));
-    myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,0,0.3)) )
-    myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
-    myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
+    #myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,0,0.3)) )
+    #myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
+    #myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = cam.Triangle(a,b,c)
-    
-    cutter = cam.BullCutter(0.4, 0.1)
+    radius1=0.3
+    radius2=0.02
+    cutter = cam.BullCutter(radius1, radius2)
     #print cutter.str()
     
     
     #print cc.type
-    minx=-0.2
+    minx=-0.5
     dx=0.02
-    maxx=1.2
-    miny=-0.2
+    maxx=1.5
+    miny=-0.5
     dy=0.02
-    maxy=1.2
+    maxy=1.5
     z=-0.2
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
@@ -64,12 +50,16 @@ if __name__ == "__main__":
     print len(clpoints), "cl-points to evaluate"
     n=0
     ccpoints=[]
+    
     for cl in clpoints:
-        #cutter.dropCutter(cl,cc,t)
+
         cc = cam.CCPoint()
-        #cutter.vertexDrop(cl,cc,t)
+        #cutter.dropCutter(cl,cc,t)
+        
+        
         cutter.edgeDrop(cl,cc,t)
-        #cutter.facetDrop(cl,cc,t)
+        cutter.vertexDrop(cl,cc,t)
+        cutter.facetDrop(cl,cc,t)
         #cutter.dropCutter(cl,cc,t)
 
         ccpoints.append(cc)
@@ -89,9 +79,19 @@ if __name__ == "__main__":
             
     print "done."
     
-    print "rendering...",
+    print "rendering..."
+    print " len(clpoints)=", len(clpoints)
+    print " len(ccpoints)=", len(ccpoints)
     for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc)) ) 
+        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
+        #print cc.str()
+        if (cc.type != cam.CCType.NONE):
+            #print cc.str()
+            if (cc.type == cam.CCType.VERTEX):
+                myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z) , radius=0.01, color=camvtk.ccColor(cc)) )
+            else:
+                myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) )
+        #myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z), radius=0.05, color=camvtk.yellow) ) 
     print "done."
     
     #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
@@ -105,9 +105,25 @@ if __name__ == "__main__":
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("5_all.png")
-    #lwr.Write()
+    
+    t = camvtk.Text()
+    t.SetPos( (myscreen.width-350, myscreen.height-30) )
+    myscreen.addActor(t)
+    
+    t2 = camvtk.Text()
+    t2.SetPos( (50, myscreen.height-80) )
+    myscreen.addActor(t2)
+    cuttertext= "Toroidal cutter:\nr1=%f\nr2=%f" % (radius1,radius2)
+    t2.SetText(cuttertext)
+    
+    for n in range(1,180):
+        t.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        myscreen.camera.Azimuth( 2 )
+        time.sleep(0.1)
+        myscreen.render()
+        w2if.Modified()
+        lwr.SetFileName("frames/tc"+ ('%04d' % n)+".png")
+        lwr.Write()
 
 
 

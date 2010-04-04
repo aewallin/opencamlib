@@ -33,7 +33,7 @@ class Point {
         /// create a point at (x,y,z)
         Point(double x, double y, double z);
 
-		/// create a point at p
+        /// create a point at p
         Point(const Point &p);
         
         /// dot product
@@ -57,21 +57,24 @@ class Point {
         /// normalize so that length in xy plane is 1
         void xyNormalize();
 
-		/// perpendicular in the xy plane, rotated 90 degree to the left
-		Point xyPerp() const;
+        /// perpendicular in the xy plane, rotated 90 degree to the left
+        Point xyPerp() const;
 
-		// rotate the vector around x0 y0
+        // rotate the vector around x0 y0
         /// rotate point in the xy-plane by angle theta
         /// inputs are cos(theta) and sin(theta)
-		void xyRotate(double cosa, double sina);
+        void xyRotate(double cosa, double sina);
         /// rotate point in xy-plane bu angle theta (radians or degrees??)
-		void xyRotate(double angle);
+        void xyRotate(double angle);
         
         /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
         int liftZ(double zin);
         
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
+        
+        /// return closest Point to line through p1 and p2. in 3D.
+        Point closestPoint(const Point &p1, const Point &p2);
         
         /// return closest Point to line through p1 and p2. Works in the XY plane.
         Point xyClosestPoint(const Point &p1, const Point &p2);
@@ -96,7 +99,7 @@ class Point {
         /// subtraction
         const Point operator-(const Point &p)const;
         /// what is this??
-		const Point operator-(void)const;
+        const Point operator-(void)const;
         /// scalar multiplication
         Point &operator*=(const double &a);  // scalar multiplication
         /// Point * scalar

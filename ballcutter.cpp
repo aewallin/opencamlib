@@ -170,7 +170,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         
             //std::cout << "Points " << p1 << " to " << p2 << "\n";
             double d = cl.xyDistanceToLine(p1, p2);
-            assert( isPositive(d) );
+            assert( d >= 0.0 );
                 
             if (d<=radius) { // potential hit
             

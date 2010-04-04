@@ -25,6 +25,7 @@
 #include "oellipse.h"
 #include "numeric.h"
 
+// #define DEBUG_SOLVER
 
 
 //********   Epos ********************** */
@@ -166,7 +167,7 @@ Point Ellipse::tangent(Epos& pos)
 
 #define OE_ERROR_TOLERANCE 1e-8  /// \todo magic number tolerance
 
-#define DEBUG_SOLVER
+
 int Ellipse::solver(Ellipse& e, Point& p)
 {
     
@@ -284,6 +285,51 @@ int Ellipse::solver(Ellipse& e, Point& p)
     assert(0);
     return iters;
 }
+/* python code
+def calcEcenter(oe,a,b,cl,sln):
+    pos = cam.Epos()
+    if sln == 1:
+        pos = oe.epos1
+    if sln == 2:
+        pos = oe.epos2
+    
+    cce = oe.ePoint(pos)
+    cle = oe.oePoint(pos)
+    print "solution at: ", pos.str() 
+    print "  cce=", cce.str()
+    print "  cle=", cle.str()
+    
+    xoffset = cl.x - cle.x
+    print " xoffset= ", xoffset
+    # we slide xoffset along the x-axis from ellcenter 
+    # to find the correct z-plane
+    # line is: a + t*(b-a)
+    # find t so that x-component is ellcenter.x + xoffset
+    # a.x + t(b.x-a.x) = ellcenter.x + xoffset
+    # t= (ellcenter.x + xoffset - a.x) / (b.x - a.x)
+    tparam = (oe.center.x + xoffset - a.x) / (b.x - a.x)
+    return a + tparam*(b-a)
+*/
+
+Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
+{
+    Epos pos;
+    if (sln == 1)
+        pos = epos1;
+    else
+        pos = epos2;
+        
+    Point cce = ePoint(pos);
+    Point cle = oePoint(pos);
+    double xoffset = cl.x - cle.x;
+    double tparam = (center.x + xoffset - up1.x) / (up2.x - up1.x);
+    return up1 + tparam*(up2-up1);
+    
+}
+    
+    
+    
+    
         
 double Ellipse::error(Epos& pos, Point& p)
 {

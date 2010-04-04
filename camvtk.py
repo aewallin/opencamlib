@@ -13,6 +13,7 @@ red= (1,0,0)
 green= (0,1,0)
 lgreen = ( float(190)/255,float(255)/255,float(190)/255)
 blue= (0,0,1)
+lblue= ( float(125)/255,float(191)/255,float(255)/255 )
 cyan=  (0,1,1)
 yellow= (1,1,0)
 black = (0,0,0)
@@ -20,21 +21,38 @@ pink = ( float(255)/255,float(192)/255,float(203)/255)
 grey = ( float(127)/255,float(127)/255,float(127)/255)
 orange = ( float(255)/255,float(165)/255,float(0)/255)
 
+def clColor(cc):
+    if cc.type==cam.CCType.FACET:
+        #nf+=1
+        col = blue
+    elif cc.type == cam.CCType.VERTEX:
+        #nv+=1
+        col = green
+    elif cc.type == cam.CCType.EDGE:
+        #ne+=1
+        col = red
+    elif cc.type == cam.CCType.NONE:
+        #print "type=NONE!"
+        #nn+=1
+        col = (1,1,1)  
+    elif cc.type == cam.CCType.ERROR:
+        col = (0,1,1)
+    return col
 
 def ccColor(cc):
     """ this function returns a different color depending on the type of
         the CC-point. Useful for visualizing CL or CC points """
     if cc.type==cam.CCType.FACET:
-        col = (1,0,1)
+        col = lblue
     elif cc.type == cam.CCType.VERTEX:
-        col = yellow
+        col = lgreen
     elif cc.type == cam.CCType.EDGE:
-        col = cyan
+        col = pink
     elif cc.type == cam.CCType.NONE:
         col = white 
     elif cc.type == cam.CCType.ERROR:
         col = (0,0.5,1)
-    return col   
+    return col       
     
 
 class VTKScreen():

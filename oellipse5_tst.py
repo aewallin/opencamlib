@@ -228,6 +228,9 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     myscreen.addActor(camvtk.Line( p1=(cl1.x,cl1.y,cl1.z),p2=(ccp1.x,ccp1.y,ccp1.z), color=camvtk.yellow ))
     myscreen.addActor(camvtk.Line( p1=(cl2.x,cl2.y,cl2.z),p2=(ccp2.x,ccp2.y,ccp2.z), color=camvtk.yellow ))    
     
+    # true cl
+    clt = cc1. 
+    
     #fclpoint = camvtk.Sphere(center=(fclp.x,fclp.y,fclp.z), radius=0.01, color=camvtk.blue)
     #myscreen.addActor(fclpoint)
     
@@ -271,9 +274,9 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     lwr.SetFileName(filename)
     
     #raw_input("Press Enter to terminate")         
-    time.sleep(0.2)
-    lwr.Write()
-    #myscreen.iren.Start()
+    time.sleep(0.5)
+    #lwr.Write()
+    myscreen.iren.Start()
 
 
 if __name__ == "__main__":
