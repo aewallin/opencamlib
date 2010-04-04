@@ -33,31 +33,15 @@ double sign(double x);
 inline double square(double x) {  return x*x; };
 
 
-/// return true if x is negative, to within tolerance
+/// return true if x is negative
 bool isNegative(double x);
 
-/// return true if x is negative, to within tolerance
+/// return true if x is negative
 bool isPositive(double x);
 
 /// return true if x is zero, to within tolerance
 bool isZero_tol(double x);
 
 
-/// check that x is positive within tolerance
-/*
- * inline void assert_isPositive( double x )
-{   
-    if ( !isPositive( x ) )
-        assert(0);
-};
-* */
 
-/// check that x is zero, within tolerance
-/*
-inline void assert_isZero_tol( double x )
-{
-    if ( !isZero_tol( x ) )
-        assert(0);
-};
-*/
 #endif
