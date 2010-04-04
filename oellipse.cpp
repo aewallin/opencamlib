@@ -179,9 +179,9 @@ int Ellipse::solver(Ellipse& e, Point& p)
         double s;
 
         if ((n%2) == 0 )
-            s = 1/sqrt(2);
+            s = 1/sqrt(2.0);
         else
-            s = -1/sqrt(2);
+            s = -1/sqrt(2.0);
         
         if ( n < 2 )
             pos.setS(s, true);
