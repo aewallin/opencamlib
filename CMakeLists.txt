@@ -55,6 +55,7 @@ add_library(
     line.cpp
     numeric.cpp
     ocl.cpp
+    octree.cpp
     oellipse.cpp
     path.cpp
     pathfinish.cpp

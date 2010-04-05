@@ -50,6 +50,7 @@
 #include "path.h"
 #include "pathfinish.h"
 #include "oellipse.h"
+#include "octree.h"
 
 #endif
 

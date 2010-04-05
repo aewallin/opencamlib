@@ -67,7 +67,7 @@ class KDNode {
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const KDNode node);
         
-        /// level of node in tree (FIXME...)
+        /// level of node in tree 
         int level;
         /// dimension of cut or partition.
         int dim;

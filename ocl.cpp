@@ -144,6 +144,11 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
+    bp::class_<OCTNode>("OCTNode")
+        //.def_readonly("maxextent", &OCTNode::maxextent)
+        // .def_readonly("minextent", &OCTNode::minextent)
+        .def("str", &OCTNode::str)
+    ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
         .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)
