@@ -145,8 +145,9 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("center", &Ellipse::center)
     ;
     bp::class_<OCTNode>("OCTNode")
-        //.def_readonly("maxextent", &OCTNode::maxextent)
-        // .def_readonly("minextent", &OCTNode::minextent)
+        .def_readonly("scale", &OCTNode::scale)
+        .def("get_max_scale", &OCTNode::get_max_scale)
+        .def("nodePoint", &OCTNode::nodePoint)
         .def("str", &OCTNode::str)
     ;
     bp::class_<ParallelFinish>("ParallelFinish")

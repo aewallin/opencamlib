@@ -38,12 +38,19 @@
 
 //********   OCTNode ********************** */
 
-Point maxextent = Point(10,10,10);
-Point minextent = Point(-10,-10,-10);
+
+double  OCTNode::max_scale = 10.0;
+
+double OCTNode::get_max_scale()
+{
+    return max_scale;
+}
 
 OCTNode::OCTNode()
 {
     level = 0;
+    scale = max_scale/pow(2.0, level);
+    
     center = Point(0,0,0);
     type = WHITE;
     parent = NULL;
@@ -54,6 +61,63 @@ OCTNode::OCTNode(int level, Point &center, OCType type, KDNode *parent,
 {
     return;
 }
+
+/// return a node-point    
+Point OCTNode::nodePoint(int id)
+{
+    return center + scale*nodeDir(id);
+}
+
+/// return center-point of child
+Point OCTNode::childCenter(int id)
+{
+    return center + (scale/2)*nodeDir(id);
+}
+        
+/// return direction to node-point
+Point OCTNode::nodeDir(int id)
+{
+    switch(id)
+    {
+        case 0:
+            return Point(0,0,0);
+            break;
+        case 1:
+            return Point(1,1,1);
+            break;
+        case 2:
+            return Point(-1,1,1);
+            break;
+        case 3:
+            return Point(1,-1,1);
+            break;
+        case 4:
+            return Point(1,1,-1);
+            break;
+        case 5:
+            return Point(1,-1,-1);
+            break;
+        case 6:
+            return Point(-1,1,-1);
+            break;
+        case 7:
+            return Point(-1,-1,1);
+            break;
+        case 8:
+            return Point(-1,-1,-1);
+            break;
+        default:
+            std::cout << "octree.cpp nodeDir() called with invalid id!!\n";
+            assert(0);
+            break;
+    }
+    assert(0);
+    return Point(0,0,0);
+}
+        
+
+        
+        
 
 OCTNode* OCTNode::build_octree()
 {
@@ -66,7 +130,7 @@ OCTNode* OCTNode::build_octree()
 std::string OCTNode::str()
 {
     std::ostringstream o;
-    o << "OCTNode l="<< level << " center=" << center << " type="<< type <<"\n";
+    o << "OCTNode l="<< level << " center=" << center << " scale=" << scale << " type="<< type;
     return o.str();
 }
 

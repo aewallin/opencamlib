@@ -28,7 +28,7 @@ class Triangle;
 class MillingCutter;
 
 /// type of cc-point
-enum OCType {BLACK, GREY, WHITE};
+enum OCType { WHITE, GREY, BLACK };
 
 /// \brief A node in a octree. http://en.wikipedia.org/wiki/Octree
 ///
@@ -51,19 +51,32 @@ class OCTNode {
         int level;
         /// center Point of node
         Point center;
+        /// scale
+        double scale;
         /// type of node
         OCType type;
         /// pointer to parent-node
         OCTNode *parent;
         /// pointers to the eight Child-nodes
         std::vector<OCTNode*> child;
+        
+        /// return a node-point    
+        Point nodePoint(int id);
+        
+        /// return direction to node-point
+        Point nodeDir(int id);
+        
+        /// return center-point of child
+        Point childCenter(int id);
             
-        static Point maxextent;
-        static Point minextent;
+        static double max_scale;
         
         /* static functions to build and search KD-trees) */
         /// build a kd-tree from a list of triangles. return root of tree.
         static OCTNode* build_octree();
+        
+        /// return the max scale
+        double get_max_scale();
 };
 
 

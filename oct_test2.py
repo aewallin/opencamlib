@@ -82,9 +82,7 @@ class OCTNode():
     
     def setChildren(self, list):
         self.children = list
-    
-
-    
+        
     def posDir(self, index):
         if index==0:
             return cam.Point(0,0,0)
@@ -160,6 +158,12 @@ if __name__ == "__main__":
     oct = cam.OCTNode()
 
     print oct.str()
+    print "max scale=", oct.get_max_scale()
+    for n in xrange(0,9):
+        p1 = oct.nodePoint(n)
+        print "id=%i" % (n),
+        print p1.str()
+    
     #print cam.OCTNode.maxextent
     #print cam.OCTNode.minextent
     
