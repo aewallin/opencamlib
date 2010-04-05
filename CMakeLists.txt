@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 2.4)
 
 if (CMAKE_BUILD_TOOL MATCHES "make")
     add_definitions(-Wall -Werror)
-endif ()
+endif (CMAKE_BUILD_TOOL MATCHES "make")
 
 
 #
@@ -23,6 +23,7 @@ endif ()
 execute_process(
     COMMAND python-config --includes
     COMMAND sed -r "s/-I//g; s/ +/;/g"
+    COMMAND tr -d '\n'
     OUTPUT_VARIABLE Python_Includes
 )
 include_directories(${Python_Includes})
@@ -125,6 +126,11 @@ install(
 
 FIND_PACKAGE(Doxygen)
 IF (DOXYGEN_FOUND)
+    # this works around a bug in cmake 2.4 (Ubuntu Hardy)
+    execute_process(
+        COMMAND mkdir -p doc/html doc/latex
+    )
+
     FIND_PACKAGE(LATEX)
     IF    (NOT LATEX_COMPILER)
         MESSAGE(STATUS "latex command LATEX_COMPILER not found but usually required. You will probably get warnings and user inetraction on doxy run.")
@@ -139,7 +145,6 @@ IF (DOXYGEN_FOUND)
     IF   (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
         SET(DOXY_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
     ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
-        
 
     add_custom_command(
         OUTPUT
@@ -149,26 +154,32 @@ IF (DOXYGEN_FOUND)
         COMMENT building LaTex & HTML docs
     )
 
-    add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex
-        COMMAND make pdf
-        COMMENT building PDF docs
-    )
-
     add_custom_target(
         doc
         ALL
-        DEPENDS
-            ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
-            ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
     )
 
-    add_custom_target(
-        doc-pdf
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
-    )
+
+    IF (EXISTS ${PDFLATEX_COMPILER})
+        add_custom_command(
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex
+            COMMAND make pdf
+            COMMENT building PDF docs
+        )
+
+        add_custom_target(
+            doc-pdf
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
+        )
+
+        add_dependencies(doc doc-pdf)
+    ELSE (EXISTS ${PDFLATEX_COMPILER}) 
+        message(STATUS "pdflatex compiler not found, PDF docs will not be built")
+    ENDIF (EXISTS ${PDFLATEX_COMPILER})
+
 
     add_custom_target(
         doc-latex
@@ -176,9 +187,9 @@ IF (DOXYGEN_FOUND)
     )
 
     install(
-        DIRECTORY doc/latex/
+        DIRECTORY doc/latex
         DESTINATION share/doc/python-opencam/pdf
-        FILES_MATCHING PATTERN *.pdf
+        PATTERN *.pdf
     )
 
     install(
