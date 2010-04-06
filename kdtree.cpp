@@ -323,7 +323,6 @@ void KDNode::getTriangles( std::list<Triangle> *tris, KDNode *node)
         }
         return;
     }
-    
     // not a bucket node, so search recursively high and low:
     KDNode::getTriangles(tris, node->hi);
     KDNode::getTriangles(tris, node->lo);

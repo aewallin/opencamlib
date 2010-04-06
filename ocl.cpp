@@ -27,7 +27,6 @@ namespace bp = boost::python;
 
 
 BOOST_PYTHON_MODULE(ocl) {
-
     bp::class_<Point>("Point") 
         .def(bp::init<double, double, double>())
         .def(bp::init<Point>())
@@ -74,7 +73,6 @@ BOOST_PYTHON_MODULE(ocl) {
         //.def_readonly("n", &Triangle::n)
         .def_readonly("id", &Triangle::id)
     ;
-    
     bp::class_<STLSurf>("STLSurf")
         .def(bp::init<const std::wstring&>())
         .def("addTriangle", &STLSurf::addTriangle)
@@ -148,7 +146,15 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("scale", &OCTNode::scale)
         .def("get_max_scale", &OCTNode::get_max_scale)
         .def("nodePoint", &OCTNode::nodePoint)
+        .def("childCenter", &OCTNode::childCenter)
+        .def_readwrite("type", &OCTNode::type)
+        .def_readonly("level", &OCTNode::level)
         .def("str", &OCTNode::str)
+    ;
+    bp::enum_<OCType>("OCType")
+        .value("WHITE", WHITE)
+        .value("GREY",GREY)
+        .value("BLACK",BLACK)
     ;
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
@@ -160,13 +166,40 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getTrianglesUnderCutter", &ParallelFinish::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &ParallelFinish::dcCalls)
     ;
+    bp::class_<OCTest>("OCTest")
+        .def(bp::init<>())
+        .def("build_octree",  &OCTest::build_octree)
+        .def("get_all_nodes", &OCTest::get_all_nodes)
+        .def("get_white_nodes", &OCTest::get_white_nodes)
+        .def("get_black_nodes", &OCTest::get_black_nodes)
+        .def("get_max_depth", &OCTest::get_max_depth)
+        .def("set_max_depth", &OCTest::set_max_depth)
+        .def("prune", &OCTest::prune)
+        .def("prune_all", &OCTest::prune_all)
+        .def("setVol", &OCTest::setVol)
+        .def("balance", &OCTest::balance)
+        .def("diff", &OCTest::diff)
+    ;
+    bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
+        .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
+    ;
+    bp::class_<SphereOCTVolume, bp::bases<OCTVolume> >("SphereOCTVolume")
+        .def("isInside", &SphereOCTVolume::isInside )
+        .def_readwrite("center", &SphereOCTVolume::center)
+        .def_readwrite("radius", &SphereOCTVolume::radius)
+    ;
+    bp::class_<CubeOCTVolume, bp::bases<OCTVolume> >("CubeOCTVolume")
+        .def("isInside", &SphereOCTVolume::isInside )
+        .def_readwrite("center", &CubeOCTVolume::center)
+        .def_readwrite("side", &CubeOCTVolume::side)
+    ;
     /*
     bp::class_<KDNode>("KDNode", bp::no_init) 
         .def("stlSurf2KDTree", &KDNode::stlSurf2KDTree)
         .def("str", &KDNode::str)
     ;
     */
-   /* bp::class_<Spread>("Spread", bp::no_init)
+    /* bp::class_<Spread>("Spread", bp::no_init)
         .def(bp::init<int, double, double>())
     ;*/
     bp::class_<Line>("Line")

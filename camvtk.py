@@ -175,11 +175,14 @@ class Sphere(CamvtkActor):
 
 class Cube(CamvtkActor):
     """ a cube"""
-    def __init__(self,center=(2,2,0) , color=(0,1,0) ):
+    def __init__(self,center=(2,2,0) , length=1, color=(0,1,0) ):
         """ create cube"""
         self.src = vtk.vtkCubeSource()
         self.src.SetCenter(center)
-
+        self.src.SetXLength(length)
+        self.src.SetYLength(length)
+        self.src.SetZLength(length)
+        
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInput(self.src.GetOutput())
         self.SetMapper(self.mapper)

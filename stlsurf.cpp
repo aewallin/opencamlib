@@ -39,7 +39,7 @@ STLSurf::STLSurf() {
 
 STLSurf::STLSurf(const std::wstring &stl_file_path)
 {
-        read_from_file(stl_file_path.c_str());
+    read_from_file(stl_file_path.c_str());
     setId();
 }
 
@@ -150,9 +150,6 @@ boost::python::list STLSurf::getTrianglesUnderCutter(Point &cl, MillingCutter &c
     return trilist;
 }
 
-
-
-
 std::string STLSurf::str()
 {
         std::ostringstream o;
@@ -167,6 +164,10 @@ std::ostream &operator<<(std::ostream &stream, const STLSurf s)
 }
 
 
+
+
+
+/* code below is for reading STL surface from file */
 
 using namespace std;
 

@@ -19,6 +19,9 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
+
+// uncomment to disable assert() calls
+// #define NDEBUG
 #include <cassert>
 
 #include "point.h"

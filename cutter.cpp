@@ -77,7 +77,7 @@ double MillingCutter::getLength() const
 
 int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
 {
-    /* template-method, or "self-delegation" pattern */
+    /* template-method, or "self-delegation", pattern */
     
     vertexDrop(cl,cc,t);
     facetDrop(cl,cc,t); /// \todo optimisation: if we are already above the triangle we don't need facet and edge
@@ -88,7 +88,7 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
 
 int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const
 {
-    /* template-method, or "self-delegation" pattern */
+    /* template-method, or "self-delegation", pattern */
     //boost::progress_display show_progress( s.tris.size() );
 
     BOOST_FOREACH( const Triangle& t, s.tris) {

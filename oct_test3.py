@@ -78,13 +78,14 @@ def nodeColor(oct):
     n = oct.level-offset
     return (float(n)/(OCTMax-offset), float(OCTMax-offset - n)/(OCTMax-offset), 0)
 
-def addNodes(myscreen, oct):
-    if oct.type == 1:
+def drawNode(myscreen, node):
+    if node.type == cam.OCType.BLACK:
         return # don't draw intermediate nodes
-        
+    if node.type == cam.OCType.GREY:
+        return # don't draw intermediate nodes    
     p = []
     for n in xrange(1,9):
-        p1 = oct.nodePoint(n)
+        p1 = node.nodePoint(n)
         p.append(p1)
         
     lines = []
@@ -101,31 +102,87 @@ def addNodes(myscreen, oct):
     lines.append ( camvtk.Line(p1=(p[5].x,p[5].y,p[5].z),p2=(p[3].x,p[3].y,p[3].z)) )
     lines.append ( camvtk.Line(p1=(p[5].x,p[5].y,p[5].z),p2=(p[7].x,p[7].y,p[7].z)) )
     
-    if oct.type == 0:
+    if node.type == cam.OCType.WHITE:
+        color = nodeColor(node)
+    if node.type == cam.OCType.GREY:
+        color = camvtk.white
+    if node.type == cam.OCType.BLACK:
         color = camvtk.grey
-    if oct.type == 1:
-        color = camvtk.green
-    if oct.type == 2:
-        color = nodeColor(oct)
         
         
     for li in lines:
         li.SetColor( color )
-        if oct.type==0:
+        if node.type==cam.OCType.BLACK:
+            li.SetOpacity(0.1)
+        if node.type==cam.OCType.GREY:
             li.SetOpacity(0.2)
         myscreen.addActor(li)
         
+def drawNode2(myscreen, node):
+    if node.type == cam.OCType.BLACK:
+        return # don't draw intermediate nodes
+    if node.type == cam.OCType.GREY:
+        return # don't draw intermediate nodes    
+    p = []
+    for n in xrange(1,9):
+        p1 = node.nodePoint(n)
+        p.append(p1)
+        
+    lines = []
+    for n in xrange(0,8):
+        lines.append ( camvtk.Point(center=(p[n].x,p[n].y,p[n].z) ) )
+        
+    if node.type == cam.OCType.WHITE:
+        color = nodeColor(node)
+    if node.type == cam.OCType.GREY:
+        color = camvtk.white
+    if node.type == cam.OCType.BLACK:
+        color = camvtk.grey
+        
+        
+    for li in lines:
+        li.SetColor( color )
+        if node.type==cam.OCType.BLACK:
+            li.SetOpacity(0.1)
+        if node.type==cam.OCType.GREY:
+            li.SetOpacity(0.2)
+        myscreen.addActor(li)
 
+def drawNode3(myscreen, node):
+    if node.type == cam.OCType.BLACK:
+        return # don't draw intermediate nodes
+    if node.type == cam.OCType.GREY:
+        return # don't draw intermediate nodes    
+    
+    if node.type == cam.OCType.WHITE:
+        ccolor = nodeColor(node)
+    if node.type == cam.OCType.GREY:
+        ccolor = camvtk.white
+    if node.type == cam.OCType.BLACK:
+        ccolor = camvtk.grey
+    cen = node.nodePoint(0)
+    cube = camvtk.Cube(center=(cen.x, cen.y, cen.z), length= node.scale, color=camvtk.green)
+    #cube.SetWireframe()
+    #cube.SetOpacity(0.2)
+    myscreen.addActor( cube )
+        
+def drawOCT(myscreen, oct, color, opacity=1.0):
+    nodes = oct.get_white_nodes()
+    for node in nodes:
+        cen = node.nodePoint(0)
+        cube = camvtk.Cube(center=(cen.x, cen.y, cen.z), length= node.scale, color=color)
+        cube.SetOpacity(opacity)
+        myscreen.addActor( cube )
         
 if __name__ == "__main__":  
-    
-    oct = cam.OCTNode()
+    #exit()
+    #oct = cam.OCTNode()
     myscreen = camvtk.VTKScreen()
     
-    myscreen.camera.SetPosition(5, 3, 2)
+    myscreen.camera.SetPosition(20, 12, 2)
     myscreen.camera.SetFocalPoint(0,0, 0)
     
-    print oct.str()
+    #print oct.str()
     """
     print "max scale=", oct.get_max_scale()
     for n in xrange(0,9):
@@ -151,24 +208,93 @@ if __name__ == "__main__":
     myscreen.addActor(zar)
     
     oc2 = cam.OCTest()
+    oc2.set_max_depth(5)
+    
+    svol = cam.SphereOCTVolume()
+    svol.radius=3.1415
+    svol.center = cam.Point(-1,2,-1)
+    
+
+    
+    oc2.setVol(svol)
+    
     oc2.build_octree()
     
+    oc3 = cam.OCTest()
+    
+    
+    svol3 = cam.SphereOCTVolume()
+    svol3.radius=2
+    svol3.center = cam.Point(-1,2,1)
+    
+    cvol = cam.CubeOCTVolume()
+    cvol.side = 3
+    cvol.center = cam.Point(2.0,2,-1)
+    
+    
+    oc3.setVol(cvol)
+    oc3.set_max_depth(5)
+    oc3.build_octree()
+    iters = oc3.prune_all()
+    
+    iters = oc2.prune_all()
     nlist = oc2.get_all_nodes()
+    print " oc2 got ", len(nlist), " nodes"
+    nlist = oc2.get_white_nodes()
+    print " oc2 got ", len(nlist), " white nodes"
+    nlist = oc3.get_all_nodes()
+    print " oc3 got ", len(nlist), " nodes"
     
-    print "got ", len(nlist), " nodes"
     
-    for node in nlist:
-        print node.str()
-        if node.type == cam.OCType.WHITE:
-            sph_color = camvtk.white
-        if node.type == cam.OCType.BLACK:
-            sph_color = camvtk.red
-        p1 = node.nodePoint(0)    
-        myscreen.addActor( camvtk.Sphere(center=(p1.x, p1.y, p1.z), radius=0.1, color=sph_color))
+
+    
+    print "calling balance"
+    oc2.balance(oc3)
+    print "after balance:"
+    nlist = oc2.get_all_nodes()
+    print " oc2 got ", len(nlist), " nodes"
+    nlist = oc2.get_white_nodes()
+    print " oc2 got ", len(nlist), " white nodes"
+    print "calling diff"
+    oc2.diff(oc3)
+    print "after diff:"
+    nlist = oc2.get_all_nodes()
+    print " oc2 got ", len(nlist), " nodes"
+    nlist = oc2.get_white_nodes()
+    print " oc2 got ", len(nlist), " white nodes"
+    
+    drawOCT(myscreen, oc2, camvtk.green)
+    #drawOCT(myscreen, oc3, camvtk.red, opacity=0.1)
+    #exit()
+    #for node in nlist2:
+    #    pass
+        #print node.str()
+        #p1 = node.nodePoint(0)    
+     #   drawNode3( myscreen, node )
+        #myscreen.addActor( camvtk.Sphere(center=(p1.x, p1.y, p1.z), radius=0.1, color=sph_color))
+    
+    
     
     myscreen.render()
     myscreen.iren.Start() 
     exit()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     #oct = OCTNode(level=0)
     
     testvol = Volume()
