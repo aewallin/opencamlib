@@ -318,8 +318,10 @@ void OCTNode::diff( OCTNode* root1, OCTNode* root2)
         }
     }
     else {
-        for (int n=0; n<8; n++) {
-            OCTNode::diff( root1->child[n], root2->child[n] );
+        if (root2->type == GREY) {
+            for (int n=0; n<8; n++) {
+                    OCTNode::diff( root1->child[n], root2->child[n] );
+            }
         }
     }
     return;
@@ -357,6 +359,7 @@ bool SphereOCTVolume::isInside(Point& p) const
     else
         return false;
 }
+
 //*********** Cube colume **********/
 CubeOCTVolume::CubeOCTVolume()
 {

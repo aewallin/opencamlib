@@ -172,6 +172,7 @@ def drawOCT(myscreen, oct, color, opacity=1.0):
         cen = node.nodePoint(0)
         cube = camvtk.Cube(center=(cen.x, cen.y, cen.z), length= node.scale, color=color)
         cube.SetOpacity(opacity)
+        #cube.SetWireframe()
         myscreen.addActor( cube )
         
 if __name__ == "__main__":  
