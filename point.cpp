@@ -276,6 +276,8 @@ bool Point::isInsidePoints(const Point &p1, const Point &p2) const
 
 Point& Point::operator=(const Point &p)
 {
+    if (this == &p)
+        return *this;
     x=p.x;
     y=p.y;
     z=p.z;
@@ -366,6 +368,7 @@ CCPoint::CCPoint() {
 }
 
 CCPoint& CCPoint::operator=(const Point &p) {
+    // FIXME check for self-assignment
     x=p.x;
     y=p.y;
     z=p.z;

@@ -180,6 +180,28 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("balance", &OCTest::balance)
         .def("diff", &OCTest::diff)
     ;
+    bp::class_<Ocode>("Ocode")
+        .def(bp::init<>())
+        .def(bp::init<Ocode>())
+        .def("point", &Ocode::point)
+        .def("corner", &Ocode::corner)
+        .def("degree", &Ocode::degree)
+        .def("get_scale", &Ocode::get_scale)
+        .def("get_depth", &Ocode::get_depth)
+        .def("set_depth", &Ocode::set_depth)
+        .def_readwrite("color", &Ocode::color)
+        .def("str", &Ocode::str)
+    ;
+    bp::class_<LinOCT>("LinOCT")
+        .def(bp::init<>())
+        .def("append", &LinOCT::append)
+        .def("size", &LinOCT::size)
+        .def("expand_at", &LinOCT::expand_at)
+        .def("get_nodes", &LinOCT::get_nodes)
+        .def("delete_at", &LinOCT::delete_at)
+        .def("build", &LinOCT::build)
+        .def("str", &LinOCT::str)
+    ;
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
         .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
     ;

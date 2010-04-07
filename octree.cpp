@@ -41,6 +41,317 @@
 
 //#define DEBUG_BUILD_OCT
 
+
+
+//********** Ocode ******************/
+int    Ocode::depth = 5;
+double Ocode::scale = 2;
+Point  Ocode::center = Point(0,0,0);
+
+Ocode::Ocode() {
+    code.resize(depth);   
+    code.assign(depth, 8);
+    color = 0;
+    //std::cout << "created :" << *this << "\n"; 
+}
+
+Ocode::Ocode(const Ocode &o) {
+    code.resize(depth); 
+    for (int n=0;n<depth;n++) 
+        this->code[n] = o.code[n];
+    color = o.color;
+          
+    //std::cout << "copy-constructor created :" << *this; 
+}
+
+void Ocode::set_depth(int d)
+{
+    Ocode::depth = d;
+    return;
+}
+
+int Ocode::get_depth()
+{
+    return Ocode::depth;
+}
+
+char Ocode::operator[](const int &idx) {
+    return this->code[idx];
+}
+
+/// assignment
+Ocode& Ocode::operator=(const Ocode &rhs) {
+    if (this == &rhs)      // Same object?
+      return *this; 
+    // copy code
+    for (int n=0;n<depth;n++) {
+        this->code[n] = rhs.code[n];
+    }
+    
+    return *this;
+}
+
+/// return center-point corresponding to code
+Point Ocode::point() const {
+    Point p;
+    p = center;
+    // navigate to correct point
+    for (int n=0; n<depth ; n++) {
+        // note: code[n]==8  goes nowhere
+        p += ( scale/pow(2,n) )*dir( code[n] );
+    }
+    return p;
+}
+
+/// return eight different corner points of cube
+Point Ocode::corner(int idx) {
+    Point p;
+    p = point(); // navigate to center of cell
+
+    int n= degree();
+    // from the center go out to the corner
+    p += ( scale*2 /pow(2,n) )*dir( idx );
+    return p;
+}
+
+int Ocode::degree()
+{
+    int n=0;
+    while ( (code[n] != 8) && (n<depth) )  // figure out degree of this code
+        n++;
+    return n;
+}
+
+double Ocode::get_scale()
+{
+    return scale /pow(2,degree()-2 );
+}
+
+bool Ocode::expandable()
+{
+    // scan for an 8
+    for (int n=0;n<depth;n++) {
+        if (code[n]==8)
+            return true;
+    }
+    return false;
+}
+
+bool Ocode::isWhite(OCTVolume* vol) {
+    //std::cout << "testing node" << *this<<"\n";
+    for (int n=0;n<8;n++) {// loop through all corners, and center
+        Point p = corner(n);
+        //std::cout << " corner" << p;
+        if (vol->isInside( p ) ) {
+            //std::cout << "is inside!\n";
+            return false;
+        }
+        //std::cout << "is outside!\n";
+    }
+    //std::cout << "returnung true!\n";
+    return true; // get here only if all points outside volume
+}
+
+std::vector<Ocode> Ocode::expand()
+{
+    std::vector<Ocode> list;
+    int deg = degree();
+    if ( expandable() ) {
+        for (int n=0;n<8;n++) {
+            Ocode child;
+            child = *this;
+            child.code[deg] = n;
+            list.push_back(child);
+        }
+    } else {
+        std::cout << "can't expand this node! \n";
+    }
+    return list;
+}
+
+/// return direction of octant
+Point Ocode::dir(int idx) const {
+    double r = 1.0;
+    switch(idx)
+    {
+        case 0:
+            return Point(r,r,r);
+            break;
+        case 1:
+            return Point(-r,r,r);
+            break;
+        case 2:
+            return Point(r,-r,r);
+            break;
+        case 3:
+            return Point(r,r,-r);
+            break;
+        case 4:
+            return Point(r,-r,-r);
+            break;
+        case 5:
+            return Point(-r,r,-r);
+            break;
+        case 6:
+            return Point(-r,-r,r);
+            break;
+        case 7:
+            return Point(-r,-r,-r);
+            break;
+        case 8:
+            return Point(0,0,0);
+            break;
+        default:
+            std::cout << "octree.cpp Ocode:dir() called with invalid id!!\n";
+            assert(0);
+            break;
+    }
+    assert(0);
+    return Point(0,0,0);
+}
+
+
+bool Ocode::operator==(const Ocode &o){
+    for (int n=0 ; n < depth ; n++ ) {
+        if ( !( this->code[n] == o.code[n] ) )
+            return false;
+    }
+    return true;
+}
+
+/// string repr
+std::ostream& operator<<(std::ostream &stream, const Ocode &o)
+{
+    stream << "OCode: " ; 
+    for (int n = 0; n<Ocode::depth; n++)
+        stream << (int)o.code[n] << " center=" << o.point();
+    
+    return stream;
+}
+
+/// string repr
+std::string Ocode::str()
+{
+    std::ostringstream o;
+    o << *this;
+    return o.str();
+}
+
+
+
+//**************** LinOCT ********************/
+
+LinOCT::LinOCT() {
+    clist.clear();
+}
+
+int LinOCT::size() const {
+    return clist.size();
+}
+
+void LinOCT::append(Ocode& code) {
+    clist.push_back( code );
+}
+
+void LinOCT::delete_at(int idx) {
+    if ( valid_index(idx) )
+        clist.erase( clist.begin()+idx) ;
+    return;
+}
+
+bool LinOCT::valid_index(int idx) {
+    if ( (idx >= 0) && (idx < size()) ) 
+        return true;
+    else {
+        std::cout << "index out of range!\n";
+        return false;
+    }
+}
+
+// expand node at index
+void LinOCT::expand_at(int idx) {
+    if ( valid_index(idx) ) {
+        if (clist[idx].expandable()) {
+            std::vector<Ocode> newnodes = clist[idx].expand();
+            std::vector<Ocode>::iterator it;
+            
+            
+            // delete old node
+            delete_at(idx);
+            
+            // insert new nodes
+            int n = 0;
+            BOOST_FOREACH( Ocode o, newnodes) {
+                it = clist.begin() + idx + n;
+                clist.insert(it, o);
+                n++;
+            }
+        }
+        
+    } else {
+        std::cout << "LinOCT::expand() index out of range!\n";
+    }
+    return;
+}
+
+// build LinOCT from input OCTVolume
+void LinOCT::build(OCTVolume* vol, int min_expand)
+{
+    // expand min_expand times to sample densely enough
+    for (int m=0; m<min_expand ; m++) {
+        for (int n=0; n<size() ; n++) {
+            if ( clist[n].expandable() ) {
+                expand_at(n); // expand the node
+                n=n+7; // jump forward, since we have inserted new nodes
+            }
+        }
+    }
+    
+    // loop until no expandable nodes remain
+    // flagging black nodes as "done", and 
+    // deleting white nodes at each step
+    for (int n=0; n<size() ; n++) { // loop through all remaining nodes
+        //std::cout << n <<"\n";
+        if (  clist[n].isWhite( vol ) ) {// white nodes can be deleted
+            //std::cout << "FOUND WHITE node "<< clist[n] <<"\n";
+            clist[n].color = 1;
+            //delete_at(n);
+        }
+        
+    }
+    
+
+    
+}
+
+boost::python::list LinOCT::get_nodes()
+{    
+    boost::python::list nodelist;
+    BOOST_FOREACH( Ocode o, clist) {
+            nodelist.append(o);
+    }
+    return nodelist;
+}
+
+
+/// string repr
+std::ostream& operator<<(std::ostream &stream, const LinOCT &l)
+{
+    stream << "LinOCT: N="<< l.size() ; 
+    return stream;
+}
+
+/// string repr
+std::string LinOCT::str()
+{
+    std::ostringstream o;
+    o << *this;
+    return o.str();
+}
+
+
+
+
 //********   OCTNode ********************** */
 
 
@@ -354,6 +665,7 @@ SphereOCTVolume::SphereOCTVolume()
 
 bool SphereOCTVolume::isInside(Point& p) const
 {
+    std::cout << "dist to point=" << (center-p).norm() <<"\n";
     if ( (center-p).norm() < radius )
         return true;
     else

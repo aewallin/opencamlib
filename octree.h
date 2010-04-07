@@ -26,6 +26,88 @@
 class Point;
 class Triangle;
 class MillingCutter;
+class OCTVolume;
+
+/// gargantini-code for representing octree nodes
+class Ocode {
+    public:
+        Ocode();
+        Ocode(const Ocode &o);
+
+        bool containedIn(Ocode& other);
+        
+        /// return point corresponding to code
+        Point point() const; 
+        
+        Point corner(int idx);
+        
+        /// return normalized direction vector to child quadrants
+        Point dir(int idx) const;
+        
+        /// return degree of node
+        int degree();
+        double get_scale();
+        /// return true if this node can be expanded
+        bool expandable();
+        
+        bool isWhite(OCTVolume* vol);
+        
+        std::vector<Ocode> expand();
+        
+        /// index into code
+        char operator[](const int &idx);
+        
+        /// assignment
+        Ocode &operator=(const Ocode &o);
+        /// equality
+        bool operator==(const Ocode &o);
+        /// inequality
+        bool operator!=(const Ocode &o);
+        
+        
+        int get_depth();
+        void set_depth(int d);
+        
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, const Ocode &o);
+        /// string repr
+        std::string str();
+        
+        // DATA
+        static int depth;
+        static double scale;
+        static Point center;
+        int color;
+        
+        /// the code. values 0-8 are needed, so only 4-bits really required...
+        std::vector<char> code;
+};
+
+/// linear octree
+class LinOCT {
+    public:
+        LinOCT();
+        
+        /// list of Ocodes in this octree
+        std::vector<Ocode> clist;
+        
+        int size() const;
+        void append(Ocode& c);
+        
+        void expand_at(int idx);
+        void delete_at(int idx);
+        bool valid_index(int idx);
+        
+        boost::python::list get_nodes();
+        
+        //OCTVolume* vol, int level, Point& center, OCTNode* parent)
+        void build(OCTVolume* vol, int min_expand=2); 
+        
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, const Ocode &o);
+        /// string repr
+        std::string str();
+};
 
 /// base-class for defining volumes to build octrees
 class OCTVolume {
