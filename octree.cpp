@@ -45,7 +45,7 @@
 
 //********** Ocode ******************/
 int    Ocode::depth = 5;
-double Ocode::scale = 2;
+double Ocode::scale = 5;
 Point  Ocode::center = Point(0,0,0);
 
 Ocode::Ocode() {
@@ -254,8 +254,11 @@ void LinOCT::append(Ocode& code) {
 }
 
 void LinOCT::delete_at(int idx) {
+    std::cout << " before=" << size() << "\n";
     if ( valid_index(idx) )
         clist.erase( clist.begin()+idx) ;
+    std::cout << " after=" << size() << "\n";
+    
     return;
 }
 
@@ -310,16 +313,21 @@ void LinOCT::build(OCTVolume* vol, int min_expand)
     // loop until no expandable nodes remain
     // flagging black nodes as "done", and 
     // deleting white nodes at each step
-    for (int n=0; n<size() ; n++) { // loop through all remaining nodes
-        //std::cout << n <<"\n";
+    std::cout << size() << " nodes to process\n";
+    int n=0;
+    while ( n < size() ) {
+    //for (int n=0; n<size() ; n++) { // loop through all remaining nodes
+        std::cout << "processing: "<< n <<"\n";
         if (  clist[n].isWhite( vol ) ) {// white nodes can be deleted
-            //std::cout << "FOUND WHITE node "<< clist[n] <<"\n";
+            std::cout << "FOUND WHITE node at "<< n <<"\n";
             clist[n].color = 1;
-            //delete_at(n);
+            delete_at(n);
+            std::cout << "n="<<n<<" after delete\n";
+            //n=n-1;
         }
-        
+        n++;
     }
-    
+    std::cout << size() << " nodes after process\n";
 
     
 }
@@ -665,9 +673,11 @@ SphereOCTVolume::SphereOCTVolume()
 
 bool SphereOCTVolume::isInside(Point& p) const
 {
-    std::cout << "dist to point=" << (center-p).norm() <<"\n";
-    if ( (center-p).norm() < radius )
+    
+    if ( (center-p).norm() < radius ) {
+        //std::cout << "dist to point=" << (center-p).norm() <<"\n";
         return true;
+    }
     else
         return false;
 }
