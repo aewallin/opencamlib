@@ -33,25 +33,28 @@ class Ocode {
     public:
         Ocode();
         Ocode(const Ocode &o);
-
-        bool containedIn(Ocode& other);
         
         /// return point corresponding to code
         Point point() const; 
-        
+        /// return corner point of cube
         Point corner(int idx);
-        
         /// return normalized direction vector to child quadrants
         Point dir(int idx) const;
         
         /// return degree of node
-        int degree();
+        int degree() const;
         double get_scale();
         /// return true if this node can be expanded
         bool expandable();
-        
+        /// return true if node is white
         bool isWhite(OCTVolume* vol);
+        /// return true if node is grey
+        bool isGrey(OCTVolume* vol);
         
+        /// return true if this contained in o
+        bool containedIn(const Ocode& o) const;
+        
+        /// return list of Ocodes for sub-octants
         std::vector<Ocode> expand();
         
         /// index into code
@@ -63,8 +66,14 @@ class Ocode {
         bool operator==(const Ocode &o);
         /// inequality
         bool operator!=(const Ocode &o);
+        /// comparison, return true if this numerically smaller than o
+        bool operator<(const Ocode& o) const;
         
-        
+        /// return numerical value
+        int number() const;
+    
+
+             
         int get_depth();
         void set_depth(int d);
         
@@ -91,17 +100,40 @@ class LinOCT {
         /// list of Ocodes in this octree
         std::vector<Ocode> clist;
         
+        /// return length of list
         int size() const;
+        /// add an Ocode to the list
         void append(Ocode& c);
+        /// ad Ocode at position idx
+        void append_at(Ocode& code, int idx);
         
+        /// initialize octree, expanding n_expand times
+        void init(int n_expand);
+        /// expand node idx
         void expand_at(int idx);
+        /// delete node idx
         void delete_at(int idx);
+        /// return true if idx is valid
         bool valid_index(int idx);
         
+        /// union operation
+        void sum(LinOCT& other);
+        
+        /// sort the list
+        void sort();
+        
+        /// condense list
+        void condense();
+        
+        
+        bool can_collapse_at(int idx);
+        
+        /// return all nodes as a list to python
         boost::python::list get_nodes();
         
         //OCTVolume* vol, int level, Point& center, OCTNode* parent)
-        void build(OCTVolume* vol, int min_expand=2); 
+        /// build octree of interior of OCTVolume
+        void build(OCTVolume* vol); 
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Ocode &o);
@@ -143,7 +175,7 @@ class CubeOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
-
+/*
 /// type of octree node
 enum OCType { WHITE, GREY, BLACK };
 
@@ -192,7 +224,7 @@ class OCTNode {
         /// minimum depth of tree
         static int min_depth;
         
-        /* static functions to build and manipulate OCTrees */
+        
         /// build a kd-tree from a list of triangles. return root of tree.
         static OCTNode* build_octree(OCTVolume* vol, int level, Point& center, OCTNode* parent);
         
@@ -237,5 +269,5 @@ class OCTest {
         void diff(OCTest& other);
         
 };
-
+*/
 #endif

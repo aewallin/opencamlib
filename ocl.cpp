@@ -142,6 +142,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
+    /*
     bp::class_<OCTNode>("OCTNode")
         .def_readonly("scale", &OCTNode::scale)
         .def("get_max_scale", &OCTNode::get_max_scale)
@@ -150,12 +151,13 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("type", &OCTNode::type)
         .def_readonly("level", &OCTNode::level)
         .def("str", &OCTNode::str)
-    ;
+    ;*/
+    /*
     bp::enum_<OCType>("OCType")
         .value("WHITE", WHITE)
         .value("GREY",GREY)
         .value("BLACK",BLACK)
-    ;
+    ; */
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
         .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)
@@ -166,6 +168,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getTrianglesUnderCutter", &ParallelFinish::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &ParallelFinish::dcCalls)
     ;
+    /*
     bp::class_<OCTest>("OCTest")
         .def(bp::init<>())
         .def("build_octree",  &OCTest::build_octree)
@@ -179,7 +182,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("setVol", &OCTest::setVol)
         .def("balance", &OCTest::balance)
         .def("diff", &OCTest::diff)
-    ;
+    ; */
     bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
         .def(bp::init<Ocode>())
@@ -189,6 +192,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("get_scale", &Ocode::get_scale)
         .def("get_depth", &Ocode::get_depth)
         .def("set_depth", &Ocode::set_depth)
+        .def("containedIn", &Ocode::containedIn)
         .def_readwrite("color", &Ocode::color)
         .def("str", &Ocode::str)
     ;
@@ -200,6 +204,10 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("get_nodes", &LinOCT::get_nodes)
         .def("delete_at", &LinOCT::delete_at)
         .def("build", &LinOCT::build)
+        .def("init", &LinOCT::init)
+        .def("sum", &LinOCT::sum)
+        .def("sort", &LinOCT::sort)
+        .def("condense", &LinOCT::condense)
         .def("str", &LinOCT::str)
     ;
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)

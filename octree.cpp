@@ -59,8 +59,7 @@ Ocode::Ocode(const Ocode &o) {
     code.resize(depth); 
     for (int n=0;n<depth;n++) 
         this->code[n] = o.code[n];
-    color = o.color;
-          
+    color = o.color;  
     //std::cout << "copy-constructor created :" << *this; 
 }
 
@@ -87,6 +86,7 @@ Ocode& Ocode::operator=(const Ocode &rhs) {
     for (int n=0;n<depth;n++) {
         this->code[n] = rhs.code[n];
     }
+    this->color = rhs.color;
     
     return *this;
 }
@@ -114,7 +114,7 @@ Point Ocode::corner(int idx) {
     return p;
 }
 
-int Ocode::degree()
+int Ocode::degree() const
 {
     int n=0;
     while ( (code[n] != 8) && (n<depth) )  // figure out degree of this code
@@ -139,7 +139,7 @@ bool Ocode::expandable()
 
 bool Ocode::isWhite(OCTVolume* vol) {
     //std::cout << "testing node" << *this<<"\n";
-    for (int n=0;n<8;n++) {// loop through all corners, and center
+    for (int n=0;n<9;n++) {// loop through all corners, and center
         Point p = corner(n);
         //std::cout << " corner" << p;
         if (vol->isInside( p ) ) {
@@ -151,6 +151,39 @@ bool Ocode::isWhite(OCTVolume* vol) {
     //std::cout << "returnung true!\n";
     return true; // get here only if all points outside volume
 }
+
+/// return true if node is grey, i.e. contains both
+/// points inside and outside the volume
+bool Ocode::isGrey(OCTVolume* vol) {
+    //std::cout << "testing node" << *this<<"\n";
+    int sum=0;
+    for (int n=0;n<9;n++) {// loop through all corners, and center
+        Point p = corner(n);
+        if (vol->isInside( p ) ) 
+            sum +=1;
+        else
+            sum -=1;
+    }
+    if ( (sum>-9) && (sum<9) ) // not white and not black
+        return true; 
+    else
+        return false;
+}
+
+bool Ocode::containedIn(const Ocode& o) const {
+    // degree of o must be smaller than degree of this
+    if ( o.degree() < this->degree() ) {
+        // and the code matches up to o.degree
+        for (int m=0; m<o.degree() ; m++) {
+            if ( o.code[m] != this->code[m] )
+                return false;
+        }
+        // then this is contained in o
+        return true;
+    }
+    return false;
+}
+
 
 std::vector<Ocode> Ocode::expand()
 {
@@ -219,12 +252,27 @@ bool Ocode::operator==(const Ocode &o){
     return true;
 }
 
+int Ocode::number() const {
+    int n=0;
+    for (int m=0;m<depth;m++) {
+        n += pow(10,depth-m)*code[m];
+    }
+    return n;
+}
+
+bool Ocode::operator<(const Ocode& o1) const{
+    return ( this->number() < o1.number() ) ;
+}
+
 /// string repr
 std::ostream& operator<<(std::ostream &stream, const Ocode &o)
 {
     stream << "OCode: " ; 
+    
     for (int n = 0; n<Ocode::depth; n++)
-        stream << (int)o.code[n] << " center=" << o.point();
+        stream << (int)o.code[n];
+        
+    stream << " center=" << o.point() << " c=" << o.color;
     
     return stream;
 }
@@ -253,11 +301,17 @@ void LinOCT::append(Ocode& code) {
     clist.push_back( code );
 }
 
+void LinOCT::append_at(Ocode& code, int idx) {
+    if ( valid_index(idx) ) {
+        clist.insert( clist.begin()+idx, code );
+    }
+}
+
 void LinOCT::delete_at(int idx) {
-    std::cout << " before=" << size() << "\n";
+    //std::cout << " DELETING " << clist[idx] << "\n";
     if ( valid_index(idx) )
         clist.erase( clist.begin()+idx) ;
-    std::cout << " after=" << size() << "\n";
+    //std::cout << " after=" << size() << "\n";
     
     return;
 }
@@ -297,10 +351,12 @@ void LinOCT::expand_at(int idx) {
     return;
 }
 
-// build LinOCT from input OCTVolume
-void LinOCT::build(OCTVolume* vol, int min_expand)
+/// initialize octree and expand min_expans times
+void LinOCT::init(int min_expand) 
 {
-    // expand min_expand times to sample densely enough
+    Ocode o = Ocode(); // create an onode, initally all "8"
+    append(o);
+    
     for (int m=0; m<min_expand ; m++) {
         for (int n=0; n<size() ; n++) {
             if ( clist[n].expandable() ) {
@@ -309,27 +365,143 @@ void LinOCT::build(OCTVolume* vol, int min_expand)
             }
         }
     }
+    return;
+}
+
+// build LinOCT from input OCTVolume
+void LinOCT::build(OCTVolume* vol)
+{
     
     // loop until no expandable nodes remain
-    // flagging black nodes as "done", and 
     // deleting white nodes at each step
+    // expanding grey nodes if possible
+    // and skipping over black nodes (only these remain when done) 
+    
     std::cout << size() << " nodes to process\n";
     int n=0;
-    while ( n < size() ) {
-    //for (int n=0; n<size() ; n++) { // loop through all remaining nodes
-        std::cout << "processing: "<< n <<"\n";
-        if (  clist[n].isWhite( vol ) ) {// white nodes can be deleted
-            std::cout << "FOUND WHITE node at "<< n <<"\n";
+    while ( n < size() ) { // go through all nodes
+        if (  clist[n].isWhite( vol ) ) {
+            // white nodes can be deleted
             clist[n].color = 1;
             delete_at(n);
-            std::cout << "n="<<n<<" after delete\n";
-            //n=n-1;
         }
-        n++;
+        else if ( clist[n].isGrey( vol ) ) {
+            // grey nodes should be expanded, if possible
+            if ( clist[n].expandable() ) {
+                //std::cout << " expanding\n";
+                expand_at(n);
+            }
+            else {
+                // grey non-expandable nodes are removed
+                delete_at(n); 
+            }
+        }
+        else {
+            // node is black, so leave it in the list
+            n++; // move forward in the list
+        }
     }
     std::cout << size() << " nodes after process\n";
-
+    //std::cout << *this;
     
+}
+
+void LinOCT::condense() {
+    // NOTE: list needs to be sorted before we come here.
+    
+    // remove duplicates
+    int n=0;
+    while ( n < (size()-1) ) {
+        if ( clist[n] == clist[n+1] )
+            delete_at(n);
+        else
+            n++;
+    }
+    
+    // remove nodes which are contained in the following node
+    n=0;
+    while ( n < (size()-1) ) {
+        if ( clist[n].containedIn( clist[n+1] ) ) {
+            delete_at(n);
+        }
+        else
+            n++;
+    }
+    
+    // condense nodes if all eight sub-quadrants are present
+    n=0;
+    while ( n < (size()-7) ) {// at least 8 nodes must remain
+        
+        if ( can_collapse_at(n) ) { // can collapse the octet
+            //std::cout << "collapsing at " << n << "\n";
+            int deg = clist[n].degree();
+            
+
+            // construct parent node of sub-octants
+            Ocode o; // parent node, all digits default to "8"
+            for (int m=0;m<(deg-1); m++) {
+                o.code[m] =  clist[n].code[m]; // match code up to deg-1
+            }
+            
+            //std::cout << "before collapse at " << n <<" code:" << clist[n] << "\n";            
+            // add parent 
+            append_at(o, n); 
+            //std::cout << "parent insert at " << n <<" code:" << clist[n] << "\n"; 
+            n++; // jump forward and delete the redundant sub-octants
+            for (int m=0;m<8;m++) {
+                //std::cout << " deleting at " << n<< " : " << clist[n] << "\n";
+                delete_at(n); 
+            }
+                
+            n--; // jump back to the new parent            
+            int jump=7;
+            if (n<8)
+                jump=n;
+            n-=jump; 
+                    // jump backward and see if the collapse has created 
+                     // an opportunity for more collapsing
+                     // collapsable nodes can be as far back as 7 steps
+        }        
+        else
+            n++;
+    }
+    
+    return;
+}
+
+bool LinOCT::can_collapse_at(int idx) {
+    int deg = clist[idx].degree();
+    // check for consequtive numbers 0-7 at position deg
+    Ocode o;
+    //std::cout << " checking "<< idx << " to " << idx+7 << " deg=" << deg << "\n"; 
+    for (int n=0; n < 8 ; n++) {
+        o = clist[idx+n];
+        //std::cout << "n=" << n << " Ocode= "<< o <<" code=" << (int)o.code[deg-1] << "\n";
+        
+        if ( (o.code[deg-1] != n) || (o.degree() != deg) ) {// code must match 0-7
+            //std::cout << " no match\n";
+            return false;
+        }
+    }
+    //std::cout << " Match!!\n";
+    return true;
+}
+
+
+
+/// add nodes of LinOCT other to this
+void LinOCT::sum(LinOCT& other) {
+    BOOST_FOREACH( Ocode o, other.clist ) {
+        append( o );
+    }
+    // TODO: condense!
+    return;
+}
+
+/// sort list of ocodes
+void LinOCT::sort() {
+    
+    std::sort( clist.begin(), clist.end() );
 }
 
 boost::python::list LinOCT::get_nodes()
@@ -346,6 +518,12 @@ boost::python::list LinOCT::get_nodes()
 std::ostream& operator<<(std::ostream &stream, const LinOCT &l)
 {
     stream << "LinOCT: N="<< l.size() ; 
+    /*
+    BOOST_FOREACH( Ocode o, l.clist ) {
+        stream << " " << o << "\n";
+    }
+    */
+    
     return stream;
 }
 
@@ -360,321 +538,22 @@ std::string LinOCT::str()
 
 
 
-//********   OCTNode ********************** */
 
-
-double  OCTNode::max_scale = 10.0;
-int     OCTNode::max_depth = 5;
-int     OCTNode::min_depth = 3;
-
-double OCTNode::get_max_scale()
-{
-    return max_scale;
-}
-
-
-OCTNode::OCTNode()
-{
-    level = 0;
-    scale = max_scale/pow(2.0, level);
-    
-    center = Point(0,0,0);
-    type = WHITE;
-    parent = NULL;
-    child = std::vector<OCTNode*>(8);
-}
-
-OCTNode::OCTNode(int in_level, Point& in_center, OCType in_type, OCTNode* in_parent) 
-{
-    center = in_center;
-    type = in_type;
-    parent = in_parent;
-    level = in_level;
-    scale = max_scale/pow(2.0, level);
-    child = std::vector<OCTNode*>(8);
-    return;
-}
-
-/// return a node-point    
-Point OCTNode::nodePoint(int id)
-{
-    return center + (scale/2)*nodeDir(id);
-}
-
-/// return center-point of child
-Point OCTNode::childCenter(int id)
-{
-    if ( id > 0 )
-        return center + (scale/4)*nodeDir(id);
-    else {
-        assert(0);
-        return Point(0,0,0);
-    }
-}
-        
-/// return direction to node-point
-Point OCTNode::nodeDir(int id)
-{
-    switch(id)
-    {
-        case 0:
-            return Point(0,0,0);
-            break;
-        case 1:
-            return Point(1,1,1);
-            break;
-        case 2:
-            return Point(-1,1,1);
-            break;
-        case 3:
-            return Point(1,-1,1);
-            break;
-        case 4:
-            return Point(1,1,-1);
-            break;
-        case 5:
-            return Point(1,-1,-1);
-            break;
-        case 6:
-            return Point(-1,1,-1);
-            break;
-        case 7:
-            return Point(-1,-1,1);
-            break;
-        case 8:
-            return Point(-1,-1,-1);
-            break;
-        default:
-            std::cout << "octree.cpp nodeDir() called with invalid id!!\n";
-            assert(0);
-            break;
-    }
-    assert(0);
-    return Point(0,0,0);
-}
-        
-
-
-
-OCTNode* OCTNode::build_octree(OCTVolume* vol, 
-                               int in_level, 
-                               Point& in_center,
-                               OCTNode* in_parent)
-{
-    #ifdef DEBUG_BUILD_OCT
-        std::cout << "build_octree()\n";
-    #endif
-    //std::vector<OCTNode*> children(8);
-    
-    OCTNode* node = new OCTNode( in_level, in_center, GREY, in_parent);
-    //node->center = in_center;
-    //node->level = in_level;
-    //node->parent = in_parent;
-    
-    // test all node-points: inside or outside volume?
-    std::vector<bool> flag(9);
-    int sum=0;
-    for (int n=0 ; n<9 ; n++) {
-        Point p = node->nodePoint(n);
-        flag[n]= vol->isInside( p );
-        if (flag[n] == true)
-            sum += 1;
-        else 
-            sum -= 1;
-    }
-    #ifdef DEBUG_BUILD_OCT
-        std::cout << "level=" << node->level << " sum=" << sum << "\n";
-    #endif
-    if ( node->level > min_depth ) {
-        if ( sum == 9 ) { // all points are inside
-            node->type = WHITE;
-            return node;
-        }
-        else if ( sum == -9 ) { // all points are outside
-            #ifdef DEBUG_BUILD_OCT
-                std::cout << " BLACK\n";
-            #endif
-            node->type = BLACK;
-            #ifdef DEBUG_BUILD_OCT
-                std::cout << " set type= BLACK\n";
-            #endif
-            return node;
-        } 
-    }
-    
-    // check if we reached the max allowed depth
-    if (node->level == max_depth) {
-        #ifdef DEBUG_BUILD_OCT
-            std::cout << " max level reached\n";
-        #endif
-        return node;
-    }
-    
-    // if we get here, we need to subdivide
-    node->type = GREY;
-    Point c_center;
-    for (int n=1; n<9; n++) {
-        c_center = node->childCenter(n);
-        #ifdef DEBUG_BUILD_OCT
-            std::cout << " build child n="<< n << " at center=" << c_center << "\n";
-        #endif
-        node->child[n-1] = OCTNode::build_octree( vol, node->level+1, c_center, node );
-    }
-    
-    #ifdef DEBUG_BUILD_OCT
-        std::cout << " build_octre() done.\n";
-    #endif
-    return node;
-}
-
-void OCTNode::getNodes( std::list<OCTNode> *nodelist, OCTNode *node)
-{
-    if (node)  
-        nodelist->push_back(*node);
-        
-    if ( node->child[0] ) {
-        for (int n=0; n<8 ; n++)
-            OCTNode::getNodes( nodelist, node->child[n] );
-    }
-    return;
-}
-
-
-int OCTNode::prune_all(OCTNode* root)
-{
-    std::list<OCTNode> *nodes = new std::list<OCTNode>();
-    OCTNode::getNodes( nodes, root);
-    double current_n = nodes->size();
-    double new_n = 0;
-    int n=0;
-    while (new_n < current_n) {
-        current_n = nodes->size();
-        OCTNode::prune(root);
-        nodes->clear();
-        OCTNode::getNodes(nodes,root);
-        new_n = nodes->size();
-        n=n+1;
-    }
-    return n;
-}
-
-void OCTNode::prune(OCTNode* root) {
-    
-    
-    if (root->child[0]) {
-        int sum=0;
-        for (int n=0; n<8; n++) {
-            if ( root->child[n]->type == WHITE )
-                sum +=1;
-            else if ( root->child[n]->type == BLACK )
-                sum -=1;
-        }
-        
-        if (sum == 8) { // all white
-            for (int n=0; n<8; n++) {
-                root->child[n] = NULL; /// \todo FIXME this is probably a memory leak, need to delete child OCTNodes also
-            }
-            root->type=WHITE;
-            return;
-        }
-        if (sum == -8) { // all black
-            for (int n=0; n<8; n++) {
-                root->child[n] = NULL; /// \todo FIXME this is probably a memory leak, need to delete child OCTNodes also
-            }
-            root->type=BLACK;
-            return;
-        }
-        
-        // else go prune children
-        for (int n=0; n<8; n++) {
-            OCTNode::prune( root->child[n] );
-        }
-    }
-    
-    return;
-}
-
-
-void OCTNode::balance( OCTNode* root1, OCTNode* root2)
-{
-    if (!root2->child[0]) {
-        return; // nothing to do if we are at leaf of tree2
-    } 
-    else 
-    { // root2 has children
-        if (!root1->child[0]) {
-            // create children for root1 if none exist
-            for (int n=0;n<8;n++) {
-                Point c_center = root1->childCenter(n+1);
-                root1->child[n] = new OCTNode( (root1->level)+1, c_center, root1->type, root1);
-            }
-            // balance the new children
-            for (int n=0;n<8;n++) {
-                OCTNode::balance( root1->child[n], root2->child[n] );
-            }
-        }
-        else { // root1 also has children
-            // call balance() on children
-            for (int n=0;n<8;n++) {
-                OCTNode::balance( root1->child[n], root2->child[n] );
-            }
-        }
-    }
-    return;
-}
-
-void OCTNode::diff( OCTNode* root1, OCTNode* root2)
-{
-    // root1 = root1 - root2
-    
-    if (!root2->child[0]) {
-        // leaf of root2
-        if (root2->type == WHITE) {
-            root1->type = BLACK;
-            for (int n=0; n<8; n++) {
-                root1->child[n] = NULL; /// \todo FIXME this is probably a memory leak, need to delete child OCTNodes also
-            }
-        }
-    }
-    else {
-        if (root2->type == GREY) {
-            for (int n=0; n<8; n++) {
-                    OCTNode::diff( root1->child[n], root2->child[n] );
-            }
-        }
-    }
-    return;
-    
-}
-
-
-
-//********  OCTNode string output ********************** */
-std::string OCTNode::str()
-{
-    std::ostringstream o;
-    o << "OCTNode l="<< level << " center=" << center << " scale=" << scale << " type="<< type;
-    return o.str();
-}
-
-std::ostream& operator<<(std::ostream &stream, const OCTNode root)
-{
-    stream << "OCTNode";    
-    return stream;
-}
 
 //************* Volumes **************/
 
+/// sphere at center
 SphereOCTVolume::SphereOCTVolume()
 {
     center = Point(2,0,0);
     radius = 3.0;
 }
 
+
 bool SphereOCTVolume::isInside(Point& p) const
 {
     
-    if ( (center-p).norm() < radius ) {
+    if ( (center-p).norm() <= radius ) {
         //std::cout << "dist to point=" << (center-p).norm() <<"\n";
         return true;
     }
@@ -682,7 +561,7 @@ bool SphereOCTVolume::isInside(Point& p) const
         return false;
 }
 
-//*********** Cube colume **********/
+/// cube at center with side length side
 CubeOCTVolume::CubeOCTVolume()
 {
     center = Point(0,0,0);
@@ -692,9 +571,9 @@ CubeOCTVolume::CubeOCTVolume()
 bool CubeOCTVolume::isInside(Point& p) const
 {
     bool x,y,z;
-    x = ( (p.x > (center.x-side/2)) && (p.x < (center.x+side/2)) );
-    y = ( (p.y > (center.y-side/2)) && (p.y < (center.y+side/2)) );
-    z = ( (p.z > (center.z-side/2)) && (p.z < (center.z+side/2)) );
+    x = ( (p.x >= (center.x-side/2)) && (p.x <= (center.x+side/2)) );
+    y = ( (p.y >= (center.y-side/2)) && (p.y <= (center.y+side/2)) );
+    z = ( (p.z >= (center.z-side/2)) && (p.z <= (center.z+side/2)) );
     if ( x && y && z )
         return true;
     else
@@ -703,99 +582,6 @@ bool CubeOCTVolume::isInside(Point& p) const
 
 
 
-//********* OCTest***************/
-// mostly testing/debugging class for now
 
-OCTest::OCTest()
-{
-    volume = new SphereOCTVolume();
-    //volume = new CubeOCTVolume();
-    root = 0;
-}
-
-void OCTest::build_octree()
-{
-    Point c = Point(0,0,0);
-    root = OCTNode::build_octree(volume , 0 , c , NULL); 
-}
-
-
-
-double OCTest::get_max_depth() 
-{
-    return OCTNode::max_depth;
-}
-
-void OCTest::set_max_depth(int d) 
-{
-    OCTNode::max_depth = d;
-}
-
-void OCTest::setVol(OCTVolume& in_volume)
-{
-    volume = &in_volume;
-}
-
-
-
-void OCTest::prune() 
-{
-    OCTNode::prune(root);
-}
-
-int OCTest::prune_all() 
-{
-    return OCTNode::prune_all(root);
-}
-
-void OCTest::balance(OCTest& other)
-{
-    OCTNode::balance(root, other.root);
-    return;
-}
-
-void OCTest::diff(OCTest& other)
-{
-    OCTNode::diff(root, other.root);
-    return;
-}
-
-boost::python::list OCTest::get_all_nodes()
-{
-    std::list<OCTNode> *nodes = new std::list<OCTNode>();
-    OCTNode::getNodes( nodes, root);
-    
-    boost::python::list nodelist;
-    BOOST_FOREACH( OCTNode n, *nodes) {
-        nodelist.append(n);
-    }
-    return nodelist;
-}
-
-boost::python::list OCTest::get_white_nodes()
-{
-    std::list<OCTNode> *nodes = new std::list<OCTNode>();
-    OCTNode::getNodes( nodes, root);
-    
-    boost::python::list nodelist;
-    BOOST_FOREACH( OCTNode n, *nodes) {
-        if (n.type == WHITE) 
-            nodelist.append(n);
-    }
-    return nodelist;
-}
-
-boost::python::list OCTest::get_black_nodes()
-{
-    std::list<OCTNode> *nodes = new std::list<OCTNode>();
-    OCTNode::getNodes( nodes, root);
-    
-    boost::python::list nodelist;
-    BOOST_FOREACH( OCTNode n, *nodes) {
-        if (n.type == BLACK) 
-            nodelist.append(n);
-    }
-    return nodelist;
-}
 
 // end of file octree.cpp
