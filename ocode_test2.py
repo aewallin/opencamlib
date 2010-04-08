@@ -69,7 +69,7 @@ print "t.size=", t.size()
 
 svol = ocl.SphereOCTVolume()
 svol.radius=3
-svol.center = ocl.Point(4,6,3)
+svol.center = ocl.Point(4,2,3)
 
 cube1 = ocl.CubeOCTVolume()
 cube1.side=6
@@ -102,7 +102,7 @@ print "t2 build()"
 t2.build(cube1)
 print " t2 after build() ", t2.size()
 t2.condense()
-print " t2 after condense() ", t.size()
+print " t2 after condense() ", t2.size()
 
 drawTree(myscreen,t,opacity=0.3, color=camvtk.red)
 
@@ -116,19 +116,15 @@ drawTree(myscreen,t,opacity=1, color=camvtk.green)
 
 drawTree(myscreen,t2,opacity=1, color=camvtk.red)
 
-print "t2 size=", t2.size()
 
+
+print "sum total: t + t2 = ", t.size()+t2.size()
+print " calling sum()"
 t2.sum(t)
 
+print " AFTER sum()"
 print " sum t2.sum(t)=", t2.size()
-#printNodes(t2)
-t2.sort()
 
-print " sum after sort() ", t2.size()
-#printNodes(t2)
-t2.condense()
-print " sum after condense() ", t2.size()
-#printNodes(t2)
 
 
 #drawTree(myscreen,t,opacity=1)

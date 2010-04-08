@@ -119,6 +119,9 @@ class LinOCT {
         /// union operation
         void sum(LinOCT& other);
         
+        /// difference operation
+        void diff(LinOCT& other);
+        
         /// sort the list
         void sort();
         

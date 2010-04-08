@@ -377,7 +377,7 @@ void LinOCT::build(OCTVolume* vol)
     // expanding grey nodes if possible
     // and skipping over black nodes (only these remain when done) 
     
-    std::cout << size() << " nodes to process\n";
+    std::cout << size() << " nodes before build()\n";
     int n=0;
     while ( n < size() ) { // go through all nodes
         if (  clist[n].isWhite( vol ) ) {
@@ -401,7 +401,7 @@ void LinOCT::build(OCTVolume* vol)
             n++; // move forward in the list
         }
     }
-    std::cout << size() << " nodes after process\n";
+    std::cout << size() << " nodes after build()\n";
     //std::cout << *this;
     
 }
@@ -410,15 +410,17 @@ void LinOCT::condense() {
     // NOTE: list needs to be sorted before we come here.
     
     // remove duplicates
-    int n=0;
+    
+    /*
     while ( n < (size()-1) ) {
         if ( clist[n] == clist[n+1] )
             delete_at(n);
         else
             n++;
-    }
+    }*/
     
     // remove nodes which are contained in the following node
+    /*
     n=0;
     while ( n < (size()-1) ) {
         if ( clist[n].containedIn( clist[n+1] ) ) {
@@ -426,13 +428,35 @@ void LinOCT::condense() {
         }
         else
             n++;
-    }
+    }*/
     
     // condense nodes if all eight sub-quadrants are present
-    n=0;
-    while ( n < (size()-7) ) {// at least 8 nodes must remain
+    
+    int n=0;
+    int n_duplicates=0;
+    int n_contained=0;
+    int n_collapse=0;
+    while ( n < (size()-1) ) {
         
-        if ( can_collapse_at(n) ) { // can collapse the octet
+        if ( clist[n] == clist[n+1] ) {
+            delete_at(n); // remove duplicates
+            n_duplicates++;
+            
+            // deleting a duplicate creates an opportunity to collapse
+            // so need to jump back by 7 steps to check for collapse
+            int jump=7;
+            if (n<8)
+                jump=n;
+            n-=jump; 
+        }
+        else if ( clist[n].containedIn( clist[n+1] ) ) {
+            // remove nodes contained in the following node
+            delete_at(n);
+            if (n>0)
+                n--; // jump back to check for more contained nodes 
+            n_contained++;
+        }
+        else if ( can_collapse_at(n) ) { // can collapse the octet
             //std::cout << "collapsing at " << n << "\n";
             int deg = clist[n].degree();
             
@@ -461,15 +485,27 @@ void LinOCT::condense() {
                     // jump backward and see if the collapse has created 
                      // an opportunity for more collapsing
                      // collapsable nodes can be as far back as 7 steps
+            n_collapse++;
         }        
-        else
-            n++;
+        else {
+            n++; // move forward in list
+        }
     }
-    
+    if ( (n_duplicates>0) || (n_contained>0) || (n_collapse>0)) {
+        std::cout << "n_duplicates="<<n_duplicates<<"\n";
+        std::cout << "n_contained="<<n_contained<<"\n";
+        std::cout << "n_collapse="<<n_collapse<<"\n";
+    } else {
+        std::cout << "condense(): nothing to do!\n";
+    }
     return;
 }
 
 bool LinOCT::can_collapse_at(int idx) {
+    
+    if ( (size()-idx) < 8 ) // at least 8 nodes must remain
+        return false;
+        
     int deg = clist[idx].degree();
     // check for consequtive numbers 0-7 at position deg
     Ocode o;
@@ -487,14 +523,29 @@ bool LinOCT::can_collapse_at(int idx) {
     return true;
 }
 
+/// compute difference, i.e.
+/// remove nodes in other from this
+void LinOCT::diff(LinOCT& other)
+{
+    int n=0;
+    while (n<size()) { // loop through the original list
+        if (0) {
+        }
+        else {
+            n++;
+        }
+    }
+    return;
+}
 
-
-/// add nodes of LinOCT other to this
+/// add nodes of two trees together into one
 void LinOCT::sum(LinOCT& other) {
+    // join the two lists, sort, and condense
     BOOST_FOREACH( Ocode o, other.clist ) {
         append( o );
     }
-    // TODO: condense!
+    sort();
+    condense();
     return;
 }
 
