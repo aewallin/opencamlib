@@ -201,7 +201,7 @@ def linoct_setops( o1, o2):
             int_ptr += 1
             intersection[int_ptr] = o1[ptr1]
             if ( Hold21 == 0): # difference queue 21 is empty
-                Hode21 = o2[ptr2]
+                Hold21 = o2[ptr2]
             add_to_queue( Q21, o1[ptr1] )
             ptr1 +=1 # move to next in o1
             
@@ -249,7 +249,7 @@ def linoct_setops( o1, o2):
         for i in xrange(ptr3, len(o1)):  # difference
             diff12_ptr += 1
             diff12[diff12_ptr] = o1[i]
-        for in in xrange(otr1, len(o1)):  # union
+        for in in xrange(ptr1, len(o1)):  # union
             union_ptr +=1
             union[union_ptr] = o1[i]
         
