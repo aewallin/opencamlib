@@ -525,14 +525,119 @@ bool LinOCT::can_collapse_at(int idx) {
 
 /// compute difference, i.e.
 /// remove nodes in other from this
-void LinOCT::diff(LinOCT& other)
+void LinOCT::diff(LinOCT& o)
 {
-    int n=0;
-    while (n<size()) { // loop through the original list
-        if (0) {
+    // traverse through both lists
+    int idx1 = 0;
+    int idx2 = 0;
+    
+    std::vector<Ocode> intersection;
+    std::vector<Ocode> diff12;
+    std::vector<Ocode> diff21;
+    std::vector<Ocode> Q21;
+    std::vector<Ocode> Q12;
+    Ocode Hold21;
+    Ocode Hold12;
+    
+    while ( (idx1<size()) && (idx2<o.size())   ) { 
+        if ( clist[idx1].containedIn( o.clist[idx2]  ) ) {
+            intersection.push_back( clist[idx1] ); // idx1 contained is in both o1 and o2
+            if ( Q21.empty() )
+                Hold21 = o.clist[idx2]; // remember this node for later processing
+            Q21.push_back( clist[idx1] ); // these need to be removed from Hold21 later
+            idx1++; 
         }
-        else {
-            n++;
+        else if ( o.clist[idx2].containedIn( clist[idx1] ) ) {
+            intersection.push_back( o.clist[idx2] ); // o2[idx2] is in both o1 and o2
+            if ( Q12.empty() )
+                Hold12 = clist[idx1]; // store for later processing
+            Q12.push_back( o.clist[idx2] );
+            idx2++;
+        }
+        else if ( clist[idx1] < o.clist[idx2] ) {
+            // add o1 element to union
+            
+            // process the difference queues, if any
+            if ( Hold12 == clist[idx1] )  //compute difference o1-o2
+                do_diff( Hold12, Q12, diff12 ); // function for calculating difference
+            else
+                diff12.push_back( clist[idx1] );  // no matching node in o2, so o1 belongs to diff
+            idx1++;
+        } 
+        else { // o2 < o1
+            // add o2 element to union
+            if (Hold21 == o.clist[idx2])
+                do_diff( Hold12, Q21, diff21);
+            else
+                diff21.push_back( clist[idx2] ); // o2 belongs to diff21
+            idx2++;
+        }
+    } // end of first loop through elements
+    
+    
+    // now process remaining elements, i.e. case where o1 is longer than o2 or vice versa
+    
+    if (idx1 < size()) {// process rest of o1
+        int idx3 = idx1;
+        if ( Hold12 == clist[idx1] ) {
+            do_diff( Hold21, Q12, diff12);
+            idx3++;
+        }
+        for (int i=idx3; i<size(); i++)
+            diff12.push_back(clist[i]); // o1 elements not in o2 are in diff12
+        //union calc here
+        
+    }
+    else { // process rest of o2
+        int idx3=idx2;
+        if (Hold21 == o.clist[idx2]) {
+            do_diff(Hold21, Q21, diff21);
+            idx3++;
+        }
+        for (int i=idx3; i<o.size() ; i++) {
+            diff21.push_back( o.clist[i] ); // o2 elements to diff21
+        }
+        // union calc here
+        
+    }
+    
+    std::cout << " diff12= " << diff12.size() << "\n";
+    std::cout << " diff21= " << diff21.size() << "\n";
+    std::cout << " inters= " << intersection.size() << "\n";
+    
+    return;
+}
+
+void LinOCT::do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D) 
+{
+    if ( !H.expandable())
+        std::cout << " do_diff node H not expandable...\n";
+        
+    std::vector<Ocode> Q2 = H.expand(); // Q2 contains expanded node
+    
+    while ( !Q2.empty() ) {
+        if ( !Q.empty() ) {
+            Ocode n = Q.front();
+            Ocode n2 = Q2.front();
+            if ( n == n2 ) {// matching elements
+                Q2.erase(Q2.begin());  // nothing to put into diff
+                Q.erase(Q.begin());
+            } else if ( n.containedIn( n2 ) ) {// need to expand further
+                // expand n2 and add to front of Q2
+                std::vector<Ocode> subocts = n2.expand();
+                Q2.erase( Q2.begin() );
+                BOOST_FOREACH( Ocode o, subocts) {
+                    Q2.insert( Q2.begin(), o);
+                }
+            } else {
+                // no match in Q, so push node to diff
+                D.push_back( Q2.front() );
+                Q2.erase( Q2.begin() );
+            }
+        }
+        else { // Q is empty
+            D.push_back( Q2.front() ); // no match in Q, so push node to diff
+            Q2.erase(Q2.begin());
         }
     }
     return;

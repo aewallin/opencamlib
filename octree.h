@@ -121,7 +121,8 @@ class LinOCT {
         
         /// difference operation
         void diff(LinOCT& other);
-        
+        void do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D);
+         
         /// sort the list
         void sort();
         

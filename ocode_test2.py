@@ -41,7 +41,7 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #raw_input("Press Enter to terminate")
         
 f=ocl.Ocode()
-f.set_depth(6)
+f.set_depth(7)
 
 
 myscreen = camvtk.VTKScreen()   
@@ -80,11 +80,7 @@ cube2.center = ocl.Point(1,2,0)
 cube2.side = 30
 
 
-sphvol = camvtk.Sphere(center=(svol.center.x,svol.center.y,svol.center.z), radius=svol.radius)
-sphvol.SetColor(camvtk.blue)
-sphvol.SetWireframe()
-sphvol.SetOpacity(0.3)
-myscreen.addActor(sphvol)
+
 
 
 
@@ -104,6 +100,13 @@ print " t2 after build() ", t2.size()
 t2.condense()
 print " t2 after condense() ", t2.size()
 
+sphvol = camvtk.Sphere(center=(svol.center.x,svol.center.y,svol.center.z), radius=svol.radius)
+sphvol.SetColor(camvtk.blue)
+sphvol.SetWireframe()
+sphvol.SetOpacity(0.3)
+myscreen.addActor(sphvol)
+
+
 drawTree(myscreen,t,opacity=0.3, color=camvtk.red)
 
 #printNodes(t)
@@ -120,7 +123,7 @@ drawTree(myscreen,t2,opacity=1, color=camvtk.red)
 
 print "sum total: t + t2 = ", t.size()+t2.size()
 print " calling sum()"
-t2.sum(t)
+t2.diff(t)
 
 print " AFTER sum()"
 print " sum t2.sum(t)=", t2.size()
@@ -132,15 +135,10 @@ print " sum t2.sum(t)=", t2.size()
 
 drawTree(myscreen,t2,opacity=1, color=camvtk.blue,offset=(0,15,0))
 
-#print " nodes:"
-#printNodes(t)
+
 
 
 
 myscreen.render()
 myscreen.iren.Start() 
     
-
-#t.expand_at(1)
-#print "t.size=", t.size()
-#printNodes(t)
