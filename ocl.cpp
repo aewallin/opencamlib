@@ -206,7 +206,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("build", &LinOCT::build)
         .def("init", &LinOCT::init)
         .def("sum", &LinOCT::sum)
-        .def("diff", &LinOCT::diff)
+        .def("operation", &LinOCT::operation)
         .def("sort", &LinOCT::sort)
         .def("condense", &LinOCT::condense)
         .def("str", &LinOCT::str)

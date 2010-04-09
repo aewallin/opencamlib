@@ -41,7 +41,7 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #raw_input("Press Enter to terminate")
         
 f=ocl.Ocode()
-f.set_depth(7)
+f.set_depth(6)
 
 
 myscreen = camvtk.VTKScreen()   
@@ -69,7 +69,7 @@ print "t.size=", t.size()
 
 svol = ocl.SphereOCTVolume()
 svol.radius=3
-svol.center = ocl.Point(4,2,3)
+svol.center = ocl.Point(2,2,3)
 
 cube1 = ocl.CubeOCTVolume()
 cube1.side=6
@@ -122,22 +122,37 @@ drawTree(myscreen,t2,opacity=1, color=camvtk.red)
 
 
 print "sum total: t + t2 = ", t.size()+t2.size()
-print " calling sum()"
-t2.diff(t)
 
-print " AFTER sum()"
-print " sum t2.sum(t)=", t2.size()
+
+print " diff12()...",
+t3 = t2.operation(1,t)
+print "done."
+
+
+print " diff21()...",
+t4 = t2.operation(2,t)
+print "done."
+
+
+print " intersection()...",
+t5 = t2.operation(3,t)
+print "done."
+
+
+print "  difference 1-2  t3 (blue) =", t3.size()
+print " difference 2-1  t4 (yellow)=", t4.size()
+print "     intersection t5 (pink) =", t5.size()
 
 
 
 #drawTree(myscreen,t,opacity=1)
 #drawTree(myscreen,t2,opacity=0.3, color=camvtk.green)
 
-drawTree(myscreen,t2,opacity=1, color=camvtk.blue,offset=(0,15,0))
+drawTree(myscreen,t3,opacity=1, color=camvtk.blue, offset=(0,15,0))
 
+drawTree(myscreen,t4,opacity=0.3, color=camvtk.yellow,offset=(0,-15,0))
 
-
-
+drawTree(myscreen,t5,opacity=1, color=camvtk.pink,offset=(-15,0,0))
 
 myscreen.render()
 myscreen.iren.Start() 

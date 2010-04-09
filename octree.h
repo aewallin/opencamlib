@@ -71,7 +71,9 @@ class Ocode {
         
         /// return numerical value
         int number() const;
-    
+        
+        void null();
+        bool isNull();
 
              
         int get_depth();
@@ -120,7 +122,7 @@ class LinOCT {
         void sum(LinOCT& other);
         
         /// difference operation
-        void diff(LinOCT& other);
+        LinOCT operation(int type, LinOCT& other);
         void do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D);
          
         /// sort the list

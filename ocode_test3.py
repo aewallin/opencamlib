@@ -45,7 +45,7 @@ f.set_depth(6)
 
 
 myscreen = camvtk.VTKScreen()   
-myscreen.camera.SetPosition(80, 52, 20)
+myscreen.camera.SetPosition(50, 22, 40)
 myscreen.camera.SetFocalPoint(0,0, 0)   
 
 xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))
@@ -69,7 +69,7 @@ print "t.size=", t.size()
 
 svol = ocl.SphereOCTVolume()
 svol.radius=3
-svol.center = ocl.Point(2,2,3)
+svol.center = ocl.Point(6,0,3)
 
 cube1 = ocl.CubeOCTVolume()
 cube1.side=6
@@ -150,7 +150,7 @@ print "     intersection t5 (pink) =", t5.size()
 
 drawTree(myscreen,t3,opacity=1, color=camvtk.blue, offset=(0,15,0))
 
-drawTree(myscreen,t4,opacity=0.3, color=camvtk.yellow,offset=(0,-15,0))
+drawTree(myscreen,t4,opacity=1, color=camvtk.yellow,offset=(0,-15,0))
 
 drawTree(myscreen,t5,opacity=1, color=camvtk.pink,offset=(-15,0,0))
 

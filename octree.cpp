@@ -192,14 +192,32 @@ std::vector<Ocode> Ocode::expand()
     if ( expandable() ) {
         for (int n=0;n<8;n++) {
             Ocode child;
-            child = *this;
-            child.code[deg] = n;
+            child = *this; // child is copy of parent
+            child.code[deg] = n; // but at position deg, cycle through 0-7
             list.push_back(child);
         }
     } else {
         std::cout << "can't expand this node! \n";
     }
     return list;
+}
+
+/// fill Ocode with invalid information
+void Ocode::null()
+{
+    for (int n=0;n<depth;n++) {
+        code[n]=9; // an invalid Ocode
+    }
+    return;
+}
+
+bool Ocode::isNull()
+{
+    for (int n=0;n<depth;n++) {
+        if ( code[n] != 9 ) 
+            return false;
+    }
+    return true;
 }
 
 /// return direction of octant
@@ -407,30 +425,7 @@ void LinOCT::build(OCTVolume* vol)
 }
 
 void LinOCT::condense() {
-    // NOTE: list needs to be sorted before we come here.
-    
-    // remove duplicates
-    
-    /*
-    while ( n < (size()-1) ) {
-        if ( clist[n] == clist[n+1] )
-            delete_at(n);
-        else
-            n++;
-    }*/
-    
-    // remove nodes which are contained in the following node
-    /*
-    n=0;
-    while ( n < (size()-1) ) {
-        if ( clist[n].containedIn( clist[n+1] ) ) {
-            delete_at(n);
-        }
-        else
-            n++;
-    }*/
-    
-    // condense nodes if all eight sub-quadrants are present
+    // NOTE: list needs to be sorted before we come here.  
     
     int n=0;
     int n_duplicates=0;
@@ -438,8 +433,8 @@ void LinOCT::condense() {
     int n_collapse=0;
     while ( n < (size()-1) ) {
         
-        if ( clist[n] == clist[n+1] ) {
-            delete_at(n); // remove duplicates
+        if ( clist[n] == clist[n+1] ) { // remove duplicates
+            delete_at(n); 
             n_duplicates++;
             
             // deleting a duplicate creates an opportunity to collapse
@@ -456,6 +451,7 @@ void LinOCT::condense() {
                 n--; // jump back to check for more contained nodes 
             n_contained++;
         }
+        // condense nodes if all eight sub-quadrants are present
         else if ( can_collapse_at(n) ) { // can collapse the octet
             //std::cout << "collapsing at " << n << "\n";
             int deg = clist[n].degree();
@@ -525,7 +521,7 @@ bool LinOCT::can_collapse_at(int idx) {
 
 /// compute difference, i.e.
 /// remove nodes in other from this
-void LinOCT::diff(LinOCT& o)
+LinOCT LinOCT::operation(int type, LinOCT& o)
 {
     // traverse through both lists
     int idx1 = 0;
@@ -538,49 +534,67 @@ void LinOCT::diff(LinOCT& o)
     std::vector<Ocode> Q12;
     Ocode Hold21;
     Ocode Hold12;
+    Hold21.null();
+    Hold12.null();
     
-    while ( (idx1<size()) && (idx2<o.size())   ) { 
-        if ( clist[idx1].containedIn( o.clist[idx2]  ) ) {
+    while ( (idx1<size()) && (idx2<o.size())   ) {  // case 0
+        if (clist[idx1]==o.clist[idx2]) { // identical nodes
+            intersection.push_back( clist[idx1] );
+            idx1++;
+            idx2++;  
+        }
+        else if ( clist[idx1].containedIn( o.clist[idx2]  )  ) {  // case 1
             intersection.push_back( clist[idx1] ); // idx1 contained is in both o1 and o2
-            if ( Q21.empty() )
-                Hold21 = o.clist[idx2]; // remember this node for later processing
+            if ( Hold21.isNull() )
+                Hold21 = o.clist[idx2];   // remember this node for later processing
             Q21.push_back( clist[idx1] ); // these need to be removed from Hold21 later
             idx1++; 
         }
-        else if ( o.clist[idx2].containedIn( clist[idx1] ) ) {
+        else if ( o.clist[idx2].containedIn( clist[idx1] ) ) { // case 2
             intersection.push_back( o.clist[idx2] ); // o2[idx2] is in both o1 and o2
-            if ( Q12.empty() )
-                Hold12 = clist[idx1]; // store for later processing
-            Q12.push_back( o.clist[idx2] );
+            if ( Hold12.isNull() )
+                Hold12 = clist[idx1];        // store for later processing
+            Q12.push_back( o.clist[idx2] );  // remove these later from Hold12
             idx2++;
         }
-        else if ( clist[idx1] < o.clist[idx2] ) {
+        else if ( clist[idx1] < o.clist[idx2] ) { // case 3
             // add o1 element to union
             
             // process the difference queues, if any
-            if ( Hold12 == clist[idx1] )  //compute difference o1-o2
+            if ( Hold12 == clist[idx1] )  { //compute difference o1-o2  Hold12 == clist[idx1]
                 do_diff( Hold12, Q12, diff12 ); // function for calculating difference
+                Hold12.null();
+            }
             else
                 diff12.push_back( clist[idx1] );  // no matching node in o2, so o1 belongs to diff
             idx1++;
         } 
-        else { // o2 < o1
+        else { // case 4:  o2 < o1
+            if ( !( o.clist[idx2] < clist[idx1]) ) {
+                std::cout << " case 4 o2 < o1 not true!\n";
+                std::cout << "o2=" << o.clist[idx2] << "\n";
+                std::cout << "o1=" << clist[idx1] << "\n";
+                assert(0);
+            }
+                
             // add o2 element to union
-            if (Hold21 == o.clist[idx2])
-                do_diff( Hold12, Q21, diff21);
+            if ( Hold21 == o.clist[idx2] ) { // Hold21 == o.clist[idx2]
+                do_diff( Hold21, Q21, diff21);
+                Hold21.null();
+            }
             else
-                diff21.push_back( clist[idx2] ); // o2 belongs to diff21
+                diff21.push_back( o.clist[idx2] ); // o2 belongs to diff21
             idx2++;
         }
-    } // end of first loop through elements
-    
+        
+    } // end of while-loop through elements
     
     // now process remaining elements, i.e. case where o1 is longer than o2 or vice versa
-    
     if (idx1 < size()) {// process rest of o1
         int idx3 = idx1;
         if ( Hold12 == clist[idx1] ) {
-            do_diff( Hold21, Q12, diff12);
+            do_diff( Hold12, Q12, diff12);
+            Hold12.null();
             idx3++;
         }
         for (int i=idx3; i<size(); i++)
@@ -592,6 +606,7 @@ void LinOCT::diff(LinOCT& o)
         int idx3=idx2;
         if (Hold21 == o.clist[idx2]) {
             do_diff(Hold21, Q21, diff21);
+            Hold21.null();
             idx3++;
         }
         for (int i=idx3; i<o.size() ; i++) {
@@ -601,45 +616,91 @@ void LinOCT::diff(LinOCT& o)
         
     }
     
+    /*
     std::cout << " diff12= " << diff12.size() << "\n";
     std::cout << " diff21= " << diff21.size() << "\n";
     std::cout << " inters= " << intersection.size() << "\n";
+    */
     
-    return;
+    LinOCT result;
+    
+    if (type==1) {
+        BOOST_FOREACH( Ocode o, diff12 ) {
+            result.append(o);
+        }
+    }
+    else if (type==2) {
+        BOOST_FOREACH( Ocode o, diff21 ) {
+            result.append(o);
+        }
+    } else if (type==3) {
+        BOOST_FOREACH( Ocode o, intersection) {
+            result.append(o);
+        }
+    }
+        
+    
+    return result;
 }
 
 void LinOCT::do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D) 
 {
-    if ( !H.expandable())
-        std::cout << " do_diff node H not expandable...\n";
-        
-    std::vector<Ocode> Q2 = H.expand(); // Q2 contains expanded node
+    // H - an expandable node
+    // Q - queue of nodes contained in H
+    // D - difference queue for H-Q results
     
-    while ( !Q2.empty() ) {
+    // Q2 contains expanded node
+    std::vector<Ocode> Q2;
+    
+    if ( !H.expandable()) {
+        /*
+        std::cout << " do_diff node H not expandable...\n";
+        std::cout << " H=" << H << "\n";
+        std::cout << " Q=\n";
+        BOOST_FOREACH( Ocode o, Q) {
+            std::cout << o << "\n";
+        }*/
+        Q2.push_back(H);
+    } else {
+        Q2 = H.expand(); 
+    }
+    
+    /*
+    std::cout << " H.expand() on H=" << H <<" :\n";
+    BOOST_FOREACH( Ocode o, Q2) {
+        std::cout << o << "\n";
+    }*/
+    
+    while ( !Q2.empty() ) { // go through the expanded nodes
+    
         if ( !Q.empty() ) {
-            Ocode n = Q.front();
-            Ocode n2 = Q2.front();
+            Ocode n = Q.back();
+            Ocode n2 = Q2.back();
             if ( n == n2 ) {// matching elements
-                Q2.erase(Q2.begin());  // nothing to put into diff
-                Q.erase(Q.begin());
+                Q2.pop_back(); //erase(Q2.begin());  // nothing to put into diff
+                Q.pop_back(); // erase(Q.begin());
             } else if ( n.containedIn( n2 ) ) {// need to expand further
                 // expand n2 and add to front of Q2
                 std::vector<Ocode> subocts = n2.expand();
-                Q2.erase( Q2.begin() );
+                Q2.pop_back(); // delete parent
                 BOOST_FOREACH( Ocode o, subocts) {
-                    Q2.insert( Q2.begin(), o);
+                    Q2.push_back(o); // insert new children
                 }
             } else {
                 // no match in Q, so push node to diff
-                D.push_back( Q2.front() );
-                Q2.erase( Q2.begin() );
+                D.push_back( n2 );
+                Q2.pop_back();
             }
         }
         else { // Q is empty
-            D.push_back( Q2.front() ); // no match in Q, so push node to diff
-            Q2.erase(Q2.begin());
+            D.push_back( Q2.back() ); // no match in Q, so push node to diff
+            Q2.pop_back();
         }
-    }
+        
+    }// end while
+    //Q.clear();
+    
+    //std::cout << " after do_diff Q.size() = " << Q.size() << "\n";
     return;
 }
 
