@@ -528,6 +528,7 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
     int idx2 = 0;
     
     std::vector<Ocode> intersection;
+    std::vector<Ocode> sum; // a.k.a. union
     std::vector<Ocode> diff12;
     std::vector<Ocode> diff21;
     std::vector<Ocode> Q21;
@@ -540,6 +541,7 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
     while ( (idx1<size()) && (idx2<o.size())   ) {  // case 0
         if (clist[idx1]==o.clist[idx2]) { // identical nodes
             intersection.push_back( clist[idx1] );
+            sum.push_back( clist[idx1] );
             idx1++;
             idx2++;  
         }
@@ -559,6 +561,7 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
         }
         else if ( clist[idx1] < o.clist[idx2] ) { // case 3
             // add o1 element to union
+            sum.push_back( clist[idx1] );
             
             // process the difference queues, if any
             if ( Hold12 == clist[idx1] )  { //compute difference o1-o2  Hold12 == clist[idx1]
@@ -578,6 +581,8 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
             }
                 
             // add o2 element to union
+            sum.push_back( o.clist[idx2] );
+            
             if ( Hold21 == o.clist[idx2] ) { // Hold21 == o.clist[idx2]
                 do_diff( Hold21, Q21, diff21);
                 Hold21.null();
@@ -599,8 +604,11 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
         }
         for (int i=idx3; i<size(); i++)
             diff12.push_back(clist[i]); // o1 elements not in o2 are in diff12
+            
         //union calc here
-        
+        for (int i=idx1; i<size();i++)
+            sum.push_back(clist[i]);
+            
     }
     else { // process rest of o2
         int idx3=idx2;
@@ -612,7 +620,10 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
         for (int i=idx3; i<o.size() ; i++) {
             diff21.push_back( o.clist[i] ); // o2 elements to diff21
         }
+        
         // union calc here
+        for (int i=idx2; i<o.size();i++)
+            sum.push_back(o.clist[i]);
         
     }
     
@@ -637,6 +648,11 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
         BOOST_FOREACH( Ocode o, intersection) {
             result.append(o);
         }
+    } else if (type==4) {
+        BOOST_FOREACH( Ocode o, sum) {
+            result.append(o);
+        }
+        result.condense();
     }
         
     

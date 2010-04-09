@@ -153,9 +153,9 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     
     t = camvtk.Text()
     t.SetPos( (myscreen.width-450, myscreen.height-30) )
-
-    
+    t.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     myscreen.addActor( t)
+    
     t2 = camvtk.Text()
     ytext = "Y: %3.3f" % (ycoord)
     t2.SetText(ytext)
@@ -172,8 +172,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     epos = cam.Epos()
     epos.setS(0,1)
 
-    t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-
+    
 
     #p5 = oe.ePoint(epos5)
     #pt = oe2.oePoint(epos5)
