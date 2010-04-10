@@ -40,7 +40,7 @@
 #include "octree.h"
 #include "volume.h"
 
-//************* Volumes **************/
+//************* Sphere **************/
 
 /// sphere at center
 SphereOCTVolume::SphereOCTVolume()
@@ -61,6 +61,9 @@ bool SphereOCTVolume::isInside(Point& p) const
         return false;
 }
 
+
+//************* Cube **************/
+
 /// cube at center with side length side
 CubeOCTVolume::CubeOCTVolume()
 {
@@ -80,8 +83,32 @@ bool CubeOCTVolume::isInside(Point& p) const
         return false;
 }
 
+//************* Cylinder **************/
 
+CylinderOCTVolume::CylinderOCTVolume()
+{
+    p1 = Point(0,0,0);
+    p2 = Point(1,1,1);
+    radius = 1.234;
+}
 
+bool CylinderOCTVolume::isInside(Point& p) const 
+{
+    // closest point on axis
+    Point c = p.closestPoint(p1, p2);
+    
+    // line = p1 + t*(p2-p1)
+    // t is in [0,1] for points on the line
+    
+    double t = (c.dot(p2-p1) - p1.dot( p2-p1)) / (p2-p1).dot(p2-p1);
+    if ( (t>1.0) || (t < 0.0))
+        return false;
+        
+    if ( (c-p).norm() <= radius)
+        return true;
+    else
+        return false;
+}
 
 
 // end of file octree.cpp

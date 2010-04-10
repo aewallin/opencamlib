@@ -224,6 +224,12 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("center", &CubeOCTVolume::center)
         .def_readwrite("side", &CubeOCTVolume::side)
     ;
+    bp::class_<CylinderOCTVolume, bp::bases<OCTVolume> >("CylinderOCTVolume")
+        .def("isInside", &CylinderOCTVolume::isInside )
+        .def_readwrite("p1", &CylinderOCTVolume::p1)
+        .def_readwrite("p2", &CylinderOCTVolume::p2)
+        .def_readwrite("radius", &CylinderOCTVolume::radius)
+    ;
     /*
     bp::class_<KDNode>("KDNode", bp::no_init) 
         .def("stlSurf2KDTree", &KDNode::stlSurf2KDTree)

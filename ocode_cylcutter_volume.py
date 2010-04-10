@@ -117,10 +117,14 @@ def main(filename="frame/f.png",yc=6, n=0):
     cube1 = ocl.CubeOCTVolume()
     cube1.side=6
     cube1.center = ocl.Point(0,0,0)
-
-
+    
+    #cylinder
+    
+    cylvol = ocl.CylinderOCTVolume()
+    cylvol.p2 = ocl.Point(0,0,4)
+    cylvol.radius= 4
     print "t build()"    
-    t.build(svol)
+    t.build(cylvol)
     
     print " t after build() ", t.size()
     

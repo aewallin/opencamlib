@@ -63,5 +63,14 @@ class CubeOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
+class CylinderOCTVolume: public OCTVolume {
+    public:
+        CylinderOCTVolume();
+        Point p1;
+        Point p2;
+        double radius;
+        bool isInside(Point& p) const;
+};
+
 
 #endif
