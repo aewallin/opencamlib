@@ -26,6 +26,7 @@
 class Point;
 class Triangle;
 class MillingCutter;
+class CylCutter;
 
 /// base-class for defining volumes to build octrees
 class OCTVolume {
@@ -69,6 +70,15 @@ class CylinderOCTVolume: public OCTVolume {
         Point p1;
         Point p2;
         double radius;
+        bool isInside(Point& p) const;
+};
+
+class CylMoveOCTVolume: public OCTVolume {
+    public:
+        CylMoveOCTVolume(CylCutter& c, Point& p1, Point& p2);
+        Point p1;
+        Point p2;
+        CylCutter c;
         bool isInside(Point& p) const;
 };
 

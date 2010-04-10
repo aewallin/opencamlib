@@ -16,9 +16,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// this is mostly a translation to c++ of the earlier c# code
-// http://code.google.com/p/monocam/source/browse/trunk/Project2/monocam_console/monocam_console/kdtree.cs
-
 #include <iostream>
 #include <stdio.h>
 #include <sstream>
@@ -111,4 +108,38 @@ bool CylinderOCTVolume::isInside(Point& p) const
 }
 
 
-// end of file octree.cpp
+//************* CylCutterMove **************/
+
+
+CylMoveOCTVolume::CylMoveOCTVolume(CylCutter& cin, Point& p1in, Point& p2in)
+{
+    p1 = p1in;
+    p2 = p2in;
+    c = cin;
+}
+
+bool CylMoveOCTVolume::isInside(Point& p) const 
+{
+    // CL follows line
+    // line = p1 + t*(p2-p1)
+    // top of cutter follows same line only c.length() higher
+    
+    
+    // closest point on axis
+    Point close = p.closestPoint(p1, p2);
+    
+    // line = p1 + t*(p2-p1)
+    // t is in [0,1] for points on the line
+    double t = (close.dot(p2-p1) - p1.dot( p2-p1)) / (p2-p1).dot(p2-p1);
+    
+    if ( (t>1.0) || (t < 0.0)) // check that closest point is within p1-p2 segment
+        return false;
+        
+        
+    if ( (close-p).norm() <= c.getRadius()) // check that p is within cylinder
+        return true;
+    else
+        return false;
+}
+
+// end of file volume.cpp
