@@ -99,7 +99,20 @@ class VTKScreen():
     def render(self):
         """ render scene"""
         self.renWin.Render()
-
+        
+    def GetLights(self):
+        return self.ren.GetLights()
+    def CreateLight(self):
+        self.ren.CreateLight()
+    def MakeLight(self):
+        return self.ren.MakeLight()
+    def AddLight(self,l):
+        self.ren.AddLight(l)
+    def RemoveAllLights(self):
+        self.ren.RemoveAllLights()
+    def SetLightCollection(self,lights):
+        self.ren.SetLightCollection(lights)
+        
 
 class CamvtkActor(vtk.vtkActor):
     """ base class for actors"""

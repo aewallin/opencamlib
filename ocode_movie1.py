@@ -72,7 +72,7 @@ def main(filename="frame/f.png",yc=6, n=0):
 
     svol = ocl.SphereOCTVolume()
     svol.radius=3
-    svol.center = ocl.Point(yc,0,3)
+    svol.center = ocl.Point(1,0,3)
 
     cube1 = ocl.CubeOCTVolume()
     cube1.side=6
@@ -158,22 +158,18 @@ def main(filename="frame/f.png",yc=6, n=0):
     myscreen.render()
     lwr.SetFileName(filename)
     time.sleep(0.2)
-    lwr.Write()
+    #lwr.Write()
     
     
-    #myscreen.iren.Start() 
+    myscreen.iren.Start() 
 
 if __name__ == "__main__":
     Nsteps = 720
     ystart = 6
     ystop = -6
     ystep = float(ystop-ystart)/(Nsteps-1)
-    for n in xrange(0,Nsteps):
-        yc = ystart + n*ystep
-        fname = "frames/test"+ ('%05d' % n)+".png"
-        #print fname
-        #print yc
-        main(fname,yc,n)
+    main()
+        
         
         
 

@@ -51,6 +51,7 @@
 #include "pathfinish.h"
 #include "oellipse.h"
 #include "octree.h"
+#include "volume.h"
 
 #endif
 

@@ -64,6 +64,7 @@ add_library(
     point.cpp
     stlsurf.cpp
     triangle.cpp
+    volume.cpp
 )
 target_link_libraries(ocl ${LIB_BOOST_PYTHON})
 set_target_properties(ocl PROPERTIES PREFIX "")
