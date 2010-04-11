@@ -45,7 +45,7 @@
 
 //********** Ocode ******************/
 int    Ocode::depth = 5;
-double Ocode::scale = 5;
+double Ocode::scale = 10;
 Point  Ocode::center = Point(0,0,0);
 
 Ocode::Ocode() {

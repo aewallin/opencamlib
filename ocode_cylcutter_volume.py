@@ -22,6 +22,7 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
             cube.SetOpacity(opacity)
             #cube.SetPhong()
             cube.SetGouraud()
+            #cube.SetWireframe()
             myscreen.addActor( cube )
             black = black+1
         if n.color == 1:
@@ -43,7 +44,7 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
 
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
-    f.set_depth(7)
+    f.set_depth(11)
     
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(50, 22, 40)
@@ -55,12 +56,12 @@ def main(filename="frame/f.png",yc=6, n=0):
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-    
-    xar = camvtk.Arrow(color=camvtk.red, center=(10,20,0), rotXYZ=(0,0,0))
+    arrowcenter=(1,2,0)
+    xar = camvtk.Arrow(color=camvtk.red, center=arrowcenter, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
-    yar = camvtk.Arrow(color=camvtk.green, center=(10,20,0), rotXYZ=(0,0,90))
+    yar = camvtk.Arrow(color=camvtk.green, center=arrowcenter, rotXYZ=(0,0,90))
     myscreen.addActor(yar)
-    zar = camvtk.Arrow(color=camvtk.blue, center=(10,20,0), rotXYZ=(0,-90,0))
+    zar = camvtk.Arrow(color=camvtk.blue, center=arrowcenter, rotXYZ=(0,-90,0))
     myscreen.addActor(zar) 
     
     """
@@ -102,7 +103,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     t = ocl.LinOCT()
     #t2 = ocl.LinOCT()
-    t.init(3)
+    t.init(4)
     #t2.init(3)
 
     print " after init() t :", t.str()
@@ -119,14 +120,39 @@ def main(filename="frame/f.png",yc=6, n=0):
     cube1.center = ocl.Point(0,0,0)
     
     #cylinder
-    
     cylvol = ocl.CylinderOCTVolume()
     cylvol.p2 = ocl.Point(0,0,4)
     cylvol.radius= 4
-    print "t build()"    
-    t.build(cylvol)
     
-    print " t after build() ", t.size()
+    c = ocl.CylCutter(1)
+    c.length = 3
+    print "cutter length=", c.length
+    p1 = ocl.Point(0,0,0)
+    p2 = ocl.Point(1,1,0.1)
+    g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
+   
+    
+    cyl1 = camvtk.Cylinder(center=(p1.x,p1.y,p1.z), radius=c.radius,
+                            height=c.length,
+                            rotXYZ=(90,0,0), color=camvtk.grey)
+    cyl1.SetWireframe()
+    myscreen.addActor(cyl1) 
+    cyl2 = camvtk.Cylinder(center=(p2.x,p2.y,p2.z), radius=c.radius,
+                            height=c.length,
+                            rotXYZ=(90,0,0), color=camvtk.grey)
+    cyl2.SetWireframe()
+    myscreen.addActor(cyl2) 
+    
+    startp = camvtk.Sphere(center=(p1.x,p1.y,p1.z), radius=0.1, color=camvtk.green)
+    myscreen.addActor(startp)
+    
+    endp = camvtk.Sphere(center=(p2.x,p2.y,p2.z), radius=0.1, color=camvtk.red)
+    myscreen.addActor(endp)
+    
+    
+       
+    t.build(g1vol)
+    
     
     #print "t2 build()" 
     #t2.build(cube1)

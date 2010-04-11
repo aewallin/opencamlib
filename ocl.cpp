@@ -95,6 +95,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("facetDrop", bp::pure_virtual(&MillingCutter::facetDrop) )
         .def("edgeDrop", bp::pure_virtual(&MillingCutter::edgeDrop) )
         .add_property("radius", &MillingCutter::getRadius )
+        .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
         .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
     ;
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
@@ -229,6 +230,12 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("p1", &CylinderOCTVolume::p1)
         .def_readwrite("p2", &CylinderOCTVolume::p2)
         .def_readwrite("radius", &CylinderOCTVolume::radius)
+    ;
+    bp::class_<CylMoveOCTVolume, bp::bases<OCTVolume> >("CylMoveOCTVolume")
+        .def(bp::init<CylCutter, Point, Point>())
+        .def("isInside", &CylMoveOCTVolume::isInside )
+        .def_readwrite("p1", &CylMoveOCTVolume::p1)
+        .def_readwrite("p2", &CylMoveOCTVolume::p2)
     ;
     /*
     bp::class_<KDNode>("KDNode", bp::no_init) 

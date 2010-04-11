@@ -75,7 +75,8 @@ class CylinderOCTVolume: public OCTVolume {
 
 class CylMoveOCTVolume: public OCTVolume {
     public:
-        CylMoveOCTVolume(CylCutter& c, Point& p1, Point& p2);
+        CylMoveOCTVolume() {};
+        CylMoveOCTVolume(const CylCutter& c, const Point& p1, const Point& p2);
         Point p1;
         Point p2;
         CylCutter c;

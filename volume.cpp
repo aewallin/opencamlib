@@ -111,7 +111,7 @@ bool CylinderOCTVolume::isInside(Point& p) const
 //************* CylCutterMove **************/
 
 
-CylMoveOCTVolume::CylMoveOCTVolume(CylCutter& cin, Point& p1in, Point& p2in)
+CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, const Point& p2in)
 {
     p1 = p1in;
     p2 = p2in;
