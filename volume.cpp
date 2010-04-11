@@ -148,16 +148,6 @@ CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, cons
     p1 = p1in;
     p2 = p2in;
     c = cin;
-}
-
-bool CylMoveOCTVolume::isInside(Point& p) const 
-{
-    // CL follows line
-    // line = p1 + t*(p2-p1)
-    // top of cutter follows same line only c.length() higher
-    
-    CylinderOCTVolume c1;
-    CylinderOCTVolume c2;
     
     // cylinder at start of move
     c1.p1 = p1;
@@ -169,6 +159,30 @@ bool CylMoveOCTVolume::isInside(Point& p) const
     c2.p2 = p2+Point(0,0,c.getLength());
     c2.radius=c.getRadius();
     
+    // for XY-plane moves, a box:
+    Point v = p2-p1; // vector along move
+    box.v2 = p2-p1;
+    v.normalize();
+    
+    box.corner = c.getRadius()*v.xyPerp();
+    box.v1 = -2*c.getRadius()*v.xyPerp();
+    box.v2 = v;
+    box.v3 = Point(0,0,c.getLength());
+    
+}
+
+bool CylMoveOCTVolume::isInside(Point& p) const 
+{
+    // CL follows line
+    // line = p1 + t*(p2-p1)
+    // top of cutter follows same line only c.length() higher
+    //CylinderOCTVolume c1;
+    //CylinderOCTVolume c2;
+    
+    // cylinder at start of move
+    //c1.p1 = p1;
+    //c1.p2 = p1+Point(0,0,c.getLength());
+
     if (c1.isInside(p)) 
         return true;
     
@@ -176,18 +190,11 @@ bool CylMoveOCTVolume::isInside(Point& p) const
         return true;
     
     // for XY-plane moves, a box:
-    BoxOCTVolume b;
-    Point v = p2-p1; // vector along move
-    b.v2 = p2-p1;
-    v.normalize();
+    //BoxOCTVolume box;
+
     
-    b.corner = c.getRadius()*v.xyPerp();
-    b.v1 = -2*c.getRadius()*v.xyPerp();
-    b.v2 = v;
-    b.v3 = Point(0,0,c.getLength());
-    
-    if (b.isInside(p))
-        return true;
+    //if (b.isInside(p))
+    //    return true;
     
         
     // Elliptic tube...

@@ -96,6 +96,9 @@ class CylMoveOCTVolume: public OCTVolume {
         Point p1;
         Point p2;
         CylCutter c;
+        CylinderOCTVolume c1;
+        CylinderOCTVolume c2;
+        BoxOCTVolume box;
         bool isInside(Point& p) const;
 };
 

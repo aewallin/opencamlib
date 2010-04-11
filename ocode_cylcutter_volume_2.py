@@ -74,44 +74,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     myscreen.addActor(yar)
     zar = camvtk.Arrow(color=camvtk.blue, center=arrowcenter, rotXYZ=(0,-90,0))
     myscreen.addActor(zar) 
-    
-    """
-    dl = myscreen.GetLights()
-    print "original default light:"
-    print dl
-    print "nextitem()"
-    l1 = dl.GetNextItem()
-    print " light:"
-    print l1
-    #print myscreen.GetLights()
-    
-    lights = vtk.vtkLightCollection()
-    l = myscreen.MakeLight()
-    l2 = myscreen.MakeLight()
-    #myscreen.RemoveAllLights()
-    l.SetAmbientColor(0.5, 0.5, 0.5)
-    l.SetPosition(0,0,20)  
-    l.SetConeAngle(360)  
-    l2.SetPosition(0,0,-20)  
-    l2.SetConeAngle(360)
-    l2.SetIntensity(0.5) 
-    myscreen.AddLight(l)
-    myscreen.AddLight(l2)
-    #myscreen.SetLightCollection(lights)
-    llist = myscreen.GetLights()
-    li = llist.GetNextItem()
-    print " new list of lights:"
-    print li
-    #for li in llist:
-    #    print li
-    print " newly created light:"
-    print l
-    
-    dl = myscreen.GetLights()
-    print "NEW light:"
-    print dl
-    """
-    
+        
     t = ocl.LinOCT()
     #t2 = ocl.LinOCT()
     t.init(3)
@@ -139,7 +102,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     c.length = 3
     print "cutter length=", c.length
     p1 = ocl.Point(0,0,0)
-    p2 = ocl.Point(1,2,0)
+    p2 = ocl.Point(1,1.4,0)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
    
     
