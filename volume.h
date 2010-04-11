@@ -64,6 +64,7 @@ class CubeOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
+/// cylinder volume
 class CylinderOCTVolume: public OCTVolume {
     public:
         CylinderOCTVolume();
@@ -73,6 +74,21 @@ class CylinderOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
+/// box-volume
+/// from corner, go out in the three directions v1,v2,v3
+/// interior points = corner + a*v1 + b*v2 + c*v3  
+/// where a, b, c are in [0,1]
+class BoxOCTVolume: public OCTVolume {
+    public:
+        BoxOCTVolume();
+        Point corner;
+        Point v1;
+        Point v2;
+        Point v3;
+        bool isInside(Point& p) const;
+};
+
+/// cutter-swept volume of a CylCutter
 class CylMoveOCTVolume: public OCTVolume {
     public:
         CylMoveOCTVolume() {};

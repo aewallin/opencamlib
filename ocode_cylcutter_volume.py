@@ -9,6 +9,8 @@ import vtk
 def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
     nodes = t.get_nodes()
     black=0
+    nmax=len(nodes)
+    i=0
     for n in nodes:
         cen = n.point()
         #print "cen=",cen.str()
@@ -32,6 +34,10 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
             cube.SetOpacity(opacity)
             myscreen.addActor( cube )
             #black = black+1
+        if ( (i % (nmax/10))==0):
+            print ".",
+        i=i+1
+    print "done."
     #print black," black nodes"
     """
     for m in xrange(0,9):
@@ -44,7 +50,7 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
 
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
-    f.set_depth(11)
+    f.set_depth(10)
     
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(50, 22, 40)
@@ -103,7 +109,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     t = ocl.LinOCT()
     #t2 = ocl.LinOCT()
-    t.init(4)
+    t.init(3)
     #t2.init(3)
 
     print " after init() t :", t.str()
@@ -128,7 +134,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     c.length = 3
     print "cutter length=", c.length
     p1 = ocl.Point(0,0,0)
-    p2 = ocl.Point(1,1,0.1)
+    p2 = ocl.Point(1,2,0)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
    
     

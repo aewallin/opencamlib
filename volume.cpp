@@ -80,6 +80,38 @@ bool CubeOCTVolume::isInside(Point& p) const
         return false;
 }
 
+//************* Box *******************/
+
+BoxOCTVolume::BoxOCTVolume()
+{
+    corner = Point(0,0,0); 
+    v1 = Point(1,0,0); 
+    v2 = Point(0,1,0);
+    v3 = Point(0,0,1);
+}
+
+bool BoxOCTVolume::isInside(Point& p) const
+{
+    // translate to origo
+    Point pt = p - corner;
+    
+    // projection along each vector, in turn
+    double t = pt.dot(v1)/v1.dot(v1);
+    if ( (t < 0.0) || (t>1.0) )
+        return false;
+        
+    t = pt.dot(v2)/v2.dot(v2);
+    if ( (t < 0.0) || (t>1.0) )
+        return false;
+        
+    t = pt.dot(v3)/v3.dot(v3);
+    if ( (t < 0.0) || (t>1.0) )
+        return false;
+    
+    return true;
+    
+}
+
 //************* Cylinder **************/
 
 CylinderOCTVolume::CylinderOCTVolume()
@@ -124,22 +156,46 @@ bool CylMoveOCTVolume::isInside(Point& p) const
     // line = p1 + t*(p2-p1)
     // top of cutter follows same line only c.length() higher
     
+    CylinderOCTVolume c1;
+    CylinderOCTVolume c2;
     
-    // closest point on axis
-    Point close = p.closestPoint(p1, p2);
+    // cylinder at start of move
+    c1.p1 = p1;
+    c1.p2 = p1+Point(0,0,c.getLength());
+    c1.radius=c.getRadius();
     
-    // line = p1 + t*(p2-p1)
-    // t is in [0,1] for points on the line
-    double t = (close.dot(p2-p1) - p1.dot( p2-p1)) / (p2-p1).dot(p2-p1);
+    // cylinder at end of move
+    c2.p1 = p2;
+    c2.p2 = p2+Point(0,0,c.getLength());
+    c2.radius=c.getRadius();
     
-    if ( (t>1.0) || (t < 0.0)) // check that closest point is within p1-p2 segment
-        return false;
-        
-        
-    if ( (close-p).norm() <= c.getRadius()) // check that p is within cylinder
+    if (c1.isInside(p)) 
         return true;
-    else
-        return false;
+    
+    if (c2.isInside(p))
+        return true;
+    
+    // for XY-plane moves, a box:
+    BoxOCTVolume b;
+    Point v = p2-p1; // vector along move
+    b.v2 = p2-p1;
+    v.normalize();
+    
+    b.corner = c.getRadius()*v.xyPerp();
+    b.v1 = -2*c.getRadius()*v.xyPerp();
+    b.v2 = v;
+    b.v3 = Point(0,0,c.getLength());
+    
+    if (b.isInside(p))
+        return true;
+    
+        
+    // Elliptic tube...
+    
+    
+    // the default is to return false
+    return false;
+
 }
 
 // end of file volume.cpp
