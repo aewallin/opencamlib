@@ -322,8 +322,6 @@ bool CylMoveOCTVolume::isInside(Point& p) const
         return true;
     
     // for XY-plane moves, a box:
-    //BoxOCTVolume box;
-
     
     if (box.isInside(p))
         return true;

@@ -23,8 +23,11 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         cube.SetGouraud()
         #cube.SetWireframe()
         myscreen.addActor( cube )
-        if ( (i % (nmax/10))==0):
-            print ".",
+        if (nmax>100):
+            print "i=", i
+            print "div=", (float(nmax)/10)
+            if ( (i % (float(nmax)/10))==0):
+                print ".",
         i=i+1
     print "done."
     
@@ -62,8 +65,9 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         
         tlist.append(ocl.Triangle(p1,p2,p4)) # 1,2,4,6
         tlist.append(ocl.Triangle(p4,p6,p2))
-        if ( (i % (nmax/10))==0):
-            print ".",
+        if (nmax>100):
+            if ( (i % (nmax/10))==0):
+                print ".",
         i=i+1
             
         #tlist.append(ocl.Triangle(p1,p2,p4))
@@ -104,8 +108,8 @@ def drawBB( myscreen, vol ):
 
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
-    f.set_depth(10)
-    f.set_scale(5)
+    f.set_depth(8)
+    f.set_scale(2)
     
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(50, 22, 40)
@@ -133,7 +137,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     t = ocl.LinOCT()
     t2 = ocl.LinOCT()
-    t.init(4)
+    t.init(3)
     t2.init(3)
     
     #drawTree2(myscreen, t, opacity=0.2)
@@ -146,7 +150,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     # sphere
     svol = ocl.SphereOCTVolume()
-    svol.radius=3.2
+    svol.radius=0.7
     svol.center = ocl.Point(1,0,3)
     svol.calcBB()
 
@@ -158,8 +162,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     #cylinder
     cylvol = ocl.CylinderOCTVolume()
-    cylvol.p2 = ocl.Point(3,4,-5)
-    cylvol.radius= 2
+    cylvol.p2 = ocl.Point(1,5,-5)
+    cylvol.radius= 0.4
     cylvol.calcBB()
     
     # draw exact cylinder
@@ -170,11 +174,11 @@ def main(filename="frame/f.png",yc=6, n=0):
     #myscreen.addActor(cylvolactor)
 
     
-    c = ocl.CylCutter(2)
+    c = ocl.CylCutter(1)
     c.length = 3
     print "cutter length=", c.length
     p1 = ocl.Point(-1,-2,0)
-    p2 = ocl.Point(1,2.0,0)
+    p2 = ocl.Point(3,1.0,0)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
    
     
