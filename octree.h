@@ -42,23 +42,22 @@ class Ocode {
         
         /// return degree of node
         int degree() const;
+        /// return scale of node
         double get_scale();
+        /// set global scale 
+        void set_scale(double s);
         /// return true if this node can be expanded
         bool expandable();
         /// return true if node is white
         bool isWhite(OCTVolume* vol);
         /// return true if node is grey
         bool isGrey(OCTVolume* vol);
-        
         /// return true if this contained in o
         bool containedIn(const Ocode& o) const;
-        
         /// return list of Ocodes for sub-octants
         std::vector<Ocode> expand();
-        
         /// index into code
         char operator[](const int &idx);
-        
         /// assignment
         Ocode &operator=(const Ocode &o);
         /// equality
@@ -67,11 +66,11 @@ class Ocode {
         bool operator!=(const Ocode &o);
         /// comparison, return true if this numerically smaller than o
         bool operator<(const Ocode& o) const;
-        
         /// return numerical value
-        int number() const;
-        
+        unsigned long number() const;
+        /// set an invalid Ocode
         void null();
+        /// test for the invalid Ocode set by null()
         bool isNull();
 
              
@@ -87,7 +86,9 @@ class Ocode {
         static int depth;
         static double scale;
         static Point center;
-        int color;
+        
+        // old stuff, remove
+        // int color;
         
         /// the code. values 0-8 are needed, so only 4-bits really required...
         std::vector<char> code;
@@ -105,9 +106,8 @@ class LinOCT {
         int size() const;
         /// add an Ocode to the list
         void append(Ocode& c);
-        /// ad Ocode at position idx
+        /// add Ocode at position idx
         void append_at(Ocode& code, int idx);
-        
         /// initialize octree, expanding n_expand times
         void init(int n_expand);
         /// expand node idx
@@ -120,8 +120,10 @@ class LinOCT {
         /// union operation
         void sum(LinOCT& other);
         
-        /// difference operation
+        /// set-operations: union, intersecntion, differences: this-other and other-this
         LinOCT operation(int type, LinOCT& other);
+        
+        /// helper function for difference operation
         void do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D);
          
         /// sort the list
@@ -130,7 +132,7 @@ class LinOCT {
         /// condense list
         void condense();
         
-        
+        /// starting at idx, can the following 8 nodes be collapsed into one
         bool can_collapse_at(int idx);
         
         /// return all nodes as a list to python

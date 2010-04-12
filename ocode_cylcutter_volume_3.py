@@ -35,15 +35,16 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
     # make a list of triangles
     tlist = []
     i=0
+    ofs =ocl.Point(offset[0],offset[1],offset[2])
     for n in nodes:
-        p1 = n.corner(0) # + + +
-        p2 = n.corner(1) # - + +
-        p3 = n.corner(2) # + - +
-        p4 = n.corner(3) # + + -
-        p5 = n.corner(4) # + - -
-        p6 = n.corner(5) # - + -
-        p7 = n.corner(6) # - - +
-        p8 = n.corner(7) # - - -
+        p1 = n.corner(0)+ofs # + + +
+        p2 = n.corner(1)+ofs # - + +
+        p3 = n.corner(2)+ofs # + - +
+        p4 = n.corner(3)+ofs # + + -
+        p5 = n.corner(4)+ofs # + - -
+        p6 = n.corner(5)+ofs # - + -
+        p7 = n.corner(6)+ofs # - - +
+        p8 = n.corner(7)+ofs # - - -
         tlist.append(ocl.Triangle(p1,p2,p3)) #top
         tlist.append(ocl.Triangle(p2,p3,p7)) #top
         
@@ -70,11 +71,13 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #tlist.append(ocl.Triangle(p2,p3,p7))
         #tlist.append(ocl.Triangle(p2,p7,p8))
         #tlist.append(ocl.Triangle(p3,p7,p8))
-    print "done"
+    print ".actor.",
     surf = camvtk.STLSurf(triangleList=tlist)
     surf.SetColor(color)
     surf.SetOpacity(opacity)
+    print ".add.",
     myscreen.addActor(surf)
+    print ".done."
     
 
 def drawBB( myscreen, vol ):
@@ -101,7 +104,7 @@ def drawBB( myscreen, vol ):
 
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
-    f.set_depth(9)
+    f.set_depth(10)
     f.set_scale(5)
     
     myscreen = camvtk.VTKScreen()   
@@ -127,47 +130,11 @@ def main(filename="frame/f.png",yc=6, n=0):
     zar = camvtk.Arrow(color=camvtk.blue, center=arrowcenter, rotXYZ=(0,-90,0))
     myscreen.addActor(zar) 
     
-    """
-    dl = myscreen.GetLights()
-    print "original default light:"
-    print dl
-    print "nextitem()"
-    l1 = dl.GetNextItem()
-    print " light:"
-    print l1
-    #print myscreen.GetLights()
-    
-    lights = vtk.vtkLightCollection()
-    l = myscreen.MakeLight()
-    l2 = myscreen.MakeLight()
-    #myscreen.RemoveAllLights()
-    l.SetAmbientColor(0.5, 0.5, 0.5)
-    l.SetPosition(0,0,20)  
-    l.SetConeAngle(360)  
-    l2.SetPosition(0,0,-20)  
-    l2.SetConeAngle(360)
-    l2.SetIntensity(0.5) 
-    myscreen.AddLight(l)
-    myscreen.AddLight(l2)
-    #myscreen.SetLightCollection(lights)
-    llist = myscreen.GetLights()
-    li = llist.GetNextItem()
-    print " new list of lights:"
-    print li
-    #for li in llist:
-    #    print li
-    print " newly created light:"
-    print l
-    
-    dl = myscreen.GetLights()
-    print "NEW light:"
-    print dl
-    """
     
     t = ocl.LinOCT()
     t2 = ocl.LinOCT()
-    t.init(0)
-    t2.init(1)
+    t.init(4)
+    t2.init(3)
     
     #drawTree2(myscreen, t, opacity=0.2)
     #myscreen.render()
@@ -232,32 +199,22 @@ def main(filename="frame/f.png",yc=6, n=0):
        
     t.build( g1vol )
     t2.build( cube1)
+    t.sort()
+    t2.sort()
     print "calling diff()...",
     dt = t2.operation(1,t)
     print "done."
+    print "diff has ", dt.size()," nodes"
     
-    # set Cylinde bounding-box
-    """
-    cylvol.bb.maxx = 1.23
-    cylvol.bb.minx = -0.2
-    cylvol.bb.maxy = 1.23
-    cylvol.bb.miny = -0.2
-    cylvol.bb.maxz = 1.23
-    cylvol.bb.minz = -0.2
-    """
+
     drawBB( myscreen, g1vol)
+    print "drawBB() done"
     
-    
-    #print cylvol.bb.maxx
-    
-    #print "t2 build()" 
-    #t2.build(cube1)
-    #print " t2 after build() ", t2.size()
-    #t2.condense()
-    #print " t2 after condense() ", t2.size()   
+
     
     # original trees
-    drawTree2(myscreen,t,opacity=1, color=camvtk.green)
+    print "drawing trees"
+    drawTree2(myscreen,t,opacity=0.3, color=camvtk.green)
     drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan)
     drawTree2(myscreen,dt,opacity=1, color=camvtk.cyan, offset=(5,0,0))
     

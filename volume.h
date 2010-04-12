@@ -27,12 +27,38 @@ class Point;
 class Triangle;
 class MillingCutter;
 class CylCutter;
+class Bbox;
+class Ocode;
+
+/// bounding-box volume
+class Bbox {
+    public:
+        Bbox();
+        double maxx;
+        double minx;
+        double maxy;
+        double miny;
+        double maxz;
+        double minz;
+        bool isInside(Point& p) const;
+        void addPoint(Point& p);
+};
+
+
 
 /// base-class for defining volumes to build octrees
 class OCTVolume {
     public:
+        OCTVolume(){};
+        
         /// return true if Point p is inside volume
         virtual bool isInside(Point& p) const = 0;
+        /// return true if we are in the bounding box
+        bool isInsideBB(Point& p) const;
+        bool isInsideBB(Ocode& o) const;
+
+        /// bounding-box
+        Bbox bb;
 };
 
 /* required wrapper class for virtual functions in boost-python */
@@ -44,7 +70,10 @@ class OCTVolumeWrap : public OCTVolume, public bp::wrapper<OCTVolume>
     {
         return this->get_override("isInside")(p);
     }
+
 };
+
+
 
 /// sphere centered at center
 class SphereOCTVolume: public OCTVolume {
@@ -53,6 +82,8 @@ class SphereOCTVolume: public OCTVolume {
         Point center;
         double radius;
         bool isInside(Point& p) const;
+        bool isInsideBB(Point& p) const;
+        void calcBB();
 };
 
 /// cube at center with side-length side
@@ -62,6 +93,7 @@ class CubeOCTVolume: public OCTVolume {
         Point center;
         double side;
         bool isInside(Point& p) const;
+        void calcBB();
 };
 
 /// cylinder volume
@@ -72,6 +104,7 @@ class CylinderOCTVolume: public OCTVolume {
         Point p2;
         double radius;
         bool isInside(Point& p) const;
+        void calcBB();
 };
 
 /// box-volume

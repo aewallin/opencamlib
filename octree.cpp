@@ -51,7 +51,7 @@ Point  Ocode::center = Point(0,0,0);
 Ocode::Ocode() {
     code.resize(depth);   
     code.assign(depth, 8);
-    color = 0;
+    //color = 0;
     //std::cout << "created :" << *this << "\n"; 
 }
 
@@ -59,7 +59,7 @@ Ocode::Ocode(const Ocode &o) {
     code.resize(depth); 
     for (int n=0;n<depth;n++) 
         this->code[n] = o.code[n];
-    color = o.color;  
+    //color = o.color;  
     //std::cout << "copy-constructor created :" << *this; 
 }
 
@@ -86,7 +86,7 @@ Ocode& Ocode::operator=(const Ocode &rhs) {
     for (int n=0;n<depth;n++) {
         this->code[n] = rhs.code[n];
     }
-    this->color = rhs.color;
+    //this->color = rhs.color;
     
     return *this;
 }
@@ -122,6 +122,11 @@ int Ocode::degree() const
     return n;
 }
 
+void Ocode::set_scale(double s)
+{
+    Ocode::scale = s;
+}
+
 double Ocode::get_scale()
 {
     return scale /pow(2,degree()-2 );
@@ -138,17 +143,21 @@ bool Ocode::expandable()
 }
 
 bool Ocode::isWhite(OCTVolume* vol) {
-    //std::cout << "testing node" << *this<<"\n";
+    bool bbflag = false;
     for (int n=0;n<9;n++) {// loop through all corners, and center
         Point p = corner(n);
-        //std::cout << " corner" << p;
         if (vol->isInside( p ) ) {
-            //std::cout << "is inside!\n";
             return false;
         }
-        //std::cout << "is outside!\n";
+        if (vol->isInsideBB( p ))
+            bbflag = true;
     }
-    //std::cout << "returnung true!\n";
+    
+    if ( bbflag ) { // node is inside bounding-box, so do supersampling
+        /// \todo FIXME test more points in the node here
+        
+    }
+    
     return true; // get here only if all points outside volume
 }
 
@@ -270,11 +279,12 @@ bool Ocode::operator==(const Ocode &o){
     return true;
 }
 
-int Ocode::number() const {
-    int n=0;
+unsigned long Ocode::number() const {
+    unsigned long n=0;
     for (int m=0;m<depth;m++) {
         n += pow(10,depth-m)*code[m];
     }
+    assert( n > 0 );
     return n;
 }
 
@@ -290,7 +300,7 @@ std::ostream& operator<<(std::ostream &stream, const Ocode &o)
     for (int n = 0; n<Ocode::depth; n++)
         stream << (int)o.code[n];
         
-    stream << " center=" << o.point() << " c=" << o.color;
+    stream << " center=" << o.point() ;
     
     return stream;
 }
@@ -398,9 +408,18 @@ void LinOCT::build(OCTVolume* vol)
     std::cout << size() << " nodes before build()\n";
     int n=0;
     while ( n < size() ) { // go through all nodes
+    
+            /* THIS CODE ATTEMPTS TO EXPAND NODES INSIDE BOUNDING-BOX  */
+        /*
+        if ( vol->isInsideBB( clist[n] ) ) { // node is inside bounding-box
+            //std::cout << n << ": "<< clist[n] << " inside BB, expanding\n";
+            if ( clist[n].expandable() )
+                expand_at(n);
+            else
+                n++; // moving on
+        }*/
         if (  clist[n].isWhite( vol ) ) {
             // white nodes can be deleted
-            clist[n].color = 1;
             delete_at(n);
         }
         else if ( clist[n].isGrey( vol ) ) {
@@ -413,17 +432,22 @@ void LinOCT::build(OCTVolume* vol)
                 // grey non-expandable nodes are removed
                 delete_at(n); 
             }
-        }
+        } 
+        
         else {
             // node is black, so leave it in the list
             n++; // move forward in the list
         }
     }
     std::cout << size() << " nodes after build()\n";
+    condense();
+    std::cout << size() << " nodes after condense()\n";
     //std::cout << *this;
     
 }
 
+// NOTE: condense() seems to run very slowly 
+// >60s run time on length=138000 list.
 void LinOCT::condense() {
     // NOTE: list needs to be sorted before we come here.  
     
@@ -538,13 +562,16 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
     Hold21.null();
     Hold12.null();
     
-    while ( (idx1<size()) && (idx2<o.size())   ) {  // case 0
+    while ( (idx1<size()) && (idx2<o.size())   ) {  
+        
+        // case 0
         if (clist[idx1]==o.clist[idx2]) { // identical nodes
             intersection.push_back( clist[idx1] );
             sum.push_back( clist[idx1] );
             idx1++;
             idx2++;  
         }
+        
         else if ( clist[idx1].containedIn( o.clist[idx2]  )  ) {  // case 1
             intersection.push_back( clist[idx1] ); // idx1 contained is in both o1 and o2
             if ( Hold21.isNull() )
@@ -552,6 +579,7 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
             Q21.push_back( clist[idx1] ); // these need to be removed from Hold21 later
             idx1++; 
         }
+        
         else if ( o.clist[idx2].containedIn( clist[idx1] ) ) { // case 2
             intersection.push_back( o.clist[idx2] ); // o2[idx2] is in both o1 and o2
             if ( Hold12.isNull() )
@@ -559,6 +587,8 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
             Q12.push_back( o.clist[idx2] );  // remove these later from Hold12
             idx2++;
         }
+        
+        
         else if ( clist[idx1] < o.clist[idx2] ) { // case 3
             // add o1 element to union
             sum.push_back( clist[idx1] );
@@ -571,12 +601,14 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
             else
                 diff12.push_back( clist[idx1] );  // no matching node in o2, so o1 belongs to diff
             idx1++;
-        } 
+        }
+        
+         
         else { // case 4:  o2 < o1
             if ( !( o.clist[idx2] < clist[idx1]) ) {
                 std::cout << " case 4 o2 < o1 not true!\n";
-                std::cout << "o2=" << o.clist[idx2] << "\n";
-                std::cout << "o1=" << clist[idx1] << "\n";
+                std::cout << "o2=" << o.clist[idx2] << "number=" << o.clist[idx2].number() <<  "\n";
+                std::cout << "o1=" << clist[idx1] << "number=" << clist[idx1].number() << "\n";
                 assert(0);
             }
                 

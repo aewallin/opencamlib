@@ -37,6 +37,22 @@
 #include "octree.h"
 #include "volume.h"
 
+//************* OCTVolume base-class **************/
+
+bool OCTVolume::isInsideBB(Point& p) const{
+    return bb.isInside(p);
+}
+
+bool OCTVolume::isInsideBB(Ocode& o) const
+{
+    for (int n=0;n<9;n++) {
+        Point p = o.corner(n);
+        if (isInsideBB(p))
+            return true;
+    }
+    return false;
+}
+
 //************* Sphere **************/
 
 /// sphere at center
@@ -44,8 +60,20 @@ SphereOCTVolume::SphereOCTVolume()
 {
     center = Point(2,0,0);
     radius = 3.0;
+    calcBB();
 }
 
+/// set the bounding box values
+void SphereOCTVolume::calcBB() {
+    bb.maxx = center.x + radius;
+    bb.minx = center.x - radius;
+    
+    bb.maxy = center.y + radius;
+    bb.miny = center.y - radius;
+    
+    bb.maxz = center.z + radius;
+    bb.minz = center.z - radius;
+}
 
 bool SphereOCTVolume::isInside(Point& p) const
 {
@@ -68,6 +96,19 @@ CubeOCTVolume::CubeOCTVolume()
     side = 1.234;
 }
 
+/// set bbox values
+void CubeOCTVolume::calcBB()
+{
+    bb.maxx = center.x + side/2;
+    bb.minx = center.x - side/2;
+    
+    bb.maxy = center.y + side/2;
+    bb.miny = center.y - side/2;
+    
+    bb.maxz = center.z + side/2;
+    bb.minz = center.z - side/2;
+}
+
 bool CubeOCTVolume::isInside(Point& p) const
 {
     bool x,y,z;
@@ -78,6 +119,55 @@ bool CubeOCTVolume::isInside(Point& p) const
         return true;
     else
         return false;
+}
+
+//************* Bounding-Box **************/
+
+Bbox::Bbox()
+{
+    maxx=0;
+    minx=0;
+    maxy=0;
+    miny=0;
+    maxz=0;
+    minz=0;
+}
+
+bool Bbox::isInside(Point& p) const
+{
+    if (p.x > maxx)
+        return false;
+    else if (p.x < minx)
+        return false;
+    else if (p.y > maxy)
+        return false;
+    else if (p.y < miny)
+        return false;
+    else if (p.z > maxz)
+        return false;
+    else if (p.z < minz)
+        return false;
+    else
+        return true;
+}
+
+void Bbox::addPoint(Point &p)
+{
+    if (p.x > maxx)
+        maxx = p.x;
+    if (p.x < minx)
+        minx = p.x;
+    
+    if (p.y > maxy)
+        maxy = p.y;
+    if (p.y < miny)
+        miny = p.y;
+    
+    if (p.z > maxz)
+        maxz = p.z;
+    if (p.z < minz)
+        minz = p.z;
+        
 }
 
 //************* Box *******************/
@@ -139,6 +229,42 @@ bool CylinderOCTVolume::isInside(Point& p) const
         return false;
 }
 
+/// calculate the bounding-box 
+void CylinderOCTVolume::calcBB()
+{
+    // this is an approximate bounding-box, not exact
+    Point xmax1 = p1 + Point(radius,0,0);
+    Point xmin1 = p1 - Point(radius,0,0);
+    Point xmax2 = p2 + Point(radius,0,0);
+    Point xmin2 = p2 - Point(radius,0,0);
+    
+    Point ymax1 = p1 + Point(0,radius,0);
+    Point ymin1 = p1 - Point(0,radius,0);
+    Point ymax2 = p2 + Point(0,radius,0);
+    Point ymin2 = p2 - Point(0,radius,0);    
+    
+    Point zmax1 = p1 + Point(0,0,radius);
+    Point zmin1 = p1 - Point(0,0,radius);
+    Point zmax2 = p2 + Point(0,0,radius);
+    Point zmin2 = p2 - Point(0,0,radius);  
+    
+    bb.addPoint( xmax1 );   
+    bb.addPoint( xmax2 );
+    bb.addPoint( xmin1 );
+    bb.addPoint( xmin2 );
+
+    bb.addPoint( ymax1 );   
+    bb.addPoint( ymax2 );
+    bb.addPoint( ymin1 );
+    bb.addPoint( ymin2 );
+    
+    bb.addPoint( zmax1 );   
+    bb.addPoint( zmax2 );
+    bb.addPoint( zmin1 );
+    bb.addPoint( zmin2 );
+    
+    
+}
 
 //************* CylCutterMove **************/
 
@@ -153,22 +279,28 @@ CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, cons
     c1.p1 = p1;
     c1.p2 = p1+Point(0,0,c.getLength());
     c1.radius=c.getRadius();
+    std::cout << " startcyl at " << c1.p1 << " to " << c1.p2 << "\n";
     
     // cylinder at end of move
     c2.p1 = p2;
     c2.p2 = p2+Point(0,0,c.getLength());
     c2.radius=c.getRadius();
+    std::cout << " endcyl at " << c2.p1 << " to " << c2.p2 << "\n";
     
     // for XY-plane moves, a box:
     Point v = p2-p1; // vector along move
+    Point v2 = p2-p1; 
     box.v2 = p2-p1;
     v.normalize();
     
-    box.corner = c.getRadius()*v.xyPerp();
+    box.corner = p1 + c.getRadius()*v.xyPerp();
     box.v1 = -2*c.getRadius()*v.xyPerp();
-    box.v2 = v;
+    box.v2 = v2;
     box.v3 = Point(0,0,c.getLength());
-    
+    std::cout << " box at corner=" << box.corner << "\n";
+    std::cout << "            v1=" << box.v1 << "\n";
+    std::cout << "            v2=" << box.v2 << "\n";
+    std::cout << "            v3=" << box.v3 << "\n";
 }
 
 bool CylMoveOCTVolume::isInside(Point& p) const 
@@ -193,8 +325,8 @@ bool CylMoveOCTVolume::isInside(Point& p) const
     //BoxOCTVolume box;
 
     
-    //if (b.isInside(p))
-    //    return true;
+    if (box.isInside(p))
+        return true;
     
         
     // Elliptic tube...
