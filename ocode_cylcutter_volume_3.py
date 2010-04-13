@@ -146,12 +146,12 @@ def main(filename="frame/f.png",yc=6, n=0):
     #exit()
     
     print " after init() t :", t.str()
-    print " after init() t2 :", t2.str()
+    #print " after init() t2 :", t2.str()
     
     # sphere
     svol = ocl.SphereOCTVolume()
-    svol.radius=0.7
-    svol.center = ocl.Point(1,0,3)
+    svol.radius=3
+    svol.center = ocl.Point(0,0,0)
     svol.calcBB()
 
     # cube
@@ -177,8 +177,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     c = ocl.CylCutter(1)
     c.length = 3
     print "cutter length=", c.length
-    p1 = ocl.Point(-1,-2,0)
-    p2 = ocl.Point(3,1.0,0)
+    p1 = ocl.Point(0.2,0.2,0)
+    p2 = ocl.Point(0.5,0.5,0)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
    
     
@@ -200,25 +200,34 @@ def main(filename="frame/f.png",yc=6, n=0):
     myscreen.addActor(endp)
     
     
-       
+    t_before = time.time()
+    #t.build( g1vol )
+    
     t.build( g1vol )
+    
     t2.build( cube1)
-    t.sort()
-    t2.sort()
+    t_after = time.time()
+    print "build took ", t_after-t_before," s"
+    #t.sort()
+    #t2.sort()
     print "calling diff()...",
+    t_before = time.time()
     dt = t2.operation(1,t)
+    t_after = time.time()
     print "done."
+    print "diff took ", t_after-t_before," s"
+    
     print "diff has ", dt.size()," nodes"
     
 
-    drawBB( myscreen, g1vol)
-    print "drawBB() done"
+    #drawBB( myscreen, g1vol)
+    #print "drawBB() done"
     
 
     
     # original trees
     print "drawing trees"
-    drawTree2(myscreen,t,opacity=0.3, color=camvtk.green)
+    drawTree2(myscreen,t,opacity=1, color=camvtk.green)
     drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan)
     drawTree2(myscreen,dt,opacity=1, color=camvtk.cyan, offset=(5,0,0))
     

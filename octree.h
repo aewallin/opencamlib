@@ -30,7 +30,9 @@ class MillingCutter;
 /// gargantini-code for representing octree nodes
 class Ocode {
     public:
+        /// create Ocode, filled with all "8"
         Ocode();
+        /// copy constructor
         Ocode(const Ocode &o);
         
         /// return point corresponding to code
@@ -58,6 +60,7 @@ class Ocode {
         std::vector<Ocode> expand();
         /// index into code
         char operator[](const int &idx);
+        
         /// assignment
         Ocode &operator=(const Ocode &o);
         /// equality
@@ -66,15 +69,20 @@ class Ocode {
         bool operator!=(const Ocode &o);
         /// comparison, return true if this numerically smaller than o
         bool operator<(const Ocode& o) const;
+        
         /// return numerical value
+        // NOTE: this is probably a bad idea
+        // depth N trees will require N-digit numbers...
+        // better rewrite operator< so it does not use number()
         unsigned long number() const;
         /// set an invalid Ocode
         void null();
         /// test for the invalid Ocode set by null()
         bool isNull();
 
-             
+        /// get max depth of code
         int get_depth();
+        /// set maximum depth of code
         void set_depth(int d);
         
         /// string repr
@@ -87,7 +95,7 @@ class Ocode {
         static double scale;
         static Point center;
         
-        // old stuff, remove
+        // color of node, currently not used...
         // int color;
         
         /// the code. values 0-8 are needed, so only 4-bits really required...
@@ -100,24 +108,33 @@ class LinOCT {
         LinOCT();
         
         /// list of Ocodes in this octree
-        std::vector<Ocode> clist;
+        //std::vector<Ocode> clist;
+        
+        // alternative list-version
+        std::list<Ocode> clist;
         
         /// return length of list
         int size() const;
-        /// add an Ocode to the list
+        /// add an Ocode to the end of the list
         void append(Ocode& c);
         /// add Ocode at position idx
         void append_at(Ocode& code, int idx);
         /// initialize octree, expanding n_expand times
         void init(int n_expand);
-        /// expand node idx
+        /// expand node at position idx
         void expand_at(int idx);
-        /// delete node idx
+        
+        void expand_at(std::list<Ocode>::iterator& it);
+        
+        /// delete node at position idx idx
         void delete_at(int idx);
+        void delete_at(std::list<Ocode>::iterator& it);
+        
         /// return true if idx is valid
         bool valid_index(int idx);
         
         /// union operation
+        // TODO: compare to union created by operation()
         void sum(LinOCT& other);
         
         /// set-operations: union, intersecntion, differences: this-other and other-this
@@ -146,6 +163,8 @@ class LinOCT {
         friend std::ostream& operator<<(std::ostream &stream, const Ocode &o);
         /// string repr
         std::string str();
+        /// string_repr
+        void printList();
 };
 
 
