@@ -139,9 +139,13 @@ class LinOCT {
         
         /// set-operations: union, intersecntion, differences: this-other and other-this
         LinOCT operation(int type, LinOCT& other);
-        
+                
         /// helper function for difference operation
         void do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D);
+        
+         
+        /// remove other from this
+        void diff(LinOCT& other);
          
         /// sort the list
         void sort();

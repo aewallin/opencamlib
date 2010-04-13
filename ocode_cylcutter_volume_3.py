@@ -109,7 +109,7 @@ def drawBB( myscreen, vol ):
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
     f.set_depth(8)
-    f.set_scale(2)
+    f.set_scale(1)
     
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(50, 22, 40)
@@ -137,8 +137,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     t = ocl.LinOCT()
     t2 = ocl.LinOCT()
-    t.init(3)
-    t2.init(3)
+    t.init(2)
+    t2.init(2)
     
     #drawTree2(myscreen, t, opacity=0.2)
     #myscreen.render()
@@ -200,24 +200,31 @@ def main(filename="frame/f.png",yc=6, n=0):
     myscreen.addActor(endp)
     
     
-    t_before = time.time()
+    
     #t.build( g1vol )
-    
+    t_before = time.time()
     t.build( g1vol )
+    t_after = time.time()
+    print "build took ", t_after-t_before," s"
     
+    t_before = time.time()
     t2.build( cube1)
     t_after = time.time()
     print "build took ", t_after-t_before," s"
+    
     #t.sort()
     #t2.sort()
+    
     print "calling diff()...",
     t_before = time.time()
-    dt = t2.operation(1,t)
+    #dt = t2.operation(1,t)
+    t2.diff(t)
     t_after = time.time()
     print "done."
     print "diff took ", t_after-t_before," s"
     
-    print "diff has ", dt.size()," nodes"
+    print "diff has ", t2.size()," nodes"
+    
     
 
     #drawBB( myscreen, g1vol)
@@ -229,7 +236,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     print "drawing trees"
     drawTree2(myscreen,t,opacity=1, color=camvtk.green)
     drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan)
-    drawTree2(myscreen,dt,opacity=1, color=camvtk.cyan, offset=(5,0,0))
+    drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan, offset=(5,0,0))
     
     """
     for n in xrange(0,30):
