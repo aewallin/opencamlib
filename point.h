@@ -57,7 +57,7 @@ class Point {
         /// normalize so that length in xy plane is 1
         void xyNormalize();
 
-        /// perpendicular in the xy plane, rotated 90 degree to the left
+        /// return perpendicular in the xy plane, rotated 90 degree to the left
         Point xyPerp() const;
 
         // rotate the vector around x0 y0

@@ -185,7 +185,12 @@ bool BoxOCTVolume::isInside(Point& p) const
     // translate to origo
     Point pt = p - corner;
     
+    // box is = a*v1 + b*v2 + c*v3
+    // where a,b,c are in [0,1]
+    
+    
     // projection along each vector, in turn
+    // this only works if the vectors are orthogonal
     double t = pt.dot(v1)/v1.dot(v1);
     if ( (t < 0.0) || (t>1.0) )
         return false;
@@ -291,6 +296,8 @@ CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, cons
     Point v = p2-p1; // vector along move
     Point v2 = p2-p1; 
     box.v2 = p2-p1;
+    
+    v.z = 0;
     v.normalize();
     
     box.corner = p1 + c.getRadius()*v.xyPerp();

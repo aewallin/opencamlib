@@ -245,6 +245,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("p1", &CylMoveOCTVolume::p1)
         .def_readwrite("p2", &CylMoveOCTVolume::p2)
         .def_readwrite("bb", &CylMoveOCTVolume::bb)
+        .def_readwrite("box", &CylMoveOCTVolume::box)
     ;
     bp::class_<BoxOCTVolume, bp::bases<OCTVolume> >("BoxOCTVolume")
         .def("isInside", &BoxOCTVolume::isInside )

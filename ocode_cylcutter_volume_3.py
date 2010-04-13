@@ -108,8 +108,8 @@ def drawBB( myscreen, vol ):
 
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
-    f.set_depth(8)
-    f.set_scale(1)
+    f.set_depth(7)
+    f.set_scale(2)
     
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(50, 22, 40)
@@ -178,7 +178,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     c.length = 3
     print "cutter length=", c.length
     p1 = ocl.Point(0.2,0.2,0)
-    p2 = ocl.Point(0.5,0.5,0)
+    p2 = ocl.Point(1.5,1.5,-1)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
    
     
@@ -234,10 +234,21 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     # original trees
     print "drawing trees"
-    drawTree2(myscreen,t,opacity=1, color=camvtk.green)
-    drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan)
-    drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan, offset=(5,0,0))
+    drawTree2(myscreen,t,opacity=0.2, color=camvtk.green)
+    drawTree2(myscreen,t2,opacity=0.2, color=camvtk.cyan)
+    #drawTree2(myscreen,t2,opacity=0.5, color=camvtk.cyan, offset=(5,0,0))
     
+    # box-volume
+    
+    cor = g1vol.box.corner
+    v1 = g1vol.box.v1 + cor
+    v2 = g1vol.box.v2 + cor
+    v3 = g1vol.box.v3 + cor
+    
+    myscreen.addActor( camvtk.Sphere(center=(cor.x,cor.y,cor.z), radius=0.1, color=camvtk.red) )
+    myscreen.addActor( camvtk.Sphere(center=(v1.x,v1.y,v1.z), radius=0.1, color=camvtk.blue) )
+    myscreen.addActor( camvtk.Sphere(center=(v2.x,v2.y,v2.z), radius=0.1, color=camvtk.cyan) )
+    myscreen.addActor( camvtk.Sphere(center=(v3.x,v3.y,v3.z), radius=0.1, color=camvtk.pink) )
     """
     for n in xrange(0,30):
         tp = ocl.Point(2.5,2.5,2-n*0.3)

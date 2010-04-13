@@ -780,65 +780,24 @@ void LinOCT::diff( LinOCT& o )
             clist.erase(temp);
             itr2++;
         }
-        
         else if ( itr1->containedIn( *itr2 ) ) {
             temp = itr1;
             itr1++;
             clist.erase(temp);
         }
-        
-        else if ( itr2->containedIn( *itr1 ) ) { //o.clist[idx2].containedIn( clist[idx1] ) ) { // case 2
-            //intersection.push_back( *itr2 ); //o.clist[idx2] ); // o2[idx2] is in both o1 and o2
-            //if ( Hold12.isNull() )
-            //    Hold12 = *itr1; //clist[idx1];        // store for later processing
-            //Q12.push_back( *itr2 ); //o.clist[idx2] );  // remove these later from Hold12
-            
+        else if ( itr2->containedIn( *itr1 ) ) { // case 2
             expand_at(itr1);
             // need to jump back 7 steps
             for (int m=0;m<7;m++)
                 itr1--;
-                
-            //itr2++;
         }
-        
-        else if ( *itr1 < *itr2 ) { // clist[idx1] < o.clist[idx2] ) { // case 3
-            // add o1 element to union
-            // sum.push_back( *itr1 ); //clist[idx1] );
-            
-            // process the difference queues, if any
-            //if ( Hold12 == *itr1 ) { //clist[idx1] )  { //compute difference o1-o2  Hold12 == clist[idx1]
-            //    do_diff( Hold12, Q12, diff12 ); // function for calculating difference
-            //    Hold12.null();
-            //}
-            //else
-            //    diff12.push_back( *itr1 ); //clist[idx1] );  // no matching node in o2, so o1 belongs to diff
+        else if ( *itr1 < *itr2 ) {  // case 3
             itr1++;
         }
         else { // case 4:  o2 < o1
             itr2++;
         }
     } // end while-loop
-    
-    
-    // process rest of o1
-    if (itr1 != clist.end() ) {// process rest of o1
-        //std::list<Ocode>::iterator itr3;
-        //itr3 = itr1;
-        //if ( Hold12 == *itr1 ) { //clist[idx1] ) {
-        //    do_diff( Hold12, Q12, diff12);
-        //    Hold12.null();
-          //  itr3++;
-        //}
-        
-        // o1 elements not in o2 are in diff12
-        //for ( ; itr3 != clist.end() ; itr3++ )
-        //    diff12.push_back( *itr3 );
-            
-        //union calc here
-        //for (int i=idx1; i<size();i++)
-        //for ( ; itr1 != clist.end(); itr1++)
-        //    sum.push_back( *itr1 );
-    }
     
     return;
 }
