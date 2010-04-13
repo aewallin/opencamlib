@@ -121,6 +121,18 @@ class BoxOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
+class EtubeOCTVolume: public OCTVolume {
+    public:
+        EtubeOCTVolume();
+        EtubeOCTVolume(Point& p1in, Point& p2in, Point& ain, Point& bin);
+        Point p1; // start of move
+        Point p2; // end of move
+        Point a; // a-axis of ellipse
+        Point b; // b-axis of ellipse
+        bool isInside(Point& p) const;
+};
+
+
 /// cutter-swept volume of a CylCutter
 class CylMoveOCTVolume: public OCTVolume {
     public:
@@ -131,6 +143,7 @@ class CylMoveOCTVolume: public OCTVolume {
         CylCutter c;
         CylinderOCTVolume c1;
         CylinderOCTVolume c2;
+        EtubeOCTVolume etube;
         BoxOCTVolume box;
         bool isInside(Point& p) const;
 };

@@ -188,20 +188,38 @@ bool BoxOCTVolume::isInside(Point& p) const
     // box is = a*v1 + b*v2 + c*v3
     // where a,b,c are in [0,1]
     
+    // v1 radial
+    // v2 along move
+    // v3 axial(z-dir)
+    
+    Point v1xy = v1;
+    v1xy.z = 0;
+    
+    Point v2xy = v2;
+    v2xy.z = 0;
     
     // projection along each vector, in turn
     // this only works if the vectors are orthogonal
-    double t = pt.dot(v1)/v1.dot(v1);
-    if ( (t < 0.0) || (t>1.0) )
+    double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
+    if ( (t1 < 0.0) || (t1>1.0) )
         return false;
         
-    t = pt.dot(v2)/v2.dot(v2);
-    if ( (t < 0.0) || (t>1.0) )
+    double t2 = pt.dot(v2xy)/v2xy.dot(v2xy);
+    if ( (t2 < 0.0) || (t2>1.0) )
+        return false;
+    
+    // this ensures we are OK in the XY plane
+    // now check the z-coordinate.
+    double zmin = corner.z + t2*v2.z;
+    if (p.z < zmin)
+        return false;
+    double zmax = corner.z + v3.z + t2*v2.z;
+    if (p.z > zmax)
         return false;
         
-    t = pt.dot(v3)/v3.dot(v3);
-    if ( (t < 0.0) || (t>1.0) )
-        return false;
+    //t = pt.dot(v3)/v3.dot(v3);
+    //if ( (t < 0.0) || (t>1.0) )
+    //    return false;
     
     return true;
     
@@ -270,6 +288,90 @@ void CylinderOCTVolume::calcBB()
     
     
 }
+//************* EtubeOCTVolume *************/
+
+
+EtubeOCTVolume::EtubeOCTVolume() 
+{
+    p1 = Point(0,0,0);
+    p2 = Point(1,0,0);
+    a = Point(0,0.1,0);
+    b = Point(0,0,0.2);
+}
+
+EtubeOCTVolume::EtubeOCTVolume(Point& p1in, Point& p2in, Point& ain, Point& bin) 
+{
+    p1 = p1in;
+    p2 = p2in;
+    a = ain;
+    b = bin;
+}
+
+
+bool EtubeOCTVolume::isInside(Point& p) const 
+{
+    
+    // xy-plane check
+    
+    //Point v = p2-p1;
+    //Point vxy = v;
+    //vxy.z =0;
+    
+    // translate so (0,0) is at p1
+    //Point pt = p1 - p;
+    
+    // restrict to points closer than a.norm() to tool-line   
+    double xyd = p.xyDistanceToLine(p1,p2);
+    if (xyd > a.norm() )
+        return false;
+        
+    // coordinates along ellipse
+    
+    // center of ellipse
+    Point close = p.closestPoint(p1, p2);
+    
+    Point ellvec = p-close;
+    
+    // is ellvec within ellipse?
+    double ta = ellvec.dot(a)/a.dot(a);
+    double tb = ellvec.dot(b)/b.dot(b);
+    if ( (ta>1.0) || (ta<-1.0) )
+        return false;
+        
+    if ( (tb>1.0) || (tb<-1.0) )
+        return false;
+        
+    if ((ta*ta + tb*tb) > 1.0)
+        return false;
+    
+    // projection along 
+    // this only works if the vectors are orthogonal
+    /*
+    double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
+    if ( (t1 < 0.0) || (t1>1.0) )
+        return false;
+        
+    double t2 = pt.dot(v2xy)/v2xy.dot(v2xy);
+    if ( (t2 < 0.0) || (t2>1.0) )
+        return false;
+    */
+    
+    // z-direction check
+    double maxz = p1.z > p2.z ? p1.z : p2.z; 
+    double minz = p1.z < p2.z ? p1.z : p2.z;   
+    
+    if (p.z < minz)
+        return false;
+        
+    if (p.z > maxz)
+        return false;
+        
+    
+    //if (p.z 
+    // figure out where we are and return true/false
+    return true;
+}
+
 
 //************* CylCutterMove **************/
 
@@ -308,6 +410,28 @@ CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, cons
     std::cout << "            v1=" << box.v1 << "\n";
     std::cout << "            v2=" << box.v2 << "\n";
     std::cout << "            v3=" << box.v3 << "\n";
+    
+    // the elliptic tube
+    etube = EtubeOCTVolume();
+    // set the parameters
+    etube.p1 = p1;
+    etube.p2 = p2;
+    etube.a = c.getRadius()*v.xyPerp();
+    //etube.b = Point(0,0,0); //fixme
+    // angle of move
+    double dz = p2.z-p1.z;
+    double length = (p2-p1).norm();
+        
+    double sin = dz/length;
+    //double cos = sqrt( 1.0-sin*sin);
+    double baxis = fabs(c.getRadius()*sin);
+    std::cout << " baxis length="<< baxis << "\n";
+    // direction is cross product 
+    Point bdir = (p2-p1).cross(etube.a);
+    bdir.normalize();
+    etube.b= baxis*bdir;
+    std::cout << " a="<< etube.a << " b=" << etube.b << "\n";
+    
 }
 
 bool CylMoveOCTVolume::isInside(Point& p) const 
@@ -329,12 +453,14 @@ bool CylMoveOCTVolume::isInside(Point& p) const
         return true;
     
     // for XY-plane moves, a box:
-    
     if (box.isInside(p))
         return true;
     
+    // the Elliptic tube...
+    if (etube.isInside(p))
+        return true;
         
-    // Elliptic tube...
+    
     
     
     // the default is to return false
