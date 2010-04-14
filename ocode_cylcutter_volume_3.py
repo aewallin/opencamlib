@@ -108,7 +108,7 @@ def drawBB( myscreen, vol ):
 
 def main(filename="frame/f.png",yc=6, n=0):        
     f=ocl.Ocode()
-    f.set_depth(8)
+    f.set_depth(7)
     f.set_scale(1)
     
     myscreen = camvtk.VTKScreen()   
@@ -137,7 +137,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     t = ocl.LinOCT()
     t2 = ocl.LinOCT()
-    t.init(2)
+    t.init(0)
+    #exit()
     t2.init(2)
     
     #drawTree2(myscreen, t, opacity=0.2)
@@ -150,8 +151,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     # sphere
     svol = ocl.SphereOCTVolume()
-    svol.radius=3
-    svol.center = ocl.Point(0,0,0)
+    svol.radius=1
+    svol.center = ocl.Point(0,0,1)
     svol.calcBB()
 
     # cube
@@ -203,7 +204,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     #t.build( g1vol )
     t_before = time.time()
-    t.build( g1vol )
+    #t.build( g1vol )
+    t.build( svol )
     t_after = time.time()
     print "build took ", t_after-t_before," s"
     
@@ -234,7 +236,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     # original trees
     print "drawing trees"
-    drawTree2(myscreen,t,opacity=0.7, color=camvtk.green)
+    drawTree2(myscreen,t,opacity=1, color=camvtk.green)
     drawTree2(myscreen,t2,opacity=0.2, color=camvtk.cyan)
     drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan, offset=(5,0,0))
     

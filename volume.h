@@ -55,7 +55,7 @@ class OCTVolume {
         virtual bool isInside(Point& p) const = 0;
         /// return true if we are in the bounding box
         bool isInsideBB(Point& p) const;
-        bool isInsideBB(Ocode& o) const;
+        bool isInsideBBo(Ocode& o) const;
 
         /// bounding-box
         Bbox bb;
@@ -82,7 +82,7 @@ class SphereOCTVolume: public OCTVolume {
         Point center;
         double radius;
         bool isInside(Point& p) const;
-        bool isInsideBB(Point& p) const;
+        //bool isInsideBB(Point& p) const;
         void calcBB();
 };
 

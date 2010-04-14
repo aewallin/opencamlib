@@ -57,7 +57,7 @@ class Ocode {
         /// return true if this contained in o
         bool containedIn(const Ocode& o) const;
         /// return list of Ocodes for sub-octants
-        std::vector<Ocode> expand();
+        std::list<Ocode> expand();
         /// index into code
         char operator[](const int &idx);
         
@@ -105,34 +105,25 @@ class Ocode {
 /// linear octree
 class LinOCT {
     public:
+        /// create an empty octree.
+        /// must call init() before using it!
         LinOCT();
         
         /// list of Ocodes in this octree
-        //std::vector<Ocode> clist;
-        
-        // alternative list-version
         std::list<Ocode> clist;
         
         /// return length of list
         int size() const;
         /// add an Ocode to the end of the list
         void append(Ocode& c);
-        /// add Ocode at position idx
-        void append_at(Ocode& code, int idx);
-        /// initialize octree, expanding n_expand times
-        void init(int n_expand);
-        /// expand node at position idx
-        void expand_at(int idx);
-        
+        /// initialize octree, calling expand() n_expand times
+        void init(int n_expand=0);
+        /// expand node at iterator it
         void expand_at(std::list<Ocode>::iterator& it);
         
-        /// delete node at position idx idx
-        void delete_at(int idx);
+        /// delete node at iterator it
         void delete_at(std::list<Ocode>::iterator& it);
-        
-        /// return true if idx is valid
-        bool valid_index(int idx);
-        
+               
         /// union operation
         // TODO: compare to union created by operation()
         void sum(LinOCT& other);
@@ -141,9 +132,8 @@ class LinOCT {
         LinOCT operation(int type, LinOCT& other);
                 
         /// helper function for difference operation
-        void do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D);
+        void do_diff(Ocode& H, std::list<Ocode>& Q, std::vector<Ocode>& D);
         
-         
         /// remove other from this
         void diff(LinOCT& other);
          
@@ -167,7 +157,7 @@ class LinOCT {
         friend std::ostream& operator<<(std::ostream &stream, const Ocode &o);
         /// string repr
         std::string str();
-        /// string_repr
+        /// string repr: print out list of all Ocodes in tree
         void printList();
 };
 

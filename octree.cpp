@@ -51,16 +51,12 @@ Point  Ocode::center = Point(0,0,0);
 Ocode::Ocode() {
     code.resize(depth);   
     code.assign(depth, 8);
-    //color = 0;
-    //std::cout << "created :" << *this << "\n"; 
 }
 
 Ocode::Ocode(const Ocode &o) {
     code.resize(depth); 
     for (int n=0;n<depth;n++) 
         this->code[n] = o.code[n];
-    //color = o.color;  
-    //std::cout << "copy-constructor created :" << *this; 
 }
 
 void Ocode::set_depth(int d)
@@ -194,9 +190,9 @@ bool Ocode::containedIn(const Ocode& o) const {
 }
 
 
-std::vector<Ocode> Ocode::expand()
+std::list<Ocode> Ocode::expand()
 {
-    std::vector<Ocode> list;
+    std::list<Ocode> list;
     int deg = degree();
     if ( expandable() ) {
         for (int n=0;n<8;n++) {
@@ -332,150 +328,28 @@ void LinOCT::append(Ocode& code) {
     clist.push_back( code );
 }
 
-void LinOCT::append_at(Ocode& code, int idx) {
-    if ( valid_index(idx) ) {
-        std::list<Ocode>::iterator it;  //VECTOR
-        it=clist.begin();
-        for (int n=0;n<idx;n++)
-            it++;
-            
-        clist.insert( it, code );
-    }
-}
-
-/*  VECTOR-code
-void LinOCT::append_at(Ocode& code, int idx) {
-    if ( valid_index(idx) ) {
-        clist.insert( clist.begin()+idx, code );
-    }
-}
-*/
-
-/*   VECTOR-implementation
-void LinOCT::delete_at(int idx) {
-    if ( valid_index(idx) )
-        clist.erase( clist.begin()+idx) ;
-    return;
-}
-*/
-
-void LinOCT::delete_at(int idx) {
-    if ( valid_index(idx) ) {
-        std::list<Ocode>::iterator it; //VECTOR
-        it=clist.begin();
-        for (int n=0;n<idx;n++)
-            it++;
-        clist.erase( it ) ;
-    }
-    return;
-}
-
-void LinOCT::delete_at(std::list<Ocode>::iterator& it) { // VECTOR
+void LinOCT::delete_at(std::list<Ocode>::iterator& it) { 
     clist.erase( it );
 }
 
 
-
-/// test if idx is a valid index into the list
-bool LinOCT::valid_index(int idx) {
-    if ( (idx >= 0) && (idx < size()) ) 
-        return true;
-    else {
-        std::cout << " valid_index() index out of range!\n";
-        return false;
-    }
-}
-
-// expand node at index
-void LinOCT::expand_at(int idx) {
-    std::list<Ocode>::iterator it; //VECTOR
-    it=clist.begin();
-    for (int n=0;n<idx;n++)
-        it++;
-    if ( valid_index(idx) ) {
-        if ( it->expandable()) {  // was: clist[idx].expandable()
-            std::vector<Ocode> newnodes = it->expand(); // the new nodes  clist[idx]
-            std::cout << " expanding node" << *it << "\n";
-            std::cout << "  expand_at( " << idx << " ), deleting, before size()=" << size() << " \n";
-            
-            delete_at(idx); // delete old node, this invalidates iterator pointing to idx.
-            
-            std::cout << "  expand_at( " << idx << " ), after delete size()=" << size() << " \n";
-            
-            // insert new nodes
-            //int n = 0;
-            std::list<Ocode>::iterator itr;
-            itr = clist.begin();
-            for (int n=0;n<idx;n++)
-                itr++;
-                
-            BOOST_FOREACH( Ocode o, newnodes) {
-                //it = clist.begin() + idx + n;
-                clist.insert(itr, o);
-                itr++;
-                //n++;
-            }
-            std::cout << "  expand_at( " << idx << " ), new nodes inserted size()="<< size() << " \n";
-            printList();
-        }
-    } else {
-        std::cout << "LinOCT::expand() index out of range!\n";
-    }
-    return;
-}
-
 void LinOCT::expand_at(std::list<Ocode>::iterator& itr) {
-    //int idx=0;
-    
-    //std::list<Ocode>::iterator it; //VECTOR
-    //it=clist.begin();
-    //for (int n=0;n<idx;n++)
-    //    it++;
-        
-    //if ( valid_index(idx) ) {
+    // note: there was a valid-index check here
+    // consider checking that itr is valid?
         if ( itr->expandable()) {  // was: clist[idx].expandable()
-            std::vector<Ocode> newnodes = itr->expand(); // the new nodes  clist[idx]
-            //std::cout << " expand() expanding node" << *itr << "\n";
-            //std::cout << "  expand_at( " << idx << " ), deleting, before size()=" << size() << " \n";
-            
-            //delete_at(idx); // delete old node, this invalidates iterator pointing to idx.
-            
-            //std::cout << "  expand_at( " << idx << " ), after delete size()=" << size() << " \n";
-            
-            // insert new nodes
-            //int n = 0;
-            //std::list<Ocode>::iterator itr;
-            //itr = clist.begin();
-            //for (int n=0;n<idx;n++)
-            //    itr++;
-                
+            std::list<Ocode> newnodes = itr->expand(); // the new nodes  clist[idx]                
             BOOST_FOREACH( Ocode o, newnodes) {
-                //it = clist.begin() + idx + n;
                 clist.insert(itr, o);
-                //itr++;
-                //n++;
             }
-            //std::cout << "  expand_at( " << idx << " ), new nodes inserted size()="<< size() << " \n";
-            // printList();
-            
-            //std::cout << " itr= " << *itr << "\n";
-            
+
             // delete old node
             std::list<Ocode>::iterator temp;
             temp = itr;
             itr--; // jump out of the way from erase()
             clist.erase(temp);
-            //std::cout << " expand() N=" << size() << "\n";
-            //printList();
-            
-            
-            
         } else {
             std::cout << "LinOCT::expandcannot expand " << *itr << "!\n";
         }
-    //} else {
-    //    std::cout << "LinOCT::expand() index out of range!\n";
-    //}
     return;
 }
 
@@ -497,21 +371,18 @@ void LinOCT::init(int min_expand)
         std::list<Ocode>::iterator current_end;
         itr = clist.begin();
         current_end = clist.end();        
-        //int n=0;
-        //for (itr = clist.begin(); itr != current_end; itr++) { // was 
         for(int n=0; n<size() ; n++) {
-            
             if ( itr->expandable() ) { // if expandable
                 //std::cout << " init() expanding " << *itr << "\n";
                 expand_at(itr); // expand the node
                 //std::cout << " after expand itr= " << *itr << "\n";
                 n=n+7; // jump forward, since we have inserted new nodes
                 
-                itr++;
+                itr++; // after expand(), itr points to the last expanded node
+                       // so jump forward to expand next node
                 if ( itr == clist.end() )
-                    itr--;
+                    itr--; // unless at the end of list
             }
-            //n++;
         }
         std::cout << " LinOCT:init() m=" << m << " N=" << size() << "\n";
         
@@ -522,129 +393,92 @@ void LinOCT::init(int min_expand)
 /// build LinOCT octree from input volume OCTVolume
 void LinOCT::build(OCTVolume* vol)
 {
-    // loop until no expandable nodes remain
-    // deleting white nodes at each step
-    // expanding grey nodes if possible
-    // and skipping over black nodes (only these remain when done) 
+    // loop through the whole list:
+    // - deleting white nodes 
+    // - expanding grey nodes if possible
+    // - skipping over black nodes (only these remain when done) 
     std::cout << size() << " nodes before build()\n";
     std::list<Ocode>::iterator it;
-    std::list<Ocode>::iterator it_tmp;
+    std::list<Ocode>::iterator temp;
     it = clist.begin();
-    it_tmp = clist.begin();
-    
-    int n=0;
-    //while ( n < size() ) { // go through all nodes
+
     while ( it != clist.end()  ) { 
-        
-        //std::cout << n << " idx: " << clist[n] << " size()=" << size() << "\n";
         //std::cout << n << "build()  it: " << *it << "\n";
         
-        /*
-        if ( !( (*it) == clist[n] ) ) {
-            std::cout << " iterator and idx out of sync.\n";
-            std::cout << n-2 << "  idx[] " << clist[n-2] << "\n";
-            std::cout << n-1 << "  idx[] " << clist[n-1] << "\n";
-            std::cout << n   << "  idx[] " << clist[n] << "\n";
-            std::cout << n+1 << "  idx[] " << clist[n+1] << "\n";
-            std::cout << n+2 << "  idx[] " << clist[n+2] << "\n";
-            assert(0);
-        }*/
-        
-        //if (  clist[n].isWhite( vol ) ) {
-        if (  it->isWhite( vol ) ) {
-            // white nodes can be deleted
+        if (  ! (vol->isInsideBBo( *it )) ) { // nodes outside bounding-box can be deleted
+            temp = it;
+            if ( it != clist.begin() ) 
+                it--; // jump out of the way from erase()
+            else
+                it++;
+            //std::cout << "outside BBox-deleting!\n";
+            clist.erase(temp);
+        }
+        else if (  it->isWhite( vol ) ) { // white nodes can be deleted
             //std::cout << n << "before delete idx" << clist[n] << "\n";
             //std::cout << n << "before delete it:" << *it << "\n";
             //std::cout << "white node, deleting\n";
-            
-            std::list<Ocode>::iterator temp;
             temp = it;
             if ( it != clist.begin() ) 
                 it--; // jump out of the way from erase()
             else
                 it++;
             clist.erase(temp);
-            
-            //delete_at(n);
-            //std::cout << n << "after delete idx" << clist[n] << "\n";
-            //std::cout << n << "after delete it:" << *it << "\n";
         }
-        //else if ( clist[n].isGrey( vol ) ) {
         else if ( it->isGrey( vol ) ) {
             // grey nodes should be expanded, if possible
-            //if ( clist[n].expandable() ) {
             if ( it->expandable() ) {
                 //std::cout << "expand_at( " << n << " )\n";
+                //printList();
                 //std::cout << n << " before expand it: " << *it << "\n";
+                temp = it;
+                bool first=false; 
+                if (it == clist.begin()) {
+                    first = true;
+                } else {
+                    temp--;
+                }
+                //std::cout << n << " before expand temp: " << *temp << "\n";
+                expand_at(it); // iterator moves to last expanded node.
                 
-                //bool begin = false;
-                //if ( it == clist.begin() )  {// we are at first element
-                //    begin = true;
-                //}
+                // so need to reset iterator to first expanded node
+                if (first)
+                    it = clist.begin();
+                else
+                    it = temp;
                 
-                
-                //if (!begin) {
-                //    it--;
-                //    std::cout << n << " jump back to: " << *it << "\n";
-                //}
-                //std::cout << n << " before expand() it: " << *it << "\n";    
-                expand_at(it); // iterator is invalidated here ??
-                
+                // storing the iterator in temp (code above)
+                // saves us from this jumping (but doesn't save much running-time)
                 // jump back seven steps
-                for (int j=0;j<7;j++)
-                    it--;
+                //for (int j=0;j<7;j++)
+                //    it--;
+                //it--;
                 
-                //std::cout << n << " after expand()  it: " << *it << "\n";
-                
-                //if (begin) {
-                //    it = clist.begin();
-                //    std::cout << n << " reset to begin(): " << *it << "\n";
-                //}
-                //else {
-                    
-               //     it++;
-               //     if ( it == clist.end() ) {
-               //         std::cout << "at end, jumpback.\n";
-               //         it--;
-               //     }
-                    //std::cout << n << " jump FW to: " << *it << "\n";
-              //  }
-                //it_tmp++;
-                //it = it_tmp;
-                //if (n>1)
-                //    std::cout << n-1 << " after expand idx[n-1]: " << clist[n-1] << "\n";
-                //std::cout << n << " after expand idx: " << clist[n] << "\n";
-                //std::cout << n << " after expand it: " << *it << "\n";
+                // for debugging, print the whole list             
+                //printList();
+   
                 
                                 
             }
             else {
                 // grey non-expandable nodes are removed
                 //std::cout << "grey non-exp delete_at()" << n << "\n";
-                std::list<Ocode>::iterator temp;
                 temp = it;
                 if ( it != clist.begin() ) 
                     it--; // jump out of the way from erase()
                 else
                     it++;
                 clist.erase(temp);
-            
-                //delete_at(n); 
             }
         } 
         
         else {
             // node is black, so leave it in the list
-            n++; // move forward in the list
+            // and move forward in the list
             it++;
-            //std::cout << " FORWARD to" << n << "\n";
         }
     }
-    std::cout << size() << " nodes after build()\n";
-    //condense();
-    //std::cout << size() << " nodes after condense()\n";
-    //std::cout << *this;
-    
+    std::cout << size() << " nodes after build()\n";  
 }
 
 // NOTE: condense() seems to run very slowly 
@@ -664,7 +498,8 @@ void LinOCT::condense() {
         next=itr;
         next++;
         if ( (*itr) == (*next) ) { //( clist[n] == clist[n+1] ) { // remove duplicates
-            delete_at(n); 
+        
+            // FIXME delete_at(n); 
             n_duplicates++;
             
             // deleting a duplicate creates an opportunity to collapse
@@ -676,7 +511,7 @@ void LinOCT::condense() {
         }
         else if ( itr->containedIn( *next ) ) {
             // remove nodes contained in the following node
-            delete_at(n);
+            // FIXME delete_at(n);
             if (n>0)
                 n--; // jump back to check for more contained nodes 
             n_contained++;
@@ -695,13 +530,15 @@ void LinOCT::condense() {
             
             //std::cout << "before collapse at " << n <<" code:" << clist[n] << "\n";            
             // add parent 
-            append_at(o, n); 
+            
+            // FIXME append_at(o, n); 
+            
             //std::cout << "parent insert at " << n <<" code:" << clist[n] << "\n"; 
             n++; // jump forward and delete the redundant sub-octants
             
             for (int m=0;m<8;m++) {
                 //std::cout << " deleting at " << n<< " : " << clist[n] << "\n";
-                delete_at(n); 
+                // FIXME delete_at(n); 
             }
                 
             n--; // jump back to the new parent            
@@ -732,8 +569,7 @@ void LinOCT::condense() {
 /// return true if eight consequtive 
 /// nodes beginning at idx can be collapsed
 bool LinOCT::can_collapse_at(int idx) {
-    
-    std::list<Ocode>::iterator it;  //VECTOR
+    std::list<Ocode>::iterator it;  
     it=clist.begin();
     for (int n=0;n<idx;n++)
         it++;
@@ -755,7 +591,6 @@ bool LinOCT::can_collapse_at(int idx) {
         }
         it++;
     }
-    //std::cout << " Match!!\n";
     return true;
 }
 
@@ -820,8 +655,8 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
     std::vector<Ocode> sum; // a.k.a. union
     std::vector<Ocode> diff12;
     std::vector<Ocode> diff21;
-    std::vector<Ocode> Q21;
-    std::vector<Ocode> Q12;
+    std::list<Ocode> Q21;
+    std::list<Ocode> Q12;
     Ocode Hold21;
     Ocode Hold12;
     Hold21.null();
@@ -975,14 +810,14 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
 // where H is a node that is expanded
 // and Q is a queue of nodes to be subtracted from H
 // the result is appended to D
-void LinOCT::do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D) 
+void LinOCT::do_diff(Ocode& H, std::list<Ocode>& Q, std::vector<Ocode>& D) 
 {
     // H - an expandable node
     // Q - queue of nodes contained in H
     // D - difference queue for H-Q results
     
     // Q2 contains expanded node
-    std::vector<Ocode> Q2;
+    std::list<Ocode> Q2;
     
     if ( !H.expandable()) {
         /*
@@ -1013,7 +848,7 @@ void LinOCT::do_diff(Ocode& H, std::vector<Ocode>& Q, std::vector<Ocode>& D)
                 Q.pop_back(); // erase(Q.begin());
             } else if ( n.containedIn( n2 ) ) {// need to expand further
                 // expand n2 and add to front of Q2
-                std::vector<Ocode> subocts = n2.expand();
+                std::list<Ocode> subocts = n2.expand();
                 Q2.pop_back(); // delete parent
                 BOOST_FOREACH( Ocode o, subocts) {
                     Q2.push_back(o); // insert new children
@@ -1050,7 +885,6 @@ void LinOCT::sum(LinOCT& other) {
 /// sort list of ocodes
 void LinOCT::sort() {
     clist.sort();
-    //std::sort( clist.begin(), clist.end() );
 }
 
 boost::python::list LinOCT::get_nodes()
@@ -1066,16 +900,11 @@ boost::python::list LinOCT::get_nodes()
 /// string repr
 std::ostream& operator<<(std::ostream &stream, const LinOCT &l)
 {
-    stream << "LinOCT: N="<< l.size() ; 
-    /*
-    BOOST_FOREACH( Ocode o, l.clist ) {
-        stream << " " << o << "\n";
-    }
-    */
-    
+    stream << "LinOCT: N="<< l.size() ;     
     return stream;
 }
 
+/// print the whole list
 void LinOCT::printList() {
     BOOST_FOREACH( Ocode o, clist ) {
         std::cout << " " << o << "\n";

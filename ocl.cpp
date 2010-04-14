@@ -216,9 +216,11 @@ BOOST_PYTHON_MODULE(ocl) {
     ;
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
         .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
+        
     ;
     bp::class_<SphereOCTVolume, bp::bases<OCTVolume> >("SphereOCTVolume")
         .def("isInside", &SphereOCTVolume::isInside )
+        .def("isInsideBB", &SphereOCTVolume::isInsideBB )
         .def("calcBB", &SphereOCTVolume::calcBB )
         .def_readwrite("center", &SphereOCTVolume::center)
         .def_readwrite("radius", &SphereOCTVolume::radius)

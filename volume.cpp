@@ -24,10 +24,10 @@
 #include <algorithm>
 #include <boost/python.hpp>
 #include <list>
+#include <cassert>
 
 // uncomment to disable assert() calls
 // #define NDEBUG
-#include <cassert>
 
 #include "cutter.h"
 #include "point.h"
@@ -39,11 +39,13 @@
 
 //************* OCTVolume base-class **************/
 
+/// return true if point p is inside the Bbox bb
 bool OCTVolume::isInsideBB(Point& p) const{
     return bb.isInside(p);
 }
 
-bool OCTVolume::isInsideBB(Ocode& o) const
+/// return true if the Ocode o is partly or completely inside the Bbox
+bool OCTVolume::isInsideBBo(Ocode& o) const
 {
     for (int n=0;n<9;n++) {
         Point p = o.corner(n);
@@ -77,11 +79,15 @@ void SphereOCTVolume::calcBB() {
 
 bool SphereOCTVolume::isInside(Point& p) const
 {
+    if (!isInsideBB(p))
+        return false;
+        // build time with isInsideBB
+        // 1.74 1.73 1.68 1.67
+        // without isInsideBB
+        // 1.66 1.79 1.79 1.94
     
-    if ( (center-p).norm() <= radius ) {
-        //std::cout << "dist to point=" << (center-p).norm() <<"\n";
+    if ( (center-p).norm() <= radius ) 
         return true;
-    }
     else
         return false;
 }
