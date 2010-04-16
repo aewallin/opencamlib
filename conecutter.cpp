@@ -30,34 +30,34 @@
 
 
 
-//********   CylCutter ********************** */
-BallCutter::BallCutter()
+//********   constructors ********************** */
+ConeCutter::ConeCutter()
 {
     setDiameter(1.0);
+    angle = 45;
+    height = (diameter/2)/tan(angle);
 }
 
-BallCutter::BallCutter(const double d)
+ConeCutter::ConeCutter(const double d, const double a)
 {
     setDiameter(d);
-    radius = d/2;
+    angle = a;
+    height = (diameter/2)/tan(angle);
 }
 
+
+
 //********   drop-cutter methods ********************** */
-int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int ConeCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
-    // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
-    
     int result = 0;
-    
     BOOST_FOREACH( const Point& p, t.p)
     {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if (q<= diameter/2) { // p is inside the cutter
-            // q^2 + h2^2 = r^2
-            // h2 = sqrt( r^2 - q^2 )
-            // h1 = r - h2
+            // h1 = q / tan(alfa)
             // cutter_tip = p.z - h1
-            double h1 = radius - sqrt( square(radius) - square(q) );
+            double h1 =  q/tan(angle);
             if (cl.liftZ(p.z - h1)) { // we need to lift the cutter
                 cc = p;
                 cc.type = VERTEX;
@@ -70,7 +70,10 @@ int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
-int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+// FIXME FIXME (code is copy of ballcutter for now)
+// we mostly hit the tip, or the circular edge between the cone and the cylindrical shaft
+// but sometimes the whole face of the cutter...
+int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
 
@@ -118,7 +121,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     // define the radiusvector which points from the 
     // ball-center to the cc-point.
-    Point radiusvector = -radius*normal;
+    Point radiusvector = -(diameter/2)*normal;
     
     // find the xy-coordinates of the cc-point
     Point cc_tmp = cl + radiusvector;
@@ -128,7 +131,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
     
     // now find the z-coordinate of the cl-point
-    double tip_z = cc_tmp.z - radiusvector.z - radius;
+    double tip_z = cc_tmp.z - radiusvector.z - (diameter/2);
         
     if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()       
         if ( cl.liftZ(tip_z) ) {
@@ -139,13 +142,14 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     } else {
         return 0;
     }
-    
-    
     return 0; // we never get here (?)
 }
 
 
-int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+// FIXME FIXME (code is copy of ballcutter for now)
+// cone sliced with vertical plane results in a hyperbola as the intersection curve
+// find point where hyperbola and line slopes match? (or use radius-vector approach as in ball cutter?) 
+int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
@@ -172,12 +176,12 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             double d = cl.xyDistanceToLine(p1, p2);
             assert( d >= 0.0 );
                 
-            if (d<=radius) { // potential hit
+            if (d<=(diameter/2)) { // potential hit
             
                 // the plane of the line will slice the spherical cutter at
                 // a distance d from the center of the cutter
                 // here the radius of the circular section is
-                double s = sqrt( square(radius) - square(d) );
+                double s = sqrt( square((diameter/2)) - square(d) );
                     
                 // the center-point of this circle, in the xy plane lies at
                 Point sc = cl.xyClosestPoint( p1, p2 );   
@@ -208,7 +212,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
                 Point cc_tmp = p1 + (cc_u/p2u)*v;
                 
-                double cl_z = cc_tmp.z + s*normal.y - radius;
+                double cl_z = cc_tmp.z + s*normal.y - (diameter/2);
                 
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
@@ -232,19 +236,17 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 }
 
 
-
-
 //******** string output ********************** */
-std::string BallCutter::str()
+std::string ConeCutter::str()
 {
     std::ostringstream o;
-    o << *this; 
+    o << *this;
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, BallCutter c)
+std::ostream& operator<<(std::ostream &stream, ConeCutter c)
 {
-  stream << "BallCutter"<< c.id <<"(d=" << c.diameter << ", radius=" << c.radius << ")";
+  stream << "ConeCutter (d=" << c.diameter << ", angle=" << c.angle << ", height=" << c.height << ")";
   return stream;
 }
 

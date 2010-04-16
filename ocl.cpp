@@ -123,6 +123,13 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("edgeDrop", &BullCutter::edgeDrop)
         .def("str", &BullCutter::str)
     ;
+    bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
+        .def(bp::init<double, double>())
+        .def("vertexDrop", &ConeCutter::vertexDrop)
+        .def("facetDrop", &ConeCutter::facetDrop)
+        .def("edgeDrop", &ConeCutter::edgeDrop)
+        .def("str", &ConeCutter::str)
+    ;
     bp::class_<Epos>("Epos")
         .def("setS", &Epos::setS)
         .def("setT", &Epos::setT)

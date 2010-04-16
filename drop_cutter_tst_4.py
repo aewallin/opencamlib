@@ -3,6 +3,7 @@ import camvtk
 import time
 import vtk
 import datetime
+import math
 
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     plist = []
@@ -24,14 +25,14 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(0,1,0), color=(1,0,1)));
     c=cam.Point(0,0,0.3)
     myscreen.addActor(camvtk.Point(center=(0,0,0.3), color=(1,0,1)));
-    #myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,0,0.3)) )
-    #myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
-    #myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
+    myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,0,0.3)) )
+    myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
+    myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = cam.Triangle(a,b,c)
-    radius1=0.3
-    radius2=0.02
-    cutter = cam.BullCutter(radius1, radius2)
-    #print cutter.str()
+    radius1=1
+    angle = math.pi/4
+    cutter = cam.ConeCutter(1, angle)
+    print cutter.str()
     
     
     #print cc.type
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     miny=-0.5
     dy=0.02
     maxy=1.5
-    z=-0.2
+    z=-0.8
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0
@@ -57,9 +58,9 @@ if __name__ == "__main__":
         #cutter.dropCutter(cl,cc,t)
         
         
-        cutter.edgeDrop(cl,cc,t)
+        #cutter.edgeDrop(cl,cc,t)
         cutter.vertexDrop(cl,cc,t)
-        cutter.facetDrop(cl,cc,t)
+        #cutter.facetDrop(cl,cc,t)
         #cutter.dropCutter(cl,cc,t)
 
         ccpoints.append(cc)
@@ -85,6 +86,7 @@ if __name__ == "__main__":
     for cl,cc in zip(clpoints,ccpoints):
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
         #print cc.str()
+        """
         if (cc.type != cam.CCType.NONE):
             #print cc.str()
             if (cc.type == cam.CCType.VERTEX):
@@ -92,6 +94,7 @@ if __name__ == "__main__":
             else:
                 myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) )
         #myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z), radius=0.05, color=camvtk.yellow) ) 
+        """
     print "done."
     
     #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
@@ -110,20 +113,20 @@ if __name__ == "__main__":
     t.SetPos( (myscreen.width-350, myscreen.height-30) )
     myscreen.addActor(t)
     
-    t2 = camvtk.Text()
-    t2.SetPos( (50, myscreen.height-80) )
-    myscreen.addActor(t2)
-    cuttertext= "Toroidal cutter:\nr1=%f\nr2=%f" % (radius1,radius2)
-    t2.SetText(cuttertext)
+    #t2 = camvtk.Text()
+    #t2.SetPos( (50, myscreen.height-80) )
+    #myscreen.addActor(t2)
+    #cuttertext= "Toroidal cutter:\nr1=%f\nr2=%f" % (radius1,radius2)
+    #t2.SetText(cuttertext)
     
-    for n in range(1,180):
+    for n in range(1,18):
         t.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         myscreen.camera.Azimuth( 2 )
         time.sleep(0.1)
         myscreen.render()
         w2if.Modified()
         lwr.SetFileName("frames/tc"+ ('%04d' % n)+".png")
-        lwr.Write()
+        #lwr.Write()
 
 
 

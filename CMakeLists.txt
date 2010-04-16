@@ -50,6 +50,7 @@ add_library(
     arc.cpp
     ballcutter.cpp
     bullcutter.cpp
+    conecutter.cpp
     cutter.cpp
     cylcutter.cpp
     kdtree.cpp

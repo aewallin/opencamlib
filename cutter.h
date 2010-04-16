@@ -89,6 +89,29 @@ class MillingCutter {
 };
 
 
+/* required wrapper class for virtual functions in boost-python */
+/// \brief a wrapper required for boost-python
+class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
+{
+    public:
+    int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+    {
+        return this->get_override("vertexDrop")(cl,cc,t);
+    }
+
+    int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+    {
+        return this->get_override("facetDrop")(cl,cc,t);
+    }
+    
+    int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+    {
+        return this->get_override("edgeDrop")(cl,cc,t);
+    }    
+    
+};
+
+
 ///
 /// \brief Cylindrical MillingCutter (flat-endmill)
 ///
@@ -177,37 +200,37 @@ class BullCutter : public MillingCutter {
 };
 
 
-
-
-
-
-
-
-
-
-
-
-/* required wrapper class for virtual functions in boost-python */
-/// \brief a wrapper required for boost-python
-class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
-{
+/// \brief Conical MillingCutter 
+///
+/// cone defined by diameter and cone-angle. sharp tip. 
+/// 60 degrees or 90 degrees are common
+class ConeCutter : public MillingCutter {
     public:
-    int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
-    {
-        return this->get_override("vertexDrop")(cl,cc,t);
-    }
-
-    int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
-    {
-        return this->get_override("facetDrop")(cl,cc,t);
-    }
-    
-    int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
-    {
-        return this->get_override("edgeDrop")(cl,cc,t);
-    }    
-    
+        ConeCutter();
+        /// create a ConeCutter with specified diameter and cone-angle
+        ConeCutter(const double d, const double angle);
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
+        /// string repr
+        std::string str();
+        
+    protected:
+        double angle;
+        double height;
 };
+
+
+
+
+
+
+
+
+
+
 
 
 
