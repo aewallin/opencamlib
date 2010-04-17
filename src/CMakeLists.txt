@@ -165,16 +165,17 @@ IF (DOXYGEN_FOUND)
 
     IF (EXISTS ${PDFLATEX_COMPILER})
         add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
+            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/refman.pdf
             DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex
             COMMAND make pdf
             COMMENT building PDF docs
+            COMMAND mv refman.pdf ../ocl-manual.pdf
         )
 
         add_custom_target(
             doc-pdf
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.pdf
+            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/refman.pdf
         )
 
         add_dependencies(doc doc-pdf)
