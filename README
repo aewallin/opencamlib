@@ -1,0 +1,37 @@
+OpenCAMLib README
+
+1. INTRODUCTION
+OpenCAMLib (ocl) is a c++ library for creating toolpaths for cnc-machines
+such as mills and lathes.
+
+The project is hosted at
+http://code.google.com/p/opencamlib/
+
+The mailing-list for general development and user-discussion is:
+http://groups.google.com/group/opencamlib
+
+SVN commit messages go to a mailing-list:
+http://groups.google.com/group/opencamlib-svn
+
+2. BUILDING (on unix/debian-like systems)
+cd into the /src directory, then run
+ $> cmake .
+this creates a Makefile, and build with
+ $> make 
+this should create the ocl library as a file "ocl.so" in the /src directory
+
+ 
+if you also want to build the documentation, then run
+ $> make doc
+and
+ $> make doc-pdf
+this should create the ocl manual named "ocl-manual.pdf" in the src/doc directory
+
+3. ORGANIZATION OF FILES
+|-- OpenCamLib          Visual-studio project for building on windows
+|-- debian              files for building a debian package
+|-- lib                 libraries
+|-- scripts             python scripts that test or demonstrate use of ocl
+|-- src                 source files
+|   `-- attic           old source files and experimental code
+`-- stl                 STL files for testing
