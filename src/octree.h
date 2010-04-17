@@ -91,8 +91,11 @@ class Ocode {
         std::string str();
         
         // DATA
+        /// length of the Ocode, or maximum depth of octree
         static int depth;
+        /// maximum extent of the octree
         static double scale;
+        /// center point of octree
         static Point center;
         
         // color of node, currently not used...

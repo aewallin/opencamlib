@@ -206,6 +206,7 @@ class BullCutter : public MillingCutter {
 /// 60 degrees or 90 degrees are common
 class ConeCutter : public MillingCutter {
     public:
+        /// default constructor
         ConeCutter();
         /// create a ConeCutter with specified diameter and cone-angle
         ConeCutter(const double d, const double angle);
@@ -218,7 +219,9 @@ class ConeCutter : public MillingCutter {
         std::string str();
         
     protected:
+        /// the half-angle of the cone, in radians
         double angle;
+        /// the height of the cone
         double height;
 };
 

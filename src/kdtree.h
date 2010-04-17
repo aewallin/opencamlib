@@ -115,6 +115,8 @@ class KDNode {
         /// do the triangles at KDNode root overlap with the MillingCutter c positioned at Point cl?
         static bool overlap(const KDNode *root, const Point& cl, const MillingCutter& c);
         
+        /// counter used for cutting along the 4 dims sequentially.
+        /// not used if cutting along max spread.
         static int cutcount;        
 };
 
