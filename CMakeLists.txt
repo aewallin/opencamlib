@@ -158,7 +158,7 @@ IF (DOXYGEN_FOUND)
 
     add_custom_target(
         doc
-        ALL
+        #ALL
         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
     )
 
