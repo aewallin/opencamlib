@@ -70,6 +70,35 @@ add_library(
 target_link_libraries(ocl ${LIB_BOOST_PYTHON})
 set_target_properties(ocl PROPERTIES PREFIX "")
 
+#
+# this makes a shared library for use by c/c++ code
+#
+# FIXME: make this work
+#
+# add_library(
+#    ocl10.4
+#    SHARED
+#    arc.cpp
+#    ballcutter.cpp
+#    bullcutter.cpp
+#    conecutter.cpp
+#    cutter.cpp
+#    cylcutter.cpp
+#    kdtree.cpp
+#    line.cpp
+#    numeric.cpp
+#    #ocl.cpp
+#    octree.cpp
+#    oellipse.cpp
+#    path.cpp
+#    pathfinish.cpp
+#    pfinish.cpp
+#    point.cpp
+#    stlsurf.cpp
+#    triangle.cpp
+#    volume.cpp
+# )
+# target_link_libraries(ocl "")
 
 #
 # this figures out where to install the Python modules
@@ -87,8 +116,9 @@ install(
 )
 
 install(
-    FILES camvtk.py
+    FILES ../lib/camvtk.py
     DESTINATION ${Python_site_packages}
+    # PATTERN .svn EXCLUDE
 )
 
 
@@ -96,30 +126,31 @@ install(
 # this installs the examples
 #
 
-install(
-    FILES
-        drop_cutter_tst_1.py
-        drop_cutter_tst_2.py
-        drop_cutter_tst_3.py
-        drop_cutter_tst_4.py
-        drop_cutter_tst_5.py
-        kdtree_movie1.py
-        kdtree_movie2.py
-        kdtree_tst_1.py
-        kdtree_tst.py
-        ocl_tst.py
-        pfinish_tst_1.py
-        stl2ocl_tst.py
-        stlsurf_tst.py
-    DESTINATION
-        share/doc/python-opencam/examples
-)
+# install(
+#    DIRECTORY ../scripts/
+#    FILES
+#        drop_cutter_tst_1.py
+#        drop_cutter_tst_2.py
+#        drop_cutter_tst_3.py
+#        drop_cutter_tst_4.py
+#        drop_cutter_tst_5.py
+#        kdtree_movie1.py
+#        kdtree_movie2.py
+#        kdtree_tst_1.py
+#        kdtree_tst.py
+#        ocl_tst.py
+#        pfinish_tst_1.py
+#        stl2ocl_tst.py
+#        stlsurf_tst.py
+#    DESTINATION
+#        share/doc/python-opencam/examples
+# )
 
-install(
-    DIRECTORY stl/
-    DESTINATION share/doc/python-opencam/examples/stl
-    PATTERN .svn EXCLUDE
-)
+# install(
+#    DIRECTORY ../stl/
+#    DESTINATION share/doc/python-opencam/examples/stl
+#    PATTERN .svn EXCLUDE
+# )
 
 
 #
