@@ -126,31 +126,17 @@ install(
 # this installs the examples
 #
 
-# install(
-#    DIRECTORY ../scripts/
-#    FILES
-#        drop_cutter_tst_1.py
-#        drop_cutter_tst_2.py
-#        drop_cutter_tst_3.py
-#        drop_cutter_tst_4.py
-#        drop_cutter_tst_5.py
-#        kdtree_movie1.py
-#        kdtree_movie2.py
-#        kdtree_tst_1.py
-#        kdtree_tst.py
-#        ocl_tst.py
-#        pfinish_tst_1.py
-#        stl2ocl_tst.py
-#        stlsurf_tst.py
-#    DESTINATION
-#        share/doc/python-opencam/examples
-# )
+install(
+    DIRECTORY ../scripts/
+    DESTINATION share/doc/python-opencam/examples
+    PATTERN .svn EXCLUDE
+)
 
-# install(
-#    DIRECTORY ../stl/
-#    DESTINATION share/doc/python-opencam/examples/stl
-#    PATTERN .svn EXCLUDE
-# )
+install(
+    DIRECTORY ../stl/
+    DESTINATION share/doc/python-opencam/examples/stl
+    PATTERN .svn EXCLUDE
+)
 
 
 #
@@ -175,14 +161,14 @@ IF (DOXYGEN_FOUND)
         MESSAGE(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
     ENDIF (NOT DVIPS_CONVERTER)
     
-    IF   (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
-        SET(DOXY_CONFIG "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
-    ENDIF(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile")
+    if (EXISTS Doxyfile)
+        set(DOXY_CONFIG Doxyfile)
+    endif (EXISTS Doxyfile)
 
     add_custom_command(
         OUTPUT
-            ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
-            ${CMAKE_CURRENT_SOURCE_DIR}/doc/html/index.html
+            doc/latex/index.tex
+            doc/html/index.html
         COMMAND ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG}
         COMMENT building LaTex & HTML docs
     )
@@ -190,15 +176,15 @@ IF (DOXYGEN_FOUND)
     add_custom_target(
         doc
         #ALL
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
+        DEPENDS doc/latex/index.tex
     )
 
 
     IF (EXISTS ${PDFLATEX_COMPILER})
         add_custom_command(
-            OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/refman.pdf
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
-            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex
+            OUTPUT doc/latex/refman.pdf
+            DEPENDS doc/latex/index.tex
+            WORKING_DIRECTORY doc/latex
             COMMAND make pdf
             COMMENT building PDF docs
             COMMAND mv refman.pdf ../ocl-manual.pdf
@@ -206,7 +192,7 @@ IF (DOXYGEN_FOUND)
 
         add_custom_target(
             doc-pdf
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/refman.pdf
+            DEPENDS doc/latex/refman.pdf
         )
 
         add_dependencies(doc doc-pdf)
@@ -217,13 +203,18 @@ IF (DOXYGEN_FOUND)
 
     add_custom_target(
         doc-latex
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/doc/latex/index.tex
+        DEPENDS doc/latex/index.tex
     )
 
     install(
-        DIRECTORY doc/latex
+        DIRECTORY doc/latex/
         DESTINATION share/doc/python-opencam/pdf
-        PATTERN *.pdf
+        FILES_MATCHING PATTERN *.pdf
+    )
+
+    install(
+        FILES doc/ocl-manual.pdf
+        DESTINATION share/doc/python-opencam/pdf
     )
 
     install(
