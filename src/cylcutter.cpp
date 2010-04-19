@@ -172,7 +172,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     std::cout << "discr=" << discr << "\n";
                 #endif
                 
-                if ( isNegative(discr) ) {
+                if ( !isZero_tol(discr) && isNegative(discr) ) {
                     std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
                     cc.type = ERROR;
                     assert(0);

@@ -30,55 +30,55 @@
 
 /// Span type
 enum SpanType{
-	LineSpanType,
-	ArcSpanType,
+    LineSpanType,
+    ArcSpanType,
 };
 
 /// \brief A finite curve which returns Point objects along its length.
 /// 
 /// location along span is based on a parameter t for which 0 <= t <= 1.0
 class Span{
-public:
-    /// return type of span
-	virtual SpanType type()const = 0;
-    /// return the length of the span in the xy-plane
-	virtual double length2d()const = 0;
-    /// return a point at parameter value 0 <= t <= 1.0
-	virtual Point getPoint(double t)const = 0; // 0.0 to 1.0
+    public:
+        /// return type of span
+        virtual SpanType type()const = 0;
+        /// return the length of the span in the xy-plane
+        virtual double length2d()const = 0;
+        /// return a point at parameter value 0 <= t <= 1.0
+        virtual Point getPoint(double t)const = 0; // 0.0 to 1.0
 };
 
 /// Line Span
 class LineSpan : public Span {
-	public:
+    public:
         /// create a line span from Line l
-		LineSpan(const Line& l) : line(l){}
+        LineSpan(const Line& l) : line(l){}
         /// the line
-		Line line;
+        Line line;
 
-		// Span's virtual functions
+        // Span's virtual functions
         /// return span type
-		SpanType type()const{return LineSpanType;}
+        SpanType type()const{return LineSpanType;}
         /// return span length
-		double length2d()const{return line.length2d();}
+        double length2d()const{return line.length2d();}
         /// return point on span
-		Point getPoint(double t)const{return line.getPoint(t);}
+        Point getPoint(double t)const{return line.getPoint(t);}
 };
 
 /// circular Arc Span
 class ArcSpan : public Span {
-	public:
+    public:
         /// create span
-		ArcSpan(const Arc& a) : arc(a){}
+        ArcSpan(const Arc& a) : arc(a){}
         /// arc
-		Arc arc;
+        Arc arc;
 
-		// Span's virtual functions
+        // Span's virtual functions
         /// return type
-		SpanType type()const{return ArcSpanType;}
+        SpanType type()const{return ArcSpanType;}
         /// return length in xy-plane
-		double length2d()const{return arc.length2d();}
+        double length2d()const{return arc.length2d();}
         /// return a point on the span
-		Point getPoint(double t)const{return arc.getPoint(t);}
+        Point getPoint(double t)const{return arc.getPoint(t);}
 };
 
 ///
@@ -87,20 +87,22 @@ class ArcSpan : public Span {
 class Path {
     public:
         /// create empty path
-		Path();
+        Path();
         /// copy constructor
         Path(const Path &p);
         /// destructor
-		~Path();
+        ~Path();
         /// return the span-list to python
         boost::python::list getSpans();
         /// list of spans in this path
-		std::list<Span*> span_list;
+        std::list<Span*> span_list;
         
+        // FIXME: this looks wrong
+        // should be only one append() that tkaes a Span
         /// append a Line to this path
-		void append(const Line &l);
+        void append(const Line &l);
         /// append an Arc to this path
-		void append(const Arc &a);
+        void append(const Arc &a);
 };
 
 #endif
