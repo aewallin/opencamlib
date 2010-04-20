@@ -194,21 +194,52 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 // so (dz, -du) is a normal to the line
                 Point tangent = Point(p2u,dz,0);
                 tangent.xyNormalize();
+                
                 Point normal = Point (dz, -p2u, 0);
                 normal.xyNormalize();
                 if (normal.y < 0) { // flip normal so it points upward
                     normal = -1*normal;
                 }
-                assert( isPositive(normal.y) );
                 
-                Point start2sc = sc - p1;
-                double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
+
+                double cl_z;
+                Point cc_tmp;
                 
-                double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
+                if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
+                    cc_tmp = sc;
+                    
+                    
+                    cl_z = cc_tmp.z + s - radius;
+                    
+                    /*
+                    std::cout << "cl: " << cl <<"\n";
+                    std::cout << "sc: " << sc <<"\n";
+                    std::cout << "p1: " << p1 <<"\n";
+                    std::cout << "p2: " << p2 <<"\n";
+                    std::cout << "v: " << v <<"\n";
+                    std::cout << "s: " << s <<"\n";
+                    std::cout << "normal: " << normal <<"\n";
+                    std::cout << "start2sc_dir: " << start2sc_dir <<"\n";
+                    */
+                    
+                    //assert(0);
+                    
+                } else {
+                    // now normal should point up
+                    if (  !isPositive(normal.y)) {
+                        std::cout << "ballcutter.cpp edgeDrop() normal.y=" << normal.y << " !!\n";
+                        assert( isPositive(normal.y) );
+                    }
                 
-                Point cc_tmp = p1 + (cc_u/p2u)*v;
-                
-                double cl_z = cc_tmp.z + s*normal.y - radius;
+                    Point start2sc = sc - p1;
+                    double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
+                    
+                    double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
+                    
+                    cc_tmp = p1 + (cc_u/p2u)*v;
+                    
+                    cl_z = cc_tmp.z + s*normal.y - radius;
+                }
                 
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
@@ -217,7 +248,6 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         cc.type = EDGE;
                         result = 1;
                     }
-                
                 }
                 
             }// end if(potential hit)
