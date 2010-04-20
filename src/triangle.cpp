@@ -116,7 +116,7 @@ void Triangle::setId()
     ++count;
 }
 
-std::string Triangle::str()
+std::string Triangle::str() const
 {
     std::ostringstream o;
     o << "T"<< id <<"(" << p[0] << ", " << p[1] << ", " << p[2] << ")";

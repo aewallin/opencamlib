@@ -100,13 +100,13 @@ Point Point::xyPerp() const
 }
 
 void Point::xyRotate(double cosa, double sina) {                                                                                                                        // rotate vector by angle
-        double temp = -y * sina + x * cosa;
-        y = x * sina + cosa * y;
-        x = temp;
+    double temp = -y * sina + x * cosa;
+    y = x * sina + cosa * y;
+    x = temp;
 }
 
 void Point::xyRotate(double angle) {
-        xyRotate(cos(angle), sin(angle));
+    xyRotate(cos(angle), sin(angle));
 }
 
 double Point::xyDistance(const Point &p) const
@@ -119,9 +119,9 @@ int Point::liftZ(double zin)
     if (zin>z) {
         z=zin;
         return 1;
-        } else {
-                return 0;
-        }
+    } else {
+        return 0;
+    }
 }
 
 double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
@@ -167,15 +167,21 @@ Point Point::xyClosestPoint(const Point &p1, const Point &p2)
         std::cout << "point.cpp: xyClosestPoint ERROR!: p1="<<p1<<" and \n";
         std::cout << "point.cpp: xyClosestPoint ERROR!: p2="<<p2<< "\n";
         std::cout << "point.cpp: xyClosestPoint ERROR!: in the xy-plane\n";
+        assert(0);
         return Point(0,0,0); // conside assert(0) ?
     }
         
     double u;
+    // 
     // vector notation:
     // u = (p3-p1) dot v / (v dot v)
     u = (this->x - p1.x) * (v.x) + (this->y - p1.y)*(v.y);
     u = u/ (v.x*v.x + v.y*v.y);
-    
+    //std::cout << "this=" << *this << "\n";
+    //std::cout << "pt1=" << pt1 << "\n";
+    //std::cout << "pt2=" << pt2 << "\n";
+    //std::cout << "v=" << v << "\n";
+    //std::cout << "u=" << u << "\n";
     // coordinates for closest point
     double x = p1.x + u*v.x;
     double y = p1.y + u*v.y;

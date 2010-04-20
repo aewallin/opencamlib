@@ -38,7 +38,7 @@ class Triangle {
         /// string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
         /// string repr
-        std::string str();
+        std::string str() const;
         
         /// Returns a list of the vertices to Python
         boost::python::list getPoints();        

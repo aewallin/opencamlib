@@ -150,22 +150,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
-    /*
-    bp::class_<OCTNode>("OCTNode")
-        .def_readonly("scale", &OCTNode::scale)
-        .def("get_max_scale", &OCTNode::get_max_scale)
-        .def("nodePoint", &OCTNode::nodePoint)
-        .def("childCenter", &OCTNode::childCenter)
-        .def_readwrite("type", &OCTNode::type)
-        .def_readonly("level", &OCTNode::level)
-        .def("str", &OCTNode::str)
-    ;*/
-    /*
-    bp::enum_<OCType>("OCType")
-        .value("WHITE", WHITE)
-        .value("GREY",GREY)
-        .value("BLACK",BLACK)
-    ; */
     bp::class_<ParallelFinish>("ParallelFinish")
         .def("initCLPoints", &ParallelFinish::initCLpoints)
         .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)
@@ -176,21 +160,20 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getTrianglesUnderCutter", &ParallelFinish::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &ParallelFinish::dcCalls)
     ;
-    /*
-    bp::class_<OCTest>("OCTest")
-        .def(bp::init<>())
-        .def("build_octree",  &OCTest::build_octree)
-        .def("get_all_nodes", &OCTest::get_all_nodes)
-        .def("get_white_nodes", &OCTest::get_white_nodes)
-        .def("get_black_nodes", &OCTest::get_black_nodes)
-        .def("get_max_depth", &OCTest::get_max_depth)
-        .def("set_max_depth", &OCTest::set_max_depth)
-        .def("prune", &OCTest::prune)
-        .def("prune_all", &OCTest::prune_all)
-        .def("setVol", &OCTest::setVol)
-        .def("balance", &OCTest::balance)
-        .def("diff", &OCTest::diff)
-    ; */
+    bp::class_<BatchDropCutter>("BatchDropCutter")
+        .def("dropCutter1", &BatchDropCutter::dropCutter1)
+        .def("dropCutter2", &BatchDropCutter::dropCutter2)
+        .def("dropCutter3", &BatchDropCutter::dropCutter3)
+        .def("dropCutter4", &BatchDropCutter::dropCutter4)
+        .def("getCLPoints", &BatchDropCutter::getCLPoints)
+        .def("getCCPoints", &BatchDropCutter::getCCPoints)
+        .def("setSTL", &BatchDropCutter::setSTL)
+        .def("setCutter", &BatchDropCutter::setCutter)
+        .def("appendPoint", &BatchDropCutter::appendPoint)
+        .def("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter)
+        .def_readonly("dcCalls", &BatchDropCutter::dcCalls)
+        .def_readwrite("threads", &BatchDropCutter::threads)
+    ;
     bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
         .def(bp::init<Ocode>())
@@ -202,7 +185,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("get_depth", &Ocode::get_depth)
         .def("set_depth", &Ocode::set_depth)
         .def("containedIn", &Ocode::containedIn)
-        //.def_readwrite("color", &Ocode::color)
         .def("str", &Ocode::str)
     ;
     bp::class_<LinOCT>("LinOCT")
@@ -223,7 +205,6 @@ BOOST_PYTHON_MODULE(ocl) {
     ;
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
         .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
-        
     ;
     bp::class_<SphereOCTVolume, bp::bases<OCTVolume> >("SphereOCTVolume")
         .def("isInside", &SphereOCTVolume::isInside )
@@ -272,16 +253,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("maxz", &Bbox::maxz)
         .def_readwrite("minz", &Bbox::minz)
     ;
-    
-    /*
-    bp::class_<KDNode>("KDNode", bp::no_init) 
-        .def("stlSurf2KDTree", &KDNode::stlSurf2KDTree)
-        .def("str", &KDNode::str)
-    ;
-    */
-    /* bp::class_<Spread>("Spread", bp::no_init)
-        .def(bp::init<int, double, double>())
-    ;*/
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())
         .def(bp::init<Line>())

@@ -51,6 +51,7 @@
 #include "oellipse.h"
 #include "octree.h"
 #include "volume.h"
+#include "batchdropcutter.h"
 
 #endif
 

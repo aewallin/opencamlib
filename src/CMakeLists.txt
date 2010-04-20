@@ -61,6 +61,7 @@ add_library(
     MODULE
     arc.cpp
     ballcutter.cpp
+    batchdropcutter.cpp
     bullcutter.cpp
     conecutter.cpp
     cutter.cpp

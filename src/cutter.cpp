@@ -99,7 +99,7 @@ int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const
     return 0; // void
 }
 
-bool MillingCutter::overlaps(Point &cl, Triangle &t) const
+bool MillingCutter::overlaps(Point &cl, const Triangle &t) const
 {
     double r = this->getRadius();
     if ( t.maxx < cl.x-r )

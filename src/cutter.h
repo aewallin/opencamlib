@@ -52,7 +52,7 @@ class MillingCutter {
         
         /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
         /// works in the xy-plane 
-        bool overlaps(Point &cl, Triangle &t) const;
+        bool overlaps(Point &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against vertices of Triangle t.
         /// loop through each vertex p of Triangle t

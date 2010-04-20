@@ -16,13 +16,14 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PFINISH_H
-#define PFINISH_H
+#ifndef BDC_H
+#define BDC_H
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 #include <iostream>
 #include <string>
 #include <list>
+#include <vector>
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
@@ -31,23 +32,31 @@
 
 ///
 /// \brief experimental parallel finish toolpath generation class
-class ParallelFinish {
+class BatchDropCutter {
     public:
-        ParallelFinish();
+        BatchDropCutter();
         
         /// unoptimized drop-cutter 
-        void dropCutterSTL1(MillingCutter &cutter);
+        void dropCutter1();
         
         /// better, kd-tree optimized version      
-        void dropCutterSTL2(MillingCutter &cutter);
+        void dropCutter2();
+        
+        /// better, kd-tree and explicit isInside test      
+        void dropCutter3();
+        
+        /// use OpenMP     
+        void dropCutter4();
         
         /// set the STL-surface and build kd-tree to enable optimized algorithm
-        void initSTLSurf(STLSurf &s, int bucketSize);
+        void setSTL(STLSurf &s, int bucketSize = 1);
         
-        /// initialize a grid of CL-points
-        void initCLpoints(double minx,double dx, double maxx, 
-                       double miny, double dy,double maxy,double base_z);
-                       
+        /// set the MillingCutter to use
+        void setCutter(MillingCutter *cutter);
+        
+        void appendPoint(Point& p);
+        
+        
         /// return CL-points to Python
         boost::python::list getCLPoints();
         /// return CC-points to Python
@@ -57,16 +66,24 @@ class ParallelFinish {
         
         // DATA
         
+        /// the MillingCutter used
+        MillingCutter *cutter;
+        
         /// the list of CL-points to run drop-cutter on
-        std::list<Point> *clpoints;
+        std::vector<Point> *clpoints;
+        
         /// the cutter-contact points corresponding to the CL-points
-        std::list<CCPoint> *ccpoints;
+        std::vector<CCPoint> *ccpoints;
+        
         /// root of the kd-tree
         KDNode *root;
+        
         /// the STLSurf which we test against.
         STLSurf *surf;
+        
         /// how many times DropCutter was called. Useful for optimization.
         int dcCalls;
+        
         /// number of threads to use
         int threads;
 };
