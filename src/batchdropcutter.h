@@ -31,35 +31,30 @@
 #include "kdtree.h"
 
 ///
-/// \brief experimental parallel finish toolpath generation class
+/// \brief Drop cutter interface
 class BatchDropCutter {
     public:
         BatchDropCutter();
         
-        /// unoptimized drop-cutter,  tests against all triangles of surface
-        void dropCutter1();
-        
-        /// better, kd-tree optimized version      
-        void dropCutter2();
-        
-        /// kd-tree and explicit overlap test      
-        void dropCutter3();
-        
-        /// use OpenMP for multi-threading     
-        void dropCutter4();
-        
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(STLSurf &s, int bucketSize = 1);
-        
         /// set the MillingCutter to use
         void setCutter(MillingCutter *cutter);
-        
         /// set number of threads to use in OpenMP
         void setThreads(int n);
         /// append to list of CL-points to evaluate
         void appendPoint(Point& p);
         
+        /// unoptimized drop-cutter,  tests against all triangles of surface
+        void dropCutter1();
+        /// better, kd-tree optimized version      
+        void dropCutter2();
+        /// kd-tree and explicit overlap test      
+        void dropCutter3();
+        /// use OpenMP for multi-threading     
+        void dropCutter4();
         
+        // Python interface
         /// return CL-points to Python
         boost::python::list getCLPoints();
         /// return CC-points to Python
@@ -68,7 +63,6 @@ class BatchDropCutter {
         boost::python::list getTrianglesUnderCutter(Point &cl, MillingCutter &cutter);
         
         // DATA
-        
         /// the MillingCutter used
         MillingCutter *cutter;
         
