@@ -36,16 +36,16 @@ class BatchDropCutter {
     public:
         BatchDropCutter();
         
-        /// unoptimized drop-cutter 
+        /// unoptimized drop-cutter,  tests against all triangles of surface
         void dropCutter1();
         
         /// better, kd-tree optimized version      
         void dropCutter2();
         
-        /// better, kd-tree and explicit isInside test      
+        /// kd-tree and explicit overlap test      
         void dropCutter3();
         
-        /// use OpenMP     
+        /// use OpenMP for multi-threading     
         void dropCutter4();
         
         /// set the STL-surface and build kd-tree to enable optimized algorithm
@@ -54,8 +54,9 @@ class BatchDropCutter {
         /// set the MillingCutter to use
         void setCutter(MillingCutter *cutter);
         
+        /// set number of threads to use in OpenMP
         void setThreads(int n);
-        
+        /// append to list of CL-points to evaluate
         void appendPoint(Point& p);
         
         
