@@ -13,12 +13,14 @@ http://groups.google.com/group/opencamlib
 SVN commit messages go to a mailing-list:
 http://groups.google.com/group/opencamlib-svn
 
-2. BUILDING (on unix/debian-like systems)
+2. BUILDING and INSTALLING (on unix/debian-like systems)
 cd into the /src directory, then run
  $> cmake .
 this creates a Makefile, and build with
  $> make 
 this should create the ocl library as a file "ocl.so" in the /src directory
+ $> sudo make install
+will install the ocl.so library and camvtk.py so that any python shell will find them.
 
  
 if you also want to build the documentation, then run
