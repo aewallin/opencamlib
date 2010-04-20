@@ -54,6 +54,8 @@ class BatchDropCutter {
         /// set the MillingCutter to use
         void setCutter(MillingCutter *cutter);
         
+        void setThreads(int n);
+        
         void appendPoint(Point& p);
         
         
@@ -85,7 +87,7 @@ class BatchDropCutter {
         int dcCalls;
         
         /// number of threads to use
-        int threads;
+        int nthreads;
 };
 
 

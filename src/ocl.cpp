@@ -172,7 +172,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("appendPoint", &BatchDropCutter::appendPoint)
         .def("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &BatchDropCutter::dcCalls)
-        .def_readwrite("threads", &BatchDropCutter::threads)
+        .def_readwrite("nthreads", &BatchDropCutter::nthreads)
     ;
     bp::class_<Ocode>("Ocode")
         .def(bp::init<>())

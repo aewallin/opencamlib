@@ -34,7 +34,7 @@ BatchDropCutter::BatchDropCutter() {
     clpoints = new std::vector<Point>();
     ccpoints = new std::vector<CCPoint>();
     dcCalls = 0;
-    threads = 1;
+    nthreads = 1;
     cutter = new CylCutter(1.0);
 }
 
@@ -50,6 +50,11 @@ void BatchDropCutter::setSTL(STLSurf &s, int bucketSize)
 void BatchDropCutter::setCutter(MillingCutter *c)
 {
     cutter = c;
+}
+
+void BatchDropCutter::setThreads(int n)
+{
+    nthreads = n;
 }
 
 void BatchDropCutter::appendPoint(Point& p)
@@ -156,8 +161,18 @@ void BatchDropCutter::dropCutter4()
     MillingCutter& cutref = *cutter;
     //KDNode* root2 = root;
     std::cout << "threads: " << omp_get_num_threads()<<"\n";
+    omp_set_num_threads(nthreads);
+    
     #pragma omp parallel for shared( calls, clref, cutref ) private(n,t,tris)
         for (n=0;n< Nmax ;n++) {
+            int tid = omp_get_thread_num();
+            if (tid == 0 && n == 0)
+            {
+                int nthreads = omp_get_num_threads();
+                std::cout << "Number of threads = "<< nthreads << "\n";
+            }
+
+
             t= 0;
             tris=new std::list<Triangle>();
             
