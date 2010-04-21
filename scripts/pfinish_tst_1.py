@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 import vtk
@@ -7,18 +7,18 @@ import datetime
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    stl = camvtk.STLSurf("demo.stl")
+    stl = camvtk.STLSurf("../stl/demo.stl")
     print "STL surface read"
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
     
     polydata = stl.src.GetOutput()
-    s= cam.STLSurf()
+    s= ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STLSurf with ", s.size(), " triangles"
     
-    cutter = cam.CylCutter(0.6)
+    cutter = ocl.CylCutter(0.6)
     #print cutter.str()
     #print cc.type
     minx=-1
@@ -30,6 +30,13 @@ if __name__ == "__main__":
     maxy=11
     z=-0.2
     
+    pdf = ocl.PathDropCutterFinish(s)
+    pdf.SetCutter(cutter)
+    
+    path = ocl.Path()
+    
+    
+    exit()
     pftp = cam.ParallelFinish()
     pftp.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
     pftp.dropCutterSTL1(cutter, s) 

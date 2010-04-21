@@ -262,7 +262,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                             std::cout << "cc2 is in edge!\n";
                         #endif
                         // determine height of point. must be on line, so:
-                        if ( !isZero_tol( fabs(x1 - x2) ) ) {
+                        if ( fabs(x1 - x2) > fabs(y1 - y2)  ) {
                             #ifdef EDGEDROP_DEBUG
                                 std::cout << "computing cc2 height from x-coords\n";
                             #endif
