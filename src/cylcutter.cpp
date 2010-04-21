@@ -156,8 +156,8 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             
             if (d<=diameter/2) { // potential hit
                 //std::cout << " potential hit\n";
-                // 2) calculate intersection points w. cutter circle
-                // points are on line and diameter/2 from cl
+                // 2) calculate intersection points with cutter circle.
+                // points are on line and diameter/2 from cl.
                 // see http://mathworld.wolfram.com/Circle-LineIntersection.html
                 double x1 = t.p[start].x - cl.x; // translate to cl=(0,0)
                 double y1 = t.p[start].y - cl.y;
@@ -182,10 +182,12 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     #ifdef EDGEDROP_DEBUG
                         std::cout << "discr= zero, tangent case.\n";
                     #endif
-                    cc.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
-                    cc.y = -D*dx / pow(dr,2) + cl.y;
+                    CCPoint cc_tmp;
+                    cc_tmp.x = D*dy / pow(dr,2) + cl.x; // translate back to cl
+                    cc_tmp.y = -D*dx / pow(dr,2) + cl.y;
+                    
                     // 3) check if cc is in edge
-                    if ( cc.isInsidePoints(t.p[start], t.p[end]) ) { 
+                    if ( cc_tmp.isInsidePoints(t.p[start], t.p[end]) ) { 
                         // determine height of point. must be on line, so:
                         // std::cout << "tangent-case: isInside=true!\n";
                         // two point formula for line:
@@ -197,13 +199,20 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         double x2 = t.p[end].x;
                         double y1 = t.p[start].y;
                         double y2 = t.p[end].y;
-                        if (x1 != x2) 
-                            cc.z = z1 + ((z2-z1)/(x2-x1)) * (cc.x-x1);
-                        else if (y1 != y2) 
-                            cc.z = z1 + ((z2-z1)/(y2-y1)) * (cc.y-y1);
+                        
+                        // use either x-coord or y-coord to calculate z-height
+                        if ( fabs(x1 - x2) > fabs(y2 - y1) ) 
+                            cc_tmp.z = z1 + ((z2-z1)/(x2-x1)) * (cc_tmp.x-x1);
+                        else if ( !isZero_tol( y2-y1) ) // guard against division by zero
+                            cc_tmp.z = z1 + ((z2-z1)/(y2-y1)) * (cc_tmp.y-y1);
+                        else 
+                            assert(0); // trouble.
+                        
                            
-                        if (cl.liftZ(cc.z))
+                        if (cl.liftZ(cc_tmp.z)) {
+                            cc = cc_tmp;
                             cc.type = EDGE;
+                        }
                     }
                 } else { // discr > 0, two intersection points
                     #ifdef EDGEDROP_DEBUG
@@ -254,6 +263,8 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if (cl.liftZ(cc1.z)) {
                             cc=cc1;
                             cc.type = EDGE;
+                            if (cc.z > 4.0)
+                                std::cout << "cc1 case z>4: " << cc << "\n";
                         }
                         //std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
                     }
