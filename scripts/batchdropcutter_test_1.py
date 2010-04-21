@@ -37,12 +37,17 @@ if __name__ == "__main__":
     s = cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
+    
     #cutter = cam.BallCutter(1)
-    cutter = cam.CylCutter(2)
+    
+    cutter = cam.CylCutter(1.123)
+    
+    #cutter = cam.BullCutter(1.123, 0.2)
+    
     print cutter.str()
     #print cc.type
     minx=0
-    dx=0.1/1
+    dx=0.1/6
     maxx=10
     miny=0
     dy=1
@@ -59,7 +64,7 @@ if __name__ == "__main__":
         bdc.appendPoint(p)
     
     t_before = time.time()    
-    bdc.nthreads=4
+    print "threads=",bdc.nthreads
     bdc.dropCutter3()
     t_after = time.time()
     calctime = t_after-t_before
@@ -73,9 +78,19 @@ if __name__ == "__main__":
     print len(clpoints), " cl points evaluated"
     print len(ccpoints), " cc-points"
     print "rendering...",
-    #drawCLpoints(myscreen, clpoints)
+    drawCLpoints(myscreen, clpoints)
     drawCCpoints(myscreen, ccpoints)
     print "done"
+    
+    """
+    maxz=0
+    maxp=0
+    for p in ccpoints:
+        if maxz < p.z:
+            maxz = p.z
+            maxp = p
+    print "max z was:", maxz, " at ", maxp.str()
+    """
     
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)

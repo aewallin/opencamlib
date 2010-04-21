@@ -80,10 +80,11 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
     /* template-method, or "self-delegation", pattern */
     
     vertexDrop(cl,cc,t);
-    facetDrop(cl,cc,t); /// \todo optimisation: if we are already above the triangle we don't need facet and edge
+    /// \todo optimisation: if we are already above the triangle we don't need facet and edge
+    facetDrop(cl,cc,t); 
     edgeDrop(cl,cc,t);
 
-    return 0; // void
+    return 0; // void would be better, return value not used for anything
 }
 
 int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const

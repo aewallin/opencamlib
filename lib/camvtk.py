@@ -23,17 +23,12 @@ orange = ( float(255)/255,float(165)/255,float(0)/255)
 
 def clColor(cc):
     if cc.type==cam.CCType.FACET:
-        #nf+=1
         col = blue
     elif cc.type == cam.CCType.VERTEX:
-        #nv+=1
         col = green
     elif cc.type == cam.CCType.EDGE:
-        #ne+=1
         col = red
     elif cc.type == cam.CCType.NONE:
-        #print "type=NONE!"
-        #nn+=1
         col = (1,1,1)  
     elif cc.type == cam.CCType.ERROR:
         col = (0,1,1)
@@ -45,7 +40,7 @@ def ccColor(cc):
     if cc.type==cam.CCType.FACET:
         col = lblue
     elif cc.type == cam.CCType.VERTEX:
-        col = lgreen
+        col = green
     elif cc.type == cam.CCType.EDGE:
         col = pink
     elif cc.type == cam.CCType.NONE:
