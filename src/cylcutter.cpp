@@ -84,9 +84,6 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     assert( isPositive( normal.z ) ); // we are in trouble if n.z is not positive by now...
     
-    //std::cout << "facetDrop up-flipped normal="<<normal<<"\n";
-    
-    
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
@@ -98,8 +95,6 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     double d = - normal.dot(t.p[0]);
         
     normal.xyNormalize(); // make length of normal in xy plane == 1.0
-    
-    //std::cout << "xyNormalized : n="<<normal<<"\n";
     
     // the contact point with the plane is on the periphery
     // of the cutter, a length diameter/2 from cl in the direction of -n
@@ -127,20 +122,15 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     // 1) calculate distance to infinite line
     // 2) calculate intersection points w. cutter
     // 3) pick the higher intersection point and test if it is in the edge
-    //Point cc;
     int result = 0;
     
     for (int n=0;n<3;n++) { // loop through all three edges
-    
         // 1) distance from point to line
         int start=n;
         int end=(n+1)%3;
-        
-        
         #ifdef EDGEDROP_DEBUG
             std::cout << "testing points " << start<< " to " << end << " :";
-        #endif
-        
+        #endif 
         Point p1 = t.p[start];
         Point p2 = t.p[end];
         
@@ -149,7 +139,6 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
             
             double d = cl.xyDistanceToLine(t.p[start],t.p[end]);
-            
             #ifdef EDGEDROP_DEBUG
                 std::cout << "xyDistance=" << d ;
             #endif
@@ -207,7 +196,6 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                             cc_tmp.z = z1 + ((z2-z1)/(y2-y1)) * (cc_tmp.y-y1);
                         else 
                             assert(0); // trouble.
-                        
                            
                         if (cl.liftZ(cc_tmp.z)) {
                             cc = cc_tmp;
@@ -243,7 +231,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                             std::cout << "cc1 is in edge!\n";
                         #endif
                         // determine height of point. must be on line, so:
-                        if ( !isZero_tol( fabs(x1 - x2) )  ) {  // can compute using x-coords
+                        if ( !isZero_tol( fabs(x1 - x2) > fabs(y1 - y2) )  ) {  // can compute using x-coords
                             #ifdef EDGEDROP_DEBUG
                                 std::cout << "computing cc1 height from x-coords\n";
                             #endif
@@ -263,8 +251,6 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if (cl.liftZ(cc1.z)) {
                             cc=cc1;
                             cc.type = EDGE;
-                            if (cc.z > 4.0)
-                                std::cout << "cc1 case z>4: " << cc << "\n";
                         }
                         //std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
                     }
@@ -318,13 +304,13 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 std::string CylCutter::str()
 {
     std::ostringstream o;
-    o << "CylCutter (d=" << diameter << ")";
+    o << *this;
     return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, CylCutter c)
 {
-  stream << "CylCutter"<< c.id <<"(d=" << c.diameter << ")";
+  stream << "CylCutter (d=" << c.diameter << ")";
   return stream;
 }
 
