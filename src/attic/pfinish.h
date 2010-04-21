@@ -47,7 +47,11 @@ class ParallelFinish {
         /// initialize a grid of CL-points
         void initCLpoints(double minx,double dx, double maxx, 
                        double miny, double dy,double maxy,double base_z);
+<<<<<<< .mine
+        
+=======
                        
+>>>>>>> .r181
         /// return CL-points to Python
         boost::python::list getCLPoints();
         /// return CC-points to Python
@@ -65,6 +69,7 @@ class ParallelFinish {
         KDNode *root;
         /// the STLSurf which we test against.
         STLSurf *surf;
+        
         /// how many times DropCutter was called. Useful for optimization.
         int dcCalls;
         /// number of threads to use

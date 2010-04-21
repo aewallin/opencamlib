@@ -43,7 +43,6 @@
 #include "triangle.h"
 #include "stlsurf.h"
 #include "cutter.h"
-#include "pfinish.h"
 #include "line.h"
 #include "arc.h"
 #include "path.h"

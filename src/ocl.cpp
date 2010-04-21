@@ -150,16 +150,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
-    bp::class_<ParallelFinish>("ParallelFinish")
-        .def("initCLPoints", &ParallelFinish::initCLpoints)
-        .def("dropCutterSTL1", &ParallelFinish::dropCutterSTL1)
-        .def("dropCutterSTL2", &ParallelFinish::dropCutterSTL2)
-        .def("getCLPoints", &ParallelFinish::getCLPoints)
-        .def("getCCPoints", &ParallelFinish::getCCPoints)
-        .def("initSTLSurf", &ParallelFinish::initSTLSurf)
-        .def("getTrianglesUnderCutter", &ParallelFinish::getTrianglesUnderCutter)
-        .def_readonly("dcCalls", &ParallelFinish::dcCalls)
-    ;
     bp::class_<BatchDropCutter>("BatchDropCutter")
         .def("dropCutter1", &BatchDropCutter::dropCutter1)
         .def("dropCutter2", &BatchDropCutter::dropCutter2)

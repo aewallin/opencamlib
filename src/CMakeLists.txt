@@ -74,7 +74,6 @@ add_library(
     oellipse.cpp
     path.cpp
     pathfinish.cpp
-    pfinish.cpp
     point.cpp
     stlsurf.cpp
     triangle.cpp

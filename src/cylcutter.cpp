@@ -307,7 +307,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 std::string CylCutter::str()
 {
     std::ostringstream o;
-    o << "CylCutter"<< id <<"(d=" << diameter << ")";
+    o << "CylCutter (d=" << diameter << ")";
     return o.str();
 }
 
