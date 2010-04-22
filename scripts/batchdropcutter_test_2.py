@@ -38,49 +38,82 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    cutter = cam.BallCutter(1.4321)
+    #cutter = cam.BallCutter(1.4321)
     
-    #cutter = cam.CylCutter(1.123)
+    cutter = cam.CylCutter(1.123)
     
     #cutter = cam.BullCutter(1.123, 0.2)
     
     print cutter.str()
     #print cc.type
     minx=0
-    dx=0.1/6
+    dx=0.1/10
     maxx=10
     miny=0
     dy=1
     maxy=10
     z=-17
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    clpoints2 = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print "generated grid with", len(clpoints)," CL-points"
     
     # batchdropcutter    
     bdc1 = cam.BatchDropCutter()
+    bdc2 = cam.BatchDropCutter()
     bdc1.setSTL(s,1)
+    bdc2.setSTL(s,1)
     bdc1.setCutter(cutter)
+    bdc2.setCutter(cutter)
+    
     for p in clpoints:
         bdc1.appendPoint(p)
+    for p in clpoints2:
+        bdc2.appendPoint(p)
     
     t_before = time.time()    
-    print "threads=",bdc1.nthreads
-    bdc1.dropCutter1()
+    bdc1.dropCutter3()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
     
+    t_before = time.time()    
+    bdc2.dropCutter4()
+    t_after = time.time()
+    calctime = t_after-t_before
+    print " done in ", calctime," s"    
+    
     #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
     
     
-    clpoints = bdc1.getCLPoints()
-    ccpoints = bdc1.getCCPoints()
-    print len(clpoints), " cl points evaluated"
-    print len(ccpoints), " cc-points"
-    exit()
+    cl1 = bdc1.getCLPoints()
+    cc1 = bdc1.getCCPoints()
+    cl2 = bdc2.getCLPoints()
+    cc2 = bdc2.getCCPoints()
+    
+    cle = []
+    for (p1,p2) in zip(cl1,cl2):
+        cle.append( (p1-p2).norm() )
+    
+    sum=0
+    n=0
+    maxe=0
+    for e in cle:
+        if maxe<e:
+            maxe=e
+        sum = sum + e
+        n = n +1
+    print "average error=",float(sum)/n
+    print "max error=",maxe
+    
+    print len(cl1), "1: cl points evaluated"
+    print len(cc1), "1: cc-points"
+    print len(cl2), "2: cl points evaluated"
+    print len(cc2), "2: cc-points"    
+    
+    #exit()
     print "rendering...",
-    drawCLpoints(myscreen, clpoints)
-    drawCCpoints(myscreen, ccpoints)
+    drawCLpoints(myscreen, cl2)
+    drawCCpoints(myscreen, cc2)
     print "done"
     
     """
@@ -111,7 +144,7 @@ if __name__ == "__main__":
     myscreen.addActor( t)
     
     t2 = camvtk.Text()
-    stltext = "%i triangles\n%i CL-points\n%0.1f seconds" % (s.size(), len(clpoints), calctime)
+    stltext = "%i triangles\n%i CL-points\n%0.1f seconds" % (s.size(), len(cl2), calctime)
     t2.SetText(stltext)
     t2.SetPos( (50, myscreen.height-200) )
     myscreen.addActor( t2)
