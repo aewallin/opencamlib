@@ -21,6 +21,9 @@
 #include "triangle.h"
 #include "point.h"
 
+namespace ocl
+{
+
 int Triangle::count=0;
 
 Triangle::Triangle()
@@ -129,3 +132,6 @@ std::ostream &operator<<(std::ostream &stream, const Triangle t)
   stream <<  "Tri(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) ;
   return stream;
 }
+
+}  // end namespace
+// end file triangle.cpp

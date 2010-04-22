@@ -22,6 +22,9 @@
 #include <cassert>
 #include "numeric.h"
 
+namespace ocl
+{
+
 #define TOLERANCE 0.0000001
 #define NEGATIVE_TOL -TOLERANCE
 
@@ -53,3 +56,5 @@ bool isZero_tol(double x) {
         return false;
 }
 
+} // end namespace
+// end file numeric.cpp

@@ -21,10 +21,9 @@
  *  Python wrapping
  */
 
+using namespace ocl;
+
 namespace bp = boost::python;
-
-
-
 
 BOOST_PYTHON_MODULE(ocl) {
     bp::class_<Point>("Point") 

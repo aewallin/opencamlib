@@ -34,6 +34,8 @@
 
 #include "kdtree.h"
 
+namespace ocl
+{
 
 //#define DEBUG_KD
 
@@ -474,3 +476,5 @@ std::ostream& operator<<(std::ostream &stream, const KDNode root)
     return stream;
 }
 
+} // end namespace
+// end file kdtree.cpp

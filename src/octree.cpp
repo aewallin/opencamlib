@@ -41,6 +41,8 @@
 
 //#define DEBUG_BUILD_OCT
 
+namespace ocl
+{
 
 
 //********** Ocode ******************/
@@ -919,4 +921,5 @@ std::string LinOCT::str()
     return o.str();
 }
 
+} // end namespace
 // end of file octree.cpp

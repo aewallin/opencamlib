@@ -21,6 +21,9 @@
 #include <math.h>
 #include "path.h"
 
+namespace ocl
+{
+
 Path::Path() {
 }
 
@@ -46,3 +49,6 @@ void Path::append(const Line &l) {
 void Path::append(const Arc &a) {
 	span_list.push_back(new ArcSpan(a));
 }
+
+} // end namespace
+// end file path.cpp

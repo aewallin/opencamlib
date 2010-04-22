@@ -22,9 +22,11 @@
 #include <iostream>
 #include <list>
 
+namespace ocl
+{
+    
 class Point;
 class Triangle;
-
 class MillingCutter;
 
 /// \brief KDTree spread, a measure of how spread-out a list of triangles are.
@@ -120,6 +122,6 @@ class KDNode {
         static int cutcount;        
 };
 
-
-
+} // end namespace
 #endif
+// end file kdtree.h

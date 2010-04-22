@@ -28,9 +28,9 @@
 #include "triangle.h"
 #include "stlsurf.h"
 
-//class STLSurf;
+namespace ocl
+{
 
-namespace bp = boost::python;
 
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
@@ -91,7 +91,7 @@ class MillingCutter {
 
 /* required wrapper class for virtual functions in boost-python */
 /// \brief a wrapper required for boost-python
-class MillingCutterWrap : public MillingCutter, public bp::wrapper<MillingCutter>
+class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<MillingCutter>
 {
     public:
     int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
@@ -233,9 +233,10 @@ class ConeCutter : public MillingCutter {
 
 
 
-
+} // end namespace
 
 
 
 #endif
 
+// end file cutter.h

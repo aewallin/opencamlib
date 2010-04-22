@@ -27,6 +27,9 @@
 #include "kdtree.h"
 #include "pathfinish.h"
 
+namespace ocl
+{
+
 //********   ********************** */
 
 PathDropCutterFinish::PathDropCutterFinish() {
@@ -156,3 +159,5 @@ boost::python::list PathDropCutterFinish::getCLPoints()
     return plist;
 }
 
+} // end namespace
+// end file pathfinish.cpp

@@ -27,7 +27,8 @@
 #include "numeric.h"
 #include "oellipse.h"
 
-
+namespace ocl
+{
 
 //********   CylCutter ********************** */
 BullCutter::BullCutter()
@@ -367,3 +368,5 @@ std::ostream& operator<<(std::ostream &stream, BullCutter c)
   return stream;
 }
 
+} // end namespace
+// end file bullcutter.cpp

@@ -28,6 +28,9 @@
 #include "kdtree.h"
 #include "batchdropcutter.h"
 
+namespace ocl
+{
+
 //********   ********************** */
 
 BatchDropCutter::BatchDropCutter() {
@@ -241,3 +244,7 @@ boost::python::list BatchDropCutter::getCCPoints()
     return plist;
 }
 
+
+}// end namespace
+
+// end file batchdropcutter.cpp

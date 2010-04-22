@@ -24,6 +24,9 @@
 #include "triangle.h"
 #include "kdtree.h"
 
+namespace ocl
+{
+    
 
 
 /// \brief STL surface, essentially an unordered list of Triangle objects
@@ -92,4 +95,6 @@ class STLSurf {
         void read_from_file(const wchar_t* filepath);
 };
 
+} // end namespace
 #endif
+// end file stlsurf.h

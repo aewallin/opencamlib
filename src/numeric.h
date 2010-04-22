@@ -17,10 +17,14 @@
 */
 #ifndef NUMERIC_H
 #define NUMERIC_H
+#include <cassert>
 
+namespace ocl
+{
+    
 #define PI 3.1415926535897932
 
-#include <cassert>
+
 
 ///
 /// \brief Numeric is a collection of functions for dealing
@@ -43,5 +47,6 @@ bool isPositive(double x);
 bool isZero_tol(double x);
 
 
-
+} // end namespace
 #endif
+// end file numeric.h

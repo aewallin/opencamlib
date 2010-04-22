@@ -30,6 +30,9 @@
 #include "cutter.h"
 #include "kdtree.h"
 
+namespace ocl
+{
+
 ///
 /// \brief Drop cutter interface
 class BatchDropCutter {
@@ -85,5 +88,6 @@ class BatchDropCutter {
         int nthreads;
 };
 
+}
 
 #endif

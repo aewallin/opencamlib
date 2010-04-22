@@ -22,6 +22,9 @@
 #include "point.h"
 #include "numeric.h"
 
+namespace ocl
+{
+
 ///
 /// \brief a finite arc segment in 3D space specified by its end points (p1, p2)
 ///
@@ -62,4 +65,6 @@ class Arc {
         void setProperties();
 };
 
+} // end namespace
 #endif
+// end file arc.h

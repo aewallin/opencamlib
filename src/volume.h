@@ -23,6 +23,9 @@
 #include <list>
 #include <vector>
 
+namespace ocl
+{
+    
 class Point;
 class Triangle;
 class MillingCutter;
@@ -79,7 +82,7 @@ class OCTVolume {
 
 /* required wrapper class for virtual functions in boost-python */
 /// \brief a wrapper around OCTVolume required for boost-python
-class OCTVolumeWrap : public OCTVolume, public bp::wrapper<OCTVolume>
+class OCTVolumeWrap : public OCTVolume, public boost::python::wrapper<OCTVolume>
 {
     public:
     bool isInside(Point &p) const
@@ -198,5 +201,6 @@ class CylMoveOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
-
+} // end namespace
 #endif
+// end file volume.h

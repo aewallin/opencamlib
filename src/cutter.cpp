@@ -25,6 +25,10 @@
 #include "point.h"
 #include "triangle.h"
 
+namespace ocl
+{
+    
+
 //********   MillingCutter ********************** */
 int MillingCutter::count = 0;
 
@@ -117,4 +121,5 @@ bool MillingCutter::overlaps(Point &cl, const Triangle &t) const
 
 
 
-
+} // end namespace
+// end file cutter.cpp

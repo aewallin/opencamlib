@@ -28,7 +28,8 @@
 #include "cutter.h"
 #include "numeric.h"
 
-
+namespace ocl
+{
 
 //********   CylCutter ********************** */
 BallCutter::BallCutter()
@@ -278,3 +279,5 @@ std::ostream& operator<<(std::ostream &stream, BallCutter c)
   return stream;
 }
 
+} // end namespace
+// end file ballcutter.cpp

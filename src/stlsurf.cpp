@@ -31,6 +31,10 @@
 #include "triangle.h"
 #include "stlsurf.h"
 
+namespace ocl
+{
+    
+
 int STLSurf::count=0;
 
 STLSurf::STLSurf() {
@@ -287,3 +291,6 @@ void STLSurf::read_from_file(const wchar_t* filepath)
         }
 }
 
+
+} // end namespace
+// end file stlsurf.cpp

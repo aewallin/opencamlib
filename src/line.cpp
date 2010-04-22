@@ -21,6 +21,9 @@
 #include <math.h>
 #include "line.h"
 
+namespace ocl
+{
+
 Line::Line(const Point &p1in, const Point &p2in)
 {
     p1=p1in;
@@ -56,3 +59,6 @@ Point Line::Near(const Point& p)const{
 	double dp = (p - p1).dot(v);
 	return p1 + (v * dp);
 }
+
+} // end namespace
+// end file line.cpp

@@ -21,6 +21,9 @@
 #include <iostream>
 #include <string>
 
+namespace ocl
+{
+
 // forward declaration
 class Triangle;
 ///
@@ -159,4 +162,6 @@ class CCPoint : public Point {
     private:        
 };
 
+} // end namespace
 #endif
+// end file point.h

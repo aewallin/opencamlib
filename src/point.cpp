@@ -23,6 +23,10 @@
 #include "triangle.h"
 #include "numeric.h"
 
+namespace ocl
+{
+    
+
 int Point::count = 0;
 
 Point::Point()
@@ -387,3 +391,6 @@ std::string CCPoint::str()
         o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
         return o.str();
 }
+
+} // end namespace
+// end file point.cpp

@@ -28,7 +28,9 @@
 #include "cutter.h"
 #include "numeric.h"
 
-
+namespace ocl
+{
+    
 
 //********   constructors ********************** */
 ConeCutter::ConeCutter()
@@ -250,3 +252,5 @@ std::ostream& operator<<(std::ostream &stream, ConeCutter c)
   return stream;
 }
 
+} // end namespace
+// end file conecutter.cpp

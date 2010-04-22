@@ -21,6 +21,10 @@
 #include <iostream>
 #include "point.h"
 
+namespace ocl
+{
+    
+
 ///
 /// \brief A finite line segment in 3D space specified by its end points (p1, p2)
 ///
@@ -49,4 +53,6 @@ class Line {
 		Point Near(const Point& p)const;
 };
 
+} // end namespace
 #endif
+// end file line.h

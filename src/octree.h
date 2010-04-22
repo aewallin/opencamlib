@@ -23,6 +23,10 @@
 #include <list>
 #include <vector>
 #include "volume.h"
+
+namespace ocl
+{
+    
 class Point;
 class Triangle;
 class MillingCutter;
@@ -164,5 +168,6 @@ class LinOCT {
         void printList();
 };
 
-
+} // end namespace
 #endif
+// end file octree.h

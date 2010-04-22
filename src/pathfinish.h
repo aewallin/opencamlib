@@ -29,6 +29,9 @@
 #include "cutter.h"
 #include "kdtree.h"
 
+namespace ocl
+{
+
 ///
 /// \brief path drop cutter finish Path generation
 class PathDropCutterFinish {
@@ -67,4 +70,6 @@ class PathDropCutterFinish {
         boost::python::list getCLPoints();
 };
 
+} // end namespace
 #endif
+// end file pathfinish.h

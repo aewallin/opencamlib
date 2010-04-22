@@ -37,6 +37,9 @@
 #include "octree.h"
 #include "volume.h"
 
+namespace ocl
+{
+
 //************* OCTVolume base-class **************/
 
 /// return true if point p is inside the Bbox bb
@@ -474,4 +477,5 @@ bool CylMoveOCTVolume::isInside(Point& p) const
 
 }
 
+} // end namespace
 // end of file volume.cpp

@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-
 // uncomment to disable assert() calls
 // #define NDEBUG
 #include <cassert>
@@ -27,6 +26,9 @@
 #include "point.h"
 #include "oellipse.h"
 #include "numeric.h"
+
+namespace ocl
+{
 
 // #define DEBUG_SOLVER
 
@@ -341,4 +343,5 @@ double Ellipse::error(Epos& pos, Point& p)
     return dy;
 }
 
+} // end namespace
 // end of file oellipse.cpp

@@ -25,7 +25,8 @@
 #include "line.h"
 #include "arc.h"
 
-
+namespace ocl
+{
 
 
 /// Span type
@@ -105,4 +106,6 @@ class Path {
         void append(const Arc &a);
 };
 
+} // end namespace
 #endif
+// end file path.h

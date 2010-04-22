@@ -29,6 +29,9 @@
 
 // #define EDGEDROP_DEBUG
 
+namespace ocl
+{
+
 //********   CylCutter ********************** */
 CylCutter::CylCutter()
 {
@@ -314,3 +317,5 @@ std::ostream& operator<<(std::ostream &stream, CylCutter c)
   return stream;
 }
 
+} // end namespace
+// end file cylcutter.cpp

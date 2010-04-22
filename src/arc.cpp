@@ -21,6 +21,9 @@
 #include <math.h>
 #include "arc.h"
 
+namespace ocl
+{
+
 Arc::Arc(const Point &p1in, const Point &p2in, const Point &cin, bool dirin) {
     p1=p1in;
 	p2=p2in;
@@ -91,3 +94,6 @@ double Arc::xyIncludedAngle(const Point& v1, const Point& v2, bool dir) {
 	}
 	return d * inc_ang;
 }
+
+} // end namespace
+// end file arc.cpp

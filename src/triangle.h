@@ -22,6 +22,8 @@
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 
+namespace ocl
+{
 
 ///
 /// \brief a Triangle defined by its three vertices
@@ -69,4 +71,6 @@ class Triangle {
         void calcBB();
 };
 
+} // end namespace
 #endif
+// end file triangle.h

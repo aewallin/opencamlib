@@ -23,6 +23,10 @@
 #include <list>
 #include "point.h"
 
+namespace ocl
+{
+    
+
 class Ellipse;
 ///
 /// \brief Epos defines a position in (s,t) coordinates on an ellipse.
@@ -111,4 +115,6 @@ class Ellipse {
         
 };
 
+} // end namespace
 #endif
+// end file oellipse.h
