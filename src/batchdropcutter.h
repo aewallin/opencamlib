@@ -83,8 +83,8 @@ class BatchDropCutter {
         
         /// how many times DropCutter was called. Useful for optimization.
         int dcCalls;
-        
-        /// number of threads to use
+
+		/// number of threads to use
         int nthreads;
 };
 

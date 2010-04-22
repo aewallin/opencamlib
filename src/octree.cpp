@@ -96,7 +96,7 @@ Point Ocode::point() const {
     // navigate to correct point
     for (int n=0; n<depth ; n++) {
         // note: code[n]==8  goes nowhere
-        p += ( scale/pow(2,n) )*dir( code[n] );
+        p += ( scale/pow(2.0,n) )*dir( code[n] );
     }
     return p;
 }
@@ -108,7 +108,7 @@ Point Ocode::corner(int idx) {
 
     int n= degree();
     // from the center go out to the corner
-    p += ( scale*2 /pow(2,n) )*dir( idx );
+    p += ( scale*2 /pow(2.0,n) )*dir( idx );
     return p;
 }
 
@@ -127,7 +127,7 @@ void Ocode::set_scale(double s)
 
 double Ocode::get_scale()
 {
-    return scale /pow(2,degree()-2 );
+    return scale /pow(2.0,degree()-2 );
 }
 
 bool Ocode::expandable()
@@ -280,7 +280,7 @@ bool Ocode::operator==(const Ocode &o){
 unsigned long Ocode::number() const {
     unsigned long n=0;
     for (int m=0;m<depth;m++) {
-        n += pow(10,depth-m)*code[m];
+        n += (unsigned long)(pow(10.0,depth-m)*code[m]);
     }
     assert( n > 0 );
     return n;

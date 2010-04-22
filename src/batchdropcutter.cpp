@@ -20,7 +20,9 @@
 #include <sstream>
 #include <math.h>
 #include <boost/progress.hpp>
+#ifndef WIN32
 #include <omp.h>
+#endif
 
 #include "cutter.h"
 #include "point.h"
@@ -37,7 +39,9 @@ BatchDropCutter::BatchDropCutter() {
     clpoints = new std::vector<Point>();
     ccpoints = new std::vector<CCPoint>();
     dcCalls = 0;
+#ifndef WIN32
     nthreads = omp_get_num_procs(); // figure out how many cores we have
+#endif
     cutter = new CylCutter(1.0);
 }
 
@@ -173,17 +177,21 @@ void BatchDropCutter::dropCutter4()
     MillingCutter& cutref = *cutter;
     //KDNode* root2 = root;
 
+#ifndef WIN32
     omp_set_num_threads(nthreads);
+#endif
     std::list<Triangle>::iterator it;
     #pragma omp parallel for shared( calls, clref, ccref, cutref) private(n,t,tris,it)
         for (n=0;n< Nmax ;n++) {
+#ifndef WIN32
             if ( n== 0 ) {
                 // on first iteration, print out how many threads we are using
                 if (omp_get_thread_num() == 0 ) {   
                     std::cout << "Number of threads = "<< omp_get_num_threads() << "\n";
                 }
             }
-            
+#endif
+
             t= 0;
             tris=new std::list<Triangle>();
             

@@ -120,7 +120,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPENCAMLIB_EXPORTS;__BOOST_PYTHON_NO_LIB__;BOOST_PYTHON_STATIC_LIB=1;BOOST_LIB_DIAGNOSTIC;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -176,7 +176,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\arc.cpp"
+				RelativePath="..\src\arc.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -188,7 +188,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ballcutter.cpp"
+				RelativePath="..\src\ballcutter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -200,7 +200,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\bullcutter.cpp"
+				RelativePath="..\src\batchdropcutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\bullcutter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -212,7 +216,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\cutter.cpp"
+				RelativePath="..\src\conecutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -224,7 +232,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\cylcutter.cpp"
+				RelativePath="..\src\cylcutter.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -258,7 +266,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\kdtree.cpp"
+				RelativePath="..\src\kdtree.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -270,7 +278,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\line.cpp"
+				RelativePath="..\src\line.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -282,7 +290,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\numeric.cpp"
+				RelativePath="..\src\numeric.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -294,7 +302,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\ocl.cpp"
+				RelativePath="..\src\ocl.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -306,7 +314,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\oellipse.cpp"
+				RelativePath="..\src\octree.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\oellipse.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -322,7 +334,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\path.cpp"
+				RelativePath="..\src\path.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -334,7 +346,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\pathfinish.cpp"
+				RelativePath="..\src\pathfinish.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -346,19 +358,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\pfinish.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\point.cpp"
+				RelativePath="..\src\point.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -390,7 +390,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\stlsurf.cpp"
+				RelativePath="..\src\stlsurf.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -402,7 +402,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\triangle.cpp"
+				RelativePath="..\src\triangle.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -412,6 +412,10 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\volume.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
@@ -420,47 +424,51 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\arc.h"
+				RelativePath="..\src\arc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\cutter.h"
+				RelativePath="..\src\batchdropcutter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\kdtree.h"
+				RelativePath="..\src\cutter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\line.h"
+				RelativePath="..\src\kdtree.h"
 				>
 			</File>
 			<File
-				RelativePath="..\numeric.h"
+				RelativePath="..\src\line.h"
 				>
 			</File>
 			<File
-				RelativePath="..\ocl.h"
+				RelativePath="..\src\numeric.h"
 				>
 			</File>
 			<File
-				RelativePath="..\oellipse.h"
+				RelativePath="..\src\ocl.h"
 				>
 			</File>
 			<File
-				RelativePath="..\path.h"
+				RelativePath="..\src\octree.h"
 				>
 			</File>
 			<File
-				RelativePath="..\pathfinish.h"
+				RelativePath="..\src\oellipse.h"
 				>
 			</File>
 			<File
-				RelativePath="..\pfinish.h"
+				RelativePath="..\src\path.h"
 				>
 			</File>
 			<File
-				RelativePath="..\point.h"
+				RelativePath="..\src\pathfinish.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\point.h"
 				>
 			</File>
 			<File
@@ -468,7 +476,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\stlsurf.h"
+				RelativePath="..\src\stlsurf.h"
 				>
 			</File>
 			<File
@@ -476,7 +484,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\triangle.h"
+				RelativePath="..\src\triangle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\volume.h"
 				>
 			</File>
 		</Filter>
