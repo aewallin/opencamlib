@@ -54,13 +54,11 @@ class MillingCutter {
         /// works in the xy-plane 
         bool overlaps(Point &cl, const Triangle &t) const;
         
-        /// drop cutter at (cl.x, cl.y) against vertices of Triangle t.
-        /// loop through each vertex p of Triangle t
-        /// drop down cutter at (cl.x, cl.y) against Point p
+        /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         virtual int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
-        /// drop cutter at (cl.x, cl.y) against edges of Triangle t
+        /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
         virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
         
         /// drop the MillingCutter at Point cl down along the z-axis
@@ -210,9 +208,11 @@ class ConeCutter : public MillingCutter {
         ConeCutter();
         /// create a ConeCutter with specified diameter and cone-angle
         ConeCutter(const double d, const double angle);
+        
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
         /// string repr
@@ -225,18 +225,6 @@ class ConeCutter : public MillingCutter {
         double height;
 };
 
-
-
-
-
-
-
-
-
 } // end namespace
-
-
-
 #endif
-
 // end file cutter.h

@@ -20,10 +20,15 @@ black = (0,0,0)
 pink = ( float(255)/255,float(192)/255,float(203)/255)
 grey = ( float(127)/255,float(127)/255,float(127)/255)
 orange = ( float(255)/255,float(165)/255,float(0)/255)
+mag = ( float(153)/255 , float(42)/255 , float(165)/255  )
 
 def clColor(cc):
     if cc.type==cam.CCType.FACET:
         col = blue
+    elif cc.type == cam.CCType.FACET_TIP:
+        col = orange
+    elif cc.type == cam.CCType.FACET_CYL:
+        col = cyan
     elif cc.type == cam.CCType.VERTEX:
         col = green
     elif cc.type == cam.CCType.EDGE:
@@ -37,8 +42,13 @@ def clColor(cc):
 def ccColor(cc):
     """ this function returns a different color depending on the type of
         the CC-point. Useful for visualizing CL or CC points """
+    col = red
     if cc.type==cam.CCType.FACET:
         col = lblue
+    elif cc.type == cam.CCType.FACET_TIP:
+        col = mag
+    elif cc.type == cam.CCType.FACET_CYL:
+        col = yellow
     elif cc.type == cam.CCType.VERTEX:
         col = green
     elif cc.type == cam.CCType.EDGE:
@@ -47,6 +57,9 @@ def ccColor(cc):
         col = white 
     elif cc.type == cam.CCType.ERROR:
         col = (0,0.5,1)
+    else:
+        print "err. no color"
+        col = red
     return col       
     
 

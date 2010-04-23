@@ -59,6 +59,7 @@ int ConeCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         if (q<= diameter/2) { // p is inside the cutter
             // h1 = q / tan(alfa)
             // cutter_tip = p.z - h1
+            assert( tan(angle) > 0.0 ); // guard against division by zero
             double h1 =  q/tan(angle);
             if (cl.liftZ(p.z - h1)) { // we need to lift the cutter
                 cc = p;
@@ -72,11 +73,12 @@ int ConeCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
-// FIXME FIXME (code is copy of ballcutter for now)
-// we mostly hit the tip, or the circular edge between the cone and the cylindrical shaft
-// but sometimes the whole face of the cutter...
+
+// we either hit the tip, when the slope of the plane is smaller than angle
+// or when the slope is steep, the circular edge between the cone and the cylindrical shaft
 int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
+    int result = 0;
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
 
     Point normal; // facet surface normal
@@ -97,10 +99,10 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         cc_tmp.x = cl.x;
         cc_tmp.y = cl.y;
         cc_tmp.z = t.p[0].z;
-        if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
+        if (cc_tmp.isInside(t)) { // cc-point is on the axis of the cutter       
             if ( cl.liftZ(cc_tmp.z) ) {
                 cc = cc_tmp;
-                cc.type = FACET;
+                cc.type = FACET_TIP;
                 return 1;
             }
         } else { // not inside facet
@@ -119,34 +121,35 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
     double d = - normal.dot(t.p[0]);
         
-    normal.normalize(); // make length of normal == 1.0
+    normal.xyNormalize(); // make length of normal == 1.0
     
-    // define the radiusvector which points from the 
-    // ball-center to the cc-point.
-    Point radiusvector = -(diameter/2)*normal;
-    
+    // cylindrical contact point case
     // find the xy-coordinates of the cc-point
-    Point cc_tmp = cl + radiusvector;
+    Point cyl_cc_tmp = cl - (diameter/2)*normal;
+    cyl_cc_tmp.z = (1.0/c)*(-d-a*cyl_cc_tmp.x-b*cyl_cc_tmp.y);
+    double cyl_cl_z = cyl_cc_tmp.z - height; // tip positioned here
     
-    // find the z-coordinate of the cc-point.
-    // it lies in the plane.
-    cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
-    
-    // now find the z-coordinate of the cl-point
-    double tip_z = cc_tmp.z - radiusvector.z - (diameter/2);
-        
-    if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()       
-        if ( cl.liftZ(tip_z) ) {
-            cc = cc_tmp;
-            cc.type = FACET;
-            return 1;
+    Point tip_cc_tmp = Point(cl.x,cl.y,0);
+    tip_cc_tmp.z = (1.0/c)*(-d-a*tip_cc_tmp.x-b*tip_cc_tmp.y);
+    double tip_cl_z = tip_cc_tmp.z;
+          
+    if (tip_cc_tmp.isInside(t)) { // TIP case     
+        if ( cl.liftZ(tip_cl_z) ) {
+            cc = tip_cc_tmp;
+            cc.type = FACET_TIP;
+            result = 1;
+        }
+    } if (cyl_cc_tmp.isInside(t))  { // CYLINDER case
+        if ( cl.liftZ(cyl_cl_z) ) {
+            cc = cyl_cc_tmp;
+            cc.type = FACET_CYL;
+            result = 1; 
         }
     } else {
         return 0;
     }
-    return 0; // we never get here (?)
+    return result; // we never get here (?)
 }
-
 
 // FIXME FIXME (code is copy of ballcutter for now)
 // cone sliced with vertical plane results in a hyperbola as the intersection curve

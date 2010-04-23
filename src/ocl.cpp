@@ -62,6 +62,8 @@ BOOST_PYTHON_MODULE(ocl) {
         .value("VERTEX",VERTEX)
         .value("EDGE",EDGE)
         .value("FACET", FACET)
+        .value("FACET_TIP", FACET_TIP)
+        .value("FACET_CYL", FACET_CYL)
         .value("ERROR", ERROR)
     ;
     bp::class_<Triangle>("Triangle")
