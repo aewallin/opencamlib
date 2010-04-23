@@ -151,7 +151,6 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result; // we never get here (?)
 }
 
-// FIXME FIXME (code is copy of ballcutter for now)
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
 // find point where hyperbola and line slopes match? (or use radius-vector approach as in ball cutter?) 
 int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
@@ -160,7 +159,6 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     // strategy:
     // 1) calculate distance to infinite line
     // 2) calculate intersection points w. cutter
-    // 3) pick the higher intersection point and test if it is in the edge
     
     int result = 0;
     
@@ -169,7 +167,6 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         // 1) distance from point to line in xy plane
         int start=n;      // index of the start-point of the edge
         int end=(n+1)%3;  // index of the end-point of the edge
-        //std::cout << "testing edge " << start << " to " << end << "\n";
         Point p1 = t.p[start];
         Point p2 = t.p[end];
         
@@ -183,13 +180,32 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
             if (d<=(diameter/2)) { // potential hit
             
-                // the plane of the line will slice the spherical cutter at
+                // http://en.wikipedia.org/wiki/Hyperbola
+                // hyperbola defined by
+                // x^2 / a^2 - y^2 / b^2 = 1
+                // or in parametric form
+                // ( a*cosh(u), b*sinh(u) )
+                // where
+                // x = c * cos(theta) * cosh(u)
+                // y = c * sin(theta) * sinh(u)
+                // hyperbola has focus at c on the x-axis
+                // theta= angle of asymptotes with line of foci (?)
+                // this parabola lies on its side and opens towards the +x axis
+                // at u=0 the x-coordinate is a, since
+                // cosh(0) = 1.0
+                
+                double a=1.0;
+                
+                
+                // the plane of the line slices the cone at
                 // a distance d from the center of the cutter
-                // here the radius of the circular section is
+                // here the width of the parabola should be
                 double s = sqrt( square((diameter/2)) - square(d) );
                     
                 // the center-point of this circle, in the xy plane lies at
                 Point sc = cl.xyClosestPoint( p1, p2 );   
+                
+
                 
                 Point v = p2 - p1;
                 Point start2sc_dir = sc - p1;
