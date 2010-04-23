@@ -30,7 +30,9 @@ and
 this should create the ocl manual named "ocl-manual.pdf" in the src/doc directory
 
 3. ORGANIZATION OF FILES
-|-- OpenCamLib          Visual-studio project for building on windows
+(generate this with 'tree -dL2')
+
+|-- Windows             Visual-studio project for building on windows
 |-- debian              files for building a debian package
 |-- lib                 libraries
 |-- scripts             python scripts that test or demonstrate use of ocl
