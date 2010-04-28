@@ -252,9 +252,6 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     cc_tmp = p1 + (cc_u/p2u)*v;
                     
                     cl_z = cc_tmp.z + s*normal.y - radius;
-                    if ( (cc_tmp.x == 0.0) && (cc_tmp.y == 0.0) && (cc_tmp.z == 0.0))
-                        std::cout << "err cl=" << cl << "\n";
-                        
                 }
                 
                 // test if cc-point is in edge

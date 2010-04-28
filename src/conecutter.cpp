@@ -179,62 +179,115 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             assert( d >= 0.0 );
                 
             if (d<=(diameter/2)) { // potential hit
-            
-                // http://en.wikipedia.org/wiki/Hyperbola
-                // hyperbola defined by
-                // x^2 / a^2 - y^2 / b^2 = 1
-                // or in parametric form
-                // ( a*cosh(u), b*sinh(u) )
-                // where
-                // x = c * cos(theta) * cosh(u)
-                // y = c * sin(theta) * sinh(u)
-                // hyperbola has focus at c on the x-axis
-                // theta= angle of asymptotes with line of foci (?)
-                // this parabola lies on its side and opens towards the +x axis
-                // at u=0 the x-coordinate is a, since
-                // cosh(0) = 1.0
+                // math/geometry from Yau et al. 2004 paper (Int. J. Prod. Res. vol42 no13)
+                               
+                // translate so that cutter is at (0,0)
+                //p1 = p1 - Point(cl.x, cl.y, 0.0);
+                //p2 = p2 - Point(cl.x, cl.y, 0.0);
+                //Point sc = cl.xyClosestPoint( p1, p2 );
                 
-                double a=1.0;
+                Point dir3d = p2-p1;
+                dir3d.normalize();
                 
+                Point dir = p2-p1;
+                dir.z = 0.0;
+                dir.xyNormalize();
                 
-                // the plane of the line slices the cone at
-                // a distance d from the center of the cutter
-                // here the width of the parabola should be
-                double s = sqrt( square((diameter/2)) - square(d) );
-                    
-                // the center-point of this circle, in the xy plane lies at
-                Point sc = cl.xyClosestPoint( p1, p2 );   
+                double p1u = (p1-cl).dot(dir);
+                double p2u = (p2-cl).dot(dir);
                 
-
-                
-                Point v = p2 - p1;
-                Point start2sc_dir = sc - p1;
-                start2sc_dir.xyNormalize();
-                start2sc_dir.z=0;
-                double dz = p2.z - p1.z;
-                double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
-                
-                // in the vertical plane of the line:
-                // (du,dz) points in the direction of the line
-                // so (dz, -du) is a normal to the line
-                Point tangent = Point(p2u,dz,0);
-                tangent.xyNormalize();
-                Point normal = Point (dz, -p2u, 0);
-                normal.xyNormalize();
-                if (normal.y < 0) { // flip normal so it points upward
-                    normal = -1*normal;
+                if ( (fabs(p2u-p1u) - (p2-p1).xyNorm() ) > 1E-6 ) {
+                    std::cout << p2u-p1u << " == " << (p2-p1).xyNorm() << "? \n";
+                    std::cout << "cl: " << cl << "\n";
+                    std::cout << "dir: " << dir << "\n";
+                    std::cout << "p1: " << p1 << "\n";
+                    std::cout << "p2: " << p2 << "\n";
+                    std::cout << "p1u: " << p1u << "\n";
+                    std::cout << "p2u: " << p2u << "\n";
+                    assert(0);
                 }
-                assert( isPositive(normal.y) );
+                // coordinate system (u,v), edge has v=d
+                //double p1u = 0;
+                //double p2u = (p2-p1).xyNorm();
+                //Point vxy = Point(p2.x-p1.x, p2.y-p1.y, 0.0);
+                //vxy.xyNormalize();
+                //Point clxy = Point(cl.x, cl.y, 0.0);
+                //double clu = cl.dot( vxy);
                 
-                Point start2sc = sc - p1;
-                double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
                 
-                double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
+                //Point v = p2 - p1;
+                //Point start2sc_dir = sc - p1;
+                //start2sc_dir.xyNormalize();
+                //start2sc_dir.z=0;
+                //double dz = p2.z - p1.z;
+                //double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
                 
-                Point cc_tmp = p1 + (cc_u/p2u)*v;
                 
-                double cl_z = cc_tmp.z + s*normal.y - (diameter/2);
+                // in (u,v) coordinates 
+                // cl is at (clu, 0)
+                // p1 is at (0,   d)
+                // p2 is at (p2u, d)
                 
+                // edge rotated so it is at y=l 
+                // if R2 < l < R we contact the upper cone of the APT-tool
+                // intersection curve is
+                // z = ( sqrt( x^2 + l^2) / (R-R2) ) * L
+                // L = height of upper cone region
+                //
+                // the slope of this curve is 
+                // dz/dx = (L/(R-R2)) * x /(sqrt( x^2 + l^2 ))
+                // set this equal to the slope, m, of the line:
+                // m = (z2 - z1) / (x2 - x1)
+                double m = (p2.z-p1.z) / (p2u-p1u);
+                
+                // the outermost point on the cutter is at
+                // xu = sqrt( R^2 - l^2 )
+                double xu = sqrt( square(diameter/2) - square(d) ); 
+                // here the slope has a maximum
+                // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + l^2 ))
+                double mu = (height/(diameter/2) ) * xu / sqrt( square(xu) + square(d) ) ;
+                
+                
+                // find contact point where slopes match.
+                double ccu;
+                
+                // there are two cases:
+                // 1) if abs(m) <= abs(mu)  we contact the curve at
+                // xp = sign(m) * sqrt( R^2 m^2 l^2 / (h^2 - R^2 m^2) )
+                if (fabs(m) <= fabs(mu) ) { // 1) hyperbola case
+                    ccu = sign(m) * sqrt( square(diameter/2)*square(m)*square(d) / 
+                                         (square(height) -square(diameter/2)*square(m) ) );
+                } else if ( fabs(m)>fabs(mu) ) {
+                    // 2) if abs(m) > abs(mu)
+                    // xp = sign(m) * xu
+                    // contact with circular edge
+                    ccu = sign(m)*xu;
+                } else {
+                    assert(0);
+                }
+                
+                
+                // now the cc-point can be found:
+                Point cc_tmp = p1 + (ccu-p1u)*dir3d;
+                
+                double cl_z;
+                if (fabs(m) <= fabs(mu) ) {
+                    cl_z = cc_tmp.z - height + (diameter/2-sqrt(square(ccu) + square(d)))/ tan(angle);
+                } else if ( fabs(m)>fabs(mu) ) {
+                    cl_z = cc_tmp.z - height;
+                } else {
+                    assert(0);
+                }
+                
+                // now check if xp is in the edge
+                // the z-coord of the cc-point can be found:
+                // zp = z1 + m( xp - x1 )
+                // and the two cases for the CL-point
+                // 1) zc = zp - Lc + (R - sqrt(xp^2 + l^2)) / tan(beta2)
+                // 2) zc = zp - Lc
+                // Lc = total height of cutter
+                
+                                
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
                     if (cl.liftZ(cl_z)) {

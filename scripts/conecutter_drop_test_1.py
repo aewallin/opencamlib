@@ -15,7 +15,6 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     return plist
 
 
-
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
@@ -23,7 +22,7 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b=cam.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c=cam.Point(0,0,0.3)
+    c=cam.Point(0,0,0.4)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
@@ -33,16 +32,17 @@ if __name__ == "__main__":
     t = cam.Triangle(a,b,c)
     radius1=1
     angle = math.pi/4
-    cutter = cam.ConeCutter(1, angle)
+    cutter = cam.ConeCutter(0.7, angle)
+    #cutter = cam.BallCutter(0.3)
     print cutter.str()
     
     
     #print cc.type
     minx=-0.5
-    dx=0.05
+    dx=0.03
     maxx=1.5
     miny=-0.5
-    dy=0.05
+    dy=dx
     maxy=1.5
     z=-0.8
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
         #cutter.dropCutter(cl,cc,t)
         
         
-        #cutter.edgeDrop(cl,cc,t)
+        cutter.edgeDrop(cl,cc,t)
         
         cutter.facetDrop(cl,cc,t)
         cutter.vertexDrop(cl,cc,t)
@@ -89,8 +89,13 @@ if __name__ == "__main__":
     for cl,cc in zip(clpoints,ccpoints):
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
         
-        #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) ) 
+        if cc.type != cam.CCType.NONE:
+            myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) ) 
         
+        if cc.type != cam.CCType.NONE and cc.x==0.0 and cc.y == 0.0 and cc.z == 0:
+            print "error cl=", cl.str()
+        
+            
         #print cc.str()
         """
         if (cc.type != cam.CCType.NONE):
@@ -102,7 +107,10 @@ if __name__ == "__main__":
         #myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z), radius=0.05, color=camvtk.yellow) ) 
         """
     print "done."
-    
+    origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
+    origo.SetOpacity(0.2)
+    myscreen.addActor( origo )
+     
     #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
     #print len(clpoints), " cl points evaluated"
     
