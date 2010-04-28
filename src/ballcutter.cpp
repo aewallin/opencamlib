@@ -193,9 +193,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 // in the vertical plane of the line:
                 // (du,dz) points in the direction of the line
                 // so (dz, -du) is a normal to the line
-                Point tangent = Point(p2u,dz,0);
-                tangent.xyNormalize();
-                
+                               
                 Point normal = Point (dz, -p2u, 0);
                 normal.xyNormalize();
                 if (normal.y < 0) { // flip normal so it points upward
@@ -210,6 +208,20 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     cc_tmp = sc;
                     
                     
+                    // locate cc_tmp on the edge
+                    // edge = p1 + t*(p2-p1)
+                    if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
+                        // x = p1.x + t*(p2.x-p1.x)
+                        // t = (x - p1.x) / (p2.x -p1.x)
+                        // z = p1 + t*(p2-p1)
+                        double t = (cc_tmp.x - p1.x) / (p2.x - p1.x);
+                        cc_tmp.z = p1.z + t*(p2.z-p1.z);
+                    } else {
+                        // the y-coord is better for the above calculation
+                        double t = (cc_tmp.y - p1.y) / (p2.y - p1.y);
+                        cc_tmp.z = p1.z + t*(p2.z-p1.z); 
+                    }
+                    
                     cl_z = cc_tmp.z + s - radius;
                     
                     /*
@@ -222,7 +234,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     std::cout << "normal: " << normal <<"\n";
                     std::cout << "start2sc_dir: " << start2sc_dir <<"\n";
                     */
-                    
+
                     //assert(0);
                     
                 } else {
@@ -240,6 +252,9 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     cc_tmp = p1 + (cc_u/p2u)*v;
                     
                     cl_z = cc_tmp.z + s*normal.y - radius;
+                    if ( (cc_tmp.x == 0.0) && (cc_tmp.y == 0.0) && (cc_tmp.z == 0.0))
+                        std::cout << "err cl=" << cl << "\n";
+                        
                 }
                 
                 // test if cc-point is in edge
