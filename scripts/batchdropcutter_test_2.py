@@ -38,9 +38,9 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    #cutter = cam.BallCutter(1.4321)
+    cutter = cam.BallCutter(1.4321)
     
-    cutter = cam.CylCutter(1.123)
+    #cutter = cam.CylCutter(1.123)
     
     #cutter = cam.BullCutter(1.123, 0.2)
     
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     dx=0.1/10
     maxx=10
     miny=0
-    dy=1
+    dy=2
     maxy=10
     z=-17
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)

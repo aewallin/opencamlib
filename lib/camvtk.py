@@ -529,6 +529,37 @@ class STLSurf(CamvtkActor):
         # SetScaleFactor(double)
         # GetOrigin
 
+class PointCloud(CamvtkActor):
+    def __init__(self, pointlist=[], color=(1,1,1) ):
+
+        points = vtk.vtkPoints()
+        cella = vtk.vtkCellArray()
+        n=0
+        for p in pointlist:
+            vert = vtk.vtkVertex()
+            #for p in t.getPoints():
+            points.InsertNextPoint(p.x, p.y, p.z)
+            vert.GetPointIds().SetId(0,n)
+            #n=n+1
+            #triangle.GetPointIds().SetId(1,n)
+            #n=n+1
+            #triangle.GetPointIds().SetId(2,n)
+            #n=n+1
+            cella.InsertNextCell( vert )
+            n=n+1
+        print "added ", n ," points to cloud"
+        polydata= vtk.vtkPolyData()
+        polydata.SetPoints(points)
+        polydata.SetVerts( cella )
+        polydata.Modified()
+        polydata.Update()
+        self.src=polydata
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInput(self.src)
+        self.SetMapper(self.mapper)
+        self.SetColor(color)
+
+
 class Plane(CamvtkActor):
     def __init__(self, center=(0,0,0), color=(0,0,1) ):
         self.src = vtk.vtkPlaneSource()

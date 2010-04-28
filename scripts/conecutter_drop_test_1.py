@@ -14,11 +14,18 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
             plist.append( cam.Point(x,y,z) )
     return plist
 
+def drawPoints(myscreen, clpoints, ccpoints):
+    c=camvtk.PointCloud( pointlist=clpoints) 
+    c.SetPoints()
+    myscreen.addActor(c )
+    #for cl,cc in zip(clpoints,ccpoints):
+    #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
+        
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    a=cam.Point(1,0,0)
+    a=cam.Point(1,0,0.1)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b=cam.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
@@ -32,16 +39,17 @@ if __name__ == "__main__":
     t = cam.Triangle(a,b,c)
     radius1=1
     angle = math.pi/4
-    cutter = cam.ConeCutter(0.7, angle)
-    #cutter = cam.BallCutter(0.3)
+    #cutter = cam.ConeCutter(0.7, angle)
+    cutter = cam.BallCutter(0.7)
+    #cutter = cam.CylCutter(0.7)
     print cutter.str()
     
     
     #print cc.type
-    minx=-0.5
-    dx=0.03
+    minx=-0.7
+    dx=0.01
     maxx=1.5
-    miny=-0.5
+    miny=-0.7
     dy=dx
     maxy=1.5
     z=-0.8
@@ -86,6 +94,10 @@ if __name__ == "__main__":
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
     print " len(ccpoints)=", len(ccpoints)
+    
+    drawPoints(myscreen, clpoints, ccpoints)
+    
+    """
     for cl,cc in zip(clpoints,ccpoints):
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
         
@@ -94,18 +106,9 @@ if __name__ == "__main__":
         
         if cc.type != cam.CCType.NONE and cc.x==0.0 and cc.y == 0.0 and cc.z == 0:
             print "error cl=", cl.str()
-        
+    """
             
-        #print cc.str()
-        """
-        if (cc.type != cam.CCType.NONE):
-            #print cc.str()
-            if (cc.type == cam.CCType.VERTEX):
-                myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z) , radius=0.01, color=camvtk.ccColor(cc)) )
-            else:
-                myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) )
-        #myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z), radius=0.05, color=camvtk.yellow) ) 
-        """
+
     print "done."
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)

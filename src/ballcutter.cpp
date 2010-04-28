@@ -71,6 +71,7 @@ int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
+//********   facet ********************** */
 int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
@@ -146,6 +147,7 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 }
 
 
+//********   edge **************************************************** */
 int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
@@ -186,14 +188,19 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 Point v = p2 - p1;
                 Point start2sc_dir = sc - p1;
                 start2sc_dir.xyNormalize();
+                if ( start2sc_dir.norm() < 0.99 ) {
+                    start2sc_dir = sc - p2;
+                    start2sc_dir.xyNormalize();
+                }
                 start2sc_dir.z=0;
-                double dz = p2.z - p1.z;
+                
                 double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
                 
                 // in the vertical plane of the line:
                 // (du,dz) points in the direction of the line
                 // so (dz, -du) is a normal to the line
-                               
+                
+                double dz = p2.z - p1.z;               
                 Point normal = Point (dz, -p2u, 0);
                 normal.xyNormalize();
                 if (normal.y < 0) { // flip normal so it points upward
