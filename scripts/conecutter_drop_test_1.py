@@ -39,8 +39,8 @@ if __name__ == "__main__":
     t = cam.Triangle(a,b,c)
     radius1=1
     angle = math.pi/4
-    #cutter = cam.ConeCutter(0.7, angle)
-    cutter = cam.BallCutter(0.7)
+    cutter = cam.ConeCutter(0.7, angle)
+    #cutter = cam.BallCutter(0.7)
     #cutter = cam.CylCutter(0.7)
     print cutter.str()
     
