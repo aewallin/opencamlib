@@ -206,8 +206,6 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
                 if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
                     cc_tmp = sc;
-                    
-                    
                     // locate cc_tmp on the edge
                     // edge = p1 + t*(p2-p1)
                     if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
