@@ -15,7 +15,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     return plist
 
 def drawPoints(myscreen, clpoints, ccpoints):
-    c=camvtk.PointCloud( pointlist=clpoints) 
+    c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
     c.SetPoints()
     myscreen.addActor(c )
     #for cl,cc in zip(clpoints,ccpoints):
@@ -32,15 +32,15 @@ if __name__ == "__main__":
     c=cam.Point(0,0,0.4)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     
-    myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
-    myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
-    myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
+    #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
+    #myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
+    #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     
     t = cam.Triangle(a,b,c)
     radius1=1
     angle = math.pi/4
-    cutter = cam.ConeCutter(0.7, angle)
-    #cutter = cam.BallCutter(0.7)
+    #cutter = cam.ConeCutter(0.7, angle)
+    cutter = cam.BallCutter(0.7)
     #cutter = cam.CylCutter(0.7)
     print cutter.str()
     

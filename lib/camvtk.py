@@ -530,7 +530,7 @@ class STLSurf(CamvtkActor):
         # GetOrigin
 
 class PointCloud(CamvtkActor):
-    def __init__(self, pointlist=[], color=(1,0,1) ):
+    def __init__(self, pointlist=[], collist=[]):
         points = vtk.vtkPoints()
         cellArr = vtk.vtkCellArray()
         Colors = vtk.vtkUnsignedCharArray()
@@ -543,12 +543,15 @@ class PointCloud(CamvtkActor):
             points.InsertNextPoint(p.x, p.y, p.z)
             vert.GetPointIds().SetId(0,n)
             cellArr.InsertNextCell( vert )
-            Colors.InsertNextTuple3( 1,0,0 )
             n=n+1
+        for p in collist:
+            col = ccColor(p)
+            Colors.InsertNextTuple3( float(255)*col[0], float(255)*col[1], float(255)*col[2] )
+            
         polydata= vtk.vtkPolyData()
         polydata.SetPoints(points)
         polydata.SetVerts( cellArr )
-        polydata.GetPointData().SetVectors(Colors)
+        polydata.GetPointData().SetScalars(Colors)
 
         polydata.Modified()
         polydata.Update()
