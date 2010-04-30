@@ -98,14 +98,14 @@ if __name__ == "__main__":
     t2 = camvtk.Text()
     stltext = "%i triangles\n%i CL-points\n%0.1f seconds" % (s.size(), len(cl1), calctime)
     t2.SetText(stltext)
-    t2.SetPos( (50, myscreen.height-200) )
+    t2.SetPos( (50, myscreen.height-100) )
     myscreen.addActor( t2)
     
     t3 = camvtk.Text()
     ctext = "Cutter: %s" % ( cutter.str() )
     
     t3.SetText(ctext)
-    t3.SetPos( (50, myscreen.height-250) )
+    t3.SetPos( (50, myscreen.height-150) )
     myscreen.addActor( t3)
     
     myscreen.render()

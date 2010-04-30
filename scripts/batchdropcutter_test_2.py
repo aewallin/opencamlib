@@ -34,7 +34,7 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/demo.stl")
+    stl = camvtk.STLSurf("../stl/mount_rush.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -44,23 +44,23 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    #cutter = cam.BallCutter(1.4321)
+    cutter = cam.BallCutter(1.4321)
     
     #cutter = cam.CylCutter(1.123)
     
     #cutter = cam.BullCutter(1.123, 0.2)
     
-    cutter = cam.ConeCutter(1.123, math.pi/4)
+    #cutter = cam.ConeCutter(0.43, math.pi/7)
     
     print cutter.str()
     #print cc.type
-    minx=0
-    dx=0.1/20
-    maxx=10
-    miny=0
-    dy=0.25
-    maxy=10
-    z=-17
+    minx=-40
+    dx=0.02
+    maxx=40
+    miny=-20
+    dy=1
+    maxy=20
+    z=-55
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     clpoints2 = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print "generated grid with", len(clpoints)," CL-points"
@@ -122,8 +122,8 @@ if __name__ == "__main__":
     
     #exit()
     print "rendering...",
-    drawPoints(myscreen, cc2, cc2)
-    #drawPoints(myscreen, cl2, cc2)
+    #drawPoints(myscreen, cc2, cc2)
+    drawPoints(myscreen, cl2, cc2)
 
     print "done"
     
