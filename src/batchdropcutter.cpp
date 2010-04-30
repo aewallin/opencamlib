@@ -20,6 +20,7 @@
 #include <sstream>
 #include <math.h>
 #include <boost/progress.hpp>
+
 #ifndef WIN32
 #include <omp.h>
 #endif
@@ -175,13 +176,12 @@ void BatchDropCutter::dropCutter4()
     std::vector<CCPoint>& ccref = *ccpoints; 
     
     MillingCutter& cutref = *cutter;
-    //KDNode* root2 = root;
 
 #ifndef WIN32
     omp_set_num_threads(nthreads);
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( calls, clref, ccref, cutref) private(n,t,tris,it)
+    #pragma omp parallel for shared( calls, clref, ccref, cutref) private(n,t,tris,it,cc)
         for (n=0;n< Nmax ;n++) {
 #ifndef WIN32
             if ( n== 0 ) {
