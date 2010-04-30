@@ -186,27 +186,22 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 Point sc = cl.xyClosestPoint( p1, p2 );   
                 
                 Point v = p2 - p1;
-                Point start2sc_dir = sc - p1;
-                start2sc_dir.xyNormalize();
-                if ( start2sc_dir.norm() < 0.99 ) {
-                    start2sc_dir = sc - p2;
-                    start2sc_dir.xyNormalize();
-                }
-                start2sc_dir.z=0;
+                v.z=0;
+                v.xyNormalize();
                 
-                double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
-                
+                double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
+                double p1u = (p1-sc).dot(v);
+
                 // in the vertical plane of the line:
                 // (du,dz) points in the direction of the line
-                // so (dz, -du) is a normal to the line
-                
-                double dz = p2.z - p1.z;               
-                Point normal = Point (dz, -p2u, 0);
+                // so (dz, -du) is a normal to the line                
+                double dz = p2.z - p1.z;  
+                double du = p2u-p1u;             
+                Point normal = Point (dz, -du, 0);
                 normal.xyNormalize();
                 if (normal.y < 0) { // flip normal so it points upward
                     normal = -1*normal;
-                }
-                
+                } 
 
                 double cl_z;
                 Point cc_tmp;
@@ -229,19 +224,6 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     
                     cl_z = cc_tmp.z + s - radius;
                     
-                    /*
-                    std::cout << "cl: " << cl <<"\n";
-                    std::cout << "sc: " << sc <<"\n";
-                    std::cout << "p1: " << p1 <<"\n";
-                    std::cout << "p2: " << p2 <<"\n";
-                    std::cout << "v: " << v <<"\n";
-                    std::cout << "s: " << s <<"\n";
-                    std::cout << "normal: " << normal <<"\n";
-                    std::cout << "start2sc_dir: " << start2sc_dir <<"\n";
-                    */
-
-                    //assert(0);
-                    
                 } else {
                     // now normal should point up
                     if (  !isPositive(normal.y)) {
@@ -250,14 +232,23 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     }
                 
                     Point start2sc = sc - p1;
-                    double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
+                    //double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
                     
-                    double cc_u = sc_u - s * normal.x; // horiz dist of cc-point in plane-cordinates
+                    double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
                     
-                    cc_tmp = p1 + (cc_u/p2u)*v;
+                    cc_tmp = sc + cc_u*v; // located in the XY-plane
+                    
+                    // now locate z-coord of cc_tmp on edge
+                    double t;
+                    if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
+                        t = (cc_tmp.x - p1.x) / (p2.x-p1.x);
+                    } else {
+                        t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
+                    }
+                    cc_tmp.z = p1.z + t*(p2.z-p1.z);
                     
                     cl_z = cc_tmp.z + s*normal.y - radius;
-                }
+                } // end non-horizontal case
                 
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {

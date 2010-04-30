@@ -27,7 +27,7 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b=cam.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c=cam.Point(0,0,-0.4)
+    c=cam.Point(0,0,0.4)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
@@ -37,8 +37,8 @@ if __name__ == "__main__":
     t = cam.Triangle(a,b,c)
     radius1=1
     angle = math.pi/4
-    cutter = cam.ConeCutter(0.37, angle)
-    #cutter = cam.BallCutter(0.7)
+    #cutter = cam.ConeCutter(0.37, angle)
+    cutter = cam.BallCutter(0.7)
     #cutter = cam.CylCutter(0.3)
     #cutter = cam.BullCutter(0.7,0.15)
     print cutter.str()
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     miny=-0.7
     dy=dx
     maxy=1.5
-    z=-0.8
+    z=-1.8
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0

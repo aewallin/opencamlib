@@ -180,39 +180,17 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
             if (d<=(diameter/2)) { // potential hit
                 // math/geometry from Yau et al. 2004 paper (Int. J. Prod. Res. vol42 no13)
-                               
-                // translate so that cutter is at (0,0)
-                //p1 = p1 - Point(cl.x, cl.y, 0.0);
-                //p2 = p2 - Point(cl.x, cl.y, 0.0);
-                //Point sc = cl.xyClosestPoint( p1, p2 );
-                
+                                              
                 // closest point to cl on line lies at
                 Point sc = cl.xyClosestPoint( p1, p2 );   
-                
-                
+  
                 Point v = p2 - p1;
                 v.z=0;
                 v.xyNormalize();
-                //Point start2sc_dir = sc - p1;
-                //start2sc_dir.xyNormalize();
-                //if ( start2sc_dir.norm() < 0.99 ) {
-                //    start2sc_dir = sc - p2;
-                //    start2sc_dir.xyNormalize();
-                //}
-                //start2sc_dir.z=0;
                 
                 double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
                 double p1u = (p1-sc).dot(v);
                 
-                //Point dir3d = p2-p1;
-                //dir3d.normalize();
-                
-                //Point dir = p2-p1;
-                //dir.z = 0.0;
-                //dir.xyNormalize();
-                
-                //double p1u = (p1-cl).dot(dir);
-                //double p2u = (p2-cl).dot(dir);
                 
                 if ( (fabs(p2u-p1u) - (p2-p1).xyNorm() ) > 1E-6 ) {
                     std::cout << p2u-p1u << " == " << (p2-p1).xyNorm() << "? \n";
@@ -224,27 +202,12 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     std::cout << "p2u: " << p2u << "\n";
                     assert(0);
                 }
-                // coordinate system (u,v), edge has v=d
-                //double p1u = 0;
-                //double p2u = (p2-p1).xyNorm();
-                //Point vxy = Point(p2.x-p1.x, p2.y-p1.y, 0.0);
-                //vxy.xyNormalize();
-                //Point clxy = Point(cl.x, cl.y, 0.0);
-                //double clu = cl.dot( vxy);
-                
-                
-                //Point v = p2 - p1;
-                //Point start2sc_dir = sc - p1;
-                //start2sc_dir.xyNormalize();
-                //start2sc_dir.z=0;
-                //double dz = p2.z - p1.z;
-                //double p2u = v.dot(start2sc_dir); // u-coord of p2 in plane coordinates.
-                
-                
+
                 // in (u,v) coordinates 
-                // cl is at (clu, 0)
-                // p1 is at (0,   d)
+                // cl is at (0, 0)
+                // p1 is at (p1u,   d)
                 // p2 is at (p2u, d)
+                // closest point sc is at u=0
                 
                 // edge rotated so it is at y=l 
                 // if R2 < l < R we contact the upper cone of the APT-tool
