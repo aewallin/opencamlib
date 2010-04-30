@@ -38,9 +38,9 @@ if __name__ == "__main__":
     radius1=1
     angle = math.pi/4
     #cutter = cam.ConeCutter(0.37, angle)
-    cutter = cam.BallCutter(0.7)
+    #cutter = cam.BallCutter(0.7)
     #cutter = cam.CylCutter(0.3)
-    #cutter = cam.BullCutter(0.7,0.15)
+    cutter = cam.BullCutter(0.4,0.1)
     print cutter.str()
     
     
@@ -65,10 +65,10 @@ if __name__ == "__main__":
 
         cc = cam.CCPoint()
         
-        cutter.vertexDrop(cl,cc,t)
+        #cutter.vertexDrop(cl,cc,t)
         cutter.edgeDrop(cl,cc,t)
         
-        cutter.facetDrop(cl,cc,t)
+        #cutter.facetDrop(cl,cc,t)
         
         #cutter.dropCutter(cl,cc,t)
 
@@ -94,27 +94,12 @@ if __name__ == "__main__":
     print " len(ccpoints)=", len(ccpoints)
     
     drawPoints(myscreen, clpoints, ccpoints)
-    
-    """
-    for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
-        
-        if cc.type != cam.CCType.NONE:
-            pass
-            myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) ) 
-        
-        if cc.type != cam.CCType.NONE and cc.x==0.0 and cc.y == 0.0 and cc.z == 0:
-            print "error cl=", cl.str()
-    """
-            
 
     print "done."
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)
     myscreen.addActor( origo )
      
-    #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
-    #print len(clpoints), " cl points evaluated"
     
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
@@ -129,22 +114,7 @@ if __name__ == "__main__":
     t.SetPos( (myscreen.width-350, myscreen.height-30) )
     myscreen.addActor(t)
     
-    #t2 = camvtk.Text()
-    #t2.SetPos( (50, myscreen.height-80) )
-    #myscreen.addActor(t2)
-    #cuttertext= "Toroidal cutter:\nr1=%f\nr2=%f" % (radius1,radius2)
-    #t2.SetText(cuttertext)
-    
-    """
-    for n in range(1,18):
-        t.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        myscreen.camera.Azimuth( 2 )
-        time.sleep(0.1)
-        myscreen.render()
-        w2if.Modified()
-        lwr.SetFileName("frames/tc"+ ('%04d' % n)+".png")
-        #lwr.Write()
-    """
+
 
 
     myscreen.iren.Start()

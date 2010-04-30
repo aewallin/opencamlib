@@ -172,15 +172,14 @@ Point Ellipse::tangent(Epos& pos)
 
 #define OE_ERROR_TOLERANCE 1e-8  /// \todo magic number tolerance
 
-
+/// find the epos that makes the offset-ellipse point be at p
 int Ellipse::solver(Ellipse& e, Point& p)
 {
-    
-    // select a "good" initial value
     Epos pos;
     Epos bestpos;
     double abs_err; 
-    // check the four different sign-permutations if (s,t)
+    // check the four different sign-permutations of (s,t)
+    // to select a "good" initial value
     for (int n=0; n<4 ; n++) {
         double s;
 
@@ -290,31 +289,7 @@ int Ellipse::solver(Ellipse& e, Point& p)
     assert(0);
     return iters;
 }
-/* python code
-def calcEcenter(oe,a,b,cl,sln):
-    pos = cam.Epos()
-    if sln == 1:
-        pos = oe.epos1
-    if sln == 2:
-        pos = oe.epos2
-    
-    cce = oe.ePoint(pos)
-    cle = oe.oePoint(pos)
-    print "solution at: ", pos.str() 
-    print "  cce=", cce.str()
-    print "  cle=", cle.str()
-    
-    xoffset = cl.x - cle.x
-    print " xoffset= ", xoffset
-    # we slide xoffset along the x-axis from ellcenter 
-    # to find the correct z-plane
-    # line is: a + t*(b-a)
-    # find t so that x-component is ellcenter.x + xoffset
-    # a.x + t(b.x-a.x) = ellcenter.x + xoffset
-    # t= (ellcenter.x + xoffset - a.x) / (b.x - a.x)
-    tparam = (oe.center.x + xoffset - a.x) / (b.x - a.x)
-    return a + tparam*(b-a)
-*/
+
 
 Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
 {
@@ -329,13 +304,10 @@ Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
     double xoffset = cl.x - cle.x;
     double tparam = (center.x + xoffset - up1.x) / (up2.x - up1.x);
     return up1 + tparam*(up2-up1);
-    
 }
     
-    
-    
-    
-        
+/// error-function for the offset-ellipse solver
+/// here we use only the y-coordinate error         
 double Ellipse::error(Epos& pos, Point& p)
 {
     Point p1 = oePoint(pos);
