@@ -3,6 +3,7 @@ import camvtk
 import time
 import vtk
 import datetime
+import math
 
 
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
@@ -22,7 +23,12 @@ def drawCLpoints(myscreen, clpoints):
 def drawCCpoints(myscreen, ccpoints):
     for p in ccpoints:
         myscreen.addActor( camvtk.Point(center=(p.x,p.y,p.z), color=camvtk.ccColor(p) ) )
-        
+
+def drawPoints(myscreen, clpoints, ccpoints):
+    c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
+    c.SetPoints()
+    myscreen.addActor(c )
+            
         
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
@@ -38,19 +44,21 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    cutter = cam.BallCutter(1.4321)
+    #cutter = cam.BallCutter(1.4321)
     
     #cutter = cam.CylCutter(1.123)
     
     #cutter = cam.BullCutter(1.123, 0.2)
     
+    cutter = cam.ConeCutter(1.123, math.pi/4)
+    
     print cutter.str()
     #print cc.type
     minx=0
-    dx=0.1/10
+    dx=0.1/20
     maxx=10
     miny=0
-    dy=2
+    dy=0.25
     maxy=10
     z=-17
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
@@ -71,7 +79,7 @@ if __name__ == "__main__":
         bdc2.appendPoint(p)
     
     t_before = time.time()    
-    bdc1.dropCutter3()
+    #bdc1.dropCutter3()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
@@ -90,6 +98,7 @@ if __name__ == "__main__":
     cl2 = bdc2.getCLPoints()
     cc2 = bdc2.getCCPoints()
     
+    """
     cle = []
     for (p1,p2) in zip(cl1,cl2):
         cle.append( (p1-p2).norm() )
@@ -109,11 +118,13 @@ if __name__ == "__main__":
     print len(cc1), "1: cc-points"
     print len(cl2), "2: cl points evaluated"
     print len(cc2), "2: cc-points"    
+    """
     
     #exit()
     print "rendering...",
-    drawCLpoints(myscreen, cl2)
-    drawCCpoints(myscreen, cc2)
+    #drawPoints(myscreen, cc2, cc2)
+    drawPoints(myscreen, cl2, cc2)
+
     print "done"
     
     """

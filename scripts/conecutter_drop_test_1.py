@@ -40,14 +40,15 @@ if __name__ == "__main__":
     radius1=1
     angle = math.pi/4
     #cutter = cam.ConeCutter(0.7, angle)
-    cutter = cam.BallCutter(0.7)
-    #cutter = cam.CylCutter(0.7)
+    #cutter = cam.BallCutter(0.7)
+    #cutter = cam.CylCutter(0.3)
+    cutter = cam.BullCutter(0.7,0.15)
     print cutter.str()
     
     
     #print cc.type
-    minx=-0.7
-    dx=0.01
+    minx=-0.5
+    dx=0.005
     maxx=1.5
     miny=-0.7
     dy=dx
@@ -65,13 +66,12 @@ if __name__ == "__main__":
     for cl in clpoints:
 
         cc = cam.CCPoint()
-        #cutter.dropCutter(cl,cc,t)
         
-        
+        #cutter.vertexDrop(cl,cc,t)
         cutter.edgeDrop(cl,cc,t)
         
-        cutter.facetDrop(cl,cc,t)
-        cutter.vertexDrop(cl,cc,t)
+        #cutter.facetDrop(cl,cc,t)
+        
         #cutter.dropCutter(cl,cc,t)
 
         ccpoints.append(cc)
@@ -102,6 +102,7 @@ if __name__ == "__main__":
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
         
         if cc.type != cam.CCType.NONE:
+            pass
             myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.ccColor(cc)) ) 
         
         if cc.type != cam.CCType.NONE and cc.x==0.0 and cc.y == 0.0 and cc.z == 0:

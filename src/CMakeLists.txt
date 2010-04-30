@@ -36,9 +36,10 @@ include_directories(${Python_Includes})
 
 find_library(
     LIB_BOOST_PYTHON
-    NAMES boost_python-mt boost_python
+    NAMES boost_python   
+    
 )
-
+MESSAGE(STATUS "found boost-python: " ${LIB_BOOST_PYTHON})
 
 #
 # find OpenMP
