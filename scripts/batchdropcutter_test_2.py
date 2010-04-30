@@ -122,8 +122,8 @@ if __name__ == "__main__":
     
     #exit()
     print "rendering...",
-    #drawPoints(myscreen, cc2, cc2)
-    drawPoints(myscreen, cl2, cc2)
+    drawPoints(myscreen, cc2, cc2)
+    #drawPoints(myscreen, cl2, cc2)
 
     print "done"
     

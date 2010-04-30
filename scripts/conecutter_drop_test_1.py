@@ -18,8 +18,6 @@ def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
     c.SetPoints()
     myscreen.addActor(c )
-    #for cl,cc in zip(clpoints,ccpoints):
-    #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
         
 
 if __name__ == "__main__":  
@@ -29,20 +27,20 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b=cam.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c=cam.Point(0,0,0.4)
+    c=cam.Point(0,0,-0.4)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     
-    #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
-    #myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
-    #myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
+    myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
+    myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
+    myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     
     t = cam.Triangle(a,b,c)
     radius1=1
     angle = math.pi/4
-    #cutter = cam.ConeCutter(0.7, angle)
+    cutter = cam.ConeCutter(0.37, angle)
     #cutter = cam.BallCutter(0.7)
     #cutter = cam.CylCutter(0.3)
-    cutter = cam.BullCutter(0.7,0.15)
+    #cutter = cam.BullCutter(0.7,0.15)
     print cutter.str()
     
     
@@ -67,10 +65,10 @@ if __name__ == "__main__":
 
         cc = cam.CCPoint()
         
-        #cutter.vertexDrop(cl,cc,t)
+        cutter.vertexDrop(cl,cc,t)
         cutter.edgeDrop(cl,cc,t)
         
-        #cutter.facetDrop(cl,cc,t)
+        cutter.facetDrop(cl,cc,t)
         
         #cutter.dropCutter(cl,cc,t)
 

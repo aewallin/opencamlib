@@ -186,20 +186,38 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 //p2 = p2 - Point(cl.x, cl.y, 0.0);
                 //Point sc = cl.xyClosestPoint( p1, p2 );
                 
-                Point dir3d = p2-p1;
-                dir3d.normalize();
+                // closest point to cl on line lies at
+                Point sc = cl.xyClosestPoint( p1, p2 );   
                 
-                Point dir = p2-p1;
-                dir.z = 0.0;
-                dir.xyNormalize();
                 
-                double p1u = (p1-cl).dot(dir);
-                double p2u = (p2-cl).dot(dir);
+                Point v = p2 - p1;
+                v.z=0;
+                v.xyNormalize();
+                //Point start2sc_dir = sc - p1;
+                //start2sc_dir.xyNormalize();
+                //if ( start2sc_dir.norm() < 0.99 ) {
+                //    start2sc_dir = sc - p2;
+                //    start2sc_dir.xyNormalize();
+                //}
+                //start2sc_dir.z=0;
+                
+                double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
+                double p1u = (p1-sc).dot(v);
+                
+                //Point dir3d = p2-p1;
+                //dir3d.normalize();
+                
+                //Point dir = p2-p1;
+                //dir.z = 0.0;
+                //dir.xyNormalize();
+                
+                //double p1u = (p1-cl).dot(dir);
+                //double p2u = (p2-cl).dot(dir);
                 
                 if ( (fabs(p2u-p1u) - (p2-p1).xyNorm() ) > 1E-6 ) {
                     std::cout << p2u-p1u << " == " << (p2-p1).xyNorm() << "? \n";
                     std::cout << "cl: " << cl << "\n";
-                    std::cout << "dir: " << dir << "\n";
+                    //std::cout << "dir: " << dir << "\n";
                     std::cout << "p1: " << p1 << "\n";
                     std::cout << "p2: " << p2 << "\n";
                     std::cout << "p1u: " << p1u << "\n";
@@ -243,6 +261,8 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 // the outermost point on the cutter is at
                 // xu = sqrt( R^2 - l^2 )
                 double xu = sqrt( square(diameter/2) - square(d) ); 
+                assert( xu <= diameter/2 );
+                
                 // here the slope has a maximum
                 // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + l^2 ))
                 double mu = (height/(diameter/2) ) * xu / sqrt( square(xu) + square(d) ) ;
@@ -268,26 +288,30 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
                 
                 // now the cc-point can be found:
-                Point cc_tmp = p1 + (ccu-p1u)*dir3d;
+                Point cc_tmp = sc + ccu*v; // in the XY plane
+                
+                // locate cc_tmp on the line (find the z-coord)
+                // cc_tmp = p1 + t*(p2-p1)
+                // t = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1)
+                double t;
+                if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
+                    t = (cc_tmp.x - p1.x) / (p2.x-p1.x);
+                } else {
+                    t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
+                }
+                cc_tmp.z = p1.z + t*(p2.z-p1.z);
                 
                 double cl_z;
                 if (fabs(m) <= fabs(mu) ) {
+                    // 1) zc = zp - Lc + (R - sqrt(xp^2 + l^2)) / tan(beta2)
                     cl_z = cc_tmp.z - height + (diameter/2-sqrt(square(ccu) + square(d)))/ tan(angle);
                 } else if ( fabs(m)>fabs(mu) ) {
-                    cl_z = cc_tmp.z - height;
+                    // 2) zc = zp - Lc
+                    cl_z = cc_tmp.z - height; // case where we hit the edge of the cone
                 } else {
                     assert(0);
                 }
                 
-                // now check if xp is in the edge
-                // the z-coord of the cc-point can be found:
-                // zp = z1 + m( xp - x1 )
-                // and the two cases for the CL-point
-                // 1) zc = zp - Lc + (R - sqrt(xp^2 + l^2)) / tan(beta2)
-                // 2) zc = zp - Lc
-                // Lc = total height of cutter
-                
-                                
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
                     if (cl.liftZ(cl_z)) {
