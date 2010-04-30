@@ -46,10 +46,10 @@ if __name__ == "__main__":
     print cutter.str()
     
     #define grid of CL-points
-    minx=-40
+    minx=-42
     dx=0.2
-    maxx=40
-    miny=-20
+    maxx=47
+    miny=-27
     dy=1
     maxy=20
     z=-55

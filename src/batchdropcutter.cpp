@@ -191,9 +191,11 @@ void BatchDropCutter::dropCutter4()
                 }
             }
 #endif
-
+            
+            // reset variables before each run
             t= 0;
             tris=new std::list<Triangle>();
+            cc.type = NONE;
             
             KDNode::search_kdtree( tris, clref[n], cutref, root);
             

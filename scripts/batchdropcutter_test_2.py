@@ -34,7 +34,7 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/mount_rush.stl")
+    stl = camvtk.STLSurf("../stl/beet_mm.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     print cutter.str()
     #print cc.type
     minx=-40
-    dx=0.02
+    dx=1
     maxx=40
     miny=-20
     dy=1
@@ -78,11 +78,7 @@ if __name__ == "__main__":
     for p in clpoints2:
         bdc2.appendPoint(p)
     
-    t_before = time.time()    
-    #bdc1.dropCutter3()
-    t_after = time.time()
-    calctime = t_after-t_before
-    print " done in ", calctime," s"
+
     
     t_before = time.time()    
     bdc2.dropCutter4()
@@ -126,28 +122,9 @@ if __name__ == "__main__":
     drawPoints(myscreen, cl2, cc2)
 
     print "done"
-    
-    """
-    maxz=0
-    maxp=0
-    for p in ccpoints:
-        if maxz < p.z:
-            maxz = p.z
-            maxp = p
-    print "max z was:", maxz, " at ", maxp.str()
-    """
-    
+       
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
-    
-    
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("tux1.png")
-    #lwr.Write()
     
     t = camvtk.Text()
     t.SetText("OpenCAMLib 10.04")
