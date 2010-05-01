@@ -24,6 +24,7 @@
 #include <boost/python.hpp>
 #include <iostream>
 #include <string>
+#include <vector>
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
@@ -55,10 +56,15 @@ class MillingCutter {
         bool overlaps(Point &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
+        /// pure virtual function, needs to be defined by a subclass
         virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
+        
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
+        /// pure virtual function, needs to be defined by a subclass
         virtual int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
+        
         /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
+        /// pure virtual function, needs to be defined by a subclass
         virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const = 0;
         
         /// drop the MillingCutter at Point cl down along the z-axis
@@ -71,6 +77,7 @@ class MillingCutter {
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
+        // should not really be used for real work, demo/debug only
         int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const;
         
     protected:
@@ -109,11 +116,34 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
     
 };
 
+/// \brief a CompoundCutter is composed two or more MillingCutters 
+class CompoundCutter : public MillingCutter {
+    public:
+        CompoundCutter();
+        
+        void addCutter(MillingCutter& c, double radius, double zoff);
+        bool ccValid(int n, Point& cl, CCPoint& cc_tmp) const;
+        
+        // dropCutter methods
+        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        
+        std::vector<double> radius; // vector of radiuses
+        std::vector<double> zoffset; // vector of z-offset values for the cutters
+        std::vector<MillingCutter*> cutter; // vector of pointers to cutters
+};
+
+class CylConeCutter : public CompoundCutter {
+    public:
+        CylConeCutter() {}; // dummy, required(?) by python wrapper
+        CylConeCutter(double diam1, double diam2, double angle);
+};
 
 ///
 /// \brief Cylindrical MillingCutter (flat-endmill)
 ///
-/// defined by its radius
+/// defined by one parameter, the cutter diameter
 class CylCutter : public MillingCutter {
     public:
         /// create CylCutter with diameter = 1.0
@@ -139,7 +169,8 @@ class CylCutter : public MillingCutter {
 
 /// \brief Ball or Spherical MillingCutter (ball-nose endmill)
 ///
-/// defined by its radius
+/// defined by one parameter. the cutter diameter.
+/// the sphere radius will be diameter/2
 class BallCutter : public MillingCutter {
     public:
         BallCutter();
@@ -164,8 +195,8 @@ class BallCutter : public MillingCutter {
 
 /// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
 ///
-/// defined by radius1, the cylindrical middle part of the cutter
-/// and radius2, the corner radius of the fillet/torus.
+/// defined by the cutter diameter and by the corner radius
+///
 class BullCutter : public MillingCutter {
     public:
         /// Create bull-cutter with default diameter and corner radius.

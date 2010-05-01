@@ -64,6 +64,7 @@ add_library(
     ballcutter.cpp
     batchdropcutter.cpp
     bullcutter.cpp
+    compoundcutter.cpp
     conecutter.cpp
     cutter.cpp
     cylcutter.cpp

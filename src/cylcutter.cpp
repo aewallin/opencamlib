@@ -69,19 +69,13 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
-    
-    //std::cout << "facetDrop triangle=" << t << "\n";
-    //std::cout << "facetDrop input normal=" << *t.n << "\n";
     Point normal; // facet surface normal
     
     if ( isZero_tol( t.n->z ) )  { // vertical surface
-        //std::cout << "facetDrop vertical case. bye.\n";
         return -1;  // can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
-        //std::cout << "facetDrop flip normal\n";
     } else {
-        //std::cout << "facetDrop normal case\n";
         normal = *t.n;
     }
     
@@ -203,6 +197,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if (cl.liftZ(cc_tmp.z)) {
                             cc = cc_tmp;
                             cc.type = EDGE;
+                            result=1;
                         }
                     }
                 } else { // discr > 0, two intersection points
@@ -254,6 +249,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if (cl.liftZ(cc1.z)) {
                             cc=cc1;
                             cc.type = EDGE;
+                            result = 1;
                         }
                         //std::cout << "intersect case: cc1 isInside=true! cc1=" << cc1 << "\n";
                     }
@@ -282,6 +278,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if (cl.liftZ(cc2.z)) {
                             cc = cc2;
                             cc.type = EDGE;
+                            result=1;
                         }
                         //std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
                     }

@@ -49,7 +49,7 @@ if __name__ == "__main__":
     
     #cutter = cam.CylCutter(1.123)
     
-    cutter = cam.BullCutter(1.123, 0.2)
+    cutter = cam.BullCutter(1.4123, 0.5)
     
     #cutter = cam.ConeCutter(0.43, math.pi/7)
     
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     #exit()
     print "rendering...",
     #drawPoints(myscreen, cc2, cc2)
-    drawPoints(myscreen, cc2, cc2)
+    drawPoints(myscreen, cl2, cc2)
 
     print "done"
        
