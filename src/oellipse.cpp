@@ -290,7 +290,9 @@ int Ellipse::solver(Ellipse& e, Point& p)
     return iters;
 }
 
-
+/// given the two solutions epos1 and epos2
+/// and the line through up1 and up2
+/// locate the ellipse center correctly
 Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
 {
     Epos pos;
@@ -299,11 +301,14 @@ Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
     else
         pos = epos2;
         
-    Point cce = ePoint(pos);
+    //Point cce = ePoint(pos);
     Point cle = oePoint(pos);
-    double xoffset = cl.x - cle.x;
+    double xoffset = - cle.x;
+    // x-coord on line is
+    // x = up1.x + t*(up2.x-up1.x) = center.x+offset 
     double tparam = (center.x + xoffset - up1.x) / (up2.x - up1.x);
-    return up1 + tparam*(up2-up1);
+    
+    return up1 + tparam*(up2-up1); // return a point on the line
 }
     
 /// error-function for the offset-ellipse solver

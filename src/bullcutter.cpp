@@ -172,7 +172,6 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against the three edges of Triangle t
-
     int result = 0;    
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;
@@ -199,7 +198,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
                             if (cl.liftZ(p1.z)) {
                                 cc = cc_tmp;
-                                cc.type = EDGE;
+                                cc.type = EDGE_HORIZ_CYL;
                                 result = 1;
                             }
                         }                        
@@ -216,7 +215,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                             double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
                             if ( cl.liftZ(p1.z - h1) ) { 
                                 cc = cc_tmp;
-                                cc.type = EDGE;
+                                cc.type = EDGE_HORIZ_TOR;
                                 result = 1;
                             }
                         }
@@ -233,23 +232,22 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     // to the X-axis.
                     // and the cutter is positioned at (0,0) in this coordinate system.
                     
-                    Point v = p2 - p1; // vector along edge
-                    Point vnorm = v;
-                    vnorm.normalize(); // normalized edge vector
+                    Point v = p2 - p1; // vector along edge, from p1 -> p2
                     Point vxy = v;
                     vxy.z = 0;
-                    //double xyEdgelength = vxy.norm(); // edge length in XY-plane
                     vxy.xyNormalize(); // normalized XY edge vector
                      
                     // figure out u-coordinates of p1 and p2
                     Point sc = cl.xyClosestPoint( p1, p2 );   
-                  
-                    double p2u = (p2-sc).dot(vxy); 
+                    assert( ( (cl-sc).xyNorm() - d ) < 1E-6 );
+                    
+                    
                     double p1u = (p1-sc).dot(vxy);
+                    double p2u = (p2-sc).dot(vxy); 
                 
                     // edge endpoints in the new coordinate system
-                    Point up1 = Point( p1u, d, p1.z);
-                    Point up2 = Point( p2u, d, p2.z);
+                    Point up1 = Point( p2u, d, p2.z);
+                    Point up2 = Point( p1u, d, p1.z);
                                        
                     // in these coordinates, CL is at origo
                     Point ucl = Point( 0.0 , 0.0, cl.z );
@@ -258,18 +256,18 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     //  long axis of ellipse = radius2/sin(theta)
                     //  where theta is the slope of the line
                     double b_axis = radius2;
-                    assert( (up2.x-up1.x) > 0.0 ); // avoid divide-by-zero
+                    assert( fabs(up2.x-up1.x) > 0.0 ); // avoid divide-by-zero
                     double theta = atan( (up2.z - up1.z) / (up2.x-up1.x) ); 
                     double a_axis = fabs( radius2/sin(theta) );
                     
                     // locate ellipse in the XY plane
-                    double tparam = -up1.z / (up2.z - up1.z);
-                    Point ellcenter = up1 + tparam*(up2-up1); // position the ellipse at z=0 (why?)
-                    assert( ellcenter.y == d);
+                    Point ellcenter = Point(0,d,0); 
                     
                     // the ellipse and the solver
                     Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
                     int iters = Ellipse::solver(e, ucl);
+                    assert( ellcenter.x == 0);
+                    assert( ellcenter.z == 0);
                     assert( iters < 20 ); // it's probably an error if the solver takes too long...
                     
                     // the corresponding solved ellipse-centers
@@ -277,6 +275,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     Point ecen2 = e.calcEcenter( ucl, up1, up2, 2);
                     assert( ecen1.y == d ); // ellipse-centers are on the edge
                     assert( ecen2.y == d );
+                    // s,t sign info must be got here also!
                     
                     // choose the one with higher z-value
                     Point ecen;
@@ -292,39 +291,36 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         pos_hi = e.epos2;
                         ep_sign = 1;
                     }
-                    
-                    
+                         
                         
-                    // a new ellipse in the right place         
+                    // a new ellipse in the right place        
+                    // this is at the correct z-height 
                     Ellipse e_hi = Ellipse(ecen, a_axis, b_axis, radius1);
-
+                    assert( ecen.y == d );
+                    
                     // cc-point on the ellipse/cylinder, in the CL=origo system
                     Point ell_ccp = e_hi.ePoint(pos_hi);
+                    assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-6 );  // should be on the cylinder-circle                  
                     
-                    // cl-point on the offset-ellipse
-                    Point clp = e_hi.oePoint(pos_hi);
-   
-                    assert( clp.xyNorm() < 1e-6 ); // the CL-point should be at (0,0)
-                    
-                    // cylinder cc-point, in real coordinates
-                    Point ccp = sc + -ep_sign*ell_ccp.x * vxy; // locate in XY
-                    
-                    // find the z-coord
+                    Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
+                                        
+                    Point cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
+                    // now find the z-coord of cc_tmp
                     double t;
                     if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-                        t = (ccp.x - p1.x) / (p2.x-p1.x);
+                        t = (cc_tmp.x - p1.x) / (p2.x-p1.x);
                     } else {
-                        t = (ccp.y - p1.y) / (p2.y-p1.y);
+                        t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
                     }
-                    ccp.z = p1.z + t*(p2.z-p1.z);
-                    
-                    // actual cc-point on the edge
-                    Point cc_tmp = ccp.closestPoint(p1, p2);
+                    cc_tmp.z = p1.z + t*(p2.z-p1.z);
                     
                     if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
-                        if ( cl.liftZ(clp.z-radius2) ) {
+                        if ( cl.liftZ(ecen.z-radius2) ) {
                             cc = cc_tmp;
-                            cc.type = EDGE;
+                            if (ep_sign > 0)
+                                cc.type = EDGE_POS;
+                            else
+                                cc.type = EDGE_NEG;
                         }
                     }
 

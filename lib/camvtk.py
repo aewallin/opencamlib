@@ -44,7 +44,7 @@ def ccColor(cc):
         the CC-point. Useful for visualizing CL or CC points """
     col = red
     if cc.type==cam.CCType.FACET:
-        col = lblue
+        col = blue
     elif cc.type == cam.CCType.FACET_TIP:
         col = mag
     elif cc.type == cam.CCType.FACET_CYL:
@@ -52,6 +52,14 @@ def ccColor(cc):
     elif cc.type == cam.CCType.VERTEX:
         col = green
     elif cc.type == cam.CCType.EDGE:
+        col = pink
+    elif cc.type == cam.CCType.EDGE_HORIZ_CYL:
+        col = red
+    elif cc.type == cam.CCType.EDGE_HORIZ_TOR:
+        col = orange
+    elif cc.type == cam.CCType.EDGE_POS:
+        col = lblue
+    elif cc.type == cam.CCType.EDGE_NEG:
         col = pink
     elif cc.type == cam.CCType.NONE:
         col = white 
@@ -120,6 +128,8 @@ class VTKScreen():
         self.ren.RemoveAllLights()
     def SetLightCollection(self,lights):
         self.ren.SetLightCollection(lights)
+    def Close(self):
+        self.iren.TerminateApp()
         
 
 class CamvtkActor(vtk.vtkActor):

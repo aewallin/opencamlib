@@ -141,7 +141,11 @@ class Point {
 const Point operator*(const double &a, const Point &p);
 
 /// type of cc-point
-enum CCType {NONE, VERTEX, EDGE, FACET, FACET_TIP, FACET_CYL, ERROR};
+enum CCType {NONE, VERTEX, 
+             EDGE, EDGE_HORIZ_CYL, EDGE_HORIZ_TOR, 
+             EDGE_POS, EDGE_NEG,  
+             FACET, FACET_TIP, FACET_CYL, 
+             ERROR};
 
 ///
 /// \brief Cutter-Contact (CC) point. A Point wiht a CCType.

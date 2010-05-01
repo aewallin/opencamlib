@@ -34,7 +34,8 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/beet_mm.stl")
+    #stl = camvtk.STLSurf("../stl/beet_mm.stl")
+    stl = camvtk.STLSurf("../stl/demo.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -44,23 +45,23 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    cutter = cam.BallCutter(1.4321)
+    #cutter = cam.BallCutter(1.4321)
     
     #cutter = cam.CylCutter(1.123)
     
-    #cutter = cam.BullCutter(1.123, 0.2)
+    cutter = cam.BullCutter(1.123, 0.2)
     
     #cutter = cam.ConeCutter(0.43, math.pi/7)
     
     print cutter.str()
     #print cc.type
-    minx=-40
-    dx=1
-    maxx=40
-    miny=-20
+    minx=0
+    dx=0.01
+    maxx=10
+    miny=0
     dy=1
-    maxy=20
-    z=-55
+    maxy=10
+    z=-5
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     clpoints2 = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print "generated grid with", len(clpoints)," CL-points"
@@ -94,32 +95,11 @@ if __name__ == "__main__":
     cl2 = bdc2.getCLPoints()
     cc2 = bdc2.getCCPoints()
     
-    """
-    cle = []
-    for (p1,p2) in zip(cl1,cl2):
-        cle.append( (p1-p2).norm() )
-    
-    sum=0
-    n=0
-    maxe=0
-    for e in cle:
-        if maxe<e:
-            maxe=e
-        sum = sum + e
-        n = n +1
-    print "average error=",float(sum)/n
-    print "max error=",maxe
-    
-    print len(cl1), "1: cl points evaluated"
-    print len(cc1), "1: cc-points"
-    print len(cl2), "2: cl points evaluated"
-    print len(cc2), "2: cc-points"    
-    """
-    
+   
     #exit()
     print "rendering...",
     #drawPoints(myscreen, cc2, cc2)
-    drawPoints(myscreen, cl2, cc2)
+    drawPoints(myscreen, cc2, cc2)
 
     print "done"
        
