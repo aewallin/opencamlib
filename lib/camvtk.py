@@ -60,7 +60,7 @@ def ccColor(cc):
     elif cc.type == cam.CCType.EDGE_POS:
         col = lblue
     elif cc.type == cam.CCType.EDGE_NEG:
-        col = pink
+        col = mag
     elif cc.type == cam.CCType.NONE:
         col = white 
     elif cc.type == cam.CCType.ERROR:

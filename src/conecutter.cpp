@@ -145,9 +145,8 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             cc.type = FACET_CYL;
             result = 1; 
         }
-    } else {
-        return 0;
-    }
+    } 
+    
     return result; // we never get here (?)
 }
 

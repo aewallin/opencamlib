@@ -321,6 +321,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                                 cc.type = EDGE_POS;
                             else
                                 cc.type = EDGE_NEG;
+                            result = 1;
                         }
                     }
 

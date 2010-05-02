@@ -141,6 +141,24 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("facetDrop", &CylConeCutter::facetDrop)
         .def("edgeDrop", &CylConeCutter::edgeDrop)
     ;
+    bp::class_<BallConeCutter, bp::bases<MillingCutter> >("BallConeCutter")
+        .def(bp::init<double, double, double>())
+        .def("vertexDrop", &BallConeCutter::vertexDrop)
+        .def("facetDrop", &BallConeCutter::facetDrop)
+        .def("edgeDrop", &BallConeCutter::edgeDrop)
+    ;
+    bp::class_<BullConeCutter, bp::bases<MillingCutter> >("BullConeCutter")
+        .def(bp::init<double, double, double, double>())
+        .def("vertexDrop", &BullConeCutter::vertexDrop)
+        .def("facetDrop", &BullConeCutter::facetDrop)
+        .def("edgeDrop", &BullConeCutter::edgeDrop)
+    ;
+    bp::class_<ConeConeCutter, bp::bases<MillingCutter> >("ConeConeCutter")
+        .def(bp::init<double, double, double, double>())
+        .def("vertexDrop", &ConeConeCutter::vertexDrop)
+        .def("facetDrop", &ConeConeCutter::facetDrop)
+        .def("edgeDrop", &ConeConeCutter::edgeDrop)
+    ;
     bp::class_<Epos>("Epos")
         .def("setS", &Epos::setS)
         .def("setT", &Epos::setT)

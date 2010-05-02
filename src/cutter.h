@@ -134,11 +134,48 @@ class CompoundCutter : public MillingCutter {
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
 };
 
+
+/// \brief a MillingCutter::CompoundCutter with a cylindrical/flat central part of diameter diam1
+/// and a conical outer part sloping at angle, with a max diameter diam2
 class CylConeCutter : public CompoundCutter {
     public:
         CylConeCutter() {}; // dummy, required(?) by python wrapper
         CylConeCutter(double diam1, double diam2, double angle);
 };
+
+/// \brief a MillingCutter::CompoundCutter with a spherical central part of diameter diam1
+/// and a conical outer part sloping at angle, with a max diameter diam2
+/// the cone is positioned so that the tangent of the cone matches the tangent of the sphere
+class BallConeCutter : public CompoundCutter {
+    public:
+        BallConeCutter() {}; // dummy, required(?) by python wrapper
+        BallConeCutter(double diam1, double diam2, double angle);
+};
+
+
+/// \brief a MillingCutter::CompoundCutter with a toroidal central part of diameter diam1 
+/// and corner radius radius1
+/// The outer part is conical sloping at angle, with a max diameter diam2
+/// the cone is positioned so that the tangent of the cone matches the tangent of the torus
+class BullConeCutter : public CompoundCutter {
+    public:
+        BullConeCutter() {}; // dummy, required(?) by python wrapper
+        BullConeCutter(double diam1, double radius1, double diam2, double angle);
+};
+
+
+/// \brief a MillingCutter::CompoundCutter with a conical central part with diam1/angle1 
+/// and a conical outer part with diam2/angle2
+class ConeConeCutter : public CompoundCutter {
+    public:
+        ConeConeCutter() {}; // dummy, required(?) by python wrapper
+        ConeConeCutter(double diam1, double angle1, double diam2, double angle2);
+};
+
+
+/* ********************************************************************
+ *  Our basic cutters: Cylinder, Sphere, Toroid, Cone
+ * ********************************************************************/
 
 ///
 /// \brief Cylindrical MillingCutter (flat-endmill)

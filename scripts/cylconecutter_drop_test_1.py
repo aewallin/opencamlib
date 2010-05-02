@@ -23,11 +23,11 @@ def drawPoints(myscreen, clpoints, ccpoints):
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    a=cam.Point(1,0,2)
+    a=cam.Point(1,0.6,0.1)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b=cam.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c=cam.Point(0,0,0.1)
+    c=cam.Point(0,0,0.0)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
@@ -40,8 +40,12 @@ if __name__ == "__main__":
     #cutter = cam.ConeCutter(0.37, angle)
     #cutter = cam.BallCutter(0.532)
     #cutter = cam.CylCutter(0.3)
-    #cutter = cam.BullCutter(0.5,0.123)
-    cutter = cam.CylConeCutter(0.2,0.5,math.pi/9)
+    
+    #cutter = cam.CylConeCutter(0.2,0.5,math.pi/9)
+    #cutter = cam.BallConeCutter(0.4,0.6,math.pi/9)
+    #cutter = cam.BullConeCutter(0.4,0.1,0.7,math.pi/6)
+    cutter = cam.ConeConeCutter(0.4,math.pi/3,0.7,math.pi/6)
+    #cutter = cam.ConeCutter(0.4, math.pi/3)
     #print cutter.str()
     
     
@@ -66,10 +70,8 @@ if __name__ == "__main__":
         cc = cam.CCPoint()
         
         cutter.vertexDrop(cl,cc,t)
-        cutter.edgeDrop(cl,cc,t)
-        
-        
-        cutter.facetDrop(cl,cc,t)
+        #cutter.edgeDrop(cl,cc,t)
+        #cutter.facetDrop(cl,cc,t)
         
         #cutter.dropCutter(cl,cc,t)
         
