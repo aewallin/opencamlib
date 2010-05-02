@@ -173,8 +173,6 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         // check that there is an edge in the xy-plane
         // can't drop against vertical edges!
         if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
-        
-            //std::cout << "Points " << p1 << " to " << p2 << "\n";
             double d = cl.xyDistanceToLine(p1, p2);
             assert( d >= 0.0 );
                 
@@ -191,18 +189,6 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
                 double p1u = (p1-sc).dot(v);
                 
-                
-                if ( (fabs(p2u-p1u) - (p2-p1).xyNorm() ) > 1E-6 ) {
-                    std::cout << p2u-p1u << " == " << (p2-p1).xyNorm() << "? \n";
-                    std::cout << "cl: " << cl << "\n";
-                    //std::cout << "dir: " << dir << "\n";
-                    std::cout << "p1: " << p1 << "\n";
-                    std::cout << "p2: " << p2 << "\n";
-                    std::cout << "p1u: " << p1u << "\n";
-                    std::cout << "p2u: " << p2u << "\n";
-                    assert(0);
-                }
-
                 // in (u,v) coordinates 
                 // cl is at (0, 0)
                 // p1 is at (p1u,   d)
@@ -230,29 +216,24 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + l^2 ))
                 double mu = (height/(diameter/2) ) * xu / sqrt( square(xu) + square(d) ) ;
                 
-                
                 // find contact point where slopes match.
-                double ccu;
-                
                 // there are two cases:
                 // 1) if abs(m) <= abs(mu)  we contact the curve at
                 // xp = sign(m) * sqrt( R^2 m^2 l^2 / (h^2 - R^2 m^2) )
+                double ccu;
                 if (fabs(m) <= fabs(mu) ) { // 1) hyperbola case
                     ccu = sign(m) * sqrt( square(diameter/2)*square(m)*square(d) / 
                                          (square(height) -square(diameter/2)*square(m) ) );
                 } else if ( fabs(m)>fabs(mu) ) {
-                    // 2) if abs(m) > abs(mu)
+                    // 2) if abs(m) > abs(mu) there is contact with the circular edge
                     // xp = sign(m) * xu
-                    // contact with circular edge
                     ccu = sign(m)*xu;
                 } else {
                     assert(0);
                 }
                 
-                
                 // now the cc-point can be found:
                 Point cc_tmp = sc + ccu*v; // in the XY plane
-                
                 // locate cc_tmp on the line (find the z-coord)
                 // cc_tmp = p1 + t*(p2-p1)
                 // t = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1)
@@ -264,6 +245,7 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 }
                 cc_tmp.z = p1.z + t*(p2.z-p1.z);
                 
+                // find the CL-height
                 double cl_z;
                 if (fabs(m) <= fabs(mu) ) {
                     // 1) zc = zp - Lc + (R - sqrt(xp^2 + l^2)) / tan(beta2)

@@ -162,7 +162,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
                     cc.type = ERROR;
                     assert(0);
-                    return -1;
+                    return 0;
                     
                 } else if ( isZero_tol(discr) ) {// tangent line
                     #ifdef EDGEDROP_DEBUG
@@ -197,7 +197,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         if (cl.liftZ(cc_tmp.z)) {
                             cc = cc_tmp;
                             cc.type = EDGE;
-                            result=1;
+                            result = 1;
                         }
                     }
                 } else { // discr > 0, two intersection points
@@ -283,7 +283,6 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         //std::cout << "intersect case: cc2 isInside=true! cc2=" << cc2 << "\n";
                     }
                     
-                    
                 } //end two intersection points case
                 
             }// end if(potential hit)
@@ -293,7 +292,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         } // end if(vertical edge)
         
     } // end loop through all edges
-        
+
     return result;
 }
 

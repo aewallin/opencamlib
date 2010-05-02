@@ -54,10 +54,10 @@ bool CompoundCutter::ccValid(int n, Point& cl, CCPoint& cc_tmp) const
     double lolimit;
     double hilimit;
     if (n==0)
-        lolimit = 0.0;
+        lolimit = - 1E-6;
     else
-        lolimit = radius[n-1];
-    hilimit = radius[n];
+        lolimit = radius[n-1] - 1E-6;
+    hilimit = radius[n]+1e-6; // FIXME: really ugly solution this one...
     
     if (d<lolimit)
         return false;
@@ -93,9 +93,10 @@ int CompoundCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     int result = 0;
     Point cl_tmp = cl;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
+        Point cl_tmp = cl + Point(0,0,zoffset[n]);
         CCPoint* cc_tmp = new CCPoint();
         if ( cutter[n]->facetDrop(cl_tmp, *cc_tmp,t) ) {
-            if ( ccValid(n,cl_tmp, *cc_tmp) ) { // cc-point is valid
+            if ( ccValid(n,cl, *cc_tmp) ) { // cc-point is valid
                 if (cl.liftZ(cl_tmp.z-zoffset[n])) { // we need to lift the cutter
                     cc = *cc_tmp;
                     cc.type = FACET;
@@ -112,11 +113,11 @@ int CompoundCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 int CompoundCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     int result = 0;
+    
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
-        Point cl_tmp = cl;
+        Point cl_tmp = cl + Point(0,0,zoffset[n]);
         CCPoint* cc_tmp = new CCPoint();
-        if ( cutter[n]->edgeDrop(cl_tmp,*cc_tmp,t) ) {
-       
+        if ( cutter[n]->edgeDrop(cl_tmp,*cc_tmp,t) ) { 
             if ( ccValid(n,cl,*cc_tmp) ) { // cc-point is valid
                 if (cl.liftZ(cl_tmp.z-zoffset[n])) { // we need to lift the cutter
                     cc = *cc_tmp;
@@ -135,12 +136,12 @@ int CompoundCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)
 {
-    MillingCutter* p1 = new CylCutter(diam1);
-    MillingCutter* p2 = new ConeCutter(diam2, angle);
+    MillingCutter* c1 = new CylCutter(diam1);
+    MillingCutter* c2 = new ConeCutter(diam2, angle);
     double cone_offset= - (diam1/2)/tan(angle);
     
-    addCutter( *p1, diam1/2.0, 0.0 );
-    addCutter( *p2, diam2/2.0, cone_offset );
+    addCutter( *c1, diam1/2.0, 0.0 );
+    addCutter( *c2, diam2/2.0, cone_offset );
 }
 
 
