@@ -329,7 +329,7 @@ int CylCutter::vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
 }
 
 /// push cutter along Fiber against facet of Triangle t
-/// add an interval to Fiber if the cutter interferes
+/// add an interval to Fiber where the cutter interferes
 int CylCutter::facetPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
     int result = 0;
     
