@@ -18,7 +18,7 @@
 
 #ifndef BDC_H
 #define BDC_H
-#include <boost/foreach.hpp>
+
 #include <boost/python.hpp>
 #include <iostream>
 #include <string>

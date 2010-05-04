@@ -26,6 +26,7 @@
 #include "triangle.h"
 #include "cutter.h"
 #include "numeric.h"
+#include "fiber.h"
 
 // #define EDGEDROP_DEBUG
 
@@ -297,7 +298,53 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 }
 
 
+//************** push cutter methods **********************************/
 
+/// push cutter along Fiber against vertices of Triangle t
+/// add interfering intervals to the Fiber
+int CylCutter::vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
+    int result = 0;
+    BOOST_FOREACH( const Point& p, t.p)
+    {
+        //std::cout << "clength=" << getLength() << "\n";
+        //std::cout << "zmax=" << f.p1.z+getLength()<< "\n";
+        //std::cout << "p.z=" << p.z << "\n";
+        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) {
+            Point pq = p.xyClosestPoint(f.p1, f.p2);
+            double q = (p-pq).xyNorm(); //pq.xyDistanceToLine(f.p1, f.p2); // distance in XY-plane from fiber to p
+            if (q<= diameter/2) { // p is inside the cutter
+                //std::cout << "testing vertex " << p << "\n";
+                //std::cout << "q="<< q << " is < radius\n";
+                double ofs = sqrt( square(diameter/2.0) - square(q) ); 
+                Point start = pq - ofs*f.dir;
+                Point stop  = pq + ofs*f.dir;
+                f.addInt( f.tval(start) , f.tval(stop) );
+                cc = p;
+                cc.type = VERTEX;
+                result=1;
+            }             
+        }
+    }
+    return result;
+}
+
+/// push cutter along Fiber against facet of Triangle t
+/// add an interval to Fiber if the cutter interferes
+int CylCutter::facetPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
+    int result = 0;
+    
+    
+    
+    return result;
+}    
+
+int CylCutter::edgePush(Fiber& f, CCPoint &cc, const Triangle& t) const {
+    int result = 0;
+    
+    
+    
+    return result;
+}   
 
 //********  CylCutter string output ********************** */
 std::string CylCutter::str()

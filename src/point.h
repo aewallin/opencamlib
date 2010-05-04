@@ -80,7 +80,7 @@ class Point {
         Point closestPoint(const Point &p1, const Point &p2);
         
         /// return closest Point to line through p1 and p2. Works in the XY plane.
-        Point xyClosestPoint(const Point &p1, const Point &p2);
+        Point xyClosestPoint(const Point &p1, const Point &p2) const;
         
         /// returns true if point is right of line through p1 and p2 (works in the XY-plane)
         bool isRight(const Point &p1, const Point &p2) const;

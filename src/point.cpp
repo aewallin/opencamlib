@@ -158,7 +158,7 @@ Point Point::closestPoint(const Point &p1, const Point &p2)
     return p1 + u*v;
 }
 
-Point Point::xyClosestPoint(const Point &p1, const Point &p2)
+Point Point::xyClosestPoint(const Point &p1, const Point &p2) const
 {
     // one explanation is here
     // http://local.wasp.uwa.edu.au/~pbourke/geometry/pointline/

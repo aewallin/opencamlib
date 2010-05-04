@@ -19,8 +19,8 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-#include <boost/progress.hpp>
-
+//#include <boost/progress.hpp>
+#include <boost/foreach.hpp>
 #ifndef WIN32
 #include <omp.h>
 #endif

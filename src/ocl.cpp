@@ -109,6 +109,9 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("facetDrop", &CylCutter::facetDrop)
         .def("edgeDrop", &CylCutter::edgeDrop)
         .def("dropCutter", &CylCutter::dropCutter)
+        .def("vertexPush", &CylCutter::vertexPush)
+        .def("facetPush", &CylCutter::facetPush)
+        .def("edgePush", &CylCutter::edgePush)
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
         .def("str", &CylCutter::str)
     ;
@@ -271,6 +274,18 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("miny", &Bbox::miny)
         .def_readwrite("maxz", &Bbox::maxz)
         .def_readwrite("minz", &Bbox::minz)
+    ;
+    bp::class_<Fiber>("Fiber")
+        .def(bp::init<Point,Point>())
+        .def_readonly("p1", &Fiber::p1)
+        .def_readonly("p2", &Fiber::p2)
+        .def_readonly("dir", &Fiber::dir)
+        .def("calcDir", &Fiber::calcDir)
+        .def("addInt", &Fiber::addInt)
+        .def("condense", &Fiber::condense)
+        .def("point", &Fiber::point)
+        .def("printInts", &Fiber::printInts)
+        .def("getInts", &Fiber::getInts)
     ;
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())

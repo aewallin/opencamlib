@@ -18,8 +18,17 @@ def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
     c.SetPoints()
     myscreen.addActor(c )
-        
 
+def drawFiber(myscreen, f):
+    #myscreen.addActor( camvtk.Line(p1=(f.p1.x,f.p1.y,f.p1.z),p2=(f.p2.x,f.p2.y,f.p2.z), color=camvtk.orange) )
+    #myscreen.addActor( camvtk.Sphere(center=(f.p1.x,f.p1.y,f.p1.z),radius=0.05, color=camvtk.lgreen) )
+    #myscreen.addActor( camvtk.Sphere(center=(f.p2.x,f.p2.y,f.p2.z),radius=0.05, color=camvtk.pink) )
+    inter = f.getInts()
+    for i in inter:
+        ip1 = f.point( i[0] )
+        ip2 = f.point( i[1] )
+        myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=camvtk.red) )
+        
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
@@ -34,18 +43,18 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     
-    f1 = cam.Point(-2,0.5,0.2)
-    f2 = cam.Point(2,0.5,0.2)
-    myscreen.addActor( camvtk.Line(p1=(f1.x,f1.y,f1.z),p2=(f2.x,f2.y,f2.z), color=camvtk.orange) )
-    myscreen.addActor( camvtk.Sphere(center=(f1.x,f1.y,f1.z),radius=0.051, color=camvtk.lgreen) )
-    myscreen.addActor( camvtk.Sphere(center=(f2.x,f2.y,f2.z),radius=0.051, color=camvtk.pink) )
+    f1 = cam.Point(-2,0.5,-0.2)
+    f2 = cam.Point(2,0.5,-0.2)
+    
+    
+    
     t = cam.Triangle(b,c,a)
     #radius1=1
     #angle = math.pi/4
     #cutter = cam.ConeCutter(0.37, angle)
     #cutter = cam.BallCutter(0.532)
     cutter = cam.CylCutter(0.3)
-    
+    cutter.length = 4.0
     #cutter = cam.CylConeCutter(0.2,0.5,math.pi/9)
     #cutter = cam.BallConeCutter(0.4,0.6,math.pi/9)
     #cutter = cam.BullConeCutter(0.4,0.1,0.7,math.pi/6)
@@ -54,7 +63,32 @@ if __name__ == "__main__":
     
     print "fiber..."
               
-            
+    f = cam.Fiber( f1, f2)
+    print f.dir.str() 
+    
+    #f.addInt( 0.25, 0.37)
+    #f.addInt( 0.38, 0.47)
+    #f.addInt( 0.4, 0.41)
+    #f.addInt( 0.2 , 0.3)
+    #f.addInt( 0.1, 0.2)
+    f.printInts()  
+    print "vertexPush"
+    cutter.vertexPush(f,t)
+    print "AFTER vertexPush"
+    f.printInts()  
+    print "condense()"
+    f.condense()
+    
+    f.printInts()
+    print "condense() again"
+    f.condense()
+    print "result:"
+    f.printInts()
+    
+    inter = f.getInts()
+    print inter
+    
+    drawFiber(myscreen, f)
             
     print "done."
     

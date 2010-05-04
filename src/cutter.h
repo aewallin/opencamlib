@@ -33,6 +33,8 @@ namespace ocl
 {
 
 
+class Fiber;
+
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
 ///
@@ -189,12 +191,14 @@ class CylCutter : public MillingCutter {
         CylCutter(const double d);
         
         // dropCutter methods
-        /// drop cutter at (cl.x, cl.y) against vertices of Triangle t
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
-        /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
-        /// drop cutter at (cl.x, cl.y) against edges of Triangle t
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        
+        // pushCutter methods
+        int vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const;
+        int facetPush(Fiber& f, CCPoint &cc, const Triangle& t) const;
+        int edgePush(Fiber& f, CCPoint &cc, const Triangle& t) const;
         
         /// text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);

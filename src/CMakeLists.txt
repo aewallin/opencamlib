@@ -68,6 +68,7 @@ add_library(
     conecutter.cpp
     cutter.cpp
     cylcutter.cpp
+    fiber.cpp
     kdtree.cpp
     line.cpp
     numeric.cpp
