@@ -29,13 +29,15 @@
 namespace ocl
 {
 
-
+typedef boost::numeric::interval<double> dinterval;
 
 class Fiber {
     public:
 		Fiber(){ };
         Fiber(const Point &p1, const Point &p2);
-        void calcDir();
+        virtual ~Fiber() {};
+        
+        
         void printInts();
         void addInt(double t1, double t2);
         void condense();
@@ -48,7 +50,9 @@ class Fiber {
         /// end point
         Point p2;
         Point dir;
-        std::vector< boost::numeric::interval<double> > ints;
+        std::vector<dinterval> ints;
+    private:
+        void calcDir();
 };
 
 } // end namespace

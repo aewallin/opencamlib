@@ -37,11 +37,13 @@ Fiber::Fiber(const Point &p1in, const Point &p2in) {
 
 void Fiber::calcDir() {
     dir = p2 - p1;
+    assert( dir.z == 0.0 );
+    
     dir.normalize();
 }
 
 void Fiber::addInt(double t1, double t2) {
-    ints.push_back( bn::interval<double>(t1,t2) );
+    ints.push_back( dinterval(t1,t2) );
 }
 
 void Fiber::condense() {
@@ -71,6 +73,8 @@ void Fiber::condense() {
     }
 }
 
+
+/// return t-value correspoinding to p
 double Fiber::tval(Point& p) const {
     // fiber is  f = p1 + t * (p2-p1)
     // t = (f-p1).dot(p2-p1) / (p2-p1).dot(p2-p1)
@@ -78,6 +82,8 @@ double Fiber::tval(Point& p) const {
     return t;
 }
 
+
+/// return a point on the fiber
 Point Fiber::point(double t) {
     Point p = p1 + t*(p2-p1);
     return p;

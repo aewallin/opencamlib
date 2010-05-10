@@ -29,11 +29,13 @@
 #include "triangle.h"
 #include "stlsurf.h"
 
+#include "fiber.h"
+
 namespace ocl
 {
 
 
-class Fiber;
+
 
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
