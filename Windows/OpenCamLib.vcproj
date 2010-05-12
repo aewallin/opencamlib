@@ -270,6 +270,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\fiber.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\kdtree.cpp"
 				>
 				<FileConfiguration
@@ -437,6 +441,10 @@
 			</File>
 			<File
 				RelativePath="..\src\cutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\fiber.h"
 				>
 			</File>
 			<File
