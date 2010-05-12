@@ -34,11 +34,19 @@ include_directories(${Python_Includes})
 # on Ubuntu Hardy through Karmic vs Lucid)
 #
 
-find_library(
-    LIB_BOOST_PYTHON
-    NAMES boost_python-mt boost_python
-)
-MESSAGE(STATUS "found boost-python: " ${LIB_BOOST_PYTHON})
+# this is the old (pre 2010May12) way of finding boost-python
+# find_library(
+#     LIB_BOOST_PYTHON
+#     NAMES boost_python-mt boost_python
+# )
+# MESSAGE(STATUS "found boost-python: " ${LIB_BOOST_PYTHON})
+
+find_package( Boost )
+if(Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+    MESSAGE(STATUS " found Boost! good. ")
+    MESSAGE(STATUS " boost-incude dirs are:" ${Boost_INCLUDE_DIRS})
+endif()
 
 #
 # find OpenMP
@@ -81,7 +89,7 @@ add_library(
     triangle.cpp
     volume.cpp
 )
-target_link_libraries(ocl ${LIB_BOOST_PYTHON})
+# target_link_libraries(ocl ${LIB_BOOST_PYTHON})
 set_target_properties(ocl PROPERTIES PREFIX "")
 
 #
