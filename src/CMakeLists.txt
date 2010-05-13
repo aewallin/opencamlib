@@ -41,11 +41,12 @@ include_directories(${Python_Includes})
 # )
 # MESSAGE(STATUS "found boost-python: " ${LIB_BOOST_PYTHON})
 
-find_package( Boost )
+find_package( Boost COMPONENTS python)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
     MESSAGE(STATUS " found Boost! good. ")
     MESSAGE(STATUS " boost-incude dirs are:" ${Boost_INCLUDE_DIRS})
+    MESSAGE(STATUS " boost-python lib is:" ${Boost_PYTHON_LIBRARY})
 endif()
 
 #
@@ -89,8 +90,14 @@ add_library(
     triangle.cpp
     volume.cpp
 )
-# target_link_libraries(ocl ${LIB_BOOST_PYTHON})
+MESSAGE(STATUS "linking with boost: " ${Boost_LIBRARIES})
+target_link_libraries(ocl ${Boost_LIBRARIES})
 set_target_properties(ocl PROPERTIES PREFIX "")
+
+# was:
+# target_link_libraries(ocl ${LIB_BOOST_PYTHON})
+
+
 
 #
 # this makes a shared library for use by c/c++ code
