@@ -15,7 +15,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ocl.h"
+
+
+#include <boost/python.hpp>
+#include "point.h"
+#include "cutter.h"
+
 
 /*
  *  wrap cutters

@@ -15,7 +15,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ocl.h"
+
+#include <boost/python.hpp>
+
+#include "point.h"
+#include "triangle.h"
+#include "stlsurf.h"
+#include "oellipse.h"
+#include "cutter.h"
 
 /*
  *  Python wrapping
@@ -116,14 +123,6 @@ void export_geometry() {
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
-    bp::class_<Bbox>("Bbox")
-        .def("isInside", &Bbox::isInside )
-        .def_readwrite("maxx", &Bbox::maxx)
-        .def_readwrite("minx", &Bbox::minx)
-        .def_readwrite("maxy", &Bbox::maxy)
-        .def_readwrite("miny", &Bbox::miny)
-        .def_readwrite("maxz", &Bbox::maxz)
-        .def_readwrite("minz", &Bbox::minz)
-    ;
+
 }
 

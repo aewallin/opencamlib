@@ -15,7 +15,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ocl.h"
+
+#include <boost/python.hpp>
+
+#include "point.h"
+#include "oellipse.h"
+#include "cutter.h"
+#include "volume.h"
+#include "octree.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -94,6 +101,15 @@ void export_octree() {
         .def_readwrite("v1", &BoxOCTVolume::v1)
         .def_readwrite("v2", &BoxOCTVolume::v2)
         .def_readwrite("v3", &BoxOCTVolume::v3)
+    ;
+    bp::class_<Bbox>("Bbox")
+        .def("isInside", &Bbox::isInside )
+        .def_readwrite("maxx", &Bbox::maxx)
+        .def_readwrite("minx", &Bbox::minx)
+        .def_readwrite("maxy", &Bbox::maxy)
+        .def_readwrite("miny", &Bbox::miny)
+        .def_readwrite("maxz", &Bbox::maxz)
+        .def_readwrite("minz", &Bbox::minz)
     ;
 }
 
