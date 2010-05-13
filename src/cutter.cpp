@@ -34,6 +34,8 @@ int MillingCutter::count = 0;
 
 MillingCutter::MillingCutter()
 {   
+    setDiameter( 1.0 );
+    setLength( 1.0 );
     setId();
 }
 
@@ -41,6 +43,7 @@ void MillingCutter::setDiameter(double d)
 {
     if ( d >= 0.0 ) {
         diameter=d;
+        radius = d/2.0;
     } else {
         std::cout << "cutter.cpp: ERROR, MillingCutter.setDiameter(d) called with d<0 !!";
         diameter=1.0;
@@ -70,7 +73,7 @@ double MillingCutter::getDiameter() const
 
 double MillingCutter::getRadius() const
 {
-    return diameter/2;
+    return radius;
 }
 
 double MillingCutter::getLength() const
@@ -79,6 +82,7 @@ double MillingCutter::getLength() const
 }
 
 
+/// call vertex, facet, and edge drop methods
 int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
 {
     /* template-method, or "self-delegation", pattern */
@@ -91,6 +95,7 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
     return 0; // void would be better, return value not used for anything
 }
 
+// TESTING ONLY, don't use for real
 int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const
 {
     /* template-method, or "self-delegation", pattern */
@@ -118,7 +123,6 @@ bool MillingCutter::overlaps(Point &cl, const Triangle &t) const
     else
         return true;
 }
-
 
 
 } // end namespace

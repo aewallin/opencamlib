@@ -344,10 +344,10 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
 
 //********  CylCutter string output ********************** */
-std::string BullCutter::str()
+std::string BullCutter::str() const
 {
     std::ostringstream o;
-    o << "BullCutter"<< id <<"(d=" << diameter << ", radius1=" << radius1 << ", radius2=" << radius2 << ")";
+    o << "BullCutter(d=" << diameter << ", radius1=" << radius1 << ", radius2=" << radius2 << ")";
     return o.str();
 }
 

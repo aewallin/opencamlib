@@ -35,7 +35,7 @@ if __name__ == "__main__":
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     #stl = camvtk.STLSurf("../stl/beet_mm.stl")
-    stl = camvtk.STLSurf("../stl/demo.stl")
+    stl = camvtk.STLSurf("../stl/Blade.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     print cutter.str()
     #print cc.type
     minx=0
-    dx=0.01
+    dx=0.1
     maxx=10
     miny=0
     dy=1

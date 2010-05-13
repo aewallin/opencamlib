@@ -34,13 +34,13 @@ namespace ocl
 
 CompoundCutter::CompoundCutter()
 {
-    radius = std::vector<double>();
+    radiusvec = std::vector<double>();
     cutter = std::vector<MillingCutter*>();
 }
 
 void CompoundCutter::addCutter(MillingCutter& c, double r, double zoff)
 {
-    radius.push_back(r);
+    radiusvec.push_back(r);
     cutter.push_back(&c);
     zoffset.push_back(zoff);
 }
@@ -56,8 +56,8 @@ bool CompoundCutter::ccValid(int n, Point& cl, CCPoint& cc_tmp) const
     if (n==0)
         lolimit = - 1E-6;
     else
-        lolimit = radius[n-1] - 1E-6;
-    hilimit = radius[n]+1e-6; // FIXME: really ugly solution this one...
+        lolimit = radiusvec[n-1] - 1E-6;
+    hilimit = radiusvec[n]+1e-6; // FIXME: really ugly solution this one...
     
     if (d<lolimit)
         return false;

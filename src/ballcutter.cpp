@@ -40,7 +40,6 @@ BallCutter::BallCutter()
 BallCutter::BallCutter(const double d)
 {
     setDiameter(d);
-    radius = d/2;
 }
 
 //********   drop-cutter methods ********************** */
@@ -53,7 +52,7 @@ int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     BOOST_FOREACH( const Point& p, t.p)
     {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        if (q<= diameter/2) { // p is inside the cutter
+        if (q<= radius) { // p is inside the cutter
             // q^2 + h2^2 = r^2
             // h2 = sqrt( r^2 - q^2 )
             // h1 = r - h2
@@ -274,7 +273,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
 
 //******** string output ********************** */
-std::string BallCutter::str()
+std::string BallCutter::str() const
 {
     std::ostringstream o;
     o << *this; 
@@ -283,7 +282,7 @@ std::string BallCutter::str()
 
 std::ostream& operator<<(std::ostream &stream, BallCutter c)
 {
-  stream << "BallCutter"<< c.id <<"(d=" << c.diameter << ", radius=" << c.radius << ")";
+  stream << "BallCutter(d=" << c.diameter << ", radius=" << c.radius << ")";
   return stream;
 }
 

@@ -54,7 +54,7 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     BOOST_FOREACH( const Point& p, t.p)
     {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        if (q<= diameter/2) { // p is inside the cutter
+        if (q<= radius) { // p is inside the cutter
             if (cl.liftZ(p.z)) { // we need to lift the cutter
                 cc = p;
                 cc.type = VERTEX;
@@ -95,8 +95,8 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     normal.xyNormalize(); // make length of normal in xy plane == 1.0
     
     // the contact point with the plane is on the periphery
-    // of the cutter, a length diameter/2 from cl in the direction of -n
-    Point cc_tmp = cl - (diameter/2)*normal; // Note: at this point the z-coord is rubbish.
+    // of the cutter, a length radius from cl in the direction of -n
+    Point cc_tmp = cl - (radius)*normal; // Note: at this point the z-coord is rubbish.
     
     if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()
         cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
@@ -141,7 +141,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 std::cout << "xyDistance=" << d ;
             #endif
             
-            if (d<=diameter/2) { // potential hit
+            if (d<=radius) { // potential hit
                 //std::cout << " potential hit\n";
                 // 2) calculate intersection points with cutter circle.
                 // points are on line and diameter/2 from cl.
@@ -154,7 +154,7 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 double dy = y2-y1;
                 double dr = sqrt( dx*dx + dy*dy);
                 double D = x1*y2 - x2*y1;
-                double discr = square( diameter/2 ) * square(dr) - square(D);
+                double discr = square( radius ) * square(dr) - square(D);
                 #ifdef EDGEDROP_DEBUG
                     std::cout << "discr=" << discr << "\n";
                 #endif
@@ -346,8 +346,12 @@ int CylCutter::edgePush(Fiber& f, CCPoint &cc, const Triangle& t) const {
     return result;
 }   
 
+MillingCutter* CylCutter::offsetCutter(double d) const {
+    return new BullCutter(diameter+2*d, d);
+}
+    
 //********  CylCutter string output ********************** */
-std::string CylCutter::str()
+std::string CylCutter::str() const
 {
     std::ostringstream o;
     o << *this;

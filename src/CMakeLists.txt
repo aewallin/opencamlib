@@ -80,6 +80,9 @@ add_library(
     kdtree.cpp
     line.cpp
     numeric.cpp
+    ocl_cutters.cpp
+    ocl_geometry.cpp
+    ocl_octree.cpp
     ocl.cpp
     octree.cpp
     oellipse.cpp

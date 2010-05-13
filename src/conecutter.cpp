@@ -19,7 +19,6 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-#include <boost/progress.hpp>
 
 #include "cutter.h"
 #include "point.h"
@@ -37,14 +36,14 @@ ConeCutter::ConeCutter()
 {
     setDiameter(1.0);
     angle = 45;
-    height = (diameter/2)/tan(angle);
+    height = radius/tan(angle);
 }
 
 ConeCutter::ConeCutter(const double d, const double a)
 {
     setDiameter(d);
     angle = a;
-    height = (diameter/2)/tan(angle);
+    height = radius/tan(angle);
 }
 
 
@@ -56,7 +55,7 @@ int ConeCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     BOOST_FOREACH( const Point& p, t.p)
     {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        if (q<= diameter/2) { // p is inside the cutter
+        if ( q <= radius ) { // p is inside the cutter
             // h1 = q / tan(alfa)
             // cutter_tip = p.z - h1
             assert( tan(angle) > 0.0 ); // guard against division by zero
@@ -125,7 +124,7 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     // cylindrical contact point case
     // find the xy-coordinates of the cc-point
-    Point cyl_cc_tmp = cl - (diameter/2)*normal;
+    Point cyl_cc_tmp = cl - radius*normal;
     cyl_cc_tmp.z = (1.0/c)*(-d-a*cyl_cc_tmp.x-b*cyl_cc_tmp.y);
     double cyl_cl_z = cyl_cc_tmp.z - height; // tip positioned here
     
@@ -175,7 +174,7 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             double d = cl.xyDistanceToLine(p1, p2);
             assert( d >= 0.0 );
                 
-            if (d<=(diameter/2)) { // potential hit
+            if ( d <= radius ) { // potential hit
                 // math/geometry from Yau et al. 2004 paper (Int. J. Prod. Res. vol42 no13)
                                               
                 // closest point to cl on line lies at
@@ -208,12 +207,12 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
                 // the outermost point on the cutter is at
                 // xu = sqrt( R^2 - l^2 )
-                double xu = sqrt( square(diameter/2) - square(d) ); 
-                assert( xu <= diameter/2 );
+                double xu = sqrt( square(radius) - square(d) ); 
+                assert( xu <= radius );
                 
                 // here the slope has a maximum
                 // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + l^2 ))
-                double mu = (height/(diameter/2) ) * xu / sqrt( square(xu) + square(d) ) ;
+                double mu = (height/radius ) * xu / sqrt( square(xu) + square(d) ) ;
                 
                 // find contact point where slopes match.
                 // there are two cases:
@@ -221,8 +220,8 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 // xp = sign(m) * sqrt( R^2 m^2 l^2 / (h^2 - R^2 m^2) )
                 double ccu;
                 if (fabs(m) <= fabs(mu) ) { // 1) hyperbola case
-                    ccu = sign(m) * sqrt( square(diameter/2)*square(m)*square(d) / 
-                                         (square(height) -square(diameter/2)*square(m) ) );
+                    ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / 
+                                         (square(height) -square(radius)*square(m) ) );
                 } else if ( fabs(m)>fabs(mu) ) {
                     // 2) if abs(m) > abs(mu) there is contact with the circular edge
                     // xp = sign(m) * xu
@@ -248,7 +247,7 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 double cl_z;
                 if (fabs(m) <= fabs(mu) ) {
                     // 1) zc = zp - Lc + (R - sqrt(xp^2 + l^2)) / tan(beta2)
-                    cl_z = cc_tmp.z - height + (diameter/2-sqrt(square(ccu) + square(d)))/ tan(angle);
+                    cl_z = cc_tmp.z - height + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
                 } else if ( fabs(m)>fabs(mu) ) {
                     // 2) zc = zp - Lc
                     cl_z = cc_tmp.z - height; // case where we hit the edge of the cone
@@ -279,7 +278,7 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
 
 //******** string output ********************** */
-std::string ConeCutter::str()
+std::string ConeCutter::str() const
 {
     std::ostringstream o;
     o << *this;
