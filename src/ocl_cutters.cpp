@@ -31,17 +31,31 @@ using namespace ocl;
 namespace bp = boost::python;
 
 void export_cutters() {
-    bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter", bp::no_init)
-        .def("vertexDrop", bp::pure_virtual(&MillingCutter::vertexDrop) )
-        .def("facetDrop", bp::pure_virtual(&MillingCutter::facetDrop) )
-        .def("edgeDrop", bp::pure_virtual(&MillingCutter::edgeDrop) )
-        //.def("offsetCutter", bp::pure_virtual(&MillingCutter::offsetCutter) )
+// documentation here:
+// http://www.boost.org/doc/libs/1_43_0/libs/python/doc/tutorial/doc/html/python/exposing.html#python.inheritance
+
+    // bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter", bp::no_init)
+    bp::class_<MillingCutterWrap , boost::noncopyable>("MillingCutter")
+        .def("vertexDrop", &MillingCutter::vertexDrop, &MillingCutterWrap::default_vertexDrop )
+        .def("facetDrop",  &MillingCutter::facetDrop )
+        .def("edgeDrop",   &MillingCutter::edgeDrop )
+        .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
         .add_property("radius", &MillingCutter::getRadius )
         .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
         .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
-    ;
+    ; 
+    /*
+    bp::class_<MillingCutter>("MillingCutter")
+        .def("vertexDrop", &MillingCutter::vertexDrop )
+        .def("facetDrop",  &MillingCutter::facetDrop )
+        .def("edgeDrop",   &MillingCutter::edgeDrop )
+        .def("__str__",   bp::virtual(&MillingCutter::str) )
+        .add_property("radius", &MillingCutter::getRadius )
+        .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
+        .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
+    ;*/
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
-        .def(bp::init<double>())
+        .def(bp::init<double>()) 
         .def("vertexDrop", &CylCutter::vertexDrop)
         .def("facetDrop", &CylCutter::facetDrop)
         .def("edgeDrop", &CylCutter::edgeDrop)
@@ -49,8 +63,8 @@ void export_cutters() {
         .def("vertexPush", &CylCutter::vertexPush)
         .def("facetPush", &CylCutter::facetPush)
         .def("edgePush", &CylCutter::edgePush)
+        //.def("offsetCutter", &CylCutter::offsetCutter, bp::return_value_policy<bp::manage_new_object>() )
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
-        .def("__str__", &CylCutter::str)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
         .def(bp::init<double>())
@@ -59,21 +73,18 @@ void export_cutters() {
         .def("edgeDrop", &BallCutter::edgeDrop)
         .def("dropCutter", &BallCutter::dropCutter)
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
-        .def("__str__", &BallCutter::str)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
         .def(bp::init<double, double>())
         .def("vertexDrop", &BullCutter::vertexDrop)
         .def("facetDrop", &BullCutter::facetDrop)
         .def("edgeDrop", &BullCutter::edgeDrop)
-        .def("__str__", &BullCutter::str)
     ;
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
         .def(bp::init<double, double>())
         .def("vertexDrop", &ConeCutter::vertexDrop)
         .def("facetDrop", &ConeCutter::facetDrop)
         .def("edgeDrop", &ConeCutter::edgeDrop)
-        .def("__str__", &ConeCutter::str)
     ;
     bp::class_<CylConeCutter, bp::bases<MillingCutter> >("CylConeCutter")
         .def(bp::init<double, double, double>())
