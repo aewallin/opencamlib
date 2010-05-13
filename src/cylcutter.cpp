@@ -346,8 +346,8 @@ int CylCutter::edgePush(Fiber& f, CCPoint &cc, const Triangle& t) const {
     return result;
 }   
 
-MillingCutter CylCutter::offsetCutter(double d) const {
-    return *( new BullCutter(diameter+2*d, d) );
+MillingCutter* CylCutter::offsetCutter(double d) const {
+    return new BullCutter(diameter+2*d, d) ;
 }
     
 //********  CylCutter string output ********************** */

@@ -57,7 +57,7 @@ class MillingCutter {
         double getLength() const;
         
         /// return a MillingCutter which is larger than *this by d
-        virtual MillingCutter offsetCutter(double d) const;
+        virtual MillingCutter* offsetCutter(double d) const;
         
         /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
         /// works in the xy-plane 
@@ -150,11 +150,17 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
         
         // offset cutter
         // FIXME, return type to python does not seem to work...
-        MillingCutter offsetCutter(double d) const
+        MillingCutter* offsetCutter(double d) const
         {
-            return this->get_override("offsetCutter")(d);
+            if ( boost::python::override ovr_offsetCutter = this->get_override("offsetCutter") )
+                return ovr_offsetCutter(d);
+            return MillingCutter::offsetCutter(d);
         };   
+        MillingCutter* default_offsetCutter(double d) const {
+            return this->MillingCutter::offsetCutter(d);
+        };
         
+        // string repr
         std::string str() const
         {
             if ( boost::python::override ovr_str = this->get_override("str")) {
@@ -185,7 +191,7 @@ class CompoundCutter : public MillingCutter {
         bool ccValid(int n, Point& cl, CCPoint& cc_tmp) const;
         
         // offsetCutter
-        MillingCutter offsetCutter(double d) const;
+        MillingCutter* offsetCutter(double d) const;
         
         // dropCutter methods
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
@@ -257,7 +263,7 @@ class CylCutter : public MillingCutter {
         /// create CylCutter with diameter = d
         CylCutter(const double d);
         
-        MillingCutter offsetCutter(double d) const;
+        MillingCutter* offsetCutter(double d) const;
 
         // dropCutter methods
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
@@ -287,7 +293,7 @@ class BallCutter : public MillingCutter {
         /// create a BallCutter with diameter d and radius d/2
         BallCutter(const double d);
         
-        MillingCutter offsetCutter(double d) const;
+        MillingCutter* offsetCutter(double d) const;
         
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
@@ -312,7 +318,7 @@ class BullCutter : public MillingCutter {
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
         
-        MillingCutter offsetCutter(double d) const;
+        MillingCutter* offsetCutter(double d) const;
         
         /// drop cutter
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
@@ -347,7 +353,7 @@ class ConeCutter : public MillingCutter {
         /// for a 90-degree cone specify the half-angle  angle= pi/4
         ConeCutter(const double d, const double angle);
         
-        MillingCutter offsetCutter(double d) const;
+        MillingCutter* offsetCutter(double d) const;
                 
         int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;

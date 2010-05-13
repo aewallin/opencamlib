@@ -81,10 +81,10 @@ double MillingCutter::getLength() const
     return length;
 }
 
-MillingCutter MillingCutter::offsetCutter(double d) const
+MillingCutter* MillingCutter::offsetCutter(double d) const
 {
     assert(0); // DON'T call me
-    return *( new CylCutter() );
+    return  new CylCutter();
 }
 
 /// call vertex, facet, and edge drop methods

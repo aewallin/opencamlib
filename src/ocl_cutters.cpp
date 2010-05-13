@@ -39,6 +39,8 @@ void export_cutters() {
         .def("facetDrop",  &MillingCutter::facetDrop,  &MillingCutterWrap::default_facetDrop )
         .def("edgeDrop",   &MillingCutter::edgeDrop,   &MillingCutterWrap::default_edgeDrop )
         .def("dropCutter", &MillingCutter::dropCutter)
+        .def("offsetCutter", &MillingCutter::offsetCutter,  bp::return_value_policy<bp::manage_new_object>() )
+        
         .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
         .add_property("radius", &MillingCutter::getRadius )
         .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
@@ -49,7 +51,7 @@ void export_cutters() {
         .def("vertexPush", &CylCutter::vertexPush)
         .def("facetPush", &CylCutter::facetPush)
         .def("edgePush", &CylCutter::edgePush)
-        //.def("offsetCutter", &CylCutter::offsetCutter, bp::return_value_policy<bp::manage_new_object>() )
+        // bp::return_value_policy<bp::manage_new_object>()
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")

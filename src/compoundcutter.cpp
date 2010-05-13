@@ -131,8 +131,8 @@ int CompoundCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
-MillingCutter CompoundCutter::offsetCutter(double d) const{
-    return *( new CylCutter() ); //FIXME!
+MillingCutter* CompoundCutter::offsetCutter(double d) const{
+    return  new CylCutter(); //FIXME!
 }
 
 std::string CompoundCutter::str() const {
