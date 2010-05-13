@@ -340,8 +340,10 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
-
-
+/// offset of bull is bull
+MillingCutter BullCutter::offsetCutter(double d) const {
+    return *( new BullCutter(diameter+2*d, radius2+d) );
+}
 
 //********  CylCutter string output ********************** */
 std::string BullCutter::str() const

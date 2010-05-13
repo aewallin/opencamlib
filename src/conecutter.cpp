@@ -276,6 +276,11 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
+/// offset of cone is BallConeCutter
+MillingCutter ConeCutter::offsetCutter(double d) const {
+    
+    return *( new BallConeCutter(2*d,  diameter+2*d, angle) );
+}
 
 //******** string output ********************** */
 std::string ConeCutter::str() const

@@ -31,11 +31,11 @@ void export_octree();
 
 BOOST_PYTHON_MODULE(ocl) {
    
-    export_geometry();
+    export_geometry(); // see ocl_geometry.cpp
     
-    export_cutters();
+    export_cutters(); // see ocl_cutters.cpp
     
-    export_octree();
+    export_octree(); // see ocl_octree.cpp
     
     bp::class_<BatchDropCutter>("BatchDropCutter")
         .def("dropCutter1", &BatchDropCutter::dropCutter1)

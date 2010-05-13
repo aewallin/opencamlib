@@ -40,13 +40,14 @@ if __name__ == "__main__":
     #cutter = cam.ConeCutter(0.37, angle)
     #cutter = cam.BallCutter(0.532)
     #cutter = cam.CylCutter(0.3)
+    #cutter = cam.BullCutter(1,0.2)
     
     #cutter = cam.CylConeCutter(0.2,0.5,math.pi/9)
-    #cutter = cam.BallConeCutter(0.4,0.6,math.pi/9)
+    cutter = cam.BallConeCutter(0.4,0.6,math.pi/9)
     #cutter = cam.BullConeCutter(0.4,0.1,0.7,math.pi/6)
-    cutter = cam.ConeConeCutter(0.4,math.pi/3,0.7,math.pi/6)
+    #cutter = cam.ConeConeCutter(0.4,math.pi/3,0.7,math.pi/6)
     #cutter = cam.ConeCutter(0.4, math.pi/3)
-    #print cutter.str()
+    print cutter
     
     
     #print cc.type

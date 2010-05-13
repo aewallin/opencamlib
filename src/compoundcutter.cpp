@@ -131,9 +131,25 @@ int CompoundCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     return result;
 }
 
+MillingCutter CompoundCutter::offsetCutter(double d) const{
+    return *( new CylCutter() ); //FIXME!
+}
 
+std::string CompoundCutter::str() const {
+    std::ostringstream o;
+    o << "CompoundCutter with "<< cutter.size() << " cutters:\n";
+    for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
+        o << " " << n << ":" << cutter[n]->str() << "\n";
+        o << "  radius="<< radiusvec[n] << "\n";
+        o << "  zoffset="<< zoffset[n] << "\n";
+    }
+    return o.str();
+}
 
 //********   actual compound-cutters ***************************************************** /
+// only constructors required, drop-cutter calls handled by base-class
+
+
 /// define a CylCone cutter which consists of a cylindrical(flat) middle part
 /// of diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)

@@ -270,7 +270,10 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 }
 
 
-
+/// offset of ball is a bigger ball
+MillingCutter BallCutter::offsetCutter(double d) const {
+    return *( new BallCutter(diameter+2*d) );
+}
 
 //******** string output ********************** */
 std::string BallCutter::str() const

@@ -34,32 +34,18 @@ void export_cutters() {
 // documentation here:
 // http://www.boost.org/doc/libs/1_43_0/libs/python/doc/tutorial/doc/html/python/exposing.html#python.inheritance
 
-    // bp::class_<MillingCutterWrap, boost::noncopyable>("MillingCutter", bp::no_init)
     bp::class_<MillingCutterWrap , boost::noncopyable>("MillingCutter")
         .def("vertexDrop", &MillingCutter::vertexDrop, &MillingCutterWrap::default_vertexDrop )
-        .def("facetDrop",  &MillingCutter::facetDrop )
-        .def("edgeDrop",   &MillingCutter::edgeDrop )
+        .def("facetDrop",  &MillingCutter::facetDrop,  &MillingCutterWrap::default_facetDrop )
+        .def("edgeDrop",   &MillingCutter::edgeDrop,   &MillingCutterWrap::default_edgeDrop )
+        .def("dropCutter", &MillingCutter::dropCutter)
         .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
         .add_property("radius", &MillingCutter::getRadius )
         .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
         .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
     ; 
-    /*
-    bp::class_<MillingCutter>("MillingCutter")
-        .def("vertexDrop", &MillingCutter::vertexDrop )
-        .def("facetDrop",  &MillingCutter::facetDrop )
-        .def("edgeDrop",   &MillingCutter::edgeDrop )
-        .def("__str__",   bp::virtual(&MillingCutter::str) )
-        .add_property("radius", &MillingCutter::getRadius )
-        .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
-        .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
-    ;*/
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double>()) 
-        .def("vertexDrop", &CylCutter::vertexDrop)
-        .def("facetDrop", &CylCutter::facetDrop)
-        .def("edgeDrop", &CylCutter::edgeDrop)
-        .def("dropCutter", &CylCutter::dropCutter)
         .def("vertexPush", &CylCutter::vertexPush)
         .def("facetPush", &CylCutter::facetPush)
         .def("edgePush", &CylCutter::edgePush)
@@ -68,47 +54,25 @@ void export_cutters() {
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
         .def(bp::init<double>())
-        .def("vertexDrop", &BallCutter::vertexDrop)
-        .def("facetDrop", &BallCutter::facetDrop)
-        .def("edgeDrop", &BallCutter::edgeDrop)
-        .def("dropCutter", &BallCutter::dropCutter)
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
         .def(bp::init<double, double>())
-        .def("vertexDrop", &BullCutter::vertexDrop)
-        .def("facetDrop", &BullCutter::facetDrop)
-        .def("edgeDrop", &BullCutter::edgeDrop)
     ;
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
         .def(bp::init<double, double>())
-        .def("vertexDrop", &ConeCutter::vertexDrop)
-        .def("facetDrop", &ConeCutter::facetDrop)
-        .def("edgeDrop", &ConeCutter::edgeDrop)
     ;
     bp::class_<CylConeCutter, bp::bases<MillingCutter> >("CylConeCutter")
         .def(bp::init<double, double, double>())
-        .def("vertexDrop", &CylConeCutter::vertexDrop)
-        .def("facetDrop", &CylConeCutter::facetDrop)
-        .def("edgeDrop", &CylConeCutter::edgeDrop)
     ;
     bp::class_<BallConeCutter, bp::bases<MillingCutter> >("BallConeCutter")
         .def(bp::init<double, double, double>())
-        .def("vertexDrop", &BallConeCutter::vertexDrop)
-        .def("facetDrop", &BallConeCutter::facetDrop)
-        .def("edgeDrop", &BallConeCutter::edgeDrop)
     ;
     bp::class_<BullConeCutter, bp::bases<MillingCutter> >("BullConeCutter")
         .def(bp::init<double, double, double, double>())
-        .def("vertexDrop", &BullConeCutter::vertexDrop)
-        .def("facetDrop", &BullConeCutter::facetDrop)
-        .def("edgeDrop", &BullConeCutter::edgeDrop)
     ;
     bp::class_<ConeConeCutter, bp::bases<MillingCutter> >("ConeConeCutter")
         .def(bp::init<double, double, double, double>())
-        .def("vertexDrop", &ConeConeCutter::vertexDrop)
-        .def("facetDrop", &ConeConeCutter::facetDrop)
-        .def("edgeDrop", &ConeConeCutter::edgeDrop)
     ;
 }
 
