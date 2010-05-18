@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 import vtk
@@ -6,15 +6,17 @@ import datetime
 import math
 
 
+# generate a list of CL-points in a grid
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     plist = []
     xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( cam.Point(x,y,z) )
+            plist.append( ocl.Point(x,y,z) )
     return plist
-    
+
+# draw clpoints with colors defined by ccpoints
 def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
     c.SetPoints()
@@ -31,19 +33,20 @@ if __name__ == "__main__":
     stl.SetColor((0.5,0.5,0.5))
     
     polydata = stl.src.GetOutput()
-    s = cam.STLSurf()
+    s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    cutter = cam.BallCutter(1.4321)
+    cutter = ocl.BallCutter(1.4321)
     
-    #cutter = cam.CylCutter(1.123)
+    #cutter = ocl.CylCutter(1.123)
     
-    #cutter = cam.BullCutter(1.123, 0.2)
+    #cutter = ocl.BullCutter(1.123, 0.2)
     
-    #cutter = cam.ConeCutter(0.43, math.pi/7)
+    #cutter = ocl.ConeCutter(0.43, math.pi/7)
     
-    print cutter.str()
+    print ocl.revision()
+    print cutter
     
     #define grid of CL-points
     minx=-42
@@ -57,7 +60,7 @@ if __name__ == "__main__":
     print "generated grid with", len(clpoints)," CL-points"
     
     # batchdropcutter    
-    bdc1 = cam.BatchDropCutter()
+    bdc1 = ocl.BatchDropCutter()
     bdc1.setSTL(s,1)
     bdc1.setCutter(cutter)
     
@@ -90,7 +93,7 @@ if __name__ == "__main__":
     
     # ocl text
     t = camvtk.Text()
-    t.SetText("OpenCAMLib 10.04")
+    t.SetText("OpenCAMLib")
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     myscreen.addActor( t)
     
@@ -102,7 +105,7 @@ if __name__ == "__main__":
     myscreen.addActor( t2)
     
     t3 = camvtk.Text()
-    ctext = "Cutter: %s" % ( cutter.str() )
+    ctext = "Cutter: %s" % ( str(cutter) )
     
     t3.SetText(ctext)
     t3.SetPos( (50, myscreen.height-150) )
@@ -111,4 +114,3 @@ if __name__ == "__main__":
     myscreen.render()
     myscreen.iren.Start()
     raw_input("Press Enter to terminate") 
-    

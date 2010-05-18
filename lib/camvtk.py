@@ -1,11 +1,12 @@
 """@camvtk docstring
 This module provides classes for visualizing CAD/CAM algorithms using VTK.
+This module is part of OpenCAMLib (ocl), a toolpath-generation library.
 """
 
 import vtk
 import time
 import datetime
-import ocl as cam
+import ocl
 import math
 
 white = (1,1,1)
@@ -23,19 +24,19 @@ orange = ( float(255)/255,float(165)/255,float(0)/255)
 mag = ( float(153)/255 , float(42)/255 , float(165)/255  )
 
 def clColor(cc):
-    if cc.type==cam.CCType.FACET:
+    if cc.type==ocl.CCType.FACET:
         col = blue
-    elif cc.type == cam.CCType.FACET_TIP:
+    elif cc.type == ocl.CCType.FACET_TIP:
         col = orange
-    elif cc.type == cam.CCType.FACET_CYL:
+    elif cc.type == ocl.CCType.FACET_CYL:
         col = cyan
-    elif cc.type == cam.CCType.VERTEX:
+    elif cc.type == ocl.CCType.VERTEX:
         col = green
-    elif cc.type == cam.CCType.EDGE:
+    elif cc.type == ocl.CCType.EDGE:
         col = red
-    elif cc.type == cam.CCType.NONE:
+    elif cc.type == ocl.CCType.NONE:
         col = (1,1,1)  
-    elif cc.type == cam.CCType.ERROR:
+    elif cc.type == ocl.CCType.ERROR:
         col = (0,1,1)
     return col
 
@@ -43,27 +44,27 @@ def ccColor(cc):
     """ this function returns a different color depending on the type of
         the CC-point. Useful for visualizing CL or CC points """
     col = red
-    if cc.type==cam.CCType.FACET:
+    if cc.type==ocl.CCType.FACET:
         col = blue
-    elif cc.type == cam.CCType.FACET_TIP:
+    elif cc.type == ocl.CCType.FACET_TIP:
         col = mag
-    elif cc.type == cam.CCType.FACET_CYL:
+    elif cc.type == ocl.CCType.FACET_CYL:
         col = yellow
-    elif cc.type == cam.CCType.VERTEX:
+    elif cc.type == ocl.CCType.VERTEX:
         col = green
-    elif cc.type == cam.CCType.EDGE:
+    elif cc.type == ocl.CCType.EDGE:
         col = pink
-    elif cc.type == cam.CCType.EDGE_HORIZ_CYL:
+    elif cc.type == ocl.CCType.EDGE_HORIZ_CYL:
         col = red
-    elif cc.type == cam.CCType.EDGE_HORIZ_TOR:
+    elif cc.type == ocl.CCType.EDGE_HORIZ_TOR:
         col = orange
-    elif cc.type == cam.CCType.EDGE_POS:
+    elif cc.type == ocl.CCType.EDGE_POS:
         col = lblue
-    elif cc.type == cam.CCType.EDGE_NEG:
+    elif cc.type == ocl.CCType.EDGE_NEG:
         col = mag
-    elif cc.type == cam.CCType.NONE:
+    elif cc.type == ocl.CCType.NONE:
         col = white 
-    elif cc.type == cam.CCType.ERROR:
+    elif cc.type == ocl.CCType.ERROR:
         col = (0,0.5,1)
     else:
         print "err. no color"
@@ -611,7 +612,7 @@ def vtkPolyData2OCLSTL(vtkPolyData,oclSTL):
         plist = []
         for pointId in range(0,points.GetNumberOfPoints()):
             vertex = points.GetPoint(pointId)
-            p = cam.Point(vertex[0],vertex[1],vertex[2])
+            p = ocl.Point(vertex[0],vertex[1],vertex[2])
             plist.append(p)
-        t = cam.Triangle(plist[0],plist[1],plist[2])
+        t = ocl.Triangle(plist[0],plist[1],plist[2])
         oclSTL.addTriangle(t)

@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 import vtk
@@ -11,17 +11,8 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( cam.Point(x,y,z) )
+            plist.append( ocl.Point(x,y,z) )
     return plist
-    
-def drawCLpoints(myscreen, clpoints):
-    for p in clpoints:
-        myscreen.addActor( camvtk.Point(center=(p.x,p.y,p.z)) )
-
-
-def drawCCpoints(myscreen, ccpoints):
-    for p in ccpoints:
-        myscreen.addActor( camvtk.Point(center=(p.x,p.y,p.z), color=camvtk.ccColor(p) ) )
         
         
 if __name__ == "__main__":  
@@ -34,18 +25,17 @@ if __name__ == "__main__":
     stl.SetColor((0.5,0.5,0.5))
     
     polydata = stl.src.GetOutput()
-    s = cam.STLSurf()
+    s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    cutter = cam.BallCutter(1.4321)
+    cutter = ocl.BallCutter(1.4321)
+    #cutter = ocl.CylCutter(1.123)
+    #cutter = ocl.BullCutter(1.123, 0.2)
     
-    #cutter = cam.CylCutter(1.123)
+    print ocl.revision()    
+    print cutter
     
-    #cutter = cam.BullCutter(1.123, 0.2)
-    
-    print cutter.str()
-    #print cc.type
     minx=0
     dx=0.1/6
     maxx=10
@@ -57,7 +47,7 @@ if __name__ == "__main__":
     print "generated grid with", len(clpoints)," CL-points"
     
     # batchdropcutter    
-    bdc1 = cam.BatchDropCutter()
+    bdc1 = ocl.BatchDropCutter()
     bdc1.setSTL(s,1)
     bdc1.setCutter(cutter)
     for p in clpoints:
@@ -65,34 +55,24 @@ if __name__ == "__main__":
     
     t_before = time.time()    
     print "threads=",bdc1.nthreads
-    bdc1.dropCutter1()
+    bdc1.dropCutter4()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
-    
-    #print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
-    
     
     clpoints = bdc1.getCLPoints()
     ccpoints = bdc1.getCCPoints()
     print len(clpoints), " cl points evaluated"
     print len(ccpoints), " cc-points"
-    exit()
+    #exit()
+    
     print "rendering...",
-    drawCLpoints(myscreen, clpoints)
-    drawCCpoints(myscreen, ccpoints)
+    point_actor=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
+    point_actor.SetPoints()
+    myscreen.addActor(point_actor )
+    
     print "done"
-    
-    """
-    maxz=0
-    maxp=0
-    for p in ccpoints:
-        if maxz < p.z:
-            maxz = p.z
-            maxp = p
-    print "max z was:", maxz, " at ", maxp.str()
-    """
-    
+        
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
     
@@ -117,23 +97,11 @@ if __name__ == "__main__":
     myscreen.addActor( t2)
     
     t3 = camvtk.Text()
-    ctext = "Cutter: %s" % ( cutter.str() )
+    ctext = "Cutter: %s" % ( str(cutter) )
     
     t3.SetText(ctext)
     t3.SetPos( (50, myscreen.height-250) )
     myscreen.addActor( t3)
-    
-    """ 
-    for n in range(1,360):
-        t.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        myscreen.camera.Azimuth( 1 )
-        time.sleep(0.01)
-        myscreen.render()
-        lwr.SetFileName("frame"+ ('%03d' % n)+".png")
-        w2if.Modified() 
-        #lwr.Write()
-    """
-        
 
     myscreen.render()
     myscreen.iren.Start()

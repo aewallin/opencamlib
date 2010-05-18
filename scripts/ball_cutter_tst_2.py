@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 import vtk
@@ -12,28 +12,8 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( cam.Point(x,y,z) )
+            plist.append( ocl.Point(x,y,z) )
     return plist
-
-def ccColor(cc):
-    """ this function returns a different color depending on the type of
-        the CC-point. Useful for visualizing CL or CC points """
-    if cc.type==cam.CCType.FACET:
-        #nf+=1
-        col = (0,0,1)
-    elif cc.type == cam.CCType.VERTEX:
-        #nv+=1
-        col = (0,1,0)
-    elif cc.type == cam.CCType.EDGE:
-        #ne+=1
-        col = (1,0,0)
-    elif cc.type == cam.CCType.NONE:
-        #print "type=NONE!"
-        #nn+=1
-        col = (1,1,1)  
-    elif cc.type == cam.CCType.ERROR:
-        col = (0,1,1)
-    return col
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
@@ -43,9 +23,9 @@ if __name__ == "__main__":
     myscreen.camera.SetFocalPoint(0.6, 0.6, 0)
     myscreen.setAmbient(1,1,1)
 
-    a=cam.Point(1,0,0)
-    b=cam.Point(0,1,0)    
-    c=cam.Point(0,0,0.3)
+    a = ocl.Point(1,0,0)
+    b = ocl.Point(0,1,0)    
+    c = ocl.Point(0,0,0.3)
     
     myscreen.addActor( camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)));
     myscreen.addActor( camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)));
@@ -53,16 +33,17 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
-    t = cam.Triangle(a,b,c)
+    t = ocl.Triangle(a,b,c)
     
-    #cutter = cam.BullCutter(1,0.2)
-    #cutter = cam.CylCutter(0.5)
-    cutter = cam.BallCutter(0.5)
+    #cutter = ocl.BullCutter(1,0.2)
+    #cutter = ocl.CylCutter(0.5)
+    cutter = ocl.BallCutter(0.5)
     
-    print cutter.str()
+    print ocl.revision()
+    print cutter
     
     
-    #print cc.type
+    # grid parameters
     minx=-0.7
     dx=0.03
     maxx=1.7
@@ -70,18 +51,16 @@ if __name__ == "__main__":
     dy=0.03
     maxy=1.7
     z=-0.5
+    # generate list of CL-poins at height z
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-    nv=0
-    nn=0
-    ne=0
-    nf=0
+
     print len(clpoints), "cl-points to evaluate"
     n=0
     ccpoints=[]
     
     tx = camvtk.Text()
     tx.SetPos( (myscreen.width-200, myscreen.height-30) )
-    myscreen.addActor( tx)
+    myscreen.addActor( tx )
     
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
@@ -89,8 +68,9 @@ if __name__ == "__main__":
     lwr.SetInput( w2if.GetOutput() )
     w2if.Modified()
     
+    # loop through the cl-points
     for cl in clpoints:
-        cc = cam.CCPoint()
+        cc = ocl.CCPoint()
         cutter.vertexDrop(cl,cc,t)
         cutter.edgeDrop(cl,cc,t)
         cutter.facetDrop(cl,cc,t)
@@ -101,11 +81,13 @@ if __name__ == "__main__":
             
     print "done."
     print "rendering...",
+    # render all the points
     for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
+        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.ccColor(cc) ) )
         
     print "done."   
     
+    # animate by rotating the camera
     for n in range(1,90):
         tx.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         myscreen.camera.Azimuth( 4 )
@@ -113,7 +95,7 @@ if __name__ == "__main__":
         myscreen.render()
         lwr.SetFileName("frames/ball_all"+ ('%05d' % n)+".png")
         w2if.Modified() 
-        lwr.Write()
+        #lwr.Write() # write screenshot to file
 
     myscreen.iren.Start()
     raw_input("Press Enter to terminate") 
