@@ -184,7 +184,7 @@ def main():
     
     #ycoord = 1.1
     
-    stl = camvtk.STLSurf(filename="stl/carpet2.stl")
+    stl = camvtk.STLSurf(filename="../stl/carpet2.stl")
     #stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
     myscreen.addActor(stl)

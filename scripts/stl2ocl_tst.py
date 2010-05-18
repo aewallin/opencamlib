@@ -1,14 +1,12 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 
-
-
 if __name__ == "__main__":
-	s= cam.STLSurf()
-	print s.str()
+	s= ocl.STLSurf()
+	print s
 	myscreen = camvtk.VTKScreen()
-	stl = camvtk.STLSurf("demo.stl")
+	stl = camvtk.STLSurf("../stl/demo.stl")
 	print "STL surface read"
 	myscreen.addActor(stl)
 	stl.SetWireframe()
@@ -16,12 +14,7 @@ if __name__ == "__main__":
 	polydata = stl.src.GetOutput()
 	camvtk.vtkPolyData2OCLSTL(polydata, s)
 
-	print s.str()
-
-		
-
+	print s
 	myscreen.iren.Start()
 	
-
 	#raw_input("Press Enter to terminate") 
-	

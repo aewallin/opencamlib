@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 
@@ -9,36 +9,36 @@ if __name__ == "__main__":
     myscreen.camera.SetPosition(3, 60, 15)
     myscreen.camera.SetFocalPoint(1, 1, 10)
     
-    cutter = cam.CylCutter(3.0)
-    path = cam.Path()
+    cutter = ocl.CylCutter(3.0)
+    path = ocl.Path()
     
-    path.append(cam.Line(cam.Point(1.0, 1.4, 0), cam.Point(2.0, 1.4, 0)))
-    cl=cam.Point(1.4,1.4,0)
-    s=cam.STLSurf("cone_on_side.stl")
+    path.append(ocl.Line(ocl.Point(1.0, 1.4, 0), ocl.Point(2.0, 1.4, 0)))
+    cl=ocl.Point(1.4,1.4,0)
+    s=ocl.STLSurf("cone_on_side.stl")
     
     stl = camvtk.STLSurf("cone_on_side.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     
     
-    #dcf = cam.PathDropCutterFinish(s)
+    #dcf = ocl.PathDropCutterFinish(s)
     #dcf.setCutter(cutter)
     #dcf.setPath(path)
     #dcf.run()
     #plist = dcf.getCLPoints()
-    pf = cam.ParallelFinish()
+    pf = ocl.ParallelFinish()
     pf.initSTLSurf(s, 1)
     
     plist=[]
     zbase=-5
     #for n in xrange(0,3):
-    #    plist.append( cam.Point(1 + 0.01*n, 1.4, zbase) )
-    plist.append( cam.Point(1.02, 1.4, zbase) )
+    #    plist.append( ocl.Point(1 + 0.01*n, 1.4, zbase) )
+    plist.append( ocl.Point(1.02, 1.4, zbase) )
     
     clpoints=[]
     ccpoints=[]
     for p in plist:
-        cc = cam.CCPoint()
+        cc = ocl.CCPoint()
         trilist = pf.getTrianglesUnderCutter(p, cutter)
         for t in trilist:
             #cutter.dropCutter(p,cc,t)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
             stl2.SetOpacity(0.3)
             myscreen.addActor(stl2)
             myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z) , radius=0.1, color=camvtk.ccColor(cc) ) )
-            if cc.type != cam.CCType.NONE:
+            if cc.type != ocl.CCType.NONE:
                 myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z) , radius=0.1, color=(0.2,0.3,0.4) ) )
             myscreen.render()
             if p.z > 10:

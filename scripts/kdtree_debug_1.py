@@ -43,8 +43,8 @@ def main():
     
     #ycoord = 1.1
     
-    stl = camvtk.STLSurf(filename="stl/demo2.stl")
-    #stl = camvtk.STLSurf(filename="demo2.stl")
+    stl = camvtk.STLSurf(filename="../stl/demo.stl")
+    #stl = camvtk.STLSurf(filename="../stl/demo2.stl")
     print "STL surface read"
     #myscreen.addActor(stl)
     #stl.SetWireframe()

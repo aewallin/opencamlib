@@ -1,42 +1,32 @@
-import camala as cam
-import pyvtk
+import ocl
+import camvtk
 import time
 
 
 if __name__ == "__main__":
-	p = cam.Point()
+	p = ocl.Point()
 	p.x=7
 	p.y=8
 	p.z=-3
-	print p.str()
+	print p
 	print p.id
-	q = cam.Point(1,2,3)
+	q = ocl.Point(1,2,3)
 	r = p + q
-	t = cam.Triangle(p,q,r)
-	print t.str()
-	s= cam.STLSurf()
+	t = ocl.Triangle(p,q,r)
+	print t
+	s= ocl.STLSurf()
 	print s
-	print s.str()
 	s.addTriangle(t)
 	s.addTriangle(t)
-	print s.str()
+	print s
 	print "end."
 	
-	myscreen = pyvtk.VTKScreen()
+	myscreen = camvtk.VTKScreen()
 	print "screen created"
-	stl = pyvtk.STLSurf("sphere.stl")
+	stl = camvtk.STLSurf("../stl/sphere.stl")
 	print "STL surface read"
 	myscreen.addActor(stl)
 	
-	#for n in range(1,2):
-	#	myscreen.render()
-	#	myscreen.camera.Azimuth( 1 )
-	#	time.sleep(0.01)
-	#print "done animating"
-	#a = myscreen.iren.GetInteractorStyle()
-	#a.SetCurrentStyleToTrackballCamera()
-	
-	#print a
 	b = stl.src.GetOutput()
 	print b
 	print "Verts:",b.GetNumberOfVerts()
@@ -56,10 +46,8 @@ if __name__ == "__main__":
 	for id in range(0,n):
 		print id,"=",
 		print ps.GetPoint(id)
-		myscreen.addActor( pyvtk.Sphere(radius=0.5,center=ps.GetPoint(id)) )
-	#p1=ps.GetPoint(1)
+		myscreen.addActor( camvtk.Sphere(radius=0.5,center=ps.GetPoint(id)) )
 	
 	myscreen.iren.Start()
-
 	#raw_input("Press Enter to terminate") 
 	

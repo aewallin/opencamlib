@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 import vtk
@@ -11,7 +11,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( cam.Point(x,y,z) )
+            plist.append( ocl.Point(x,y,z) )
     return plist
 
 def drawPoints(myscreen, clpoints, ccpoints):
@@ -23,25 +23,25 @@ def drawPoints(myscreen, clpoints, ccpoints):
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    a=cam.Point(1,0,0.4)
+    a=ocl.Point(1,0,0.4)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b=cam.Point(0,1,0)    
+    b=ocl.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c=cam.Point(0,0,-0.2)
+    c=ocl.Point(0,0,-0.2)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     
-    t = cam.Triangle(b,c,a)
+    t = ocl.Triangle(b,c,a)
     radius1=1
     angle = math.pi/4
-    #cutter = cam.ConeCutter(0.37, angle)
-    #cutter = cam.BallCutter(0.532)
-    cutter = cam.CylCutter(0.3)
-    #cutter = cam.BullCutter(0.5,0.123)
-    print cutter.str()
+    cutter = ocl.ConeCutter(0.37, angle)
+    #cutter = ocl.BallCutter(0.532)
+    #cutter = ocl.CylCutter(0.3)
+    #cutter = ocl.BullCutter(0.5,0.123)
+    print cutter
     
     
     #print cc.type
@@ -53,24 +53,17 @@ if __name__ == "__main__":
     maxy=1.5
     z=-1.8
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-    nv=0
-    nn=0
-    ne=0
-    nf=0
+
     print len(clpoints), "cl-points to evaluate"
     n=0
-    ccpoints=[]
-    
+    ccpoints=[]    
     for cl in clpoints:
-        cc = cam.CCPoint()
+        cc = ocl.CCPoint()
         cutter.vertexDrop(cl,cc,t)
         cutter.edgeDrop(cl,cc,t)
         cutter.facetDrop(cl,cc,t)
-        
         #cutter.dropCutter(cl,cc,t)
-        
         ccpoints.append(cc)
-
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
@@ -82,15 +75,13 @@ if __name__ == "__main__":
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
     print " len(ccpoints)=", len(ccpoints)
-    
     drawPoints(myscreen, clpoints, ccpoints)
-
     print "done."
+    
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)
     myscreen.addActor( origo )
      
-    
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     myscreen.render()
@@ -103,10 +94,5 @@ if __name__ == "__main__":
     t = camvtk.Text()
     t.SetPos( (myscreen.width-350, myscreen.height-30) )
     myscreen.addActor(t)
-    
-
-
-
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
-    

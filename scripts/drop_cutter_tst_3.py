@@ -1,4 +1,4 @@
-import ocl as cam
+import ocl
 import camvtk
 import time
 
@@ -8,30 +8,30 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( cam.Point(x,y,z) )
+            plist.append( ocl.Point(x,y,z) )
     return plist
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
     
-    a=cam.Point(1,0,0)
+    a=ocl.Point(1,0,0)
     myscreen.addActor(camvtk.Point(center=(1,0,0), color=(1,1,1)));
-    b=cam.Point(0,1,0)    
+    b=ocl.Point(0,1,0)    
     myscreen.addActor(camvtk.Point(center=(0,1,0), color=(1,1,1)));
-    c=cam.Point(0,0,0.2)
-    myscreen.addActor(camvtk.Point(center=(0,0,0.2), color=(1,1,1)));
+    c=ocl.Point(0,0,0.2)
+    myscreen.addActor( camvtk.Point(center=(0,0,0.2), color=(1,1,1)));
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,0,0.2)) )
     myscreen.addActor( camvtk.Line(p1=(0,0,0.2),p2=(0,1,0)) )
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
-    t = cam.Triangle(a,b,c)
+    t = ocl.Triangle(a,b,c)
     
-    cutter = cam.CylCutter(.3)
-    print cutter.str()
+    cutter = ocl.CylCutter(.3)
+    print cutter
     
-    cc = cam.CCPoint()
-    print cc.type
+    cc = ocl.CCPoint()
+
     minx=-0.2
-    dx=0.2
+    dx=0.02
     maxx=1.2
     miny=-0.2
     dy=0.2
@@ -42,13 +42,13 @@ if __name__ == "__main__":
     for cl in clpoints:
         cutter.dropCutter(cl,cc,t)
         
-        if cc.type==cam.CCType.FACET:
+        if cc.type == ocl.CCType.FACET:
             col = (0,0,1)
-        elif cc.type == cam.CCType.VERTEX:
+        elif cc.type == ocl.CCType.VERTEX:
             col = (0,1,0)
-        elif cc.type == cam.CCType.EDGE:
+        elif cc.type == ocl.CCType.EDGE:
             col = (1,0,0)
-        elif cc.type == cam.CCType.NONE:
+        elif cc.type == ocl.CCType.NONE:
             col = (1,1,1)
         
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
