@@ -29,6 +29,14 @@ execute_process(
 include_directories(${Python_Includes})
 
 
+# run get_revision.py which generates revision.h needed by ocl.revision()
+
+execute_process(
+    COMMAND python get_revision.py
+)
+MESSAGE(STATUS " running get_revision.py")
+
+
 #
 # this finds the boost python library (it's installed under different names
 # on Ubuntu Hardy through Karmic vs Lucid)

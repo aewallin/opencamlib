@@ -18,6 +18,12 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "ocl.h"
+#include "revision.h"
+
+/// return the revision string
+std::string revision() {
+    return OCL_REV_STRING;
+}
 
 /*
  *  Python wrapping
@@ -32,7 +38,9 @@ void export_geometry();
 void export_octree();
 
 BOOST_PYTHON_MODULE(ocl) {
-   
+    
+    bp::def("revision", revision);
+    
     export_geometry(); // see ocl_geometry.cpp
     
     export_cutters(); // see ocl_cutters.cpp
