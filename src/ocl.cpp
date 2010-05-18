@@ -19,10 +19,15 @@
 */
 #include "ocl.h"
 #include "revision.h"
+#include <boost/python/docstring_options.hpp>
 
 /// return the revision string
 std::string revision() {
     return OCL_REV_STRING;
+}
+
+std::string ocl_docstring() {
+    return "OpenCAMLib docstring";
 }
 
 /*
@@ -38,8 +43,12 @@ void export_geometry();
 void export_octree();
 
 BOOST_PYTHON_MODULE(ocl) {
-    
+    bp::docstring_options doc_options(false, false);
+    //doc_options.disable_all();
+    //doc_options.disable_py_signatures();
     bp::def("revision", revision);
+    
+    bp::def("__doc__", ocl_docstring);
     
     export_geometry(); // see ocl_geometry.cpp
     
