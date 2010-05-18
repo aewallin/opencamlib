@@ -1,4 +1,6 @@
-/*  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  $Id$ 
+ * 
+ *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
