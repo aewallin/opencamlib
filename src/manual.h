@@ -1,4 +1,5 @@
-// opencamlib documentation in Doxygen format
+/*  $Id$
+*/
 
 /*! \mainpage OpenCAMLib manual
  * 
