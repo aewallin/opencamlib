@@ -55,6 +55,9 @@ class PathDropCutterFinish {
         double minimumZ;
         /// list of CL-points
         std::list<Point> clpoints;
+        /// list of CC-points
+        std::list<CCPoint> ccpoints;
+        
         /// run drop-cutter on the whole Path
         void run();
         /// run drop-cutter on Span
@@ -68,8 +71,11 @@ class PathDropCutterFinish {
         void setCutter(const MillingCutter *cutter);
         /// set the path
         void setPath(const Path *path);
+        
         /// return CL-points to Python
         boost::python::list getCLPoints();
+        /// return CC-points to Python
+        boost::python::list getCCPoints();
 };
 
 } // end namespace

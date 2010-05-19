@@ -102,6 +102,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def(bp::init<STLSurf*>())
         .def(bp::init<PathDropCutterFinish>())
         .def("getCLPoints", &PathDropCutterFinish::getCLPoints)
+        .def("getCCPoints", &PathDropCutterFinish::getCCPoints)
         .def("run",static_cast< void (PathDropCutterFinish::*)(void)>(&PathDropCutterFinish::run))
         .def("setCutter", &PathDropCutterFinish::setCutter)
         .def("setPath", &PathDropCutterFinish::setPath)

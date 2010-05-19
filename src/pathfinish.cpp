@@ -78,7 +78,8 @@ void PathDropCutterFinish::run() {
 void PathDropCutterFinish::run(const Span* span)
 {
 	std::list<Point> point_list;
-
+    std::list<CCPoint> cc_point_list;
+    
 	unsigned int num_steps = (unsigned int)(span->length2d() / SPLIT_STEP + 1);
 	for(unsigned int i = 0; i<=num_steps; i++)
 	{
@@ -91,16 +92,23 @@ void PathDropCutterFinish::run(const Span* span)
         
         CCPoint cc;
 		p.z = minimumZ;
+        // this should be implemented using the lower-level OpenMP-enabled batchdropcutter
         BOOST_FOREACH( const Triangle& t, triangles_under_cutter) {
             cutter->dropCutter(p,cc,t);
         }
         point_list.push_back(p);
+        cc_point_list.push_back(cc);
 	}
 
-	refinePointList(point_list);
+    // this requires a better implementation which keeps the cc-points intact also
+	// refinePointList(point_list);
 
 	for(std::list<Point>::iterator It = point_list.begin(); It != point_list.end(); It++)
 		clpoints.push_back(*It);
+    
+	for(std::list<CCPoint>::iterator It = cc_point_list.begin(); It != cc_point_list.end(); It++)
+		ccpoints.push_back(*It);    
+    
 }
 
 static Point* refineStart = NULL;
@@ -160,6 +168,17 @@ boost::python::list PathDropCutterFinish::getCLPoints()
     }
     return plist;
 }
+
+boost::python::list PathDropCutterFinish::getCCPoints()
+{
+    boost::python::list plist;
+    BOOST_FOREACH(CCPoint p, ccpoints) {
+        plist.append(p);
+    }
+    return plist;
+}
+
+
 
 } // end namespace
 // end file pathfinish.cpp
