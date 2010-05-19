@@ -39,3 +39,19 @@ this should create the ocl manual named "ocl-manual.pdf" in the src/doc director
 |-- src                 source files
 |   `-- attic           old source files and experimental code
 `-- stl                 STL files for testing
+
+4. Ubuntu 10.04LTS install and build
+- install 64-bit Ubuntu 10.04LTS
+- run update manager and install all suggested updates. reboot
+- using synaptic or apt-get install the following packages(and their dependencies)
+-- build-essential
+-- cmake
+-- subversion
+-- doxygen
+-- texlive-latex-base
+-- libboost1.40-all-dev
+- checkout ocl from svn
+- in the /src directory, first run "cmake ." and the "make"
+this should build ocl correctly.
+
+
