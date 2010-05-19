@@ -28,7 +28,8 @@
  * <kbd>svn checkout http://opencamlib.googlecode.com/svn/trunk/ opencamlib-read-only
  * </kbd>
  * 
- * Building requires the Boost libraries. Visualizations require VTK. It should be as simple as:
+ * Building requires the Boost libraries and a compiler that supports OpenMP. Visualizations require VTK. 
+ * It should be as simple as:
  * 
  * <kbd>cmake .
  * 
@@ -69,9 +70,10 @@
  * \subsubsection windows Building On Windows
  * Text here on how to build on windows.
  * 
- * \subsection heekscnc HeeksCNC
+ * \subsection OCL with CAD-applications
  * How to get opencamlib installed and working with HeeksCNC.
  * 
+ * How to use OCL with Blender, FreeCAD, etc.
  */
  
   
@@ -103,41 +105,64 @@
  * The drop cutter algorithm drops a cutter, positioned at a predefined (x,y) location
  * down along the z-axis until it makes contact with a triangle.
  * The algorithm is split into three parts, testing the cutter separately against the 
- * three vertices, three edges, and the facet of the triangle.
+ * three vertices ( vertexDrop() ), three edges ( edgeDrop() ), and the facet ( facetDrop() )of the triangle.
  * In general the vertex test is trivial, the facet test easy, and the edge test is the most difficult.
  * 
  * \subsection dc-gen General
- * A cutter-location (cl) point is a point where the cutter tip can be located when in contact
+ * A cutter-location <b>cl</b> point is a point where the cutter tip can be located when in contact
  * with the surface, but without interfering with the STL-surface.
- * A cutter-contact (cc) point is the point where the cutter makes contact with the STL-surface.
+ * A cutter-contact (<b>cc</b>) point is the point where the cutter makes contact with the STL-surface.
  * The user specifies the (cl.x, cl.y) coordinates of the cutter, and an initial value cl.z for the cl z-coordinate. 
  * The task for the vertex, facet, and edge tests is to update the height of the cutter cl.z. When each vertex, edge,
  * and facet of each triangle under the cutter positioned at (cl.x, cl.y) has been tested, the resulting cl.z is the 
- * correct and final height of the cutter we want. If no test finds a contact between the cutter and a triangle, then 
- * cl.z is left unmodified.
+ * correct and final (maximum) height of the cutter we want. If no test finds a contact between the cutter and a triangle, then 
+ * cl.z and <b>cc</b> are left unmodified.
  * 
- * Milling cutters supported by opencamlib
- *      - Cylindrical
- *      - Spherical
- *      - Toroidal
- *      
+ * The following milling cutters are supported by opencamlib. They all inherit from the base-class MillingCutter. 
+ * The CompoundCutter class allows specifying any shape similar to a general APT-type cutter.
+ * 
+ * All cutters share common data-fields:
+ *      - diameter
+ *      - radius
+ *      - length
+ * 
+ * Cutter shapes:
+ *      - Cylindrical: CylCutter
+ *        - radius = diameter/2
+ *      - Spherical:   BallCutter
+ *        - radius = diameter/2
+ *      - Toroidal:    BullCutter
+ *        - radius1 = the radius of the cylindrical middle part of the cutter. also called the torus radius
+ *        - radius2 = the tube-radius of the torus
+ *        - radius2 <= radius1 must be true (undefined behavior may occur if radius2>radius1)
+ *      - Conical:     ConeCutter
+ *        - diameter = maximum diameter of the cone 
+ *        - angle = half-angle of the cone, in radians. For a 90-degree cutter, set angle = pi/4
+ *      - Compound: combinations of the above (restricted to an overall convex cutter shape). For example:
+ *        - ConeConeCutter
+ *        - BallConeCutter
+ *        - BullConeCutter
+ * 
  * \subsection verttest Vertex test
- * Milling cutters are symmetrical around their axis of rotation (the z-axis in 3-axis milling), so the vertext
+ * Milling cutters are symmetrical around their axis of rotation (the z-axis in 3-axis milling), so the vertex
  * test only depends on the distance between the cutter axis and the test-vertex.
  * Given <b>cl</b> and a vertex <b>p</b> to test, calculate the distance d in the xy-plane from <b>cl</b> to <b>p</b>: 
  * \f[
  * d = |cl - p| = \sqrt{(cl.x-p.x)^2+(cl.y-p.y)^2}
  * \f]
- * If \f$d > diameter/2\f$ the cutter will not contact the vertex and we return without modifying cl.z.
- * If \f$d <= diameter/2\f$ the cutter will make contact with the vertex.
+ * If \f$d > radius\f$ the cutter will not contact the vertex and we return without modifying cl.z.
+ * If \f$d <= radius\f$ the cutter will make contact with the vertex.
  * 
  *      - Cylindrical cutters are flat we can set \f$cl.z = p.z\f$ 
  *      - For a Spherical cutter (see FigureX) \f$h = r - \sqrt{ r^2 - d^2 }\f$ and we set \f$cl.z = p.z - h\f$
  *      - For Toroidal cutters:
  *          - If \f$d < r_1\f$ we are in the cylindrical part of the cutter and set \f$cl.z = p.z\f$
  *          - If \f$r_1 < d < r\f$ we are in the toroidal part and \f$ h = r_2 - \sqrt{ r_2^2 - (d-r_1)^2 }\f$ and then \f$cl.z = p.z - h\f$
+ *      - For Conical cutters:
+ *          - \f$h = d/tan(angle)\f$ and set \f$cl.z = p.z - h\f$
+ * In all cases <b>cc</b> = <b>p</b>. (TODO: insert image of vertex test here)
  * 
- * (TODO: insert image of vertex test here)
+ * 
  * 
  * 
  * \subsection facettest Facet test
@@ -156,7 +181,8 @@
  * 
  * \subsubsection cylfacettest Cylindrical cutter facet test
  * The contact point with the plane will lie on the periphery of the cutter, a
- * distance \f$diameter/2\f$ from \f$(cl.x, cl.y)\f$ in the direction \f$-\bar{n_{xy}}\f$, so the xy-coordinates of the cc-point are given by:
+ * distance \f$radius\f$ from \f$(cl.x, cl.y)\f$ in the direction \f$-\bar{n_{xy}}\f$, so the xy-coordinates of 
+ * the cc-point are given by:
  * \f[
  * (cc.x, cc.y) = (cl.x, cl.y) - r*\bar{n_{xy}}
  * \f]
@@ -166,10 +192,11 @@
  * \f[
  * cc.z = (1/c)*(-d-a*cc.x-b*cc.y)
  * \f] 
- * Since the cylindrical endmill is flat, we can also set \f$cl.z = cc.z\f$. Note division by \f$c\f$ which requires \f$c = n.z \neq 0\f$
+ * Since the cylindrical endmill is flat, we can also set \f$cl.z = cc.z\f$. 
+ * Note division by \f$c\f$ which requires \f$c = n.z \neq 0\f$
  * 
  * \subsubsection sphfacettest Spherical cutter facet test
- * The center of the sphere is located a distance \f$diameter/2\f$  from \f$(cl.x, cl.y)\f$ in the direction of \f$-\bar{n}\f$. 
+ * The center of the sphere is located a distance \f$radius\f$  from \f$(cl.x, cl.y)\f$ in the direction of \f$-\bar{n}\f$. 
  * We can find out the xy-compontents of the cc point with:
  * \f[
  * \bar{cc} = \bar{cl} - r*\bar{n}
@@ -178,29 +205,61 @@
  * \f[
  * cc.z = (1/c)*(-d-a*cc.x-b*cc.y)
  * \f] 
- * The tool-tip z-coordinate is now given by \f$cl.z = cc.z + r*\bar{n}\cdot\hat{z}  - r\f$
+ * The tool-tip z-coordinate is now given by \f$cl.z = cc.z + r*(\bar{n}\cdot\hat{z})  - r\f$
+ * 
  * 
  * \subsubsection torfacettest Toroidal cutter facet test
- * define a vector which points from the cc-point to the center of the toroid:
+ * Define a vector which points from the cc-point to the center of the toroid. This is a distance \f$radius2\f$
+ * along the surface normal \bar{n} and a distance \f$radius1\f$ along the XY-normal \bar{n_{xy}}:
  * \f[
- * \bar{R} = -r_2*\bar{n} - r_1* \bar{n_{xy}}
+ * \bar{R} = r_2*\bar{n} + r_1* \bar{n_{xy}}
  * \f]  
  * Now the xy-coordinates of the cc-point are given by
  * \f[
- * \bar{cc} = \bar{cl} + \bar{R}
+ * \bar{cc} = \bar{cl} - \bar{R}
  * \f] 
- * now check if the cc-point lies in the facet of the plane. If so, the z-coordinate of the cc-point is calculated:
+ * now check if this cc-point lies in the facet of the plane. If so, the z-coordinate of the cc-point is calculated:
  * \f[
  * cc.z = (1/c)*(-d-a*cc.x-b*cc.y)
  * \f]  
  * And the tool-tip will be located at \f$cl.z = cc.z + r_2*n.z - r_2\f$
  * 
+ * \subsubsection conefacettest Conical cutter facet test
+ * Describe ConeCutter facet test here.
+ * 
  * \subsection edgetest Edge test
- * Explain the edge-test here...
+ * Each test loops through all three edges of the triangle. The edge is defined by its startpoint
+ * <b>p1</b> and its endpoint <b>p2</b>.
+ * 
+ * It is easier to do the tests in a translated and rotated coordinate system where the
+ * cl-point is at (0,0) and the edge is rotated to be parallel with the X-axis. We call the 
+ * new endpoints of the edge <b>p1u</b> and <b>p2u</b>. These are found by noting that
+ * \f[
+ * p1u_y = d
+ * p2u_y = d
+ * \f]  
+ * where d is the distance, in the XY-plane, from cl to a line through p1 and p2, 
+ * i.e. \f$d = cl.xyDistanceToLine(p1, p2) \f$. We also define, in the XY-plane, 
+ * the closest point to cl on the line as: \f$ sc = cl.xyClosestPoint( p1, p2 ) \f$.
+ * 
+ * Now the x-coordinates of <b>p1u</b> and <b>p2u</b> are given by:
+ * \f[
+ * p1u_x = (p1-sc).dot(v)
+ * p2u_x = (p2-sc).dot(v)
+ * \f]
+ * where v is a normalized vector in the direction of the edge, or v=(p2-p1).xyNormalize()
+ * 
+ * The tests find a contact between the cutter and an infinite line which contains the
+ * edge we are testing against. Once the contact cc-point is found we check wether this cc-point is
+ * actually in the edge.
+ * 
  * \subsubsection cyledge Cylindrical cutter edge test
+ * In the XY-plane we want to find the intersection between an infinite line and a circle.
+ * This is described e.g. here: see http://mathworld.wolfram.com/Circle-LineIntersection.html
+ * 
  * \subsubsection balledge Spherical cutter edge test
  * \subsubsection bulledge Toroidal cutter edge test
- * 
+ * \subsubsection coneedge Conical cutter edge test
  * 
  * \subsection optdc Optimizing drop-cutter
  * \subsubsection kdtree Using a kd-tree for finding triangles under the cutter
