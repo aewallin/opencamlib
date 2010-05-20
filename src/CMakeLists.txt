@@ -79,6 +79,7 @@ add_library(
     arc.cpp
     ballcutter.cpp
     batchdropcutter.cpp
+    bbox.cpp
     bullcutter.cpp
     compoundcutter.cpp
     conecutter.cpp

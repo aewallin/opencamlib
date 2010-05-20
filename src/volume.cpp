@@ -132,54 +132,6 @@ bool CubeOCTVolume::isInside(Point& p) const
         return false;
 }
 
-//************* Bounding-Box **************/
-
-Bbox::Bbox()
-{
-    maxx=0;
-    minx=0;
-    maxy=0;
-    miny=0;
-    maxz=0;
-    minz=0;
-}
-
-bool Bbox::isInside(Point& p) const
-{
-    if (p.x > maxx)
-        return false;
-    else if (p.x < minx)
-        return false;
-    else if (p.y > maxy)
-        return false;
-    else if (p.y < miny)
-        return false;
-    else if (p.z > maxz)
-        return false;
-    else if (p.z < minz)
-        return false;
-    else
-        return true;
-}
-
-void Bbox::addPoint(Point &p)
-{
-    if (p.x > maxx)
-        maxx = p.x;
-    if (p.x < minx)
-        minx = p.x;
-    
-    if (p.y > maxy)
-        maxy = p.y;
-    if (p.y < miny)
-        miny = p.y;
-    
-    if (p.z > maxz)
-        maxz = p.z;
-    if (p.z < minz)
-        minz = p.z;
-        
-}
 
 //************* Box *******************/
 
@@ -471,9 +423,6 @@ bool CylMoveOCTVolume::isInside(Point& p) const
     if (etube.isInside(p))
         return true;
         
-    
-    
-    
     // the default is to return false
     return false;
 

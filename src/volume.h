@@ -24,6 +24,7 @@
 #include <iostream>
 #include <list>
 #include <vector>
+#include "bbox.h"
 
 namespace ocl
 {
@@ -32,38 +33,7 @@ class Point;
 class Triangle;
 class MillingCutter;
 class CylCutter;
-class Bbox;
 class Ocode;
-
-/// bounding-box volume
-class Bbox {
-    public:
-        /// default constructor
-        Bbox();
-        
-        /// maximum x-coordinate
-        double maxx;
-        /// minimum x-coordinate
-        double minx;
-        
-        /// maximum y-coordinate
-        double maxy;
-        /// minimum y-coordinate
-        double miny;
-        
-        /// maximum z-coordinate
-        double maxz;
-        /// minimum z-coordinate
-        double minz;
-        
-        /// return true if Point p is inside this Bbox
-        bool isInside(Point& p) const;
-        
-        /// add a Point to the Bbox
-        void addPoint(Point& p);
-};
-
-
 
 /// base-class for defining volumes to build octrees
 class OCTVolume {
