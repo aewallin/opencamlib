@@ -25,10 +25,13 @@
 #include <list>
 #include <vector>
 
+#include "point.h"
+
 namespace ocl
 {
     
-class Point;
+//class Point;
+class Triangle;
 
 /// bounding-box
 class Bbox {
@@ -36,6 +39,10 @@ class Bbox {
         /// default constructor
         Bbox();
         
+        Point maxpt; /// the maximum point
+        Point minpt; /// the minimum point
+        
+        /*
         /// maximum x-coordinate
         double maxx;
         /// minimum x-coordinate
@@ -50,12 +57,16 @@ class Bbox {
         double maxz;
         /// minimum z-coordinate
         double minz;
+        */
         
         /// return true if Point p is inside this Bbox
         bool isInside(Point& p) const;
         
         /// add a Point to the Bbox
-        void addPoint(Point& p);
+        void addPoint(const Point& p);
+        
+        /// add each vertex of a Triangle to the Bbox
+        void addTriangle(const Triangle& t);
 };
 
 

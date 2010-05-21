@@ -25,6 +25,7 @@
 #include "stlsurf.h"
 #include "oellipse.h"
 #include "cutter.h"
+#include "bbox.h"
 
 /*
  *  Python wrapping
@@ -59,7 +60,7 @@ void export_geometry() {
         .def_readwrite("z", &Point::z)
         .def_readonly("id", &Point::id)
     ;   
-    bp::class_<CCPoint>("CCPoint") 
+    bp::class_<CCPoint>("CCPoint")  // FIXME: CCPoint should inherit from Point
         .def(bp::init<CCPoint>())
         .def("__str__", &CCPoint::str)
         .def_readwrite("type", &CCPoint::type)
@@ -93,8 +94,10 @@ void export_geometry() {
         .def("addTriangle", &STLSurf::addTriangle)
         .def("__str__", &STLSurf::str)
         .def("size", &STLSurf::size)
+        .def("getBounds", &STLSurf::getBounds)
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("id", &STLSurf::id)
+        .def_readonly("bb", &STLSurf::bb)
         .def("build_kdtree", &STLSurf::build_kdtree)
         .def("get_kd_triangles", &STLSurf::get_kd_triangles)
         .def("jump_kd_up", &STLSurf::jump_kd_up)
@@ -105,6 +108,12 @@ void export_geometry() {
         .def("get_kd_cut", &STLSurf::get_kd_cut)
         .def("getTrianglesUnderCutter", &STLSurf::getTrianglesUnderCutter)
     ;
+    bp::class_<Bbox>("Bbox")
+        .def("isInside", &Bbox::isInside )
+        .def_readonly("maxpt", &Bbox::maxpt)
+        .def_readonly("minpt", &Bbox::minpt)
+    ;
+    
     bp::class_<Epos>("Epos")
         .def("setS", &Epos::setS)
         .def("setT", &Epos::setT)

@@ -21,6 +21,7 @@
 #define TRIANGLE_H
 
 #include "point.h"
+#include "bbox.h"
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 
@@ -55,6 +56,11 @@ class Triangle {
         static int count;
         /// id-number (obsolete?)
         int id;
+        
+        /// bounding-box 
+        Bbox bb;
+        
+        // replace these with bounding-box
         /// bounding-box maximum x-coordinate
         double maxx;
         /// bounding-box maximum y-coordinate
@@ -63,6 +69,8 @@ class Triangle {
         double minx;
         /// bounding-box minimum y-coordinate
         double miny;
+        double minz;
+        double maxz;
         
     private:
         /// set id-number

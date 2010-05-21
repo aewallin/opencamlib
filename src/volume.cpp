@@ -72,14 +72,10 @@ SphereOCTVolume::SphereOCTVolume()
 
 /// set the bounding box values
 void SphereOCTVolume::calcBB() {
-    bb.maxx = center.x + radius;
-    bb.minx = center.x - radius;
-    
-    bb.maxy = center.y + radius;
-    bb.miny = center.y - radius;
-    
-    bb.maxz = center.z + radius;
-    bb.minz = center.z - radius;
+    Point maxpt = Point(center.x + radius, center.y + radius, center.z + radius);
+    Point minpt = Point(center.x - radius, center.y - radius, center.z - radius);
+    bb.addPoint( maxpt );
+    bb.addPoint( minpt );
 }
 
 bool SphereOCTVolume::isInside(Point& p) const
@@ -110,14 +106,10 @@ CubeOCTVolume::CubeOCTVolume()
 /// set bbox values
 void CubeOCTVolume::calcBB()
 {
-    bb.maxx = center.x + side/2;
-    bb.minx = center.x - side/2;
-    
-    bb.maxy = center.y + side/2;
-    bb.miny = center.y - side/2;
-    
-    bb.maxz = center.z + side/2;
-    bb.minz = center.z - side/2;
+    Point maxpt = Point(center.x + side/2, center.y + side/2, center.z + side/2);
+    Point minpt = Point(center.x - side/2, center.y - side/2, center.z - side/2);
+    bb.addPoint( maxpt );
+    bb.addPoint( minpt );
 }
 
 bool CubeOCTVolume::isInside(Point& p) const

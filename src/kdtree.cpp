@@ -33,7 +33,6 @@
 #include "triangle.h"
 #include "cutter.h"
 #include "numeric.h"
-
 #include "kdtree.h"
 
 namespace ocl

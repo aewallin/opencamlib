@@ -104,14 +104,6 @@ void export_octree() {
         .def_readwrite("v2", &BoxOCTVolume::v2)
         .def_readwrite("v3", &BoxOCTVolume::v3)
     ;
-    bp::class_<Bbox>("Bbox")
-        .def("isInside", &Bbox::isInside )
-        .def_readwrite("maxx", &Bbox::maxx)
-        .def_readwrite("minx", &Bbox::minx)
-        .def_readwrite("maxy", &Bbox::maxy)
-        .def_readwrite("miny", &Bbox::miny)
-        .def_readwrite("maxz", &Bbox::maxz)
-        .def_readwrite("minz", &Bbox::minz)
-    ;
+
 }
 

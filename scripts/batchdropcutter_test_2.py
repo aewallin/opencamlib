@@ -48,7 +48,7 @@ if __name__ == "__main__":
     print cutter
     
     minx=0
-    dx=0.021
+    dx=0.21
     maxx=9
     miny=0
     dy=1

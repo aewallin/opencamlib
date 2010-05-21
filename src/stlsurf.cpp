@@ -62,8 +62,9 @@ void STLSurf::setId()
 
 void STLSurf::addTriangle(const Triangle &t)
 {
-        tris.push_back(t);
-        return;
+    tris.push_back(t);
+    bb.addTriangle(t);
+    return;
 }
 
 int STLSurf::size()
@@ -154,6 +155,17 @@ boost::python::list STLSurf::getTrianglesUnderCutter(Point &cl, MillingCutter &c
     }
     delete triangles_under_cutter;
     return trilist;
+}
+boost::python::list STLSurf::getBounds()
+{
+    boost::python::list bounds;
+    bounds.append( bb.minpt.x );
+    bounds.append( bb.maxpt.x );
+    bounds.append( bb.minpt.y );
+    bounds.append( bb.maxpt.y );
+    bounds.append( bb.minpt.z );
+    bounds.append( bb.maxpt.z );
+    return bounds;
 }
 
 std::string STLSurf::str()

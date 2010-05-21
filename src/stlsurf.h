@@ -40,7 +40,7 @@ class STLSurf {
         /// Create an empty STL-surface
         STLSurf();
         /// destructor
-        ~STLSurf();
+        virtual ~STLSurf();
         
         /// read STL surface from file
         STLSurf(const std::wstring &stl_file_path);
@@ -62,6 +62,12 @@ class STLSurf {
         int id;
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
+        
+        /// bounding-box
+        Bbox bb;
+        
+        /// return bounds in a list to python
+        boost::python::list getBounds();
         
         /// build a kd-tree from the triangles in the surface
         void build_kdtree();

@@ -56,6 +56,7 @@ Triangle::~Triangle()
     //n = 0;
 }
 
+/// return vertices in a list to python
 boost::python::list Triangle::getPoints()
 {
     boost::python::list plist;
@@ -67,38 +68,13 @@ boost::python::list Triangle::getPoints()
 
 /// calculate bounding box values
 void Triangle::calcBB() {
-    minx=p[0].x;
-    maxx=p[0].x;
-    miny=p[0].y;
-    maxy=p[0].y;
-    
-    // FIXME: ugly...
-    if (p[1].x < minx)
-        minx = p[1].x;
-    if (p[2].x < minx)
-        minx = p[2].x;
-        
-    if (p[1].x > maxx)
-        maxx = p[1].x;
-    if (p[2].x > maxx)
-        maxx = p[2].x;
-        
-    if (p[1].y < miny)
-        miny = p[1].y;
-    if (p[2].y < miny)
-        miny = p[2].y;
-        
-    if (p[1].y > maxy)
-        maxy = p[1].y;
-    if (p[2].y > maxy)
-        maxy = p[2].y;
-    /*
-     *     
-    std::cout << "BB of " << *this << "\n";
-    std::cout << minx << ", " << miny << " to " << maxx << ", " << maxy << "\n";
-    char c;
-    std::cin >> c; 
-    */
+    bb.addTriangle( *this );
+    minx=bb.minpt.x;
+    maxx=bb.maxpt.x;
+    miny=bb.minpt.y;
+    maxy=bb.maxpt.y;
+    minz=bb.minpt.z;
+    maxz=bb.maxpt.z;
 }
 
 void Triangle::calcNormal()
@@ -107,8 +83,10 @@ void Triangle::calcNormal()
     Point v2=p[0]-p[2];
     
     // the normal is in the direction of the cross product between the edge vectors
-    Point ntemp = v1.cross(v2);
-    ntemp.normalize();
+    
+    Point ntemp = v1.cross(v2); 
+    ntemp.normalize(); // FIXME this might fail if norm()==0
+     
     //std::cout << "creating normal=" << ntemp << "\n";
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
     //std::cout << "normal is =" << *n << "\n";
@@ -124,14 +102,14 @@ void Triangle::setId()
 std::string Triangle::str() const
 {
     std::ostringstream o;
-    o << "T"<< id <<"(" << p[0] << ", " << p[1] << ", " << p[2] << ")";
+    o << *this;
     return o.str();
 }
 
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t)
 {
-  stream <<  "Tri(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) ;
+  stream <<  "T(" << t.id << ") " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) ;
   return stream;
 }
 

@@ -33,6 +33,7 @@
 
 #include "bbox.h"
 #include "point.h"
+#include "triangle.h"
 
 namespace ocl
 {
@@ -42,50 +43,64 @@ namespace ocl
 
 Bbox::Bbox()
 {
+    minpt = Point(0,0,0);
+    maxpt = Point(0,0,0);
+    /*
     maxx=0;
     minx=0;
     maxy=0;
     miny=0;
     maxz=0;
     minz=0;
+    */
 }
 
 bool Bbox::isInside(Point& p) const
 {
-    if (p.x > maxx)
+    if (p.x > maxpt.x)
         return false;
-    else if (p.x < minx)
+    else if (p.x < minpt.x)
         return false;
-    else if (p.y > maxy)
+    else if (p.y > maxpt.y)
         return false;
-    else if (p.y < miny)
+    else if (p.y < minpt.y)
         return false;
-    else if (p.z > maxz)
+    else if (p.z > maxpt.z)
         return false;
-    else if (p.z < minz)
+    else if (p.z < minpt.z)
         return false;
     else
         return true;
 }
 
-void Bbox::addPoint(Point &p)
+void Bbox::addPoint(const Point &p)
 {
-    if (p.x > maxx)
-        maxx = p.x;
-    if (p.x < minx)
-        minx = p.x;
+    if (p.x > maxpt.x)
+        maxpt.x = p.x;
+    if (p.x < minpt.x)
+        minpt.x = p.x;
     
-    if (p.y > maxy)
-        maxy = p.y;
-    if (p.y < miny)
-        miny = p.y;
+    if (p.y > maxpt.y)
+        maxpt.y = p.y;
+    if (p.y < minpt.y)
+        minpt.y = p.y;
     
-    if (p.z > maxz)
-        maxz = p.z;
-    if (p.z < minz)
-        minz = p.z;
+    if (p.z > maxpt.z)
+        maxpt.z = p.z;
+    if (p.z < minpt.z)
+        minpt.z = p.z;
         
 }
+
+/// add each vertex of the Triangle      
+void Bbox::addTriangle(const Triangle &t)
+{   
+    addPoint( t.p[0] );
+    addPoint( t.p[1] );
+    addPoint( t.p[2] );
+    return;
+}
+
 
 
 } // end namespace
