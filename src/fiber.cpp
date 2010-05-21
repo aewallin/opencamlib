@@ -31,6 +31,41 @@ namespace bn = boost::numeric;
 namespace ocl
 {
 
+
+//Interval
+
+Interval::Interval()
+{
+    i = dinterval(0,0);
+}
+
+Interval::Interval(double l, double u)
+{
+    i = dinterval(l,u);
+}
+
+Interval::~Interval()
+{
+    return;
+}
+
+double Interval::upper() const {
+    return i.upper();
+}
+double Interval::lower() const {
+    return i.lower();
+}
+
+
+std::string Interval::str() const {
+    std::ostringstream o;
+    o << "I ["<< lower() <<" , " << upper() << " ]";
+    return o.str();
+}
+
+
+/*********************** Fiber ****************************************/
+
 Fiber::Fiber(const Point &p1in, const Point &p2in) {
     p1=p1in;
 	p2=p2in;
@@ -86,7 +121,7 @@ double Fiber::tval(Point& p) const {
 
 
 /// return a point on the fiber
-Point Fiber::point(double t) {
+Point Fiber::point(double t) const {
     Point p = p1 + t*(p2-p1);
     return p;
 }

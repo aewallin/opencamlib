@@ -389,9 +389,9 @@ CCPoint& CCPoint::operator=(const Point &p) {
 
 std::string CCPoint::str()
 {
-        std::ostringstream o;
-        o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
-        return o.str();
+    std::ostringstream o;
+    o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
+    return o.str();
 }
 
 } // end namespace

@@ -60,7 +60,7 @@ class Triangle {
         /// bounding-box 
         Bbox bb;
         
-        // replace these with bounding-box
+        // these values are set from the Bbox object:
         /// bounding-box maximum x-coordinate
         double maxx;
         /// bounding-box maximum y-coordinate

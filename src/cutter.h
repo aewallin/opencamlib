@@ -30,7 +30,6 @@
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
-
 #include "fiber.h"
 
 namespace ocl
@@ -273,9 +272,9 @@ class CylCutter : public MillingCutter {
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
         // pushCutter methods
-        int vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const;
-        int facetPush(Fiber& f, CCPoint &cc, const Triangle& t) const;
-        int edgePush(Fiber& f, CCPoint &cc, const Triangle& t) const;
+        int vertexPush(Fiber& f, Interval& i, const Triangle& t) const;
+        int facetPush(Fiber& f, Interval& i, const Triangle& t) const;
+        int edgePush(Fiber& f, Interval& i, const Triangle& t) const;
         
         /// text output
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);

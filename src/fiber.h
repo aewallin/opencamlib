@@ -33,26 +33,55 @@ namespace ocl
 
 typedef boost::numeric::interval<double> dinterval;
 
+/// wrapper around boost::numerc::interval<double>
+class Interval {
+    public:
+        Interval();
+        Interval(double l, double u);
+        virtual ~Interval();
+        
+        dinterval i;
+        CCPoint start_cc;
+        CCPoint end_cc;
+        double upper() const;
+        double lower() const;
+        std::string str() const;
+};
+
+
+
 class Fiber {
     public:
 		Fiber(){ };
         Fiber(const Point &p1, const Point &p2);
         virtual ~Fiber() {};
         
-        
-        void printInts();
+        /// add an interval to this Fiber
+        void addInterval(Interval& i);
         void addInt(double t1, double t2);
-        void condense();
+        
+        /// print the intervals
+        void printInts();
+        
+        void condense(); // get rid of this
+        
+        /// t-value corresponding to Point p
         double tval(Point& p) const;
+        /// Point corresponding to t-value
+        Point point(double t) const;
+        
         boost::python::list getInts();
-        Point point(double t);
+        
         
         /// start point
         Point p1;
         /// end point
         Point p2;
+        /// direction vector (normalized)
         Point dir;
+        /// the intervals in this Fiber
         std::vector<dinterval> ints;
+        
     private:
         void calcDir();
 };

@@ -45,14 +45,11 @@ Bbox::Bbox()
 {
     minpt = Point(0,0,0);
     maxpt = Point(0,0,0);
-    /*
-    maxx=0;
-    minx=0;
-    maxy=0;
-    miny=0;
-    maxz=0;
-    minz=0;
-    */
+}
+
+Bbox::~Bbox()
+{
+    return;
 }
 
 bool Bbox::isInside(Point& p) const

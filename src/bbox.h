@@ -30,42 +30,27 @@
 namespace ocl
 {
     
-//class Point;
 class Triangle;
 
-/// bounding-box
+/// axis-aligned bounding-box
 class Bbox {
     public:
         /// default constructor
         Bbox();
+        virtual ~Bbox();
         
         Point maxpt; /// the maximum point
         Point minpt; /// the minimum point
-        
-        /*
-        /// maximum x-coordinate
-        double maxx;
-        /// minimum x-coordinate
-        double minx;
-        
-        /// maximum y-coordinate
-        double maxy;
-        /// minimum y-coordinate
-        double miny;
-        
-        /// maximum z-coordinate
-        double maxz;
-        /// minimum z-coordinate
-        double minz;
-        */
-        
+               
         /// return true if Point p is inside this Bbox
         bool isInside(Point& p) const;
         
-        /// add a Point to the Bbox
+        /// Add a Point to the Bbox.
+        /// This enlarges the Bbox so that p is contained within it.
         void addPoint(const Point& p);
         
-        /// add each vertex of a Triangle to the Bbox
+        /// Add each vertex of a Triangle to the Bbox.
+        /// This enlarges the Bbox so that the Triangle is contained within it.
         void addTriangle(const Triangle& t);
 };
 

@@ -301,10 +301,12 @@ int CylCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
 
 
 //************** push cutter methods **********************************/
+//************** push cutter methods **********************************/
+
 
 /// push cutter along Fiber against vertices of Triangle t
 /// add interfering intervals to the Fiber
-int CylCutter::vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
+int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
     int result = 0;
     BOOST_FOREACH( const Point& p, t.p)
     {
@@ -313,17 +315,16 @@ int CylCutter::vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
         //std::cout << "p.z=" << p.z << "\n";
         if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) {
             Point pq = p.xyClosestPoint(f.p1, f.p2);
-            double q = (p-pq).xyNorm(); //pq.xyDistanceToLine(f.p1, f.p2); // distance in XY-plane from fiber to p
-            if (q<= diameter/2) { // p is inside the cutter
-                //std::cout << "testing vertex " << p << "\n";
-                //std::cout << "q="<< q << " is < radius\n";
-                double ofs = sqrt( square(diameter/2.0) - square(q) ); 
+            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
+            if ( q <= radius ) { // p is inside the cutter
+                double ofs = sqrt( square(radius) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
                 Point stop  = pq + ofs*f.dir;
-                f.addInt( f.tval(start) , f.tval(stop) );
-                cc = p;
-                cc.type = VERTEX;
-                result=1;
+                f.addInt(f.tval(start) , f.tval(stop)) ;
+                    i.start_cc = p;
+                    i.start_cc.type = VERTEX;
+                    result=1;
+                
             }             
         }
     }
@@ -332,7 +333,7 @@ int CylCutter::vertexPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
 
 /// push cutter along Fiber against facet of Triangle t
 /// add an interval to Fiber where the cutter interferes
-int CylCutter::facetPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
+int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
     
     
@@ -340,7 +341,7 @@ int CylCutter::facetPush(Fiber& f, CCPoint &cc, const Triangle& t) const {
     return result;
 }    
 
-int CylCutter::edgePush(Fiber& f, CCPoint &cc, const Triangle& t) const {
+int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
     
     
