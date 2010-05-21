@@ -37,7 +37,6 @@ namespace ocl
 
 
 
-
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
 ///

@@ -158,6 +158,8 @@ class CCPoint : public Point {
     public:
         /// create a CCPoint at (0,0,0)
         CCPoint();
+        /// create a CCPoint at Point p
+        CCPoint(const Point& p); 
         /// specifies the type of the Cutter Contact point. Possible values are NONE, VERTEX, EDGE, FACET, ERROR.
         CCType type;
         /// assignment

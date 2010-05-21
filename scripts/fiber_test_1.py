@@ -17,8 +17,8 @@ def drawFiber(myscreen, f):
     #myscreen.addActor( camvtk.Sphere(center=(f.p2.x,f.p2.y,f.p2.z),radius=0.05, color=camvtk.pink) )
     inter = f.getInts()
     for i in inter:
-        ip1 = f.point( i[0] )
-        ip2 = f.point( i[1] )
+        ip1 = f.point( i.lower )
+        ip2 = f.point( i.upper )
         myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=camvtk.red) )
         
 if __name__ == "__main__":  
@@ -53,29 +53,18 @@ if __name__ == "__main__":
     print "fiber..."
               
     f = ocl.Fiber( f1, f2)
-    print f.dir 
-    
-    #f.addInt( 0.25, 0.37)
-    #f.addInt( 0.38, 0.47)
-    #f.addInt( 0.4, 0.41)
-    #f.addInt( 0.2 , 0.3)
-    #f.addInt( 0.1, 0.2)
+    i = ocl.Interval()
     f.printInts()  
     print "vertexPush"
     cc = ocl.CCPoint()
-    cutter.vertexPush(f,cc,t)
+    cutter.vertexPush(f,i,t)
+    print i
+    f.addInterval(i)
     print "AFTER vertexPush"
     f.printInts()  
-    print "condense()"
-    f.condense()
-    
-    f.printInts()
-    print "condense() again"
-    f.condense()
-    print "result:"
-    f.printInts()
-    inter = f.getInts()
-    print inter
+
+    #inter = f.getInts()
+    #print inter
     print "done."
     
     print "rendering..."

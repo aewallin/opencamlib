@@ -40,11 +40,13 @@ class Interval {
         Interval(double l, double u);
         virtual ~Interval();
         
-        dinterval i;
-        CCPoint start_cc;
-        CCPoint end_cc;
-        double upper() const;
-        double lower() const;
+        void updateUpper(double t, CCPoint& p);
+        void updateLower(double t, CCPoint& p);
+        
+        CCPoint upper_cc;
+        CCPoint lower_cc;
+        double upper;
+        double lower;
         std::string str() const;
 };
 
@@ -58,11 +60,8 @@ class Fiber {
         
         /// add an interval to this Fiber
         void addInterval(Interval& i);
-        void addInt(double t1, double t2);
-        
-        /// print the intervals
-        void printInts();
-        
+        //void addInt(double t1, double t2);
+                
         void condense(); // get rid of this
         
         /// t-value corresponding to Point p
@@ -80,7 +79,10 @@ class Fiber {
         /// direction vector (normalized)
         Point dir;
         /// the intervals in this Fiber
-        std::vector<dinterval> ints;
+        std::vector<Interval> ints;
+        
+        /// print the intervals
+        void printInts();
         
     private:
         void calcDir();

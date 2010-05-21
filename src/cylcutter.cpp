@@ -320,10 +320,16 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
                 double ofs = sqrt( square(radius) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
                 Point stop  = pq + ofs*f.dir;
-                f.addInt(f.tval(start) , f.tval(stop)) ;
-                    i.start_cc = p;
-                    i.start_cc.type = VERTEX;
-                    result=1;
+                CCPoint cc_tmp = CCPoint(p);
+                cc_tmp.type = VERTEX;
+                //std::cout << "updating with " << f.tval(stop) << " to " << f.tval(start) << "\n";
+                i.updateUpper( f.tval(stop) , cc_tmp );
+                i.updateLower( f.tval(start) , cc_tmp );
+                result = 1;
+                //f.addInt(f.tval(start) , f.tval(stop)) ;
+                //    i.lower_cc = p;
+                //    i.lower_cc.type = VERTEX;
+                //    result=1;
                 
             }             
         }
@@ -335,8 +341,43 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
 /// add an interval to Fiber where the cutter interferes
 int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
+    Point normal; // facet surface normal    
+    if (t.n->z < 0) {  // normal is pointing down
+        normal = -1* (*t.n); // flip normal
+    } else {
+        normal = *t.n;
+    }
+    assert( isPositive( normal.z ) ); // we are in trouble if n.z is not positive by now...
+    // define plane containing facet
+    // a*x + b*y + c*z + d = 0, so
+    // d = -a*x - b*y - c*z, where
+    // (a,b,c) = surface normal
+    //double a = normal.x;
+    //double b = normal.y;
+    //double c = normal.z;
+    //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
+    //double d = - normal.dot(t.p[0]);
     
+    // find the intersection of the Fiber and the plane
+    // http://mathworld.wolfram.com/Line-PlaneIntersection.html
     
+        
+    //normal.xyNormalize(); // make length of normal in xy plane == 1.0
+    
+    // the contact point with the plane is on the periphery
+    // of the cutter, a length radius from cl in the direction of -n
+    /*
+    Point cc_tmp = cl - (radius)*normal; // Note: at this point the z-coord is rubbish.
+    
+    if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()
+        cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
+        if (cl.liftZ(cc_tmp.z)) {
+            cc = cc_tmp;
+            cc.type = FACET;
+            return 1;
+        }
+    } 
+    */
     
     return result;
 }    

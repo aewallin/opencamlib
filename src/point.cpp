@@ -379,6 +379,13 @@ CCPoint::CCPoint() {
     type = NONE;
 }
 
+CCPoint::CCPoint(const Point& p) {
+    x = p.x;
+    y = p.y;
+    z = p.z;
+    type = NONE;
+}
+
 CCPoint& CCPoint::operator=(const Point &p) {
     // FIXME check for self-assignment
     x=p.x;

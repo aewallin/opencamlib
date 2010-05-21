@@ -119,6 +119,8 @@ void export_geometry() {
         .def(bp::init<double, double>())
         .def_readonly("upper", &Interval::upper )
         .def_readonly("lower", &Interval::lower )
+        .def("updateUpper", &Interval::updateUpper )
+        .def("updateLower", &Interval::updateLower )
         .def("__str__", &Interval::str )
     ;
     
