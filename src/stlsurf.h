@@ -22,13 +22,14 @@
 
 #include <list>
 
-#include "point.h"
 #include "triangle.h"
 #include "kdtree.h"
+#include "bbox.h"
 
 namespace ocl
 {
     
+class Point;
 
 
 /// \brief STL surface, essentially an unordered list of Triangle objects

@@ -18,24 +18,24 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef MILLING_CUTTER_H
+#define MILLING_CUTTER_H
 
-
-#ifndef CUTTER_H
-#define CUTTER_H
-#include <boost/foreach.hpp>
-#include <boost/python.hpp>
 #include <iostream>
 #include <string>
 #include <vector>
-#include "point.h"
-#include "triangle.h"
+
+#include <boost/python.hpp>
+
 #include "stlsurf.h"
 #include "fiber.h"
 
 namespace ocl
 {
 
-
+class Triangle;
+class Point;
+class STLSurf;
 
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
@@ -44,6 +44,7 @@ class MillingCutter {
     public:
         /// default constructor
         MillingCutter();
+        virtual ~MillingCutter() {};
         
         /// set the diameter of the cutter to d
         void setDiameter(double d);
@@ -261,7 +262,7 @@ class CylCutter : public MillingCutter {
         /// create CylCutter with diameter = 1.0
         CylCutter();
         /// create CylCutter with diameter = d
-        CylCutter(const double d);
+        explicit CylCutter(const double d);
         
         MillingCutter* offsetCutter(double d) const;
 
@@ -291,7 +292,7 @@ class BallCutter : public MillingCutter {
     public:
         BallCutter();
         /// create a BallCutter with diameter d and radius d/2
-        BallCutter(const double d);
+        explicit BallCutter(const double d);
         
         MillingCutter* offsetCutter(double d) const;
         
@@ -373,4 +374,4 @@ class ConeCutter : public MillingCutter {
 
 } // end namespace
 #endif
-// end file cutter.h
+// end file millingcutter.h

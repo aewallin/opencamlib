@@ -20,9 +20,8 @@
 #ifndef PATH_H
 #define PATH_H
 
-#include <boost/foreach.hpp>
-#include <boost/python.hpp>
 #include <list>
+
 #include "point.h"
 #include "line.h"
 #include "arc.h"
@@ -94,7 +93,8 @@ class Path {
         /// copy constructor
         Path(const Path &p);
         /// destructor
-        ~Path();
+        virtual ~Path();
+        
         /// return the span-list to python
         boost::python::list getSpans();
         /// list of spans in this path

@@ -19,7 +19,7 @@
 */
 #ifndef NUMERIC_H
 #define NUMERIC_H
-#include <cassert>
+//#include <cassert>
 
 namespace ocl
 {

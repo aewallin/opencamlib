@@ -17,11 +17,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
-#include <cassert>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+#include <cmath>
+//#include <cassert>
 #include "numeric.h"
 
 namespace ocl

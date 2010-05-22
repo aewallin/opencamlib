@@ -24,8 +24,9 @@
 #include "triangle.h"
 #include "stlsurf.h"
 #include "oellipse.h"
-#include "cutter.h"
+#include "millingcutter.h"
 #include "bbox.h"
+#include "fiber.h"
 
 /*
  *  Python wrapping

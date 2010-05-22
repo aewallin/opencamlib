@@ -21,19 +21,22 @@
 #ifndef BDC_H
 #define BDC_H
 
-#include <boost/python.hpp>
 #include <iostream>
 #include <string>
 #include <list>
 #include <vector>
+
+#include <boost/python.hpp>
+
 #include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "cutter.h"
-#include "kdtree.h"
 
 namespace ocl
 {
+
+class STLSurf;
+class KDNode;
+class Triangle;
+class MillingCutter;
 
 ///
 /// \brief Drop cutter interface
@@ -86,7 +89,7 @@ class BatchDropCutter {
         /// how many times DropCutter was called. Useful for optimization.
         int dcCalls;
 
-		/// number of threads to use
+        /// number of threads to use
         int nthreads;
 };
 

@@ -42,7 +42,7 @@
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
-#include "cutter.h"
+#include "millingcutter.h"
 #include "line.h"
 #include "arc.h"
 #include "path.h"

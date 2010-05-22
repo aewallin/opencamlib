@@ -21,23 +21,23 @@
 // this is mostly a translation to c++ of the earlier c# code
 // http://code.google.com/p/monocam/source/browse/trunk/Project2/monocam_console/monocam_console/kdtree.cs
 
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
-#include <vector>
-#include <algorithm>
-#include <boost/python.hpp>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
+//#include <vector>
+//#include <algorithm>
 #include <list>
-
 // uncomment to disable assert() calls
 // #define NDEBUG
 #include <cassert>
 
-#include "cutter.h"
+#include <boost/python.hpp>
+#include <boost/foreach.hpp>
+
 #include "point.h"
 #include "triangle.h"
-#include "cutter.h"
+#include "millingcutter.h"
 #include "numeric.h"
 #include "octree.h"
 

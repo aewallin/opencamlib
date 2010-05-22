@@ -17,16 +17,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
-#include <boost/numeric/interval.hpp>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
+//#include <boost/numeric/interval.hpp>
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 
 #include "fiber.h"
-namespace bn = boost::numeric;
+//namespace bn = boost::numeric;
 
 namespace ocl
 {
@@ -93,8 +93,8 @@ std::string Interval::str() const {
 
 Fiber::Fiber(const Point &p1in, const Point &p2in) {
     p1=p1in;
-	p2=p2in;
-	calcDir();
+    p2=p2in;
+    calcDir();
 }
 
 void Fiber::calcDir() {

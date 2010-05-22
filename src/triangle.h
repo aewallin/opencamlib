@@ -20,10 +20,10 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include <boost/python.hpp>
+
 #include "point.h"
 #include "bbox.h"
-#include <boost/foreach.hpp>
-#include <boost/python.hpp>
 
 namespace ocl
 {
@@ -36,7 +36,7 @@ class Triangle {
         /// default constructor
         Triangle();
         /// destructor
-        ~Triangle();
+        virtual ~Triangle();
         /// Create a triangle with the vertices p1, p2, and p3.
         Triangle(Point p1, Point p2, Point p3);   
         

@@ -17,10 +17,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
+#include <cmath>
 #include "arc.h"
 
 namespace ocl
@@ -28,32 +29,32 @@ namespace ocl
 
 Arc::Arc(const Point &p1in, const Point &p2in, const Point &cin, bool dirin) {
     p1=p1in;
-	p2=p2in;
-	c=cin;
-	dir=dirin;
-	setProperties();
+        p2=p2in;
+        c=cin;
+        dir=dirin;
+        setProperties();
 }
 
 Arc::Arc(const Arc &a) {
     p1=a.p1;
-	p2=a.p2;
-	c=a.c;
-	dir=a.dir;
-	setProperties();
+        p2=a.p2;
+        c=a.c;
+        dir=a.dir;
+        setProperties();
 }
 
 void Arc::setProperties() {
-	// arc properties
-	Point vs = (p1 - c).xyPerp();
-	Point ve = (p2 - c).xyPerp();
+        // arc properties
+        Point vs = (p1 - c).xyPerp();
+        Point ve = (p2 - c).xyPerp();
 
-	if(!dir) {
-		vs = -vs;				// reverse directions for CW arc
-		ve = -ve;
-	}
+        if(!dir) {
+                vs = -vs;                               // reverse directions for CW arc
+                ve = -ve;
+        }
 
-	radius = vs.xyNorm();
-	length = fabs(xyIncludedAngle(vs, ve, dir)) * radius;
+        radius = vs.xyNorm();
+        length = fabs(xyIncludedAngle(vs, ve, dir)) * radius;
 }
 
 std::ostream& operator<<(std::ostream &stream, const Arc& a)
@@ -63,38 +64,38 @@ std::ostream& operator<<(std::ostream &stream, const Arc& a)
 }
 
 Point Arc::getPoint(double t)const {
-	/// returns a point which is 0-1 along span
-	if(fabs(t) < 0.00000000000001)
+        /// returns a point which is 0-1 along span
+        if(fabs(t) < 0.00000000000001)
         return p1;
-	if(fabs(t - 1.0) < 0.00000000000001)
+        if(fabs(t - 1.0) < 0.00000000000001)
         return p2;
 
-	double d = t * length;
-	if(!dir)d = -d;
-	Point v = p1 - c;
-	v.xyRotate(d * dir / radius);
-	return v + c;
+        double d = t * length;
+        if(!dir)d = -d;
+        Point v = p1 - c;
+        v.xyRotate(d * dir / radius);
+        return v + c;
 }
 
 double Arc::xyIncludedAngle(const Point& v1, const Point& v2, bool dir) {
-	// returns the absolute included angle between 2 vectors in 
+        // returns the absolute included angle between 2 vectors in 
     // the direction of dir ( true=acw  false=cw )
-	int d = dir ? 1 : (-1);
-	double inc_ang = v1.dot(v2);
-	if(inc_ang > 1. - 1.0e-10) 
+        int d = dir ? 1 : (-1);
+        double inc_ang = v1.dot(v2);
+        if(inc_ang > 1. - 1.0e-10) 
         return 0;
-	if(inc_ang < -1. + 1.0e-10)
+        if(inc_ang < -1. + 1.0e-10)
         inc_ang = PI;
-	else {  // dot product,   v1 . v2  =  cos(alfa)
-		if(inc_ang > 1.0) 
+        else {  // dot product,   v1 . v2  =  cos(alfa)
+                if(inc_ang > 1.0) 
             inc_ang = 1.0;
-		inc_ang = acos(inc_ang); // 0 to pi radians
+                inc_ang = acos(inc_ang); // 0 to pi radians
 
-		double x = v1.x * v2.x + v1.y * v2.y; 
-		if(d * x < 0) 
+                double x = v1.x * v2.x + v1.y * v2.y; 
+                if(d * x < 0) 
             inc_ang = 2 * PI - inc_ang ; // cp
-	}
-	return d * inc_ang;
+        }
+        return d * inc_ang;
 }
 
 } // end namespace

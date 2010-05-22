@@ -21,17 +21,18 @@
 // this is mostly a translation to c++ of the earlier c# code
 // http://code.google.com/p/monocam/source/browse/trunk/Project2/monocam_console/monocam_console/kdtree.cs
 
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
-#include <vector>
-#include <algorithm>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
+//#include <vector>
+//#include <algorithm>
 
-#include "cutter.h"
+#include <boost/foreach.hpp>
+
+#include "millingcutter.h"
 #include "point.h"
 #include "triangle.h"
-#include "cutter.h"
 #include "numeric.h"
 #include "kdtree.h"
 

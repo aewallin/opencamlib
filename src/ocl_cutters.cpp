@@ -21,7 +21,7 @@
 
 #include <boost/python.hpp>
 #include "point.h"
-#include "cutter.h"
+#include "millingcutter.h"
 
 
 /*

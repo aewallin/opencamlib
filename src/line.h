@@ -33,12 +33,13 @@ namespace ocl
 
 class Line {
     public:
-		Line(){}
+        Line(){};
         /// create a line from p1 to p2
         Line(const Point &p1, const Point &p2);
         /// create a copy of line l.
         Line(const Line &l);
-
+        virtual ~Line() {};
+        
         /// text output
         friend std::ostream& operator<<(std::ostream &stream, const Line &l);
 
@@ -48,11 +49,11 @@ class Line {
         Point p2;
         
         /// return the length of the line-segment in the xy-plane
-		double length2d()const;
+        double length2d()const;
         /// return a Point on the Line at parameter value t [0,1]
-		Point getPoint(double t)const;
+        Point getPoint(double t)const;
         /// return the point on the Line which is closest to Point p.
-		Point Near(const Point& p)const;
+        Point Near(const Point& p)const;
 };
 
 } // end namespace

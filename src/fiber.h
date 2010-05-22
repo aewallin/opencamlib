@@ -20,9 +20,9 @@
 #ifndef FIBER_H
 #define FIBER_H
 
-#include <iostream>
+//#include <iostream>
 #include <vector>
-#include <boost/numeric/interval.hpp>
+//#include <boost/numeric/interval.hpp>
 
 
 #include "point.h"
@@ -31,7 +31,7 @@
 namespace ocl
 {
 
-typedef boost::numeric::interval<double> dinterval;
+//typedef boost::numeric::interval<double> dinterval;
 
 /// wrapper around boost::numerc::interval<double>
 class Interval {
@@ -54,7 +54,7 @@ class Interval {
 
 class Fiber {
     public:
-		Fiber(){ };
+        Fiber(){ };
         Fiber(const Point &p1, const Point &p2);
         virtual ~Fiber() {};
         

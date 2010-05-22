@@ -83,7 +83,7 @@ add_library(
     bullcutter.cpp
     compoundcutter.cpp
     conecutter.cpp
-    cutter.cpp
+    millingcutter.cpp
     cylcutter.cpp
     fiber.cpp
     kdtree.cpp

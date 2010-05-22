@@ -17,17 +17,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <iterator>
-#include <algorithm>
-#include <stdio.h>
-#include <sstream>
-#include <fstream>
-#include <math.h>
-#include <string>
+//#include <iostream>
+//#include <sstream>
+#include <fstream>  // required by read_from_file()
+//#include <string>
 #include <list>
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/io.hpp>
+
+#include <boost/foreach.hpp>
 
 #include "point.h"
 #include "triangle.h"

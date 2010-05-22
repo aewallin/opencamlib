@@ -17,17 +17,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
 //#include <boost/progress.hpp>
 #include <boost/foreach.hpp>
 #ifndef WIN32
 #include <omp.h>
 #endif
 
-#include "cutter.h"
+#include "millingcutter.h"
 #include "point.h"
 #include "triangle.h"
 #include "kdtree.h"

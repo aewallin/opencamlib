@@ -17,10 +17,14 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
+
+#include <boost/python.hpp>
+#include <boost/foreach.hpp>
+
 #include "path.h"
 
 namespace ocl
@@ -38,18 +42,18 @@ Path::~Path() {
 boost::python::list Path::getSpans() {
     boost::python::list slist;
     BOOST_FOREACH(Span* span, span_list) {
-		if(span->type() == LineSpanType)slist.append(((LineSpan*)span)->line);
-		else if(span->type() == ArcSpanType)slist.append(((ArcSpan*)span)->arc);
+                if(span->type() == LineSpanType)slist.append(((LineSpan*)span)->line);
+                else if(span->type() == ArcSpanType)slist.append(((ArcSpan*)span)->arc);
     }
     return slist;
 }
 
 void Path::append(const Line &l) {
-	span_list.push_back(new LineSpan(l));
+        span_list.push_back(new LineSpan(l));
 }
 
 void Path::append(const Arc &a) {
-	span_list.push_back(new ArcSpan(a));
+        span_list.push_back(new ArcSpan(a));
 }
 
 } // end namespace

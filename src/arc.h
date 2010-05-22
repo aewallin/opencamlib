@@ -20,7 +20,7 @@
 #ifndef ARC_H
 #define ARC_H
 
-#include <iostream>
+//#include <iostream>
 #include "point.h"
 #include "numeric.h"
 
@@ -32,18 +32,19 @@ namespace ocl
 ///
 class Arc {
         /// 2D length of the segment in the xy-plane
-		double length; // 2d length
+        double length; // 2d length
         /// radius of the arc
-		double radius;
+        double radius;
 
     public:
-		Arc(){}
+        Arc(){}
         /// create an arc from point p1 to point p2 with center c and direction dir.
         /// direction is true for anti-clockwise arcs.
         Arc(const Point &p1, const Point &p2, const Point &c, bool dir);
         /// create a copy of an arc a.
         Arc(const Arc &a);
-
+        virtual ~Arc() {};
+        
         /// text output
         friend std::ostream& operator<<(std::ostream &stream, const Arc &a);
 
@@ -53,16 +54,16 @@ class Arc {
         Point p2;
         /// centre point
         Point c;
-		/// direction true for anti-clockwise
-		bool dir;
+        /// direction true for anti-clockwise
+        bool dir;
         /// return the length of the arc
-		double length2d()const{return length;}
+        double length2d()const{return length;}
         /// return a point along the arc at parameter value t [0,1]
-		Point getPoint(double t)const;
-		
+        Point getPoint(double t)const;
+                
         /// returns the absolute included angle (in radians) between 
         /// two vectors v1 and v2 in the direction of dir ( true=acw  false=cw)
-		double xyIncludedAngle(const Point& v1, const Point& v2, bool dir = true);
+        double xyIncludedAngle(const Point& v1, const Point& v2, bool dir = true);
     private:
         void setProperties();
 };

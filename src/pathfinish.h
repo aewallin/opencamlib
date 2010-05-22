@@ -20,19 +20,21 @@
 
 #ifndef PATH_FINISH_H
 #define PATH_FINISH_H
-#include <boost/foreach.hpp>
+
 #include <boost/python.hpp>
+
 #include <iostream>
 #include <string>
 #include <list>
 #include "path.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "cutter.h"
-#include "kdtree.h"
 
 namespace ocl
 {
+    
+class MillingCutter;
+class STLSurf;
+class Triangle;
+class KDNode;
 
 ///
 /// \brief path drop cutter finish Path generation

@@ -21,7 +21,7 @@
 #ifndef OELLIPSE_H
 #define OELLIPSE_H
 
-#include <iostream>
+//#include <iostream>
 #include <list>
 #include "point.h"
 

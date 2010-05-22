@@ -18,18 +18,18 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
+//#include <iostream>
+//#include <stdio.h>
+//#include <sstream>
+//#include <math.h>
+//#include <algorithm>
 #include <vector>
-#include <algorithm>
-#include <boost/python.hpp>
 #include <list>
 #include <cassert>
-
 // uncomment to disable assert() calls
 // #define NDEBUG
+
+#include <boost/python.hpp>
 
 #include "bbox.h"
 #include "point.h"
