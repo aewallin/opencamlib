@@ -19,13 +19,18 @@
 */
 #ifndef NUMERIC_H
 #define NUMERIC_H
-//#include <cassert>
+
+
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <boost/numeric/ublas/lu.hpp>
 
 namespace ocl
 {
+
+namespace bnu = boost::numeric::ublas;
     
 #define PI 3.1415926535897932
-
 
 
 ///
@@ -47,6 +52,12 @@ bool isPositive(double x);
 
 /// return true if x is zero, to within tolerance
 bool isZero_tol(double x);
+
+/// compute determinant of matrix m
+double determinant( bnu::matrix<double>& m );
+
+/// helper function for determinant()
+int determinant_sign(const bnu::permutation_matrix<std::size_t>& pm);
 
 
 } // end namespace
