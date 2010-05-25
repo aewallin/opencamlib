@@ -218,29 +218,25 @@ bool Point::isRight(const Point &p1, const Point &p2) const
 bool Point::isInside(const Triangle &t) const
 {
     // point in triangle test
+    // http://www.blackpawn.com/texts/pointinpoly/default.html
     
-        // a new Triangle projected onto the XY plane
-    Point p1 = Point(t.p[0].x, t.p[0].y, 0.0);
-    Point p2 = Point(t.p[1].x, t.p[1].y, 0.0);
-    Point p3 = Point(t.p[2].x, t.p[2].y, 0.0);
+    Point v0 = t.p[2] - t.p[0];
+    Point v1 = t.p[1] - t.p[0];
+    Point v2 = *this  - t.p[0];
     
-    // a new point projected onto the XY plane
-        Point p = Point(x, y, 0.0);
+    double dot00 = v0.dot(v0);
+    double dot01 = v0.dot(v1);
+    double dot02 = v0.dot(v2);
+    double dot11 = v1.dot(v1);
+    double dot12 = v1.dot(v2);
     
-        bool b1 = p.isRight(p1, p2);
-        bool b2 = p.isRight(p3, p1);
-        bool b3 = p.isRight(p2, p3);
+    double invD = 1.0 / ( dot00 *dot11 - dot01*dot01 );
+    // barycentric coordinates
+    double u = (dot11 * dot02 - dot01 * dot12) * invD;
+    double v = (dot00 * dot12 - dot01 * dot02) * invD;
 
-    
-        if ((b1) && (b2) && (b3)) {
-                return true;
-    }
-        else if ((!b1) && (!b2) && (!b3)) {
-                return true;
-    }
-        else {
-                return false;
-    }
+    // Check if point is in triangle
+    return (u > 0.0) && (v > 0.0) && (u + v < 1.0);
 }
 
 #define TOLERANCE 0.000001
@@ -356,16 +352,26 @@ bool Point::operator!=(const Point &p)
     return !(*this == p);
 }
 
+/// return true if the vector has only a z-component
+bool Point::zParallel() const 
+{
+    if (x != 0.0)
+        return false;
+    else if (y != 0.0)
+        return false;
+    else
+        return true;
+}
+
 std::string Point::str()
 {
         std::ostringstream o;
-        o << "P"<< id <<"(" << x << ", " << y << ", " << z << ")";
+        o << *this;
         return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, const Point& p)
 {
-  // PRINTS ID stream << "P" << p.id << "(" << p.x << ", " << p.y << ", " << p.z << ")";
   stream << "(" << p.x << ", " << p.y << ", " << p.z << ")"; // no ID
   return stream;
 }

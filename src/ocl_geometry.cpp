@@ -120,6 +120,8 @@ void export_geometry() {
         .def(bp::init<double, double>())
         .def_readonly("upper", &Interval::upper )
         .def_readonly("lower", &Interval::lower )
+        .def_readonly("lower_cc", &Interval::lower_cc )
+        .def_readonly("upper_cc", &Interval::upper_cc )
         .def("updateUpper", &Interval::updateUpper )
         .def("updateLower", &Interval::updateLower )
         .def("__str__", &Interval::str )

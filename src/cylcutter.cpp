@@ -342,26 +342,99 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
 /// add an interval to Fiber where the cutter interferes
 int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
-    Point normal; // facet surface normal    
-    if (t.n->z < 0) {  // normal is pointing down
+    Point normal; // facet surface normal 
+    if ( t.n->zParallel() ) { // normal points in z-dir   
+        return result; //can't push against horizontal plane, stop here.
+    }
+    else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
     } else {
         normal = *t.n;
     }
     assert( isPositive( normal.z ) ); // we are in trouble if n.z is not positive by now...
-    // define plane containing facet
-    // a*x + b*y + c*z + d = 0, so
-    // d = -a*x - b*y - c*z, where
-    // (a,b,c) = surface normal
-    //double a = normal.x;
-    //double b = normal.y;
-    //double c = normal.z;
-    //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    //double d = - normal.dot(t.p[0]);
     
     // find the intersection of the Fiber and the plane
     // http://mathworld.wolfram.com/Line-PlaneIntersection.html
+    // plane defined by p1, p2, p3
+    // line through p4, p5
+    // intersection on line = p4 + t*(p5-p4)
+    // and
+    // t = - det(A) / det(B)
+    // where A =
+    // 1  1  1  1
+    // x1 x2 x3 x4
+    // y1 y2 y3 y4
+    // z1 z2 z3 z4
+    // and B =
+    // 1  1  1  0
+    // x1 x2 x3 x5-x4
+    // y1 y2 y3 y5-y4
+    // z1 z2 z3 z5-z4
+    namespace bnu = boost::numeric::ublas;
+    bnu::matrix<double> A(4,4);
+    bnu::matrix<double> B(4,4);
     
+    A(0,0) = 1.0;
+    A(0,1) = 1.0;
+    A(0,2) = 1.0;
+    A(0,3) = 1.0;
+    A(1,0) = t.p[0].x; // xvals
+    A(1,1) = t.p[1].x;
+    A(1,2) = t.p[2].x;
+    A(1,3) = f.p1.x;
+    A(2,0) = t.p[0].y; // yvals
+    A(2,1) = t.p[1].y;
+    A(2,2) = t.p[2].y;
+    A(2,3) = f.p1.y;
+    A(3,0) = t.p[0].z; // zvals
+    A(3,1) = t.p[1].z;
+    A(3,2) = t.p[2].z;
+    A(3,3) = f.p1.z;    
+
+    B(0,0) = 1.0;
+    B(0,1) = 1.0;
+    B(0,2) = 1.0;
+    B(0,3) = 0.0;
+    B(1,0) = t.p[0].x; // xvals
+    B(1,1) = t.p[1].x;
+    B(1,2) = t.p[2].x;
+    B(1,3) = f.p2.x - f.p1.x;
+    B(2,0) = t.p[0].y; // yvals
+    B(2,1) = t.p[1].y;
+    B(2,2) = t.p[2].y;
+    B(2,3) = f.p2.y - f.p1.y;
+    B(3,0) = t.p[0].z; // zvals
+    B(3,1) = t.p[1].z;
+    B(3,2) = t.p[2].z;
+    B(3,3) = f.p2.z - f.p1.z;      
+    
+    //std::cout << A << std::endl;
+    
+    double detB = determinant(B);
+    if (detB == 0.0)
+        return result; // no intersection btw. line and plane
+        
+    double detA = determinant(A);
+    double tval = - detA/detB;
+    std::cout << " tval = " << tval << std::endl;
+    Point ip = f.p1 + tval*(f.p2 - f.p1); // the intersection point.
+    
+    // compute cc-point from intersection
+    // from ip, go a distance radius in the direction of the xy-normal
+    normal.z = 0.0;
+    normal.xyNormalize();
+    
+    CCPoint cc_tmp = ip  ; //FIXME
+    cc_tmp.type = FACET;
+    
+    // check if cc-point is in the facet of the Triangle
+    if( !cc_tmp.isInside( t ) )
+        return result; //
+    
+     
+    
+    i.updateUpper( tval , cc_tmp );
+    i.updateLower( tval , cc_tmp );
         
     //normal.xyNormalize(); // make length of normal in xy plane == 1.0
     

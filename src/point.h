@@ -87,11 +87,14 @@ class Point {
         /// returns true if point is right of line through p1 and p2 (works in the XY-plane)
         bool isRight(const Point &p1, const Point &p2) const;
          
-        /// retruns true if point is inside Triangle t (works in the XY-plane)
+        /// retruns true if Point *this is inside Triangle t 
         bool isInside(const Triangle &t) const; 
         
         /// retruns true if point is inside p1-p2 line (xy-plane)
         bool isInsidePoints(const Point &p1, const Point &p2) const;
+        
+        /// return true if the x and y components are both zero.
+        bool zParallel() const;
         
         /// assignment
         Point &operator=(const Point &p);
