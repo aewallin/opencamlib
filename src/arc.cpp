@@ -29,32 +29,32 @@ namespace ocl
 
 Arc::Arc(const Point &p1in, const Point &p2in, const Point &cin, bool dirin) {
     p1=p1in;
-        p2=p2in;
-        c=cin;
-        dir=dirin;
-        setProperties();
+    p2=p2in;
+    c=cin;
+    dir=dirin;
+    setProperties();
 }
 
 Arc::Arc(const Arc &a) {
     p1=a.p1;
-        p2=a.p2;
-        c=a.c;
-        dir=a.dir;
-        setProperties();
+    p2=a.p2;
+    c=a.c;
+    dir=a.dir;
+    setProperties();
 }
 
 void Arc::setProperties() {
-        // arc properties
-        Point vs = (p1 - c).xyPerp();
-        Point ve = (p2 - c).xyPerp();
+    // arc properties
+    Point vs = (p1 - c).xyPerp();
+    Point ve = (p2 - c).xyPerp();
 
-        if(!dir) {
-                vs = -vs;                               // reverse directions for CW arc
-                ve = -ve;
-        }
+    if(!dir) {
+        vs *= -1.0;    // reverse directions for CW arc
+        ve *= -1.0;
+    }
 
-        radius = vs.xyNorm();
-        length = fabs(xyIncludedAngle(vs, ve, dir)) * radius;
+    radius = vs.xyNorm();
+    length = fabs(xyIncludedAngle(vs, ve, dir)) * radius;
 }
 
 std::ostream& operator<<(std::ostream &stream, const Arc& a)

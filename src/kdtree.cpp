@@ -338,7 +338,7 @@ void KDNode::getTriangles( std::list<Triangle> *tris, KDNode *node)
 /// with the MillingCutter cutter positioned at  Point cl
 /// these triangles are added to the tris list.
 void KDNode::search_kdtree(std::list<Triangle> *tris,
-                            Point &cl, 
+                            const Point &cl, 
                             const MillingCutter &cutter, 
                             KDNode *node)
 {
@@ -465,16 +465,16 @@ Spread::Spread(int dim, double v, double s)
 
 
 //********  string output ********************** */
-std::string KDNode::str()
+std::string KDNode::str() const
 {
     std::ostringstream o;
-    o << "KDNode\n";
+    o << *this;
     return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, const KDNode root)
 {
-    stream << "d:" << root.dim << " cv:" << root.cutval;    
+    stream << "KDNode d:" << root.dim << " cv:" << root.cutval;    
     return stream;
 }
 

@@ -59,7 +59,7 @@ Triangle::~Triangle()
 }
 
 /// return vertices in a list to python
-boost::python::list Triangle::getPoints()
+boost::python::list Triangle::getPoints() const
 {
     boost::python::list plist;
     BOOST_FOREACH(Point vertex, p) {
@@ -71,6 +71,8 @@ boost::python::list Triangle::getPoints()
 /// calculate bounding box values
 void Triangle::calcBB() {
     bb.addTriangle( *this );
+    
+    // consider re-writing this behavior: (?)
     minx=bb.minpt.x;
     maxx=bb.maxpt.x;
     miny=bb.minpt.y;
@@ -79,20 +81,13 @@ void Triangle::calcBB() {
     maxz=bb.maxpt.z;
 }
 
-void Triangle::calcNormal()
-{
+void Triangle::calcNormal() {
     Point v1=p[0]-p[1];
     Point v2=p[0]-p[2];
-    
     // the normal is in the direction of the cross product between the edge vectors
-    
     Point ntemp = v1.cross(v2); 
     ntemp.normalize(); // FIXME this might fail if norm()==0
-     
-    //std::cout << "creating normal=" << ntemp << "\n";
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
-    //std::cout << "normal is =" << *n << "\n";
-    
 }
 
 void Triangle::setId()
@@ -107,7 +102,6 @@ std::string Triangle::str() const
     o << *this;
     return o.str();
 }
-
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t)
 {

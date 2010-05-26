@@ -87,11 +87,10 @@ void export_geometry() {
         .def("getPoints", &Triangle::getPoints)
         .def("__str__", &Triangle::str) 
         .def_readonly("p", &Triangle::p)
-        //.def_readonly("n", &Triangle::n)
+        //.def_readonly("n", &Triangle::n) // cannot return pointer
         .def_readonly("id", &Triangle::id)
     ;
     bp::class_<STLSurf>("STLSurf")
-        .def(bp::init<const std::wstring&>())
         .def("addTriangle", &STLSurf::addTriangle)
         .def("__str__", &STLSurf::str)
         .def("size", &STLSurf::size)
@@ -114,8 +113,6 @@ void export_geometry() {
         .def_readonly("maxpt", &Bbox::maxpt)
         .def_readonly("minpt", &Bbox::minpt)
     ;
-    
-    
     bp::class_<Interval>("Interval")
         .def(bp::init<double, double>())
         .def_readonly("upper", &Interval::upper )
@@ -126,7 +123,6 @@ void export_geometry() {
         .def("updateLower", &Interval::updateLower )
         .def("__str__", &Interval::str )
     ;
-    
     // Epos and the Ellipse are used for the toroidal tool edge-tests
     bp::class_<Epos>("Epos")
         .def("setS", &Epos::setS)

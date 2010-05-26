@@ -37,9 +37,9 @@ class Point {
         Point();
         /// create a point at (x,y,z)
         Point(double x, double y, double z);
-
         /// create a point at p
         Point(const Point &p);
+        ~Point() {};
         
         /// dot product
         double dot(const Point &p) const;
@@ -79,7 +79,7 @@ class Point {
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
         
         /// return closest Point to line through p1 and p2. in 3D.
-        Point closestPoint(const Point &p1, const Point &p2);
+        Point closestPoint(const Point &p1, const Point &p2) const;
         
         /// return closest Point to line through p1 and p2. Works in the XY plane.
         Point xyClosestPoint(const Point &p1, const Point &p2) const;
@@ -105,23 +105,22 @@ class Point {
         /// addition
         const Point operator+(const Point &p)const;
         /// subtraction
-        const Point operator-(const Point &p)const;
-        /// what is this??
-        const Point operator-(void)const;
+        const Point operator-(const Point &p) const;
+
         /// scalar multiplication
-        Point &operator*=(const double &a);  // scalar multiplication
+        Point &operator*=(const double &a);  // scalar multiplication with Point *= scalar
         /// Point * scalar
         const Point operator*(const double &a)const;     // Point*scalar 
         /// equality
-        bool operator==(const Point &p);
+        bool operator==(const Point &p) const;
         /// inequality
-        bool operator!=(const Point &p);
+        bool operator!=(const Point &p) const;
 
         // text output
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Point &p);
         /// string repr
-        std::string str();
+        std::string str() const;
         
 
 
@@ -163,12 +162,12 @@ class CCPoint : public Point {
         CCPoint();
         /// create a CCPoint at Point p
         CCPoint(const Point& p); 
-        /// specifies the type of the Cutter Contact point. Possible values are NONE, VERTEX, EDGE, FACET, ERROR.
+        /// specifies the type of the Cutter Contact point. 
         CCType type;
-        /// assignment
+        /// assign coordinates of Point to this CCPoint. sets type=NONE
         CCPoint &operator=(const Point &p);
         /// string repr
-        std::string str();
+        std::string str() const;
         
     private:        
 };

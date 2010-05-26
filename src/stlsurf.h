@@ -44,13 +44,13 @@ class STLSurf {
         virtual ~STLSurf();
         
         /// read STL surface from file
-        STLSurf(const std::wstring &stl_file_path);
+        STLSurf(const std::wstring &stl_file_path); // remove?
                 
         /// add Triangle t to this surface
         void addTriangle(const Triangle &t);
         
         /// string repr
-        std::string str();
+        std::string str() const;
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
         
@@ -68,7 +68,7 @@ class STLSurf {
         Bbox bb;
         
         /// return bounds in a list to python
-        boost::python::list getBounds();
+        boost::python::list getBounds() const;
         
         /// build a kd-tree from the triangles in the surface
         void build_kdtree();
@@ -89,7 +89,7 @@ class STLSurf {
         boost::python::list get_kd_cut();
         
         /// return list of triangles under cutter
-        boost::python::list getTrianglesUnderCutter(Point &cl, MillingCutter &cutter);
+        boost::python::list getTrianglesUnderCutter(const Point &cl, const MillingCutter &cutter) const;
         
         /// root of kd-tree
         KDNode *root;

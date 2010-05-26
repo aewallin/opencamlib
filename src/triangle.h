@@ -46,28 +46,24 @@ class Triangle {
         std::string str() const;
         
         /// Returns a list of the vertices to Python
-        boost::python::list getPoints();        
+        boost::python::list getPoints() const;        
 
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
         /// normal vector
         Point *n;    // surface normal
-        /// id-number count (obsolete?)
+        /// id-number count 
         static int count;
-        /// id-number (obsolete?)
+        /// id-number
         int id;
         
         /// bounding-box 
         Bbox bb;
         
         // these values are set from the Bbox object:
-        /// bounding-box maximum x-coordinate
         double maxx;
-        /// bounding-box maximum y-coordinate
         double maxy;
-        /// bounding-box minimum x-coordinate
         double minx;
-        /// bounding-box minimum y-coordinate
         double miny;
         double minz;
         double maxz;
