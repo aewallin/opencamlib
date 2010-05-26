@@ -32,9 +32,9 @@ include_directories(${Python_Includes})
 # run get_revision.py which generates revision.h needed by ocl.revision()
 
 execute_process(
-    COMMAND python get_revision.py
+     COMMAND python get_revision.py
 )
-MESSAGE(STATUS " running get_revision.py")
+MESSAGE(STATUS "running get_revision.py to generate revision.h")
 
 
 #
@@ -49,25 +49,33 @@ MESSAGE(STATUS " running get_revision.py")
 # )
 # MESSAGE(STATUS "found boost-python: " ${LIB_BOOST_PYTHON})
 
-find_package( Boost COMPONENTS python)
+find_package( Boost COMPONENTS python REQUIRED)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
-    MESSAGE(STATUS " found Boost! good. ")
-    MESSAGE(STATUS " boost-incude dirs are:" ${Boost_INCLUDE_DIRS})
-    MESSAGE(STATUS " boost-python lib is:" ${Boost_PYTHON_LIBRARY})
+    MESSAGE(STATUS "found Boost: " ${Boost_LIB_VERSION})
+    MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
+    MESSAGE(STATUS "boost-python lib is: " ${Boost_PYTHON_LIBRARY})
 endif()
 
 #
 # find OpenMP
 #
 
-find_package( OpenMP )
+find_package( OpenMP REQUIRED )
 
 IF (OPENMP_FOUND)
     MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     MESSAGE(STATUS "flags are now: " ${CMAKE_CXX_FLAGS})
 ENDIF(OPENMP_FOUND)
+
+# alternative markup for getting the revision string
+#add_custom_command(
+#            OUTPUT revision.h
+#            COMMAND python get_revision.py
+#            COMMENT running revision.py
+#            DEPENDS get_revision.py
+#)
 
 #
 # this makes the ocl Python module
