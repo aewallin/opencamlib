@@ -149,12 +149,9 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     // find the xy-coordinates of the cc-point
     Point cc_tmp = cl + radiusvector; // NOTE xy-coords right, z-coord is not.
-        
+    cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // cc-point lies in the plane.
+    
     if (cc_tmp.isInside(t)) {   
-        // find the z-coordinate of the cc-point.
-        // it lies in the plane.
-        cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); 
-        
         // now find the z-coordinate of the cl-point
         double tip_z = cc_tmp.z + radius2*normal.z - radius2;
         

@@ -13,7 +13,7 @@ if __name__ == "__main__":
     # define a cutter
     cutter = ocl.CylCutter(3)
     #cutter = ocl.BallCutter(3)
-    #cutter = ocl.BullCutter(3,0.2)
+    #cutter = ocl.BullCutter(3,0.5)
 
     pdf = ocl.PathDropCutterFinish(s)   # create a pdf-object for the surface s
     pdf.setCutter(cutter)               # set the cutter
@@ -37,7 +37,8 @@ if __name__ == "__main__":
     # visualize things with VTK
     myscreen = camvtk.VTKScreen()
     myscreen.addActor( camvtk.PointCloud( pointlist=clp, collist=ccp ) )
-    myscreen.addActor( camvtk.PointCloud( pointlist=ccp, collist=ccp ) )
-    vtkSurf = camvtk.STLSurf(filename=None, triangleList=triangles )
-    myscreen.addActor(vtkSurf)
+    #myscreen.addActor( camvtk.PointCloud( pointlist=ccp, collist=ccp ) )
+    su = camvtk.STLSurf(filename=None, triangleList=triangles )
+    su.SetWireframe()
+    myscreen.addActor(su)
     myscreen.iren.Start()

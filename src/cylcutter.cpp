@@ -100,9 +100,9 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     // the contact point with the plane is on the periphery
     // of the cutter, a length radius from cl in the direction of -n
     Point cc_tmp = cl - (radius)*normal; // Note: at this point the z-coord is rubbish.
+    cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
     
-    if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()
-        cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
+    if (cc_tmp.isInside(t)) { 
         if (cl.liftZ(cc_tmp.z)) {
             cc = cc_tmp;
             cc.type = FACET;
