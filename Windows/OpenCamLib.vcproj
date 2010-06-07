@@ -99,6 +99,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="c:\python26\python.exe ..\src\get_revision.py"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -116,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;C:\Python26\include"
+				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;$(PYTHON_INCLUDE)"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPENCAMLIB_EXPORTS;__BOOST_PYTHON_NO_LIB__;BOOST_PYTHON_STATIC_LIB=1;BOOST_LIB_DIAGNOSTIC;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -135,9 +136,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(PYTHON_LIB)"
 				OutputFile="$(OutDir)\ocl.pyd"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)/lib&quot;;C:\Python26\libs"
+				AdditionalLibraryDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)/lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -204,6 +206,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\bbox.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\bullcutter.cpp"
 				>
 				<FileConfiguration
@@ -222,18 +228,6 @@
 			<File
 				RelativePath="..\src\conecutter.cpp"
 				>
-			</File>
-			<File
-				RelativePath="..\src\cutter.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\cylcutter.cpp"
@@ -298,6 +292,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\millingcutter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\numeric.cpp"
 				>
 				<FileConfiguration
@@ -320,6 +318,18 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\ocl_cutters.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ocl_geometry.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ocl_octree.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\src\octree.cpp"
@@ -437,6 +447,10 @@
 			</File>
 			<File
 				RelativePath="..\src\batchdropcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\bbox.h"
 				>
 			</File>
 			<File
