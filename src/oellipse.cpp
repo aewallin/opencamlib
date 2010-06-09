@@ -61,6 +61,7 @@ void Epos::setT(double tin, bool side)
 
 bool Epos::isValid()
 {
+    // check that s and t values are OK
     if ( isZero_tol( square(s) + square(t) - 1.0 ) )
         return true;
     else
@@ -86,9 +87,8 @@ void Epos::setS(double sin, bool side)
 
 void Epos::stepTangent(Ellipse e, double delta)
 {
-    Point tang = e.tangent(*this);
-    if ( fabs(tang.x) > fabs(tang.y) ) {
-        //  "s-dir step"
+    Point tang = e.tangent(*this); // normalized tangent
+    if ( fabs(tang.x) > fabs(tang.y) ) { //  "s-dir step"
         double news = s + delta*tang.x;
         if (t > 0)
             setS(news,1);
@@ -96,7 +96,7 @@ void Epos::stepTangent(Ellipse e, double delta)
             setS(news,0);
     } else {
         // t-dir step"
-        double newt = t + delta*tang.y;
+        double newt = t + delta*tang.y; //was y
         if (s>0)
             setT( newt,1);
         else
@@ -161,6 +161,7 @@ Point Ellipse::oePoint(Epos& pos)
 
 Point Ellipse::normal(Epos& pos)
 {
+    assert( pos.isValid() );
     Point n = Point( b*pos.s, a*pos.t, 0);
     n.normalize();
     return n;
@@ -168,6 +169,7 @@ Point Ellipse::normal(Epos& pos)
 
 Point Ellipse::tangent(Epos& pos)
 {
+    assert( pos.isValid() );
     Point t = Point(- a*pos.t, b*pos.s, 0);
     t.normalize();
     return t;
@@ -211,15 +213,17 @@ int Ellipse::solver(Ellipse& e, Point& p)
         #endif
     }   
     pos = bestpos;
+    assert( pos.isValid() );
+    
     #ifdef DEBUG_SOLVER
         std::cout << " selected " << pos << " err=" << e.error(pos, p) << "\n";
     #endif
     
     // newton-rhapson solver to find Epos, starting at pos, which minimizes
     // e.error(p)
-    int iters = 0;
-    bool endcondition = false;
-    double nr_step = 0.1; // arbitrary start-value for NR-step
+    int iters = 0;                               // number of iterations
+    bool endcondition = false;                   // stop when true
+    double nr_step = 0.1;                        // arbitrary start-value for NR-step
     double current_error, new_error, deriv, dt;
     Epos epos_tmp;
     current_error = e.error(pos, p);
@@ -229,25 +233,32 @@ int Ellipse::solver(Ellipse& e, Point& p)
         epos_tmp.s = pos.s;
         epos_tmp.t = pos.t;
         // # take a small step, to determine rerivative:
-        dt = 0.2*nr_step; /// \todo 0.2 value here is quite arbitrary...
+        dt = (0.02/(e.a/e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
+        assert( dt != 0.0 );
+        
         epos_tmp.stepTangent(e,dt);            // a temporary new position, to evaluate derivative
         new_error = e.error(epos_tmp, p);
         deriv = (new_error-current_error)/dt;  // evaluate derivative
         nr_step = (-current_error/deriv);      // Newton-rhapson step
         pos.stepTangent(e, nr_step);           // take step
+        current_error = e.error(pos, p);
         
         iters=iters+1;
-        current_error = e.error(pos, p);
         // check endcondition    
         if (fabs(current_error) < OE_ERROR_TOLERANCE)    
             endcondition=true;
-        if (iters>100) {  // if it goes on and on, stop with an error.
+        if (iters>200) {  // if it goes on and on, stop with an error.
             std::cout << "oellipse.cpp: Newton-Rhapson solver did not converge.\n";
+            std::cout << " iters= " << iters << "\n";
             std::cout << " ellipse-solver target is p= " << p << "\n";
             std::cout << " center= " << e.center << "\n";
             std::cout << " ellipse a=" << e.a << " b=" << e.b << " offset=" << e.offset << "\n";
             std::cout << " current_error= " << current_error << "\n";
+            std::cout << " new_error= " << new_error << "\n";
+            std::cout << " dt= " << dt << "\n";
             std::cout << " pos = " << pos << " and e.oePoint(pos) = " << e.oePoint(pos) << "\n";
+            std::cout << " e.tanget(pos) = " << e.tangent(pos) << "\n";
+            std::cout << " nr_step =" << nr_step << "\n";
             assert(0);
         }
        
@@ -323,6 +334,7 @@ Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
 /// here we use only the y-coordinate error         
 double Ellipse::error(Epos& pos, Point& p)
 {
+    assert( pos.isValid() );
     Point p1 = oePoint(pos);
     double dy = p1.y - p.y;
     return dy;

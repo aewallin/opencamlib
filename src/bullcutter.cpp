@@ -259,7 +259,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     
                     assert( ellcenter.x == 0);
                     assert( ellcenter.z == 0);
-                    assert( iters < 20 ); // it's probably an error if the solver takes too long...
+                    assert( iters < 200 ); // it's probably an error if the solver takes too long...
                     
                     // the corresponding solved ellipse-centers
                     Point ecen1 = e.calcEcenter( ucl, up1, up2, 1);

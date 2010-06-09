@@ -22,8 +22,8 @@ def drawPoints(myscreen, clpoints, ccpoints):
             
         
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     #stl = camvtk.STLSurf("../stl/beet_mm.stl")
     #stl = camvtk.STLSurf("../stl/Blade.stl")
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     
     #cutter = ocl.ConeCutter(0.43, math.pi/7)
     
-    print ocl.revision()
+    
     print cutter
     
     minx=0
