@@ -86,7 +86,7 @@ if __name__ == "__main__":
     #lwr.Write()
     
     t = camvtk.Text()
-    t.SetText("OpenCAMLib 10.04")
+    t.SetText("OpenCAMLib")
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     myscreen.addActor( t)
     

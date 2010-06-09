@@ -40,9 +40,9 @@ if __name__ == "__main__":
     
     #cutter = ocl.CylCutter(1.123)
     
-    #cutter = ocl.BullCutter(1.4123, 0.5)
+    cutter = ocl.BullCutter(1.4123, 0.5)
     
-    cutter = ocl.ConeCutter(0.43, math.pi/7)
+    #cutter = ocl.ConeCutter(0.43, math.pi/7)
     
     print ocl.revision()
     print cutter

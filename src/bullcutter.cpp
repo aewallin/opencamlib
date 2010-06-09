@@ -17,11 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <boost/progress.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -188,15 +183,11 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             
             // is the edge close enough?
             if (d<=diameter/2) { // potential hit
-                if ( isZero_tol( p1.z - p2.z ) ) {
-                    // horizontal edge special case
-                    // std::cout << "BullCutter:edgeDrop(): horizontal edge\n";
-                    if ( d<= radius1){
-                        // horizontal edge, contact with cylindrical part of cutter
+                if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
+                    if ( d<= radius1) {             // horizontal edge, contact with cylindrical part of cutter
                         Point cc_tmp = cl.xyClosestPoint(p1,p2);
                         cc_tmp.z = p1.z;                
-                        // test if cc-point is in edge
-                        if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
+                        if ( cc_tmp.isInsidePoints( p1, p2 ) ) { // test if cc-point is in edge
                             if (cl.liftZ(p1.z)) {
                                 cc = cc_tmp;
                                 cc.type = EDGE_HORIZ_CYL;
@@ -226,7 +217,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     // general case (potential hit and not a horizontal edge)
                     // this is the offset-ellipse case
                     // instead of dropping a Toroid(r1,r2) against a line(p1,p2)
-                    // we drop a cylinder Cylinder(r1) against a Tube(radius=r2) around line(p1,p2)
+                    // we drop a cylinder Cylinder(r1) against a Cylinder(radius=r2) around line(p1,p2)
                     // std::cout << "BullCutter:edgeDrop(): general case\n";
                     // the "canonical" case for which the offset-ellipse solver is written
                     // requires p1.y == p2.y, i.e. the edge needs to be rotated so that it is parallel
@@ -241,8 +232,6 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     // figure out u-coordinates of p1 and p2
                     Point sc = cl.xyClosestPoint( p1, p2 );   
                     assert( ( (cl-sc).xyNorm() - d ) < 1E-6 );
-                    
-                    
                     double p1u = (p1-sc).dot(vxy);
                     double p2u = (p2-sc).dot(vxy); 
                 
@@ -267,6 +256,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     // the ellipse and the solver
                     Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
                     int iters = Ellipse::solver(e, ucl);
+                    
                     assert( ellcenter.x == 0);
                     assert( ellcenter.z == 0);
                     assert( iters < 20 ); // it's probably an error if the solver takes too long...

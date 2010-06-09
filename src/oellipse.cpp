@@ -230,11 +230,11 @@ int Ellipse::solver(Ellipse& e, Point& p)
         epos_tmp.t = pos.t;
         // # take a small step, to determine rerivative:
         dt = 0.2*nr_step; /// \todo 0.2 value here is quite arbitrary...
-        epos_tmp.stepTangent(e,dt);  // a temporary new position, to evaluate derivative
+        epos_tmp.stepTangent(e,dt);            // a temporary new position, to evaluate derivative
         new_error = e.error(epos_tmp, p);
-        deriv = (new_error-current_error)/dt; // evaluate derivative
-        nr_step = (-current_error/deriv);  // Newton-rhapson step
-        pos.stepTangent(e, nr_step); // take step
+        deriv = (new_error-current_error)/dt;  // evaluate derivative
+        nr_step = (-current_error/deriv);      // Newton-rhapson step
+        pos.stepTangent(e, nr_step);           // take step
         
         iters=iters+1;
         current_error = e.error(pos, p);
@@ -243,6 +243,11 @@ int Ellipse::solver(Ellipse& e, Point& p)
             endcondition=true;
         if (iters>100) {  // if it goes on and on, stop with an error.
             std::cout << "oellipse.cpp: Newton-Rhapson solver did not converge.\n";
+            std::cout << " ellipse-solver target is p= " << p << "\n";
+            std::cout << " center= " << e.center << "\n";
+            std::cout << " ellipse a=" << e.a << " b=" << e.b << " offset=" << e.offset << "\n";
+            std::cout << " current_error= " << current_error << "\n";
+            std::cout << " pos = " << pos << " and e.oePoint(pos) = " << e.oePoint(pos) << "\n";
             assert(0);
         }
        

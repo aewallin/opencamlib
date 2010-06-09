@@ -37,7 +37,7 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
     
-    cutter = ocl.BallCutter(1.4321)
+    cutter = ocl.BallCutter(5.4321)
     
     #cutter = ocl.CylCutter(1.123)
     
