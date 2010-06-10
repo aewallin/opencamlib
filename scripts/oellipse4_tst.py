@@ -36,7 +36,7 @@ def main(ycoord=0.970, filename="test"):
     
     cutter = cam.BullCutter(1,0.2)
 
-    print cutter.str()    
+    print cutter   
     xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
     yar = camvtk.Arrow(color=camvtk.green, rotXYZ=(0,0,90))
@@ -96,7 +96,7 @@ def main(ycoord=0.970, filename="test"):
     # so point
     tparam = -a.z / (b.z - a.z)  # NOTE horizontal lines are a special case!!
     ellcenter = a + tparam*(b-a)
-    print "ellcenter (z=0?) =", ellcenter.str()
+    print "ellcenter (z=0?) =", ellcenter
     # center of the 
     # ecen_tmp=cam.Point(ellcenter,a.y,0)
     
@@ -143,7 +143,8 @@ def main(ycoord=0.970, filename="test"):
     #p5 = oe.ePoint(epos5)
     #pt = oe2.oePoint(epos5)
     #print "before= ", epos5.s, " , ", epos5.t
-    nsteps = cam.Ellipse.solver(oe, epos, cl)
+    nsteps = cam.Ellipse.solver(oe,  cl)
+    epos = oe.epos1
     cce = oe.ePoint(epos)
     cle = oe.oePoint(epos)
     #epos2 = cam.Epos()
@@ -152,8 +153,8 @@ def main(ycoord=0.970, filename="test"):
     #print nsteps
     print "solution1 at: ", epos.s , " , ", epos.t 
     #print "solution2 at: ", epos2.s , " , ", epos2.t 
-    print " cl =", cl.str()
-    print " cle=", cle.str()
+    print " cl =", cl
+    print " cle=", cle
     
     xoffset = cl.x - cle.x
     print "xoffset= ", xoffset
@@ -167,14 +168,14 @@ def main(ycoord=0.970, filename="test"):
     slide = tparam2*(b-a)
     print "sliding z-delta: ", slide.z
     elc2 = a + tparam2*(b-a)
-    print "ellcenter2=", elc2.str()
+    print "ellcenter2=", elc2
     #convlist.append(nsteps)
     fe = cam.Ellipse(elc2, a_axis, b_axis, radius1)
     fecen = camvtk.Sphere(center=(elc2.x,elc2.y,elc2.z), radius=0.01, color=camvtk.pink)
     myscreen.addActor(fecen)
     fccp = fe.ePoint(epos)
     fclp = fe.oePoint(epos)
-    print "solver cl=", fclp.str(), " == ", cl.str(), " ??"
+    print "solver cl=", fclp, " == ", cl, " ??"
     
     fcir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,elc2.z), color=camvtk.yellow)
     myscreen.addActor(fcir)
@@ -220,7 +221,7 @@ def main(ycoord=0.970, filename="test"):
     print "done."
     myscreen.render()
     lwr.SetFileName(filename)
-    lwr.Write()
+    #lwr.Write()
     #raw_input("Press Enter to terminate")         
     #time.sleep(0.5)
     myscreen.iren.Start()

@@ -26,9 +26,9 @@ def calcEcenter(oe,a,b,cl,sln):
     
     cce = oe.ePoint(pos)
     cle = oe.oePoint(pos)
-    print "solution at: ", pos.str() 
-    print "  cce=", cce.str()
-    print "  cle=", cle.str()
+    print "solution at: ", pos
+    print "  cce=", cce
+    print "  cle=", cle
     
     xoffset = cl.x - cle.x
     print " xoffset= ", xoffset
@@ -56,8 +56,9 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     
     #ycoord = 1.1
     
-    a=cam.Point(3,ycoord,-2)
-    b=cam.Point(-1,ycoord,3)    
+    # the two points that define the edge
+    a=cam.Point( 3 , ycoord , 2.999999)
+    b=cam.Point( -1, ycoord , 3)    
     
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)));
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)));
@@ -67,7 +68,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     
     cutter = cam.BullCutter(1,0.2)
 
-    print cutter.str()    
+    print cutter   
     xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
     yar = camvtk.Arrow(color=camvtk.green, rotXYZ=(0,0,90))
@@ -134,7 +135,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     # so point
     tparam = -a.z / (b.z - a.z)  # NOTE horizontal lines are a special case!!
     ellcenter = a + tparam*(b-a)
-    print "ellcenter (z=0?) =", ellcenter.str()
+    print "ellcenter (z=0?) =", ellcenter
     # center of the 
     # ecen_tmp=cam.Point(ellcenter,a.y,0)
     
@@ -177,15 +178,18 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     #p5 = oe.ePoint(epos5)
     #pt = oe2.oePoint(epos5)
     #print "before= ", epos5.s, " , ", epos5.t
+    
+    # RUN THE SOLVER!
     nsteps = cam.Ellipse.solver(oe,  cl)
+    
     print "solver done. back to python:"
-    print "1st (s,t) solution=", oe.epos1.str()
-    print "2st (s,t) solution=", oe.epos2.str()
+    print "1st (s,t) solution=", oe.epos1
+    print "2st (s,t) solution=", oe.epos2
     
     elc1 = calcEcenter(oe,a,b, cl,1)
     elc2 = calcEcenter(oe,a,b, cl,2)
-    print "elc1=", elc1.str()
-    print "elc2=", elc2.str()
+    print "elc1=", elc1
+    print "elc2=", elc2
     #exit()
     
     #elc2 = elc2
@@ -228,7 +232,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     myscreen.addActor(camvtk.Line( p1=(cl2.x,cl2.y,cl2.z),p2=(ccp2.x,ccp2.y,ccp2.z), color=camvtk.yellow ))    
     
     # true cl
-    clt = cc1. 
+    #clt = cc1. 
     
     #fclpoint = camvtk.Sphere(center=(fclp.x,fclp.y,fclp.z), radius=0.01, color=camvtk.blue)
     #myscreen.addActor(fclpoint)

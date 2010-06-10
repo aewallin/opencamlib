@@ -249,16 +249,33 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     assert( fabs(up2.x-up1.x) > 0.0 ); // avoid divide-by-zero
                     double theta = atan( (up2.z - up1.z) / (up2.x-up1.x) ); 
                     double a_axis = fabs( radius2/sin(theta) );
+                    assert( a_axis > 0.0 );
+                    assert( b_axis > 0.0 );
+                    
+                    double eccen = a_axis/b_axis;
+                    bool debugNR = false;
+                    if (eccen > 370000) {
+                        std::cout << "high eccen case eccen=" << eccen << "\n";
+                        std::cout << " theta=" << theta << "\n";
+                        std::cout << " up1=" << up1 << " up2="<< up2 << "\n";
+                        debugNR = true;
+                    }
                     
                     // locate ellipse in the XY plane
                     Point ellcenter = Point(0,d,0); 
-                    
-                    // the ellipse and the solver
-                    Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
-                    int iters = Ellipse::solver(e, ucl);
-                    
+                    // only ellcenter.y != 0.0
                     assert( ellcenter.x == 0);
                     assert( ellcenter.z == 0);
+                      
+                    // the ellipse and the solver
+                    Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
+                    if (debugNR) {
+                        std::cout << " ellipse=" << e << "\n";
+                        std::cout << " ucl=" << ucl << "\n";
+                    }
+                    // run the solver
+                    int iters = Ellipse::solver(e, ucl);
+                    
                     assert( iters < 200 ); // it's probably an error if the solver takes too long...
                     
                     // the corresponding solved ellipse-centers

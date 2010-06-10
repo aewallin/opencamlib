@@ -89,14 +89,14 @@ void Epos::stepTangent(Ellipse e, double delta)
 {
     Point tang = e.tangent(*this); // normalized tangent
     if ( fabs(tang.x) > fabs(tang.y) ) { //  "s-dir step"
-        double news = s + delta*tang.x;
+        double news = s + delta*tang.x / e.a;
         if (t > 0)
             setS(news,1);
         else
             setS(news,0);
     } else {
         // t-dir step"
-        double newt = t + delta*tang.y; //was y
+        double newt = t + delta*tang.y / e.b; 
         if (s>0)
             setT( newt,1);
         else
@@ -132,6 +132,8 @@ Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin)
     center = centerin;
     a = ain;
     b = bin;
+    assert( b > 0.0 );
+    eccen = a/b;
     offset = offsetin;
 }
         
@@ -150,13 +152,13 @@ Point Ellipse::ePoint(Epos& pos)
 
 Point Ellipse::oePoint(Epos& pos)
 {
-    Point p;
+    /*Point p;
     p = ePoint(pos);
     Point n;
     n = normal(pos);
     p.x += offset*n.x;
-    p.y += offset*n.y;
-    return p;
+    p.y += offset*n.y; */
+    return ePoint(pos) + offset * normal(pos);
 }    
 
 Point Ellipse::normal(Epos& pos)
@@ -170,7 +172,7 @@ Point Ellipse::normal(Epos& pos)
 Point Ellipse::tangent(Epos& pos)
 {
     assert( pos.isValid() );
-    Point t = Point(- a*pos.t, b*pos.s, 0);
+    Point t = Point( -a*pos.t, b*pos.s, 0);
     t.normalize();
     return t;
 }        
@@ -182,7 +184,7 @@ int Ellipse::solver(Ellipse& e, Point& p)
 {
     Epos pos;
     Epos bestpos;
-    double abs_err; 
+    double best_err; 
     // check the four different sign-permutations of (s,t)
     // to select a "good" initial value
     for (int n=0; n<4 ; n++) {
@@ -200,50 +202,60 @@ int Ellipse::solver(Ellipse& e, Point& p)
             
         double err = e.error(pos, p);
         
-        if (n==0) {
+        if (n==0) { // on first loop-iteration, store values
             bestpos = pos; 
-            abs_err = fabs(err);
+            best_err = fabs(err);
         }
-        else if (abs_err > fabs(err) ) {
-            abs_err = fabs(err);
+        else if ( fabs(err) < best_err ) { // update if better pos is found
+            best_err = fabs(err);
             bestpos = pos; // pick the best position to start the iterative-solution with
         }
         #ifdef DEBUG_SOLVER
             std::cout << n << " pos=" << pos << " err=" << err << "\n";
         #endif
     }   
-    pos = bestpos;
+    pos = bestpos; // starting position for solver
     assert( pos.isValid() );
+    
+    bool debugNR = false;
+    if (e.eccen > 370000) {
+        std::cout << "solver: high eccen case e.eccen= " << e.eccen << "\n";
+        debugNR = true;
+    }
     
     #ifdef DEBUG_SOLVER
         std::cout << " selected " << pos << " err=" << e.error(pos, p) << "\n";
     #endif
     
-    // newton-rhapson solver to find Epos, starting at pos, which minimizes
+    // solver to find Epos, starting at pos, which minimizes
     // e.error(p)
     int iters = 0;                               // number of iterations
     bool endcondition = false;                   // stop when true
-    double nr_step = 0.1;                        // arbitrary start-value for NR-step
+    double nr_step = 0.01;                        // arbitrary start-value for NR-step
     double current_error, new_error, deriv, dt;
     Epos epos_tmp;
     current_error = e.error(pos, p);
     
-    while (!endcondition) {  
-        // #print "current error=", current_error
-        epos_tmp.s = pos.s;
-        epos_tmp.t = pos.t;
-        // # take a small step, to determine rerivative:
-        dt = (0.02/(e.a/e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
+    while (!endcondition) {
+        // Newton-Rhapson solver for ellipses with low eccentricity
+        epos_tmp = pos;
+        Epos tmp2 = pos;
+        // take a small step, to determine derivative:
+        dt = (0.01/(e.a+e.b)); //*nr_step; //  (0.2/(e.a+e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
         assert( dt != 0.0 );
-        
         epos_tmp.stepTangent(e,dt);            // a temporary new position, to evaluate derivative
         new_error = e.error(epos_tmp, p);
         deriv = (new_error-current_error)/dt;  // evaluate derivative
-        nr_step = (-current_error/deriv);      // Newton-rhapson step
+        nr_step = (-current_error/deriv);      // Newton-Rhapson step
         pos.stepTangent(e, nr_step);           // take step
+        assert( pos.isValid() );
         current_error = e.error(pos, p);
-        
         iters=iters+1;
+        
+        if (debugNR) {
+            std::cout << iters << ": c_err=" << current_error << " pos=" << pos << " oldpos=" << tmp2 << " ";
+            std::cout << " n_err=" << new_error << " nr_step=" << nr_step << " dt=" << dt << " deriv="<< deriv << "\n";
+        }
         // check endcondition    
         if (fabs(current_error) < OE_ERROR_TOLERANCE)    
             endcondition=true;
@@ -261,12 +273,14 @@ int Ellipse::solver(Ellipse& e, Point& p)
             std::cout << " nr_step =" << nr_step << "\n";
             assert(0);
         }
-       
     }
     
     // there are two positions which are optimal
     // cycle the signs of (s,t) and find the other solution
-    e.epos1 = pos;
+    
+    e.epos1 = pos; // this is the first solution
+    // the code below finds e.epos2 which is the other solution
+    
     #ifdef DEBUG_SOLVER
         std::cout << "1st: (s, t)= " << e.epos1 << " oePoint()= " << e.oePoint(e.epos1) << " e=" << e.error(e.epos1, p) << "\n";
     #endif
@@ -339,6 +353,16 @@ double Ellipse::error(Epos& pos, Point& p)
     double dy = p1.y - p.y;
     return dy;
 }
+
+
+/// Ellipse string output
+std::ostream& operator<<(std::ostream &stream, const Ellipse& e)
+{
+  stream << "Ellipse: cen=" << e.center << " a=" << e.a << " b=" << e.b << " ofs=" << e.offset ; 
+  return stream;
+}
+
+
 
 } // end namespace
 // end of file oellipse.cpp

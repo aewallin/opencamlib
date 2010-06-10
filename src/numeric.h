@@ -41,8 +41,8 @@ namespace bnu = boost::numeric::ublas;
 /// return 1 of x>0, return -1 if x<0.
 double sign(double x);
 
+/// return x*x
 inline double square(double x) {  return x*x; };
-
 
 /// return true if x is negative
 bool isNegative(double x);
@@ -50,7 +50,7 @@ bool isNegative(double x);
 /// return true if x is negative
 bool isPositive(double x);
 
-/// return true if x is zero, to within tolerance
+/// return true if x is zero, to within tolerance (TOLERANCE)
 bool isZero_tol(double x);
 
 /// compute determinant of matrix m

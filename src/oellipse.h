@@ -77,7 +77,7 @@ class Ellipse {
         Ellipse(Point& centerin, double a, double b, double offset);
         
         //std::string str();
-        //friend std::ostream &operator<<(std::ostream &stream, const Ellipse e);
+        friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);
         
         /// return a point on the ellipse
         Point ePoint(Epos& position);
@@ -92,7 +92,11 @@ class Ellipse {
         Point tangent(Epos& position);
         
         /// offset-ellipse solver
-        static int solver(Ellipse& e, Point& p);
+        static int solver(Ellipse& e, Point& p); // why static?
+        
+        
+        
+        
         
         /// error function for the solver
         double error(Epos& position, Point& p);
@@ -107,6 +111,9 @@ class Ellipse {
         double a;
         /// b-axis
         double b;
+        /// eccentricity = a/b
+        double eccen;
+        
         /// offset
         double offset;
         

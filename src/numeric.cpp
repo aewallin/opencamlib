@@ -36,7 +36,7 @@ namespace bnu = boost::numeric::ublas;
 
 
 #define TOLERANCE 0.0000001
-#define NEGATIVE_TOL -TOLERANCE
+
 
 double sign(double x) {
     if (x<0.0)
