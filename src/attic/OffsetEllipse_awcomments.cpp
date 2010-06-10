@@ -31,7 +31,7 @@ namespace GroundSteel
 //////////////////////////////////////////////////////////////////////
 P2 Ellipse::D_EEval(double s, double t) const 
 {
-	TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid?
+	TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid
     // ellipse-definition: ( j*cos(theta) , n*sin(theta) )
     // s=cos(theta)   t=sin(theta)
 	return ecen + j * s + n * t;            // return a point on the ellipse
@@ -39,10 +39,10 @@ P2 Ellipse::D_EEval(double s, double t) const
 
 P2 Ellipse::D_Norm(double s, double t) const 
 {
-	TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid?
+	TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid
     // return normal to ellipse
-    // ellipse: ( norm(j)*cos(theta) , norm(n)*sin(theta) )
-    // normal: ( norm(n)*sin(theta), -norm(j)*cos(theta) )            exchnage and flip one sign
+    // ellipse: ( norm(j)*cos(theta) ,  norm(n)*sin(theta) )
+    // normal:  ( norm(n)*sin(theta) , -norm(j)*cos(theta) )            exchnage and flip one sign
     //  s=cos(theta)   t=sin(theta)
     // normal is  j*s/eccen + n*(t*eccen)
 	return ZNorm(j * (s / eccen) + n * (t * eccen));   // what does Znorm() do? normalize to length 1?
@@ -50,18 +50,17 @@ P2 Ellipse::D_Norm(double s, double t) const
 
 P2 EllipseOffset::D_Eval(double s, double t) const
 {
-    // return point on ellipse+normal*offrad
-    // i.e. return point on offset ellipse.
+    // return point on offset-ellipse = ellipse + normal*offrad
 	return D_EEval(s, t) + D_Norm(s, t) * offrad; 
 }
 #endif
 
 
-// for (s, t) where:  s^2 + t^2 = 1, 
-// point of ellipse is:  ecen + j s + n t
-// tangent at point is:  -j t + n s
-// normal at point is:  j (s / eccen) + n (t * eccen)
-// point on offset-ellipse:  point on ellipse + offrad*normal
+// for (s, t) where:          s^2 + t^2 = 1, 
+// point of ellipse is:       ecen + j s + n t
+// tangent at point is:       -j t + n s
+// normal at point is:        j (s / eccen) + n (t * eccen)
+// point on offset-ellipse:   point on ellipse + offrad*normal
 
 // The code has been stabilized for very large values of eccen (long, thin, ellipses)
 //////////////////////////////////////////////////////////////////////
@@ -84,7 +83,7 @@ void Ellipse::SetEllipseVals(const P2& lecen, const P2& lj, const P2& ln, double
 	n = ln; 
 	nlen = lnlen; 
 	TOL_ZERO(n.Len() - nlen);  // check that nlen is valid
-	ASSERT(n.u <= 0.0);       // ?why?,  ellipse allways tilted so that n.u <= 0
+	ASSERT(n.u <= 0.0);        // ellipse allways tilted so that n.u <= 0
 
 	// the eccentricity (ratio of the two axes)
 	ASSERT(leccen >= 1.0 - MDTOL_SMALL); 
@@ -97,7 +96,7 @@ void Ellipse::SetEllipseVals(const P2& lecen, const P2& lj, const P2& ln, double
 	// solve for (j s / eccen + n t eccen).v = 0
     
 	TOL_ZERO( fabs(j.u / eccen) - fabs(n.v) ); // j.u/eccen should be == j.v
-	P2 stangv = ZNorm( P2(j.u, -n.u) ); // (s, t) of the position of the tangent 
+	P2 stangv = ZNorm( P2(j.u, -n.u) );        // (s, t) of the position of the tangent 
 	tang_s = -stangv.u;
 	tang_t = stangv.v;
 
@@ -156,7 +155,7 @@ void EllipseOffset::SetOffsetEllipseVals(const P2& lecen,      // center of elli
 
 
 
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 #ifdef MDEBUG
 bool EllipsOffsetPos::D_CheckVal(const EllipseOffset& eoff) 
 {
@@ -166,7 +165,7 @@ bool EllipsOffsetPos::D_CheckVal(const EllipseOffset& eoff)
 #endif
 
 
-//////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
 void EllipsOffsetPos::SetPosCardinal(const EllipseOffset& eoff, bool btangnorm, bool bgopos) 
 {
 	if (btangnorm)
@@ -792,8 +791,8 @@ void AlignedEllipseOffset::LowerIntersectU(AlignedEllipsOffsetPos& aeopm, double
 //		if ((aeop1.s - aeop0.s < 1e-12) && (aeop0.t - aeop1.t < 1e-12))
 //			break; 
 		aeoiterations++; 
-if (aeoiterations > 1000)
-{ EASSERT(0); return; }
+        if (aeoiterations > 1000)
+        { EASSERT(0); return; }
 	}
 
 }

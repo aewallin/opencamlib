@@ -19,12 +19,12 @@ struct TruncEllipseOffset;
 
 
 //////////////////////////////////////////////////////////////////////
-// we gradually poke the values in until the functions can be called.  (?)
+// we gradually poke the values in until the functions can be called.  
 struct Ellipse
 {
-	P2 ecen;	// ellipse centre
-	P2 j;		// major axis
-	P2 n;		// minor axis
+	P2 ecen;	    // ellipse centre
+	P2 j;		    // major axis
+	P2 n;		    // minor axis
 	double nlen;	// length of n
 	double eccen;	// eccentricity (length of j / nlen)
 	double eccensq; // Square(eccensq)
@@ -78,20 +78,24 @@ struct EllipseOffset : Ellipse
                      EllipsOffsetPos& eopb, 
                      bool bjp, 
                      bool bnp); 
+                     
 	double EllIntersMono(EllipsOffsetPos& eopm, 
                          EllipsOffsetPos& eopa, 
                          EllipsOffsetPos& eopb, 
-                        bool bjp, 
-                        bool bnp); 
+                         bool bjp, 
+                         bool bnp); 
+                         
 	bool EllIntersMonoByHalf(EllipsOffsetPos& eopa, 
                              bool bst, 
                              EllipsOffsetPos& eopb, 
                              bool bjp, 
                              bool bnp); 
+                             
 	bool EllIntersMonoByParap(EllipsOffsetPos& eopa, 
                               EllipsOffsetPos& eopb, 
                               bool bjp, 
                               bool bnp); 
+                              
 	double EllIntersMonoByNR(EllipsOffsetPos& eopm, 
                              EllipsOffsetPos& eopa, 
                              EllipsOffsetPos& eopb, 
@@ -104,10 +108,10 @@ struct EllipseOffset : Ellipse
 //////////////////////////////////////////////////////////////////////
 struct EllipsOffsetPos
 {
-    // (s, t) where:  s^2 + t^2 = 1
+    // (s, t) where:         s^2 + t^2 = 1
     // point of ellipse is:  ecen + j s + n t
     // tangent at point is:  -j t + n s
-    // normal at point is:  j (s / eccen) + n (t * eccen)
+    // normal at point is:   j (s / eccen) + n (t * eccen)
     // point on offset-ellipse:  point on ellipse + offrad*normal
     
 	double s;   
@@ -119,10 +123,10 @@ struct EllipsOffsetPos
 		bool D_CheckVal(const EllipseOffset& eoff); 
 	#endif
 
-// doing these by constructors rather than create function presents to problem that 
-// we can't give them distinctive names, so we hope we get to the right one.  
+    // doing these by constructors rather than create function presents to problem that 
+    // we can't give them distinctive names, so we hope we get to the right one.  
 
-	// generating positions at the cardinal points of tangency and so forth.  
+    // generating positions at the cardinal points of tangency and so forth.  
 	void SetPosCardinal(const EllipseOffset& eoff, bool btangnorm, bool bgopos); 
 	
     void SetPosGirth(const EllipseOffset& eoff, 
