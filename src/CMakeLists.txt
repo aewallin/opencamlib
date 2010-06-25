@@ -158,6 +158,7 @@ execute_process(
     OUTPUT_VARIABLE Python_site_packages
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
 
 install(
     TARGETS ocl
