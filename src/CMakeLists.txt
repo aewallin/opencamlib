@@ -165,7 +165,8 @@ install(
 )
 
 install(
-    FILES ../lib/camvtk.py
+    # FILES ../lib/camvtk.py
+    DIRECTORY ../lib/
     DESTINATION ${Python_site_packages}
     # PATTERN .svn EXCLUDE
 )
