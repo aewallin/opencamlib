@@ -314,7 +314,7 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
         //std::cout << "clength=" << getLength() << "\n";
         //std::cout << "zmax=" << f.p1.z+getLength()<< "\n";
         //std::cout << "p.z=" << p.z << "\n";
-        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) {
+        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
             Point pq = p.xyClosestPoint(f.p1, f.p2);
             double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
             if ( q <= radius ) { // p is inside the cutter
@@ -424,7 +424,7 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     normal.z = 0.0;
     normal.xyNormalize();
     
-    CCPoint cc_tmp = ip  ; //FIXME
+    CCPoint cc_tmp = ip  ; //FIXMEFIXME 
     cc_tmp.type = FACET;
     
     // check if cc-point is in the facet of the Triangle
@@ -458,7 +458,7 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
 
 int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
-    
+    //FIXME: nothing here yet
     
     
     return result;
