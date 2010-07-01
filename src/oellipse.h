@@ -24,50 +24,11 @@
 //#include <iostream>
 #include <list>
 #include "point.h"
+#include "epos.h"
 
 namespace ocl
 {
     
-
-class Ellipse;
-///
-/// \brief Epos defines a position in (s,t) coordinates on an ellipse.
-/// 
-/// s^2 + t^2 = 1 should be true at all times.
-class Epos {
-    public:
-        /// create an epos
-        Epos();
-        
-        /// set s=sin and compute t
-        void setS(double sin, bool side);
-        
-        /// set t=tin and compute s
-        void setT(double tin, bool side);
-        
-        /// step along the (s,t)-parameter in the tangent direction 
-        void stepTangent(Ellipse e, double delta);
-        
-        /// s-parameter in [-1, 1]
-        double s;
-        /// t-parameter in [-1, 1]
-        double t;
-        
-        /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, Epos pos);
-        
-        /// set rhs Epos (s,t) values equal to lhs Epos
-        Epos &operator=(const Epos &pos);
-        
-        /// string repr
-        std::string str();
-        
-        /// check that (s,t) is valid
-        bool isValid();
-};
-
-
-
 /// An Ellipse. 
 class Ellipse {
     public:
@@ -76,27 +37,23 @@ class Ellipse {
         /// create an Ellipse with centerpoint center, X-axis a, Y-axis b, and offset distance offset.
         Ellipse(Point& centerin, double a, double b, double offset);
         
-        //std::string str();
+        /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);
         
-        /// return a point on the ellipse
+        /// return a point on the ellipse at given Epos
         Point ePoint(Epos& position);
         
-        /// return a point on the offset-ellipse
+        /// return a point on the offset-ellipse at given Epos
         Point oePoint(Epos& position);
          
-        /// return a normalized normal of the ellipse at Epos
+        /// return a normalized normal vector of the ellipse at the given Epos
         Point normal(Epos& position);
         
-        /// return a normalized tangent to the ellipse at Epos
+        /// return a normalized tangent vector to the ellipse at the given Epos
         Point tangent(Epos& position);
         
         /// offset-ellipse solver
         static int solver(Ellipse& e, Point& p); // why static?
-        
-        
-        
-        
         
         /// error function for the solver
         double error(Epos& position, Point& p);
@@ -113,7 +70,6 @@ class Ellipse {
         double b;
         /// eccentricity = a/b
         double eccen;
-        
         /// offset
         double offset;
         

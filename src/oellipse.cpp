@@ -18,8 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <sstream>
-//#include <stdio.h>
-//#include <sstream>
 #include <cmath>
 #include <string>
 // uncomment to disable assert() calls
@@ -33,97 +31,6 @@
 namespace ocl
 {
 
-// #define DEBUG_SOLVER
-
-
-//********   Epos ********************** */
-Epos::Epos()
-{
-    setT(1, true);
-}
-
-void Epos::setT(double tin, bool side)
-{
-    if (tin > 1.0)
-        tin = 1.0;
-    if (tin < -1.0)
-        tin = -1.0;
-    
-    t = tin;
-    double ssq = 1 - square(t); 
-    if (side == true)
-        s =  1 * sqrt(ssq);
-    else
-        s = -1 * sqrt(ssq);
-    
-    assert( this->isValid() );
-}
-
-bool Epos::isValid()
-{
-    // check that s and t values are OK
-    if ( isZero_tol( square(s) + square(t) - 1.0 ) )
-        return true;
-    else
-        return false;
-}
-
-void Epos::setS(double sin, bool side)
-{   // this is exactly like setT() but with s<->t swapped
-    if (sin > 1.0)
-        sin = 1.0;
-    if (sin < -1.0)
-        sin = -1.0;
-    
-    s = sin;
-    double tsq = 1 - square(s); 
-    if (side == true)
-        t =  1 * sqrt(tsq);
-    else
-        t = -1 * sqrt(tsq);
-    
-    assert( this->isValid() );
-}
-
-void Epos::stepTangent(Ellipse e, double delta)
-{
-    Point tang = e.tangent(*this); // normalized tangent
-    if ( fabs(tang.x) > fabs(tang.y) ) { //  "s-dir step"
-        double news = s + delta*tang.x / e.a;
-        if (t > 0)
-            setS(news,1);
-        else
-            setS(news,0);
-    } else {
-        // t-dir step"
-        double newt = t + delta*tang.y / e.b; 
-        if (s>0)
-            setT( newt,1);
-        else
-            setT( newt,0);
-    }
-    assert( this->isValid() );
-}
-
-Epos& Epos::operator=(const Epos &pos) 
-{
-    s = pos.s;
-    t = pos.t;
-    return *this;
-}
-
-std::string Epos::str()
-{
-        std::ostringstream o;
-        o << "(" << s << ", " << t << ")";
-        return o.str();
-}
-
-std::ostream& operator<<(std::ostream &stream, Epos pos)
-{
-    stream << "("<< pos.s <<" ," << pos.t << ")";
-    return stream;
-}
 
 
 //********   Ellipse ********************** */
@@ -140,10 +47,11 @@ Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin)
 Point Ellipse::ePoint(Epos& pos)
 {
     // (s, t) where:  s^2 + t^2 = 1
-    // point of ellipse is:  center + a s + n t
+    // a and b are the orthogonal axes of the ellipse
+    // point of ellipse is:  center + a s + b t
     // tangent at point is:  -a t + b s
-    // normal at point is:  j (s / eccen) + n (t * eccen)
-    // point on offset-ellipse:  point on ellipse + offrad*norma
+    // normal at point is:    b s + a t 
+    // point on offset-ellipse:  point on ellipse + offset*normal
     Point p = Point(center);
     p.x += a*pos.s;
     p.y += b*pos.t;
@@ -152,12 +60,7 @@ Point Ellipse::ePoint(Epos& pos)
 
 Point Ellipse::oePoint(Epos& pos)
 {
-    /*Point p;
-    p = ePoint(pos);
-    Point n;
-    n = normal(pos);
-    p.x += offset*n.x;
-    p.y += offset*n.y; */
+    // offset-point  = ellipse-point + offset*normal 
     return ePoint(pos) + offset * normal(pos);
 }    
 
@@ -178,6 +81,8 @@ Point Ellipse::tangent(Epos& pos)
 }        
 
 #define OE_ERROR_TOLERANCE 1e-8  /// \todo magic number tolerance
+
+// #define DEBUG_SOLVER
 
 /// find the epos that makes the offset-ellipse point be at p
 int Ellipse::solver(Ellipse& e, Point& p)
@@ -217,11 +122,12 @@ int Ellipse::solver(Ellipse& e, Point& p)
     pos = bestpos; // starting position for solver
     assert( pos.isValid() );
     
-    bool debugNR = false;
-    if (e.eccen > 370000) {
-        std::cout << "solver: high eccen case e.eccen= " << e.eccen << "\n";
-        debugNR = true;
-    }
+    
+    //bool debugNR = false;
+    //if (e.eccen > 370000) {
+    //    std::cout << "solver: high eccen case e.eccen= " << e.eccen << "\n";
+    //    debugNR = true;
+    //}
     
     #ifdef DEBUG_SOLVER
         std::cout << " selected " << pos << " err=" << e.error(pos, p) << "\n";
@@ -252,10 +158,10 @@ int Ellipse::solver(Ellipse& e, Point& p)
         current_error = e.error(pos, p);
         iters=iters+1;
         
-        if (debugNR) {
-            std::cout << iters << ": c_err=" << current_error << " pos=" << pos << " oldpos=" << tmp2 << " ";
-            std::cout << " n_err=" << new_error << " nr_step=" << nr_step << " dt=" << dt << " deriv="<< deriv << "\n";
-        }
+        //if (debugNR) {
+        //    std::cout << iters << ": c_err=" << current_error << " pos=" << pos << " oldpos=" << tmp2 << " ";
+        //    std::cout << " n_err=" << new_error << " nr_step=" << nr_step << " dt=" << dt << " deriv="<< deriv << "\n";
+        //}
         // check endcondition    
         if (fabs(current_error) < OE_ERROR_TOLERANCE)    
             endcondition=true;
@@ -354,15 +260,12 @@ double Ellipse::error(Epos& pos, Point& p)
     return dy;
 }
 
-
 /// Ellipse string output
 std::ostream& operator<<(std::ostream &stream, const Ellipse& e)
 {
   stream << "Ellipse: cen=" << e.center << " a=" << e.a << " b=" << e.b << " ofs=" << e.offset ; 
   return stream;
 }
-
-
 
 } // end namespace
 // end of file oellipse.cpp

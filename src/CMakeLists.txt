@@ -103,6 +103,7 @@ add_library(
     ocl.cpp
     octree.cpp
     oellipse.cpp
+    epos.cpp
     path.cpp
     pathfinish.cpp
     point.cpp
