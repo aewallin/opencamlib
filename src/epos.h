@@ -44,6 +44,9 @@ class Epos {
         /// set t=tin and compute s
         void setT(double tin, bool side);
         
+        /// set (s,t) pair to the position corresponding to diangle
+        void setD();
+        
         /// step along the (s,t)-parameter in the tangent direction 
         void stepTangent(Ellipse e, double delta);
         
@@ -52,16 +55,21 @@ class Epos {
         /// t-parameter in [-1, 1]
         double t;
         
+        /// diamond angle parameter in [0,4] (modulo 4)
+        /// this models an angle [0,2pi] and maps 
+        /// from the angle to an Epos (s,t) pair
+        double diangle;
+        
         /// set rhs Epos (s,t) values equal to lhs Epos
         Epos &operator=(const Epos &pos);
         
         /// string repr
-        std::string str();
+        std::string str() const;
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, Epos pos);
         
         /// return true if (s,t) is valid, i.e. lies on the unit circle
-        bool isValid();
+        bool isValid() const;
 };
     
 }// end namespace

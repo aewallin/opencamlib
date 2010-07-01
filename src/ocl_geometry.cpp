@@ -127,9 +127,11 @@ void export_geometry() {
     bp::class_<Epos>("Epos")
         .def("setS", &Epos::setS)
         .def("setT", &Epos::setT)
+        .def("setD", &Epos::setD)
         .def("stepTangent", &Epos::stepTangent)
         .def_readwrite("s", &Epos::s)
         .def_readwrite("t", &Epos::t)
+        .def_readwrite("d", &Epos::diangle)
         .def("__str__", &Epos::str)
     ;
     bp::class_<Ellipse>("Ellipse")

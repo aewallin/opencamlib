@@ -32,11 +32,51 @@
 namespace ocl
 {
 
-
 //********   Epos ********************** */
 Epos::Epos()
 {
     setT(1, true);
+}
+
+void Epos::setD() {
+    // set (s,t) to angle corresponding to diangle
+    // see: http://www.freesteel.co.uk/wpblog/2009/06/encoding-2d-angles-without-trigonometry/
+    // return P2( (a < 2 ? 1-a : a-3),
+    //           (a < 3 ? ((a > 1) ? 2-a : a) : a-4)
+    
+    double d = diangle;
+    // make d a diangle in [0,4]
+    while ( d > 4.0 )
+        d -= 4.0;
+    while ( d < 0.0)
+        d+=4.0;
+    std::cout << diangle << " mod 4 = " << d << "\n";
+    
+    // now we should be in [0,4]
+    assert( d >= 0.0 );
+    assert( d <= 4.0 );
+    
+    Point p;
+    if ( d < 2.0 ) // we are in the y>0 region
+        p.x = 1-d; // in quadrant1 and quadrant2
+    else
+        p.x = d-3; // in q3 and q4
+        
+    if ( d < 3.0 ) {
+        if ( d > 1.0 ) 
+            p.y = 2-d; // d=[1,3] in q2 and q3
+        else
+            p.y = d;  // d=[0,1] in q1
+    }
+    else {
+        p.y = d - 4; // d=[3,4] in q4
+    }
+    // now we have a vector pointing in the right direction
+    // but it is not normalized
+    p.normalize();
+    s = p.x;
+    t = p.y;
+    assert( this->isValid() );
 }
 
 void Epos::setT(double tin, bool side)
@@ -56,15 +96,6 @@ void Epos::setT(double tin, bool side)
     assert( this->isValid() );
 }
 
-bool Epos::isValid()
-{
-    // check that s and t values are OK
-    if ( isZero_tol( square(s) + square(t) - 1.0 ) )
-        return true;
-    else
-        return false;
-}
-
 void Epos::setS(double sin, bool side)
 {   // this is exactly like setT() but with s<->t swapped
     if (sin > 1.0)
@@ -82,6 +113,16 @@ void Epos::setS(double sin, bool side)
     assert( this->isValid() );
 }
 
+// check that s and t values are OK
+bool Epos::isValid() const {
+    if ( isZero_tol( square(s) + square(t) - 1.0 ) )
+        return true;
+    else
+        return false;
+}
+
+
+// move Epos by taking a step of length delta along the tangent
 void Epos::stepTangent(Ellipse e, double delta)
 {
     Point tang = e.tangent(*this); // normalized tangent
@@ -109,7 +150,7 @@ Epos& Epos::operator=(const Epos &pos)
     return *this;
 }
 
-std::string Epos::str() {
+std::string Epos::str() const {
         std::ostringstream o;
         o << *this;
         return o.str();
