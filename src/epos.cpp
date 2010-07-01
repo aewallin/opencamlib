@@ -1,4 +1,4 @@
-/*  $Id $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -109,15 +109,13 @@ Epos& Epos::operator=(const Epos &pos)
     return *this;
 }
 
-std::string Epos::str()
-{
+std::string Epos::str() {
         std::ostringstream o;
-        o << "(" << s << ", " << t << ")";
+        o << *this;
         return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, Epos pos)
-{
+std::ostream& operator<<(std::ostream &stream, Epos pos) {
     stream << "("<< pos.s <<" ," << pos.t << ")";
     return stream;
 }

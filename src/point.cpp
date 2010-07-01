@@ -17,10 +17,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
+
 #include "point.h"
 #include "triangle.h"
 #include "numeric.h"
