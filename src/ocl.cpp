@@ -50,6 +50,8 @@ BOOST_PYTHON_MODULE(ocl) {
     
     bp::def("__doc__", ocl_docstring);
     
+    bp::def("eps", eps);
+    
     export_geometry(); // see ocl_geometry.cpp
     
     export_cutters(); // see ocl_cutters.cpp

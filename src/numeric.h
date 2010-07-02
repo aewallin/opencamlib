@@ -59,6 +59,18 @@ double determinant( bnu::matrix<double>& m );
 /// helper function for determinant()
 int determinant_sign(const bnu::permutation_matrix<std::size_t>& pm);
 
+/// returns machine-epsilon
+/// eps is such that 1 < 1 + eps
+/// but 1 == 1 + eps/2 
+double eps();
+
+/// Brent's root finding algorithm
+/// find a zero of function f in the interval [a,b]
+double brent_zero( double a, double b, double eps, double tol, 
+  double f(double x));
+  
+
+
 
 } // end namespace
 #endif
