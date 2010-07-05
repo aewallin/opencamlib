@@ -74,6 +74,12 @@ def ccColor(cc):
         col = red
     return col       
 
+def drawCLPointCloud(myscreen, clpts):
+    point_actor=PointCloud(pointlist=clpts) 
+    point_actor.SetPoints()
+    myscreen.addActor(point_actor)
+    
+
 def drawCLPoints(myscreen, clpoints):
     for cl in clpoints:
         myscreen.addActor(Point(center=(cl.x,cl.y,cl.z), color=clColor(cl.cc)) )    
@@ -554,7 +560,7 @@ class STLSurf(CamvtkActor):
         # GetOrigin
 
 class PointCloud(CamvtkActor):
-    def __init__(self, pointlist=[], collist=[]):
+    def __init__(self, pointlist=[]):
         points = vtk.vtkPoints()
         cellArr = vtk.vtkCellArray()
         Colors = vtk.vtkUnsignedCharArray()
@@ -567,10 +573,9 @@ class PointCloud(CamvtkActor):
             points.InsertNextPoint(p.x, p.y, p.z)
             vert.GetPointIds().SetId(0,n)
             cellArr.InsertNextCell( vert )
-            n=n+1
-        for p in collist:
-            col = ccColor(p)
+            col = clColor(p.cc)
             Colors.InsertNextTuple3( float(255)*col[0], float(255)*col[1], float(255)*col[2] )
+            n=n+1
             
         polydata= vtk.vtkPolyData()
         polydata.SetPoints(points)

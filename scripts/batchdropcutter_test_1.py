@@ -1,21 +1,14 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import vtk
-import datetime
+import datetime       
 
 
-def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
-    plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    for y in yvalues:
-        for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
-    return plist
         
-        
-if __name__ == "__main__":  
+if __name__ == "__main__": 
+    print ocl.revision()    
     myscreen = camvtk.VTKScreen()
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
@@ -27,13 +20,11 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read ", s.size(), " triangles"
+    print "STL surface read,", s.size(), "triangles"
     
     cutter = ocl.BallCutter(1.4321)
     #cutter = ocl.CylCutter(1.123)
     #cutter = ocl.BullCutter(1.123, 0.2)
-    
-    print ocl.revision()    
     print cutter
     
     minx=0
@@ -43,7 +34,8 @@ if __name__ == "__main__":
     dy=1
     maxy=10
     z=-17
-    clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    # this generates a list of CL-points in a grid
+    clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print "generated grid with", len(clpoints)," CL-points"
     
     # batchdropcutter    
@@ -61,16 +53,14 @@ if __name__ == "__main__":
     print " done in ", calctime," s"
     
     clpoints = bdc1.getCLPoints()
-    ccpoints = bdc1.getCCPoints()
+
     print len(clpoints), " cl points evaluated"
-    print len(ccpoints), " cc-points"
-    #exit()
     
     print "rendering...",
-    point_actor=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
-    point_actor.SetPoints()
-    myscreen.addActor(point_actor )
     
+    # draw the CL-points
+    camvtk.drawCLPointCloud(myscreen, clpoints)
+        
     print "done"
         
     myscreen.camera.SetPosition(3, 23, 15)

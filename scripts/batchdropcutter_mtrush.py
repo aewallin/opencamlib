@@ -1,28 +1,11 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import vtk
 import datetime
 import math
 
-
-# generate a list of CL-points in a grid
-def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
-    plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    for y in yvalues:
-        for x in xvalues:
-            plist.append( ocl.CLPoint(x,y,z) )
-    return plist
-
-# draw clpoints with colors defined by ccpoints
-def drawPoints(myscreen, clpoints, ccpoints):
-    c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
-    c.SetPoints()
-    myscreen.addActor(c )
-            
-        
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
@@ -55,7 +38,7 @@ if __name__ == "__main__":
     dy=1
     maxy=20
     z=-55
-    clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print "generated grid with", len(clpoints)," CL-points"
     
     # batchdropcutter    
@@ -81,7 +64,7 @@ if __name__ == "__main__":
     
     # draw the results
     print "rendering...",
-    camvtk.drawCLPoints(myscreen, clpts)
+    camvtk.drawCLPointCloud(myscreen, clpts)
     print "done"
     
     myscreen.camera.SetPosition(25, 23, 15)

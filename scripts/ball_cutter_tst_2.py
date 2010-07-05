@@ -1,21 +1,12 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import vtk
 import datetime
 
-
-def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
-    """ generate and return a rectangular grid of points """
-    plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    for y in yvalues:
-        for x in xvalues:
-            plist.append( ocl.CLPoint(x,y,z) )
-    return plist
-
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
     myscreen.setAmbient(20,20,20)
     
@@ -39,7 +30,7 @@ if __name__ == "__main__":
     #cutter = ocl.CylCutter(0.5)
     cutter = ocl.BallCutter(0.5)
     
-    print ocl.revision()
+    
     print cutter
     
     
@@ -52,7 +43,7 @@ if __name__ == "__main__":
     maxy=1.7
     z=-0.5
     # generate list of CL-poins at height z
-    clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
 
     print len(clpoints), "cl-points to evaluate"
 

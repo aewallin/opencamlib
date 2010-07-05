@@ -1,18 +1,11 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import vtk
 import datetime
 import math
 
-def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
-    plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    for y in yvalues:
-        for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
-    return plist
 
 def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
@@ -21,6 +14,7 @@ def drawPoints(myscreen, clpoints, ccpoints):
         
 
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
     
     a=ocl.Point(1,0,0.4)
@@ -51,31 +45,26 @@ if __name__ == "__main__":
     miny=-0.7
     dy=dx
     maxy=1.5
-    z=-1.8
-    clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    z=-0.7
+    clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
 
     print len(clpoints), "cl-points to evaluate"
     n=0
-    ccpoints=[]    
     for cl in clpoints:
-        cc = ocl.CCPoint()
-        cutter.vertexDrop(cl,cc,t)
-        cutter.edgeDrop(cl,cc,t)
-        cutter.facetDrop(cl,cc,t)
-        #cutter.dropCutter(cl,cc,t)
-        ccpoints.append(cc)
+        #cutter.vertexDrop(cl,t)
+        #cutter.edgeDrop(cl,t)
+        #cutter.facetDrop(cl,t)
+        cutter.dropCutter(cl,t) # this calls all three above: vertex,facet,edge
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
               
-            
-            
     print "done."
     
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
-    print " len(ccpoints)=", len(ccpoints)
-    drawPoints(myscreen, clpoints, ccpoints)
+
+    camvtk.drawCLPointCloud(myscreen, clpoints)
     print "done."
     
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
