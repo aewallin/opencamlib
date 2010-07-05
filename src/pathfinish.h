@@ -56,9 +56,9 @@ class PathDropCutterFinish {
         /// the lowest z height, used when no triangles are touched
         double minimumZ;
         /// list of CL-points
-        std::list<Point> clpoints;
+        std::list<CLPoint> clpoints;
         /// list of CC-points
-        std::list<CCPoint> ccpoints;
+        //std::list<CCPoint> ccpoints;
         
         /// run drop-cutter on the whole Path
         void run();
@@ -77,7 +77,7 @@ class PathDropCutterFinish {
         /// return CL-points to Python
         boost::python::list getCLPoints();
         /// return CC-points to Python
-        boost::python::list getCCPoints();
+        //boost::python::list getCCPoints();
 };
 
 } // end namespace

@@ -51,7 +51,7 @@ class BatchDropCutter {
         /// set number of threads to use in OpenMP
         void setThreads(int n);
         /// append to list of CL-points to evaluate
-        void appendPoint(Point& p);
+        void appendPoint(CLPoint& p);
         
         /// unoptimized drop-cutter,  tests against all triangles of surface
         void dropCutter1();
@@ -66,7 +66,7 @@ class BatchDropCutter {
         /// return CL-points to Python
         boost::python::list getCLPoints();
         /// return CC-points to Python
-        boost::python::list getCCPoints();
+        //boost::python::list getCCPoints();
         /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
         boost::python::list getTrianglesUnderCutter(Point &cl, MillingCutter &cutter);
         
@@ -75,11 +75,8 @@ class BatchDropCutter {
         MillingCutter *cutter;
         
         /// the list of CL-points to run drop-cutter on
-        std::vector<Point> *clpoints;
-        
-        /// the cutter-contact points corresponding to the CL-points
-        std::vector<CCPoint> *ccpoints;
-        
+        std::vector<CLPoint> *clpoints;
+                
         /// root of the kd-tree
         KDNode *root;
         

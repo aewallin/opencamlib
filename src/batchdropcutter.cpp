@@ -39,8 +39,8 @@ namespace ocl
 //********   ********************** */
 
 BatchDropCutter::BatchDropCutter() {
-    clpoints = new std::vector<Point>();
-    ccpoints = new std::vector<CCPoint>();
+    clpoints = new std::vector<CLPoint>();
+    //ccpoints = new std::vector<CCPoint>();
     dcCalls = 0;
 #ifndef WIN32
     nthreads = omp_get_num_procs(); // figure out how many cores we have
@@ -67,7 +67,7 @@ void BatchDropCutter::setThreads(int n)
     nthreads = n;
 }
 
-void BatchDropCutter::appendPoint(Point& p)
+void BatchDropCutter::appendPoint(CLPoint& p)
 {
     clpoints->push_back(p);
 }
@@ -80,14 +80,12 @@ void BatchDropCutter::dropCutter1()
               " cl-points and " << surf->tris.size() << " triangles...";
     std::cout.flush();
     dcCalls = 0;
-    BOOST_FOREACH(Point &cl, *clpoints) {
+    BOOST_FOREACH(CLPoint &cl, *clpoints) {
         // test against all triangles in s
-        CCPoint cc;
         BOOST_FOREACH( const Triangle& t, surf->tris) {
-            cutter->dropCutter(cl,cc,t);
+            cutter->dropCutter(cl,t);
             ++dcCalls;
         }
-        ccpoints->push_back(cc);
     }
     std::cout << "done.\n";
     std::cout.flush();
@@ -104,23 +102,23 @@ void BatchDropCutter::dropCutter2()
     std::cout.flush();
     dcCalls = 0;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-    CCPoint* cc;
-    BOOST_FOREACH(Point &cl, *clpoints) { //loop through each CL-point
+    //CCPoint* cc;
+    BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
     
         // find triangles under cutter
         triangles_under_cutter->clear();
         KDNode::search_kdtree( triangles_under_cutter, cl, *cutter, root);
         
-        cc = new CCPoint();
+        //cc = new CCPoint();
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
-            cutter->dropCutter(cl,*cc,t);
+            cutter->dropCutter(cl,t);
             //cutter->vertexDrop(cl,*cc,t);
             //cutter->facetDrop(cl,*cc,t);
             //cutter->edgeDrop(cl,*cc,t);
             ++dcCalls;
         }
         
-        ccpoints->push_back(*cc);
+        //ccpoints->push_back(*cc);
     }
     std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
     std::cout.flush();
@@ -136,21 +134,20 @@ void BatchDropCutter::dropCutter3()
     dcCalls = 0;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     
-    BOOST_FOREACH(Point &cl, *clpoints) { //loop through each CL-point
-    
+    BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         // find triangles under cutter
         triangles_under_cutter->clear();
         KDNode::search_kdtree( triangles_under_cutter, cl, *cutter, root);
         
-        CCPoint cc;
+        //CCPoint cc;
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             if (cutter->overlaps(cl,t)) {
-                cutter->dropCutter(cl,cc,t);
+                cutter->dropCutter(cl,t);
                 ++dcCalls;
             }
         }
         
-        ccpoints->push_back(cc);
+        //ccpoints->push_back(cc);
     }
     std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
     std::cout.flush();
@@ -171,11 +168,11 @@ void BatchDropCutter::dropCutter4()
     unsigned int Nmax = clpoints->size();
     
     Triangle* t;
-    CCPoint cc;
-    std::vector<Point>& clref = *clpoints; 
+    //CCPoint cc;
+    std::vector<CLPoint>& clref = *clpoints; 
     
-    ccpoints->resize( clpoints->size() ); // preallocate room in cc-vector
-    std::vector<CCPoint>& ccref = *ccpoints; 
+    //ccpoints->resize( clpoints->size() ); // preallocate room in cc-vector
+    //std::vector<CCPoint>& ccref = *ccpoints; 
     
     MillingCutter& cutref = *cutter;
 
@@ -183,7 +180,7 @@ void BatchDropCutter::dropCutter4()
     omp_set_num_threads(nthreads);
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( calls, clref, ccref, cutref) private(n,t,tris,it,cc)
+    #pragma omp parallel for shared( calls, clref, cutref) private(n,t,tris,it)
         for (n=0;n< Nmax ;n++) {
 #ifndef WIN32
             if ( n== 0 ) {
@@ -197,22 +194,21 @@ void BatchDropCutter::dropCutter4()
             // reset variables before each run
             t= 0;
             tris=new std::list<Triangle>();
-            cc.type = NONE;
+            // cc.type = NONE;
             
             KDNode::search_kdtree( tris, clref[n], cutref, root);
             
             for( it=tris->begin(); it!=tris->end() ; it++) { // loop over found triangles  
-                if ( cutref.overlaps(clref[n],*it) ) {
-                    cutref.dropCutter( clref[n],cc,*it);
+                if ( cutref.overlaps(clref[n],*it) ) { //overlap check
+                    cutref.dropCutter( clref[n],*it);
                     ++calls;
                 }
-                
             }
             delete( tris );
             
-            ccref[n]=cc;
+            //ccref[n]=cc;
         }
-    // end PARALLEL for
+    // end OpenMP PARALLEL for
         
     dcCalls = calls;
         
@@ -240,13 +236,14 @@ boost::python::list BatchDropCutter::getTrianglesUnderCutter(Point &cl, MillingC
 boost::python::list BatchDropCutter::getCLPoints()
 {
     boost::python::list plist;
-    BOOST_FOREACH(Point p, *clpoints) {
+    BOOST_FOREACH(CLPoint p, *clpoints) {
         plist.append(p);
     }
     return plist;
 }
 
 // return CC points to python
+/*
 boost::python::list BatchDropCutter::getCCPoints()
 {
     boost::python::list plist;
@@ -254,7 +251,7 @@ boost::python::list BatchDropCutter::getCCPoints()
         plist.append(p);
     }
     return plist;
-}
+}*/
 
 
 }// end namespace

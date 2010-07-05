@@ -38,6 +38,9 @@ def clColor(cc):
         col = (1,1,1)  
     elif cc.type == ocl.CCType.ERROR:
         col = (0,1,1)
+    else:
+        print "err. CCType unknown, no color"
+        col = red
     return col
 
 def ccColor(cc):

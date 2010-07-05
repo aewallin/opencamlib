@@ -78,37 +78,39 @@ void PathDropCutterFinish::run() {
 
 void PathDropCutterFinish::run(const Span* span)
 {
-    std::list<Point> point_list;
-    std::list<CCPoint> cc_point_list;
+    std::list<CLPoint> point_list;
+    //std::list<CCPoint> cc_point_list;
     
     unsigned int num_steps = (unsigned int)(span->length2d() / SPLIT_STEP + 1);
     for(unsigned int i = 0; i<=num_steps; i++)
     {
         double fraction = (double)i / num_steps;
-        Point p = span->getPoint(fraction);
+        
+        Point ptmp = span->getPoint(fraction);
+        CLPoint p = CLPoint(ptmp.x, ptmp.y, ptmp.z);
 
         // find triangles under cutter
         std::list<Triangle> triangles_under_cutter;
         KDNode::search_kdtree( &triangles_under_cutter, p, *cutter, root);
     
-        CCPoint cc;
+        //CCPoint cc;
         p.z = minimumZ;
         // this should be implemented using the lower-level OpenMP-enabled batchdropcutter
         BOOST_FOREACH( const Triangle& t, triangles_under_cutter) {
-            cutter->dropCutter(p,cc,t);
+            cutter->dropCutter(p,t);
         }
         point_list.push_back(p);
-        cc_point_list.push_back(cc);
+        //cc_point_list.push_back(cc);
     }
 
     // this requires a better implementation which keeps the cc-points intact also
     // refinePointList(point_list);
 
-    for(std::list<Point>::iterator It = point_list.begin(); It != point_list.end(); It++)
+    for(std::list<CLPoint>::iterator It = point_list.begin(); It != point_list.end(); It++)
         clpoints.push_back(*It);
     
-    for(std::list<CCPoint>::iterator It = cc_point_list.begin(); It != cc_point_list.end(); It++)
-        ccpoints.push_back(*It);    
+    //for(std::list<CCPoint>::iterator It = cc_point_list.begin(); It != cc_point_list.end(); It++)
+    //    ccpoints.push_back(*It);    
     
 }
 
@@ -161,15 +163,16 @@ void PathDropCutterFinish::refinePointList(std::list<Point> &point_list)
     point_list = new_points;
 }
 
-boost::python::list PathDropCutterFinish::getCLPoints()
-{
+/// return a python list of CLPoints
+boost::python::list PathDropCutterFinish::getCLPoints() {
     boost::python::list plist;
-    BOOST_FOREACH(Point p, clpoints) {
+    BOOST_FOREACH(CLPoint p, clpoints) {
         plist.append(p);
     }
     return plist;
 }
 
+/*
 boost::python::list PathDropCutterFinish::getCCPoints()
 {
     boost::python::list plist;
@@ -177,7 +180,7 @@ boost::python::list PathDropCutterFinish::getCCPoints()
         plist.append(p);
     }
     return plist;
-}
+}*/
 
 
 

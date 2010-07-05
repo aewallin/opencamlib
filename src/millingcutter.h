@@ -75,20 +75,20 @@ class MillingCutter {
         
         /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
         /// needs to be defined by a subclass
-        virtual int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const {return -1;};
+        virtual int edgeDrop(CLPoint &cl, const Triangle &t) const {return -1;};
         
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
         /// Follows the template-method, or "self-delegation" design pattern.
-        int dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int dropCutter(CLPoint &cl, const Triangle &t) const;
         
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
         // should not really be used for real work, demo/debug only
-        int dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const;
+        int dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
@@ -140,14 +140,14 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
         
         
         // edge
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+        int edgeDrop(CLPoint &cl, const Triangle &t) const
         {   
             if ( boost::python::override ovr_edgeDrop = this->get_override("edgeDrop"))
-                return ovr_edgeDrop(cl, cc, t);
-            return MillingCutter::edgeDrop(cl, cc, t);
+                return ovr_edgeDrop(cl, t);
+            return MillingCutter::edgeDrop(cl, t);
         };    
-        int default_edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const{
-            return this->MillingCutter::edgeDrop(cl,cc,t);
+        int default_edgeDrop(CLPoint &cl, const Triangle &t) const{
+            return this->MillingCutter::edgeDrop(cl,t);
         };
         
         // offset cutter
@@ -198,7 +198,7 @@ class CompoundCutter : public MillingCutter {
         // dropCutter methods
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // string output
         std::string str() const;
@@ -268,7 +268,7 @@ class CylCutter : public MillingCutter {
         // dropCutter methods
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods
         int vertexPush(Fiber& f, Interval& i, const Triangle& t) const;
@@ -297,7 +297,7 @@ class BallCutter : public MillingCutter {
         
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
@@ -323,7 +323,7 @@ class BullCutter : public MillingCutter {
         /// drop cutter
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
@@ -357,7 +357,7 @@ class ConeCutter : public MillingCutter {
                 
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);

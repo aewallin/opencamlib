@@ -150,7 +150,7 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 
 
 //********   edge **************************************************** */
-int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
@@ -206,7 +206,7 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 } 
 
                 double cl_z;
-                Point cc_tmp;
+                CCPoint cc_tmp;
                 
                 if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
                     cc_tmp = sc;
@@ -254,9 +254,8 @@ int BallCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
-                    if (cl.liftZ(cl_z)) {
-                        cc = cc_tmp;
-                        cc.type = EDGE;
+                    cc_tmp.type = EDGE;
+                    if (cl.liftZ(cl_z, cc_tmp)) {
                         result = 1;
                     }
                 }

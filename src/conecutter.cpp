@@ -152,7 +152,7 @@ int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
 // find point where hyperbola and line slopes match? (or use radius-vector approach as in ball cutter?) 
-int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
 {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
@@ -232,12 +232,12 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                 }
                 
                 // now the cc-point can be found:
-                Point cc_tmp = sc + ccu*v; // in the XY plane
+                CCPoint cc_tmp = sc + ccu*v; // in the XY plane
                 // locate cc_tmp on the line (find the z-coord)
                 // cc_tmp = p1 + t*(p2-p1)
                 // t = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1)
                 double t;
-                if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
+                if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) { // locate along coordinate with the bigger "spread"
                     t = (cc_tmp.x - p1.x) / (p2.x-p1.x);
                 } else {
                     t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
@@ -256,20 +256,16 @@ int ConeCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     assert(0);
                 }
                 
+                cc_tmp.type = EDGE;
                 // test if cc-point is in edge
                 if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
-                    if (cl.liftZ(cl_z)) {
-                        cc = cc_tmp;
-                        cc.type = EDGE;
+                    if (cl.liftZ(cl_z, cc_tmp)) {
                         result = 1;
                     }
                 
                 }
                 
             }// end if(potential hit)
-            else {
-                // edge is too far away from cutter. nothing to do.
-            }
         }// end if(vertical edge)
         
     } // end loop through all edges

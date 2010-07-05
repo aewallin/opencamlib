@@ -107,18 +107,17 @@ int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 
 
 //********   edge **************************************************** */
-int CompoundCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
 {
     int result = 0;
     
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
-        Point cl_tmp = cl + Point(0,0,zoffset[n]);
-        CCPoint* cc_tmp = new CCPoint();
-        if ( cutter[n]->edgeDrop(cl_tmp,*cc_tmp,t) ) { 
-            if ( ccValid(n,cl,*cc_tmp) ) { // cc-point is valid
-                if (cl.liftZ( cl_tmp.z - zoffset[n] )) { // we need to lift the cutter
-                    cc = *cc_tmp;
-                    //cc.type = EDGE;
+        CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
+        //CCPoint* cc_tmp = new CCPoint();
+        if ( cutter[n]->edgeDrop(cl_tmp,t) ) { 
+            if ( ccValid(n,cl,cl_tmp.cc) ) { // cc-point is valid
+                cl_tmp.cc.type = EDGE;
+                if (cl.liftZ( cl_tmp.z - zoffset[n], cl_tmp.cc)) { // we need to lift the cutter
                     result = 1;
                 }
             }

@@ -40,12 +40,14 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = ocl.Triangle(a,b,c)
     
-    radius1=1
-    
-    cutter = ocl.CylCutter(0.5234)
-    
+    diameter = 0.5234
+    corneradius = 0.1
     angle = math.pi/4
-    #cutter = ocl.ConeCutter(1, angle)
+
+    #cutter = ocl.CylCutter(diameter)
+    #cutter = ocl.BallCutter(diameter)
+    #cutter = ocl.BullCutter(diameter,corneradius)
+    cutter = ocl.ConeCutter(diameter, angle)
     
     print cutter
     
@@ -61,9 +63,10 @@ if __name__ == "__main__":
     n=0
     clp=[]
     for cl in clpoints:
-        #cutter.edgeDrop(cl,cc,t)
+        #
         cutter.vertexDrop(cl,t)
         cutter.facetDrop(cl,t)
+        cutter.edgeDrop(cl,t)
         #cutter.dropCutter(cl,cc,t)
         #ccpoints.append(cc)  
         #clp.append(cl)      

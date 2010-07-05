@@ -159,7 +159,7 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 
 
 /// Toroidal cutter edge-test
-int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against the three edges of Triangle t
     int result = 0;    
@@ -179,12 +179,11 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             if (d<=diameter/2) { // potential hit
                 if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
                     if ( d<= radius1) {             // horizontal edge, contact with cylindrical part of cutter
-                        Point cc_tmp = cl.xyClosestPoint(p1,p2);
-                        cc_tmp.z = p1.z;                
+                        CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
+                        cc_tmp.z = p1.z;   
+                        cc_tmp.type = EDGE_HORIZ_CYL;           
                         if ( cc_tmp.isInsidePoints( p1, p2 ) ) { // test if cc-point is in edge
-                            if (cl.liftZ(p1.z)) {
-                                cc = cc_tmp;
-                                cc.type = EDGE_HORIZ_CYL;
+                            if (cl.liftZ(p1.z, cc_tmp)) {
                                 result = 1;
                             }
                         }                        
@@ -195,13 +194,12 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         // h2 = sqrt( r2^2 - (q-r1)^2 )
                         // h1 = r2 - h2
                         // cutter_tip = p.z - h1
-                        Point cc_tmp = cl.xyClosestPoint(p1,p2);
-                        cc_tmp.z = p1.z;        
+                        CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
+                        cc_tmp.z = p1.z;   
+                        cc_tmp.type = EDGE_HORIZ_TOR;     
                         if ( cc_tmp.isInsidePoints( p1, p2 ) ) { 
                             double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
-                            if ( cl.liftZ(p1.z - h1) ) { 
-                                cc = cc_tmp;
-                                cc.type = EDGE_HORIZ_TOR;
+                            if ( cl.liftZ(p1.z - h1, cc_tmp) ) {                                 
                                 result = 1;
                             }
                         }
@@ -306,7 +304,7 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                     
                     Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
                                         
-                    Point cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
+                    CCPoint cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
                     // now find the z-coord of cc_tmp
                     double t;
                     if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
@@ -315,19 +313,16 @@ int BullCutter::edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const
                         t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
                     }
                     cc_tmp.z = p1.z + t*(p2.z-p1.z);
-                    
+                    if (ep_sign > 0)
+                        cc_tmp.type = EDGE_POS;
+                    else
+                        cc_tmp.type = EDGE_NEG;
+                        
                     if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
-                        if ( cl.liftZ(ecen.z-radius2) ) {
-                            cc = cc_tmp;
-                            if (ep_sign > 0)
-                                cc.type = EDGE_POS;
-                            else
-                                cc.type = EDGE_NEG;
+                        if ( cl.liftZ(ecen.z-radius2, cc_tmp) ) {
                             result = 1;
                         }
                     }
-
-                    
                 } // end general case
                 
             }// end if(potential hit)

@@ -92,27 +92,26 @@ MillingCutter* MillingCutter::offsetCutter(double d) const
 }
 
 /// call vertex, facet, and edge drop methods
-int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
+int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const
 {
     /* template-method, or "self-delegation", pattern */
-    CLPoint cl2 = CLPoint(cl.x,cl.y,cl.z); //FIXME FIXME FIXME
-    vertexDrop(cl2,t);
+    //CLPoint cl2 = CLPoint(cl.x,cl.y,cl.z); //FIXME FIXME FIXME
+    vertexDrop(cl,t);
     /// \todo optimisation: if we are already above the triangle we don't need facet and edge
-    facetDrop(cl2,t); 
-    edgeDrop(cl,cc,t);
+    facetDrop(cl,t); 
+    edgeDrop(cl,t);
 
     return 0; // void would be better, return value not used for anything
 }
 
 // TESTING ONLY, don't use for real
-int MillingCutter::dropCutterSTL(Point &cl, CCPoint &cc, const STLSurf &s) const
+int MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const
 {
     /* template-method, or "self-delegation", pattern */
     //boost::progress_display show_progress( s.tris.size() );
 
     BOOST_FOREACH( const Triangle& t, s.tris) {
-        dropCutter(cl,cc,t);
-        //++show_progress;
+        dropCutter(cl,t);
     }
 
     return 0; // void
