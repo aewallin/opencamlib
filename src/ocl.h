@@ -52,11 +52,8 @@
 #include "volume.h"
 #include "batchdropcutter.h"
 #include "fiber.h"
-<<<<<<< .mine
 #include "clfilter.h"
-=======
 #include "stlreader.h"
->>>>>>> .r275
 
 #endif
 

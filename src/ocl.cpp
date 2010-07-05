@@ -62,7 +62,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def(bp::init<const std::wstring&, STLSurf&>())
     ;
 
-	bp::class_<BatchDropCutter>("BatchDropCutter")
+    bp::class_<BatchDropCutter>("BatchDropCutter")
         .def("dropCutter1", &BatchDropCutter::dropCutter1)
         .def("dropCutter2", &BatchDropCutter::dropCutter2)
         .def("dropCutter3", &BatchDropCutter::dropCutter3)
