@@ -13,7 +13,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
+            plist.append( ocl.CLPoint(x,y,z) )
     return plist
 
 # draw clpoints with colors defined by ccpoints
@@ -24,10 +24,11 @@ def drawPoints(myscreen, clpoints, ccpoints):
             
         
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/mount_rush.stl")
+    stl = camvtk.STLSurf("../stl/mount_rush.stl") 
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -35,22 +36,20 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read ", s.size(), " triangles"
+    print "STL surface with", s.size(), "triangles read"
     
-    cutter = ocl.BallCutter(5.4321)
-    
+    # define a cutter
+    cutter = ocl.BallCutter(15.4321)
     #cutter = ocl.CylCutter(1.123)
-    
     #cutter = ocl.BullCutter(1.123, 0.2)
-    
     #cutter = ocl.ConeCutter(0.43, math.pi/7)
     
-    print ocl.revision()
+    
     print cutter
     
     #define grid of CL-points
     minx=-42
-    dx=0.2
+    dx=2
     maxx=47
     miny=-27
     dy=1
@@ -77,19 +76,16 @@ if __name__ == "__main__":
 
     
     # get back results from ocl
-    cl1 = bdc1.getCLPoints()
-    cc1 = bdc1.getCCPoints()
+    clpts = bdc1.getCLPoints()
+
     
     # draw the results
     print "rendering...",
-    #drawPoints(myscreen, cc1, cc1)
-    drawPoints(myscreen, cl1, cc1)
+    camvtk.drawCLPoints(myscreen, clpts)
     print "done"
     
-    
-    myscreen.camera.SetPosition(3, 23, 15)
+    myscreen.camera.SetPosition(25, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
-    
     
     # ocl text
     t = camvtk.Text()
@@ -99,7 +95,7 @@ if __name__ == "__main__":
     
     # other text
     t2 = camvtk.Text()
-    stltext = "%i triangles\n%i CL-points\n%0.1f seconds" % (s.size(), len(cl1), calctime)
+    stltext = "%i triangles\n%i CL-points\n%0.1f seconds" % (s.size(), len(clpts), calctime)
     t2.SetText(stltext)
     t2.SetPos( (50, myscreen.height-100) )
     myscreen.addActor( t2)
