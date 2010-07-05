@@ -46,13 +46,17 @@
 #include "line.h"
 #include "arc.h"
 #include "path.h"
-#include "pathfinish.h"
+#include "pathdropcutter.h"
 #include "oellipse.h"
 #include "octree.h"
 #include "volume.h"
 #include "batchdropcutter.h"
 #include "fiber.h"
+<<<<<<< .mine
+#include "clfilter.h"
+=======
 #include "stlreader.h"
+>>>>>>> .r275
 
 #endif
 
