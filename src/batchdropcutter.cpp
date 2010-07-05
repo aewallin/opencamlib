@@ -242,16 +242,7 @@ boost::python::list BatchDropCutter::getCLPoints()
     return plist;
 }
 
-// return CC points to python
-/*
-boost::python::list BatchDropCutter::getCCPoints()
-{
-    boost::python::list plist;
-    BOOST_FOREACH(CCPoint p, *ccpoints) {
-        plist.append(p);
-    }
-    return plist;
-}*/
+
 
 
 }// end namespace
