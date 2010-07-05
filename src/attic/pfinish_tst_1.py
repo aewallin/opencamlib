@@ -20,7 +20,7 @@ if __name__ == "__main__":
     
     cutter = ocl.CylCutter(0.6)
     #print cutter.str()
-    #print cc.type
+
     minx=-1
     dx=0.1
     maxx=11
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     maxy=11
     z=-0.2
     
-    pdf = ocl.PathDropCutterFinish(s)
+    pdf = ocl.PathDropCutter(s)
     pdf.SetCutter(cutter)
     
     path = ocl.Path()

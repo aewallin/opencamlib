@@ -15,7 +15,7 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter(3)
     #cutter = ocl.BullCutter(3,0.5)
 
-    pdf = ocl.PathDropCutterFinish(s)   # create a pdf-object for the surface s
+    pdf = ocl.PathDropCutter(s)   # create a pdf-object for the surface s
     pdf.setCutter(cutter)               # set the cutter
     pdf.minimumZ = -1                   # set the minimum Z-coordinate, or
                                         # "floor" for drop-cutter
@@ -30,13 +30,13 @@ if __name__ == "__main__":
     pdf.run()                   # run drop-cutter on the path
     
     clp = pdf.getCLPoints()     # get the cl-points from pdf
-    ccp = pdf.getCCPoints()     # get the cc-points from pdf
+
 
     print 'first point ', clp[0], '   ( z should be at z5 )'
     
     # visualize things with VTK
     myscreen = camvtk.VTKScreen()
-    myscreen.addActor( camvtk.PointCloud( pointlist=clp, collist=ccp ) )
+    myscreen.addActor( camvtk.PointCloud( pointlist=clp ) )
     #myscreen.addActor( camvtk.PointCloud( pointlist=ccp, collist=ccp ) )
     su = camvtk.STLSurf(filename=None, triangleList=triangles )
     su.SetWireframe()
