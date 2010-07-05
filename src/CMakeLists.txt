@@ -107,6 +107,8 @@ add_library(
     path.cpp
     pathfinish.cpp
     point.cpp
+    ccpoint.cpp
+    clpoint.cpp
     stlsurf.cpp
     triangle.cpp
     volume.cpp

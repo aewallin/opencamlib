@@ -21,6 +21,8 @@
 #include <boost/python.hpp>
 
 #include "point.h"
+#include "ccpoint.h"
+#include "clpoint.h"
 #include "triangle.h"
 #include "stlsurf.h"
 #include "oellipse.h"
@@ -60,9 +62,21 @@ void export_geometry() {
         .def_readwrite("y", &Point::y)
         .def_readwrite("z", &Point::z)
         .def_readonly("id", &Point::id)
+    ;
+    
+    bp::class_<CLPoint>("CLPoint")  // FIXME: should inherit from Point
+        .def(bp::init<CLPoint>())
+        .def(bp::init<double, double, double>())
+        .def(bp::init<double, double, double, CCPoint&>())
+        .def("__str__", &CLPoint::str)
+        .def_readwrite("x", &CLPoint::x)
+        .def_readwrite("y", &CLPoint::y)
+        .def_readwrite("z", &CLPoint::z)
+        //.def_readwrite("cc", &CLPoint::cc)
     ;   
     bp::class_<CCPoint>("CCPoint")  // FIXME: CCPoint should inherit from Point
         .def(bp::init<CCPoint>())
+        .def(bp::init<double, double, double>())
         .def("__str__", &CCPoint::str)
         .def_readwrite("type", &CCPoint::type)
         .def_readwrite("x", &CCPoint::x)

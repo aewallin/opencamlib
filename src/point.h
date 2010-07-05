@@ -26,8 +26,10 @@
 namespace ocl
 {
 
-// forward declaration
-class Triangle;
+
+class Triangle; // fwd declaration
+
+
 ///
 /// \brief a point or vector in 3D space specified by its coordinates (x, y, z)
 ///
@@ -47,8 +49,8 @@ class Point {
         /// cross product
         Point cross(const Point &p) const;
         
-        /// distance to point from (0,0,0)
-        double norm() const; // norm of vector, or distance to (0,0,0) for a point
+        /// norm of vector, or distance from (0,0,0) to point
+        double norm() const; //  or distance to (0,0,0) for a point
         
         /// scales vector so that norm()==1.0
         void normalize();
@@ -144,24 +146,32 @@ class Point {
 /// scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
 
+/*
 /// type of cc-point
 enum CCType {NONE, VERTEX, 
              EDGE, EDGE_HORIZ_CYL, EDGE_HORIZ_TOR, 
              EDGE_POS, EDGE_NEG,  
              FACET, FACET_TIP, FACET_CYL, 
              ERROR};
+             * */
 
 ///
 /// \brief Cutter-Contact (CC) point. A Point wiht a CCType.
 ///
 /// Cutter-Contact (CC) Point.
 /// A Point which also contains the type of cutter-contact.
+/*
 class CCPoint : public Point {
     public:
         /// create a CCPoint at (0,0,0)
         CCPoint();
+        /// create CCPoint at (x,y,z)
+        CCPoint(double x,double y,double z);
+        
         /// create a CCPoint at Point p
         CCPoint(const Point& p); 
+        virtual ~CCPoint(){};
+        
         /// specifies the type of the Cutter Contact point. 
         CCType type;
         /// assign coordinates of Point to this CCPoint. sets type=NONE
@@ -171,6 +181,8 @@ class CCPoint : public Point {
         
     private:        
 };
+*/
+
 
 } // end namespace
 #endif

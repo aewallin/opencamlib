@@ -225,7 +225,8 @@ bool Point::isInside(const Triangle &t) const
     return (u > 0.0) && (v > 0.0) && (u + v < 1.0);
 }
 
-#define TOLERANCE 0.000001
+
+#define TOLERANCE 0.000001 // FIXME: magic number constant...
 
 bool Point::isInsidePoints(const Point &p1, const Point &p2) const
 {
@@ -347,19 +348,21 @@ std::ostream& operator<<(std::ostream &stream, const Point& p)
   return stream;
 }
 
-/* CCPoint */
+/* ********************************************** CCPoint *************/
 
-CCPoint::CCPoint() {
-    x = 0.0;
-    y = 0.0;
-    z = 0.0;
+/*
+CCPoint::CCPoint() 
+    : Point() { // base-class constructor
     type = NONE;
 }
 
-CCPoint::CCPoint(const Point& p) {
-    x = p.x;
-    y = p.y;
-    z = p.z;
+CCPoint::CCPoint(const Point& p) 
+    : Point( p ) { //call base-class constructor
+    type = NONE;
+}
+
+CCPoint::CCPoint(double x, double y, double z) 
+    : Point( x,y,z ) { //call base-class constructor
     type = NONE;
 }
 
@@ -375,9 +378,41 @@ CCPoint& CCPoint::operator=(const Point &p) {
 std::string CCPoint::str() const
 {
     std::ostringstream o;
-    o << "CCP"<< id <<"(" << x << ", " << y << ", " << z << ", type=" << type <<")";
+    o << "CC"<< id <<"(" << x << ", " << y << ", " << z << ", " << type <<")";
     return o.str();
-}
+} */
+
+
+/* ********************************************** CLPoint *************/
+
+/*
+CLPoint::CLPoint() 
+    : Point() {
+    cc = CCPoint();
+}*/
+
+
+/*
+int CLPoint::liftZ(double zin, CCPoint& ccp)
+{
+    if (zin>z) {
+        z=zin;
+        cc=ccp;
+        return 1;
+    } else {
+        return 0;
+    }
+}*/
+
+/*
+std::string CLPoint::str() const
+{
+    std::ostringstream o;
+    o << "CL"<< id <<"(" << x << ", " << y << ", " << z << ") " << cc ;
+    return o.str();
+}*/
+
+
 
 } // end namespace
 // end file point.cpp

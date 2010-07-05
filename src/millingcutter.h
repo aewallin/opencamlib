@@ -29,12 +29,15 @@
 
 #include "stlsurf.h"
 #include "fiber.h"
-
+#include "point.h"
+#include "clpoint.h"
+#include "ccpoint.h"
 namespace ocl
 {
 
 class Triangle;
-class Point;
+//class Point;
+//class CCPoint;
 class STLSurf;
 
 ///

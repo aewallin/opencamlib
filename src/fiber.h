@@ -26,6 +26,7 @@
 
 
 #include "point.h"
+#include "ccpoint.h"
 #include "numeric.h"
 
 namespace ocl
