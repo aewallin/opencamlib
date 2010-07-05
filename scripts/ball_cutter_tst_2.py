@@ -12,7 +12,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
+            plist.append( ocl.CLPoint(x,y,z) )
     return plist
 
 if __name__ == "__main__":  
@@ -55,8 +55,7 @@ if __name__ == "__main__":
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
 
     print len(clpoints), "cl-points to evaluate"
-    n=0
-    ccpoints=[]
+
     
     tx = camvtk.Text()
     tx.SetPos( (myscreen.width-200, myscreen.height-30) )
@@ -69,12 +68,13 @@ if __name__ == "__main__":
     w2if.Modified()
     
     # loop through the cl-points
+    n=0
     for cl in clpoints:
-        cc = ocl.CCPoint()
-        cutter.vertexDrop(cl,cc,t)
-        cutter.edgeDrop(cl,cc,t)
-        cutter.facetDrop(cl,cc,t)
-        ccpoints.append(cc)
+
+        cutter.vertexDrop(cl,t)
+        cutter.edgeDrop(cl,t)
+        cutter.facetDrop(cl,t)
+
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
@@ -82,9 +82,8 @@ if __name__ == "__main__":
     print "done."
     print "rendering...",
     # render all the points
-    for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.ccColor(cc) ) )
-        
+    camvtk.drawCLPoints(myscreen, clpoints)
+    camvtk.drawCCPoints(myscreen, clpoints)
     print "done."   
     
     # animate by rotating the camera

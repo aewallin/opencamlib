@@ -73,7 +73,17 @@ def ccColor(cc):
         print "err. CCType unknown, no color"
         col = red
     return col       
-    
+
+def drawCLPoints(myscreen, clpoints):
+    for cl in clpoints:
+        myscreen.addActor(Point(center=(cl.x,cl.y,cl.z), color=clColor(cl.cc)) )    
+
+def drawCCPoints(myscreen, clpoints):
+    for cl in clpoints:
+        cc = cl.cc
+        if cc.type is not ocl.CCType.NONE:
+            myscreen.addActor(Point(center=(cc.x,cc.y,cc.z), color=ccColor(cc)) )
+            
 
 class VTKScreen():
     """

@@ -31,10 +31,10 @@ class STLSurf;
 
 class STLReader {
     public:
-		STLReader(){}
-		/// construct with file name and surface to fill
-		STLReader(const std::wstring &filepath, STLSurf& surface);
-		/// destructor
+        STLReader(){};
+        /// construct with file name and surface to fill
+        STLReader(const std::wstring &filepath, STLSurf& surface);
+        /// destructor
         virtual ~STLReader();
 
     private:
