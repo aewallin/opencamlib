@@ -226,6 +226,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\clfilter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\clpoint.cpp"
 				>
 			</File>
@@ -376,16 +380,8 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\pathfinish.cpp"
+				RelativePath="..\src\pathdropcutter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\src\point.cpp"
@@ -474,6 +470,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\clfilter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\clpoint.h"
 				>
 			</File>
@@ -518,7 +518,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\pathfinish.h"
+				RelativePath="..\src\pathdropcutter.h"
 				>
 			</File>
 			<File
