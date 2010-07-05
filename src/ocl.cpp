@@ -105,15 +105,20 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
         .def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
     ;
-    bp::class_<PathDropCutterFinish>("PathDropCutterFinish")
+    bp::class_<PathDropCutter>("PathDropCutter")
         .def(bp::init<STLSurf*>())
-        .def(bp::init<PathDropCutterFinish>())
-        .def("getCLPoints", &PathDropCutterFinish::getCLPoints)
-        //.def("getCCPoints", &PathDropCutterFinish::getCCPoints)
-        .def("run",static_cast< void (PathDropCutterFinish::*)(void)>(&PathDropCutterFinish::run))
-        .def("setCutter", &PathDropCutterFinish::setCutter)
-        .def("setPath", &PathDropCutterFinish::setPath)
-        .def_readwrite("minimumZ", &PathDropCutterFinish::minimumZ)
+        .def(bp::init<PathDropCutter>())
+        .def("getCLPoints", &PathDropCutter::getCLPoints)
+        .def("run",static_cast< void (PathDropCutter::*)(void)>(&PathDropCutter::run))
+        .def("setCutter", &PathDropCutter::setCutter)
+        .def("setPath", &PathDropCutter::setPath)
+        .def_readwrite("minimumZ", &PathDropCutter::minimumZ)
+    ;
+    bp::class_<LineCLFilter>("LineCLFilter")
+        .def("addCLPoint",  &LineCLFilter::addCLPoint)
+        .def("setTolerance",&LineCLFilter::setTolerance)
+        .def("run",         &LineCLFilter::run)
+        .def("getCLPoints", &LineCLFilter::getCLPoints)
     ;
 }
 
