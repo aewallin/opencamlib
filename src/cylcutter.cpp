@@ -48,7 +48,7 @@ CylCutter::CylCutter(const double d)
 }
 
 //********   drop-cutter methods ********************** */
-int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int CylCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
     /// loop through each vertex p of Triangle t
     /// drop down cutter at (cl.x, cl.y) against Point p
@@ -58,14 +58,12 @@ int CylCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if (q<= radius) { // p is inside the cutter
-            if (cl.liftZ(p.z)) { // we need to lift the cutter
-                cc = p;
-                cc.type = VERTEX;
+            CCPoint cc_tmp = p;
+            cc_tmp.type = VERTEX;
+            if (cl.liftZ(p.z, cc_tmp)) { // we need to lift the cutter
                 result = 1;
             }
-        } else {
-            // point outside cutter, nothing to do.
-        }
+        } 
     }
     return result;
 }

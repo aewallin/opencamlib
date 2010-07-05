@@ -10,7 +10,7 @@ if __name__ == "__main__":
     c=ocl.Point(0,0,1)
     t = ocl.Triangle(a,b,c)
     print "triangle created  t=", t
-    cl = ocl.Point(0.2,0.2,0)
+    cl = ocl.CLPoint(0.2,0.2,0)
     cc = ocl.CCPoint()
     cutter.dropCutter(cl,cc,t)
     print "CL= ", cl

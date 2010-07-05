@@ -36,8 +36,6 @@ namespace ocl
 {
 
 class Triangle;
-//class Point;
-//class CCPoint;
 class STLSurf;
 
 ///
@@ -68,8 +66,8 @@ class MillingCutter {
         bool overlaps(Point &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
-        /// needs to be defined by a subclass
-        virtual int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const {return -1;};
+        /// needs to be redefined by a subclass
+        virtual int vertexDrop(CLPoint &cl, const Triangle &t) const {return -1;};
         
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         /// needs to be defined by a subclass
@@ -119,14 +117,14 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
 {
     public:
         // vertex
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+        int vertexDrop(CLPoint &cl, const Triangle &t) const
         {
             if ( boost::python::override ovr_vertexDrop = this->get_override("vertexDrop"))
-                return ovr_vertexDrop(cl, cc, t);
-            return MillingCutter::vertexDrop(cl, cc, t);
+                return ovr_vertexDrop(cl, t);
+            return MillingCutter::vertexDrop(cl, t);
         };
-        int default_vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const{
-            return this->MillingCutter::vertexDrop(cl,cc,t);
+        int default_vertexDrop(CLPoint &cl, const Triangle &t) const{
+            return this->MillingCutter::vertexDrop(cl,t);
         };
         
         // facet
@@ -198,7 +196,7 @@ class CompoundCutter : public MillingCutter {
         MillingCutter* offsetCutter(double d) const;
         
         // dropCutter methods
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
@@ -213,7 +211,6 @@ class CompoundCutter : public MillingCutter {
         /// vector of cutters in this CompoundCutter
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
 };
-
 
 /// \brief a MillingCutter::CompoundCutter with a cylindrical/flat central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
@@ -231,7 +228,6 @@ class BallConeCutter : public CompoundCutter {
         BallConeCutter() {}; // dummy, required(?) by python wrapper
         BallConeCutter(double diam1, double diam2, double angle);
 };
-
 
 /// \brief a MillingCutter::CompoundCutter with a toroidal central part of diameter diam1 
 /// and corner radius radius1
@@ -270,7 +266,7 @@ class CylCutter : public MillingCutter {
         MillingCutter* offsetCutter(double d) const;
 
         // dropCutter methods
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
@@ -299,7 +295,7 @@ class BallCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(double d) const;
         
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
@@ -325,7 +321,7 @@ class BullCutter : public MillingCutter {
         MillingCutter* offsetCutter(double d) const;
         
         /// drop cutter
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         
@@ -359,7 +355,7 @@ class ConeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(double d) const;
                 
-        int vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         int edgeDrop(Point &cl, CCPoint &cc, const Triangle &t) const;
         

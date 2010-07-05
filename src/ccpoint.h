@@ -1,4 +1,4 @@
-/*  $Id: $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -28,8 +28,7 @@ namespace ocl
 {
 
 
-class Triangle; // fwd declaration
-
+//class Triangle; // fwd declaration
 
 /// type of cc-point
 enum CCType {NONE, VERTEX, 

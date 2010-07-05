@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -43,6 +43,11 @@ class CLPoint : public Point {
         std::string str() const;
         /// if zin > z, lift CLPoint and update cc-point 
         int liftZ(double zin, CCPoint& ccp);
+        
+        CLPoint &operator=(const CLPoint &p);
+        /// addition
+        const CLPoint operator+(const CLPoint &p) const;
+        
 };
 
 } // end namespace

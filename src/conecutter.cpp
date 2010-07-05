@@ -52,7 +52,7 @@ ConeCutter::ConeCutter(const double d, const double a)
 
 
 //********   drop-cutter methods ********************** */
-int ConeCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int ConeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
     int result = 0;
     BOOST_FOREACH( const Point& p, t.p)
@@ -63,9 +63,9 @@ int ConeCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             // cutter_tip = p.z - h1
             assert( tan(angle) > 0.0 ); // guard against division by zero
             double h1 =  q/tan(angle);
-            if (cl.liftZ(p.z - h1)) { // we need to lift the cutter
-                cc = p;
-                cc.type = VERTEX;
+            CCPoint cc_tmp = p;
+            cc_tmp.type = VERTEX;
+            if (cl.liftZ(p.z - h1, cc_tmp)) { // we need to lift the cutter
                 result = 1;
             }
         } else {

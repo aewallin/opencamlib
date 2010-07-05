@@ -53,7 +53,7 @@ void BullCutter::setRadius()
 
 
 //********   drop-cutter methods ********************** */
-int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     int result = 0;
@@ -62,11 +62,10 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
         // distance in XY-plane from cl to p
         double q = cl.xyDistance(p);
         assert( q >= 0.0 );
-    
+        CCPoint cc_tmp = p;
+        cc_tmp.type = VERTEX;
         if ( q <= radius1 ) { // p is inside the cylindrrical part of the cutter
-            if (cl.liftZ(p.z)) { // we need to lift the cutter
-                cc = p;
-                cc.type = VERTEX;
+            if (cl.liftZ(p.z, cc_tmp)) { // we need to lift the cutter
                 result = 1;
             }
         }
@@ -76,9 +75,7 @@ int BullCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             // h1 = r2 - h2
             // cutter_tip = p.z - h1
             double h1 = radius2 - sqrt( square(radius2) - square(q-radius1) );
-            if ( cl.liftZ(p.z - h1) ) { // we need to lift the cutter
-                cc = p;
-                cc.type = VERTEX;
+            if ( cl.liftZ(p.z - h1, cc_tmp) ) { // we need to lift the cutter
                 result = 1;
             }
         }

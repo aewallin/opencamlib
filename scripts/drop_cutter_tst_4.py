@@ -11,7 +11,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
+            plist.append( ocl.CLPoint(x,y,z) )
     return plist
 
 
@@ -29,9 +29,14 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = ocl.Triangle(a,b,c)
+    
     radius1=1
+    
+    cutter = ocl.CylCutter(1.234)
+    
     angle = math.pi/4
-    cutter = ocl.ConeCutter(1, angle)
+    #cutter = ocl.ConeCutter(1, angle)
+    
     print cutter
     
     minx=-0.5
@@ -44,15 +49,13 @@ if __name__ == "__main__":
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print len(clpoints), "cl-points to evaluate"
     n=0
-    ccpoints=[]
     
     for cl in clpoints:
-        cc = ocl.CCPoint()
         #cutter.edgeDrop(cl,cc,t)
-        cutter.vertexDrop(cl,cc,t)
+        cutter.vertexDrop(cl,t)
         #cutter.facetDrop(cl,cc,t)
         #cutter.dropCutter(cl,cc,t)
-        ccpoints.append(cc)        
+        #ccpoints.append(cc)        
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
@@ -63,9 +66,8 @@ if __name__ == "__main__":
     
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
-    print " len(ccpoints)=", len(ccpoints)
-    for cl,cc in zip(clpoints,ccpoints):
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cc)) ) 
+    for cl in clpoints:
+        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cl.cc)) ) 
     print "done."
         
     myscreen.camera.SetPosition(0.5, 3, 2)

@@ -15,6 +15,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     return plist
 
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     print "STL surface read"
@@ -43,22 +44,22 @@ if __name__ == "__main__":
     nf=0 # facet hits
     for cl in clpoints:
         #cutter.dropCutter(cl,cc,t)
-        cc = ocl.CCPoint()
-        cutter.dropCutterSTL(cl,cc,s)
-        #    cutter.vertexDrop(cl,cc,t)
+        #cutter.dropCutterSTL(cl,cc,s)
+        for t in s.tris:
+            cutter.vertexDrop(cl,t)
         #    cutter.edgeDrop(cl,cc,t)
         #    cutter.facetDrop(cl,cc,t)
         
-        if cc.type == ocl.CCType.FACET:
+        if cl.cc.type == ocl.CCType.FACET:
             nf+=1
             col = (0,1,1)
-        elif cc.type == ocl.CCType.VERTEX:
+        elif cl.cc.type == ocl.CCType.VERTEX:
             nv+=1
             col = (0,1,0)
-        elif cc.type == ocl.CCType.EDGE:
+        elif cl.cc.type == ocl.CCType.EDGE:
             ne+=1
             col = (1,0,0)
-        elif cc.type == ocl.CCType.NONE:
+        elif cl.cc.type == ocl.CCType.NONE:
             #print "type=NONE!"
             nn+=1
             col = (1,1,1)

@@ -10,14 +10,12 @@ if __name__ == "__main__":
     c = ocl.Point(0,0,1)
     t = ocl.Triangle(a,b,c)
     print "triangle created  t=", t
-    cl = ocl.Point(0.2,0.2,0)
-    cc = ocl.CCPoint()
+    cl = ocl.CLPoint(0.2,0.2,-5)
     print "CL= ", cl
-    print "CC=", cc   
-    cutter.vertexDrop( cl , cc, t )
+    cutter.vertexDrop( cl ,  t )
     print "after vertex CL=", cl
-    print "after vertex CC=", cc
     print "t=",t
+    exit()
     #print "t.n", t.n.str()
 
     cutter.facetDrop( cl, cc, t )

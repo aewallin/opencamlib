@@ -47,7 +47,7 @@ BallCutter::BallCutter(const double d)
 }
 
 //********   drop-cutter methods ********************** */
-int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     
@@ -62,9 +62,10 @@ int BallCutter::vertexDrop(Point &cl, CCPoint &cc, const Triangle &t) const
             // h1 = r - h2
             // cutter_tip = p.z - h1
             double h1 = radius - sqrt( square(radius) - square(q) );
-            if (cl.liftZ(p.z - h1)) { // we need to lift the cutter
-                cc = p;
-                cc.type = VERTEX;
+            CCPoint cc_tmp;
+            cc_tmp = p;
+            cc_tmp.type = VERTEX;
+            if (cl.liftZ(p.z - h1, cc_tmp) ) { // we need to lift the cutter
                 result = 1;
             }
         } else {

@@ -1,4 +1,4 @@
-/*  $Id: $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -22,10 +22,7 @@
 #include <iostream>
 #include <sstream>
 
-//#include "point.h"
 #include "clpoint.h"
-//#include "triangle.h"
-//#include "numeric.h"
 
 namespace ocl
 {
@@ -59,6 +56,18 @@ int CLPoint::liftZ(double zin, CCPoint& ccp)
     }
 }
 
+CLPoint& CLPoint::operator=(const CLPoint &clp) {
+    // FIXME check for self-assignment
+    x=clp.x;
+    y=clp.y;
+    z=clp.z;
+    cc= clp.cc;
+    return *this;
+}
+
+const CLPoint CLPoint::operator+(const CLPoint &p) const {
+    return CLPoint(this->x + p.x, this->y + p.y, this->z + p.z);
+}
 
 std::string CLPoint::str() const
 {
