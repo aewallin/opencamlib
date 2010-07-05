@@ -47,6 +47,7 @@ class CLPoint : public Point {
         CLPoint &operator=(const CLPoint &p);
         /// addition
         const CLPoint operator+(const CLPoint &p) const;
+        const CLPoint operator+(const Point &p) const;
         
 };
 

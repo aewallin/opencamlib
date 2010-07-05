@@ -14,9 +14,19 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
             plist.append( ocl.CLPoint(x,y,z) )
     return plist
 
+def drawCLPoints(myscreen, clpoints):
+    for cl in clpoints:
+        myscreen.addActor(camvtk.Point(center=(cl.x,cl.y,cl.z), color=camvtk.clColor(cl.cc)) )    
+
+def drawCCPoints(myscreen, clpoints):
+    for cl in clpoints:
+        cc = cl.cc
+        if cc.type is not ocl.CCType.NONE:
+            myscreen.addActor(camvtk.Point(center=(cc.x,cc.y,cc.z), color=camvtk.ccColor(cc)) )
 
 
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
     
     a=ocl.Point(1,0,0)
@@ -32,7 +42,7 @@ if __name__ == "__main__":
     
     radius1=1
     
-    cutter = ocl.CylCutter(1.234)
+    cutter = ocl.CylCutter(0.5234)
     
     angle = math.pi/4
     #cutter = ocl.ConeCutter(1, angle)
@@ -40,22 +50,23 @@ if __name__ == "__main__":
     print cutter
     
     minx=-0.5
-    dx=0.02
+    dx=0.05
     maxx=1.5
     miny=-0.5
-    dy=0.02
+    dy=0.05
     maxy=1.5
     z=-0.8
     clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print len(clpoints), "cl-points to evaluate"
     n=0
-    
+    clp=[]
     for cl in clpoints:
         #cutter.edgeDrop(cl,cc,t)
         cutter.vertexDrop(cl,t)
-        #cutter.facetDrop(cl,cc,t)
+        cutter.facetDrop(cl,t)
         #cutter.dropCutter(cl,cc,t)
-        #ccpoints.append(cc)        
+        #ccpoints.append(cc)  
+        #clp.append(cl)      
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
@@ -66,8 +77,10 @@ if __name__ == "__main__":
     
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
-    for cl in clpoints:
-        myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cl.cc)) ) 
+    #for cl in clpoints:
+    #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cl.cc)) ) 
+    drawCLPoints(myscreen, clpoints)
+    drawCCPoints(myscreen, clpoints)
     print "done."
         
     myscreen.camera.SetPosition(0.5, 3, 2)
@@ -83,13 +96,13 @@ if __name__ == "__main__":
     t.SetPos( (myscreen.width-350, myscreen.height-30) )
     myscreen.addActor(t)
         
-    for n in range(1,18):
-        t.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        myscreen.camera.Azimuth( 2 )
-        time.sleep(0.1)
-        myscreen.render()
-        w2if.Modified()
-        lwr.SetFileName("frames/tc"+ ('%04d' % n)+".png")
+    #for n in range(1,18):
+    #    t.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    #    myscreen.camera.Azimuth( 2 )
+    #    time.sleep(0.1)
+    #    myscreen.render()
+    #    w2if.Modified()
+    #    lwr.SetFileName("frames/tc"+ ('%04d' % n)+".png")
         #lwr.Write()
 
 

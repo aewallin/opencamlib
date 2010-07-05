@@ -68,7 +68,7 @@ int CylCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
     return result;
 }
 
-int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
@@ -97,17 +97,14 @@ int CylCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     // the contact point with the plane is on the periphery
     // of the cutter, a length radius from cl in the direction of -n
-    Point cc_tmp = cl - (radius)*normal; // Note: at this point the z-coord is rubbish.
+    CCPoint cc_tmp = cl - (radius)*normal; // Note: at this point the z-coord is rubbish.
     cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
-    
+    cc_tmp.type = FACET;
     if (cc_tmp.isInside(t)) { 
-        if (cl.liftZ(cc_tmp.z)) {
-            cc = cc_tmp;
-            cc.type = FACET;
+        if (cl.liftZ(cc_tmp.z, cc_tmp)) {
             return 1;
         }
     } else {
-        //std::cout << " NOT isInside!, cc="<<cc<<"\n";
         return 0;
     }
     return 0;

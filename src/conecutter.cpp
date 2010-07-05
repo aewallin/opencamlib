@@ -78,7 +78,7 @@ int ConeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 
 // we either hit the tip, when the slope of the plane is smaller than angle
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft
-int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 {
     int result = 0;
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
@@ -95,16 +95,16 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     assert( isPositive( normal.z ) );
     
-    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane
+    // horizontal plane special case
+    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { 
         // so any vertex is at the correct height
-        Point cc_tmp;
+        CCPoint cc_tmp;
         cc_tmp.x = cl.x;
         cc_tmp.y = cl.y;
         cc_tmp.z = t.p[0].z;
+        cc_tmp.type=FACET_TIP;
         if (cc_tmp.isInside(t)) { // cc-point is on the axis of the cutter       
-            if ( cl.liftZ(cc_tmp.z) ) {
-                cc = cc_tmp;
-                cc.type = FACET_TIP;
+            if ( cl.liftZ(cc_tmp.z, cc_tmp) ) {
                 return 1;
             }
         } else { // not inside facet
@@ -127,24 +127,22 @@ int ConeCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     // cylindrical contact point case
     // find the xy-coordinates of the cc-point
-    Point cyl_cc_tmp = cl - radius*normal;
+    CCPoint cyl_cc_tmp = cl - radius*normal;
     cyl_cc_tmp.z = (1.0/c)*(-d-a*cyl_cc_tmp.x-b*cyl_cc_tmp.y);
     double cyl_cl_z = cyl_cc_tmp.z - height; // tip positioned here
+    cyl_cc_tmp.type = FACET_CYL;
     
-    Point tip_cc_tmp = Point(cl.x,cl.y,0);
+    CCPoint tip_cc_tmp = Point(cl.x,cl.y,0);
     tip_cc_tmp.z = (1.0/c)*(-d-a*tip_cc_tmp.x-b*tip_cc_tmp.y);
     double tip_cl_z = tip_cc_tmp.z;
+    tip_cc_tmp.type = FACET_TIP;
           
     if (tip_cc_tmp.isInside(t)) { // TIP case     
-        if ( cl.liftZ(tip_cl_z) ) {
-            cc = tip_cc_tmp;
-            cc.type = FACET_TIP;
+        if ( cl.liftZ(tip_cl_z, tip_cc_tmp) ) {
             result = 1;
         }
     } if (cyl_cc_tmp.isInside(t))  { // CYLINDER case
-        if ( cl.liftZ(cyl_cl_z) ) {
-            cc = cyl_cc_tmp;
-            cc.type = FACET_CYL;
+        if ( cl.liftZ(cyl_cl_z, cyl_cc_tmp) ) {
             result = 1; 
         }
     } 

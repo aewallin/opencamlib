@@ -76,7 +76,7 @@ int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 }
 
 //********   facet ********************** */
-int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
 
@@ -94,14 +94,13 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     
     if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane
         // so any vertex is at the correct height
-        Point cc_tmp;
+        CCPoint cc_tmp;
         cc_tmp.x = cl.x;
         cc_tmp.y = cl.y;
         cc_tmp.z = t.p[0].z;
+        cc_tmp.type = FACET;
         if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
-            if ( cl.liftZ(cc_tmp.z) ) {
-                cc = cc_tmp;
-                cc.type = FACET;
+            if ( cl.liftZ(cc_tmp.z, cc_tmp) ) {
                 return 1;
             }
         } else { // not inside facet
@@ -127,19 +126,18 @@ int BallCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     Point radiusvector = -radius*normal;
     
     // find the xy-coordinates of the cc-point
-    Point cc_tmp = cl + radiusvector;
+    CCPoint cc_tmp = cl + radiusvector;
     
     // find the z-coordinate of the cc-point.
     // it lies in the plane.
     cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
+    cc_tmp.type = FACET;
     
     // now find the z-coordinate of the cl-point
     double tip_z = cc_tmp.z - radiusvector.z - radius;
         
     if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()       
-        if ( cl.liftZ(tip_z) ) {
-            cc = cc_tmp;
-            cc.type = FACET;
+        if ( cl.liftZ(tip_z, cc_tmp) ) {
             return 1;
         }
     } else {

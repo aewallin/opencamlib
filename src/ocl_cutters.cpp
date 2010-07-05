@@ -53,7 +53,6 @@ void export_cutters() {
         .def("vertexPush", &CylCutter::vertexPush)
         .def("facetPush", &CylCutter::facetPush)
         .def("edgePush", &CylCutter::edgePush)
-        // bp::return_value_policy<bp::manage_new_object>()
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")

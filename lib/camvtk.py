@@ -45,7 +45,7 @@ def ccColor(cc):
         the CC-point. Useful for visualizing CL or CC points """
     col = red
     if cc.type==ocl.CCType.FACET:
-        col = blue
+        col = lblue
     elif cc.type == ocl.CCType.FACET_TIP:
         col = mag
     elif cc.type == ocl.CCType.FACET_CYL:
@@ -67,7 +67,7 @@ def ccColor(cc):
     elif cc.type == ocl.CCType.ERROR:
         col = (0,0.5,1)
     else:
-        print "err. no color"
+        print "err. CCType unknown, no color"
         col = red
     return col       
     

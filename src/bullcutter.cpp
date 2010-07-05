@@ -87,7 +87,7 @@ int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 }
 
 
-int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
@@ -101,17 +101,16 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     }   
     assert( isPositive( normal.z ) );
     
-    
-    if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { // horizontal plane
+    // horizontal plane special case
+    if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { 
         // so any vertex is at the correct height
-        Point cc_tmp;
+        CCPoint cc_tmp;
         cc_tmp.x = cl.x;
         cc_tmp.y = cl.y;
         cc_tmp.z = t.p[0].z;
+        cc_tmp.type = FACET;
         if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
-            if ( cl.liftZ(cc_tmp.z) ) {
-                cc = cc_tmp;
-                cc.type = FACET;
+            if ( cl.liftZ(cc_tmp.z, cc_tmp) ) {
                 return 1;
             }
         } else { // not inside facet
@@ -140,16 +139,14 @@ int BullCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
     Point radiusvector = -radius2*normal - radius1*xyNormal;
     
     // find the xy-coordinates of the cc-point
-    Point cc_tmp = cl + radiusvector; // NOTE xy-coords right, z-coord is not.
+    CCPoint cc_tmp = cl + radiusvector; // NOTE xy-coords right, z-coord is not.
     cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // cc-point lies in the plane.
-    
+    cc_tmp.type = FACET;
     if (cc_tmp.isInside(t)) {   
         // now find the z-coordinate of the cl-point
         double tip_z = cc_tmp.z + radius2*normal.z - radius2;
         
-        if ( cl.liftZ(tip_z) ) {
-            cc = cc_tmp;
-            cc.type = FACET;
+        if ( cl.liftZ(tip_z, cc_tmp) ) {
             return 1;
         }
     } else {

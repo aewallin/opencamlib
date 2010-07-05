@@ -98,7 +98,7 @@ int MillingCutter::dropCutter(Point &cl, CCPoint &cc, const Triangle &t) const
     CLPoint cl2 = CLPoint(cl.x,cl.y,cl.z); //FIXME FIXME FIXME
     vertexDrop(cl2,t);
     /// \todo optimisation: if we are already above the triangle we don't need facet and edge
-    facetDrop(cl,cc,t); 
+    facetDrop(cl2,t); 
     edgeDrop(cl,cc,t);
 
     return 0; // void would be better, return value not used for anything

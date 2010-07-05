@@ -69,6 +69,10 @@ const CLPoint CLPoint::operator+(const CLPoint &p) const {
     return CLPoint(this->x + p.x, this->y + p.y, this->z + p.z);
 }
 
+const CLPoint CLPoint::operator+(const Point &p) const {
+    return CLPoint(this->x + p.x, this->y + p.y, this->z + p.z);
+}
+
 std::string CLPoint::str() const
 {
     std::ostringstream o;

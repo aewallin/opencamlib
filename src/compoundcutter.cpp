@@ -87,18 +87,16 @@ int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 }
 
 //********   facet ********************** */
-int CompoundCutter::facetDrop(Point &cl, CCPoint &cc, const Triangle &t) const
+int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 {
     int result = 0;
-    Point cl_tmp = cl;
+    //CLPoint cl_tmp = cl;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
-        Point cl_tmp = cl + Point(0,0,zoffset[n]);
-        CCPoint* cc_tmp = new CCPoint();
-        if ( cutter[n]->facetDrop(cl_tmp, *cc_tmp,t) ) {
-            if ( ccValid(n,cl, *cc_tmp) ) { // cc-point is valid
-                if (cl.liftZ(cl_tmp.z-zoffset[n])) { // we need to lift the cutter
-                    cc = *cc_tmp;
-                    //cc.type = FACET;
+        CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
+        //CCPoint* cc_tmp = new CCPoint();
+        if ( cutter[n]->facetDrop(cl_tmp, t) ) {
+            if ( ccValid(n,cl, cl_tmp.cc) ) { // cc-point is valid
+                if (cl.liftZ(cl_tmp.z-zoffset[n], cl_tmp.cc)) { // we need to lift the cutter
                     result = 1;
                 }
             }
