@@ -1,29 +1,10 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import vtk
 import datetime
 import math
-
-def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
-    plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    for y in yvalues:
-        for x in xvalues:
-            plist.append( ocl.CLPoint(x,y,z) )
-    return plist
-
-def drawCLPoints(myscreen, clpoints):
-    for cl in clpoints:
-        myscreen.addActor(camvtk.Point(center=(cl.x,cl.y,cl.z), color=camvtk.clColor(cl.cc)) )    
-
-def drawCCPoints(myscreen, clpoints):
-    for cl in clpoints:
-        cc = cl.cc
-        if cc.type is not ocl.CCType.NONE:
-            myscreen.addActor(camvtk.Point(center=(cc.x,cc.y,cc.z), color=camvtk.ccColor(cc)) )
-
 
 if __name__ == "__main__":  
     print ocl.revision()
@@ -46,19 +27,19 @@ if __name__ == "__main__":
 
     #cutter = ocl.CylCutter(diameter)
     #cutter = ocl.BallCutter(diameter)
-    #cutter = ocl.BullCutter(diameter,corneradius)
-    cutter = ocl.ConeCutter(diameter, angle)
+    cutter = ocl.BullCutter(diameter,corneradius)
+    #cutter = ocl.ConeCutter(diameter, angle)
     
     print cutter
     
     minx=-0.5
-    dx=0.05
+    dx=0.01
     maxx=1.5
     miny=-0.5
     dy=0.05
     maxy=1.5
     z=-0.8
-    clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print len(clpoints), "cl-points to evaluate"
     n=0
     clp=[]
@@ -67,23 +48,20 @@ if __name__ == "__main__":
         cutter.vertexDrop(cl,t)
         cutter.facetDrop(cl,t)
         cutter.edgeDrop(cl,t)
-        #cutter.dropCutter(cl,cc,t)
+        #cutter.dropCutter(cl,t)
         #ccpoints.append(cc)  
         #clp.append(cl)      
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
-              
-            
-            
+   
     print "done."
     
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
-    #for cl in clpoints:
-    #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.clColor(cl.cc)) ) 
-    drawCLPoints(myscreen, clpoints)
-    drawCCPoints(myscreen, clpoints)
+
+    camvtk.drawCLPointCloud(myscreen, clpoints)
+
     print "done."
         
     myscreen.camera.SetPosition(0.5, 3, 2)

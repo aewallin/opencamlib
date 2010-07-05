@@ -133,6 +133,15 @@ boost::python::list STLSurf::getTrianglesUnderCutter(const Point &cl, const Mill
     return trilist;
 }
 
+boost::python::list STLSurf::getTriangles() const
+{
+    boost::python::list tlist;
+    BOOST_FOREACH(Triangle t, tris) {
+        tlist.append(t);
+    }
+    return tlist;
+}
+
 boost::python::list STLSurf::getBounds() const
 {
     boost::python::list bounds;

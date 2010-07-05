@@ -518,12 +518,8 @@ class TrilistReader(vtk.vtkPolyDataAlgorithm):
 
 class STLSurf(CamvtkActor):
     def __init__(self, filename=None, triangleList=[], color=(1,1,1) ):
-        self.src=[];
-        
+        self.src=[]
         if filename is None:
-            #self.src= TrilistReader(triangleList)
-            #self.src.Update()
-            #self.src = vtk.vtkPolyData()
             points = vtk.vtkPoints()
             triangles = vtk.vtkCellArray()
             n=0

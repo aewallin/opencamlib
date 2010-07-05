@@ -67,6 +67,9 @@ class STLSurf {
         /// return bounds in a list to python
         boost::python::list getBounds() const;
         
+        /// return list of all triangles to python
+        boost::python::list getTriangles() const;
+        
         /// build a kd-tree from the triangles in the surface
         void build_kdtree();
         

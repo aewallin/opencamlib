@@ -1,26 +1,13 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import vtk
 import datetime
 import math
 
-def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
-    plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    for y in yvalues:
-        for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
-    return plist
-
-def drawPoints(myscreen, clpoints, ccpoints):
-    c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
-    c.SetPoints()
-    myscreen.addActor(c )
-        
-
 if __name__ == "__main__":  
+    print ocl.revision()
     myscreen = camvtk.VTKScreen()
     
     a=ocl.Point(1,0.6,0.1)
@@ -49,7 +36,6 @@ if __name__ == "__main__":
     #cutter = ocl.ConeCutter(0.4, math.pi/3)
     print cutter
     
-    
     #print cc.type
     minx=-0.5
     dx=0.0051
@@ -58,22 +44,19 @@ if __name__ == "__main__":
     dy=dx
     maxy=1.5
     z=-1.8
-    clpoints = CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
+    clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     nv=0
     nn=0
     ne=0
     nf=0
     print len(clpoints), "cl-points to evaluate"
     n=0
-    ccpoints=[]
     
     for cl in clpoints:
-        cc = ocl.CCPoint()
-        cutter.vertexDrop(cl,cc,t)
-        #cutter.edgeDrop(cl,cc,t)
-        #cutter.facetDrop(cl,cc,t)
-        #cutter.dropCutter(cl,cc,t)
-        ccpoints.append(cc)
+        cutter.vertexDrop(cl,t)
+        cutter.edgeDrop(cl,t)
+        cutter.facetDrop(cl,t)
+        #cutter.dropCutter(cl,t)
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
@@ -81,25 +64,15 @@ if __name__ == "__main__":
     print "done."
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
-    print " len(ccpoints)=", len(ccpoints)
-    drawPoints(myscreen, clpoints, ccpoints)
+
+    camvtk.drawCLPointCloud(myscreen, clpoints)
     print "done."
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)
     myscreen.addActor( origo )
-     
-    
+
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     myscreen.render()
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    
-    t = camvtk.Text()
-    t.SetPos( (myscreen.width-350, myscreen.height-30) )
-    myscreen.addActor(t)
-    myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

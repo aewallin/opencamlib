@@ -109,6 +109,7 @@ void export_geometry() {
         .def("__str__", &STLSurf::str)
         .def("size", &STLSurf::size)
         .def("getBounds", &STLSurf::getBounds)
+        .def("getTriangles", &STLSurf::getTriangles)
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("id", &STLSurf::id)
         .def_readonly("bb", &STLSurf::bb)

@@ -11,7 +11,6 @@ if __name__ == "__main__":
     t = ocl.Triangle(a,b,c)
     print "triangle created  t=", t
     cl = ocl.CLPoint(0.2,0.2,0)
-    cc = ocl.CCPoint()
-    cutter.dropCutter(cl,cc,t)
+
+    cutter.dropCutter(cl,t)
     print "CL= ", cl
-    print "CC=", cc

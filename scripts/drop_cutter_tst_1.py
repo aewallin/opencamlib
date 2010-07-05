@@ -15,20 +15,17 @@ if __name__ == "__main__":
     cutter.vertexDrop( cl ,  t )
     print "after vertex CL=", cl
     print "t=",t
-    exit()
+
     #print "t.n", t.n.str()
 
-    cutter.facetDrop( cl, cc, t )
+    cutter.facetDrop( cl, t )
     #print "after facetDrop"
     print "after facet t=",t
     #print "t.n", t.n.str()
     print "after facet CL=", cl
-    print "after facet CC=", cc
-    print "after facet cl.xyDistance(cc)=", cl.xyDistance(ocl.Point(cc.x,cc.y,cc.z))
+
+
     
-    cutter.edgeDrop( cl, cc, t )
+    cutter.edgeDrop( cl,  t )
     print "after edge cl =", cl
-    cc2=ocl.CCPoint()
-    cutter.dropCutter(cl,cc2,t)
-    #myscreen.iren.Start()
-    #raw_input("Press Enter to terminate") 
+
