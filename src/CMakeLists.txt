@@ -112,6 +112,7 @@ add_library(
     clpoint.cpp
     clfilter.cpp
     stlsurf.cpp
+    stlreader.cpp
     triangle.cpp
     volume.cpp
 )
