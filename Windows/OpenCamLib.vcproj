@@ -222,6 +222,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\ccpoint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\clpoint.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\compoundcutter.cpp"
 				>
 			</File>
@@ -262,6 +270,10 @@
 						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\epos.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\src\fiber.cpp"
@@ -408,6 +420,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\stlreader.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\stlsurf.cpp"
 				>
 				<FileConfiguration
@@ -454,7 +470,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ccpoint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\clpoint.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\cutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\epos.h"
 				>
 			</File>
 			<File
@@ -499,6 +527,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\stlreader.h"
 				>
 			</File>
 			<File

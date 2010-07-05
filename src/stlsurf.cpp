@@ -18,7 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <fstream>  // required by read_from_file()
 #include <list>
 
 #include <boost/foreach.hpp>

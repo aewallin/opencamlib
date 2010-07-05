@@ -52,6 +52,7 @@
 #include "volume.h"
 #include "batchdropcutter.h"
 #include "fiber.h"
+#include "stlreader.h"
 
 #endif
 

@@ -109,6 +109,7 @@ add_library(
     point.cpp
     ccpoint.cpp
     clpoint.cpp
+    stlreader.cpp
     stlsurf.cpp
     triangle.cpp
     volume.cpp

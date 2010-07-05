@@ -58,7 +58,11 @@ BOOST_PYTHON_MODULE(ocl) {
     
     export_octree(); // see ocl_octree.cpp
     
-    bp::class_<BatchDropCutter>("BatchDropCutter")
+    bp::class_<STLReader>("STLReader")
+        .def(bp::init<const std::wstring&, STLSurf&>())
+    ;
+
+	bp::class_<BatchDropCutter>("BatchDropCutter")
         .def("dropCutter1", &BatchDropCutter::dropCutter1)
         .def("dropCutter2", &BatchDropCutter::dropCutter2)
         .def("dropCutter3", &BatchDropCutter::dropCutter3)

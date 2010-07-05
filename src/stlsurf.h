@@ -43,9 +43,6 @@ class STLSurf {
         /// destructor
         virtual ~STLSurf();
         
-        /// read STL surface from file
-        STLSurf(const std::wstring &stl_file_path); // remove?
-                
         /// add Triangle t to this surface
         void addTriangle(const Triangle &t);
         
@@ -100,8 +97,6 @@ class STLSurf {
     private:
         /// set the id-number
         void setId();
-        /// read STL-surface from file
-        void read_from_file(const wchar_t* filepath);
 };
 
 } // end namespace

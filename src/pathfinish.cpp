@@ -104,7 +104,7 @@ void PathDropCutterFinish::run(const Span* span)
     }
 
     // this requires a better implementation which keeps the cc-points intact also
-    // refinePointList(point_list);
+    //refinePointList(point_list);
 
     for(std::list<CLPoint>::iterator It = point_list.begin(); It != point_list.end(); It++)
         clpoints.push_back(*It);
