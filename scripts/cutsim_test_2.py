@@ -130,8 +130,11 @@ def main(filename="frame/f.png"):
         myscreen.addActor( camvtk.Line( p1=(startp.x,startp.y,startp.z), p2=(endp.x,endp.y,endp.z), color=camvtk.red))
         #camvtk.drawTree2(myscreen,sweep,color=camvtk.red,opacity=0.5)
             
-        
+        t_before = time.time()
         stock.diff(sweep)
+        calctime = time.time()-t_before
+        print " diff done in ", calctime," s"
+    
         #myscreen.removeActor(surf)
         tlist = pyocl.octree2trilist(stock)
         surf = camvtk.STLSurf(triangleList=tlist)
