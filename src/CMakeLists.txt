@@ -102,6 +102,7 @@ add_library(
     ocl_geometry.cpp
     ocl_octree.cpp
     ocl.cpp
+    ocode.cpp
     octree.cpp
     oellipse.cpp
     epos.cpp

@@ -25,6 +25,8 @@
 #include <list>
 #include <vector>
 #include "bbox.h"
+#include "ocode.h"
+#include "octree.h"
 
 namespace ocl
 {
@@ -33,7 +35,7 @@ class Point;
 class Triangle;
 class MillingCutter;
 class CylCutter;
-class Ocode;
+
 
 /// base-class for defining volumes to build octrees
 class OCTVolume {
@@ -128,6 +130,7 @@ class BoxOCTVolume: public OCTVolume {
         /// third vector
         Point v3;
         bool isInside(Point& p) const;
+        void calcBB();
 };
 
 /// elliptic tube volume
@@ -154,7 +157,7 @@ class CylMoveOCTVolume: public OCTVolume {
     public:
         /// default constructor
         CylMoveOCTVolume() {};
-        /// create a CylMoveOCTVolume with the speicifed cutter and startpoint p1 and endpoint p2
+        /// create a CylMoveOCTVolume with the specified cutter and startpoint p1 and endpoint p2
         CylMoveOCTVolume(const CylCutter& c, const Point& p1, const Point& p2);
         /// start CL-Point for this move
         Point p1;
@@ -168,7 +171,7 @@ class CylMoveOCTVolume: public OCTVolume {
         CylinderOCTVolume c2;
         /// an elliptic tube of the swept-volube
         EtubeOCTVolume etube;
-        /// the box-part of the swept-volyme
+        /// the box-part of the swept-volume
         BoxOCTVolume box;
         bool isInside(Point& p) const;
 };

@@ -135,6 +135,13 @@ BoxOCTVolume::BoxOCTVolume()
     v3 = Point(0,0,1);
 }
 
+void BoxOCTVolume::calcBB() {
+    bb.addPoint(corner);
+    bb.addPoint(corner+v1);
+    bb.addPoint(corner+v2);
+    bb.addPoint(corner+v3);
+}
+
 bool BoxOCTVolume::isInside(Point& p) const
 {
     // translate to origo

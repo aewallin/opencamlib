@@ -25,6 +25,7 @@
 #include "millingcutter.h"
 #include "volume.h"
 #include "octree.h"
+#include "ocode.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -99,6 +100,7 @@ void export_octree() {
     ;
     bp::class_<BoxOCTVolume, bp::bases<OCTVolume> >("BoxOCTVolume")
         .def("isInside", &BoxOCTVolume::isInside )
+        .def("calcBB", &BoxOCTVolume::calcBB )
         .def_readwrite("corner", &BoxOCTVolume::corner)
         .def_readwrite("v1", &BoxOCTVolume::v1)
         .def_readwrite("v2", &BoxOCTVolume::v2)

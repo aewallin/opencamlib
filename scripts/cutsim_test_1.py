@@ -1,17 +1,9 @@
 import ocl
+import pyocl
 import camvtk
 import time
 import datetime
 import vtk
-
-
-    
-def drawCylCutter(myscreen, c, p):
-    cyl = camvtk.Cylinder(center=(p.x,p.y,p.z), radius=c.radius,
-                            height=c.length,
-                            rotXYZ=(90,0,0), color=camvtk.grey)
-    cyl.SetWireframe()
-    myscreen.addActor(cyl) 
 
 
 
@@ -19,7 +11,7 @@ def main(filename="frame/f.png"):
     print ocl.revision()
           
     myscreen = camvtk.VTKScreen()   
-    myscreen.camera.SetPosition(50, 22, 40)
+    myscreen.camera.SetPosition(20, 12, 20)
     myscreen.camera.SetFocalPoint(0,0, 0)   
     # axis arrows
     camvtk.drawArrows(myscreen,center=(2,2,2))
@@ -37,12 +29,12 @@ def main(filename="frame/f.png"):
     c.length = 3
     print "cutter length=", c.length
     p1 = ocl.CLPoint(-0.2,-0.2,0.2) # start of move
-    p2 = ocl.CLPoint(1.5,1.5,-1) # end of move
-    p3 = ocl.CLPoint(0,1.5,0.2)
+    p2 = ocl.CLPoint(-0.2,0.2,0.0) # end of move
+    p3 = ocl.CLPoint(0.5,0.0,-0.5)
     clpoints=[]
     clpoints.append(p1)
-    clpoints.append(p3)
     clpoints.append(p2)
+    clpoints.append(p3)
     
     f=ocl.Ocode()
     f.set_depth(6) # depth and scale set here.
@@ -58,6 +50,11 @@ def main(filename="frame/f.png"):
     stock.init(3)
     stock.build( cube1 )
     
+    # draw initial octree 
+    tlist = pyocl.octree2trilist(stock)
+    surf = camvtk.STLSurf(triangleList=tlist)
+    myscreen.addActor(surf)
+    
     Nmoves = len(clpoints)
     print Nmoves,"CL-points to process"
     for n in xrange(0,Nmoves-1):
@@ -68,19 +65,25 @@ def main(filename="frame/f.png"):
         sweep = ocl.LinOCT()
         sweep.init(3)
         g1vol = ocl.CylMoveOCTVolume(c, ocl.Point(startp.x,startp.y,startp.z), ocl.Point(endp.x,endp.y,endp.z))
-        drawCylCutter(myscreen, c, startp)
-        drawCylCutter(myscreen, c, endp)
+        camvtk.drawCylCutter(myscreen, c, startp)
+        camvtk.drawCylCutter(myscreen, c, endp)
+        myscreen.addActor( camvtk.Line( p1=(startp.x,startp.y,startp.z), p2=(endp.x,endp.y,endp.z), color=camvtk.red))
         sweep.build( g1vol )
         stock.diff(sweep)
+        myscreen.removeActor(surf)
+        tlist = pyocl.octree2trilist(stock)
+        surf = camvtk.STLSurf(triangleList=tlist)
+        surf.SetColor(camvtk.cyan)
+        surf.SetOpacity(1.0)
+        myscreen.addActor(surf)
+        myscreen.render()
+        time.sleep(0.2)
             
     #exit()
     
     # draw trees
-    print "drawing trees"
-    camvtk.drawTree2(myscreen,  stock, opacity=1,   color=camvtk.cyan)
-    #camvtk.drawTree2(myscreen, t2, opacity=0.2, color=camvtk.cyan)
-    #camvtk.drawTree2(myscreen, t2, opacity=1,   color=camvtk.cyan, offset=(5,0,0))
-        
+    #print "drawing trees"
+    #camvtk.drawTree2(myscreen,  stock, opacity=1,   color=camvtk.cyan)        
 
     # box around octree 
     oct_cube = camvtk.Cube(center=(0,0,0), length=4*f.get_scale(), color=camvtk.white)
@@ -97,7 +100,6 @@ def main(filename="frame/f.png"):
     myscreen.render()
     print "done."
     
-    
     lwr.SetFileName(filename)
     time.sleep(0.2)
     #lwr.Write()
@@ -108,9 +110,3 @@ def main(filename="frame/f.png"):
 if __name__ == "__main__":
 
     main()
-        
-        
-        
-
-
-
