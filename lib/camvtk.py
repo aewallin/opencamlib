@@ -89,7 +89,103 @@ def drawCCPoints(myscreen, clpoints):
         cc = cl.cc
         if cc.type is not ocl.CCType.NONE:
             myscreen.addActor(Point(center=(cc.x,cc.y,cc.z), color=ccColor(cc)) )
-            
+
+def drawBB( myscreen, vol ):
+    """ draw a bounding-box """
+    lines = []
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.miny, vol.bb.minz) , p2=(vol.bb.maxx, vol.bb.miny, vol.bb.minz))  )
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.maxy, vol.bb.minz) , p2=(vol.bb.maxx, vol.bb.maxy, vol.bb.minz))  )
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.maxy, vol.bb.maxz) , p2=(vol.bb.maxx, vol.bb.maxy, vol.bb.maxz))  )
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.miny, vol.bb.maxz) , p2=(vol.bb.maxx, vol.bb.miny, vol.bb.maxz))  )
+    
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.miny, vol.bb.minz) , p2=(vol.bb.minx, vol.bb.miny, vol.bb.maxz))  )
+    lines.append( Line(p1=(vol.bb.maxx, vol.bb.miny, vol.bb.minz) , p2=(vol.bb.maxx, vol.bb.miny, vol.bb.maxz))  )
+    
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.maxy, vol.bb.minz) , p2=(vol.bb.minx, vol.bb.maxy, vol.bb.maxz))  )
+    lines.append( Line(p1=(vol.bb.maxx, vol.bb.maxy, vol.bb.minz) , p2=(vol.bb.maxx, vol.bb.maxy, vol.bb.maxz))  )
+    
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.miny, vol.bb.minz) , p2=(vol.bb.minx, vol.bb.maxy, vol.bb.minz))  )
+    lines.append( Line(p1=(vol.bb.maxx, vol.bb.miny, vol.bb.minz) , p2=(vol.bb.maxx, vol.bb.maxy, vol.bb.minz))  )
+    
+    lines.append( Line(p1=(vol.bb.minx, vol.bb.miny, vol.bb.maxz) , p2=(vol.bb.minx, vol.bb.maxy, vol.bb.maxz))  )
+    lines.append( Line(p1=(vol.bb.maxx, vol.bb.miny, vol.bb.maxz) , p2=(vol.bb.maxx, vol.bb.maxy, vol.bb.maxz))  )    
+    
+    for l in lines:
+        myscreen.addActor(l)
+
+def drawTree(myscreen,t,color=red,opacity=0.2, offset=(0,0,0)):
+    """ draw an octree """
+    nodes = t.get_nodes()
+    #nmax=len(nodes)
+    #i=0
+    for n in nodes:
+        cen = n.point() # center of cube
+        scale = n.get_scale() # scale of cube
+        cube = camvtk.Cube(center=(cen.x+offset[0], cen.y+offset[1], cen.z+offset[2]), length= scale, color=color)
+        cube.SetOpacity(opacity)
+        #cube.SetPhong()
+        cube.SetGouraud()
+        #cube.SetWireframe()
+        myscreen.addActor( cube )
+        #if (nmax>100):
+        #    print "i=", i
+        #    print "div=", (float(nmax)/10)
+        #    if ( (i % (float(nmax)/10))==0):
+        #        print ".",
+        #i=i+1
+    #print "done."
+    
+def drawTree2(myscreen,t,color=red,opacity=0.2, offset=(0,0,0)):
+    """ draw an octree as an STLSurface """
+    nodes = t.get_nodes()
+    nmax=len(nodes)
+    # print "drawTree2: ", nmax," nodes",
+    # make a list of triangles
+    tlist = []
+    i=0
+    ofs = ocl.Point(offset[0],offset[1],offset[2])
+    for n in nodes:
+        p1 = n.corner(0)+ofs # + + +
+        p2 = n.corner(1)+ofs # - + +
+        p3 = n.corner(2)+ofs # + - +
+        p4 = n.corner(3)+ofs # + + -
+        p5 = n.corner(4)+ofs # + - -
+        p6 = n.corner(5)+ofs # - + -
+        p7 = n.corner(6)+ofs # - - +
+        p8 = n.corner(7)+ofs # - - -
+        tlist.append(ocl.Triangle(p1,p2,p3)) #top
+        tlist.append(ocl.Triangle(p2,p3,p7)) #top
+        tlist.append(ocl.Triangle(p4,p5,p6)) # bot
+        tlist.append(ocl.Triangle(p5,p6,p8)) # bot
+        tlist.append(ocl.Triangle(p1,p3,p4)) # 1,3,4,5
+        tlist.append(ocl.Triangle(p4,p5,p3))
+        tlist.append(ocl.Triangle(p2,p6,p7)) # 2,6,7,8
+        tlist.append(ocl.Triangle(p7,p8,p6))
+        tlist.append(ocl.Triangle(p3,p5,p7)) # 3,5,7,8
+        tlist.append(ocl.Triangle(p7,p8,p5))
+        tlist.append(ocl.Triangle(p1,p2,p4)) # 1,2,4,6
+        tlist.append(ocl.Triangle(p4,p6,p2))
+        #if (nmax>100):
+        #    if ( (i % (nmax/10))==0):
+        #        print ".",
+        #i=i+1
+    #print ".actor.",
+    surf = STLSurf(triangleList=tlist)
+    surf.SetColor(color)
+    surf.SetOpacity(opacity)
+    #print ".add.",
+    myscreen.addActor(surf)
+    #print ".done."
+    
+def drawArrows(myscreen,center=(0,0,0)):
+    # X Y Z arrows
+    arrowcenter=center
+    xar = Arrow(color=red,   center=arrowcenter, rotXYZ=(0,0,0))
+    yar = Arrow(color=green, center=arrowcenter, rotXYZ=(0,0,90))
+    zar = Arrow(color=blue,  center=arrowcenter, rotXYZ=(0,-90,0))
+    myscreen.addActor(xar)
+    myscreen.addActor(yar)
+    myscreen.addActor(zar) 
 
 class VTKScreen():
     """

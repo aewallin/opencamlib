@@ -18,9 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// this is mostly a translation to c++ of the earlier c# code
-// http://code.google.com/p/monocam/source/browse/trunk/Project2/monocam_console/monocam_console/kdtree.cs
-
 //#include <iostream>
 //#include <stdio.h>
 //#include <sstream>
@@ -381,7 +378,6 @@ void LinOCT::init(int min_expand)
                 expand_at(itr); // expand the node
                 //std::cout << " after expand itr= " << *itr << "\n";
                 n=n+7; // jump forward, since we have inserted new nodes
-                
                 itr++; // after expand(), itr points to the last expanded node
                        // so jump forward to expand next node
                 if ( itr == clist.end() )
@@ -389,7 +385,6 @@ void LinOCT::init(int min_expand)
             }
         }
         std::cout << " LinOCT:init() m=" << m << " N=" << size() << "\n";
-        
     }
     return;
 }
@@ -459,10 +454,7 @@ void LinOCT::build(OCTVolume* vol)
                 //it--;
                 
                 // for debugging, print the whole list             
-                //printList();
-   
-                
-                                
+                //printList();       
             }
             else {
                 // grey non-expandable nodes are removed

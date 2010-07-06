@@ -52,7 +52,7 @@ bool OCTVolume::isInsideBB(Point& p) const{
 /// return true if the Ocode o is partly or completely inside the Bbox
 bool OCTVolume::isInsideBBo(Ocode& o) const
 {
-    for (int n=0;n<9;n++) {
+    for (int n=0;n<9;n++) { // loop through the 9 points of the ocode
         Point p = o.corner(n);
         if (isInsideBB(p))
             return true;
@@ -193,10 +193,8 @@ bool CylinderOCTVolume::isInside(Point& p) const
 {
     // closest point on axis
     Point c = p.closestPoint(p1, p2);
-    
     // line = p1 + t*(p2-p1)
     // t is in [0,1] for points on the line
-    
     double t = (c.dot(p2-p1) - p1.dot( p2-p1)) / (p2-p1).dot(p2-p1);
     if ( (t>1.0) || (t < 0.0))
         return false;
@@ -337,17 +335,40 @@ CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, cons
     p2 = p2in;
     c = cin;
     
+    Point cutter_zvec = Point(0,0,c.getLength());
+    // start of move, extreme point(s)
+    bb.addPoint( p1 + c.getRadius()*Point(1,0,0) );
+    bb.addPoint( p1 + c.getRadius()*Point(-1,0,0) );
+    bb.addPoint( p1 + c.getRadius()*Point(0,1,0) );
+    bb.addPoint( p1 + c.getRadius()*Point(0,-1,0) );
+    // start of move (top)
+    bb.addPoint( p1 + c.getRadius()*Point(1,0,0)  + cutter_zvec );
+    bb.addPoint( p1 + c.getRadius()*Point(-1,0,0) + cutter_zvec );
+    bb.addPoint( p1 + c.getRadius()*Point(0,1,0)  + cutter_zvec );
+    bb.addPoint( p1 + c.getRadius()*Point(0,-1,0) + cutter_zvec );
+    // end of move (bottom)
+    bb.addPoint( p2 + c.getRadius()*Point(1,0,0) );
+    bb.addPoint( p2 + c.getRadius()*Point(-1,0,0) );
+    bb.addPoint( p2 + c.getRadius()*Point(0,1,0) );
+    bb.addPoint( p2 + c.getRadius()*Point(0,-1,0) );
+    // end of move (top)
+    bb.addPoint( p2 + c.getRadius()*Point(1,0,0)  + cutter_zvec );
+    bb.addPoint( p2 + c.getRadius()*Point(-1,0,0) + cutter_zvec );
+    bb.addPoint( p2 + c.getRadius()*Point(0,1,0)  + cutter_zvec );
+    bb.addPoint( p2 + c.getRadius()*Point(0,-1,0) + cutter_zvec );
+    
+    
     // cylinder at start of move
     c1.p1 = p1;
     c1.p2 = p1+Point(0,0,c.getLength());
     c1.radius=c.getRadius();
-    std::cout << " startcyl at " << c1.p1 << " to " << c1.p2 << "\n";
+    std::cout << " startcyl at " << c1.p1 << " to " << c1.p2 << "radius="<< c1.radius << "\n";
     
     // cylinder at end of move
     c2.p1 = p2;
     c2.p2 = p2+Point(0,0,c.getLength());
     c2.radius=c.getRadius();
-    std::cout << " endcyl at " << c2.p1 << " to " << c2.p2 << "\n";
+    std::cout << " endcyl at " << c2.p1 << " to " << c2.p2 <<" radius=" << c2.radius << "\n";
     
     // for XY-plane moves, a box:
     Point v = p2-p1; // vector along move
@@ -380,12 +401,12 @@ CylMoveOCTVolume::CylMoveOCTVolume(const CylCutter& cin, const Point& p1in, cons
     double sin = dz/length;
     //double cos = sqrt( 1.0-sin*sin);
     double baxis = fabs(c.getRadius()*sin);
-    std::cout << " baxis length="<< baxis << "\n";
+    std::cout << " Etube baxis length="<< baxis << "\n";
     // direction is cross product 
     Point bdir = (p2-p1).cross(etube.a);
     bdir.normalize();
     etube.b= baxis*bdir;
-    std::cout << " a="<< etube.a << " b=" << etube.b << "\n";
+    std::cout << " Etube a="<< etube.a << " b=" << etube.b << "\n";
     
 }
 
@@ -394,13 +415,6 @@ bool CylMoveOCTVolume::isInside(Point& p) const
     // CL follows line
     // line = p1 + t*(p2-p1)
     // top of cutter follows same line only c.length() higher
-    //CylinderOCTVolume c1;
-    //CylinderOCTVolume c2;
-    
-    // cylinder at start of move
-    //c1.p1 = p1;
-    //c1.p2 = p1+Point(0,0,c.getLength());
-
     if (c1.isInside(p)) 
         return true;
     
@@ -411,7 +425,7 @@ bool CylMoveOCTVolume::isInside(Point& p) const
     if (box.isInside(p))
         return true;
     
-    // the Elliptic tube...
+    // the Elliptic tube
     if (etube.isInside(p))
         return true;
         
