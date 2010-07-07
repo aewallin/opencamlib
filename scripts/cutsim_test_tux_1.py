@@ -135,7 +135,7 @@ def main(filename="frame/f.png"):
         timetext.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         
         #if n<Nmoves-1:
-        print n," to ",n+1," of ",Nmax
+        print n," to ",n+1," of ",Nmoves
         startp = clpts[n]  # start of move
         endp   = clpts[n+1] # end of move
         
