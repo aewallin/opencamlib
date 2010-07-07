@@ -75,7 +75,8 @@ def main(filename="frame/f.png"):
         
     # stupid init code
     f=ocl.Ocode()
-    f.set_depth(9) # depth and scale set here.
+    tree_maxdepth=8
+    f.set_depth(tree_maxdepth) # depth and scale set here.
     f.set_scale(10)
     
     # cube
@@ -124,7 +125,7 @@ def main(filename="frame/f.png"):
     octtext.SetText("Octree cutting-simulation")
     
     infotext = camvtk.Text()
-    infotext.SetPos( (myscreen.width-300, myscreen.height-150) )
+    infotext.SetPos( (myscreen.width-300, myscreen.height-180) )
     myscreen.addActor( infotext)
     
     
@@ -176,7 +177,7 @@ def main(filename="frame/f.png"):
         calctime = time.time()-t_before
         print " diff done in ", calctime," s, stock.size()", stock.size()
         
-        info = "move: %i \nstock-nodes: %i \nsweep-nodes: %i" % (n, stock.size(), sweep.size() )
+        info = "tree-depth:%i \nmove: %i \nstock-nodes: %i \nsweep-nodes: %i" % (tree_maxdepth, n, stock.size(), sweep.size() )
         infotext.SetText(info)
         
         
