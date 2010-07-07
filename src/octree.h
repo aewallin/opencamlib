@@ -80,7 +80,8 @@ class LinOCT {
         
         /// return all nodes as a list to python
         boost::python::list get_nodes();
-        
+        /// return list of triangles to python
+        boost::python::list get_triangles();
         /// build octree of interior of OCTVolume
         void build(OCTVolume* vol); 
         

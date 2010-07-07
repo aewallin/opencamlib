@@ -55,6 +55,7 @@ void export_octree() {
         .def("append", &LinOCT::append)
         .def("size", &LinOCT::size)
         .def("get_nodes", &LinOCT::get_nodes)
+        .def("get_triangles", &LinOCT::get_triangles)
         .def("build", &LinOCT::build)
         .def("init", &LinOCT::init)
         .def("sum", &LinOCT::sum)

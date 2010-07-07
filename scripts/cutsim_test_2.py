@@ -38,7 +38,7 @@ def main(filename="frame/f.png"):
     print s.getBounds()
     #exit()
     minx=0
-    dx=0.1/1
+    dx=0.1/6
     maxx=10
     miny=0
     dy=1
@@ -75,7 +75,7 @@ def main(filename="frame/f.png"):
         
     # stupid init code
     f=ocl.Ocode()
-    f.set_depth(8) # depth and scale set here.
+    f.set_depth(9) # depth and scale set here.
     f.set_scale(10)
     
     # cube
@@ -89,10 +89,13 @@ def main(filename="frame/f.png"):
     #cube1.center = ocl.Point(0,0,0)
     #cube1.calcBB()
     
+    t_before = time.time()
     stock = ocl.LinOCT()
-    stock.init(5)
+    stock.init(3)
     stock.build( stockvol )
-    
+    calctime = time.time()-t_before
+    print " stock built in ", calctime," s, stock.size()=",stock.size()
+        
     # draw initial octree 
     #tlist = pyocl.octree2trilist(stock)
     #surf = camvtk.STLSurf(triangleList=tlist)
@@ -137,7 +140,7 @@ def main(filename="frame/f.png"):
         
         t_before = time.time()
         sweep = ocl.LinOCT()
-        sweep.init(5)
+        sweep.init(0)
         calctime = time.time()-t_before
         print " sweep-init done in ", calctime," s, sweep.size()=",sweep.size()
         
@@ -177,43 +180,49 @@ def main(filename="frame/f.png"):
         infotext.SetText(info)
         
         
-        
-        # sweep surface 
-        t_before = time.time()
-        sweep_tlist = pyocl.octree2trilist(sweep)
-        sweepsurf = camvtk.STLSurf(triangleList=sweep_tlist)
-        sweepsurf.SetColor(camvtk.red)
-        sweepsurf.SetOpacity(0.1)
-        myscreen.addActor(sweepsurf)
-        calctime = time.time()-t_before
-        print " sweepsurf-render  ", calctime," s"
-               
-        # stock surface 
-        t_before = time.time()
-        tlist = pyocl.octree2trilist(stock)
-        stocksurf = camvtk.STLSurf(triangleList=tlist)
-        stocksurf.SetColor(camvtk.cyan)
-        stocksurf.SetOpacity(1.0)
-        myscreen.addActor(stocksurf)
-        calctime = time.time()-t_before
-        print " stocksurf-render  ", calctime," s"
-        
-        #time.sleep(1.1)
-        # write screenshot to disk
-        lwr.SetFileName("frames/cutsim_frame"+ ('%03d' % n)+".png")
-        #lwr.SetFileName(filename)
-        
-        t_before = time.time() # time the render process
-        myscreen.render()
-        lwr.Write()
-        
-        calctime = time.time()-t_before
-        print " render  ", calctime," s"
-        
-        #myscreen.render()
-        #time.sleep(0.1)
-        myscreen.removeActor(stocksurf)
-        myscreen.removeActor(sweepsurf)
+        if (n%1==0 or n==Nmoves-2): # draw only every m:th frame
+            # sweep surface 
+            t_before = time.time()
+            #sweep_tlist = pyocl.octree2trilist(sweep)
+            sweep_tlist = sweep.get_triangles()
+            sweepsurf = camvtk.STLSurf(triangleList=sweep_tlist)
+            sweepsurf.SetColor(camvtk.red)
+            sweepsurf.SetOpacity(0.1)
+            myscreen.addActor(sweepsurf)
+            calctime = time.time()-t_before
+            print " sweepsurf-render  ", calctime," s"
+                   
+            # stock surface 
+            t_before = time.time()
+            #tlist = pyocl.octree2trilist(stock)
+            tlist = stock.get_triangles()
+            stocksurf = camvtk.STLSurf(triangleList=tlist)
+            stocksurf.SetColor(camvtk.cyan)
+            stocksurf.SetOpacity(1.0)
+            myscreen.addActor(stocksurf)
+            calctime = time.time()-t_before
+            print " stocksurf-render  ", calctime," s"
+            
+            #time.sleep(1.1)
+            # write screenshot to disk
+            lwr.SetFileName("frames/cutsim_frame"+ ('%03d' % n)+".png")
+            #lwr.SetFileName(filename)
+            
+            t_before = time.time() # time the render process
+            myscreen.render()
+            w2if.Modified() 
+            lwr.Write()
+            
+            calctime = time.time()-t_before
+            print " render  ", calctime," s"
+            
+            #myscreen.render()
+            #time.sleep(0.1)
+            
+            myscreen.removeActor(sweepsurf)
+            if n != (Nmoves-2):
+                myscreen.removeActor(stocksurf)
+                
         
 
         
@@ -221,26 +230,7 @@ def main(filename="frame/f.png"):
         #myscreen.removeActor(cyl2)
         #myscreen.render()
         #time.sleep(0.1)
-        
 
-            
-    #exit()
-    
-    # draw trees
-    #print "drawing trees"
-    #camvtk.drawTree2(myscreen,  stock, opacity=1,   color=camvtk.cyan)        
-
-    # box around octree 
-    oct_cube = camvtk.Cube(center=(0,0,0), length=4*f.get_scale(), color=camvtk.white)
-    oct_cube.SetWireframe()
-    myscreen.addActor(oct_cube)
-    
-    # OCL text
-    title = camvtk.Text()
-    title.SetPos( (myscreen.width-350, myscreen.height-30) )
-    title.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    myscreen.addActor(title)
-        
     print " render()...",
     myscreen.render()
     print "done."

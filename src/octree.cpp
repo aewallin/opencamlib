@@ -145,10 +145,11 @@ void LinOCT::build(OCTVolume* vol)
         else {  // this ocode contains the bounding-box
 
             it->calcScore( vol ); // expensive call...
+            int deg = it->degree();
             
-            if ( it->score == 9 ) {// black node
+            if ( (it->score == 9) ) { //&& (deg > 5) ) {// black node
                 it++; // node is black, so leave it in the list, and move forward
-            } else if ( it->score == 0) { 
+            } else if ( (it->score == 0) && (deg > 5) ) { //&& (deg > 5) ) { 
                 // white node, delete.
                 temp = it;
                 if ( it != clist.begin() ) 
@@ -626,6 +627,33 @@ void LinOCT::sum(LinOCT& other) {
 void LinOCT::sort() {
     clist.sort();
 }
+
+/// return list of triangles to python
+/// the triangles correspond to every node/cube of the octree
+boost::python::list LinOCT::get_triangles()
+{    
+    boost::python::list tlist;
+    BOOST_FOREACH( Ocode o, clist) {
+        std::vector<Point> p(8);
+        for (int m=0;m<8;++m)
+            p[m]=o.corner(m);
+        // these 12 triangles cover the 6 sides of the cube
+        tlist.append(Triangle(p[0],p[1],p[2])); 
+        tlist.append(Triangle(p[1],p[2],p[6])); 
+        tlist.append(Triangle(p[3],p[4],p[5])); 
+        tlist.append(Triangle(p[4],p[5],p[7])); 
+        tlist.append(Triangle(p[0],p[2],p[3])); 
+        tlist.append(Triangle(p[3],p[4],p[2]));
+        tlist.append(Triangle(p[1],p[5],p[6])); 
+        tlist.append(Triangle(p[6],p[7],p[5]));
+        tlist.append(Triangle(p[2],p[4],p[6])); 
+        tlist.append(Triangle(p[6],p[7],p[4]));
+        tlist.append(Triangle(p[0],p[1],p[3])); 
+        tlist.append(Triangle(p[3],p[5],p[1]));
+    }
+    return tlist;
+}
+
 
 boost::python::list LinOCT::get_nodes()
 {    

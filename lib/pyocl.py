@@ -14,16 +14,23 @@ def CLPointGridZigZag(minx,dx,maxx,miny,dy,maxy,z):
     plist = []
     xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
-    yrow = 0
-    x=minx
+    
+    #yrow = 0
+    #x=minx
+    #dir = 0
+    xlist = xvalues
     for y in yvalues:
-        xlist = xvalues
-        if (yrow%2) != 0:
-            xlist.reverse()
+        #xlist = xvalues
+        #if dir == 1:
+        #    xlist.reverse()
+        #    dir = 0
+        #else:
+        #    dir = 1
             
         for x in xlist:
             plist.append( ocl.CLPoint(x,y,z) )
-        yrow=yrow+1
+        xlist.reverse()
+        #yrow=yrow+1
     return plist
     
 
