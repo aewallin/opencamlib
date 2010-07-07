@@ -144,7 +144,12 @@ void LinOCT::build(OCTVolume* vol)
         }
         else {  // this ocode contains the bounding-box
 
-            if (  it->isWhite( vol ) ) { // white nodes can be deleted
+            it->calcScore( vol ); // expensive call...
+            
+            if ( it->score == 9 ) {// black node
+                it++; // node is black, so leave it in the list, and move forward
+            } else if ( it->score == 0) { 
+                // white node, delete.
                 temp = it;
                 if ( it != clist.begin() ) 
                     it--; // jump out of the way from erase()
@@ -152,6 +157,39 @@ void LinOCT::build(OCTVolume* vol)
                     it++;
                 clist.erase(temp);
             }
+            else { // grey node, expand if possible, otherwise delete
+                if ( it->expandable() ) {
+                    temp = it;
+                    bool first=false; 
+                    if (it == clist.begin()) {
+                        first = true;
+                    } else {
+                        temp--;
+                    }
+                    expand_at(it); // iterator moves to last expanded node.
+                    if (first) // so need to reset iterator to first expanded node
+                        it = clist.begin();
+                    else
+                        it = temp;    
+                } else { // grey non-expandable nodes are removed
+                    temp = it;
+                    if ( it != clist.begin() ) 
+                        it--; // jump out of the way from erase()
+                    else
+                        it++;
+                    clist.erase(temp);
+                }  
+            }
+            /*
+            else if (  it->isWhite( vol ) ) { // white nodes can be deleted
+                temp = it;
+                if ( it != clist.begin() ) 
+                    it--; // jump out of the way from erase()
+                else
+                    it++;
+                clist.erase(temp);
+            }*/
+            /*
             else if ( it->isGrey( vol ) ) { // grey nodes should be expanded, if possible
                 if ( it->expandable() ) {
                     temp = it;
@@ -174,10 +212,10 @@ void LinOCT::build(OCTVolume* vol)
                         it++;
                     clist.erase(temp);
                 }
-            } 
-            else {
-                it++; // node is black, so leave it in the list, and move forward
-            }
+            }*/
+            //else {
+            //    it++; // node is black, so leave it in the list, and move forward
+            //}
         }
     }
     // std::cout << size() << " nodes after build()\n";  

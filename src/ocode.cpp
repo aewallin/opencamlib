@@ -120,26 +120,33 @@ int Ocode::degree() const
     return n;
 }
 
-void Ocode::set_scale(double s)
-{
+void Ocode::set_scale(double s) {
     Ocode::scale = s;
 }
 
-double Ocode::get_scale()
-{
+double Ocode::get_scale() {
     return scale /pow(2.0,degree()-2 );
 }
 
-bool Ocode::expandable()
-{
-    // scan for an 8
+bool Ocode::expandable() {
     for (int n=0;n<depth;n++) {
-        if (code[n]==8)
+        if (code[n]==8) // scan for an 8
             return true;
     }
-    return false;
+    return false; // no 8 found
 }
 
+void Ocode::calcScore(OCTVolume* vol) {
+    int sum=0;
+    for (int n=0;n<9;n++) {// loop through all corners, and center
+        Point p = corner(n);
+        if (vol->isInside( p ) ) 
+            sum +=1;
+    }
+    score = sum;
+}
+
+/// return true if node is white, i.e. contains no points inside volume
 bool Ocode::isWhite(OCTVolume* vol) {
     bool bbflag = false;
     for (int n=0;n<9;n++) {// loop through all corners, and center
@@ -150,12 +157,9 @@ bool Ocode::isWhite(OCTVolume* vol) {
         if (vol->isInsideBB( p ))
             bbflag = true;
     }
-    
     if ( bbflag ) { // node is inside bounding-box, so do supersampling
         /// \todo FIXME test more points in the node here
-        
     }
-    
     return true; // get here only if all points outside volume
 }
 
@@ -274,8 +278,9 @@ bool Ocode::operator==(const Ocode &o){
     return true;
 }
 
-/// return correspinding number
+
 /*
+ * /// return correspinding number
 unsigned long Ocode::number() const {
     unsigned long n=0;
     for (int m=0;m<depth;m++) {

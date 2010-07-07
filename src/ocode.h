@@ -112,6 +112,8 @@ class Ocode {
                 
         /// the code. values 0-8 are needed, so only 4-bits really required...
         std::vector<char> code;
+        char score;
+        void calcScore(OCTVolume* vol);
 };
 
 

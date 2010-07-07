@@ -107,8 +107,23 @@ def main(filename="frame/f.png"):
     #myscreen.addActor(cyl)
     
     timetext = camvtk.Text()
-    timetext.SetPos( (myscreen.width-200, myscreen.height-30) )
+    timetext.SetPos( (myscreen.width-300, myscreen.height-30) )
     myscreen.addActor( timetext)
+    
+    ocltext = camvtk.Text()
+    ocltext.SetPos( (myscreen.width-300, myscreen.height-60) )
+    myscreen.addActor( ocltext)
+    ocltext.SetText("OpenCAMLib")
+    
+    octtext = camvtk.Text()
+    octtext.SetPos( (myscreen.width-300, myscreen.height-90) )
+    myscreen.addActor( octtext)
+    octtext.SetText("Octree cutting-simulation")
+    
+    infotext = camvtk.Text()
+    infotext.SetPos( (myscreen.width-300, myscreen.height-150) )
+    myscreen.addActor( infotext)
+    
     
     Nmoves = len(clpts)
     print Nmoves,"CL-points to process"
@@ -122,7 +137,7 @@ def main(filename="frame/f.png"):
         
         t_before = time.time()
         sweep = ocl.LinOCT()
-        sweep.init(3)
+        sweep.init(5)
         calctime = time.time()-t_before
         print " sweep-init done in ", calctime," s, sweep.size()=",sweep.size()
         
@@ -158,7 +173,8 @@ def main(filename="frame/f.png"):
         calctime = time.time()-t_before
         print " diff done in ", calctime," s, stock.size()", stock.size()
         
-        
+        info = "move: %i \nstock-nodes: %i \nsweep-nodes: %i" % (n, stock.size(), sweep.size() )
+        infotext.SetText(info)
         
         
         
@@ -184,11 +200,13 @@ def main(filename="frame/f.png"):
         
         #time.sleep(1.1)
         # write screenshot to disk
-        lwr.SetFileName("cutsim_frame"+ ('%03d' % n)+".png")
+        lwr.SetFileName("frames/cutsim_frame"+ ('%03d' % n)+".png")
         #lwr.SetFileName(filename)
-        #lwr.Write()
+        
         t_before = time.time() # time the render process
         myscreen.render()
+        lwr.Write()
+        
         calctime = time.time()-t_before
         print " render  ", calctime," s"
         
