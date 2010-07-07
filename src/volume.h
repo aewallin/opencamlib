@@ -23,10 +23,10 @@
 
 #include <iostream>
 #include <list>
-#include <vector>
 #include "bbox.h"
 #include "ocode.h"
-#include "octree.h"
+
+
 
 namespace ocl
 {
@@ -42,14 +42,12 @@ class OCTVolume {
     public:
         /// default constructor
         OCTVolume(){};
-        
         /// return true if Point p is inside volume
         virtual bool isInside(Point& p) const = 0;
         /// return true if Point p is in the bounding box
         bool isInsideBB(Point& p) const;
         /// return true if the Ocode o is inside the volume
         bool isInsideBBo(Ocode& o) const;
-
         /// bounding-box
         Bbox bb;
 };
@@ -78,7 +76,6 @@ class SphereOCTVolume: public OCTVolume {
         /// radius of sphere
         double radius;
         bool isInside(Point& p) const;
-        //bool isInsideBB(Point& p) const;
         /// update the Bbox
         void calcBB();
 };

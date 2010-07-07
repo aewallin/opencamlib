@@ -38,7 +38,7 @@ def main(filename="frame/f.png"):
     print s.getBounds()
     #exit()
     minx=0
-    dx=0.1/1
+    dx=0.1/0.1
     maxx=9
     miny=0
     dy=0.4
@@ -75,7 +75,7 @@ def main(filename="frame/f.png"):
         
     # stupid init code
     f=ocl.Ocode()
-    tree_maxdepth=9
+    tree_maxdepth=8
     f.set_depth(tree_maxdepth) # depth and scale set here.
     f.set_scale(10)
     

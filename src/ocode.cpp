@@ -18,12 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <vector>
-//#include <algorithm>
 #include <list>
 // uncomment to disable assert() calls
 // #define NDEBUG
@@ -52,27 +46,37 @@ Point  Ocode::center = Point(0,0,0);
 
 Ocode::Ocode() {
     code.resize(depth);   
-    code.assign(depth, 8);
+    code.assign(depth, 8); // fill with all "8"
+    crn = std::vector<Point>(9);
 }
 
 Ocode::Ocode(const Ocode &o) {
     code.resize(depth); 
     for (int n=0;n<depth;n++) 
         this->code[n] = o.code[n];
+    crn = std::vector<Point>(9);
 }
 
-void Ocode::set_depth(int d)
-{
+void Ocode::init() {
+    // this precomputes node properties
+    deg = degree();
+    cen = point();
+    for (int n=0;n<9;n++) {
+        crn[n] = corner(n);
+    }
+    
+}
+
+void Ocode::set_depth(int d) {
     Ocode::depth = d;
     return;
 }
 
-int Ocode::get_depth()
-{
+int Ocode::get_depth() {
     return Ocode::depth;
 }
 
-char Ocode::operator[](const int &idx) {
+char& Ocode::operator[](const int &idx) {
     return this->code[idx];
 }
 
@@ -80,40 +84,31 @@ char Ocode::operator[](const int &idx) {
 Ocode& Ocode::operator=(const Ocode &rhs) {
     if (this == &rhs)      // Same object?
       return *this; 
-    // copy code
     for (int n=0;n<depth;n++) {
-        this->code[n] = rhs.code[n];
+        this->code[n] = rhs.code[n]; // copy code
     }
-    //this->color = rhs.color;
-    
     return *this;
 }
 
 /// return center-point corresponding to code
 Point Ocode::point() const {
-    Point p;
-    p = center;
-    // navigate to correct point
-    for (int n=0; n<depth ; n++) {
-        // note: code[n]==8  goes nowhere
-        p += ( scale/pow(2.0,n) )*dir( code[n] );
+    Point p = center; // global center, a static variable!
+    for (int n=0; n<depth ; n++) { // navigate to correct point
+        p += ( scale/pow(2.0,n) )*dir( code[n] );  // note: code[n]==8  goes nowhere
     }
     return p;
 }
 
 /// return eight different corner points of cube
-Point Ocode::corner(int idx) {
+Point Ocode::corner(int idx) const {
     Point p;
-    p = point(); // navigate to center of cell
-
+    p = point();       // navigate to center of cell
     int n= degree();
-    // from the center go out to the corner
-    p += ( scale*2 /pow(2.0,n) )*dir( idx );
+    p += ( scale*2 /pow(2.0,n) )*dir( idx ); // from the center go out to the corner
     return p;
 }
 
-int Ocode::degree() const
-{
+int Ocode::degree() const {
     int n=0;
     while ( (code[n] != 8) && (n<depth) )  // figure out degree of this code
         n++;
@@ -137,9 +132,10 @@ bool Ocode::expandable() {
 }
 
 void Ocode::calcScore(OCTVolume* vol) {
-    int sum=0;
+    init(); //why??
+    int sum=0;             // use 8/9 pts?   why9??
     for (int n=0;n<9;n++) {// loop through all corners, and center
-        Point p = corner(n);
+        Point p = crn[n]; //crn[n]; // use precomputed corner
         if (vol->isInside( p ) ) 
             sum +=1;
     }
@@ -202,6 +198,7 @@ std::list<Ocode> Ocode::expand()
             Ocode child;
             child = *this; // child is copy of parent
             child.code[deg] = n; // but at position deg, cycle through 0-7
+            child.init();
             list.push_back(child);
         }
     } else {
@@ -211,16 +208,14 @@ std::list<Ocode> Ocode::expand()
 }
 
 /// fill Ocode with invalid information
-void Ocode::null()
-{
+void Ocode::null() {
     for (int n=0;n<depth;n++) {
         code[n]=9; // an invalid Ocode
     }
     return;
 }
 
-bool Ocode::isNull()
-{
+bool Ocode::isNull() {
     for (int n=0;n<depth;n++) {
         if ( code[n] != 9 ) 
             return false;
@@ -291,8 +286,6 @@ unsigned long Ocode::number() const {
 }*/
 
 bool Ocode::operator<(const Ocode& o) const {
-    
-    
     for (int m=0;m<depth;++m) {
         if ( this->code[m] < o.code[m] ) 
             return true;

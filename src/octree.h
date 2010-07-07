@@ -23,16 +23,12 @@
 
 #include <iostream>
 #include <list>
-#include <vector>
 
+#include "ocode.h"
 #include "volume.h"
 
 namespace ocl
 {
-    
-class Point;
-class Triangle;
-class MillingCutter;
 
 /// linear octree
 class LinOCT {

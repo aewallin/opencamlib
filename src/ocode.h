@@ -42,11 +42,17 @@ class Ocode {
         Ocode();
         /// copy constructor
         Ocode(const Ocode &o);
+        /// initialize center-point, scale, and corners
+        void init();
+        double deg;
+        Point  cen;
+        std::vector<Point> crn;
+        
         
         /// return point corresponding to code
         Point point() const; 
         /// return corner point of cube
-        Point corner(int idx);
+        Point corner(int idx) const;
         /// return normalized direction vector to child quadrants
         Point dir(int idx) const;
         
@@ -71,7 +77,7 @@ class Ocode {
         /// return list of Ocodes for sub-octants
         std::list<Ocode> expand();
         /// index into code
-        char operator[](const int &idx);
+        char& operator[](const int &idx);
         
         /// assignment
         Ocode &operator=(const Ocode &o);

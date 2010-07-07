@@ -69,7 +69,7 @@ void LinOCT::delete_at(std::list<Ocode>::iterator& it) {
 void LinOCT::expand_at(std::list<Ocode>::iterator& itr) {
     // note: there was a valid-index check here
     // consider checking that itr is valid?
-        if ( itr->expandable()) {  // was: clist[idx].expandable()
+       // if ( itr->expandable()) {  // was: clist[idx].expandable()
             std::list<Ocode> newnodes = itr->expand(); // the new nodes  clist[idx]                
             BOOST_FOREACH( Ocode o, newnodes) {
                 clist.insert(itr, o);
@@ -80,9 +80,9 @@ void LinOCT::expand_at(std::list<Ocode>::iterator& itr) {
             temp = itr;
             itr--; // jump out of the way from erase()
             clist.erase(temp);
-        } else {
-            std::cout << "LinOCT::expandcannot expand " << *itr << "!\n";
-        }
+        /*} else {
+            std::cout << "LinOCT::expand_at() cannot expand " << *itr << "!\n";
+        }*/
     return;
 }
 
@@ -96,6 +96,7 @@ void LinOCT::init(int min_expand)
     }
     
     Ocode o = Ocode(); // create an onode, initally all "8"
+    o.init();
     append(o);
     
     for (int m=0; m<min_expand ; m++) { // go through the list min_expand times
@@ -123,8 +124,7 @@ void LinOCT::init(int min_expand)
 
 /// build LinOCT octree from input volume OCTVolume
 void LinOCT::build(OCTVolume* vol)
-{
-    // loop through the whole list:
+{   // loop through the whole list:
     // - deleting white nodes 
     // - expanding grey nodes if possible
     // - skipping over black nodes (only these remain when done) 
@@ -139,24 +139,19 @@ void LinOCT::build(OCTVolume* vol)
                 it--; // jump back out of the way from erase()
             else
                 it++;
-            //std::cout << "outside BBox-deleting!\n";
             clist.erase(temp);
         }
         else {  // this ocode contains the bounding-box
-
             it->calcScore( vol ); // expensive call...
-            int deg = it->degree();
-            
-            if ( (it->score == 9) ) { //&& (deg > 5) ) {// black node
+            if ( (it->score == 9) ) { // black node
                 it++; // node is black, so leave it in the list, and move forward
-            } else if ( (it->score == 0) && (deg > 5) ) { //&& (deg > 5) ) { 
-                // white node, delete.
+            } else if ( (it->score == 0) && (it->deg > 5) ) { 
                 temp = it;
                 if ( it != clist.begin() ) 
                     it--; // jump out of the way from erase()
                 else
                     it++;
-                clist.erase(temp);
+                clist.erase(temp); // white node, delete.
             }
             else { // grey node, expand if possible, otherwise delete
                 if ( it->expandable() ) {
@@ -181,42 +176,6 @@ void LinOCT::build(OCTVolume* vol)
                     clist.erase(temp);
                 }  
             }
-            /*
-            else if (  it->isWhite( vol ) ) { // white nodes can be deleted
-                temp = it;
-                if ( it != clist.begin() ) 
-                    it--; // jump out of the way from erase()
-                else
-                    it++;
-                clist.erase(temp);
-            }*/
-            /*
-            else if ( it->isGrey( vol ) ) { // grey nodes should be expanded, if possible
-                if ( it->expandable() ) {
-                    temp = it;
-                    bool first=false; 
-                    if (it == clist.begin()) {
-                        first = true;
-                    } else {
-                        temp--;
-                    }
-                    expand_at(it); // iterator moves to last expanded node.
-                    if (first) // so need to reset iterator to first expanded node
-                        it = clist.begin();
-                    else
-                        it = temp;    
-                } else { // grey non-expandable nodes are removed
-                    temp = it;
-                    if ( it != clist.begin() ) 
-                        it--; // jump out of the way from erase()
-                    else
-                        it++;
-                    clist.erase(temp);
-                }
-            }*/
-            //else {
-            //    it++; // node is black, so leave it in the list, and move forward
-            //}
         }
     }
     // std::cout << size() << " nodes after build()\n";  
