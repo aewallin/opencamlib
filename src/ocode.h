@@ -86,7 +86,7 @@ class Ocode {
         // NOTE: this is probably a bad idea
         // depth N trees will require N-digit numbers...
         // better rewrite operator< so it does not use number()
-        unsigned long number() const;
+        // unsigned long number() const;
         /// set an invalid Ocode
         void null();
         /// test for the invalid Ocode set by null()
@@ -109,10 +109,7 @@ class Ocode {
         static double scale;
         /// center point of octree
         static Point center;
-        
-        // color of node, currently not used...
-        // int color;
-        
+                
         /// the code. values 0-8 are needed, so only 4-bits really required...
         std::vector<char> code;
 };

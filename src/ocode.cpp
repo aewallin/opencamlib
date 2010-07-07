@@ -275,6 +275,7 @@ bool Ocode::operator==(const Ocode &o){
 }
 
 /// return correspinding number
+/*
 unsigned long Ocode::number() const {
     unsigned long n=0;
     for (int m=0;m<depth;m++) {
@@ -282,11 +283,12 @@ unsigned long Ocode::number() const {
     }
     assert( n > 0 );
     return n;
-}
+}*/
 
 bool Ocode::operator<(const Ocode& o) const {
     
-    for (int m=0;m<depth;m++) {
+    
+    for (int m=0;m<depth;++m) {
         if ( this->code[m] < o.code[m] ) 
             return true;
         else if ( this->code[m] > o.code[m] )

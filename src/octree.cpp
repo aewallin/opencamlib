@@ -116,7 +116,7 @@ void LinOCT::init(int min_expand)
                     itr--; // unless at the end of list
             }
         }
-        std::cout << " LinOCT:init() m=" << m << " N=" << size() << "\n";
+        // std::cout << " LinOCT:init() m=" << m << " N=" << size() << "\n";
     }
     return;
 }
@@ -128,69 +128,23 @@ void LinOCT::build(OCTVolume* vol)
     // - deleting white nodes 
     // - expanding grey nodes if possible
     // - skipping over black nodes (only these remain when done) 
-    std::cout << size() << " nodes before build()\n";
+    // std::cout << size() << " nodes before build()\n";
     std::list<Ocode>::iterator it;
     std::list<Ocode>::iterator temp;
     it = clist.begin();
-
     while ( it != clist.end()  ) { 
-        //std::cout << n << "build()  it: " << *it << "\n";
-        
         if (  ! (vol->isInsideBBo( *it )) ) { // nodes outside bounding-box can be deleted
             temp = it;
             if ( it != clist.begin() ) 
-                it--; // jump out of the way from erase()
+                it--; // jump back out of the way from erase()
             else
                 it++;
             //std::cout << "outside BBox-deleting!\n";
             clist.erase(temp);
         }
-        else if (  it->isWhite( vol ) ) { // white nodes can be deleted
-            //std::cout << n << "before delete idx" << clist[n] << "\n";
-            //std::cout << n << "before delete it:" << *it << "\n";
-            //std::cout << "white node, deleting\n";
-            temp = it;
-            if ( it != clist.begin() ) 
-                it--; // jump out of the way from erase()
-            else
-                it++;
-            clist.erase(temp);
-        }
-        else if ( it->isGrey( vol ) ) {
-            // grey nodes should be expanded, if possible
-            if ( it->expandable() ) {
-                //std::cout << "expand_at( " << n << " )\n";
-                //printList();
-                //std::cout << n << " before expand it: " << *it << "\n";
-                temp = it;
-                bool first=false; 
-                if (it == clist.begin()) {
-                    first = true;
-                } else {
-                    temp--;
-                }
-                //std::cout << n << " before expand temp: " << *temp << "\n";
-                expand_at(it); // iterator moves to last expanded node.
-                
-                // so need to reset iterator to first expanded node
-                if (first)
-                    it = clist.begin();
-                else
-                    it = temp;
-                
-                // storing the iterator in temp (code above)
-                // saves us from this jumping (but doesn't save much running-time)
-                // jump back seven steps
-                //for (int j=0;j<7;j++)
-                //    it--;
-                //it--;
-                
-                // for debugging, print the whole list             
-                //printList();       
-            }
-            else {
-                // grey non-expandable nodes are removed
-                //std::cout << "grey non-exp delete_at()" << n << "\n";
+        else {  // this ocode contains the bounding-box
+
+            if (  it->isWhite( vol ) ) { // white nodes can be deleted
                 temp = it;
                 if ( it != clist.begin() ) 
                     it--; // jump out of the way from erase()
@@ -198,15 +152,35 @@ void LinOCT::build(OCTVolume* vol)
                     it++;
                 clist.erase(temp);
             }
-        } 
-        
-        else {
-            // node is black, so leave it in the list
-            // and move forward in the list
-            it++;
+            else if ( it->isGrey( vol ) ) { // grey nodes should be expanded, if possible
+                if ( it->expandable() ) {
+                    temp = it;
+                    bool first=false; 
+                    if (it == clist.begin()) {
+                        first = true;
+                    } else {
+                        temp--;
+                    }
+                    expand_at(it); // iterator moves to last expanded node.
+                    if (first) // so need to reset iterator to first expanded node
+                        it = clist.begin();
+                    else
+                        it = temp;    
+                } else { // grey non-expandable nodes are removed
+                    temp = it;
+                    if ( it != clist.begin() ) 
+                        it--; // jump out of the way from erase()
+                    else
+                        it++;
+                    clist.erase(temp);
+                }
+            } 
+            else {
+                it++; // node is black, so leave it in the list, and move forward
+            }
         }
     }
-    std::cout << size() << " nodes after build()\n";  
+    // std::cout << size() << " nodes after build()\n";  
 }
 
 // NOTE: condense() seems to run very slowly 
@@ -438,8 +412,8 @@ LinOCT LinOCT::operation(int type, LinOCT& o)
         else { // case 4:  o2 < o1
             if ( !( *itr2 < *itr1 ) ) { //o.clist[idx2] < clist[idx1]) ) {
                 std::cout << " case 4 o2 < o1 not true!\n";
-                std::cout << "o2=" << *itr2 << "number=" << itr2->number() <<  "\n";
-                std::cout << "o1=" << *itr1 << "number=" << itr1->number() << "\n";
+                // std::cout << "o2=" << *itr2 << "number=" << itr2->number() <<  "\n";
+                // std::cout << "o1=" << *itr1 << "number=" << itr1->number() << "\n";
                 assert(0);
             }
                 

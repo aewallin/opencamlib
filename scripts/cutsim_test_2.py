@@ -11,10 +11,10 @@ def main(filename="frame/f.png"):
     print ocl.revision()
           
     myscreen = camvtk.VTKScreen()   
-    myscreen.camera.SetPosition(20, 12, 20)
-    myscreen.camera.SetFocalPoint(0,0, 0)   
+    myscreen.camera.SetPosition(-15, -8, 15)
+    myscreen.camera.SetFocalPoint(5,5, 0)   
     # axis arrows
-    camvtk.drawArrows(myscreen,center=(2,2,2))
+    camvtk.drawArrows(myscreen,center=(-1,-1,0))
 
     
     # screenshot writer
@@ -83,7 +83,7 @@ def main(filename="frame/f.png"):
     stockvol.corner = ocl.Point(0,0,-0.5)
     stockvol.v1 = ocl.Point(10,0,0)
     stockvol.v2 = ocl.Point(0,10,0)
-    stockvol.v3 = ocl.Point(0,0,2)
+    stockvol.v3 = ocl.Point(0,0,3)
     stockvol.calcBB()
     #cube1.side=10.0
     #cube1.center = ocl.Point(0,0,0)
@@ -106,53 +106,101 @@ def main(filename="frame/f.png"):
     #cyl.SetWireframe()
     #myscreen.addActor(cyl)
     
+    timetext = camvtk.Text()
+    timetext.SetPos( (myscreen.width-200, myscreen.height-30) )
+    myscreen.addActor( timetext)
+    
     Nmoves = len(clpts)
     print Nmoves,"CL-points to process"
     for n in xrange(0,Nmoves-1):
+        timetext.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        
         #if n<Nmoves-1:
         print n," to ",n+1
         startp = clpts[n]  # start of move
         endp   = clpts[n+1] # end of move
+        
+        t_before = time.time()
         sweep = ocl.LinOCT()
-        sweep.init(5)
+        sweep.init(3)
+        calctime = time.time()-t_before
+        print " sweep-init done in ", calctime," s, sweep.size()=",sweep.size()
+        
         g1vol = ocl.CylMoveOCTVolume(c, ocl.Point(startp.x,startp.y,startp.z), ocl.Point(endp.x,endp.y,endp.z))
         
+        t_before = time.time()
         sweep.build( g1vol )
+        calctime = time.time()-t_before
+        print " sweep-build done in ", calctime," s, sweep.size()=",sweep.size()
+        
         # draw cutter
-        cyl = camvtk.Cylinder(center=(startp.x,startp.y,startp.z), radius=c.radius,
+        cyl1 = camvtk.Cylinder(center=(startp.x,startp.y,startp.z), radius=c.radius,
                             height=c.length,
-                            rotXYZ=(90,0,0), color=camvtk.grey)
-        cyl.SetWireframe()
-        myscreen.addActor(cyl)
+                            rotXYZ=(90,0,0), color=camvtk.lgreen)
+        cyl1.SetWireframe()
+        #myscreen.addActor(cyl1)
+        cyl2 = camvtk.Cylinder(center=(endp.x,endp.y,endp.z), radius=c.radius,
+                            height=c.length,
+                            rotXYZ=(90,0,0), color=camvtk.pink)
+        cyl2.SetWireframe()
+        #myscreen.addActor(cyl2)
+        
     
         #camvtk.drawCylCutter(myscreen, c, startp)
         #camvtk.drawCylCutter(myscreen, c, endp)
         myscreen.addActor( camvtk.Line( p1=(startp.x,startp.y,startp.z), p2=(endp.x,endp.y,endp.z), color=camvtk.red))
         #camvtk.drawTree2(myscreen,sweep,color=camvtk.red,opacity=0.5)
+        
+
             
         t_before = time.time()
         stock.diff(sweep)
         calctime = time.time()-t_before
-        print " diff done in ", calctime," s"
-    
-        #myscreen.removeActor(surf)
+        print " diff done in ", calctime," s, stock.size()", stock.size()
+        
+        
+        
+        
+        
+        # sweep surface 
+        t_before = time.time()
+        sweep_tlist = pyocl.octree2trilist(sweep)
+        sweepsurf = camvtk.STLSurf(triangleList=sweep_tlist)
+        sweepsurf.SetColor(camvtk.red)
+        sweepsurf.SetOpacity(0.1)
+        myscreen.addActor(sweepsurf)
+        calctime = time.time()-t_before
+        print " sweepsurf-render  ", calctime," s"
+               
+        # stock surface 
+        t_before = time.time()
         tlist = pyocl.octree2trilist(stock)
-        surf = camvtk.STLSurf(triangleList=tlist)
-        surf.SetColor(camvtk.cyan)
-        surf.SetOpacity(1.0)
-        myscreen.addActor(surf)
-        myscreen.render()
-        time.sleep(0.1)
+        stocksurf = camvtk.STLSurf(triangleList=tlist)
+        stocksurf.SetColor(camvtk.cyan)
+        stocksurf.SetOpacity(1.0)
+        myscreen.addActor(stocksurf)
+        calctime = time.time()-t_before
+        print " stocksurf-render  ", calctime," s"
+        
+        #time.sleep(1.1)
         # write screenshot to disk
         lwr.SetFileName("cutsim_frame"+ ('%03d' % n)+".png")
         #lwr.SetFileName(filename)
         #lwr.Write()
-        
-        
-        myscreen.removeActor(cyl)
+        t_before = time.time() # time the render process
         myscreen.render()
+        calctime = time.time()-t_before
+        print " render  ", calctime," s"
+        
+        #myscreen.render()
         #time.sleep(0.1)
-        myscreen.removeActor(surf)
+        myscreen.removeActor(stocksurf)
+        myscreen.removeActor(sweepsurf)
+        
+
+        
+        #myscreen.removeActor(cyl1)
+        #myscreen.removeActor(cyl2)
         #myscreen.render()
         #time.sleep(0.1)
         
