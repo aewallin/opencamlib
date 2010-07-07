@@ -348,6 +348,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ocode.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\octree.cpp"
 				>
 			</File>
@@ -503,6 +507,10 @@
 			</File>
 			<File
 				RelativePath="..\src\ocl.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ocode.h"
 				>
 			</File>
 			<File
