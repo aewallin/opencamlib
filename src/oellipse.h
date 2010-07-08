@@ -41,22 +41,32 @@ class Ellipse {
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);
         
         /// return a point on the ellipse at given Epos
-        Point ePoint(Epos& position);
+        Point ePoint(Epos& position) const;
         
         /// return a point on the offset-ellipse at given Epos
-        Point oePoint(Epos& position);
+        Point oePoint(Epos& position) const;
          
         /// return a normalized normal vector of the ellipse at the given Epos
-        Point normal(Epos& position);
+        Point normal(Epos& position) const;
         
         /// return a normalized tangent vector to the ellipse at the given Epos
-        Point tangent(Epos& position);
+        Point tangent(Epos& position) const;
         
-        /// offset-ellipse solver
-        static int solver(Ellipse& e, Point& p); // why static?
+        /// offset-ellipse Newton-Rhapson solver
+        int solver_nr( Point& p ); 
+        
+        /// offset-ellipse Brent solver
+        int solver_brent( Point& p );
+        void print_solutions( Point& p);
+        
+        Point target;
+        
+        /// given one epos solution, find the other.
+        bool find_epos2(Point& p);
         
         /// error function for the solver
         double error(Epos& position, Point& p);
+        double error_brent( double dia );
         
         /// calculate ellipse center
         Point calcEcenter(Point& cl, Point& up1, Point& up2, int sln);

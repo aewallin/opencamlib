@@ -25,9 +25,8 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 
+#include "oellipse.h"
 
-
-#include "numeric.h"
 
 namespace ocl
 {
@@ -98,11 +97,10 @@ double eps() {
 }
 
 /// Brent's root finding algorithm
-double brent_zero( double a, double b, double eps, double t, 
-  double f(double x)) {
+double brent_zero( double a, double b, double eps, double t, Ellipse* ell) {
     // f must have unequal sign at a and b, i.e.
     // f(a)*f(b) < 0
-    // the location of a root c where f(c)=0 is located
+    // returns the location of a root c where f(c)=0 
     // to within 6*eps*abs(c)+2*t tolerance 
     double c,d,e;
     double fa,fb,fc; // function values
@@ -112,10 +110,12 @@ double brent_zero( double a, double b, double eps, double t,
       
     //sa = a;
     //sb = b;
-    fa = f(a);
-    fb = f(b);
-    if (fa*fb >= 0.0) // check for opposite signs
+    fa = ell->error_brent(a); // f(a);
+    fb = ell->error_brent(b); // f(b);
+    if (fa*fb >= 0.0) {// check for opposite signs
+        std::cout << " brent_zero() called with invalid interval [a,b] !\n";
         assert(0);
+    }
         
     c  = a; // set c sln equal to a sln
     fc = fa; 
@@ -133,10 +133,10 @@ double brent_zero( double a, double b, double eps, double t,
         }
         tol = 2.0*eps*fabs(b)+t;
         m = 0.5*(c-b); // half of step from c to b sln 
-        if (fabs(m) <= tol || fb == 0.0) // end-condition for the infinite loop
+        if ( (fabs(m) <= tol) || (fb == 0.0) ) // end-condition for the infinite loop
             break; // either within tolerance, or found exact zero fb
         
-        if ( fabs(e) < tol || fabs(fa) <= fabs(fb) ) {
+        if ( (fabs(e) < tol) || (fabs(fa) <= fabs(fb)) ) {
             // step from c->b was small, or fa is a better solution
             e = m; 
             d = e; // bisection?
@@ -159,7 +159,7 @@ double brent_zero( double a, double b, double eps, double t,
             
             s=e;
             e=d;
-            if ( 2.0*p < 3*m*q-fabs(tol*q) && p<fabs(0.5*s*q) ) {
+            if ( (2.0*p < (3.0*m*q-fabs(tol*q))) && (p<fabs(0.5*s*q)) ) {
                 d = p/q;
             } else {
                 e = m;
@@ -172,16 +172,17 @@ double brent_zero( double a, double b, double eps, double t,
         if (fabs(d) > tol ) // if d is "large"
             b = b+d; // push the root by d
         else if ( m > 0.0 )
-            b = b+tol; // otherwise, push root by tol
+            b = b+tol; // otherwise, push root by tol in direction of m
         else
             b = b-tol;
+        // std::cout << " brent_zero b=" << b << "\n";
         
-        fb = f(b);
+        fb = ell->error_brent(b); // f(b);
         
         if ( ((fb>0.0) && (fc>0.0)) || ((fb<=0.0) && (fc<=0.0)) ) {
             // fb and fc have the same sign
             c = a;  // so change c to a
-            fc = a;
+            fc = fa;
             e = b-a; // interval width
             d = e;
         }

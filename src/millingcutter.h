@@ -176,6 +176,145 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
     
 };
 
+
+
+
+
+
+/* ********************************************************************
+ *  CYLINDER    cylcutter.cpp
+ * ********************************************************************/
+///
+/// \brief Cylindrical MillingCutter (flat-endmill)
+///
+/// defined by one parameter, the cutter diameter
+class CylCutter : public MillingCutter {
+    public:
+        /// create CylCutter with diameter = 1.0
+        CylCutter();
+        /// create CylCutter with diameter = d
+        explicit CylCutter(const double d);
+        
+        MillingCutter* offsetCutter(double d) const;
+
+        // dropCutter methods
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        int facetDrop(CLPoint &cl, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        
+        // pushCutter methods
+        int vertexPush(Fiber& f, Interval& i, const Triangle& t) const;
+        int facetPush(Fiber& f, Interval& i, const Triangle& t) const;
+        int edgePush(Fiber& f, Interval& i, const Triangle& t) const;
+        
+        /// text output
+        friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
+        /// string repr
+        std::string str() const;
+        
+};
+
+
+/* ********************************************************************
+ *  SPHERE      ballcutter.cpp
+ * ********************************************************************/
+/// \brief Ball or Spherical MillingCutter (ball-nose endmill)
+///
+/// defined by one parameter. the cutter diameter.
+/// the sphere radius will be diameter/2
+class BallCutter : public MillingCutter {
+    public:
+        BallCutter();
+        /// create a BallCutter with diameter d and radius d/2
+        explicit BallCutter(const double d);
+        
+        MillingCutter* offsetCutter(double d) const;
+        
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        int facetDrop(CLPoint &cl, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
+        /// string repr
+        std::string str() const;
+        
+};
+
+/* ********************************************************************
+ *  TORUS       bullcutter.cpp
+ * ********************************************************************/
+/// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
+///
+/// defined by the cutter diameter and by the corner radius
+///
+class BullCutter : public MillingCutter {
+    public:
+        /// Create bull-cutter with default diameter and corner radius.
+        BullCutter();
+        /// Create bull-cutter with diamter d and corner radius r.
+        BullCutter(const double d, const double r);
+        
+        MillingCutter* offsetCutter(double d) const;
+        
+        /// drop cutter
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        int facetDrop(CLPoint &cl, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
+        /// string repr
+        std::string str() const;
+        
+    protected:
+        
+        /// set radius of cutter
+        void setRadius();  
+        /// radius of cylindrical part of cutter
+        double radius1;
+        /// tube radius of toroid
+        double radius2;
+};
+
+/* ********************************************************************
+ *  CONE        conecutter.cpp
+ * ********************************************************************/
+/// \brief Conical MillingCutter 
+///
+/// cone defined by diameter and the cone half-angle(in radians). sharp tip. 
+/// 60 degrees or 90 degrees are common
+class ConeCutter : public MillingCutter {
+    public:
+        /// default constructor
+        ConeCutter();
+        /// create a ConeCutter with specified maximum diameter and cone-angle
+        /// for a 90-degree cone specify the half-angle  angle= pi/4
+        ConeCutter(const double d, const double angle);
+        
+        MillingCutter* offsetCutter(double d) const;
+                
+        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        int facetDrop(CLPoint &cl, const Triangle &t) const;
+        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
+        /// string repr
+        std::string str() const;
+        
+    protected:
+        /// the half-angle of the cone, in radians
+        double angle;
+        /// the height of the cone
+        double height;
+};
+
+
+
+/* ********************************************************************
+ *  CompoundCutter(s)        compoundcutter.cpp
+ * ********************************************************************/
 /// \brief a CompoundCutter is composed one or more MillingCutters
 /// the cutters are stored in a vector *cutter* and their axial offsets
 /// from eachother in *zoffset*. The different cutters apply in different
@@ -247,129 +386,6 @@ class ConeConeCutter : public CompoundCutter {
         ConeConeCutter(double diam1, double angle1, double diam2, double angle2);
 };
 
-
-/* ********************************************************************
- *  The basic cutter shapes: Cylinder, Sphere, Toroid, Cone
- * ********************************************************************/
-
-///
-/// \brief Cylindrical MillingCutter (flat-endmill)
-///
-/// defined by one parameter, the cutter diameter
-class CylCutter : public MillingCutter {
-    public:
-        /// create CylCutter with diameter = 1.0
-        CylCutter();
-        /// create CylCutter with diameter = d
-        explicit CylCutter(const double d);
-        
-        MillingCutter* offsetCutter(double d) const;
-
-        // dropCutter methods
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
-        
-        // pushCutter methods
-        int vertexPush(Fiber& f, Interval& i, const Triangle& t) const;
-        int facetPush(Fiber& f, Interval& i, const Triangle& t) const;
-        int edgePush(Fiber& f, Interval& i, const Triangle& t) const;
-        
-        /// text output
-        friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
-        /// string repr
-        std::string str() const;
-        
-};
-
-
-/// \brief Ball or Spherical MillingCutter (ball-nose endmill)
-///
-/// defined by one parameter. the cutter diameter.
-/// the sphere radius will be diameter/2
-class BallCutter : public MillingCutter {
-    public:
-        BallCutter();
-        /// create a BallCutter with diameter d and radius d/2
-        explicit BallCutter(const double d);
-        
-        MillingCutter* offsetCutter(double d) const;
-        
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
-        
-        /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
-        /// string repr
-        std::string str() const;
-        
-};
-
-
-/// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
-///
-/// defined by the cutter diameter and by the corner radius
-///
-class BullCutter : public MillingCutter {
-    public:
-        /// Create bull-cutter with default diameter and corner radius.
-        BullCutter();
-        /// Create bull-cutter with diamter d and corner radius r.
-        BullCutter(const double d, const double r);
-        
-        MillingCutter* offsetCutter(double d) const;
-        
-        /// drop cutter
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
-        
-        /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
-        /// string repr
-        std::string str() const;
-        
-    protected:
-        
-        /// set radius of cutter
-        void setRadius();  
-        /// radius of cylindrical part of cutter
-        double radius1;
-        /// tube radius of toroid
-        double radius2;
-};
-
-
-/// \brief Conical MillingCutter 
-///
-/// cone defined by diameter and the cone half-angle(in radians). sharp tip. 
-/// 60 degrees or 90 degrees are common
-class ConeCutter : public MillingCutter {
-    public:
-        /// default constructor
-        ConeCutter();
-        /// create a ConeCutter with specified maximum diameter and cone-angle
-        /// for a 90-degree cone specify the half-angle  angle= pi/4
-        ConeCutter(const double d, const double angle);
-        
-        MillingCutter* offsetCutter(double d) const;
-                
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
-        
-        /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
-        /// string repr
-        std::string str() const;
-        
-    protected:
-        /// the half-angle of the cone, in radians
-        double angle;
-        /// the height of the cone
-        double height;
-};
 
 } // end namespace
 #endif

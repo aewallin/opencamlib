@@ -50,7 +50,8 @@ void Epos::setD() {
         d -= 4.0;
     while ( d < 0.0)
         d+=4.0;
-    std::cout << diangle << " mod 4 = " << d << "\n";
+    
+    // std::cout << "Epos::setD(): " << diangle << " mod 4 = " << d << "\n";
     
     // now we should be in [0,4]
     assert( d >= 0.0 );

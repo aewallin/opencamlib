@@ -57,10 +57,8 @@ int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     int result = 0;
-    BOOST_FOREACH( const Point& p, t.p)
-    {
-        // distance in XY-plane from cl to p
-        double q = cl.xyDistance(p);
+    BOOST_FOREACH( const Point& p, t.p){
+        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         assert( q >= 0.0 );
         CCPoint cc_tmp = p;
         cc_tmp.type = VERTEX;
@@ -79,19 +77,14 @@ int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
                 result = 1;
             }
         }
-        else {
-            // point outside cutter, nothing to do.
-        }
     }
     return result;
 }
 
 
-int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const
-{
+int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
-    
     if ( isZero_tol( t.n->z ) )  {// vertical surface
         return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
@@ -103,11 +96,10 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     
     // horizontal plane special case
     if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { 
-        // so any vertex is at the correct height
         CCPoint cc_tmp;
         cc_tmp.x = cl.x;
         cc_tmp.y = cl.y;
-        cc_tmp.z = t.p[0].z;
+        cc_tmp.z = t.p[0].z; // any vertex is at the correct height
         cc_tmp.type = FACET;
         if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
             if ( cl.liftZ(cc_tmp.z, cc_tmp) ) {
@@ -266,7 +258,9 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                         std::cout << " ucl=" << ucl << "\n";
                     }
                     // run the solver
-                    int iters = Ellipse::solver(e, ucl);
+                    //int iters = e.solver_nr(ucl);
+                    int iters = e.solver_brent(ucl);
+                    // now epos1 and epos2 are the correct Epos positions where error is zero
                     
                     assert( iters < 200 ); // it's probably an error if the solver takes too long...
                     
@@ -275,7 +269,6 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     Point ecen2 = e.calcEcenter( ucl, up1, up2, 2);
                     assert( ecen1.y == d ); // ellipse-centers are on the edge
                     assert( ecen2.y == d );
-                    // s,t sign info must be got here also!
                     
                     // choose the one with higher z-value
                     Point ecen;
@@ -285,8 +278,7 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                         ecen = ecen1;
                         pos_hi = e.epos1;
                         ep_sign = -1;
-                    }
-                    else {
+                    } else {
                         ecen = ecen2;
                         pos_hi = e.epos2;
                         ep_sign = 1;
@@ -300,7 +292,12 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     
                     // cc-point on the ellipse/cylinder, in the CL=origo system
                     Point ell_ccp = e_hi.ePoint(pos_hi);
-                    assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-6 );  // should be on the cylinder-circle                  
+                    if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-6 ) { // should be on the cylinder-circle   
+                        std::cout << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
+                        std::cout << " ell_ccp.xyNorm() - radius1 =" << ell_ccp.xyNorm() - radius1 << "\n";
+                        assert(0);
+                    }
+                    assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-6 );                 
                     
                     Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
                                         
@@ -325,13 +322,8 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     }
                 } // end general case
                 
-            }// end if(potential hit)
-            else {
-                // edge is too far away from cutter. nothing to do.
-            }
-            
-        } // end if( not vertical edge) 
-        
+            }// end if(potential hit)            
+        } // end if( not vertical edge ) 
     } // end loop through all edges
         
     return result;

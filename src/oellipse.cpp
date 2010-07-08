@@ -44,8 +44,7 @@ Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin)
     offset = offsetin;
 }
         
-Point Ellipse::ePoint(Epos& pos)
-{
+Point Ellipse::ePoint(Epos& pos) const {
     // (s, t) where:  s^2 + t^2 = 1
     // a and b are the orthogonal axes of the ellipse
     // point of ellipse is:  center + a s + b t
@@ -58,34 +57,30 @@ Point Ellipse::ePoint(Epos& pos)
     return p;
 }
 
-Point Ellipse::oePoint(Epos& pos)
-{
-    // offset-point  = ellipse-point + offset*normal 
-    return ePoint(pos) + offset * normal(pos);
+Point Ellipse::oePoint(Epos& pos) const {
+    return ePoint(pos) + offset * normal(pos); // offset-point  = ellipse-point + offset*normal 
 }    
 
-Point Ellipse::normal(Epos& pos)
-{
+Point Ellipse::normal(Epos& pos) const {
     assert( pos.isValid() );
     Point n = Point( b*pos.s, a*pos.t, 0);
     n.normalize();
     return n;
 }    
 
-Point Ellipse::tangent(Epos& pos)
-{
+Point Ellipse::tangent(Epos& pos) const {
     assert( pos.isValid() );
     Point t = Point( -a*pos.t, b*pos.s, 0);
     t.normalize();
     return t;
 }        
 
-#define OE_ERROR_TOLERANCE 1e-8  /// \todo magic number tolerance
+#define OE_ERROR_TOLERANCE 1e-14  /// \todo magic number tolerance
 
 // #define DEBUG_SOLVER
 
 /// find the epos that makes the offset-ellipse point be at p
-int Ellipse::solver(Ellipse& e, Point& p)
+int Ellipse::solver_nr(Point& p)
 {
     Epos pos;
     Epos bestpos;
@@ -105,7 +100,7 @@ int Ellipse::solver(Ellipse& e, Point& p)
         else
             pos.setS(s, false);
             
-        double err = e.error(pos, p);
+        double err = this->error(pos, p);
         
         if (n==0) { // on first loop-iteration, store values
             bestpos = pos; 
@@ -130,7 +125,7 @@ int Ellipse::solver(Ellipse& e, Point& p)
     //}
     
     #ifdef DEBUG_SOLVER
-        std::cout << " selected " << pos << " err=" << e.error(pos, p) << "\n";
+        std::cout << " selected " << pos << " err=" << this->error(pos, p) << "\n";
     #endif
     
     // solver to find Epos, starting at pos, which minimizes
@@ -140,22 +135,22 @@ int Ellipse::solver(Ellipse& e, Point& p)
     double nr_step = 0.01;                        // arbitrary start-value for NR-step
     double current_error, new_error, deriv, dt;
     Epos epos_tmp;
-    current_error = e.error(pos, p);
+    current_error = this->error(pos, p);
     
     while (!endcondition) {
         // Newton-Rhapson solver for ellipses with low eccentricity
         epos_tmp = pos;
         Epos tmp2 = pos;
         // take a small step, to determine derivative:
-        dt = (0.01/(e.a+e.b)); //*nr_step; //  (0.2/(e.a+e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
+        dt = (0.01/(this->a+this->b)); //*nr_step; //  (0.2/(e.a+e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
         assert( dt != 0.0 );
-        epos_tmp.stepTangent(e,dt);            // a temporary new position, to evaluate derivative
-        new_error = e.error(epos_tmp, p);
+        epos_tmp.stepTangent(*this,dt);            // a temporary new position, to evaluate derivative
+        new_error = this->error(epos_tmp, p);
         deriv = (new_error-current_error)/dt;  // evaluate derivative
         nr_step = (-current_error/deriv);      // Newton-Rhapson step
-        pos.stepTangent(e, nr_step);           // take step
+        pos.stepTangent(*this, nr_step);           // take step
         assert( pos.isValid() );
-        current_error = e.error(pos, p);
+        current_error = this->error(pos, p);
         iters=iters+1;
         
         //if (debugNR) {
@@ -169,13 +164,13 @@ int Ellipse::solver(Ellipse& e, Point& p)
             std::cout << "oellipse.cpp: Newton-Rhapson solver did not converge.\n";
             std::cout << " iters= " << iters << "\n";
             std::cout << " ellipse-solver target is p= " << p << "\n";
-            std::cout << " center= " << e.center << "\n";
-            std::cout << " ellipse a=" << e.a << " b=" << e.b << " offset=" << e.offset << "\n";
+            std::cout << " center= " << this->center << "\n";
+            std::cout << " ellipse a=" << this->a << " b=" << this->b << " offset=" << this->offset << "\n";
             std::cout << " current_error= " << current_error << "\n";
             std::cout << " new_error= " << new_error << "\n";
             std::cout << " dt= " << dt << "\n";
-            std::cout << " pos = " << pos << " and e.oePoint(pos) = " << e.oePoint(pos) << "\n";
-            std::cout << " e.tanget(pos) = " << e.tangent(pos) << "\n";
+            std::cout << " pos = " << pos << " and e.oePoint(pos) = " << this->oePoint(pos) << "\n";
+            std::cout << " e.tanget(pos) = " << this->tangent(pos) << "\n";
             std::cout << " nr_step =" << nr_step << "\n";
             assert(0);
         }
@@ -184,56 +179,146 @@ int Ellipse::solver(Ellipse& e, Point& p)
     // there are two positions which are optimal
     // cycle the signs of (s,t) and find the other solution
     
-    e.epos1 = pos; // this is the first solution
+    this->epos1 = pos; // this is the first solution
     // the code below finds e.epos2 which is the other solution
     
     #ifdef DEBUG_SOLVER
-        std::cout << "1st: (s, t)= " << e.epos1 << " oePoint()= " << e.oePoint(e.epos1) << " e=" << e.error(e.epos1, p) << "\n";
+        std::cout << "1st: (s, t)= " << this->epos1 << " oePoint()= " << this->oePoint(this->epos1) << " e=" << this->error(this->epos1, p) << "\n";
     #endif
     
-    e.epos2.s=pos.s;  // plus
-    e.epos2.t=-pos.t; // minus
-    if  ( fabs(e.error(e.epos2, p)) < OE_ERROR_TOLERANCE)     {   
-        if ( (fabs(e.epos2.s - e.epos1.s) > 1E-8) || (fabs(e.epos2.t - e.epos1.t) > 1E-8) ) {
-            #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << e.epos2 << " oePoint()= " << e.oePoint(e.epos2) << " e=" << e.error(e.epos2, p) << "\n";
-            #endif
-            return iters;
-        }
-    }
-    
-    e.epos2.s=-pos.s; // minus
-    e.epos2.t=pos.t;  // plus
-    if  ( fabs(e.error(e.epos2, p)) < OE_ERROR_TOLERANCE)     { 
-        if ( (fabs(e.epos2.s - e.epos1.s) > 1E-8) || (fabs(e.epos2.t - e.epos1.t) > 1E-8) ) {  
-            #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << e.epos2 << " oePoint()= " << e.oePoint(e.epos2) << " e=" << e.error(e.epos2, p) << "\n";
-            #endif
-            return iters;
-        }   
-    }
-    
-    e.epos2.s=-pos.s; // minus
-    e.epos2.t=-pos.t; // minus
-    if  ( fabs(e.error(e.epos2, p)) < OE_ERROR_TOLERANCE)     {  
-        if ( (fabs(e.epos2.s - e.epos1.s) > 1E-8) || (fabs(e.epos2.t - e.epos1.t) > 1E-8) ) {   
-            #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << e.epos2 << " oePoint()= " << e.oePoint(e.epos2) << " e=" << e.error(e.epos2, p) << "\n";
-            #endif
-            return iters;
-        }
-    }
-    
+    if (find_epos2(p)) 
+        return iters;
+
     std::cout << "oellipse.cpp:  Ellipse::solver() error, did not find optimal (s,t) point(s)!";
     assert(0);
     return iters;
 }
 
+bool Ellipse::find_epos2(Point& p) {
+    this->epos2.s =  this->epos1.s;  // plus
+    this->epos2.t = -this->epos1.t; // minus
+    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     {   
+        if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {
+            #ifdef DEBUG_SOLVER
+                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
+            #endif
+            return true;
+        }
+    }
+    
+    this->epos2.s = -this->epos1.s;  
+    this->epos2.t =  this->epos1.t; 
+    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     { 
+        if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {  
+            #ifdef DEBUG_SOLVER
+                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
+            #endif
+            return true;
+        }   
+    }
+    
+    this->epos2.s = -this->epos1.s;  
+    this->epos2.t = -this->epos1.t; 
+    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     {  
+        if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
+            #ifdef DEBUG_SOLVER
+                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
+            #endif
+            return true;
+        }
+    }
+    
+    // last desperate attempt is identical solutions
+    this->epos2.s = this->epos1.s;  
+    this->epos2.t = this->epos1.t; 
+    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     {  
+        // DON'T require solutions to differ
+        // if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
+            #ifdef DEBUG_SOLVER
+                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
+            #endif
+            return true;
+        //}
+    }
+    
+    return false;
+}
+
+/// offfset-ellipse solver using Brent's method
+/// find the epos that makes the offset-ellipse point be at p
+/// this is a zero of Ellipse::error()
+int Ellipse::solver_brent (Point& p) {
+    int iters = 1;
+    // Brent's method requires bracketing the root
+    Epos a, b;
+    a.diangle = 0.0;
+    b.diangle = 3.0;
+    a.setD();
+    b.setD();
+    if ( fabs( this->error(a,p) ) < OE_ERROR_TOLERANCE ) {
+        this->epos1 = a;
+        if( find_epos2(p) ) {
+            //std::cout << "brent: direct a found!\n";
+            //print_solutions(p);
+        } else {
+            assert(0);
+        }
+        return 1;
+    } else if ( fabs( this->error(b,p) ) < OE_ERROR_TOLERANCE ) {
+        this->epos1 = b;
+        if ( find_epos2(p) ) {
+            //std::cout << "brent: direct b found!\n";
+            //print_solutions(p);
+        } else {
+            //std::cout << "brent: ERROR direct b found!\n";
+            //print_solutions(p);
+            assert(0);
+        }   
+        return 1;
+    }  
+    int brack_iters=0;
+    while ( this->error(a,p) * this->error(b,p) >= 0.0 ) {
+        b.diangle += 1.0;
+        b.setD();
+        brack_iters++;
+        if (brack_iters > 10)
+            assert(0);
+    }
+    /*
+    std::cout << " a.err("<<a.diangle<<")="<< this->error(a,p) << " b.err("<< b.diangle <<")=" << this->error(b,p) << "brack_iters=" << brack_iters << "\n";
+    std::cout << " prod=" <<  this->error(a,p) * this->error(b,p) << "\n";
+    */
+    // root is now bracketed.
+    
+    target = p; // the target point
+    
+    double dia_sln = brent_zero( a.diangle, b.diangle , eps() , OE_ERROR_TOLERANCE, this ); 
+    a.diangle = dia_sln;
+    a.setD();
+    //std::cout << " found sln a.err(" << a.diangle<<")=" << this->error(a,p) << "\n";
+    epos1 = a;
+    find_epos2( p );
+    //print_solutions( p );
+    return iters;
+}
+
+void Ellipse::print_solutions(Point& p) {
+    std::cout << "1st: (s, t)= " << this->epos1 << " oePoint()= " << this->oePoint(this->epos1) << " e=" << this->error(this->epos1, p) << "\n";
+    std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
+}
+
+double Ellipse::error_brent( double dia ) {
+    epos1.diangle = dia;
+    epos1.setD();
+    Point p1 = oePoint(epos1);
+    return p1.y - target.y;
+}
+
+
 /// given the two solutions epos1 and epos2
 /// and the line through up1 and up2
 /// locate the ellipse center correctly
-Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
-{
+Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln) {
     Epos pos;
     if (sln == 1)
         pos = epos1;
@@ -252,8 +337,7 @@ Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln)
     
 /// error-function for the offset-ellipse solver
 /// here we use only the y-coordinate error         
-double Ellipse::error(Epos& pos, Point& p)
-{
+double Ellipse::error(Epos& pos, Point& p) {
     assert( pos.isValid() );
     Point p1 = oePoint(pos);
     double dy = p1.y - p.y;
@@ -261,8 +345,7 @@ double Ellipse::error(Epos& pos, Point& p)
 }
 
 /// Ellipse string output
-std::ostream& operator<<(std::ostream &stream, const Ellipse& e)
-{
+std::ostream& operator<<(std::ostream &stream, const Ellipse& e) {
   stream << "Ellipse: cen=" << e.center << " a=" << e.a << " b=" << e.b << " ofs=" << e.offset ; 
   return stream;
 }

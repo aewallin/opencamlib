@@ -25,13 +25,16 @@
 #include <boost/numeric/ublas/io.hpp>
 #include <boost/numeric/ublas/lu.hpp>
 
+#include "oellipse.h"
+
+
+
 namespace ocl
 {
 
 namespace bnu = boost::numeric::ublas;
     
 #define PI 3.1415926535897932
-
 
 ///
 /// \brief Numeric is a collection of functions for dealing
@@ -67,7 +70,7 @@ double eps();
 /// Brent's root finding algorithm
 /// find a zero of function f in the interval [a,b]
 double brent_zero( double a, double b, double eps, double tol, 
-  double f(double x));
+  Ellipse* ell);
   
 
 
