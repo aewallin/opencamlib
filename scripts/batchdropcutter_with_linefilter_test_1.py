@@ -9,8 +9,8 @@ if __name__ == "__main__":
     print ocl.revision()    
     myscreen = camvtk.VTKScreen()
     
-    #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/demo.stl")
+    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    #stl = camvtk.STLSurf("../stl/demo.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -20,13 +20,13 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     
-    cutter = ocl.BallCutter(1.4321)
+    #cutter = ocl.BallCutter(1.4321)
     #cutter = ocl.CylCutter(1.123)
-    #cutter = ocl.BullCutter(1.123, 0.2)
+    cutter = ocl.BullCutter(1.123, 0.2)
     print cutter
     
     minx=0
-    dx=0.1/6
+    dx=0.1/1
     maxx=10
     miny=0
     dy=1

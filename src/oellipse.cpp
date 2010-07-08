@@ -75,7 +75,7 @@ Point Ellipse::tangent(Epos& pos) const {
     return t;
 }        
 
-#define OE_ERROR_TOLERANCE 1e-14  /// \todo magic number tolerance
+#define OE_ERROR_TOLERANCE 1e-10  /// \todo magic number tolerance
 
 // #define DEBUG_SOLVER
 
@@ -195,9 +195,11 @@ int Ellipse::solver_nr(Point& p)
 }
 
 bool Ellipse::find_epos2(Point& p) {
+    assert( epos1.isValid() );
+    double err1 = fabs(this->error(this->epos1, p));
     this->epos2.s =  this->epos1.s;  // plus
     this->epos2.t = -this->epos1.t; // minus
-    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     {   
+    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {   
         if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
@@ -208,7 +210,7 @@ bool Ellipse::find_epos2(Point& p) {
     
     this->epos2.s = -this->epos1.s;  
     this->epos2.t =  this->epos1.t; 
-    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     { 
+    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     { 
         if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {  
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
@@ -219,7 +221,7 @@ bool Ellipse::find_epos2(Point& p) {
     
     this->epos2.s = -this->epos1.s;  
     this->epos2.t = -this->epos1.t; 
-    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     {  
+    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {  
         if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
@@ -231,12 +233,13 @@ bool Ellipse::find_epos2(Point& p) {
     // last desperate attempt is identical solutions
     this->epos2.s = this->epos1.s;  
     this->epos2.t = this->epos1.t; 
-    if  ( fabs(this->error(this->epos2, p)) < OE_ERROR_TOLERANCE)     {  
+    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {  
         // DON'T require solutions to differ
         // if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
             #endif
+            //std::cout << " find_epos2() desperate-mode\n";
             return true;
         //}
     }
@@ -254,7 +257,9 @@ int Ellipse::solver_brent (Point& p) {
     a.diangle = 0.0;
     b.diangle = 3.0;
     a.setD();
+    assert( a.isValid() );
     b.setD();
+    assert( b.isValid() );
     if ( fabs( this->error(a,p) ) < OE_ERROR_TOLERANCE ) {
         this->epos1 = a;
         if( find_epos2(p) ) {
@@ -292,13 +297,23 @@ int Ellipse::solver_brent (Point& p) {
     
     target = p; // the target point
     
-    double dia_sln = brent_zero( a.diangle, b.diangle , eps() , OE_ERROR_TOLERANCE, this ); 
+    double dia_sln = brent_zero( a.diangle, b.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); 
     a.diangle = dia_sln;
     a.setD();
     //std::cout << " found sln a.err(" << a.diangle<<")=" << this->error(a,p) << "\n";
     epos1 = a;
-    find_epos2( p );
+    if (!find_epos2( p )) {
+        print_solutions(p);
+        assert(0);
+    }
+        
     //print_solutions( p );
+    if (epos1.s == epos2.s && epos1.t==epos2.t) {
+        if ( !isZero_tol(epos1.s) && !isZero_tol(epos1.t) ) {
+            std::cout << "identical solutions!\n";
+            std::cout << "epos1=" << epos1 << " epos2="<< epos2 << "\n";
+        }
+    }
     return iters;
 }
 

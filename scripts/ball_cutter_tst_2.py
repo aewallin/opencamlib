@@ -13,10 +13,12 @@ if __name__ == "__main__":
     myscreen.camera.SetPosition(4, 4, 3)
     myscreen.camera.SetFocalPoint(0.6, 0.6, 0)
     myscreen.setAmbient(1,1,1)
-
-    a = ocl.Point(1,0,0.0001)
-    b = ocl.Point(0,1,0)    
-    c = ocl.Point(0,0,-0.000003)
+    
+    #camvtk.drawArrows(myscreen)
+    
+    a = ocl.Point(1,0,-0.000010)
+    b = ocl.Point(0,1,+0.0)    
+    c = ocl.Point(0.001,0,+0.0001)
     #c = ocl.Point(0,0,0.3)
     
     myscreen.addActor( camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)));
@@ -27,7 +29,7 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(a,b,c)
     
-    cutter = ocl.BullCutter(1,0.1)
+    cutter = ocl.BullCutter(0.5,0.1)
     #cutter = ocl.CylCutter(0.5)
     #cutter = ocl.BallCutter(0.5)
     
@@ -36,17 +38,19 @@ if __name__ == "__main__":
     
     
     # grid parameters
+    
     minx=-0.7
-    dx=0.01
+    dx=0.03
     maxx=1.7
     miny=-0.7
-    dy=0.01
+    dy=0.03
     maxy=1.7
     z=-0.5
     # generate list of CL-poins at height z
+    clpoints=[]
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
 
-    print len(clpoints), "cl-points to evaluate"
+    
 
     
     tx = camvtk.Text()
@@ -59,8 +63,15 @@ if __name__ == "__main__":
     lwr.SetInput( w2if.GetOutput() )
     w2if.Modified()
     
+    xp = ocl.CLPoint(2.7, 0.14, -0.200018)
+    xp = ocl.CLPoint(0.26, 0.14, -5)
+    #clpoints=[]
+    #clpoints.append(xp)
+    #0.26, 0.14, -0.199993
+    
     # loop through the cl-points
     n=0
+    print len(clpoints), "cl-points to evaluate"
     for cl in clpoints:
 
         cutter.vertexDrop(cl,t)
@@ -68,14 +79,24 @@ if __name__ == "__main__":
         cutter.facetDrop(cl,t)
 
         n=n+1
-        if (n % int(len(clpoints)/10)) == 0:
-            print n/int(len(clpoints)/10), " ",
+        #if (n % int(len(clpoints)/10)) == 0:
+        #    print n/int(len(clpoints)/10), " ",
+    print "drop-cutter done."
+    m=0
+    for cl in clpoints:
+        if cl.z < -0.15 and cl.z > -0.5:
+            #print cl
+            #print cl.cc.type
+            m=m+1
+    print "found",m,"pts"
             
-    print "done."
+    #print "cl=",cl
+    #print "cc=", cl.cc
+   
     print "rendering...",
     # render all the points
     camvtk.drawCLPointCloud(myscreen, clpoints)
-    #camvtk.drawCCPoints(myscreen, clpoints)
+    camvtk.drawCCPoints(myscreen, clpoints)
     print "done."   
     
     # animate by rotating the camera

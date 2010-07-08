@@ -43,6 +43,11 @@ def clColor(cc):
         col = lblue
     elif cc.type == ocl.CCType.EDGE_NEG:
         col = mag
+    elif cc.type == ocl.CCType.EDGE_HORIZ_CYL:
+        col = red
+    elif cc.type == ocl.CCType.EDGE_HORIZ_TOR:
+        col = orange
+        
     else:
         print "err. CCType unknown, no color"
         col = red

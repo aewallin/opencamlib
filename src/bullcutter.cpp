@@ -41,9 +41,9 @@ BullCutter::BullCutter()
 BullCutter::BullCutter(const double d, const double r)
 {
     setDiameter(d);
-    radius = d/2;
-    radius1 = d/2 - r;
-    radius2 = r;
+    radius = d/2;        // total cutter radius
+    radius1 = d/2 - r;   // cylindrical middle part radius
+    radius2 = r;         // corner radius
 }
 
 void BullCutter::setRadius()
@@ -236,32 +236,37 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     assert( a_axis > 0.0 );
                     assert( b_axis > 0.0 );
                     
-                    double eccen = a_axis/b_axis;
-                    bool debugNR = false;
-                    if (eccen > 370000) {
-                        std::cout << "high eccen case eccen=" << eccen << "\n";
-                        std::cout << " theta=" << theta << "\n";
-                        std::cout << " up1=" << up1 << " up2="<< up2 << "\n";
-                        debugNR = true;
-                    }
+                    // double eccen = a_axis/b_axis;
+                    // bool debugNR = false;
+                    // if (eccen > 370000) {
+                    //    std::cout << "high eccen case eccen=" << eccen << "\n";
+                    //    std::cout << " theta=" << theta << "\n";
+                    //    std::cout << " up1=" << up1 << " up2="<< up2 << "\n";
+                    //    debugNR = true;
+                    // }
                     
                     // locate ellipse in the XY plane
-                    Point ellcenter = Point(0,d,0); 
-                    // only ellcenter.y != 0.0
-                    assert( ellcenter.x == 0);
-                    assert( ellcenter.z == 0);
-                      
+                    Point ellcenter = Point(0,d,0); // only ellcenter.y != 0.0
+                                          
                     // the ellipse and the solver
                     Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
-                    if (debugNR) {
-                        std::cout << " ellipse=" << e << "\n";
-                        std::cout << " ucl=" << ucl << "\n";
-                    }
+                    // if (debugNR) {
+                    //if (e.eccen > 10000)
+                    //    std::cout << " ellipse=" << e << "\n";
+                    //    std::cout << " ucl=" << ucl << "\n";
+                    // }
                     // run the solver
-                    //int iters = e.solver_nr(ucl);
+                    //int iters = e.solver_nr(ucl);  // old Newton-Rhapson solver
                     int iters = e.solver_brent(ucl);
                     // now epos1 and epos2 are the correct Epos positions where error is zero
-                    
+                    /*
+                    if (e.epos1.s == e.epos2.s && e.epos1.t==e.epos2.t) {
+                        if ( !isZero_tol(e.epos1.s) || !isZero_tol(e.epos1.t) ) {
+                            std::cout << "identical solutions!\n";
+                            std::cout << "epos1=" << e.epos2 << " epos2="<< e.epos1 << "\n";
+                        }
+                    }*/
+                        
                     assert( iters < 200 ); // it's probably an error if the solver takes too long...
                     
                     // the corresponding solved ellipse-centers
@@ -274,48 +279,55 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     Point ecen;
                     Epos pos_hi;
                     int ep_sign = 0;
-                    if (ecen1.z > ecen2.z) {
+                    if (ecen1.z >= ecen2.z) {
                         ecen = ecen1;
                         pos_hi = e.epos1;
                         ep_sign = -1;
+                        // std::cout << "epos1 chosen\n";
                     } else {
                         ecen = ecen2;
                         pos_hi = e.epos2;
                         ep_sign = 1;
+                        // std::cout << "epos2 chosen\n";
                     }
-                         
+                    //if (e.eccen > 1000)
+                    //    std::cout << "ecen1.z=" << ecen1.z << " ecen2.z=" << ecen2.z << " chosen="<< ecen.z <<"\n";
                         
                     // a new ellipse in the right place        
                     // this is at the correct z-height 
                     Ellipse e_hi = Ellipse(ecen, a_axis, b_axis, radius1);
                     assert( ecen.y == d );
+                    assert( ecen.z >= ecen1.z );
+                    assert( ecen.z >= ecen2.z );
                     
                     // cc-point on the ellipse/cylinder, in the CL=origo system
                     Point ell_ccp = e_hi.ePoint(pos_hi);
-                    if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-6 ) { // should be on the cylinder-circle   
-                        std::cout << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
+                    if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-5 ) { // should be on the cylinder-circle   
+                        std::cout << " eccen=" << e.eccen << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
                         std::cout << " ell_ccp.xyNorm() - radius1 =" << ell_ccp.xyNorm() - radius1 << "\n";
                         assert(0);
                     }
-                    assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-6 );                 
+                    assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5 );                 
                     
                     Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
                                         
                     CCPoint cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
-                    // now find the z-coord of cc_tmp
+                    
                     double t;
                     if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-                        t = (cc_tmp.x - p1.x) / (p2.x-p1.x);
+                        t = (cc_tmp.x - p1.x) / (p2.x-p1.x); // now find the z-coord of cc_tmp
                     } else {
                         t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
                     }
                     cc_tmp.z = p1.z + t*(p2.z-p1.z);
-                    if (ep_sign > 0)
+                    
+                    if (ep_sign > 0) // sign matters only for cc.type
                         cc_tmp.type = EDGE_POS;
                     else
                         cc_tmp.type = EDGE_NEG;
                         
                     if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
+
                         if ( cl.liftZ(ecen.z-radius2, cc_tmp) ) {
                             result = 1;
                         }
@@ -328,6 +340,18 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
         
     return result;
 }
+
+
+/*  OLD DEBUG CODE (used when switching to Brent-solver)
+if ((ecen.z-radius2)< -0.15) {
+    std::cout << " ellipse=" << e <<"\n";
+    std::cout << "epos1=" << e.epos2 << " epos2="<< e.epos1 << "\n";
+    std::cout << "ecen=" << ecen << " radius2="<< radius2 << "\n";
+    std::cout << "ecen1.z=" << ecen1.z << " ecen2.z=" << ecen2.z << " chosen="<< ecen.z <<"\n";
+    assert(0);
+}*/
+                        
+                        
 
 /// offset of bull is bull
 MillingCutter* BullCutter::offsetCutter(double d) const {
