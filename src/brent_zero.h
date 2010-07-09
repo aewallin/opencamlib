@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -21,19 +21,13 @@
 #ifndef BRENT_ZERO_H
 #define BRENT_ZERO_H
 
-//#include <cmath>
-
-
-//#include <boost/numeric/ublas/matrix.hpp>
-//#include <boost/numeric/ublas/io.hpp>
-//#include <boost/numeric/ublas/lu.hpp>
-
 // #include "oellipse.h"
 namespace ocl
 {
 
 
 /// Brent's root finding algorithm
+/// http://en.wikipedia.org/wiki/Brent's_method
 template <class ErrObj>
 double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
     // f must have unequal sign at a and b, i.e.

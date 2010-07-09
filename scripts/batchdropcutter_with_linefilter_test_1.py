@@ -20,9 +20,9 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     
-    cutter = ocl.BallCutter(1.4321)
+    #cutter = ocl.BallCutter(1.4321)
     #cutter = ocl.CylCutter(1.123)
-    #cutter = ocl.BullCutter(1.123, 0.2)
+    cutter = ocl.BullCutter(1.123, 0.2)
     print cutter
     print "radius=",cutter.radius
     
@@ -47,6 +47,7 @@ if __name__ == "__main__":
     
     t_before = time.time()    
     bdc.dropCutter4()
+    dc_calls = bdc.dcCalls
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
@@ -105,7 +106,8 @@ if __name__ == "__main__":
     myscreen.addActor( t)
     
     t2 = camvtk.Text()
-    stltext = "Cutter: %s\n%i triangles\n%i CL-points\n%0.1f seconds\n%i filtered CL-points" % (str(cutter), s.size(), len(clpoints), dropcutter_time, len(clp2))
+    stltext = "%s\n%i triangles\n%i CL-points\n%i DropCutter() calls\n%0.1f seconds\n%0.3f us/call\n%i filtered CL-points"  \
+               % ( str(cutter), s.size(), len(clpoints), dc_calls, dropcutter_time, 1e6* dropcutter_time/dc_calls, len(clp2) ) 
     t2.SetText(stltext)
     t2.SetPos( (50, myscreen.height-200) )
     myscreen.addActor( t2)

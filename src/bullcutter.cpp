@@ -60,11 +60,15 @@ int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
     BOOST_FOREACH( const Point& p, t.p){
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         assert( q >= 0.0 );
-        CCPoint cc_tmp = p;
-        cc_tmp.type = VERTEX;
+        CCPoint* cc_tmp = new CCPoint();
         if ( q <= radius1 ) { // p is inside the cylindrrical part of the cutter
-            if (cl.liftZ(p.z, cc_tmp)) { // we need to lift the cutter
+            if (cl.liftZ(p.z )) { // we need to lift the cutter
+                *cc_tmp = p;
+                cc_tmp->type = VERTEX;
+                cl.cc = cc_tmp;
                 result = 1;
+            } else {
+                delete cc_tmp;
             }
         }
         else if ( q <= radius ) { // p is in the toroidal part of the cutter
@@ -73,9 +77,16 @@ int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
             // h1 = r2 - h2
             // cutter_tip = p.z - h1
             double h1 = radius2 - sqrt( square(radius2) - square(q-radius1) );
-            if ( cl.liftZ(p.z - h1, cc_tmp) ) { // we need to lift the cutter
+            if ( cl.liftZ(p.z - h1) ) { // we need to lift the cutter
+                *cc_tmp = p;
+                cc_tmp->type = VERTEX;
+                cl.cc = cc_tmp;
                 result = 1;
+            } else {
+                delete cc_tmp;
             }
+        } else {
+            delete cc_tmp;
         }
     }
     return result;
@@ -96,17 +107,19 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     
     // horizontal plane special case
     if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { 
-        CCPoint cc_tmp;
-        cc_tmp.x = cl.x;
-        cc_tmp.y = cl.y;
-        cc_tmp.z = t.p[0].z; // any vertex is at the correct height
-        cc_tmp.type = FACET;
-        if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
-            if ( cl.liftZ(cc_tmp.z, cc_tmp) ) {
+        CCPoint* cc_tmp = new CCPoint(cl.x,cl.y,t.p[0].z);
+        
+        if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
+            if ( cl.liftZ(cc_tmp->z) ) {
+                cc_tmp->type = FACET;
+                cl.cc = cc_tmp;
                 return 1;
+            } else {
+                delete cc_tmp;
             }
         } else { // not inside facet
-                return 0;
+            delete cc_tmp;
+            return 0;
         }
     } // end horizontal plane case.
     
@@ -131,17 +144,22 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     Point radiusvector = -radius2*normal - radius1*xyNormal;
     
     // find the xy-coordinates of the cc-point
-    CCPoint cc_tmp = cl + radiusvector; // NOTE xy-coords right, z-coord is not.
-    cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // cc-point lies in the plane.
-    cc_tmp.type = FACET;
-    if (cc_tmp.isInside(t)) {   
+    CCPoint* cc_tmp = new CCPoint();
+    *cc_tmp = cl + radiusvector; // NOTE xy-coords right, z-coord is not.
+    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // cc-point lies in the plane.
+    cc_tmp->type = FACET;
+    if (cc_tmp->isInside(t)) {   
         // now find the z-coordinate of the cl-point
-        double tip_z = cc_tmp.z + radius2*normal.z - radius2;
+        double tip_z = cc_tmp->z + radius2*normal.z - radius2;
         
-        if ( cl.liftZ(tip_z, cc_tmp) ) {
+        if ( cl.liftZ(tip_z) ) {
+            cl.cc = cc_tmp;
             return 1;
+        } else {
+            delete cc_tmp;
         }
     } else {
+        delete cc_tmp;
         return 0;
     }
     
@@ -171,14 +189,20 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
             if (d<=diameter/2) { // potential hit
                 if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
                     if ( d<= radius1) {             // horizontal edge, contact with cylindrical part of cutter
-                        CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
-                        cc_tmp.z = p1.z;   
-                        cc_tmp.type = EDGE_HORIZ_CYL;           
-                        if ( cc_tmp.isInsidePoints( p1, p2 ) ) { // test if cc-point is in edge
-                            if (cl.liftZ(p1.z, cc_tmp)) {
+                        CCPoint* cc_tmp = new CCPoint();
+                        *cc_tmp = cl.xyClosestPoint(p1,p2);
+                        cc_tmp->z = p1.z;   
+                        cc_tmp->type = EDGE_HORIZ_CYL;           
+                        if ( cc_tmp->isInsidePoints( p1, p2 ) ) { // test if cc-point is in edge
+                            if (cl.liftZ(p1.z)) {
+                                cl.cc = cc_tmp;
                                 result = 1;
+                            } else {
+                                delete cc_tmp;
                             }
-                        }                        
+                        } else {
+                            delete cc_tmp;
+                        }   
                     } 
                     else if (d <= diameter/2) { // we are in toroid part of cutter
                         // horizontal edge, toroid region special case
@@ -186,14 +210,20 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                         // h2 = sqrt( r2^2 - (q-r1)^2 )
                         // h1 = r2 - h2
                         // cutter_tip = p.z - h1
-                        CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
-                        cc_tmp.z = p1.z;   
-                        cc_tmp.type = EDGE_HORIZ_TOR;     
-                        if ( cc_tmp.isInsidePoints( p1, p2 ) ) { 
+                        CCPoint* cc_tmp = new CCPoint();
+                        *cc_tmp = cl.xyClosestPoint(p1,p2);
+                        cc_tmp->z = p1.z;   
+                        cc_tmp->type = EDGE_HORIZ_TOR;     
+                        if ( cc_tmp->isInsidePoints( p1, p2 ) ) { 
                             double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
-                            if ( cl.liftZ(p1.z - h1, cc_tmp) ) {                                 
+                            if ( cl.liftZ(p1.z - h1) ) {
+                                cl.cc = cc_tmp;                                 
                                 result = 1;
+                            } else {
+                                delete cc_tmp;
                             }
+                        } else {
+                            delete cc_tmp;
                         }
                     }
                 } // end horizontal edge special cases
@@ -311,26 +341,32 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     
                     Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
                                         
-                    CCPoint cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
+                    CCPoint* cc_tmp = new CCPoint();
+                    *cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
                     
                     double t;
                     if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-                        t = (cc_tmp.x - p1.x) / (p2.x-p1.x); // now find the z-coord of cc_tmp
+                        t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now find the z-coord of cc_tmp
                     } else {
-                        t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
+                        t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
                     }
-                    cc_tmp.z = p1.z + t*(p2.z-p1.z);
+                    cc_tmp->z = p1.z + t*(p2.z-p1.z);
                     
                     if (ep_sign > 0) // sign matters only for cc.type
-                        cc_tmp.type = EDGE_POS;
+                        cc_tmp->type = EDGE_POS;
                     else
-                        cc_tmp.type = EDGE_NEG;
+                        cc_tmp->type = EDGE_NEG;
                         
-                    if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
+                    if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
 
-                        if ( cl.liftZ(ecen.z-radius2, cc_tmp) ) {
+                        if ( cl.liftZ(ecen.z-radius2) ) {
+                            cl.cc = cc_tmp;
                             result = 1;
+                        } else {
+                            delete cc_tmp;
                         }
+                    } else {
+                        delete cc_tmp;
                     }
                 } // end general case
                 
@@ -368,7 +404,7 @@ std::string BullCutter::str() const
 
 std::ostream& operator<<(std::ostream &stream, BullCutter c)
 {
-  stream << "BallCutter(d=" << c.diameter << ", r1=" << c.radius1 << " r2=" << c.radius2 << ")";
+  stream << "BullCutter(d=" << c.diameter << ", r1=" << c.radius1 << " r2=" << c.radius2 << ")";
   return stream;
 }
 
