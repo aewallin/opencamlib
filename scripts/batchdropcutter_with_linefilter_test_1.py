@@ -20,14 +20,14 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     
-    #cutter = ocl.BallCutter(1.4321)
-    cutter = ocl.CylCutter(1.123)
+    cutter = ocl.BallCutter(1.4321)
+    #cutter = ocl.CylCutter(1.123)
     #cutter = ocl.BullCutter(1.123, 0.2)
     print cutter
     print "radius=",cutter.radius
     
     minx=0
-    dx=0.1/1
+    dx=0.1/10
     maxx=10
     miny=0
     dy=1
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     bdc = ocl.BatchDropCutter()
     bdc.setSTL(s,1)
     bdc.setCutter(cutter)
-    bdc.setThreads(1)
+    #bdc.setThreads(1)  # explicitly setting one thread is better for debugging
     for p in clpoints:
         bdc.appendPoint(p)
     

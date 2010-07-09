@@ -17,11 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <boost/progress.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -52,7 +47,7 @@ int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     
     int result = 0;
-    
+    CCPoint* cc_tmp;
     BOOST_FOREACH( const Point& p, t.p)
     {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
@@ -62,15 +57,15 @@ int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
             // h1 = r - h2
             // cutter_tip = p.z - h1
             double h1 = radius - sqrt( square(radius) - square(q) );
-            CCPoint cc_tmp;
-            cc_tmp = p;
-            cc_tmp.type = VERTEX;
-            if (cl.liftZ(p.z - h1, cc_tmp) ) { // we need to lift the cutter
+            cc_tmp = new CCPoint(p);
+            if (cl.liftZ(p.z - h1) ) { // we need to lift the cutter
+                cc_tmp->type = VERTEX;
+                cl.cc = cc_tmp;
                 result = 1;
+            } else {
+                delete cc_tmp;
             }
-        } else {
-            // point outside cutter, nothing to do.
-        }
+        } 
     }
     return result;
 }
@@ -92,19 +87,23 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     
     assert( isPositive( normal.z ) );
     
-    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane
+    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane special case
         // so any vertex is at the correct height
-        CCPoint cc_tmp;
-        cc_tmp.x = cl.x;
-        cc_tmp.y = cl.y;
-        cc_tmp.z = t.p[0].z;
-        cc_tmp.type = FACET;
-        if (cc_tmp.isInside(t)) { // assuming cc-point is on the axis of the cutter...       
-            if ( cl.liftZ(cc_tmp.z, cc_tmp) ) {
+        CCPoint* cc_tmp = new CCPoint();
+        cc_tmp->x = cl.x;
+        cc_tmp->y = cl.y;
+        cc_tmp->z = t.p[0].z;
+        if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
+            if ( cl.liftZ(cc_tmp->z) ) {
+                cc_tmp->type = FACET;
+                cl.cc = cc_tmp;
                 return 1;
+            } else {
+                delete cc_tmp;
             }
         } else { // not inside facet
-                return 0;
+            delete cc_tmp;
+            return 0;
         }
     } // end horizontal plane case.
     
@@ -126,21 +125,26 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     Point radiusvector = -radius*normal;
     
     // find the xy-coordinates of the cc-point
-    CCPoint cc_tmp = cl + radiusvector;
+    CCPoint* cc_tmp = new CCPoint(); 
+    *cc_tmp = cl + radiusvector;
     
     // find the z-coordinate of the cc-point.
     // it lies in the plane.
-    cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
-    cc_tmp.type = FACET;
+    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // NOTE: potential for divide-by-zero (?!)
+    cc_tmp->type = FACET;
     
     // now find the z-coordinate of the cl-point
-    double tip_z = cc_tmp.z - radiusvector.z - radius;
+    double tip_z = cc_tmp->z - radiusvector.z - radius;
         
-    if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()       
-        if ( cl.liftZ(tip_z, cc_tmp) ) {
+    if (cc_tmp->isInside(t)) { // NOTE: cc.z is ignored in isInside()       
+        if ( cl.liftZ(tip_z) ) {
+            cl.cc = cc_tmp;
             return 1;
+        } else {
+            delete cc_tmp;
         }
     } else {
+        delete cc_tmp;
         return 0;
     }
     
@@ -206,27 +210,28 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                 } 
 
                 double cl_z;
-                CCPoint cc_tmp;
+                CCPoint* cc_tmp = new CCPoint();
                 
                 if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
-                    cc_tmp = sc;
+                    *cc_tmp = sc;
                     // locate cc_tmp on the edge
                     // edge = p1 + t*(p2-p1)
                     if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
                         // x = p1.x + t*(p2.x-p1.x)
                         // t = (x - p1.x) / (p2.x -p1.x)
                         // z = p1 + t*(p2-p1)
-                        double t = (cc_tmp.x - p1.x) / (p2.x - p1.x);
-                        cc_tmp.z = p1.z + t*(p2.z-p1.z);
+                        double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
+                        cc_tmp->z = p1.z + t*(p2.z-p1.z);
                     } else {
                         // the y-coord is better for the above calculation
-                        double t = (cc_tmp.y - p1.y) / (p2.y - p1.y);
-                        cc_tmp.z = p1.z + t*(p2.z-p1.z); 
+                        double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
+                        cc_tmp->z = p1.z + t*(p2.z-p1.z); 
                     }
                     
-                    cl_z = cc_tmp.z + s - radius;
+                    cl_z = cc_tmp->z + s - radius;
                     
                 } else {
+                    // this is the general case
                     // now normal should point up
                     if (  !isPositive(normal.y)) {
                         std::cout << "ballcutter.cpp edgeDrop() normal.y=" << normal.y << " !!\n";
@@ -238,32 +243,31 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                     
                     double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
                     
-                    cc_tmp = sc + cc_u*v; // located in the XY-plane
+                    *cc_tmp = sc + cc_u*v; // located in the XY-plane
                     
                     // now locate z-coord of cc_tmp on edge
                     double t;
                     if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-                        t = (cc_tmp.x - p1.x) / (p2.x-p1.x);
+                        t = (cc_tmp->x - p1.x) / (p2.x-p1.x);
                     } else {
-                        t = (cc_tmp.y - p1.y) / (p2.y-p1.y);
+                        t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
                     }
-                    cc_tmp.z = p1.z + t*(p2.z-p1.z);
+                    cc_tmp->z = p1.z + t*(p2.z-p1.z);
                     
-                    cl_z = cc_tmp.z + s*normal.y - radius;
+                    cl_z = cc_tmp->z + s*normal.y - radius;
                 } // end non-horizontal case
                 
                 // test if cc-point is in edge
-                if ( cc_tmp.isInsidePoints( p1, p2 ) ) {
-                    cc_tmp.type = EDGE;
-                    if (cl.liftZ(cl_z, cc_tmp)) {
+                if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
+                    if (cl.liftZ(cl_z)) {
+                        cc_tmp->type = EDGE;
+                        cl.cc = cc_tmp;
                         result = 1;
                     }
                 }
                 
             }// end if(potential hit)
-            else {
-                // edge is too far away from cutter. nothing to do.
-            }
+
         }// end if(vertical edge)
         
     } // end loop through all edges

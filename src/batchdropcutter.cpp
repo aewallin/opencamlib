@@ -205,8 +205,8 @@ void BatchDropCutter::dropCutter4()
     dcCalls = calls;
     // std::cout << " main loop ran" << nloop << " times\n";
     std::cout << " " << dcCalls << " dropCutter() calls.\n";
-    std::cout << " ntris:" << ntris<< " Nmax:"<< Nmax << " \n";
-    std::cout << " " << (float)ntris/(float)Nmax << " tris/len(clpts).\n";
+    //std::cout << " ntris:" << ntris<< " Nmax:"<< Nmax << " \n";
+    //std::cout << " " << (float)ntris/(float)Nmax << " tris/len(clpts).\n";
     std::cout.flush();
     return;
 }

@@ -75,7 +75,7 @@ def main(filename="frame/f.png"):
         
     # stupid init code
     f=ocl.Ocode()
-    tree_maxdepth=8
+    tree_maxdepth=9
     f.set_depth(tree_maxdepth) # depth and scale set here.
     f.set_scale(10)
     
