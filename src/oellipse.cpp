@@ -27,6 +27,7 @@
 #include "point.h"
 #include "oellipse.h"
 #include "numeric.h"
+#include "brent_zero.h"
 
 namespace ocl
 {
@@ -78,7 +79,7 @@ Point Ellipse::tangent(Epos& pos) const {
 #define OE_ERROR_TOLERANCE 1e-10  /// \todo magic number tolerance
 
 // #define DEBUG_SOLVER
-
+/*
 /// find the epos that makes the offset-ellipse point be at p
 int Ellipse::solver_nr(Point& p)
 {
@@ -142,7 +143,7 @@ int Ellipse::solver_nr(Point& p)
         epos_tmp = pos;
         Epos tmp2 = pos;
         // take a small step, to determine derivative:
-        dt = (0.01/(this->a+this->b)); //*nr_step; //  (0.2/(e.a+e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
+        dt = (0.01/(this->a+this->b)); //nr_step; //  (0.2/(e.a+e.b))*nr_step; /// \todo 0.2 value here is quite arbitrary...
         assert( dt != 0.0 );
         epos_tmp.stepTangent(*this,dt);            // a temporary new position, to evaluate derivative
         new_error = this->error(epos_tmp, p);
@@ -193,13 +194,14 @@ int Ellipse::solver_nr(Point& p)
     assert(0);
     return iters;
 }
+*/
 
 bool Ellipse::find_epos2(Point& p) {
     assert( epos1.isValid() );
-    double err1 = fabs(this->error(this->epos1, p));
+    double err1 = fabs(this->error_old(this->epos1, p));
     this->epos2.s =  this->epos1.s;  // plus
     this->epos2.t = -this->epos1.t; // minus
-    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {   
+    if  ( fabs(this->error_old(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {   
         if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
@@ -210,7 +212,7 @@ bool Ellipse::find_epos2(Point& p) {
     
     this->epos2.s = -this->epos1.s;  
     this->epos2.t =  this->epos1.t; 
-    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     { 
+    if  ( fabs(this->error_old(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     { 
         if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {  
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
@@ -221,7 +223,7 @@ bool Ellipse::find_epos2(Point& p) {
     
     this->epos2.s = -this->epos1.s;  
     this->epos2.t = -this->epos1.t; 
-    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {  
+    if  ( fabs(this->error_old(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {  
         if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
             #ifdef DEBUG_SOLVER
                 std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
@@ -233,7 +235,7 @@ bool Ellipse::find_epos2(Point& p) {
     // last desperate attempt is identical solutions
     this->epos2.s = this->epos1.s;  
     this->epos2.t = this->epos1.t; 
-    if  ( fabs(this->error(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {  
+    if  ( fabs(this->error_old(this->epos2, p)) < err1+OE_ERROR_TOLERANCE)     {  
         // DON'T require solutions to differ
         // if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
             #ifdef DEBUG_SOLVER
@@ -260,7 +262,7 @@ int Ellipse::solver_brent (Point& p) {
     assert( a.isValid() );
     b.setD();
     assert( b.isValid() );
-    if ( fabs( this->error(a,p) ) < OE_ERROR_TOLERANCE ) {
+    if ( fabs( this->error_old(a,p) ) < OE_ERROR_TOLERANCE ) {
         this->epos1 = a;
         if( find_epos2(p) ) {
             //std::cout << "brent: direct a found!\n";
@@ -269,7 +271,7 @@ int Ellipse::solver_brent (Point& p) {
             assert(0);
         }
         return 1;
-    } else if ( fabs( this->error(b,p) ) < OE_ERROR_TOLERANCE ) {
+    } else if ( fabs( this->error_old(b,p) ) < OE_ERROR_TOLERANCE ) {
         this->epos1 = b;
         if ( find_epos2(p) ) {
             //std::cout << "brent: direct b found!\n";
@@ -282,7 +284,7 @@ int Ellipse::solver_brent (Point& p) {
         return 1;
     }  
     int brack_iters=0;
-    while ( this->error(a,p) * this->error(b,p) >= 0.0 ) {
+    while ( this->error_old(a,p) * this->error_old(b,p) >= 0.0 ) {
         b.diangle += 1.0;
         b.setD();
         brack_iters++;
@@ -318,15 +320,26 @@ int Ellipse::solver_brent (Point& p) {
 }
 
 void Ellipse::print_solutions(Point& p) {
-    std::cout << "1st: (s, t)= " << this->epos1 << " oePoint()= " << this->oePoint(this->epos1) << " e=" << this->error(this->epos1, p) << "\n";
-    std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2, p) << "\n";
+    std::cout << "1st: (s, t)= " << this->epos1 << " oePoint()= " << this->oePoint(this->epos1) << " e=" << this->error_old(this->epos1, p) << "\n";
+    std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error_old(this->epos2, p) << "\n";
 }
 
-double Ellipse::error_brent( double dia ) {
+double Ellipse::error( double dia ) {
     epos1.diangle = dia;
     epos1.setD();
     Point p1 = oePoint(epos1);
     return p1.y - target.y;
+}
+
+
+/// error-function for the offset-ellipse solver
+/// here we use only the y-coordinate error         
+// consider removing
+double Ellipse::error_old(Epos& pos, Point& p) {
+    assert( pos.isValid() );
+    Point p1 = oePoint(pos);
+    double dy = p1.y - p.y;
+    return dy;
 }
 
 
@@ -350,14 +363,7 @@ Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln) {
     return up1 + tparam*(up2-up1); // return a point on the line
 }
     
-/// error-function for the offset-ellipse solver
-/// here we use only the y-coordinate error         
-double Ellipse::error(Epos& pos, Point& p) {
-    assert( pos.isValid() );
-    Point p1 = oePoint(pos);
-    double dy = p1.y - p.y;
-    return dy;
-}
+
 
 /// Ellipse string output
 std::ostream& operator<<(std::ostream &stream, const Ellipse& e) {

@@ -53,7 +53,7 @@ class Ellipse {
         Point tangent(Epos& position) const;
         
         /// offset-ellipse Newton-Rhapson solver
-        int solver_nr( Point& p ); 
+        //int solver_nr( Point& p ); 
         
         /// offset-ellipse Brent solver
         int solver_brent( Point& p );
@@ -65,8 +65,8 @@ class Ellipse {
         bool find_epos2(Point& p);
         
         /// error function for the solver
-        double error(Epos& position, Point& p);
-        double error_brent( double dia );
+        double error_old(Epos& position, Point& p);
+        double error( double dia );
         
         /// calculate ellipse center
         Point calcEcenter(Point& cl, Point& up1, Point& up2, int sln);

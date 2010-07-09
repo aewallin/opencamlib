@@ -20,7 +20,6 @@
 #ifndef ARC_H
 #define ARC_H
 
-//#include <iostream>
 #include "point.h"
 #include "numeric.h"
 

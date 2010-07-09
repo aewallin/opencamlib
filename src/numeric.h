@@ -69,8 +69,10 @@ double eps();
 
 /// Brent's root finding algorithm
 /// find a zero of function f in the interval [a,b]
-double brent_zero( double a, double b, double eps, double tol, 
-  Ellipse* ell);
+/// needs a pointer to an ErrObj which must provide a function
+/// ErrObj::error(double x) for which we try to find a zero
+//template <class ErrObj>
+//double brent_zero( double a, double b, double eps, double tol, ErrObj* errobj);
   
 
 
