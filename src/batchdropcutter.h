@@ -23,11 +23,9 @@
 
 #include <iostream>
 #include <string>
-#include <list>
+//#include <list>
 #include <vector>
-
 #include <boost/python.hpp>
-
 #include "point.h"
 
 namespace ocl
@@ -65,21 +63,18 @@ class BatchDropCutter {
         // Python interface
         /// return CL-points to Python
         boost::python::list getCLPoints();
-        /// return CC-points to Python
-        //boost::python::list getCCPoints();
+
         /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
-        boost::python::list getTrianglesUnderCutter(Point &cl, MillingCutter &cutter);
+        boost::python::list getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter);
         
         // DATA
         /// the MillingCutter used
         MillingCutter *cutter;
         
-        /// the list of CL-points to run drop-cutter on
-        std::vector<CLPoint> *clpoints;
-                
+        /// pointer to list of CL-points on which to run drop-cutter.
+        std::vector<CLPoint>* clpoints;
         /// root of the kd-tree
         KDNode *root;
-        
         /// the STLSurf which we test against.
         STLSurf *surf;
         

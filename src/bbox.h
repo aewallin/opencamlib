@@ -21,10 +21,6 @@
 #ifndef BBOX_H
 #define BBOX_H
 
-//#include <iostream>
-//#include <list>
-//#include <vector>
-
 #include "point.h"
 
 namespace ocl
@@ -41,7 +37,8 @@ class Bbox {
         
         Point maxpt; /// the maximum point
         Point minpt; /// the minimum point
-               
+        bool initialized;
+        
         /// return true if Point p is inside this Bbox
         bool isInside(Point& p) const;
         
@@ -51,6 +48,7 @@ class Bbox {
         
         /// Add each vertex of a Triangle to the Bbox.
         /// This enlarges the Bbox so that the Triangle is contained within it.
+        /// Calls addPoint() for each vertex of the Triangle.
         void addTriangle(const Triangle& t);
 };
 

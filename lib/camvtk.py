@@ -25,18 +25,19 @@ orange = ( float(255)/255,float(165)/255,float(0)/255)
 mag = ( float(153)/255 , float(42)/255 , float(165)/255  )
 
 def clColor(cc):
-    if cc.type==ocl.CCType.FACET:
-        col = blue
+    if cc.type == ocl.CCType.VERTEX:
+        col = red
+    elif cc.type==ocl.CCType.FACET:
+        col = green
     elif cc.type == ocl.CCType.FACET_TIP:
         col = orange
     elif cc.type == ocl.CCType.FACET_CYL:
         col = cyan
-    elif cc.type == ocl.CCType.VERTEX:
-        col = green
+
     elif cc.type == ocl.CCType.EDGE:
-        col = red
+        col = blue
     elif cc.type == ocl.CCType.NONE:
-        col = (1,1,1)  
+        col = white  
     elif cc.type == ocl.CCType.ERROR:
         col = (0,1,1)
     elif cc.type == ocl.CCType.EDGE_POS:
@@ -49,7 +50,7 @@ def clColor(cc):
         col = orange
         
     else:
-        print "err. CCType unknown, no color"
+        print "camvtk.clColor() ERROR: CCType=",cc.type," is unknown, no color"
         col = red
     return col
 
@@ -651,7 +652,7 @@ class PointCloud(CamvtkActor):
             points.InsertNextPoint(p.x, p.y, p.z)
             vert.GetPointIds().SetId(0,n)
             cellArr.InsertNextCell( vert )
-            col = clColor(p.cc)
+            col = clColor(p.cc())
             Colors.InsertNextTuple3( float(255)*col[0], float(255)*col[1], float(255)*col[2] )
             n=n+1
             

@@ -71,6 +71,7 @@ BOOST_PYTHON_MODULE(ocl) {
         //.def("getCCPoints", &BatchDropCutter::getCCPoints)
         .def("setSTL", &BatchDropCutter::setSTL)
         .def("setCutter", &BatchDropCutter::setCutter)
+        .def("setThreads", &BatchDropCutter::setThreads)
         .def("appendPoint", &BatchDropCutter::appendPoint)
         .def("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &BatchDropCutter::dcCalls)

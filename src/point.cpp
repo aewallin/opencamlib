@@ -110,15 +110,7 @@ double Point::xyDistance(const Point &p) const
 }
 
 
-int Point::liftZ(double zin)
-{
-    if (zin>z) {
-        z=zin;
-        return 1;
-    } else {
-        return 0;
-    }
-}
+
 
 double Point::xyDistanceToLine(const Point &p1, const Point &p2) const
 {

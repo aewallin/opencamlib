@@ -362,13 +362,13 @@ MillingCutter* BullCutter::offsetCutter(double d) const {
 std::string BullCutter::str() const
 {
     std::ostringstream o;
-    o << "BullCutter(d=" << diameter << ", radius1=" << radius1 << ", radius2=" << radius2 << ")";
+    o << *this;
     return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, BullCutter c)
 {
-  stream << "BallCutter"<< c.id <<"(d=" << c.diameter << ", radius1=" << c.radius1 << " radius2=" << c.radius2 << ")";
+  stream << "BallCutter(d=" << c.diameter << ", r1=" << c.radius1 << " r2=" << c.radius2 << ")";
   return stream;
 }
 

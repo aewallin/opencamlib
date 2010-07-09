@@ -46,10 +46,8 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
     p[0]=p1;
     p[1]=p2;
     p[2]=p3;
-    //std::cout << "Triangle(p1,p2,p3) before calcNormal()\n";
     calcNormal();
     calcBB();
-    //std::cout << "Triangle(p1,p2,p3) AFTER calcNormal()\n";
 }
 
 Triangle::~Triangle()
@@ -75,8 +73,10 @@ void Triangle::calcBB() {
     // consider re-writing this behavior: (?)
     minx=bb.minpt.x;
     maxx=bb.maxpt.x;
+    
     miny=bb.minpt.y;
     maxy=bb.maxpt.y;
+    
     minz=bb.minpt.z;
     maxz=bb.maxpt.z;
 }

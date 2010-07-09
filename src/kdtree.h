@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <list>
+#include "clpoint.h"
 
 namespace ocl
 {
@@ -67,7 +68,7 @@ class KDNode {
                                  KDNode *hi_c, 
                                  KDNode *lo_c, 
                                  const std::list<Triangle> *tlist, 
-                                 int lev);
+                                 int level);
         /// string repr
         std::string str() const;
         /// string repr
@@ -105,7 +106,7 @@ class KDNode {
         /// MillingCutter c positioned at Point cl.
         /// The triangles found are pushed into the Triangle list tris.
         static void search_kdtree( std::list<Triangle> *tris, //why static?
-                                   const Point& cl, 
+                                   const CLPoint& cl, 
                                    const MillingCutter& cutter, 
                                    KDNode *root);
         
@@ -113,11 +114,11 @@ class KDNode {
         static void getTriangles( std::list<Triangle> *tris, 
                                    KDNode *root);
         
-        /// do the triangles at KDNode root overlap (in XY-plane) with the 
+        /// do the triangles at KDNode root overlap (in the XY-plane) with the 
         /// MillingCutter c positioned at Point cl?
-        static bool overlap(const KDNode *root, 
-                            const Point& cl, 
-                            const MillingCutter& c);
+        static bool overlap(const KDNode *root,      // root of tree
+                            const CLPoint& cl,       // cutter positioned here
+                            const MillingCutter& c); // cutter
         
         /// counter used for cutting along the 4 dims sequentially.
         /// not used if cutting along max spread.

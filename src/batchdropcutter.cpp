@@ -17,11 +17,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <boost/progress.hpp>
+
 #include <boost/foreach.hpp>
 #ifndef WIN32
 #include <omp.h>
@@ -162,64 +158,62 @@ void BatchDropCutter::dropCutter4()
     std::cout.flush();
     dcCalls = 0;
     int calls=0;
-    std::list<Triangle> *tris;
-    
+    long int ntris;
+    std::list<Triangle>* tris;
     unsigned int n;
     unsigned int Nmax = clpoints->size();
-    
-    Triangle* t;
-    //CCPoint cc;
     std::vector<CLPoint>& clref = *clpoints; 
-    
-    //ccpoints->resize( clpoints->size() ); // preallocate room in cc-vector
-    //std::vector<CCPoint>& ccref = *ccpoints; 
-    
     MillingCutter& cutref = *cutter;
-
+    int nloop=0;
+    unsigned int ntriangles = surf->tris.size();
+    // std::cout << " main loop will run" << Nmax << " times\n";
 #ifndef WIN32
     omp_set_num_threads(nthreads);
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( calls, clref, cutref) private(n,t,tris,it)
-        for (n=0;n< Nmax ;n++) {
+    #pragma omp parallel for shared( nloop, ntris, calls, clref, cutref) private(n,tris,it)
+        for (n=0;n< Nmax ;n++) { // PARALLEL OpenMP loop!
 #ifndef WIN32
-            if ( n== 0 ) {
-                // on first iteration, print out how many threads we are using
-                if (omp_get_thread_num() == 0 ) {   
-                    std::cout << "Number of threads = "<< omp_get_num_threads() << "\n";
+            if ( n== 0 ) { // first iteration
+                // print out how many threads we are using
+                if (omp_get_thread_num() == 0 ) {   // first thread
+                    std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
                 }
             }
 #endif
             
-            // reset variables before each run
-            t= 0;
+            nloop++;
             tris=new std::list<Triangle>();
-            // cc.type = NONE;
             
-            KDNode::search_kdtree( tris, clref[n], cutref, root);
+            KDNode::search_kdtree( tris, clref[n], cutref, root); // tris will contain overlapping triangles
+            assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             
-            for( it=tris->begin(); it!=tris->end() ; it++) { // loop over found triangles  
-                if ( cutref.overlaps(clref[n],*it) ) { //overlap check
+            //std::cout << "at" << clref[n] << " found " << tris->size() << "triangles. \n";
+            //char c;
+            //std::cin >> c;
+            for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
+                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     cutref.dropCutter( clref[n],*it);
                     ++calls;
                 }
             }
+            ntris += tris->size();
             delete( tris );
-            
-            //ccref[n]=cc;
         }
     // end OpenMP PARALLEL for
         
     dcCalls = calls;
-        
-    std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
+    // std::cout << " main loop ran" << nloop << " times\n";
+    std::cout << " " << dcCalls << " dropCutter() calls.\n";
+    std::cout << " ntris:" << ntris<< " Nmax:"<< Nmax << " \n";
+    std::cout << " " << (float)ntris/(float)Nmax << " tris/len(clpts).\n";
     std::cout.flush();
     return;
 }
 
 
 // used only for testing, not actual work
-boost::python::list BatchDropCutter::getTrianglesUnderCutter(Point &cl, MillingCutter &cutter)
+boost::python::list BatchDropCutter::getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter)
 {
     boost::python::list trilist;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();

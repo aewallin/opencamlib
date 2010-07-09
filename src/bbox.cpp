@@ -18,11 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <algorithm>
+
 #include <vector>
 #include <list>
 #include <cassert>
@@ -45,6 +41,7 @@ Bbox::Bbox()
 {
     minpt = Point(0,0,0);
     maxpt = Point(0,0,0);
+    initialized = false;
 }
 
 Bbox::~Bbox()
@@ -54,6 +51,7 @@ Bbox::~Bbox()
 
 bool Bbox::isInside(Point& p) const
 {
+    assert( initialized );
     if (p.x > maxpt.x)
         return false;
     else if (p.x < minpt.x)
@@ -72,20 +70,26 @@ bool Bbox::isInside(Point& p) const
 
 void Bbox::addPoint(const Point &p)
 {
-    if (p.x > maxpt.x)
-        maxpt.x = p.x;
-    if (p.x < minpt.x)
-        minpt.x = p.x;
-    
-    if (p.y > maxpt.y)
-        maxpt.y = p.y;
-    if (p.y < minpt.y)
-        minpt.y = p.y;
-    
-    if (p.z > maxpt.z)
-        maxpt.z = p.z;
-    if (p.z < minpt.z)
-        minpt.z = p.z;
+    if (!initialized) {
+        maxpt = p;
+        minpt = p;
+        initialized = true;
+    } else {
+        if (p.x > maxpt.x)
+            maxpt.x = p.x;
+        if (p.x < minpt.x)
+            minpt.x = p.x;
+        
+        if (p.y > maxpt.y)
+            maxpt.y = p.y;
+        if (p.y < minpt.y)
+            minpt.y = p.y;
+        
+        if (p.z > maxpt.z)
+            maxpt.z = p.z;
+        if (p.z < minpt.z)
+            minpt.z = p.z;
+    }
         
 }
 

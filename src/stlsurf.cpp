@@ -122,7 +122,7 @@ boost::python::list STLSurf::get_kd_triangles()
     return trilist;
 }
 
-boost::python::list STLSurf::getTrianglesUnderCutter(const Point &cl, const MillingCutter &cutter) const {
+boost::python::list STLSurf::getTrianglesUnderCutter(const CLPoint &cl, const MillingCutter &cutter) const {
     boost::python::list trilist;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);

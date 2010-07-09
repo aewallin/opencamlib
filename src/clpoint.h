@@ -25,6 +25,7 @@
 
 #include "point.h"
 #include "ccpoint.h"
+#include "triangle.h"
 
 namespace ocl
 {
@@ -37,12 +38,20 @@ class CLPoint : public Point {
         CLPoint();
         CLPoint(double x, double y, double z);
         CLPoint(double x, double y, double z, CCPoint& ccp);
+        CLPoint(const CLPoint& cl);
+        virtual ~CLPoint();
         
-        virtual ~CLPoint(){};
-        CCPoint cc; // the corresponding CC-point
+        CCPoint* cc; // the corresponding CC-point
+        /// string repr
         std::string str() const;
         /// if zin > z, lift CLPoint and update cc-point 
         int liftZ(double zin, CCPoint& ccp);
+        bool liftZ(const double zin);
+        /// return true if cl-point above triangle
+        bool below(const Triangle& t) const;
+        
+        // return cc-point to python
+        CCPoint getCC();
         
         CLPoint &operator=(const CLPoint &p);
         /// addition

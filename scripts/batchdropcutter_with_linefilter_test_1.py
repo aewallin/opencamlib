@@ -21,9 +21,10 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     
     #cutter = ocl.BallCutter(1.4321)
-    #cutter = ocl.CylCutter(1.123)
-    cutter = ocl.BullCutter(1.123, 0.2)
+    cutter = ocl.CylCutter(1.123)
+    #cutter = ocl.BullCutter(1.123, 0.2)
     print cutter
+    print "radius=",cutter.radius
     
     minx=0
     dx=0.1/1
@@ -31,30 +32,30 @@ if __name__ == "__main__":
     miny=0
     dy=1
     maxy=10
-    z=-17
+    z=-1
     # this generates a list of CL-points in a grid
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print "generated grid with", len(clpoints)," CL-points"
     
     # batchdropcutter    
-    bdc1 = ocl.BatchDropCutter()
-    bdc1.setSTL(s,1)
-    bdc1.setCutter(cutter)
+    bdc = ocl.BatchDropCutter()
+    bdc.setSTL(s,1)
+    bdc.setCutter(cutter)
+    bdc.setThreads(1)
     for p in clpoints:
-        bdc1.appendPoint(p)
+        bdc.appendPoint(p)
     
     t_before = time.time()    
-    print "threads=",bdc1.nthreads
-    bdc1.dropCutter4()
+    bdc.dropCutter4()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
-    
-    clpoints = bdc1.getCLPoints()
+    dropcutter_time = calctime
+    clpoints = bdc.getCLPoints()
 
-    print len(clpoints), " cl points evaluated"
+    #print len(clpoints), " cl points evaluated"
     
-    print "rendering...",
+    print "rendering raw CL-points."
     
     # draw the CL-points
     camvtk.drawCLPointCloud(myscreen, clpoints)
@@ -62,11 +63,16 @@ if __name__ == "__main__":
     
     # filter
     print "filtering. before filter we have", len(clpoints),"cl-points"
+    t_before = time.time()
     f = ocl.LineCLFilter()
     f.setTolerance(0.001)
     for p in clpoints:
         f.addCLPoint(p)
     f.run()
+    t_after = time.time()
+    calctime = t_after-t_before
+    print " filter done in ", calctime," s"
+    
     clp2 = f.getCLPoints()
     print "after filtering we have", len(clp2),"cl-points"
     
@@ -74,10 +80,12 @@ if __name__ == "__main__":
     # offset these points up for clarity
     for p in clp2:
         p.z=p.z+3
+    
+    print "rendering filtered CL-points."
     camvtk.drawCLPointCloud(myscreen, clp2)
     
     
-    print "done"
+    print "all done."
         
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
@@ -97,17 +105,12 @@ if __name__ == "__main__":
     myscreen.addActor( t)
     
     t2 = camvtk.Text()
-    stltext = "%i triangles\n%i CL-points\n%0.1f seconds" % (s.size(), len(clpoints), calctime)
+    stltext = "Cutter: %s\n%i triangles\n%i CL-points\n%0.1f seconds\n%i filtered CL-points" % (str(cutter), s.size(), len(clpoints), dropcutter_time, len(clp2))
     t2.SetText(stltext)
     t2.SetPos( (50, myscreen.height-200) )
     myscreen.addActor( t2)
     
-    t3 = camvtk.Text()
-    ctext = "Cutter: %s" % ( str(cutter) )
-    
-    t3.SetText(ctext)
-    t3.SetPos( (50, myscreen.height-250) )
-    myscreen.addActor( t3)
+
 
     myscreen.render()
     myscreen.iren.Start()

@@ -67,14 +67,15 @@ class Triangle {
         double miny;
         double minz;
         double maxz;
+        /// update bounding-box
+        void calcBB();
         
     private:
         /// set id-number
         void setId();
         /// calculate and set Triangle normal
         void calcNormal();
-        /// calculate bounding-box
-        void calcBB();
+
 };
 
 } // end namespace

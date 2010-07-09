@@ -32,24 +32,57 @@ namespace ocl
 
 CLPoint::CLPoint() 
     : Point() {
-    cc = CCPoint();
+    // delete cc;
+    cc = new CCPoint();
 }
 
 CLPoint::CLPoint(double x, double y, double z) 
     : Point(x,y,z) {
-    cc = CCPoint();
+    // delete cc;
+    cc = new CCPoint();
 }
 
 CLPoint::CLPoint(double x, double y, double z, CCPoint& ccp) 
     : Point(x,y,z) {
-    cc = ccp;
+    // delete cc;
+    cc = new CCPoint( ccp );
+}
+
+
+CLPoint::CLPoint(const CLPoint& cl) 
+    : Point(cl.x,cl.y,cl.z) {
+    // delete cc;
+    cc = new CCPoint( *cl.cc );
+}
+
+
+
+CLPoint::~CLPoint() {
+   delete cc;
+}
+
+bool CLPoint::below(const Triangle& t) const {
+    if (z < t.bb.maxpt.z )
+        return true;
+    else
+        return false;
+}
+
+bool CLPoint::liftZ(const double zin)
+{
+    if (zin>z) {
+        z=zin;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 int CLPoint::liftZ(double zin, CCPoint& ccp)
 {
     if (zin>z) {
         z=zin;
-        cc=ccp;
+        cc=&ccp;
         return 1;
     } else {
         return 0;
@@ -71,6 +104,10 @@ const CLPoint CLPoint::operator+(const CLPoint &p) const {
 
 const CLPoint CLPoint::operator+(const Point &p) const {
     return CLPoint(this->x + p.x, this->y + p.y, this->z + p.z);
+}
+
+CCPoint CLPoint::getCC() {
+    return *cc;
 }
 
 std::string CLPoint::str() const

@@ -76,8 +76,8 @@ int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
         //CCPoint cc_tmp;
         if ( cutter[n]->vertexDrop(cl_tmp,t) ) {
-            if ( ccValid(n,cl_tmp,cl_tmp.cc) ) { // cc-point is valid
-                if (cl.liftZ(cl_tmp.z-zoffset[n],cl_tmp.cc)) { // we need to lift the cutter
+            if ( ccValid(n,cl_tmp,*cl_tmp.cc) ) { // cc-point is valid
+                if (cl.liftZ(cl_tmp.z-zoffset[n],*cl_tmp.cc)) { // we need to lift the cutter
                     result = 1;
                 }
             }
@@ -95,8 +95,8 @@ int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         //CCPoint* cc_tmp = new CCPoint();
         if ( cutter[n]->facetDrop(cl_tmp, t) ) {
-            if ( ccValid(n,cl, cl_tmp.cc) ) { // cc-point is valid
-                if (cl.liftZ(cl_tmp.z-zoffset[n], cl_tmp.cc)) { // we need to lift the cutter
+            if ( ccValid(n,cl, *cl_tmp.cc) ) { // cc-point is valid
+                if (cl.liftZ(cl_tmp.z-zoffset[n], *cl_tmp.cc)) { // we need to lift the cutter
                     result = 1;
                 }
             }
@@ -115,9 +115,9 @@ int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         //CCPoint* cc_tmp = new CCPoint();
         if ( cutter[n]->edgeDrop(cl_tmp,t) ) { 
-            if ( ccValid(n,cl,cl_tmp.cc) ) { // cc-point is valid
-                cl_tmp.cc.type = EDGE;
-                if (cl.liftZ( cl_tmp.z - zoffset[n], cl_tmp.cc)) { // we need to lift the cutter
+            if ( ccValid(n,cl,*cl_tmp.cc) ) { // cc-point is valid
+                cl_tmp.cc->type = EDGE;
+                if (cl.liftZ( cl_tmp.z - zoffset[n], *cl_tmp.cc)) { // we need to lift the cutter
                     result = 1;
                 }
             }

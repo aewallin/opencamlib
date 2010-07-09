@@ -41,7 +41,7 @@ class Point {
         Point(double x, double y, double z);
         /// create a point at p
         Point(const Point &p);
-        ~Point() {};
+        virtual ~Point() {};
         
         /// dot product
         double dot(const Point &p) const;
@@ -49,7 +49,7 @@ class Point {
         /// cross product
         Point cross(const Point &p) const;
         
-        /// norm of vector, or distance from (0,0,0) to point
+        /// norm of vector, or distance from (0,0,0) to *this
         double norm() const; //  or distance to (0,0,0) for a point
         
         /// scales vector so that norm()==1.0
@@ -58,10 +58,10 @@ class Point {
         /// distance from Point to another Point p in the XY plane
         double xyDistance(const Point &p) const;
         
-        /// length of vector in xy plane
+        /// length of vector in the XY plane
         double xyNorm() const;
         
-        /// normalize so that length in xy plane is 1
+        /// normalize so that length xyNorm == 1.0
         void xyNormalize();
 
         /// return perpendicular in the xy plane, rotated 90 degree to the left
@@ -75,7 +75,7 @@ class Point {
         void xyRotate(double angle);
         
         /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
-        int liftZ(double zin);
+        //int liftZ(double zin);
         
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;

@@ -34,28 +34,24 @@ namespace ocl
     
 
 //********   MillingCutter ********************** */
-int MillingCutter::count = 0;
 
-MillingCutter::MillingCutter()
-{   
+MillingCutter::MillingCutter() {   
     setDiameter( 1.0 );
     setLength( 1.0 );
-    setId();
 }
 
-void MillingCutter::setDiameter(double d)
-{
+void MillingCutter::setDiameter(double d) {
     if ( d >= 0.0 ) {
         diameter=d;
         radius = d/2.0;
     } else {
         std::cout << "cutter.cpp: ERROR, MillingCutter.setDiameter(d) called with d<0 !!";
         diameter=1.0;
+        radius = diameter/2.0;
     }
 }
 
-void MillingCutter::setLength(double l)
-{
+void MillingCutter::setLength(double l) {
     if ( l > 0.0 ) {
         length=l;
     } else {
@@ -64,69 +60,55 @@ void MillingCutter::setLength(double l)
     }
 }
 
-void MillingCutter::setId()
-{
-        id = count;
-        count++;
-}
 
-double MillingCutter::getDiameter() const
-{
+double MillingCutter::getDiameter() const {
     return diameter;
 }
 
-double MillingCutter::getRadius() const
-{
+double MillingCutter::getRadius() const {
     return radius;
 }
 
-double MillingCutter::getLength() const
-{
+double MillingCutter::getLength() const {
     return length;
 }
 
-MillingCutter* MillingCutter::offsetCutter(double d) const
-{
+MillingCutter* MillingCutter::offsetCutter(double d) const {
     assert(0); // DON'T call me
     return  new CylCutter();
 }
 
 /// call vertex, facet, and edge drop methods
-int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const
-{
+int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     /* template-method, or "self-delegation", pattern */
-    //CLPoint cl2 = CLPoint(cl.x,cl.y,cl.z); //FIXME FIXME FIXME
-    vertexDrop(cl,t);
-    /// \todo optimisation: if we are already above the triangle we don't need facet and edge
-    facetDrop(cl,t); 
-    edgeDrop(cl,t);
-
+    if (cl.below(t))
+        vertexDrop(cl,t);
+        
+    // optimisation: if we are now above the triangle we don't need facet and edge
+    if ( cl.below(t) ) {
+        facetDrop(cl,t); 
+        edgeDrop(cl,t);
+    }
     return 0; // void would be better, return value not used for anything
 }
 
 // TESTING ONLY, don't use for real
-int MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const
-{
+int MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
     /* template-method, or "self-delegation", pattern */
-    //boost::progress_display show_progress( s.tris.size() );
-
     BOOST_FOREACH( const Triangle& t, s.tris) {
         dropCutter(cl,t);
     }
-
-    return 0; // void
+    return 0; 
 }
 
-bool MillingCutter::overlaps(Point &cl, const Triangle &t) const
-{
-    double r = this->getRadius();
-    if ( t.maxx < cl.x-r )
+bool MillingCutter::overlaps(Point &cl, const Triangle &t) const {
+    if ( t.maxx < cl.x-radius )
         return false;
-    else if ( t.minx > cl.x+r )
+    else if ( t.minx > cl.x+radius )
         return false;
-    else if ( t.maxy < cl.y-r )
+    else if ( t.maxy < cl.y-radius )
         return false;
-    else if ( t.miny > cl.y+r )
+    else if ( t.miny > cl.y+radius )
         return false;
     else
         return true;

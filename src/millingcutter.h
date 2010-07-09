@@ -93,18 +93,12 @@ class MillingCutter {
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
     protected:
-        /// id-number count
-        static int count;
-        /// cutter id number
-        int id;
         /// diameter of cutter
         double diameter;
         /// radius of cutter
         double radius;
         /// length of cutter
         double length;
-        /// set id-number
-        void setId();
 };
 
 
