@@ -323,7 +323,7 @@ class CompoundCutter : public MillingCutter {
         /// and its axial offset is given by zoffset
         void addCutter(MillingCutter& c, double radius, double zoff);
         /// return true if cc_tmp is in the valid region of cutter n
-        bool ccValid(int n, Point& cl, CCPoint& cc_tmp) const;
+        bool ccValid(int n, CLPoint& cl) const;
         
         // offsetCutter
         MillingCutter* offsetCutter(double d) const;

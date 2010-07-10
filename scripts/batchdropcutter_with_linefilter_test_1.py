@@ -29,7 +29,6 @@ if __name__ == "__main__":
     cutter = cutter.offsetCutter( 0.1 )
     
     print cutter
-    print "radius=",cutter.radius
     
     minx=0
     dx=0.1/10

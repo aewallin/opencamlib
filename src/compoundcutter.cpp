@@ -17,10 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
 
 #include "millingcutter.h"
 #include "point.h"
@@ -32,25 +28,22 @@ namespace ocl
 {
 
 
-CompoundCutter::CompoundCutter()
-{
+CompoundCutter::CompoundCutter() {
     radiusvec = std::vector<double>();
     cutter = std::vector<MillingCutter*>();
 }
 
-void CompoundCutter::addCutter(MillingCutter& c, double r, double zoff)
-{
+void CompoundCutter::addCutter(MillingCutter& c, double r, double zoff) {
     radiusvec.push_back(r);
     cutter.push_back(&c);
     zoffset.push_back(zoff);
 }
 
-bool CompoundCutter::ccValid(int n, Point& cl, CCPoint& cc_tmp) const
-{
-    if (cc_tmp.type == NONE)
+bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
+    if (cl.cc->type == NONE)
         return false;
         
-    double d = cl.xyDistance(cc_tmp);
+    double d = cl.xyDistance(*cl.cc);
     double lolimit;
     double hilimit;
     if (n==0)
@@ -74,14 +67,19 @@ int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
     
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
-        //CCPoint cc_tmp;
-        if ( cutter[n]->vertexDrop(cl_tmp,t) ) {
-            if ( ccValid(n,cl_tmp,*cl_tmp.cc) ) { // cc-point is valid
-                if (cl.liftZ(cl_tmp.z-zoffset[n],*cl_tmp.cc)) { // we need to lift the cutter
+        CCPoint* cc_tmp; 
+        if ( cutter[n]->vertexDrop(cl_tmp,t) ) {  // if we hit a vertex with this cutter
+            if ( ccValid(n,cl_tmp) ) { // and cc-point is valid
+                cc_tmp =  new CCPoint(*cl_tmp.cc);
+                if (cl.liftZ( cl_tmp.z-zoffset[n] )) { // and we need to lift the cutter
+                    cc_tmp->type = VERTEX;
+                    cl.cc = cc_tmp;
                     result = 1;
+                } else {
+                    delete cc_tmp;
                 }
-            }
-        }
+            } 
+        } 
     }
     return result;
 }
@@ -93,11 +91,16 @@ int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     //CLPoint cl_tmp = cl;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
-        //CCPoint* cc_tmp = new CCPoint();
+        CCPoint* cc_tmp;
         if ( cutter[n]->facetDrop(cl_tmp, t) ) {
-            if ( ccValid(n,cl, *cl_tmp.cc) ) { // cc-point is valid
-                if (cl.liftZ(cl_tmp.z-zoffset[n], *cl_tmp.cc)) { // we need to lift the cutter
+            if ( ccValid(n,cl) ) { // cc-point is valid
+                cc_tmp = new CCPoint(*cl_tmp.cc);
+                if (cl.liftZ( cl_tmp.z-zoffset[n] )) { // we need to lift the cutter
+                    cc_tmp->type = FACET;
+                    cl.cc = cc_tmp;
                     result = 1;
+                } else {
+                    delete cc_tmp;
                 }
             }
         }
@@ -113,12 +116,16 @@ int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
     
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
-        //CCPoint* cc_tmp = new CCPoint();
+        CCPoint* cc_tmp;
         if ( cutter[n]->edgeDrop(cl_tmp,t) ) { 
-            if ( ccValid(n,cl,*cl_tmp.cc) ) { // cc-point is valid
-                cl_tmp.cc->type = EDGE;
-                if (cl.liftZ( cl_tmp.z - zoffset[n], *cl_tmp.cc)) { // we need to lift the cutter
+            if ( ccValid(n,cl) ) { // cc-point is valid
+                cc_tmp = new CCPoint(*cl_tmp.cc);
+                if (cl.liftZ( cl_tmp.z - zoffset[n] ) ) { // we need to lift the cutter
+                    cc_tmp->type = EDGE;
+                    cl.cc = cc_tmp;
                     result = 1;
+                } else {
+                    delete cc_tmp;
                 }
             }
         }
@@ -126,7 +133,9 @@ int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
     return result;
 }
 
-MillingCutter* CompoundCutter::offsetCutter(double d) const{
+MillingCutter* CompoundCutter::offsetCutter(double d) const {
+    std::cout << " ERROR: not implemented.\n";
+    assert(0);
     return  new CylCutter(); //FIXME!
 }
 
@@ -141,9 +150,14 @@ std::string CompoundCutter::str() const {
     return o.str();
 }
 
-//********   actual compound-cutters ***************************************************** /
-// only constructors required, drop-cutter calls handled by base-class
 
+
+//********   actual compound-cutters ********************************* /
+// 
+// only constructors required, drop-cutter calls handled by base-class
+//
+//
+//******************************************************************** /
 
 /// define a CylCone cutter which consists of a cylindrical(flat) middle part
 /// of diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2
