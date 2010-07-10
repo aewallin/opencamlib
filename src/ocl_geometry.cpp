@@ -73,6 +73,7 @@ void export_geometry() {
         .def_readwrite("y", &CLPoint::y)
         .def_readwrite("z", &CLPoint::z)
         .def("cc", &CLPoint::getCC)
+        .def("getCC", &CLPoint::getCC)
     ;   
     bp::class_<CCPoint>("CCPoint")  // FIXME: CCPoint should inherit from Point
         .def(bp::init<CCPoint>())

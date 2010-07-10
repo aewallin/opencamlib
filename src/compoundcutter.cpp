@@ -39,10 +39,12 @@ void CompoundCutter::addCutter(MillingCutter& c, double r, double zoff) {
     zoffset.push_back(zoff);
 }
 
+/// return true if cl.cc is within the radial range of cutter n
+/// for cutter n the valid radial distance from cl is
+/// between radiusvec[n-1] and radiusvec[n]
 bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
     if (cl.cc->type == NONE)
         return false;
-        
     double d = cl.xyDistance(*cl.cc);
     double lolimit;
     double hilimit;
@@ -64,11 +66,11 @@ bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
 int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
     int result = 0;
-    
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
         CCPoint* cc_tmp; 
         if ( cutter[n]->vertexDrop(cl_tmp,t) ) {  // if we hit a vertex with this cutter
+            assert( cl_tmp.cc != 0);
             if ( ccValid(n,cl_tmp) ) { // and cc-point is valid
                 cc_tmp =  new CCPoint(*cl_tmp.cc);
                 if (cl.liftZ( cl_tmp.z-zoffset[n] )) { // and we need to lift the cutter
@@ -88,14 +90,14 @@ int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 {
     int result = 0;
-    //CLPoint cl_tmp = cl;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
-        CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
+        CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
         CCPoint* cc_tmp;
         if ( cutter[n]->facetDrop(cl_tmp, t) ) {
-            if ( ccValid(n,cl) ) { // cc-point is valid
+            assert( cl_tmp.cc != 0);
+            if ( ccValid(n,cl_tmp) ) { // cc-point is valid
                 cc_tmp = new CCPoint(*cl_tmp.cc);
-                if (cl.liftZ( cl_tmp.z-zoffset[n] )) { // we need to lift the cutter
+                if (cl.liftZ( cl_tmp.z - zoffset[n] )) { // we need to lift the cutter
                     cc_tmp->type = FACET;
                     cl.cc = cc_tmp;
                     result = 1;
@@ -118,7 +120,7 @@ int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         CCPoint* cc_tmp;
         if ( cutter[n]->edgeDrop(cl_tmp,t) ) { 
-            if ( ccValid(n,cl) ) { // cc-point is valid
+            if ( ccValid(n,cl_tmp) ) { // cc-point is valid
                 cc_tmp = new CCPoint(*cl_tmp.cc);
                 if (cl.liftZ( cl_tmp.z - zoffset[n] ) ) { // we need to lift the cutter
                     cc_tmp->type = EDGE;

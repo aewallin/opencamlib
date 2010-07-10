@@ -108,7 +108,7 @@ def drawCLPoints(myscreen, clpoints):
 
 def drawCCPoints(myscreen, clpoints):
     for cl in clpoints:
-        cc = cl.cc
+        cc = cl.getCC()
         if cc.type is not ocl.CCType.NONE:
             myscreen.addActor(Point(center=(cc.x,cc.y,cc.z), color=ccColor(cc)) )
 

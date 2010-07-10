@@ -4,6 +4,7 @@ import camvtk
 import time
 import vtk
 import datetime
+import math
 
 if __name__ == "__main__":  
     print ocl.revision()
@@ -18,7 +19,7 @@ if __name__ == "__main__":
     
     a = ocl.Point(1,0,-0.000010)
     b = ocl.Point(0,1,+0.0)    
-    c = ocl.Point(0.001,0,+0.0001)
+    c = ocl.Point(0.001,0,+0.3001)
     #c = ocl.Point(0,0,0.3)
     
     myscreen.addActor( camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)));
@@ -29,10 +30,13 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(a,b,c)
     
-    cutter = ocl.BullCutter(0.5,0.1)
-    #cutter = ocl.CylCutter(0.5)
-    #cutter = ocl.BallCutter(0.5)
-    
+    angle = math.pi/8
+    #c1 = ocl.BullCutter(0.5,0.1)
+    c1 = ocl.CylCutter(0.5)
+    #c1 = ocl.BallCutter(0.5)
+    #c1 = ocl.ConeCutter(0.5,angle)    
+    cutter = c1
+    #cutter = c1.offsetCutter(0.4)
     
     print cutter
     
@@ -49,9 +53,23 @@ if __name__ == "__main__":
     # generate list of CL-poins at height z
     clpoints=[]
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-
     
+    # loop through the cl-points
+    n=0
+    print len(clpoints), "cl-points to evaluate"
+    for cl in clpoints:
+        cutter.vertexDrop(cl,t)
+        cutter.edgeDrop(cl,t)
+        cutter.facetDrop(cl,t)
+        n=n+1
+    print "drop-cutter done."
 
+               
+    print "rendering...",
+    # render all the points
+    camvtk.drawCLPointCloud(myscreen, clpoints)
+    camvtk.drawCCPoints(myscreen, clpoints)
+    print "done."   
     
     tx = camvtk.Text()
     tx.SetPos( (myscreen.width-200, myscreen.height-30) )
@@ -63,41 +81,6 @@ if __name__ == "__main__":
     lwr.SetInput( w2if.GetOutput() )
     w2if.Modified()
     
-    xp = ocl.CLPoint(2.7, 0.14, -0.200018)
-    xp = ocl.CLPoint(0.26, 0.14, -5)
-    #clpoints=[]
-    #clpoints.append(xp)
-    #0.26, 0.14, -0.199993
-    
-    # loop through the cl-points
-    n=0
-    print len(clpoints), "cl-points to evaluate"
-    for cl in clpoints:
-
-        cutter.vertexDrop(cl,t)
-        cutter.edgeDrop(cl,t)
-        cutter.facetDrop(cl,t)
-
-        n=n+1
-        #if (n % int(len(clpoints)/10)) == 0:
-        #    print n/int(len(clpoints)/10), " ",
-    print "drop-cutter done."
-    m=0
-    for cl in clpoints:
-        if cl.z < -0.15 and cl.z > -0.5:
-            #print cl
-            #print cl.cc.type
-            m=m+1
-    print "found",m,"pts"
-            
-    #print "cl=",cl
-    #print "cc=", cl.cc
-   
-    print "rendering...",
-    # render all the points
-    camvtk.drawCLPointCloud(myscreen, clpoints)
-    camvtk.drawCCPoints(myscreen, clpoints)
-    print "done."   
     
     # animate by rotating the camera
     """
