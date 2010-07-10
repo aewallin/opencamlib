@@ -38,7 +38,7 @@ def main(filename="frame/f.png"):
     print s.getBounds()
     #exit()
     minx=0
-    dx=0.1/0.1
+    dx=0.1
     maxx=9
     miny=0
     dy=0.4
@@ -63,21 +63,24 @@ def main(filename="frame/f.png"):
     
     # filter
     print "filtering. before filter we have", len(clpoints),"cl-points"
+    t_before = time.time()
     f = ocl.LineCLFilter()
     f.setTolerance(0.001)
     for p in clpoints:
         f.addCLPoint(p)
     f.run()
     clpts = f.getCLPoints()
+    calctime = time.time()-t_before
     print "after filtering we have", len(clpts),"cl-points"
+    print " done in ", calctime," s"
     
     #exit()
         
     # stupid init code
-    f=ocl.Ocode()
-    tree_maxdepth=9
-    f.set_depth(tree_maxdepth) # depth and scale set here.
-    f.set_scale(10)
+    ocode=ocl.Ocode()
+    tree_maxdepth=10
+    ocode.set_depth(tree_maxdepth) # depth and scale set here.
+    ocode.set_scale(10)
     
     # cube
     stockvol = ocl.BoxOCTVolume()
@@ -86,13 +89,10 @@ def main(filename="frame/f.png"):
     stockvol.v2 = ocl.Point(0,12,0)
     stockvol.v3 = ocl.Point(0,0,3.5)
     stockvol.calcBB()
-    #cube1.side=10.0
-    #cube1.center = ocl.Point(0,0,0)
-    #cube1.calcBB()
     
     t_before = time.time()
     stock = ocl.LinOCT()
-    stock.init(3)
+    stock.init(0)
     stock.build( stockvol )
     calctime = time.time()-t_before
     print " stock built in ", calctime," s, stock.size()=",stock.size()
@@ -139,11 +139,11 @@ def main(filename="frame/f.png"):
         startp = clpts[n]  # start of move
         endp   = clpts[n+1] # end of move
         
-        t_before = time.time()
+        #t_before = time.time()
         sweep = ocl.LinOCT()
         sweep.init(0)
-        calctime = time.time()-t_before
-        print " sweep-init done in ", calctime," s, sweep.size()=",sweep.size()
+        #calctime = time.time()-t_before
+        #print " sweep-init done in ", calctime," s, sweep.size()=",sweep.size()
         
         g1vol = ocl.CylMoveOCTVolume(c, ocl.Point(startp.x,startp.y,startp.z), ocl.Point(endp.x,endp.y,endp.z))
         
@@ -181,7 +181,7 @@ def main(filename="frame/f.png"):
         infotext.SetText(info)
         
         
-        if (n%10==0 or n==Nmoves-2): # draw only every m:th frame
+        if ((n!=0 and n%10==0) or n==Nmoves-2): # draw only every m:th frame
             # sweep surface 
             t_before = time.time()
             #sweep_tlist = pyocl.octree2trilist(sweep)
@@ -206,7 +206,7 @@ def main(filename="frame/f.png"):
             
             #time.sleep(1.1)
             # write screenshot to disk
-            lwr.SetFileName("frames/tux_frame"+ ('%03d' % n)+".png")
+            lwr.SetFileName("frames/tux_frame"+ ('%06d' % n)+".png")
             #lwr.SetFileName(filename)
             
             t_before = time.time() # time the render process

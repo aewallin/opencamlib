@@ -11,43 +11,54 @@ import pyocl
 import math
 
 white = (1,1,1)
+black = (0,0,0)
+grey = ( float(127)/255,float(127)/255,float(127)/255)
+
 red= (1,0,0)
+pink = ( float(255)/255,float(192)/255,float(203)/255)
+orange = ( float(255)/255,float(165)/255,float(0)/255)
+yellow= (1,1,0)
+
 green= (0,1,0)
 lgreen = ( float(150)/255,float(255)/255,float(150)/255)
+grass = ( float(182)/255,float(248)/255,float(71)/255)
+
 blue= (0,0,1)
 lblue= ( float(125)/255,float(191)/255,float(255)/255 )
 cyan=  (0,1,1)
-yellow= (1,1,0)
-black = (0,0,0)
-pink = ( float(255)/255,float(192)/255,float(203)/255)
-grey = ( float(127)/255,float(127)/255,float(127)/255)
-orange = ( float(255)/255,float(165)/255,float(0)/255)
 mag = ( float(153)/255 , float(42)/255 , float(165)/255  )
 
 def clColor(cc):
+    """ color CL-points based on the cc.type
+        vertices are red
+        facets are green
+        edges are blue
+    """
     if cc.type == ocl.CCType.VERTEX:
         col = red
+        
     elif cc.type==ocl.CCType.FACET:
         col = green
-    elif cc.type == ocl.CCType.FACET_TIP:
-        col = orange
-    elif cc.type == ocl.CCType.FACET_CYL:
-        col = cyan
+    elif cc.type == ocl.CCType.FACET_TIP: # conecutter tip-contact
+        col = lgreen
+    elif cc.type == ocl.CCType.FACET_CYL: # conecutter cylinder-contact
+        col = grass
 
     elif cc.type == ocl.CCType.EDGE:
         col = blue
-    elif cc.type == ocl.CCType.NONE:
-        col = white  
-    elif cc.type == ocl.CCType.ERROR:
-        col = (0,1,1)
     elif cc.type == ocl.CCType.EDGE_POS:
         col = lblue
     elif cc.type == ocl.CCType.EDGE_NEG:
         col = mag
     elif cc.type == ocl.CCType.EDGE_HORIZ_CYL:
-        col = red
+        col = pink
     elif cc.type == ocl.CCType.EDGE_HORIZ_TOR:
         col = orange
+    
+    elif cc.type == ocl.CCType.NONE:
+        col = white  
+    elif cc.type == ocl.CCType.ERROR:
+        col = white
         
     else:
         print "camvtk.clColor() ERROR: CCType=",cc.type," is unknown, no color"

@@ -4,6 +4,7 @@ import camvtk
 import time
 import vtk
 import datetime       
+import math
 
 if __name__ == "__main__": 
     print ocl.revision()    
@@ -20,9 +21,13 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     
+    angle = math.pi/4
     #cutter = ocl.BallCutter(1.4321)
     #cutter = ocl.CylCutter(1.123)
-    cutter = ocl.BullCutter(1.123, 0.2)
+    #cutter = ocl.BullCutter(1.123, 0.2)
+    cutter = ocl.ConeCutter(1.123, angle)
+    cutter = cutter.offsetCutter( 0.1 )
+    
     print cutter
     print "radius=",cutter.radius
     
@@ -72,7 +77,7 @@ if __name__ == "__main__":
     f.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " filter done in ", calctime," s"
+    print " done in ", calctime," s"
     
     clp2 = f.getCLPoints()
     print "after filtering we have", len(clp2),"cl-points"
