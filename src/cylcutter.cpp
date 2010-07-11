@@ -453,39 +453,29 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     bnu::lu_substitute( M, pm, Minv );
     bnu::vector<double> x(2);
     x = bnu::prod( Minv, y );
-    double cl_tval = x(1);
-    std::cout << x << " tval:"<< cl_tval << "\n";
+    // there are two solutions
+    double cc_vval1 = x(0);
+    double cl_tval1 = x(1);
+    CCPoint cc_tmp1 = q + cc_vval1*tangent ;  
+    cc_tmp1.type = FACET;
     
-    
-    CCPoint cc_tmp = q + x(0)*tangent ;  
-    cc_tmp.type = FACET;
+    double cc_vval2 = -x(0);
+    double cl_tval2 = q_tval + (q_tval-cl_tval1);
+    CCPoint cc_tmp2 = q + cc_vval2*tangent ;  
+    cc_tmp2.type = FACET;
     
     // check if cc-point is in the facet of the Triangle
-    if( !cc_tmp.isInside( t ) )
-        return result; //
-    
-    result = 1; 
-    
-    i.updateUpper( cl_tval  , cc_tmp );
-    i.updateLower( cl_tval  , cc_tmp );
-        
-    //normal.xyNormalize(); // make length of normal in xy plane == 1.0
-    
-    // the contact point with the plane is on the periphery
-    // of the cutter, a length radius from cl in the direction of -n
-    /*
-    Point cc_tmp = cl - (radius)*normal; // Note: at this point the z-coord is rubbish.
-    
-    if (cc_tmp.isInside(t)) { // NOTE: cc.z is ignored in isInside()
-        cc_tmp.z = (1.0/c)*(-d-a*cc_tmp.x-b*cc_tmp.y); // NOTE: potential for divide-by-zero (?!)
-        if (cl.liftZ(cc_tmp.z)) {
-            cc = cc_tmp;
-            cc.type = FACET;
-            return 1;
-        }
-    } 
-    */
-    
+    if( cc_tmp1.isInside( t ) ) {
+        i.updateUpper( cl_tval1  , cc_tmp1 );
+        i.updateLower( cl_tval1  , cc_tmp1 );
+        result = 1;
+    }
+    if( cc_tmp2.isInside( t ) ) {
+        i.updateUpper( cl_tval2  , cc_tmp2 );
+        i.updateLower( cl_tval2  , cc_tmp2 );
+        result = 1;
+    }
+
     return result;
 }    
 
