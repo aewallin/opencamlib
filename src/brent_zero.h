@@ -28,6 +28,11 @@ namespace ocl
 
 /// Brent's root finding algorithm
 /// http://en.wikipedia.org/wiki/Brent's_method
+///
+/// find a zero of function f in the interval [a,b]
+/// a and b must bracket the root, i.e. f(a) must have different sign than f(b)
+/// needs a pointer to an ErrObj which must provide a function
+/// ErrObj::error(double x) for which we try to find a zero
 template <class ErrObj>
 double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
     // f must have unequal sign at a and b, i.e.
@@ -38,10 +43,7 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
     double fa,fb,fc; // function values
     double m,p,q,r,s;
     double tol;
-    //double sa,sb,tol;
-      
-    //sa = a;
-    //sb = b;
+
     fa = ell->error(a); // f(a);
     fb = ell->error(b); // f(b);
     if (fa*fb >= 0.0) {// check for opposite signs

@@ -45,7 +45,7 @@ namespace bnu = boost::numeric::ublas;
 double sign(double x);
 
 /// return x*x
-inline double square(double x) {  return x*x; };
+inline double square(double x) { return x*x; };
 
 /// return true if x is negative
 bool isNegative(double x);
@@ -53,7 +53,7 @@ bool isNegative(double x);
 /// return true if x is negative
 bool isPositive(double x);
 
-/// return true if x is zero, to within tolerance (TOLERANCE)
+/// return true if x is zero, to within tolerance 
 bool isZero_tol(double x);
 
 /// compute determinant of matrix m
@@ -66,15 +66,6 @@ int determinant_sign(const bnu::permutation_matrix<std::size_t>& pm);
 /// eps is such that 1 < 1 + eps
 /// but 1 == 1 + eps/2 
 double eps();
-
-/// Brent's root finding algorithm
-/// find a zero of function f in the interval [a,b]
-/// needs a pointer to an ErrObj which must provide a function
-/// ErrObj::error(double x) for which we try to find a zero
-//template <class ErrObj>
-//double brent_zero( double a, double b, double eps, double tol, ErrObj* errobj);
-  
-
 
 
 } // end namespace

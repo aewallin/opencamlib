@@ -137,6 +137,7 @@ void export_geometry() {
         .def_readonly("upper_cc", &Interval::upper_cc )
         .def("updateUpper", &Interval::updateUpper )
         .def("updateLower", &Interval::updateLower )
+        .def("empty", &Interval::empty )
         .def("__str__", &Interval::str )
     ;
     // Epos and the Ellipse are used for the toroidal tool edge-tests

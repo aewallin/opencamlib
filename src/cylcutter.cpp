@@ -17,11 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <cassert>
 
 #include <boost/foreach.hpp>
 
@@ -37,13 +32,11 @@ namespace ocl
 {
 
 //********   CylCutter ********************** */
-CylCutter::CylCutter()
-{
+CylCutter::CylCutter() {
     setDiameter(1.0);
 }
 
-CylCutter::CylCutter(const double d)
-{
+CylCutter::CylCutter(const double d) {
     setDiameter(d);
 }
 
@@ -119,8 +112,7 @@ int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 }
 
 
-int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
-{
+int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (p.x, p.y) against edges of Triangle t
     // strategy:
     // 1) calculate distance to infinite line
@@ -339,7 +331,7 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
 }
 
 /// push cutter along Fiber against facet of Triangle t
-/// add an interval to Fiber where the cutter interferes
+/// Update Interval i where the cutter interferes
 int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
     Point normal; // facet surface normal 
@@ -370,6 +362,9 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     // x1 x2 x3 x5-x4
     // y1 y2 y3 y5-y4
     // z1 z2 z3 z5-z4
+    //
+    //  if det(B)==0 there is no intersection
+    
     namespace bnu = boost::numeric::ublas;
     bnu::matrix<double> A(4,4);
     bnu::matrix<double> B(4,4);
@@ -411,30 +406,68 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     //std::cout << A << std::endl;
     
     double detB = determinant(B);
-    if (detB == 0.0)
+    if ( isZero_tol( detB ) )
         return result; // no intersection btw. line and plane
         
     double detA = determinant(A);
-    double tval = - detA/detB;
-    std::cout << " tval = " << tval << std::endl;
-    Point ip = f.p1 + tval*(f.p2 - f.p1); // the intersection point.
+    double q_tval = - detA/detB;
+    // std::cout << " tval = " << tval << std::endl;
+    Point q = f.p1 + q_tval*(f.p2 - f.p1); // the intersection point.
     
     // compute cc-point from intersection
     // from ip, go a distance radius in the direction of the xy-normal
     normal.z = 0.0;
-    normal.xyNormalize();
+    normal.xyNormalize();          // normalized normal
+    Point tangent = normal.xyPerp();  // normalized tangent
     
-    CCPoint cc_tmp = ip  ; //FIXMEFIXME 
+    
+    // solve linear system
+    // using namespace boost::ublas;
+    // Ainv = identity_matrix<float>(A.size1());
+    // permutation_matrix<size_t> pm(A.size1());
+    // lu_factorize(A,pm)
+    // lu_substitute(A, pm, Ainv);
+
+    // in the XY plane we move a distance v along the tangent
+    // and then a distance r along the normal
+    // we should end up on the fiber
+    // q + t*tangent + r*normal = p1 + t*(p2-p1)
+    // this leads to a matrix equation:
+    //
+    // [ tang.x  -(p2-p1).x ] [ v ]  = [ (q+r*n-p1).x ]
+    // [ tang.y  -(p2-p1).y ] [ t ]  = [ (q+r*n-p1).y ]
+    // or
+    // Mx=y
+    bnu::matrix<double> M(2,2);
+    M(0,0) = tangent.x;
+    M(0,1) = -(f.p2.x - f.p1.x);
+    M(1,0) = tangent.y;
+    M(1,1) = -(f.p2.y - f.p1.y);
+    bnu::vector<double> y(2);
+    y(0) = -q.x - radius*normal.x + f.p1.x;
+    y(1) = -q.y - radius*normal.y + f.p1.y;
+    bnu::matrix<double> Minv(M.size1(),M.size2());
+    Minv = bnu::identity_matrix<double>(M.size1());
+    bnu::permutation_matrix<size_t> pm(M.size1());
+    bnu::lu_factorize(M,pm);
+    bnu::lu_substitute( M, pm, Minv );
+    bnu::vector<double> x(2);
+    x = bnu::prod( Minv, y );
+    double cl_tval = x(1);
+    std::cout << x << " tval:"<< cl_tval << "\n";
+    
+    
+    CCPoint cc_tmp = q + x(0)*tangent ;  
     cc_tmp.type = FACET;
     
     // check if cc-point is in the facet of the Triangle
     if( !cc_tmp.isInside( t ) )
         return result; //
     
-     
+    result = 1; 
     
-    i.updateUpper( tval , cc_tmp );
-    i.updateLower( tval , cc_tmp );
+    i.updateUpper( cl_tval  , cc_tmp );
+    i.updateLower( cl_tval  , cc_tmp );
         
     //normal.xyNormalize(); // make length of normal in xy plane == 1.0
     

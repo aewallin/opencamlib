@@ -112,6 +112,13 @@ def drawCCPoints(myscreen, clpoints):
         if cc.type is not ocl.CCType.NONE:
             myscreen.addActor(Point(center=(cc.x,cc.y,cc.z), color=ccColor(cc)) )
 
+def drawOCLtext(myscreen):
+    t = Text()
+    t.SetPos( (myscreen.width-200, myscreen.height-50) )
+    date_text = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    t.SetText( "OpenCAMLib\n" + date_text )
+    myscreen.addActor(t)
+
 def drawBB( myscreen, vol ):
     """ draw a bounding-box """
     lines = []

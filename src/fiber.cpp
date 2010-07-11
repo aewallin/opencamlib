@@ -81,6 +81,12 @@ void Interval::updateLower(double t, CCPoint& p) {
     }
 }
 
+bool Interval::empty() const {
+    if ( (lower==0.0) && (upper==0.0) )
+        return true;
+    else
+        return false;
+}
 
 std::string Interval::str() const {
     std::ostringstream o;

@@ -48,6 +48,7 @@ class Interval {
         CCPoint lower_cc;
         double upper;
         double lower;
+        bool empty() const;
         std::string str() const;
 };
 
@@ -61,7 +62,7 @@ class Fiber {
         
         /// add an interval to this Fiber
         void addInterval(Interval& i);
-        //void addInt(double t1, double t2);
+        
                 
         void condense(); // get rid of this
         
