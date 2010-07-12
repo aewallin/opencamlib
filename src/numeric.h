@@ -67,6 +67,9 @@ int determinant_sign(const bnu::permutation_matrix<std::size_t>& pm);
 /// but 1 == 1 + eps/2 
 double eps();
 
+bool xy_line_line_intersection( Point& p1, Point& p2, double& v,
+                                Point& p3, Point& p4, double& t);
+                                
 
 } // end namespace
 #endif

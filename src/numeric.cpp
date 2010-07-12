@@ -96,107 +96,41 @@ double eps() {
   return ( 2.0 * r );
 }
 
-//explicit instantiation of template function:
-// template brent_zero<Ellipse>;
 
-/// Brent's root finding algorithm
-/*
-template <class ErrObj>
-double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
-    // f must have unequal sign at a and b, i.e.
-    // f(a)*f(b) < 0
-    // returns the location of a root c where f(c)=0 
-    // to within 6*eps*abs(c)+2*t tolerance 
-    double c,d,e;
-    double fa,fb,fc; // function values
-    double m,p,q,r,s;
-    double tol;
-    //double sa,sb,tol;
-      
-    //sa = a;
-    //sb = b;
-    fa = ell->error(a); // f(a);
-    fb = ell->error(b); // f(b);
-    if (fa*fb >= 0.0) {// check for opposite signs
-        std::cout << " brent_zero() called with invalid interval [a,b] !\n";
-        assert(0);
-    }
+/// find an intersection point in the XY-plane between two lines
+/// first line:   p1 + v*(p2-p1)
+/// second line:  p3 + t*(p4-p3)
+/// returns true if an intersection was found 
+bool xy_line_line_intersection( Point& p1, Point& p2, double& v,
+                                Point& p3, Point& p4, double& t) {
+    // in the XY plane we move a distance v along l1
+    // and a distance t along line2
+    // we should end up at the same point
+    // p1 + v*(p2-p1) = p3 + t*(p4-p3)
+    // this leads to a matrix equation:
+    // [ (p2-p1).x  -(p4-p3).x ] [ v ]  = [ (p3-p1).x ]
+    // [ (p2-p1).y  -(p4-p3).y ] [ t ]  = [ (p3-p1).y ]
+    // or
+    // Mx=y
+    namespace bnu = boost::numeric::ublas;
+    bnu::matrix<double> M(2,2);
+    M(0,0) = (p2.x-p1.x);
+    M(0,1) = (p4.x - p3.x);
+    M(1,0) = (p2.y-p1.y);
+    M(1,1) = (p4.y - p3.y);
+    double detM = determinant(M);
+    if ( isZero_tol( detM ) )
+        return false; // parallell lines, no intersection
+    
+    double v_numer = (p4.x-p3.x)*(p1.y-p3.y) - (p4.y-p3.y)*(p1.x-p3.x);
+    double t_numer = (p2.x-p1.x)*(p1.y-p3.y) - (p2.y-p1.y)*(p1.x-p3.x);
+    if( isZero_tol( t_numer ) && isZero_tol( v_numer) )
+        return false;
         
-    c  = a; // set c sln equal to a sln
-    fc = fa; 
-    e  = b-a; // interval width
-    d  = e; // interval width
-      
-    while (true) {
-        if (fabs(fc)<fabs(fb)) { // sln at c is better than at b
-            a = b;  // a is the old solution
-            b = c;  // b is the best root so far
-            c  = a;
-            fa = fb;
-            fb = fc; // swap so that fb is the best solution
-            fc = fa;
-        }
-        tol = 2.0*eps*fabs(b)+t;
-        m = 0.5*(c-b); // half of step from c to b sln 
-        if ( (fabs(m) <= tol) || (fb == 0.0) ) // end-condition for the infinite loop
-            break; // either within tolerance, or found exact zero fb
-        
-        if ( (fabs(e) < tol) || (fabs(fa) <= fabs(fb)) ) {
-            // step from c->b was small, or fa is a better solution
-            e = m; 
-            d = e; // bisection?
-        } else {
-            s = fb/fa;
-            if (a == c) {
-                p=2.0*m*s;
-                q=1.0-s;
-            } else {
-                q = fa/fc;
-                r = fb/fc;
-                p = s*(2.0*m*a*(q-r)-(b-a)*(r-1.0));
-                q = (q-1.0)*(r-1.0)*(s-1.0);
-            }
-            
-            if (p>0.0)
-                q=-q;
-            else
-                p=-p; // make p negative
-            
-            s=e;
-            e=d;
-            if ( (2.0*p < (3.0*m*q-fabs(tol*q))) && (p<fabs(0.5*s*q)) ) {
-                d = p/q;
-            } else {
-                e = m;
-                d = e;
-            }                
-        }
-        
-        a = b; // store the old b-solution in a
-        fa = fb;
-        if (fabs(d) > tol ) // if d is "large"
-            b = b+d; // push the root by d
-        else if ( m > 0.0 )
-            b = b+tol; // otherwise, push root by tol in direction of m
-        else
-            b = b-tol;
-        // std::cout << " brent_zero b=" << b << "\n";
-        
-        fb = ell->error(b); // f(b);
-        
-        if ( ((fb>0.0) && (fc>0.0)) || ((fb<=0.0) && (fc<=0.0)) ) {
-            // fb and fc have the same sign
-            c = a;  // so change c to a
-            fc = fa;
-            e = b-a; // interval width
-            d = e;
-        }
-        
-    } // end iteration-loop
-
-    return b;
+    t = t_numer/detM;
+    v = v_numer/detM;
+    return true;
 }
-*/
 
 } // end namespace
 // end file numeric.cpp

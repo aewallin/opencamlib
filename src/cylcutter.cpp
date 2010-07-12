@@ -40,6 +40,11 @@ CylCutter::CylCutter(const double d) {
     setDiameter(d);
 }
 
+/// offset of CylCutter is BullCutter
+MillingCutter* CylCutter::offsetCutter(double d) const {
+    return new BullCutter(diameter+2*d, d) ;
+}
+
 //********   drop-cutter methods ********************** */
 int CylCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 {
@@ -433,9 +438,8 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     // we should end up on the fiber
     // q + t*tangent + r*normal = p1 + t*(p2-p1)
     // this leads to a matrix equation:
-    //
-    // [ tang.x  -(p2-p1).x ] [ v ]  = [ (q+r*n-p1).x ]
-    // [ tang.y  -(p2-p1).y ] [ t ]  = [ (q+r*n-p1).y ]
+    // [ tang.x  -(p2-p1).x ] [ v ]  = [ (-q-r*n+p1).x ]
+    // [ tang.y  -(p2-p1).y ] [ t ]  = [ (-q-r*n+p1).y ]
     // or
     // Mx=y
     bnu::matrix<double> M(2,2);
@@ -453,6 +457,8 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     bnu::lu_substitute( M, pm, Minv );
     bnu::vector<double> x(2);
     x = bnu::prod( Minv, y );
+    
+    
     // there are two solutions
     double cc_vval1 = x(0);
     double cl_tval1 = x(1);
@@ -479,17 +485,166 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     return result;
 }    
 
+
+#define EDGEPUSH_DEBUG
+
 int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
     int result = 0;
-    //FIXME: nothing here yet
-    
+    for (int n=0;n<3;n++) { // loop through all three edges
+        int start=n;
+        int end=(n+1)%3;
+        Point p1 = t.p[start];
+        Point p2 = t.p[end];
+        #ifdef EDGEPUSH_DEBUG
+            // std::cout << " edge p[" << start<< "]="<< p1 << " to p[" << end << "]="<< p2<<"\n";
+        #endif 
+
+        
+        // check that there is an edge in the xy-plane
+        // can't push against vertical edges ??
+        
+        if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
+            
+            // find XY-intersection btw fiber and edge
+            // fiber is f.p1 + t*(f.p2-f.p1)
+            // line  is p1 + v*(p2-p1)
+            double tq, v;
+            if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ){
+                std::cout << "found intersection (t,v) " << t <<" , " << v << "\n";
+                Point q = p1 + v*(p2-p1); // intersection point, on edge
+                
+                // q + t*tangent + r*normal = p1 + t*(p2-p1)
+                // or
+                // 
+                double v_cc, t_cl;
+                Point tang=p2-p1;
+                tang.z=0;
+                tang.xyNormalize();
+                Point normal = tang.xyPerp();
+                Point q1 = q+radius*normal;
+                Point q2 = q1+(p2-p1);
+                if ( xy_line_line_intersection( q1 , q2, v_cc, f.p1, f.p2, t_cl ) ) {
+                    double t_cl1 = t_cl;
+                    double t_cl2 = tq + (tq-t_cl );
+                    CCPoint cc_tmp1 = q+v_cc*(p2-p1);
+                    CCPoint cc_tmp2 = q-v_cc*(p2-p1); 
+                    cc_tmp1.type = EDGE;
+                    cc_tmp2.type = EDGE;
+                    
+                    if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
+                        i.updateUpper( t_cl1  , cc_tmp1 );
+                        i.updateLower( t_cl1  , cc_tmp1 );
+                        result = 1;
+                    }
+                    if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= f.p1.z) ) {
+                        i.updateUpper( t_cl2  , cc_tmp2 );
+                        i.updateLower( t_cl2  , cc_tmp2 );
+                        result = 1;
+                    }
+                }
+                
+                
+                //double t_q = t_numer/denom;
+                //Point q = f.point(t_q); // intersection point
+                // now proceed as for facet-push to find cl-point and cc-point
+                
+            }
+                
+/*
+                        if ( cl.liftZ(cc_tmp->z) ) {
+                            cc_tmp->type = EDGE;
+                            cl.cc = cc_tmp;
+                            result = 1;
+                        } else {
+                            delete cc_tmp;
+                        }
+                    } else {
+                            delete cc_tmp;
+                    }
+                } else { // discr > 0, two intersection points
+                    assert( discr > 0.0 );
+                    #ifdef EDGEDROP_DEBUG
+                        std::cout << "discr>0, two intersections\n";
+                    #endif
+                    CCPoint* cc1 = new CCPoint();
+                    CCPoint* cc2 = new CCPoint();
+                    double sqrt_discr = sqrt(discr);
+                    // remember to translate back to cl
+                    cc1->x= ( D*dy + sign(dy)*dx*sqrt_discr) / dr_sq + cl.x; 
+                    cc1->y= (-D*dx + fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
+                    cc1->z=0;
+                    cc2->x= ( D*dy - sign(dy)*dx*sqrt_discr) / dr_sq + cl.x;
+                    cc2->y= (-D*dx - fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
+                    cc2->z=0;
+                    #ifdef EDGEDROP_DEBUG
+                        std::cout << "cc1= " << *cc1 << "\n";
+                        std::cout << "cc2= " << *cc2 << "\n";
+                    #endif
+                    // 3) check if in edge
+
+                    double x1 = t.p[start].x;
+                    double x2 = t.p[end].x;
+                    double y1 = t.p[start].y;
+                    double y2 = t.p[end].y;
+                    double z1 = t.p[start].z;
+                    double z2 = t.p[end].z;
+                    
+                    if ( cc1->isInsidePoints(t.p[start], t.p[end]) ) {
+                        // determine height of point. must be on line, so:
+                        if (  fabs(x1 - x2) > fabs(y1 - y2)   )   // can compute using x-coords
+                            cc1->z = z1 + ((z2-z1)/(x2-x1)) * (cc1->x-x1);
+                        else if ( !isZero_tol( fabs(y1 - y2) ) ) // must compute using y-coords
+                            cc1->z = z1 + ((z2-z1)/(y2-y1)) * (cc1->y-y1);
+                        else { // we are in trouble.
+                            std::cout << "cyclutter edge-test, unable to compute cc-point. stop.\n";
+                            assert(0);
+                        }
+                        if (cl.liftZ(cc1->z)) {
+                            cc1->type = EDGE;
+                            cl.cc = cc1;
+                            result = 1;
+                        } else {
+                            delete cc1;
+                        }
+                    } else {
+                        delete cc1;
+                    }
+                    if ( cc2->isInsidePoints(t.p[start], t.p[end]) ) {
+                        if ( fabs(x1 - x2) > fabs(y1 - y2)  )  // determine z- height of cc point
+                            cc2->z = z1 + ((z2-z1)/(x2-x1)) * (cc2->x-x1);
+                        else if ( !isZero_tol( fabs(y1 - y2) )  ) 
+                            cc2->z = z1 + ((z2-z1)/(y2-y1)) * (cc2->y-y1);
+                        else {// we are in trouble.
+                            std::cout << "cyclutter edge-test, unable to compute cc-point. stop.\n";
+                            assert(0);
+                        }
+                        
+                        
+                        if (cl.liftZ(cc2->z)) {     
+                            cc2->type = EDGE;
+                            cl.cc = cc2;                     
+                            result=1;
+                        } else {
+                            delete cc2;
+                        }
+                        
+                    } else { // end cc2.isInside()
+                        delete cc2;
+                    }
+                } //end two intersection points case
+                
+            }// end if(potential hit)
+        */
+        } // end if(vertical edge)
+        
+    } // end loop through all edges
     
     return result;
 }   
 
-MillingCutter* CylCutter::offsetCutter(double d) const {
-    return new BullCutter(diameter+2*d, d) ;
-}
+
+
+
     
 //********  CylCutter string output ********************** */
 std::string CylCutter::str() const
