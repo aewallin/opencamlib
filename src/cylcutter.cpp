@@ -323,12 +323,7 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
                 //std::cout << "updating with " << f.tval(stop) << " to " << f.tval(start) << "\n";
                 i.updateUpper( f.tval(stop) , cc_tmp );
                 i.updateLower( f.tval(start) , cc_tmp );
-                result = 1;
-                //f.addInt(f.tval(start) , f.tval(stop)) ;
-                //    i.lower_cc = p;
-                //    i.lower_cc.type = VERTEX;
-                //    result=1;
-                
+                result = 1;                
             }             
         }
     }
@@ -510,7 +505,7 @@ int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
             // line  is p1 + v*(p2-p1)
             double tq, v;
             if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ){
-                std::cout << "found intersection (t,v) " << t <<" , " << v << "\n";
+                //std::cout << "found intersection (t,v) " << t <<" , " << v << "\n";
                 Point q = p1 + v*(p2-p1); // intersection point, on edge
                 
                 // q + t*tangent + r*normal = p1 + t*(p2-p1)
@@ -543,98 +538,8 @@ int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
                     }
                 }
                 
-                
-                //double t_q = t_numer/denom;
-                //Point q = f.point(t_q); // intersection point
-                // now proceed as for facet-push to find cl-point and cc-point
-                
-            }
-                
-/*
-                        if ( cl.liftZ(cc_tmp->z) ) {
-                            cc_tmp->type = EDGE;
-                            cl.cc = cc_tmp;
-                            result = 1;
-                        } else {
-                            delete cc_tmp;
-                        }
-                    } else {
-                            delete cc_tmp;
-                    }
-                } else { // discr > 0, two intersection points
-                    assert( discr > 0.0 );
-                    #ifdef EDGEDROP_DEBUG
-                        std::cout << "discr>0, two intersections\n";
-                    #endif
-                    CCPoint* cc1 = new CCPoint();
-                    CCPoint* cc2 = new CCPoint();
-                    double sqrt_discr = sqrt(discr);
-                    // remember to translate back to cl
-                    cc1->x= ( D*dy + sign(dy)*dx*sqrt_discr) / dr_sq + cl.x; 
-                    cc1->y= (-D*dx + fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
-                    cc1->z=0;
-                    cc2->x= ( D*dy - sign(dy)*dx*sqrt_discr) / dr_sq + cl.x;
-                    cc2->y= (-D*dx - fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
-                    cc2->z=0;
-                    #ifdef EDGEDROP_DEBUG
-                        std::cout << "cc1= " << *cc1 << "\n";
-                        std::cout << "cc2= " << *cc2 << "\n";
-                    #endif
-                    // 3) check if in edge
-
-                    double x1 = t.p[start].x;
-                    double x2 = t.p[end].x;
-                    double y1 = t.p[start].y;
-                    double y2 = t.p[end].y;
-                    double z1 = t.p[start].z;
-                    double z2 = t.p[end].z;
-                    
-                    if ( cc1->isInsidePoints(t.p[start], t.p[end]) ) {
-                        // determine height of point. must be on line, so:
-                        if (  fabs(x1 - x2) > fabs(y1 - y2)   )   // can compute using x-coords
-                            cc1->z = z1 + ((z2-z1)/(x2-x1)) * (cc1->x-x1);
-                        else if ( !isZero_tol( fabs(y1 - y2) ) ) // must compute using y-coords
-                            cc1->z = z1 + ((z2-z1)/(y2-y1)) * (cc1->y-y1);
-                        else { // we are in trouble.
-                            std::cout << "cyclutter edge-test, unable to compute cc-point. stop.\n";
-                            assert(0);
-                        }
-                        if (cl.liftZ(cc1->z)) {
-                            cc1->type = EDGE;
-                            cl.cc = cc1;
-                            result = 1;
-                        } else {
-                            delete cc1;
-                        }
-                    } else {
-                        delete cc1;
-                    }
-                    if ( cc2->isInsidePoints(t.p[start], t.p[end]) ) {
-                        if ( fabs(x1 - x2) > fabs(y1 - y2)  )  // determine z- height of cc point
-                            cc2->z = z1 + ((z2-z1)/(x2-x1)) * (cc2->x-x1);
-                        else if ( !isZero_tol( fabs(y1 - y2) )  ) 
-                            cc2->z = z1 + ((z2-z1)/(y2-y1)) * (cc2->y-y1);
-                        else {// we are in trouble.
-                            std::cout << "cyclutter edge-test, unable to compute cc-point. stop.\n";
-                            assert(0);
-                        }
-                        
-                        
-                        if (cl.liftZ(cc2->z)) {     
-                            cc2->type = EDGE;
-                            cl.cc = cc2;                     
-                            result=1;
-                        } else {
-                            delete cc2;
-                        }
-                        
-                    } else { // end cc2.isInside()
-                        delete cc2;
-                    }
-                } //end two intersection points case
-                
-            }// end if(potential hit)
-        */
+            } // end if(fiber and edge intersect)
+        
         } // end if(vertical edge)
         
     } // end loop through all edges

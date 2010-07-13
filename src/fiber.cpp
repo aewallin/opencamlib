@@ -81,6 +81,24 @@ void Interval::updateLower(double t, CCPoint& p) {
     }
 }
 
+/// return true if *this is completely non-overlapping, or outside of i.
+bool Interval::outside(const Interval& i) const {
+    if ( this->lower > i.upper )
+        return true;
+    else if ( this->upper < i.lower )
+        return true;
+    else
+        return false;
+}
+
+/// return true if *this is contained within i
+bool Interval::inside(const Interval& i) const {
+    if ( (this->lower > i.lower) && (this->upper < i.upper) )
+        return true;
+    else
+        return false;
+}
+
 bool Interval::empty() const {
     if ( (lower==0.0) && (upper==0.0) )
         return true;
@@ -106,46 +124,43 @@ Fiber::Fiber(const Point &p1in, const Point &p2in) {
 void Fiber::calcDir() {
     dir = p2 - p1;
     assert( dir.z == 0.0 );
-    
     dir.normalize();
 }
 
-/*
-void Fiber::addInt(double t1, double t2) {
-    ints.push_back( dinterval(t1,t2) );
-}*/
-
-/*
-void Fiber::condense() {
-    if ( ints.size() > 1) {
-        for (unsigned int n=0; n< (ints.size()-1); ++n) {
-            for (unsigned int m = (n+1); m<ints.size() ; ++m) {
-                std::cout << "before: \n";
-                printInts();
-                std::cout << "testing " << n << " and " << m ; 
-                if ( bn::subset( ints[m], ints[n]  ) ) { // if m contained in n, remove m
-                    std::cout << " subset, deleting " << m << "\n";
-                    ints.erase(ints.begin()+m);
-                }
-                else if ( bn::overlap( ints[n], ints[m] ) ) { // if there is overlap, replace with hull
-                    std::cout << " overlap " << "\n";
-                    bn::interval<double> h = bn::hull( ints[n] ,  ints[m] );
-                    ints.erase(ints.begin()+n);
-                    ints.erase(ints.begin()+m-1);
-                    ints.insert(ints.begin()+n, h);
-                } else {
-                    std::cout << " none " << "\n";
-                }
-                std::cout << "after: \n";
-                printInts();
-            }
-        }
+/// return true if some Interval in this Fiber contains i
+bool Fiber::contains(Interval& i) const {
+    BOOST_FOREACH( Interval fi, ints) {
+        if ( i.inside( fi ) )
+            return true;
     }
-}*/
+    return false;
+}
+
+/// return true if Fiber is completely missing Invterval i
+bool Fiber::missing(Interval& i) const {
+    bool result = true;
+    BOOST_FOREACH( Interval fi, ints) {
+        if ( !i.outside( fi ) ) // all existing ints must be non-overlapping
+            result = false; 
+    }
+    return result;
+}
 
 void Fiber::addInterval(Interval& i) {
-    if (ints.empty()) {
+    if (ints.empty()) { // empty fiber case
         ints.push_back(i);
+        return;
+    } else if ( this->contains(i)  ) { // if fiber already contains i  
+        return; // do nothing
+    } else if ( this->missing(i) ) { // if fiber doesn't contain i 
+        ints.push_back(i);
+        return;
+    } else {
+        // this is the messier general case with partial overlap
+        for (unsigned int m=0;m<ints.size();++m) {
+            if ( ints[m].lower < i.upper ) {
+            }
+        }
         return;
     }
     
@@ -168,9 +183,6 @@ Point Fiber::point(double t) const {
 boost::python::list Fiber::getInts() {
     boost::python::list l;
     BOOST_FOREACH( Interval i, ints) {
-        //boost::python::list interval;
-        //interval.append( i.lower() );
-        //interval.append( i.upper() );
         l.append( i );
     }
     return l;

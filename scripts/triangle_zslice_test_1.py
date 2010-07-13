@@ -10,7 +10,7 @@ if __name__ == "__main__":
     
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b = ocl.Point(1,0.5,0)    
+    b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
     c = ocl.Point(0,0,0)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
@@ -25,6 +25,10 @@ if __name__ == "__main__":
     for tri in t2:
         print tri
         pts = tri.getPoints()
+        myscreen.addActor( camvtk.Line(p1=(pts[0].x,pts[0].y,pts[0].z),p2=(pts[2].x,pts[2].y,pts[2].z)) )
+        myscreen.addActor( camvtk.Line(p1=(pts[2].x,pts[2].y,pts[2].z),p2=(pts[1].x,pts[1].y,pts[1].z)) )
+        myscreen.addActor( camvtk.Line(p1=(pts[0].x,pts[0].y,pts[0].z),p2=(pts[1].x,pts[1].y,pts[1].z)) )
+    
         for p in pts:
             myscreen.addActor( camvtk.Sphere( center=(p.x, p.y, p.z), radius=0.02, color=camvtk.green))
         

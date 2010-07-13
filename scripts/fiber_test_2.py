@@ -34,7 +34,7 @@ if __name__ == "__main__":
     
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b = ocl.Point(1,0.5,0)    
+    b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
     c = ocl.Point(0,0,0)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
@@ -55,17 +55,24 @@ if __name__ == "__main__":
     #cc = ocl.CCPoint()
     zh = -0.1
     zh = 0.1
+    tris=t.zslice(zh)
+    print tris
+    for t in tris:
+        print t
     for y in yvals:
         f1 = ocl.Point(-0.5,y,zh) # start point of fiber
         f2 = ocl.Point(1.5,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        tris=t.zslice(zh)
+        
+        #tris.reverse()
         for t in tris:
             cutter.vertexPush(f,i,t)
             cutter.facetPush(f,i,t)
             cutter.edgePush(f,i,t)
         f.addInterval(i)
+        
+        
         #f.printInts()  
     
         drawFiber(myscreen, f, camvtk.red)
@@ -75,12 +82,14 @@ if __name__ == "__main__":
         f2 = ocl.Point(x,1.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        tris=t.zslice(zh)
+        #tris=t.zslice(zh)
+        #tris.reverse()
         for t in tris:
             cutter.vertexPush(f,i,t)
             cutter.facetPush(f,i,t)
             cutter.edgePush(f,i,t)
-        f.addInterval(i)
+            f.addInterval(i)
+        
         
         #cutter.vertexPush(f,i,t)
         #cutter.facetPush(f,i,t)

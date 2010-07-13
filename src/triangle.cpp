@@ -23,6 +23,7 @@
 
 #include "triangle.h"
 #include "point.h"
+#include "numeric.h"
 
 namespace ocl
 {
@@ -131,8 +132,19 @@ std::vector<Triangle>* Triangle::zslice(const double zcut) const {
             Point p2 = above[1] + t2*(below[0]-above[1]);
             Point p3 = above[0];
             Point p4 = above[1];
-            tlist->push_back( Triangle(p1,p2,p3) );
-            tlist->push_back( Triangle(p1,p3,p4) );
+            Triangle tri1 = Triangle(p1,p2,p3);
+            tlist->push_back( tri1 );
+            Triangle tri2;
+            // which of the below points to select for the other tri
+            // either p1 or p2
+            double tmp1, tmp2;
+            xy_line_line_intersection( p3, p1, tmp1, p4, p2, tmp2 ); 
+            std::cout << " p3-p1 tmp1=" << tmp1 << "\n"; 
+            if ( (tmp1 > 0.0) && (tmp1 < 1.0) ) // p4-p2 intesects, so choose p1
+                tri2 = Triangle(p1,p3,p4);
+            else
+                tri2 = Triangle(p2,p3,p4);
+            tlist->push_back( tri2 );
             return tlist;
         } else {
             assert(0);

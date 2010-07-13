@@ -43,6 +43,8 @@ class Interval {
         
         void updateUpper(double t, CCPoint& p);
         void updateLower(double t, CCPoint& p);
+        bool outside(const Interval& i) const;
+        bool inside(const Interval& i) const;
         
         CCPoint upper_cc;
         CCPoint lower_cc;
@@ -62,8 +64,10 @@ class Fiber {
         
         /// add an interval to this Fiber
         void addInterval(Interval& i);
+        /// return true if Fiber already has interval i in it
+        bool contains(Interval& i) const;
+        bool missing(Interval& i) const;
         
-                
         void condense(); // get rid of this
         
         /// t-value corresponding to Point p
