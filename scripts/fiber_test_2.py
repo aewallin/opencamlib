@@ -24,10 +24,10 @@ def drawFiber(myscreen, f, fibercolor=camvtk.red):
             myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.lgreen ) )
             myscreen.addActor( camvtk.Sphere(center=(cc2.x,cc2.y,cc2.z),radius=0.005, color=camvtk.lgreen ) )
             # cutter circle
-            c1 = camvtk.Circle(center=(ip1.x,ip1.y,ip1.z), radius = 0.3/2, color=fibercolor)
-            myscreen.addActor(c1)
-            c2 = camvtk.Circle(center=(ip2.x,ip2.y,ip2.z), radius = 0.3/2, color=fibercolor)
-            myscreen.addActor(c2)
+            #c1 = camvtk.Circle(center=(ip1.x,ip1.y,ip1.z), radius = 0.3/2, color=fibercolor)
+            #myscreen.addActor(c1)
+            #c2 = camvtk.Circle(center=(ip2.x,ip2.y,ip2.z), radius = 0.3/2, color=fibercolor)
+            #myscreen.addActor(c2)
         
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()
@@ -60,9 +60,11 @@ if __name__ == "__main__":
         f2 = ocl.Point(1.5,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        cutter.vertexPush(f,i,t)
-        cutter.facetPush(f,i,t)
-        cutter.edgePush(f,i,t)
+        tris=t.zslice(zh)
+        for t in tris:
+            cutter.vertexPush(f,i,t)
+            cutter.facetPush(f,i,t)
+            cutter.edgePush(f,i,t)
         f.addInterval(i)
         #f.printInts()  
     
@@ -73,13 +75,20 @@ if __name__ == "__main__":
         f2 = ocl.Point(x,1.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
+        tris=t.zslice(zh)
+        for t in tris:
+            cutter.vertexPush(f,i,t)
+            cutter.facetPush(f,i,t)
+            cutter.edgePush(f,i,t)
+        f.addInterval(i)
+        
         #cutter.vertexPush(f,i,t)
         #cutter.facetPush(f,i,t)
         #cutter.edgePush(f,i,t)
-        f.addInterval(i)
+        #f.addInterval(i)
         #f.printInts()  
     
-        #drawFiber(myscreen, f, camvtk.lblue)
+        drawFiber(myscreen, f, camvtk.lblue)
             
     
     
