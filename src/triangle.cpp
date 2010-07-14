@@ -90,6 +90,46 @@ void Triangle::calcNormal() {
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
 }
 
+bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
+    if ( (zcut < this->bb.minpt.z) || ((zcut > this->bb.maxpt.z)) )
+        return false; // no zslice
+    // find out how many vertices are below zcut
+    std::vector<Point> below;
+    std::vector<Point> above;
+    for (int m=0;m<3;++m) {
+        if ( p[m].z <= zcut )
+            below.push_back(p[m]);
+        else
+            above.push_back(p[m]);
+    }
+    assert( (below.size() == 1) || (below.size() == 2) );
+    
+    if ( below.size() == 2 ) {
+        assert( above.size() == 1 );
+        // find two new intersection points 
+        // edge is p1 + t*(p2-p1) = zcut
+        // so t = zcut-p1 / (p2-p1)
+        double t1 = (zcut - above[0].z) / (below[0].z - above[0].z); // div by zero?!
+        double t2 = (zcut - above[0].z) / (below[1].z - above[0].z);
+        p1 = above[0] + t1*(below[0] - above[0]);
+        p2 = above[0] + t2*(below[1] - above[0]);
+        return true;
+    } else if ( below.size() == 1 ) {
+        assert( above.size() == 2 );
+        // find intersection points and add two new triangles
+        // t = (zcut -p1) / (p2-p1)
+        double t1 = (zcut - above[0].z) / (below[0].z - above[0].z); 
+        double t2 = (zcut - above[1].z) / (below[0].z - above[1].z);
+        p1 = above[0] + t1*(below[0]-above[0]); 
+        p2 = above[1] + t2*(below[0]-above[1]);
+        return true;
+    } else {
+        assert(0);
+        return false;
+    }
+    
+}
+
 std::vector<Triangle>* Triangle::zslice(const double zcut) const {
     std::vector<Triangle>* tlist = new std::vector<Triangle>();
     if ( (zcut < this->bb.minpt.z) || ((zcut > this->bb.maxpt.z)) ) {

@@ -148,7 +148,7 @@ bool Fiber::missing(Interval& i) const {
 
 void Fiber::addInterval(Interval& i) {
     if (ints.empty()) { // empty fiber case
-        ints.push_back(i);
+        ints.push_back(i); 
         return;
     } else if ( this->contains(i)  ) { // if fiber already contains i  
         return; // do nothing
@@ -157,10 +157,25 @@ void Fiber::addInterval(Interval& i) {
         return;
     } else {
         // this is the messier general case with partial overlap
-        for (unsigned int m=0;m<ints.size();++m) {
-            if ( ints[m].lower < i.upper ) {
+        std::vector<Interval>::iterator itr;
+        itr = ints.begin();
+        std::vector<Interval> overlaps;
+        while (itr!=ints.end()) { // loop through all intervals
+            if ( ! (itr->outside( i )) ) {
+                overlaps.push_back(*itr); // add overlaps here
+                ints.erase(itr); // erase overlaps from ints
+            } else {
+                ++itr;
             }
         }
+        overlaps.push_back(i);
+        // now build a new interval from i and the overlaps
+        Interval sumint;        
+        BOOST_FOREACH(Interval intr, overlaps) {
+            sumint.updateLower( intr.lower, intr.lower_cc );
+            sumint.updateUpper( intr.upper, intr.upper_cc );
+        }
+        ints.push_back(sumint); // add the sum-interval to ints
         return;
     }
     

@@ -306,8 +306,19 @@ int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 /// add interfering intervals to the Fiber
 int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
     int result = 0;
-    BOOST_FOREACH( const Point& p, t.p)
-    {
+    std::vector<Point> verts;
+    verts.push_back(t.p[0]);
+    verts.push_back(t.p[1]);
+    verts.push_back(t.p[2]);
+    // if the triangle is sliced, we have two more verts to test:
+    Point p1,p2;
+    if ( t.zslice_verts(p1,p2, f.p1.z) ) {
+        p1.z = p1.z + 1E-3;
+        p2.z = p2.z + 1E-3; // dirty trick...
+        verts.push_back(p1);
+        verts.push_back(p2);
+    }
+    BOOST_FOREACH( const Point& p, verts) {
         //std::cout << "clength=" << getLength() << "\n";
         //std::cout << "zmax=" << f.p1.z+getLength()<< "\n";
         //std::cout << "p.z=" << p.z << "\n";

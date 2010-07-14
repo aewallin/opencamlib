@@ -45,6 +45,8 @@ class Triangle {
         std::vector<Triangle>* zslice(const double zcut) const;
         /// return z-slice to python (for testing)
         boost::python::list getZslice(const double zcut) const;
+        bool zslice_verts(Point& p1,Point& p2, double zcut) const;
+        
         
         /// string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
