@@ -17,16 +17,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <boost/numeric/interval.hpp>
+
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 
 #include "fiber.h"
-//namespace bn = boost::numeric;
+
 
 namespace ocl
 {
@@ -112,8 +108,10 @@ std::string Interval::str() const {
     return o.str();
 }
 
+/* ********************** Fiber ***************************************/
+/* ********************** Fiber ***************************************/
+/* ********************** Fiber ***************************************/
 
-/*********************** Fiber ****************************************/
 
 Fiber::Fiber(const Point &p1in, const Point &p2in) {
     p1=p1in;
@@ -189,12 +187,13 @@ double Fiber::tval(Point& p) const {
     return  (p-p1).dot(p2-p1) / (p2-p1).dot(p2-p1);
 }
 
-/// return a point on the fiber
+/// return a point on the fiber at given t-value
 Point Fiber::point(double t) const {
     Point p = p1 + t*(p2-p1);
     return p;
 }
 
+/// return intervals as a list to python
 boost::python::list Fiber::getInts() {
     boost::python::list l;
     BOOST_FOREACH( Interval i, ints) {
@@ -203,6 +202,7 @@ boost::python::list Fiber::getInts() {
     return l;
 }
 
+/// print out all intervals
 void Fiber::printInts() {
     int n=0;
     BOOST_FOREACH( Interval i, ints) {

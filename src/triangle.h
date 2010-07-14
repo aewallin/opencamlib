@@ -42,9 +42,10 @@ class Triangle {
         Triangle(Point p1, Point p2, Point p3);   
         
         /// return z-sliced Triangle(s)
-        std::vector<Triangle>* zslice(const double zcut) const;
+        // std::vector<Triangle>* zslice(const double zcut) const;
         /// return z-slice to python (for testing)
-        boost::python::list getZslice(const double zcut) const;
+        // boost::python::list getZslice(const double zcut) const;
+        
         bool zslice_verts(Point& p1,Point& p2, double zcut) const;
         
         
@@ -79,8 +80,8 @@ class Triangle {
         void calcBB();
         
     private:
-        /// set id-number
-        void setId();
+        // set id-number
+        //void setId();
         /// calculate and set Triangle normal
         void calcNormal();
 

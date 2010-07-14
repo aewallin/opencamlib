@@ -101,9 +101,7 @@ void export_geometry() {
         .def(bp::init<Point,Point,Point>())
         .def("getPoints", &Triangle::getPoints)
         .def("__str__", &Triangle::str) 
-        .def("zslice", &Triangle::getZslice)
         .def_readonly("p", &Triangle::p)
-        //.def_readonly("n", &Triangle::n) // cannot return pointer
         .def_readonly("id", &Triangle::id)
     ;
     bp::class_<STLSurf>("STLSurf")

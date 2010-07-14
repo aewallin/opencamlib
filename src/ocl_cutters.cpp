@@ -51,11 +51,14 @@ void export_cutters() {
         .def(bp::init<double>()) 
         .def("vertexPush", &CylCutter::vertexPush)
         .def("facetPush", &CylCutter::facetPush)
-        .def("edgePush", &CylCutter::edgePush)
+        .def("edgePush", &CylCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
         .def(bp::init<double>())
+        .def("vertexPush", &BallCutter::vertexPush)
+        .def("facetPush", &BallCutter::facetPush)
+        .def("edgePush", &BallCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")

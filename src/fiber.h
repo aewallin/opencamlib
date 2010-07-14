@@ -20,10 +20,7 @@
 #ifndef FIBER_H
 #define FIBER_H
 
-//#include <iostream>
 #include <vector>
-//#include <boost/numeric/interval.hpp>
-
 
 #include "point.h"
 #include "ccpoint.h"

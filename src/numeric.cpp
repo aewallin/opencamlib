@@ -101,8 +101,8 @@ double eps() {
 /// first line:   p1 + v*(p2-p1)
 /// second line:  p3 + t*(p4-p3)
 /// returns true if an intersection was found 
-bool xy_line_line_intersection( Point& p1, Point& p2, double& v,
-                                Point& p3, Point& p4, double& t) {
+bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
+                                const Point& p3, const Point& p4, double& t) {
     // in the XY plane we move a distance v along l1
     // and a distance t along line2
     // we should end up at the same point

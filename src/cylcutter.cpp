@@ -304,8 +304,8 @@ int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 
 /// push cutter along Fiber against vertices of Triangle t
 /// add interfering intervals to the Fiber
-int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
-    int result = 0;
+bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    bool result = false;
     std::vector<Point> verts;
     verts.push_back(t.p[0]);
     verts.push_back(t.p[1]);
@@ -319,9 +319,6 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
         verts.push_back(p2);
     }
     BOOST_FOREACH( const Point& p, verts) {
-        //std::cout << "clength=" << getLength() << "\n";
-        //std::cout << "zmax=" << f.p1.z+getLength()<< "\n";
-        //std::cout << "p.z=" << p.z << "\n";
         if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
             Point pq = p.xyClosestPoint(f.p1, f.p2);
             double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
@@ -334,7 +331,7 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
                 //std::cout << "updating with " << f.tval(stop) << " to " << f.tval(start) << "\n";
                 i.updateUpper( f.tval(stop) , cc_tmp );
                 i.updateLower( f.tval(start) , cc_tmp );
-                result = 1;                
+                result = true;                
             }             
         }
     }
@@ -343,8 +340,8 @@ int CylCutter::vertexPush(Fiber& f, Interval& i, const Triangle& t) const {
 
 /// push cutter along Fiber against facet of Triangle t
 /// Update Interval i where the cutter interferes
-int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
-    int result = 0;
+bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const {
+    bool result = false;
     Point normal; // facet surface normal 
     if ( t.n->zParallel() ) { // normal points in z-dir   
         return result; //can't push against horizontal plane, stop here.
@@ -480,12 +477,12 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
     if( cc_tmp1.isInside( t ) ) {
         i.updateUpper( cl_tval1  , cc_tmp1 );
         i.updateLower( cl_tval1  , cc_tmp1 );
-        result = 1;
+        result = true;
     }
     if( cc_tmp2.isInside( t ) ) {
         i.updateUpper( cl_tval2  , cc_tmp2 );
         i.updateLower( cl_tval2  , cc_tmp2 );
-        result = 1;
+        result = true;
     }
 
     return result;
@@ -494,21 +491,16 @@ int CylCutter::facetPush(Fiber& f, Interval& i,  const Triangle& t) const {
 
 #define EDGEPUSH_DEBUG
 
-int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
-    int result = 0;
+bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
+    bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;
         int end=(n+1)%3;
         Point p1 = t.p[start];
         Point p2 = t.p[end];
-        #ifdef EDGEPUSH_DEBUG
-            // std::cout << " edge p[" << start<< "]="<< p1 << " to p[" << end << "]="<< p2<<"\n";
-        #endif 
 
-        
         // check that there is an edge in the xy-plane
         // can't push against vertical edges ??
-        
         if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
             
             // find XY-intersection btw fiber and edge
@@ -540,12 +532,12 @@ int CylCutter::edgePush(Fiber& f, Interval& i,  const Triangle& t) const {
                     if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
                         i.updateUpper( t_cl1  , cc_tmp1 );
                         i.updateLower( t_cl1  , cc_tmp1 );
-                        result = 1;
+                        result = true;
                     }
                     if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= f.p1.z) ) {
                         i.updateUpper( t_cl2  , cc_tmp2 );
                         i.updateLower( t_cl2  , cc_tmp2 );
-                        result = 1;
+                        result = true;
                     }
                 }
                 
