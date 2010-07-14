@@ -278,36 +278,37 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
 //******************* PUSH-CUTTER **************************************
 
 bool BallCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    // same test as for cylcutter, but with an adjusted eff_radius
     bool result = false;
-
     BOOST_FOREACH( const Point& p, t.p) {
         if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
             Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
             double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
-            if ( q <= radius ) { // we are going to hit the vertex p
-                double h = p.z - f.p1.z;
-                assert( h>= 0.0);
-                double eff_radius = radius;
-                if (h< radius) //FIX FIX FIX
-                    eff_radius = sqrt( square(radius) - square(radius-h) );
+            double h = p.z - f.p1.z;
+            assert( h>= 0.0);
+            double eff_radius = radius; // default, shaft radius
+            if (h< radius) // eff_radius is smaller if we hit the ball
+                eff_radius = sqrt( square(radius) - square(radius-h) );
+                    
+            if ( q <= eff_radius ) { // we are going to hit the vertex p
                 double ofs = sqrt( square(eff_radius) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
                 Point stop  = pq + ofs*f.dir;
                 CCPoint cc_tmp = CCPoint(p);
                 cc_tmp.type = VERTEX;
-                
                 i.updateUpper( f.tval(stop) , cc_tmp );
                 i.updateLower( f.tval(start) , cc_tmp );
                 result = true;                
             }             
         }
     }
-    
     return result;
 }
 
 bool BallCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
+    // find a point on the plane from which radius*normal lands on the fiber
+    
     return result;
 }
 
