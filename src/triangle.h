@@ -80,8 +80,6 @@ class Triangle {
         void calcBB();
         
     private:
-        // set id-number
-        //void setId();
         /// calculate and set Triangle normal
         void calcNormal();
 

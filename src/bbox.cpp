@@ -37,20 +37,17 @@ namespace ocl
 
 //************* Bounding-Box **************/
 
-Bbox::Bbox()
-{
+Bbox::Bbox() {
     minpt = Point(0,0,0);
     maxpt = Point(0,0,0);
     initialized = false;
 }
 
-Bbox::~Bbox()
-{
+Bbox::~Bbox() {
     return;
 }
 
-bool Bbox::isInside(Point& p) const
-{
+bool Bbox::isInside(Point& p) const {
     assert( initialized );
     if (p.x > maxpt.x)
         return false;
@@ -68,8 +65,7 @@ bool Bbox::isInside(Point& p) const
         return true;
 }
 
-void Bbox::addPoint(const Point &p)
-{
+void Bbox::addPoint(const Point &p) {
     if (!initialized) {
         maxpt = p;
         minpt = p;
@@ -94,14 +90,43 @@ void Bbox::addPoint(const Point &p)
 }
 
 /// add each vertex of the Triangle      
-void Bbox::addTriangle(const Triangle &t)
-{   
+void Bbox::addTriangle(const Triangle &t) {   
     addPoint( t.p[0] );
     addPoint( t.p[1] );
     addPoint( t.p[2] );
     return;
 }
 
+/// return the bounding box values as a vector:
+///  0    1    2    3    4    5
+/// [minx maxx miny maxy minz maxz]
+double Bbox::operator[](const unsigned int idx) const{
+    switch(idx) {
+        case 0:
+            return minpt.x;
+            break;
+        case 1:
+            return maxpt.x;
+            break;
+        case 2:
+            return minpt.y;
+            break;
+        case 3:
+            return maxpt.y;
+            break;
+        case 4:
+            return minpt.z;
+            break;
+        case 5:
+            return maxpt.z;
+            break;    
+        default:
+            assert(0);
+            break;
+    }
+    assert(0);
+    return -1;
+}
 
 
 } // end namespace

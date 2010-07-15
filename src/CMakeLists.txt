@@ -96,6 +96,7 @@ add_library(
     cylcutter.cpp
     fiber.cpp
     kdtree.cpp
+    kdtree2.cpp
     line.cpp
     numeric.cpp
     ocl_cutters.cpp

@@ -314,6 +314,7 @@ bool BallCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) cons
 
 bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
+    // FIXME, nothing here yet.
     return result;
 }
 

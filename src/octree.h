@@ -84,7 +84,7 @@ class LinOCT {
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Ocode &o);
         /// string repr
-        std::string str();
+        std::string str() const;
         /// string repr: print out list of all Ocodes in tree
         void printList();
 };

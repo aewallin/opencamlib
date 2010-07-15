@@ -18,12 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <vector>
-//#include <algorithm>
+
 #include <list>
 // uncomment to disable assert() calls
 // #define NDEBUG
@@ -614,8 +609,7 @@ boost::python::list LinOCT::get_triangles()
 }
 
 
-boost::python::list LinOCT::get_nodes()
-{    
+boost::python::list LinOCT::get_nodes() {    
     boost::python::list nodelist;
     BOOST_FOREACH( Ocode o, clist) {
             nodelist.append(o);
@@ -625,8 +619,7 @@ boost::python::list LinOCT::get_nodes()
 
 
 /// string repr
-std::ostream& operator<<(std::ostream &stream, const LinOCT &l)
-{
+std::ostream& operator<<(std::ostream &stream, const LinOCT &l) {
     stream << "LinOCT: N="<< l.size() ;     
     return stream;
 }
@@ -639,8 +632,7 @@ void LinOCT::printList() {
 }
 
 /// string repr
-std::string LinOCT::str()
-{
+std::string LinOCT::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();

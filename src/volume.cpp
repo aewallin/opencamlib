@@ -18,19 +18,12 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
-//#include <vector>
-//#include <algorithm>
 
 #include <cassert>
 // uncomment to disable assert() calls
 // #define NDEBUG
 
 #include <boost/python.hpp>
-//#include <list>
 
 #include "point.h"
 #include "triangle.h"
@@ -105,10 +98,6 @@ bool SphereOCTVolume::isInside(Point& p) const
 {
     if (!isInsideBB(p))
         return false;
-        // build time with isInsideBB
-        // 1.74 1.73 1.68 1.67
-        // without isInsideBB
-        // 1.66 1.79 1.79 1.94
     
     if ( (center-p).norm() <= radius ) 
         return true;

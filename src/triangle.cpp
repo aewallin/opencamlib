@@ -28,9 +28,7 @@
 namespace ocl
 {
 
-Triangle::Triangle()
-{
-    //setId();
+Triangle::Triangle() {
     p[0]=Point(1,0,0);
     p[1]=Point(0,1,0);
     p[2]=Point(0,0,1);
@@ -38,9 +36,7 @@ Triangle::Triangle()
     calcBB();
 }
 
-Triangle::Triangle(Point p1, Point p2, Point p3)
-{
-    //setId();
+Triangle::Triangle(Point p1, Point p2, Point p3) {
     p[0]=p1;
     p[1]=p2;
     p[2]=p3;
@@ -48,15 +44,13 @@ Triangle::Triangle(Point p1, Point p2, Point p3)
     calcBB();
 }
 
-Triangle::~Triangle()
-{
+Triangle::~Triangle() {
     //delete n;
     //n = 0;
 }
 
 /// return vertices in a list to python
-boost::python::list Triangle::getPoints() const
-{
+boost::python::list Triangle::getPoints() const {
     boost::python::list plist;
     BOOST_FOREACH(Point vertex, p) {
         plist.append(vertex);
@@ -79,11 +73,11 @@ void Triangle::calcBB() {
     maxz=bb.maxpt.z;
 }
 
+/// calculate, normalize, and set the Triangle normal
 void Triangle::calcNormal() {
     Point v1=p[0]-p[1];
     Point v2=p[0]-p[2];
-    // the normal is in the direction of the cross product between the edge vectors
-    Point ntemp = v1.cross(v2); 
+    Point ntemp = v1.cross(v2);  // the normal is in the direction of the cross product between the edge vectors
     ntemp.normalize(); // FIXME this might fail if norm()==0
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
 }
@@ -131,8 +125,7 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
     
 }
 
-std::string Triangle::str() const
-{
+std::string Triangle::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
