@@ -46,11 +46,12 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::docstring_options doc_options(false, false);
     //doc_options.disable_all();
     //doc_options.disable_py_signatures();
-    bp::def("revision", revision);
+    
+    bp::def("revision", revision); // returns OCL revision string to python
     
     bp::def("__doc__", ocl_docstring);
     
-    bp::def("eps", eps);
+    bp::def("eps", eps); // machine epsilon, see numeric.cpp
     
     export_geometry(); // see ocl_geometry.cpp
     
@@ -67,8 +68,8 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("dropCutter2", &BatchDropCutter::dropCutter2)
         .def("dropCutter3", &BatchDropCutter::dropCutter3)
         .def("dropCutter4", &BatchDropCutter::dropCutter4)
+        .def("dropCutter5", &BatchDropCutter::dropCutter5)
         .def("getCLPoints", &BatchDropCutter::getCLPoints)
-        //.def("getCCPoints", &BatchDropCutter::getCCPoints)
         .def("setSTL", &BatchDropCutter::setSTL)
         .def("setCutter", &BatchDropCutter::setCutter)
         .def("setThreads", &BatchDropCutter::setThreads)
@@ -76,6 +77,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter)
         .def_readonly("dcCalls", &BatchDropCutter::dcCalls)
         .def_readwrite("nthreads", &BatchDropCutter::nthreads)
+        .def_readwrite("bucketSize", &BatchDropCutter::bucketSize)
     ;
 
     bp::class_<Fiber>("Fiber")
@@ -84,9 +86,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readonly("p2", &Fiber::p2)
         .def_readonly("dir", &Fiber::dir)
         .def("addInterval", &Fiber::addInterval)
-        //.def("calcDir", &Fiber::calcDir)
-        //.def("addInt", &Fiber::addInt)
-        //.def("condense", &Fiber::condense)
         .def("point", &Fiber::point)
         .def("printInts", &Fiber::printInts)
         .def("getInts", &Fiber::getInts)

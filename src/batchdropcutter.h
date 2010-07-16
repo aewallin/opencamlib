@@ -23,7 +23,6 @@
 
 #include <iostream>
 #include <string>
-//#include <list>
 #include <vector>
 #include <boost/python.hpp>
 #include "point.h"
@@ -33,6 +32,7 @@ namespace ocl
 
 class STLSurf;
 class KDNode;
+class KDNode2;
 class Triangle;
 class MillingCutter;
 
@@ -43,7 +43,7 @@ class BatchDropCutter {
         BatchDropCutter();
         
         /// set the STL-surface and build kd-tree to enable optimized algorithm
-        void setSTL(STLSurf &s, int bucketSize = 1);
+        void setSTL(STLSurf &s);
         /// set the MillingCutter to use
         void setCutter(MillingCutter *cutter);
         /// set number of threads to use in OpenMP
@@ -59,7 +59,7 @@ class BatchDropCutter {
         void dropCutter3();
         /// use OpenMP for multi-threading     
         void dropCutter4();
-        
+        void dropCutter5();
         // Python interface
         /// return CL-points to Python
         boost::python::list getCLPoints();
@@ -75,6 +75,8 @@ class BatchDropCutter {
         std::vector<CLPoint>* clpoints;
         /// root of the kd-tree
         KDNode *root;
+        KDNode2 *root2;
+        
         /// the STLSurf which we test against.
         STLSurf *surf;
         
@@ -82,7 +84,8 @@ class BatchDropCutter {
         int dcCalls;
 
         /// number of threads to use
-        int nthreads;
+        unsigned int nthreads;
+        unsigned int bucketSize;
 };
 
 }

@@ -68,6 +68,8 @@ def xfiber(xvals,t,zh,myscreen):
         drawFiber_clpts(myscreen, f, camvtk.lblue)
         
 if __name__ == "__main__":  
+    print ocl.revision()
+    
     myscreen = camvtk.VTKScreen()
     
     a = ocl.Point(0,1,0.3)

@@ -106,8 +106,7 @@ class KDNode2 {
         /// MillingCutter c positioned at Point cl.
         /// The triangles found are pushed into the Triangle list tris.
         static void search_kdtree( std::list<Triangle> *tris, //why static?
-                                   const CLPoint& cl, 
-                                   const MillingCutter& cutter, 
+                                   const Bbox& bb, 
                                    KDNode2 *root);
         
         /// find all triangles under node

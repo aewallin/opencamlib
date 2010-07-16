@@ -33,6 +33,8 @@ class Bbox {
     public:
         /// default constructor
         Bbox();
+        /// explicit constructor
+        Bbox(double b1, double b2, double b3, double b4, double b5, double b6);
         virtual ~Bbox();
         
         Point maxpt; /// the maximum point

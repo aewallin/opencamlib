@@ -42,6 +42,12 @@ Bbox::Bbox() {
     maxpt = Point(0,0,0);
     initialized = false;
 }
+//              minx       maxx        miny       maxy       minz       maxz
+Bbox::Bbox(double b1, double b2, double b3, double b4, double b5, double b6) {
+    minpt = Point(b1,b3,b5);
+    maxpt = Point(b2,b4,b6);
+    initialized = true;
+}
 
 Bbox::~Bbox() {
     return;
