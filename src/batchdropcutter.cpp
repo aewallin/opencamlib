@@ -48,7 +48,7 @@ BatchDropCutter::BatchDropCutter() {
 
 void BatchDropCutter::setSTL(STLSurf &s) {
     surf = &s;
-    std::cout << "Building kd-tree...";
+    std::cout << "Building kd-tree... bucketSize=" << bucketSize << "..";
     root = KDNode::build_kdtree( &(surf->tris), bucketSize );
     root2 = KDNode2::build_kdtree( &(surf->tris), bucketSize );
     std::cout << " done.\n";
@@ -153,12 +153,34 @@ void BatchDropCutter::dropCutter4() {
             tris=new std::list<Triangle>();
             KDNode::search_kdtree( tris, clref[n], cutref, root); // tris will contain overlapping triangles
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
+            
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
-                    cutref.dropCutter( clref[n],*it);
-                    ++calls;
+                    if (clref[n].below(*it)) {
+                        cutref.vertexDrop( clref[n],*it);
+                        ++calls;
+                    }
                 }
             }
+            
+            for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
+                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
+                    if (clref[n].below(*it))
+                        cutref.facetDrop( clref[n],*it);
+                    //++calls;
+                }
+            }
+            
+            for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
+                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
+                    if (clref[n].below(*it))
+                        cutref.edgeDrop( clref[n],*it);
+                    //++calls;
+                }
+            }
+            
+            
+            
             ntris += tris->size();
             delete( tris );
         } // end OpenMP PARALLEL for
@@ -192,24 +214,22 @@ void BatchDropCutter::dropCutter5() {
 #endif
     std::list<Triangle>::iterator it;
     #pragma omp parallel for shared( nloop, ntris, calls, clref, cutref) private(n,tris,bb,it)
-        for (n=0;n< Nmax ;n++) { // PARALLEL OpenMP loop!
+        for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
 #ifndef WIN32
             if ( n== 0 ) { // first iteration
                 if (omp_get_thread_num() == 0 ) 
-                    std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";// print out how many threads we are using
+                    std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
             }
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            // for KDNode2, build a bounding-box at the current CL
-            
-            bb = new Bbox( clref[n].x-r, 
+            bb = new Bbox( clref[n].x-r, // build a bounding-box at the current CL
                            clref[n].x+r, 
                            clref[n].y-r, 
                            clref[n].y+r,
                            0,
-                           0); // FIXME, ugly...
-            KDNode2::search_kdtree( tris, *bb, root2); // tris will contain overlapping triangles
+                           0); 
+            KDNode2::search_kdtree( tris, *bb, root2, 3); // tris will contain overlapping triangles
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
@@ -217,6 +237,7 @@ void BatchDropCutter::dropCutter5() {
                     ++calls;
                 }
             }
+            
             ntris += tris->size();
             delete( tris );
             delete( bb );

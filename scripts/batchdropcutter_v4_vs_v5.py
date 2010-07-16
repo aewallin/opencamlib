@@ -43,7 +43,7 @@ if __name__ == "__main__":
     
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
-    bdc.bucketSize=10
+    bdc.bucketSize=1
     bdc.setSTL(s)
     bdc.setCutter(cutter)
     #bdc.setThreads(1)  # explicitly setting one thread is better for debugging
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     # batchdropcutter 5  
     bdc5 = ocl.BatchDropCutter()
-    bdc5.bucketSize=2
+    bdc5.bucketSize=1
     bdc5.setSTL(s)
     bdc5.setCutter(cutter)
     #bdc.setThreads(1)  # explicitly setting one thread is better for debugging
@@ -77,12 +77,16 @@ if __name__ == "__main__":
     print " BDC5 done in ", calctime," s ", dc_calls5," dc-calls" 
     dropcutter_time = calctime
     clpoints5 = bdc5.getCLPoints()
-    
+    maxnorm=0
     for p1,p2 in zip(clpoints,clpoints5):
         p4 = ocl.Point(p1.x,p1.y,p1.z)
         p5 = ocl.Point(p2.x,p2.y,p2.z)
-        if (p4-p5).norm() > 1E-6:
+        error = (p4-p5).norm()
+        if  error > 1E-6:
             print (p4-p5).norm() , " !! "
+        if error > maxnorm:
+            maxnorm = error
+    print "maximum error=", maxnorm
             
     for p in clpoints5:
         p.z=p.z+0.5

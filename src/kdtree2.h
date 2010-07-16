@@ -65,15 +65,15 @@ class KDNode2 {
         /// they are in the list tris
         /// lev indicates the level of the node in the tree
         KDNode2(int d, double cv, KDNode2 *up_c,
-                                 KDNode2 *hi_c, 
-                                 KDNode2 *lo_c, 
-                                 const std::list<Triangle> *tlist, 
-                                 int level);
+                                  KDNode2 *hi_c, 
+                                  KDNode2 *lo_c, 
+                                  const std::list<Triangle> *tlist, 
+                                  int level);
         /// string repr
         std::string str() const;
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const KDNode2 node);
-        
+
         /// level of node in tree 
         int level;
         /// dimension of cut or partition.
@@ -82,43 +82,44 @@ class KDNode2 {
         /// Child node hi should contain only triangles with a higher value than this.
         /// Child node lo contains triangles with lower values.
         double cutval;
-        
-        
+
         KDNode2 *up; /// parent-node
         KDNode2 *hi; /// Child-node hi.
         KDNode2 *lo; /// Child-node lo.
-        
+
         /// A list of triangles, if this is a bucket-node
         const std::list<Triangle> *tris;
-        
-        
+
         /* static functions to build and search KD-trees) */
         /// build a kd-tree from a list of triangles. return root of tree.
         static KDNode2* build_kdtree(const std::list<Triangle> *tris, 
                                      unsigned int bucketSize = 1,
                                      int level = 0,
                                      KDNode2 *parent=NULL);
-        
+
         /// calculate along which dimension kd-tree should cut
         static Spread2* spread(const std::list<Triangle> *tris);
-        
+
         /// search KDTree, starting at KDNode root for triangles under the 
         /// MillingCutter c positioned at Point cl.
         /// The triangles found are pushed into the Triangle list tris.
         static void search_kdtree( std::list<Triangle> *tris, //why static?
                                    const Bbox& bb, 
-                                   KDNode2 *root);
+                                   KDNode2 *root,
+                                   const unsigned int plane = 0);
+        
+        static bool plane_valid(const unsigned int dim,const unsigned int plane);
         
         /// find all triangles under node
         static void getTriangles( std::list<Triangle> *tris, 
                                               KDNode2 *root);
-        
+
         /// do the triangles at KDNode root overlap (in the XY-plane) with the 
         /// MillingCutter c positioned at Point cl?
         static bool overlap(const KDNode2 *root,      // root of tree
                             const CLPoint& cl,       // cutter positioned here
                             const MillingCutter& c); // cutter
-        
+
         /// counter used for cutting along the dims sequentially.
         /// not used if cutting along max spread.
         static int cutcount;        

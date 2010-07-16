@@ -240,8 +240,9 @@ void KDNode2::getTriangles( std::list<Triangle> *tris, KDNode2 *node)
 /// with the MillingCutter cutter positioned at  Point cl
 /// these triangles are added to the tris list.
 void KDNode2::search_kdtree( std::list<Triangle>* tris,      // found triangles added to tris
-                            const Bbox& bb,              // bbox for search
-                            KDNode2 *node)                   // start search here and recurse into tree
+                            const Bbox& bb,                  // bbox for search
+                            KDNode2 *node,                   // start search here and recurse into tree
+                            const unsigned int plane)        // the search plane, defaults to 0 = all.
 {
     // we found a bucket node, so add all triangles and return.
     if (node->tris != NULL) { 
@@ -264,27 +265,64 @@ void KDNode2::search_kdtree( std::list<Triangle>* tris,      // found triangles 
         return;
     } // end bucket-node
     
+    // search in the KD-tree only if the plane variable says so.
+    // plane=0  means search all dimensions            dims=[ 0 1 2 3 4 5 ]
+    // plane=1 search in the yz plane (perp to x-dir)  dims=[ _ _ 2 3 4 5 ]
+    // plane=2 search in the xz plane (perp to y-dir)  dims=[ 0 1 _ _ 4 5 ]
+    // plane=3 search in the xy plane (perp to z-dir)  dims=[ 0 1 2 3 _ _ ]
+    
     // not a bucket node, so recursevily seach hi/lo branches of KDNode
-    if ( (node->dim % 2) == 0) { // cutting along a min-direction, 0, 2, 4
+    if ( (node->dim % 2) == 0) { // cutting along a min-direction: 0, 2, 4
         unsigned int maxdim = node->dim+1;
-        if (node->cutval > bb[maxdim] ) { // search only lo
-            KDNode2::search_kdtree(tris, bb, node->lo);
+        if ( (KDNode2::plane_valid(node->dim,plane)) && (node->cutval > bb[maxdim]) ) { // search only lo
+            KDNode2::search_kdtree(tris, bb, node->lo, plane);
         } else { // need to search both child nodes
-            KDNode2::search_kdtree(tris, bb, node->hi);
-            KDNode2::search_kdtree(tris, bb, node->lo);
+            KDNode2::search_kdtree(tris, bb, node->hi, plane);
+            KDNode2::search_kdtree(tris, bb, node->lo, plane);
         }
-    } else { // cutting along a max-dimension, 1,3,5
+    } else { // cutting along a max-dimension: 1,3,5
         unsigned int mindim = node->dim-1;
-        if (node->cutval < bb[mindim] ) { // search only hi
-            KDNode2::search_kdtree(tris, bb, node->hi);
+        if ( (KDNode2::plane_valid(node->dim,plane)) && (node->cutval < bb[mindim]) ) { // search only hi
+            KDNode2::search_kdtree(tris, bb, node->hi, plane);
         } else { // need to search both child nodes
-            KDNode2::search_kdtree(tris, bb, node->hi);
-            KDNode2::search_kdtree(tris, bb, node->lo);
+            KDNode2::search_kdtree(tris, bb, node->hi, plane);
+            KDNode2::search_kdtree(tris, bb, node->lo, plane);
         }
     }
-    
     return; // Done. We get here after all the recursive calls above.
 } // end search_kdtree()
+
+bool KDNode2::plane_valid(const unsigned int dim,const unsigned int plane) {
+    // search in the KD-tree only if the plane variable says so.
+    // plane=0  means search all dimensions            dims=[ 0 1 2 3 4 5 ]
+    // plane=1 search in the yz plane (perp to x-dir)  dims=[ _ _ 2 3 4 5 ]
+    // plane=2 search in the xz plane (perp to y-dir)  dims=[ 0 1 _ _ 4 5 ]
+    // plane=3 search in the xy plane (perp to z-dir)  dims=[ 0 1 2 3 _ _ ]
+    switch (dim) {
+        case 0: 
+            return (plane!=1); 
+            break;
+        case 1: 
+            return (plane!=1); 
+            break;
+        case 2: 
+            return (plane!=2); 
+            break;
+        case 3: 
+            return (plane!=2); 
+            break;
+        case 4: 
+            return (plane!=3); 
+            break;
+        case 5: 
+            return (plane!=3); 
+            break;
+        default:
+            assert(0);
+            return false;
+            break;    
+    }
+}
 
 //*********** Spread ****************
 
