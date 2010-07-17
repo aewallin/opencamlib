@@ -85,8 +85,8 @@ void Triangle::calcNormal() {
 /// return true if Triangle is sliced by a z-plane at z=zcut
 /// modify p1 and p2 so that they are intesections of the triangle edges
 /// and the plane. These vertices are used by CylCutter::edgePush()
-bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
-    if ( (zcut < this->bb.minpt.z) || ((zcut > this->bb.maxpt.z)) )
+bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
+    if ( (zcut <= this->bb.minpt.z) || ((zcut >= this->bb.maxpt.z)) )
         return false; // no zslice
     // find out how many vertices are below zcut
     std::vector<Point> below;
@@ -96,6 +96,19 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
             below.push_back(p[m]);
         else
             above.push_back(p[m]);
+    }
+    if ( !(below.size() == 1) && !(below.size() == 2) ) {
+        std::cout << "triangle.cpp: zslice_verts() error while trying to z-slice\n";
+        std::cout << " triangle=" << *this << "\n";
+        std::cout << " zcut=" << zcut << "\n";
+        std::cout << above.size() << " above points:\n";
+        BOOST_FOREACH(Point p, above) {
+            std::cout << "   " << p << "\n";
+        }
+        std::cout << below.size() << " below points:\n";
+        BOOST_FOREACH(Point p, below) {
+            std::cout << "   " << p << "\n";
+        }
     }
     assert( (below.size() == 1) || (below.size() == 2) );
     

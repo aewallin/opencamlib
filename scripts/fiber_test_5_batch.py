@@ -58,7 +58,7 @@ if __name__ == "__main__":
             bpc.appendFiber(f)
             
     # run
-    bpc.pushCutter()
+    bpc.pushCutter2()
     clpoints = bpc.getCLPoints()
     print "rendering raw CL-points."
     

@@ -81,7 +81,7 @@ int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const
         normal = *t.n;
     }
     
-    assert( isPositive( normal.z ) ); // we are in trouble if n.z is not positive by now...
+    assert(  normal.z > 0.0 ); // we are in trouble if n.z is not positive by now...
     
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
@@ -351,7 +351,13 @@ bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const
     } else {
         normal = *t.n;
     }
+    /*
+    if ( !isPositive( normal.z ) ) {
+        std::cout << " normal=" << normal << std::endl;
+        std::cout << "warning, not positive normal.z=" << normal.z << std::endl;
+    }
     assert( isPositive( normal.z ) ); // we are in trouble if n.z is not positive by now...
+    */
     
     // find the intersection of the Fiber and the plane
     // http://mathworld.wolfram.com/Line-PlaneIntersection.html

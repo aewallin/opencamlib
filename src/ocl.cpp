@@ -80,7 +80,8 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("bucketSize", &BatchDropCutter::bucketSize)
     ;
     bp::class_<BatchPushCutter>("BatchPushCutter")
-        .def("pushCutter", &BatchPushCutter::pushCutter)
+        .def("pushCutter1", &BatchPushCutter::pushCutter1)
+        .def("pushCutter2", &BatchPushCutter::pushCutter2)
         .def("setSTL", &BatchPushCutter::setSTL)
         .def("setCutter", &BatchPushCutter::setCutter)
         .def("setThreads", &BatchPushCutter::setThreads)

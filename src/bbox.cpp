@@ -103,6 +103,18 @@ void Bbox::addTriangle(const Triangle &t) {
     return;
 }
 
+/// does this Bbox overlap with b?
+bool Bbox::overlaps(const Bbox& b) const {
+    if  ( (this->maxpt.x < b.minpt.x) || (this->minpt.x > b.maxpt.x) )
+        return false;
+    else if ( (this->maxpt.y < b.minpt.y) || (this->minpt.y > b.maxpt.y) )
+        return false;
+    else if ( (this->maxpt.z < b.minpt.z) || (this->minpt.z > b.maxpt.z) )
+        return false;
+    else
+        return true;
+}
+
 /// return the bounding box values as a vector:
 ///  0    1    2    3    4    5
 /// [minx maxx miny maxy minz maxz]

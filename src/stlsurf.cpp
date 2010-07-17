@@ -53,8 +53,7 @@ void STLSurf::addTriangle(const Triangle &t) {
     return;
 }
 
-int STLSurf::size()
-{
+unsigned int STLSurf::size() const {
     return tris.size();
 }
 

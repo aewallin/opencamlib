@@ -44,6 +44,8 @@ class Bbox {
         /// return true if Point p is inside this Bbox
         bool isInside(Point& p) const;
         
+        bool overlaps(const Bbox& b) const;
+        
         /// Add a Point to the Bbox.
         /// This enlarges the Bbox so that p is contained within it.
         void addPoint(const Point& p);

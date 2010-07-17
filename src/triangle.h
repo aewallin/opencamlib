@@ -41,12 +41,7 @@ class Triangle {
         /// Create a triangle with the vertices p1, p2, and p3.
         Triangle(Point p1, Point p2, Point p3);   
         
-        /// return z-sliced Triangle(s)
-        // std::vector<Triangle>* zslice(const double zcut) const;
-        /// return z-slice to python (for testing)
-        // boost::python::list getZslice(const double zcut) const;
-        
-        bool zslice_verts(Point& p1,Point& p2, double zcut) const;
+        bool zslice_verts(Point& p1,Point& p2, const double zcut) const;
         
         
         /// string repr     

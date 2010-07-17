@@ -52,7 +52,8 @@ class BatchPushCutter {
         void appendFiber(Fiber& f);
         
         /// run push-cutter
-        void pushCutter();
+        void pushCutter1();
+        void pushCutter2();
         
         
         // Python interface
@@ -62,21 +63,22 @@ class BatchPushCutter {
         boost::python::list getOverlapTriangles(Fiber& f, MillingCutter& cutter);
         
         // DATA
-        /// the MillingCutter used
-        MillingCutter *cutter;
-        
-        /// pointer to list of Fibers
-        std::vector<Fiber>* fibers;
-        /// root of the kd-tree
-        KDNode2 *root;
-        /// the STLSurf which we test against.
-        STLSurf *surf;
         /// how many low-level calls were made
         int nCalls;
         /// number of threads to use
         unsigned int nthreads;
         /// size of bucket-node in KD-tree
         unsigned int bucketSize;
+    private:
+        /// the MillingCutter used
+        MillingCutter *cutter;
+        /// pointer to list of Fibers
+        std::vector<Fiber>* fibers;
+        /// root of the kd-tree
+        KDNode2 *root;
+        /// the STLSurf which we test against.
+        STLSurf *surf;
+
 };
 
 } // end namespace

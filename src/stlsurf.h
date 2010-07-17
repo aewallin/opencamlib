@@ -52,7 +52,7 @@ class STLSurf {
         friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
         
         /// return number of triangles in surface
-        int size();
+        unsigned int size() const;
         
         /// id-number count (obsolete?)
         static int count;

@@ -19,6 +19,9 @@
 */
 
 #include <boost/foreach.hpp>
+#include <boost/progress.hpp>
+
+
 #ifndef WIN32
 #include <omp.h>
 #endif
@@ -65,10 +68,12 @@ void BatchPushCutter::appendFiber(Fiber& f) {
 }
 
 
-void BatchPushCutter::pushCutter() {
-    std::cout << "BatchPushCutter with " << fibers->size() << 
-              " fibers and " << surf->tris.size() << " triangles...";
+void BatchPushCutter::pushCutter1() {
+    std::cout << "BatchPushCutter1 with " << fibers->size() << 
+              " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
+    boost::progress_display show_progress( fibers->size() );
+
     BOOST_FOREACH(Fiber& f, *fibers) {
         BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
             Interval i;
@@ -78,8 +83,67 @@ void BatchPushCutter::pushCutter() {
             f.addInterval(i);
             ++nCalls;
         }
+        ++show_progress;
     }
-    std::cout << "done.\n";
+    std::cout << "BatchPushCutter done." << std::endl;
+    return;
+}
+
+// use kd-tree search
+void BatchPushCutter::pushCutter2() {
+    std::cout << "BatchPushCutter2 with " << fibers->size() << 
+              " fibers and " << surf->tris.size() << " triangles..." << std::endl;
+    nCalls = 0;
+    std::list<Triangle>* overlap_triangles;
+    Bbox* bb;
+    boost::progress_display show_progress( fibers->size() );
+    BOOST_FOREACH(Fiber& f, *fibers) {
+        bool xfiber = false;
+        bool yfiber = false;
+        if ( f.p1.x == f.p2.x )
+            yfiber = true;
+        if ( f.p1.y == f.p2.y )
+            xfiber = true;
+        assert( xfiber || yfiber );
+        overlap_triangles=new std::list<Triangle>();
+        double plane = 0; // the kd-tree search plane
+        if ( xfiber ) {
+            plane = 1; // search in YZ plane
+            bb = new Bbox(     f.p1.x, 
+                               f.p2.x, 
+                               f.p1.y - cutter->getRadius(), 
+                               f.p1.y + cutter->getRadius(),
+                               f.p1.z,
+                               f.p1.z + cutter->getLength() ); 
+        } else if (yfiber ) {
+            plane = 2; // search in XZ plane
+            bb = new Bbox(     f.p1.x - cutter->getRadius(), 
+                               f.p1.x + cutter->getRadius(),
+                               f.p1.y, 
+                               f.p2.y, 
+                               f.p1.z,
+                               f.p1.z + cutter->getLength() ); 
+        }
+                           
+        KDNode2::search_kdtree( overlap_triangles, *bb, root, plane); // find overlapping triangles
+        assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf 
+            
+        BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
+            if ( bb->overlaps( t.bb ) ) {
+                Interval i;
+                cutter->vertexPush(f,i,t);
+                cutter->facetPush(f,i,t);
+                cutter->edgePush(f,i,t);
+                f.addInterval(i);
+                ++nCalls;
+            }
+        }
+        delete( overlap_triangles );
+        delete( bb );
+        ++show_progress;
+    }
+    std::cout << "BatchPushCutter done." << std::endl;
+    
     return;
 }
 
