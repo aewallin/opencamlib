@@ -54,7 +54,7 @@ class BatchPushCutter {
         /// run push-cutter
         void pushCutter1();
         void pushCutter2();
-        
+        void pushCutter3();
         
         // Python interface
         /// return CL-points to Python

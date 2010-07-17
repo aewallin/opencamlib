@@ -111,14 +111,22 @@ bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
     // [ (p2-p1).x  -(p4-p3).x ] [ v ]  = [ (p3-p1).x ]
     // [ (p2-p1).y  -(p4-p3).y ] [ t ]  = [ (p3-p1).y ]
     // or
-    // Mx=y
-    namespace bnu = boost::numeric::ublas;
-    bnu::matrix<double> M(2,2);
-    M(0,0) = (p2.x-p1.x);
-    M(0,1) = (p4.x - p3.x);
-    M(1,0) = (p2.y-p1.y);
-    M(1,1) = (p4.y - p3.y);
-    double detM = determinant(M);
+    // M * x = y
+    // with solution:
+    // x = Minv * y
+    //namespace bnu = boost::numeric::ublas;
+    //bnu::matrix<double> M(2,2);
+    //M(0,0) = (p2.x-p1.x);
+    //M(0,1) = (p4.x - p3.x);
+    //M(1,0) = (p2.y-p1.y);
+    //M(1,1) = (p4.y - p3.y);
+    
+    double a = (p2.x-p1.x);
+    double b = (p4.x - p3.x);
+    double c = (p2.y-p1.y);
+    double d = (p4.y - p3.y);
+    double detM = a*d-c*b;
+    //double detM = determinant(M);
     if ( isZero_tol( detM ) )
         return false; // parallell lines, no intersection
     
@@ -126,7 +134,7 @@ bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
     double t_numer = (p2.x-p1.x)*(p1.y-p3.y) - (p2.y-p1.y)*(p1.x-p3.x);
     if( isZero_tol( t_numer ) && isZero_tol( v_numer) )
         return false;
-        
+
     t = t_numer/detM;
     v = v_numer/detM;
     return true;

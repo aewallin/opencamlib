@@ -312,14 +312,14 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
     verts.push_back(t.p[2]);
     // if the triangle is sliced, we have two more verts to test:
     Point p1,p2;
-    if ( t.zslice_verts(p1,p2, f.p1.z) ) {
-        p1.z = p1.z + 1E-3;
-        p2.z = p2.z + 1E-3; // dirty trick...
+    if ( t.zslice_verts(p1, p2, f.p1.z) ) {
+        p1.z = p1.z + 1E-3; // dirty trick...
+        p2.z = p2.z + 1E-3; // ...which will not affect results, unless cutter.length < 1E-3
         verts.push_back(p1);
         verts.push_back(p2);
     }
     BOOST_FOREACH( const Point& p, verts) {
-        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
+        if ( (p.z >= f.p1.z) && (p.z <= (f.p1.z+getLength())) ) { // p.z is within cutter
             Point pq = p.xyClosestPoint(f.p1, f.p2);
             double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
             if ( q <= radius ) { // p is inside the cutter
@@ -340,7 +340,7 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
 
 /// push cutter along Fiber against facet of Triangle t
 /// Update Interval i where the cutter interferes
-bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const {
+bool CylCutter::facetPush(const Fiber& fib, Interval& intv,  const Triangle& t) const {
     bool result = false;
     Point normal; // facet surface normal 
     if ( t.n->zParallel() ) { // normal points in z-dir   
@@ -351,14 +351,7 @@ bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const
     } else {
         normal = *t.n;
     }
-    /*
-    if ( !isPositive( normal.z ) ) {
-        std::cout << " normal=" << normal << std::endl;
-        std::cout << "warning, not positive normal.z=" << normal.z << std::endl;
-    }
-    assert( isPositive( normal.z ) ); // we are in trouble if n.z is not positive by now...
-    */
-    
+
     // find the intersection of the Fiber and the plane
     // http://mathworld.wolfram.com/Line-PlaneIntersection.html
     // plane defined by p1, p2, p3
@@ -379,10 +372,72 @@ bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const
     //
     //  if det(B)==0 there is no intersection
     
-    namespace bnu = boost::numeric::ublas;
-    bnu::matrix<double> A(4,4);
-    bnu::matrix<double> B(4,4);
+    // 1  1  1  1
+    // x1 x2 x3 x4
+    // y1 y2 y3 y4
+    // z1 z2 z3 z4
+    // =
+    // +1 * ( x2(y3*z4-z3*y4)-x3(y2*z4-z2*y4)+x4(y2*z3-z2*y3) )
+    // -1 * (-x1(y3*z4-z3*z4)
     
+    // a b c d   
+    // e f g h 
+    // i j k l 
+    // m n o p 
+    //
+    //    [ f g h ]     [ e g h ]     [ e f h ]    [ e f g ]
+    // +a [ j k l ]  -b [ i k l ]  +c [ i j l ] -d [ i j k ]
+    //    [ n o p ]     [ m o p ]     [ m n p ]    [ m n o ]
+    //
+    //
+    // a*(f*(k*p-o*l)-g*(j*p-n*l)+h*(j*o-n*k))
+    //-b*(e*(k*p-o*l)-g*(i*p-m*l)+h*(i*o-m*k))
+    //+c*(e*(j*p-n*l)-f*(i*p-m*l)+h*(i*n-m*j))
+    //-d*(e*(j*o-n*k)-f*(i*o-m*k)+g*(i*n-m*j))
+    double a = 1.0;
+    double b = 1.0;
+    double c = 1.0;
+    double d = 1.0;
+    double e = t.p[0].x; // xvals
+    double f = t.p[1].x;
+    double g = t.p[2].x;
+    double h = fib.p1.x;
+    double i = t.p[0].y; // yvals
+    double j = t.p[1].y;
+    double k = t.p[2].y;
+    double l = fib.p1.y;
+    double m = t.p[0].z; // zvals
+    double n = t.p[1].z;
+    double o = t.p[2].z;
+    double p = fib.p1.z;  
+    double detA = +a*(f*(k*p-o*l)-g*(j*p-n*l)+h*(j*o-n*k))
+                  -b*(e*(k*p-o*l)-g*(i*p-m*l)+h*(i*o-m*k))
+                  +c*(e*(j*p-n*l)-f*(i*p-m*l)+h*(i*n-m*j))
+                  -d*(e*(j*o-n*k)-f*(i*o-m*k)+g*(i*n-m*j));
+    a = 1.0;
+    b = 1.0;
+    c = 1.0;
+    d = 0.0;
+    e = t.p[0].x; // xvals
+    f = t.p[1].x;
+    g = t.p[2].x;
+    h = fib.p2.x - fib.p1.x;
+    i = t.p[0].y; // yvals
+    j = t.p[1].y;
+    k = t.p[2].y;
+    l = fib.p2.y - fib.p1.y;
+    m = t.p[0].z; // zvals
+    n = t.p[1].z;
+    o = t.p[2].z;
+    p = fib.p2.z - fib.p1.z;    
+    double detB = +a*(f*(k*p-o*l)-g*(j*p-n*l)+h*(j*o-n*k))
+                  -b*(e*(k*p-o*l)-g*(i*p-m*l)+h*(i*o-m*k))
+                  +c*(e*(j*p-n*l)-f*(i*p-m*l)+h*(i*n-m*j))
+                  -d*(e*(j*o-n*k)-f*(i*o-m*k)+g*(i*n-m*j));
+    //namespace bnu = boost::numeric::ublas;
+    //bnu::matrix<double> A(4,4);
+    //bnu::matrix<double> B(4,4);
+    /*
     A(0,0) = 1.0;
     A(0,1) = 1.0;
     A(0,2) = 1.0;
@@ -407,50 +462,50 @@ bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const
     B(1,0) = t.p[0].x; // xvals
     B(1,1) = t.p[1].x;
     B(1,2) = t.p[2].x;
-    B(1,3) = f.p2.x - f.p1.x;
+    B(1,3) = fib.p2.x - fib.p1.x;
     B(2,0) = t.p[0].y; // yvals
     B(2,1) = t.p[1].y;
     B(2,2) = t.p[2].y;
-    B(2,3) = f.p2.y - f.p1.y;
+    B(2,3) = fib.p2.y - fib.p1.y;
     B(3,0) = t.p[0].z; // zvals
     B(3,1) = t.p[1].z;
     B(3,2) = t.p[2].z;
-    B(3,3) = f.p2.z - f.p1.z;      
+    B(3,3) = fib.p2.z - fib.p1.z;      
+    */
     
     //std::cout << A << std::endl;
     
-    double detB = determinant(B);
+    //double detB = determinant(B);
     if ( isZero_tol( detB ) )
         return result; // no intersection btw. line and plane
         
-    double detA = determinant(A);
+    //double detA = determinant(A);
     double q_tval = - detA/detB;
-    // std::cout << " tval = " << tval << std::endl;
-    Point q = f.p1 + q_tval*(f.p2 - f.p1); // the intersection point.
+    Point q = fib.p1 + q_tval*(fib.p2 - fib.p1); // the intersection point.
     
     // compute cc-point from intersection
-    // from ip, go a distance radius in the direction of the xy-normal
     normal.z = 0.0;
     normal.xyNormalize();          // normalized normal
     Point tangent = normal.xyPerp();  // normalized tangent
-    
-    
-    // solve linear system
-    // using namespace boost::ublas;
-    // Ainv = identity_matrix<float>(A.size1());
-    // permutation_matrix<size_t> pm(A.size1());
-    // lu_factorize(A,pm)
-    // lu_substitute(A, pm, Ainv);
-
     // in the XY plane we move a distance v along the tangent
     // and then a distance r along the normal
     // we should end up on the fiber
     // q + t*tangent + r*normal = p1 + t*(p2-p1)
-    // this leads to a matrix equation:
+               
+    // from q, go v-units along tangent, then r*normal, and end up on fiber:
+    // q + t*tangent + r*normal = p1 + t*(p2-p1)
+    double v_cc, t_cl;
+    Point q1 = q+radius*normal;
+    Point q2 = q1+tangent;
+    if ( !xy_line_line_intersection( q1 , q2, v_cc, fib.p1, fib.p2, t_cl ) )
+        assert(0); 
+     
+     
     // [ tang.x  -(p2-p1).x ] [ v ]  = [ (-q-r*n+p1).x ]
     // [ tang.y  -(p2-p1).y ] [ t ]  = [ (-q-r*n+p1).y ]
     // or
     // Mx=y
+    /*
     bnu::matrix<double> M(2,2);
     M(0,0) = tangent.x;
     M(0,1) = -(f.p2.x - f.p1.x);
@@ -466,36 +521,31 @@ bool CylCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const
     bnu::lu_substitute( M, pm, Minv );
     bnu::vector<double> x(2);
     x = bnu::prod( Minv, y );
-    
-    
+    */
     // there are two solutions
-    double cc_vval1 = x(0);
-    double cl_tval1 = x(1);
+    double cc_vval1 = v_cc;
+    double cl_tval1 = t_cl;
     CCPoint cc_tmp1 = q + cc_vval1*tangent ;  
     cc_tmp1.type = FACET;
     
-    double cc_vval2 = -x(0);
+    double cc_vval2 = -v_cc;
     double cl_tval2 = q_tval + (q_tval-cl_tval1);
     CCPoint cc_tmp2 = q + cc_vval2*tangent ;  
     cc_tmp2.type = FACET;
     
     // check if cc-point is in the facet of the Triangle
     if( cc_tmp1.isInside( t ) ) {
-        i.updateUpper( cl_tval1  , cc_tmp1 );
-        i.updateLower( cl_tval1  , cc_tmp1 );
+        intv.updateUpper( cl_tval1  , cc_tmp1 );
+        intv.updateLower( cl_tval1  , cc_tmp1 );
         result = true;
     }
     if( cc_tmp2.isInside( t ) ) {
-        i.updateUpper( cl_tval2  , cc_tmp2 );
-        i.updateLower( cl_tval2  , cc_tmp2 );
+        intv.updateUpper( cl_tval2  , cc_tmp2 );
+        intv.updateLower( cl_tval2  , cc_tmp2 );
         result = true;
     }
-
     return result;
-}    
-
-
-#define EDGEPUSH_DEBUG
+}
 
 bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
@@ -504,22 +554,17 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
         int end=(n+1)%3;
         Point p1 = t.p[start];
         Point p2 = t.p[end];
-
         // check that there is an edge in the xy-plane
         // can't push against vertical edges ??
         if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
-            
             // find XY-intersection btw fiber and edge
             // fiber is f.p1 + t*(f.p2-f.p1)
             // line  is p1 + v*(p2-p1)
             double tq, v;
             if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ){
-                //std::cout << "found intersection (t,v) " << t <<" , " << v << "\n";
                 Point q = p1 + v*(p2-p1); // intersection point, on edge
-                
+                // from q, go v-units along tangent, then r*normal, and end up on fiber:
                 // q + t*tangent + r*normal = p1 + t*(p2-p1)
-                // or
-                // 
                 double v_cc, t_cl;
                 Point tang=p2-p1;
                 tang.z=0;
@@ -534,7 +579,6 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
                     CCPoint cc_tmp2 = q-v_cc*(p2-p1); 
                     cc_tmp1.type = EDGE;
                     cc_tmp2.type = EDGE;
-                    
                     if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
                         i.updateUpper( t_cl1  , cc_tmp1 );
                         i.updateLower( t_cl1  , cc_tmp1 );
@@ -546,30 +590,20 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
                         result = true;
                     }
                 }
-                
             } // end if(fiber and edge intersect)
-        
         } // end if(vertical edge)
-        
     } // end loop through all edges
-    
     return result;
 }   
 
-
-
-
-    
 //********  CylCutter string output ********************** */
-std::string CylCutter::str() const
-{
+std::string CylCutter::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, CylCutter c)
-{
+std::ostream& operator<<(std::ostream &stream, CylCutter c) {
   stream << "CylCutter (d=" << c.diameter << ")";
   return stream;
 }

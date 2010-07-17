@@ -176,8 +176,8 @@ void Fiber::addInterval(Interval& i) {
         ints.push_back(sumint); // add the sum-interval to ints
         return;
     }
-    
 }
+
 
 
 /// return t-value correspoinding to p

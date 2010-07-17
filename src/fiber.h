@@ -61,8 +61,11 @@ class Fiber {
         
         /// add an interval to this Fiber
         void addInterval(Interval& i);
+        
+        
         /// return true if Fiber already has interval i in it
         bool contains(Interval& i) const;
+        /// return true if Interval i is completely missing (no overlaps) from Fiber
         bool missing(Interval& i) const;
         
         void condense(); // get rid of this

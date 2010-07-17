@@ -46,7 +46,8 @@ if __name__ == "__main__":
     zmax = 2.75
     zNmax = 5
     zvals = generateRange(zmin,zmax,zNmax)
-    print zvals
+    print " calculating waterlines at ", len(zvals)," different z-heights"
+    #print zvals
     bpc = ocl.BatchPushCutter()
     bpc.setSTL(s)
     bpc.setCutter(cutter)
@@ -68,7 +69,7 @@ if __name__ == "__main__":
             
     # run
     t_before = time.time() 
-    bpc.pushCutter2()
+    bpc.pushCutter3()
     t_after = time.time()
     push_calctime = t_after-t_before
     print " BPC done in ", push_calctime," s", bpc.nCalls," push-calls" 

@@ -147,6 +147,69 @@ void BatchPushCutter::pushCutter2() {
     return;
 }
 
+// use kd-tree search
+void BatchPushCutter::pushCutter3() {
+    std::cout << "BatchPushCutter3 with " << fibers->size() << 
+              " fibers and " << surf->tris.size() << " triangles..." << std::endl;
+    nCalls = 0;
+    std::list<Triangle>* overlap_triangles;
+    Bbox* bb;
+    boost::progress_display show_progress( fibers->size() );
+    BOOST_FOREACH(Fiber& f, *fibers) {
+        bool xfiber = false;
+        bool yfiber = false;
+        if ( f.p1.x == f.p2.x )
+            yfiber = true;
+        if ( f.p1.y == f.p2.y )
+            xfiber = true;
+        assert( xfiber || yfiber );
+        overlap_triangles=new std::list<Triangle>();
+        double plane = 0; // the kd-tree search plane
+        if ( xfiber ) {
+            plane = 1; // search in YZ plane
+            bb = new Bbox(     f.p1.x, 
+                               f.p2.x, 
+                               f.p1.y - cutter->getRadius(), 
+                               f.p1.y + cutter->getRadius(),
+                               f.p1.z,
+                               f.p1.z + cutter->getLength() ); 
+        } else if (yfiber ) {
+            plane = 2; // search in XZ plane
+            bb = new Bbox(     f.p1.x - cutter->getRadius(), 
+                               f.p1.x + cutter->getRadius(),
+                               f.p1.y, 
+                               f.p2.y, 
+                               f.p1.z,
+                               f.p1.z + cutter->getLength() ); 
+        }
+                           
+        KDNode2::search_kdtree( overlap_triangles, *bb, root, plane); // find overlapping triangles
+        //assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf 
+            
+        BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
+            if ( bb->overlaps( t.bb ) ) {
+                Interval i;
+                // 282us w. vertex, facet, edge
+                // 168us wo edge
+                // 13us wo facet                  orig      mod    mod2(126)
+                cutter->vertexPush(f,i,t);  // ca 13us      15
+                cutter->facetPush(f,i,t); // ca 155us      150  
+                cutter->edgePush(f,i,t);  // ca 114us       17
+                f.addInterval(i); // 'fast' (?)
+                ++nCalls;
+            }
+        }
+        delete( overlap_triangles );
+        delete( bb );
+        ++show_progress;
+    }
+    std::cout << "BatchPushCutter done." << std::endl;
+    
+    return;
+}
+
+
+
 // used only for testing, not actual work
 boost::python::list BatchPushCutter::getOverlapTriangles(Fiber& f, MillingCutter& cutter)
 {
