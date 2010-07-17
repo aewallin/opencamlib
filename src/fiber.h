@@ -73,8 +73,7 @@ class Fiber {
         Point point(double t) const;
         
         boost::python::list getInts();
-        
-        
+
         /// start point
         Point p1;
         /// end point

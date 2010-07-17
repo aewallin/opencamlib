@@ -103,7 +103,7 @@ class KDNode2 {
         /// search KDTree, starting at KDNode root for triangles under the 
         /// MillingCutter c positioned at Point cl.
         /// The triangles found are pushed into the Triangle list tris.
-        static void search_kdtree( std::list<Triangle> *tris, //why static?
+        static void search_kdtree( std::list<Triangle> *tris, 
                                    const Bbox& bb, 
                                    KDNode2 *root,
                                    const unsigned int plane = 0);

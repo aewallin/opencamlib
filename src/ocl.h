@@ -51,6 +51,7 @@
 #include "octree.h"
 #include "volume.h"
 #include "batchdropcutter.h"
+#include "batchpushcutter.h"
 #include "fiber.h"
 #include "clfilter.h"
 #include "stlreader.h"

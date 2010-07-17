@@ -82,13 +82,19 @@ class MillingCutter {
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
         /// Follows the template-method, or "self-delegation" design pattern.
         int dropCutter(CLPoint &cl, const Triangle &t) const;
-        
+
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
         // should not really be used for real work, demo/debug only
         int dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
+        
+        // pushCutter methods
+        virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const{assert(0);return false;};
+        virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const{assert(0);return false;};
+        virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const{assert(0);return false;};
+        
         
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
@@ -229,7 +235,7 @@ class BallCutter : public MillingCutter {
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
-        // pushCutter methods
+        // pushCutter methods   NOT DONE
         bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;

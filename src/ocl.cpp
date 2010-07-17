@@ -79,7 +79,19 @@ BOOST_PYTHON_MODULE(ocl) {
         .def_readwrite("nthreads", &BatchDropCutter::nthreads)
         .def_readwrite("bucketSize", &BatchDropCutter::bucketSize)
     ;
-
+    bp::class_<BatchPushCutter>("BatchPushCutter")
+        .def("pushCutter", &BatchPushCutter::pushCutter)
+        .def("setSTL", &BatchPushCutter::setSTL)
+        .def("setCutter", &BatchPushCutter::setCutter)
+        .def("setThreads", &BatchPushCutter::setThreads)
+        .def("appendFiber", &BatchPushCutter::appendFiber)
+        .def("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
+        .def("getCLPoints", &BatchPushCutter::getCLPoints)
+        .def_readonly("nCalls", &BatchPushCutter::nCalls)
+        .def_readwrite("nthreads", &BatchPushCutter::nthreads)
+        .def_readwrite("bucketSize", &BatchPushCutter::bucketSize)
+    ;
+    
     bp::class_<Fiber>("Fiber")
         .def(bp::init<Point,Point>())
         .def_readonly("p1", &Fiber::p1)
