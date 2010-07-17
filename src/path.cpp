@@ -1,7 +1,7 @@
 /*  $Id$
- * 
+ *
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
- *  
+ *
  *  This file is part of OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
@@ -44,6 +44,27 @@ boost::python::list Path::getSpans() {
     BOOST_FOREACH(Span* span, span_list) {
                 if(span->type() == LineSpanType)slist.append(((LineSpan*)span)->line);
                 else if(span->type() == ArcSpanType)slist.append(((ArcSpan*)span)->arc);
+    }
+    return slist;
+}
+
+boost::python::list Path::getTypeSpanPairs() {
+    boost::python::list slist;
+    BOOST_FOREACH(Span* span, span_list) {
+                if(span->type() == LineSpanType)
+                {
+                    boost::python::list tuple;
+                    tuple.append(span->type());
+                    tuple.append(((LineSpan*)span)->line);
+                    slist.append(tuple);
+                }
+                else if(span->type() == ArcSpanType)
+                {
+                    boost::python::list tuple;
+                    tuple.append(span->type());
+                    tuple.append(((ArcSpan*)span)->arc);
+                    slist.append(tuple);
+                }
     }
     return slist;
 }

@@ -1,7 +1,7 @@
 /*  $Id$
- *  
+ *
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
- *  
+ *
  *  This file is part of OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
@@ -46,19 +46,19 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::docstring_options doc_options(false, false);
     //doc_options.disable_all();
     //doc_options.disable_py_signatures();
-    
+
     bp::def("revision", revision); // returns OCL revision string to python
-    
+
     bp::def("__doc__", ocl_docstring);
-    
+
     bp::def("eps", eps); // machine epsilon, see numeric.cpp
-    
+
     export_geometry(); // see ocl_geometry.cpp
-    
+
     export_cutters(); // see ocl_cutters.cpp
-    
+
     export_octree(); // see ocl_octree.cpp
-    
+
     bp::class_<STLReader>("STLReader")
         .def(bp::init<const std::wstring&, STLSurf&>())
     ;
@@ -93,15 +93,27 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())
         .def(bp::init<Line>())
+        .def_readwrite("p1", &Line::p1)
+        .def_readwrite("p2", &Line::p2)
     ;
     bp::class_<Arc>("Arc")
         .def(bp::init<Point,Point,Point,bool>())
         .def(bp::init<Arc>())
+        .def_readwrite("p1", &Arc::p1)
+        .def_readwrite("p2", &Arc::p2)
+        .def_readwrite("c",  &Arc::c)
+        .def_readwrite("dir",  &Arc::dir)
+    ;
+    bp::enum_<SpanType>("SpanType")
+        .value("LineSpanType", LineSpanType)
+        .value("ArcSpanType", ArcSpanType)
+        .export_values()
     ;
     bp::class_<Path>("Path")
         .def(bp::init<>())
         .def(bp::init<Path>())
         .def("getSpans", &Path::getSpans)
+        .def("getTypeSpanPairs", &Path::getTypeSpanPairs)
         .def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
         .def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
     ;

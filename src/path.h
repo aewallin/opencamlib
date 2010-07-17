@@ -1,7 +1,7 @@
 /*  $Id$
- * 
+ *
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
- *  
+ *
  *  This file is part of OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ enum SpanType{
 };
 
 /// \brief A finite curve which returns Point objects along its length.
-/// 
+///
 /// location along span is based on a parameter t for which 0 <= t <= 1.0
 class Span{
     public:
@@ -94,12 +94,16 @@ class Path {
         Path(const Path &p);
         /// destructor
         virtual ~Path();
-        
+
         /// return the span-list to python
         boost::python::list getSpans();
+
+        /// return a list of type/span pairs
+        boost::python::list getTypeSpanPairs();
+
         /// list of spans in this path
         std::list<Span*> span_list;
-        
+
         // FIXME: this looks wrong
         // should be only one append() that tkaes a Span
         /// append a Line to this path
