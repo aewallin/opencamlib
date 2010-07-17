@@ -25,37 +25,33 @@
 namespace ocl
 {
     
-
-int Point::count = 0;
-
 Point::Point() {
     x=0;
     y=0;
     z=0;
-    setID();
 }
 
 Point::Point(double xin, double yin, double zin) {
     x=xin;
     y=yin;
     z=zin;
-    setID();
+}
+
+Point::Point(double xin, double yin) {
+    x=xin;
+    y=yin;
+    z=0.0;
 }
 
 Point::Point(const Point &p) {
     x=p.x;
     y=p.y;
     z=p.z;
-    setID();
 }
 
 
 //********     methods ********************** */
 
-void Point::setID() {
-    id = count;
-    count++;
-}
 
 double Point::norm() const {
     return sqrt( square(x) + square(y) + square(z) );

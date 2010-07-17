@@ -3,16 +3,18 @@ import ocl
 
 # This example shows how to aggregate lines and arcs into path objects and then
 # how to retrieve such data.
+print ocl.revision()
 
 paths = []
 
+# use Point(x,y) which sets z=0
 path_id_1 = ocl.Path()
-path_id_1.append(ocl.Line(ocl.Point(6,-9,0), ocl.Point(10.79422863,0.69615242,0)))
-path_id_1.append(ocl.Line(ocl.Point(10.79422863,0.69615242,0), ocl.Point(4.79422863,9.69615242,0)))
-path_id_1.append(ocl.Line(ocl.Point(4.79422863,9.69615242,0), ocl.Point(-6,9,0)))
-path_id_1.append(ocl.Line(ocl.Point(-6,9,0), ocl.Point(-10.7942286,-0.69615242,0)))
-path_id_1.append(ocl.Line(ocl.Point(-10.7942286,-0.69615242,0), ocl.Point(-4.79422863,-9.69615242,0)))
-path_id_1.append(ocl.Line(ocl.Point(-4.79422863,-9.69615242,0), ocl.Point(6,-9,0)))
+path_id_1.append(ocl.Line(ocl.Point(6,-9), ocl.Point(10.79422863,0.69615242)))
+path_id_1.append(ocl.Line(ocl.Point(10.79422863,0.69615242), ocl.Point(4.79422863,9.69615242)))
+path_id_1.append(ocl.Line(ocl.Point(4.79422863,9.69615242), ocl.Point(-6,9)))
+path_id_1.append(ocl.Line(ocl.Point(-6,9), ocl.Point(-10.7942286,-0.69615242)))
+path_id_1.append(ocl.Line(ocl.Point(-10.7942286,-0.69615242), ocl.Point(-4.79422863,-9.69615242)))
+path_id_1.append(ocl.Line(ocl.Point(-4.79422863,-9.69615242), ocl.Point(6,-9)))
 paths.append(path_id_1)
 
 path_id_2 = ocl.Path()

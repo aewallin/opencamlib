@@ -39,8 +39,11 @@ class Point {
         Point();
         /// create a point at (x,y,z)
         Point(double x, double y, double z);
+        /// create a point at (x,y,0)
+        Point(double x, double y);
         /// create a point at p
         Point(const Point &p);
+        /// destructor. empty.
         virtual ~Point() {};
         
         /// dot product
@@ -123,8 +126,6 @@ class Point {
         friend std::ostream& operator<<(std::ostream &stream, const Point &p);
         /// string repr
         std::string str() const;
-        
-
 
         /// X coordinate
         double x;
@@ -132,56 +133,11 @@ class Point {
         double y;
         /// Z coordinate
         double z;
-        
-        /// id-count
-        static int count;
-        /// id-number
-        int id;
-    private:
-        /// set id-number
-        void setID();
-
 };
 
 /// scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
 
-/*
-/// type of cc-point
-enum CCType {NONE, VERTEX, 
-             EDGE, EDGE_HORIZ_CYL, EDGE_HORIZ_TOR, 
-             EDGE_POS, EDGE_NEG,  
-             FACET, FACET_TIP, FACET_CYL, 
-             ERROR};
-             * */
-
-///
-/// \brief Cutter-Contact (CC) point. A Point wiht a CCType.
-///
-/// Cutter-Contact (CC) Point.
-/// A Point which also contains the type of cutter-contact.
-/*
-class CCPoint : public Point {
-    public:
-        /// create a CCPoint at (0,0,0)
-        CCPoint();
-        /// create CCPoint at (x,y,z)
-        CCPoint(double x,double y,double z);
-        
-        /// create a CCPoint at Point p
-        CCPoint(const Point& p); 
-        virtual ~CCPoint(){};
-        
-        /// specifies the type of the Cutter Contact point. 
-        CCType type;
-        /// assign coordinates of Point to this CCPoint. sets type=NONE
-        CCPoint &operator=(const Point &p);
-        /// string repr
-        std::string str() const;
-        
-    private:        
-};
-*/
 
 
 } // end namespace

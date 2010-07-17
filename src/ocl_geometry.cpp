@@ -42,6 +42,7 @@ namespace bp = boost::python;
 void export_geometry() {
     bp::class_<Point>("Point") 
         .def(bp::init<double, double, double>())
+        .def(bp::init<double, double>())
         .def(bp::init<Point>())
         .def(bp::other<double>() * bp::self)
         .def(bp::self * bp::other<double>())
@@ -61,7 +62,6 @@ void export_geometry() {
         .def_readwrite("x", &Point::x)
         .def_readwrite("y", &Point::y)
         .def_readwrite("z", &Point::z)
-        .def_readonly("id", &Point::id)
     ;
     
     bp::class_<CLPoint>("CLPoint")  // FIXME: should inherit from Point
