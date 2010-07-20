@@ -99,6 +99,8 @@ class Point {
         bool isInsidePoints(const Point &p1, const Point &p2) const;
         
         /// return true if the x and y components are both zero.
+        bool xParallel() const;
+        bool yParallel() const;
         bool zParallel() const;
         
         /// assignment
@@ -121,7 +123,6 @@ class Point {
         /// inequality
         bool operator!=(const Point &p) const;
 
-        // text output
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Point &p);
         /// string repr

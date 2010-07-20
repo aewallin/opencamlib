@@ -227,7 +227,7 @@ boost::python::list BatchPushCutter::getOverlapTriangles(Fiber& f, MillingCutter
 }
 
 // return CL points to python
-boost::python::list BatchPushCutter::getCLPoints()
+boost::python::list BatchPushCutter::getCLPoints() const
 {
     boost::python::list plist;
     BOOST_FOREACH(Fiber f, *fibers) {
@@ -248,7 +248,14 @@ boost::python::list BatchPushCutter::getCLPoints()
     return plist;
 }
 
-
+boost::python::list BatchPushCutter::getFibers() const
+{
+    boost::python::list flist;
+    BOOST_FOREACH(Fiber f, *fibers) {
+        flist.append(f);
+    }
+    return flist;
+}
 
 
 }// end namespace

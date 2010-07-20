@@ -64,8 +64,7 @@ Point Point::cross(const Point &p) const {
     return Point(xc, yc, zc);
 }
 
-double Point::dot(const Point &p) const
-{
+double Point::dot(const Point &p) const {
     return x * p.x + y * p.y + z * p.z;
 }
 
@@ -313,14 +312,27 @@ bool Point::operator!=(const Point &p) const {
 }
 
 /// return true if the vector has only a z-component
-bool Point::zParallel() const 
-{
+bool Point::zParallel() const  {
     if (x != 0.0)
         return false;
     else if (y != 0.0)
         return false;
     else
         return true;
+}
+
+/// return true if the vector has only a x-component
+bool Point::xParallel() const 
+{
+    if ( isZero_tol( y ) && isZero_tol( z ) )
+        return true;
+    return false;
+}
+
+bool Point::yParallel() const  {
+    if ( isZero_tol( x ) && isZero_tol( z ) )
+        return true;
+    return false;
 }
 
 std::string Point::str() const
@@ -332,7 +344,7 @@ std::string Point::str() const
 
 std::ostream& operator<<(std::ostream &stream, const Point& p)
 {
-  stream << "(" << p.x << ", " << p.y << ", " << p.z << ")"; // no ID
+  stream << "(" << p.x << ", " << p.y << ", " << p.z << ")"; 
   return stream;
 }
 

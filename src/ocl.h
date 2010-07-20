@@ -55,6 +55,7 @@
 #include "fiber.h"
 #include "clfilter.h"
 #include "stlreader.h"
+#include "weave.h"
 
 #endif
 

@@ -58,25 +58,25 @@ class Fiber {
         Fiber(){ };
         Fiber(const Point &p1, const Point &p2);
         virtual ~Fiber() {};
-        
         /// add an interval to this Fiber
         void addInterval(Interval& i);
-        
-        
         /// return true if Fiber already has interval i in it
         bool contains(Interval& i) const;
         /// return true if Interval i is completely missing (no overlaps) from Fiber
         bool missing(Interval& i) const;
-        
-        void condense(); // get rid of this
-        
+        void condense(); // get rid of this (??)
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value
         Point point(double t) const;
+        /// return intervals to python
+        boost::python::list getInts() const;
+        /// print the intervals
+        void printInts() const;
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, const Fiber &f);
         
-        boost::python::list getInts();
-
+    // DATA
         /// start point
         Point p1;
         /// end point
@@ -85,11 +85,8 @@ class Fiber {
         Point dir;
         /// the intervals in this Fiber
         std::vector<Interval> ints;
-        
-        /// print the intervals
-        void printInts();
-        
     private:
+        // set the directio(tangent) vector
         void calcDir();
 };
 

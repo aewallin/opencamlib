@@ -58,9 +58,11 @@ class BatchPushCutter {
         
         // Python interface
         /// return CL-points to Python
-        boost::python::list getCLPoints();
+        boost::python::list getCLPoints() const;
         /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
         boost::python::list getOverlapTriangles(Fiber& f, MillingCutter& cutter);
+        /// return list of Fibers to python
+        boost::python::list getFibers() const;
         
         // DATA
         /// how many low-level calls were made

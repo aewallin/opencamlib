@@ -89,6 +89,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("appendFiber", &BatchPushCutter::appendFiber)
         .def("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
         .def("getCLPoints", &BatchPushCutter::getCLPoints)
+        .def("getFibers", &BatchPushCutter::getFibers)
         .def_readonly("nCalls", &BatchPushCutter::nCalls)
         .def_readwrite("nthreads", &BatchPushCutter::nthreads)
         .def_readwrite("bucketSize", &BatchPushCutter::bucketSize)
@@ -103,6 +104,12 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("point", &Fiber::point)
         .def("printInts", &Fiber::printInts)
         .def("getInts", &Fiber::getInts)
+    ;
+    bp::class_<Weave>("Weave")
+        .def("addFiber", &Weave::addFiber)
+        .def("build", &Weave::build)
+        .def("printGraph", &Weave::printGraph)
+        .def("__str__", &Weave::str)
     ;
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())

@@ -27,23 +27,20 @@
 namespace ocl
 {
 
-Interval::Interval()
-{
+Interval::Interval() {
     lower = 0.0;
     upper = 0.0;
     lower_cc = CCPoint();
     upper_cc = CCPoint();
 }
 
-Interval::Interval(double l, double u)
-{
+Interval::Interval(double l, double u) {
     assert( l <= u );
     lower = l;
     upper = u;
 }
 
-Interval::~Interval()
-{
+Interval::~Interval() {
     return;
 }
 
@@ -96,7 +93,7 @@ bool Interval::inside(const Interval& i) const {
 }
 
 bool Interval::empty() const {
-    if ( (lower==0.0) && (upper==0.0) )
+    if ( isZero_tol(lower)  && isZero_tol(upper) )
         return true;
     else
         return false;
@@ -145,6 +142,10 @@ bool Fiber::missing(Interval& i) const {
 }
 
 void Fiber::addInterval(Interval& i) {
+    if (i.empty())
+        return; // do nothing.
+        
+        
     if (ints.empty()) { // empty fiber case
         ints.push_back(i); 
         return;
@@ -194,7 +195,7 @@ Point Fiber::point(double t) const {
 }
 
 /// return intervals as a list to python
-boost::python::list Fiber::getInts() {
+boost::python::list Fiber::getInts() const {
     boost::python::list l;
     BOOST_FOREACH( Interval i, ints) {
         l.append( i );
@@ -203,7 +204,7 @@ boost::python::list Fiber::getInts() {
 }
 
 /// print out all intervals
-void Fiber::printInts() {
+void Fiber::printInts() const {
     int n=0;
     BOOST_FOREACH( Interval i, ints) {
         std::cout << n << ": [ " << i.lower << " , " << i.upper << " ]" << "\n";
@@ -211,6 +212,11 @@ void Fiber::printInts() {
     }
 }
 
+/// string repr of Fiber
+std::ostream& operator<<(std::ostream &stream, const Fiber& f) {
+  stream << " fiber dir=" << f.dir << " and " << f.ints.size() << " intervals "; 
+  return stream;
+}
 
 
 } // end namespace

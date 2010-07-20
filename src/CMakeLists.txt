@@ -10,9 +10,12 @@ cmake_minimum_required(VERSION 2.4)
 # do this with other compilers we might support and I'm leaving it up to
 # the relevant platform maintainers...
 #
+# #include'ing the boost graph-library creates deprecated warnings
+# thus we use now use -Wno-deprecated here.
+#
 
 if (CMAKE_BUILD_TOOL MATCHES "make")
-    add_definitions(-Wall -Werror)
+    add_definitions(-Wall -Werror -Wno-deprecated)
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
 
@@ -118,6 +121,7 @@ add_library(
     stlreader.cpp
     triangle.cpp
     volume.cpp
+    weave.cpp
 )
 MESSAGE(STATUS "linking with boost: " ${Boost_LIBRARIES})
 target_link_libraries(ocl ${Boost_LIBRARIES})
