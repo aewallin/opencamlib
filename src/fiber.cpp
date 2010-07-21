@@ -32,12 +32,14 @@ Interval::Interval() {
     upper = 0.0;
     lower_cc = CCPoint();
     upper_cc = CCPoint();
+    in_weave=false;
 }
 
 Interval::Interval(double l, double u) {
     assert( l <= u );
     lower = l;
     upper = u;
+    in_weave=false;
 }
 
 Interval::~Interval() {

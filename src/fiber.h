@@ -22,16 +22,19 @@
 
 #include <vector>
 
+#include <boost/graph/adjacency_list.hpp>
+
 #include "point.h"
 #include "ccpoint.h"
 #include "numeric.h"
+#include "weave_typedef.h"
 
 namespace ocl
 {
 
-//typedef boost::numeric::interval<double> dinterval;
 
-/// wrapper around boost::numerc::interval<double>
+
+/// interval for use by fiber and weave
 class Interval {
     public:
         Interval();
@@ -42,13 +45,16 @@ class Interval {
         void updateLower(double t, CCPoint& p);
         bool outside(const Interval& i) const;
         bool inside(const Interval& i) const;
-        
+        bool empty() const;
+        std::string str() const;
+                
         CCPoint upper_cc;
         CCPoint lower_cc;
         double upper;
         double lower;
-        bool empty() const;
-        std::string str() const;
+        bool in_weave; // flag for use by Weave::build()
+        VertexDescriptor vert_lower;
+        VertexDescriptor vert_upper;
 };
 
 

@@ -1,4 +1,4 @@
-/*  $Id$
+/*  $Id: $
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -17,23 +17,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef WEAVE_H
-#define WEAVE_H
+#ifndef WEAVE_TYPEDEF_H
+#define WEAVE_TYPEDEF_H
 
-#include <vector>
 
 #include <boost/graph/adjacency_list.hpp>
 
 #include "point.h"
-#include "ccpoint.h"
-#include "numeric.h"
-#include "fiber.h"
-#include "weave_typedef.h"
+//#include "ccpoint.h"
+//#include "numeric.h"
+//#include "fiber.h"
 
 namespace ocl
 {
 
-/*
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
@@ -47,25 +44,6 @@ typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std
                     // tags: disallow_parallel_edge_tag
 typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
-*/                            
-                    
-/// weave-graph
-class Weave {
-    public:
-        Weave();
-        virtual ~Weave() {};
-        void addFiber(Fiber& f);
-        void build();
-        std::vector<Fiber> fibers;
-        std::vector<Fiber> xfibers;
-        std::vector<Fiber> yfibers;
-        std::string str() const;
-        void printGraph() const;
-        WeaveGraph g;
-};
 
-
-
-} // end namespace
+}
 #endif
-// end file weave.h
