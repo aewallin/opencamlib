@@ -90,11 +90,28 @@ if __name__ == "__main__":
     for f in fibers:
         w.addFiber(f)
         
+
+    print "inv build()"
+    w.build2()
+    w.printGraph2()
+    
+    print "before invert()"
     print w
-    w.build()
+    print "invert()"
+    w.invert()
     print w
     w.printGraph()
-    w.writeGraph()
+    #w.writeGraph()
+    
+    w_clpts = w.getCLPoints()
+    w_ipts = w.getIPoints()
+    print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
+    for p in w_clpts:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+0.2), radius=0.01, color=camvtk.pink ) )
+    for p in w_ipts:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+0.2), radius=0.01, color=camvtk.orange ) )
+        
+    
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)

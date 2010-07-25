@@ -26,10 +26,11 @@
 #include "point.h"
 //#include "ccpoint.h"
 //#include "numeric.h"
-//#include "fiber.h"
+#include "fiber.h"
 
 namespace ocl
 {
+
 
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
@@ -44,6 +45,21 @@ typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std
                     // tags: disallow_parallel_edge_tag
 typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
+
+typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
+                                   boost::vecS,     // vertex set stored in a std::vector
+                                   boost::undirectedS,  // an un directed  graph.
+                                   // vertex properties:
+                                   boost::property< boost::vertex_name_t , Interval,
+                                        boost::property< boost::vertex_color_t, bool > >,
+                                   // edge properties:
+                                   boost::property< boost::edge_weight_t, Point >
+                                   > InvWeaveGraph;
+typedef boost::graph_traits< InvWeaveGraph >::vertex_descriptor InvVertexDescriptor;
+typedef boost::graph_traits< InvWeaveGraph >::edge_descriptor InvEdgeDescriptor;
+typedef boost::graph_traits< InvWeaveGraph >::vertex_iterator InvVertexIterator;
+typedef boost::graph_traits< InvWeaveGraph >::edge_iterator InvEdgeIterator;
+                                   
 
 }
 #endif

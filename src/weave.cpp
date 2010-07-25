@@ -37,8 +37,11 @@ void Weave::addFiber(Fiber& f) {
      fibers.push_back(f);
 }
 
-void Weave::build() {
+void Weave::sort_fibers() {
     // sort fibers into X and Y fibers
+    xfibers.clear();
+    yfibers.clear();
+    
     BOOST_FOREACH( Fiber f, fibers ) {
         if ( f.dir.xParallel() && !f.ints.empty() ) {
             xfibers.push_back(f);
@@ -46,13 +49,107 @@ void Weave::build() {
         if ( f.dir.yParallel() && !f.ints.empty() ) {
             yfibers.push_back(f);
         }
+    }    
+}
+
+void Weave::add_xy_fibers_to_g2() {
+    BOOST_FOREACH( Fiber& f, xfibers ) {
+        if (!f.ints.empty() ) {
+            BOOST_FOREACH(Interval& i, f.ints) {
+                InvVertexDescriptor v;
+                v = boost::add_vertex(g2);
+                boost::put( boost::vertex_name , g2 , v , i );
+                boost::put( boost::vertex_color , g2 , v , true ); //x-intervals are "true"
+            }
+        }
+    }
+    BOOST_FOREACH( Fiber& f, yfibers ) {
+        if (!f.ints.empty() ) {
+            BOOST_FOREACH(Interval& i, f.ints) {
+                VertexDescriptor v;
+                v = boost::add_vertex(g2);
+                boost::put( boost::vertex_name , g2 , v , i );
+                boost::put( boost::vertex_color , g2 , v , false ); //y-intervals are "false"
+            }
+        }
+    }
+}
+
+void Weave::build2() {
+    sort_fibers();
+    // put all intervals into g2 as vertices
+    add_xy_fibers_to_g2();
+    // loop through the x-intervals, finding intesections with y-intervals
+    // and adding an edge for each intersection
+    InvVertexIterator it_begin, it_end, itrX, itrY;
+    boost::tie( it_begin, it_end ) = boost::vertices( g2 );
+    for ( itrX=it_begin ; itrX != it_end ; ++itrX ) {
+        if ( boost::get( boost::vertex_color, g2, *itrX ) ) { // an X-interval
+            Interval xint = boost::get( boost::vertex_name, g2, *itrX );
+            double xmin = xint.point(xint.lower).x;
+            double xmax = xint.point(xint.upper).x;
+            // loop through all Y-intervals    
+            for ( itrY=it_begin ; itrY != it_end ; ++itrY ) {
+                if ( !boost::get( boost::vertex_color, g2, *itrY ) ) { // an Y-interval
+                    Interval yint = boost::get( boost::vertex_name, g2, *itrY );
+                    // check for intersection
+                    double ymin = yint.point(yint.lower).y;
+                    double ymax = yint.point(yint.upper).y;
+                    //std::cout << xmin << xmax << ymin << ymax << "\n";
+                    if ( (xmin <= yint.p1.x) && ( yint.p1.x <= xmax ) ) { // xint overlaps with y-int x-coord
+                        if ( (ymin <= xint.p1.y) && (xint.p1.y <= ymax) ) { // yint overlaps x-int y-coord
+                            // add edge
+                            InvEdgeDescriptor e;
+                            bool success;
+                            boost::tie( e, success ) = boost::add_edge(*itrX, *itrY, g2);
+                            boost::put( boost::edge_weight, g2, e, Point(yint.p1.x, xint.p1.y, xint.p1.z) );
+                        }
+                    } 
+                }
+            }
+        }
+    }
+}
+
+void Weave::invert() {
+    // in g2 each vertex is an interval
+    // each edge connects the interval to another interval
+    InvVertexIterator it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g2 );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        // all CL-points to g, and connect them
+        Interval interval = boost::get( boost::vertex_name, g2, *itr );
+        VertexDescriptor v1 = boost::add_vertex( g );
+        VertexDescriptor v2 = boost::add_vertex( g );
+        boost::put( boost::vertex_name , g , v1 , interval.point(interval.upper) );
+        boost::put( boost::vertex_name , g , v2 , interval.point(interval.lower) );
+        boost::put( boost::vertex_color , g , v1 , true );
+        boost::put( boost::vertex_color , g , v2 , true );
+        boost::add_edge( v1 , v2 , g );
     }
     
+    // edges in g2 connect fibers to eachother
+    // for each edge in g2 a new vertex should be inserted into g
+    // the vertex should lie on the fiber and connect 
+    InvEdgeIterator ite_begin, ite_end, iter;
+    boost::tie( ite_begin, ite_end ) = boost::edges( g2 );
+    for ( iter = ite_begin ; iter != ite_end ; ++iter) {
+        // process each edge.
+        VertexDescriptor v = boost::add_vertex( g );
+        boost::put( boost::vertex_color , g , v , false );
+        Point p = boost::get( boost::edge_weight, g2, *iter);
+        boost::put( boost::vertex_name , g , v , p );
+    }
+    
+}
+
+void Weave::build() {
+
+    sort_fibers();
     // process fibers
     bool first_only = false;
     BOOST_FOREACH( Fiber& f, xfibers) {
         if ( !f.ints.empty() ) {
-            //std::cout << " processing xfiber "<< f << "\n";
             BOOST_FOREACH( Interval& i, f.ints ) {
                 double xmin = f.point(i.lower).x;
                 double xmax = f.point(i.upper).x;
@@ -63,6 +160,7 @@ void Weave::build() {
                             double ymax = yf.point(yi.upper).y;
                             if ( (ymin <= f.p1.y) && (f.p1.y <= ymax) ) {
                                 // X interval i on fiber f intersects with Y interval yi on fiber yf
+                                // intersection is at ( yf.p1.x, f.p1.y )
                                 // 1) add CL-points of X-fiber (if not already in graph)
                                 //      (maintain a CL-point set which keeps track of this) 
                                 // 2) add CL-points of Y-fiber (if not already in graph)
@@ -78,35 +176,35 @@ void Weave::build() {
 
                                 // 1) CL-points of X-fiber (check if already added, if so, retrieve vertex)
                                 if (!i.in_weave) {
-                                    i.vert_lower = boost::add_vertex(g);
-                                    i.vert_upper = boost::add_vertex(g);
-                                    boost::put( boost::vertex_name , g , i.vert_lower , f.point(i.lower) );
-                                    boost::put( boost::vertex_name , g , i.vert_upper , f.point(i.upper) );
-                                    boost::put( boost::vertex_color , g , i.vert_lower , true );
-                                    boost::put( boost::vertex_color , g , i.vert_upper, true );
+                                    //i.vert_lower = boost::add_vertex(g);
+                                    //i.vert_upper = boost::add_vertex(g);
+                                    //boost::put( boost::vertex_name , g , i.vert_lower , f.point(i.lower) );
+                                    //boost::put( boost::vertex_name , g , i.vert_upper , f.point(i.upper) );
+                                    //boost::put( boost::vertex_color , g , i.vert_lower , true );
+                                    //boost::put( boost::vertex_color , g , i.vert_upper, true );
                                     i.in_weave = true;
                                 }
                                 // 2) CL-points of Y-fiber (check if already added, if so, retrieve vertex)
                                 if (!yi.in_weave) {
                                     //VertexDescriptor  yp1, yp2;
-                                    yi.vert_lower = boost::add_vertex(g);
-                                    yi.vert_upper = boost::add_vertex(g);
-                                    boost::put( boost::vertex_name , g , yi.vert_lower , yf.point(yi.lower) );
-                                    boost::put( boost::vertex_name , g , yi.vert_upper , yf.point(yi.upper) );
-                                    boost::put( boost::vertex_color , g , yi.vert_lower , true );
-                                    boost::put( boost::vertex_color , g , yi.vert_upper , true );
+                                    //yi.vert_lower = boost::add_vertex(g);
+                                    //yi.vert_upper = boost::add_vertex(g);
+                                    //boost::put( boost::vertex_name , g , yi.vert_lower , yf.point(yi.lower) );
+                                    //boost::put( boost::vertex_name , g , yi.vert_upper , yf.point(yi.upper) );
+                                    //boost::put( boost::vertex_color , g , yi.vert_lower , true );
+                                    //boost::put( boost::vertex_color , g , yi.vert_upper , true );
                                     yi.in_weave = true;
                                 }
                                 // 3) intersection point (this is always new, no need to check for existence)
                                 VertexDescriptor  v;
                                 v = boost::add_vertex(g);
-                                boost::put( boost::vertex_name , g , v , Point(0,0,0) ); // dummy position
+                                boost::put( boost::vertex_name , g , v , Point( yf.p1.x, f.p1.y , f.p1.z) ); 
                                 boost::put( boost::vertex_color , g , v , false );
                                 // 4) add edges (FIXME)
-                                boost::add_edge( i.vert_lower , v , g );
-                                boost::add_edge( i.vert_upper , v , g );
-                                boost::add_edge( yi.vert_lower , v , g );
-                                boost::add_edge( yi.vert_upper , v , g );
+                                //boost::add_edge( i.vert_lower , v , g );
+                                //boost::add_edge( i.vert_upper , v , g );
+                                //boost::add_edge( yi.vert_lower , v , g );
+                                //boost::add_edge( yi.vert_upper , v , g );
                                 
                                 //std::cout << " found intersection!\n";
                             }
@@ -142,6 +240,26 @@ void Weave::printGraph() const {
     std::cout << "    internal-nodes: " << n_internal << "\n";
 }
 
+void Weave::printGraph2() const {
+    std::cout << " number of vertices: " << boost::num_vertices( g2 ) << "\n";
+    std::cout << " number of edges: " << boost::num_edges( g2 ) << "\n";
+    InvVertexIterator it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g2 );
+    int n=0, nx=0, ny=0;
+    
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        if ( boost::get( boost::vertex_color, g2, *itr ) )
+            ++nx;
+        else
+            ++ny;
+        ++n;
+    }
+    std::cout << " counted " << n << " vertices\n";
+    std::cout << "          x-nodes: " << nx << "\n";
+    std::cout << "          y-nodes: " << ny << "\n";
+}
+
+
 void Weave::writeGraph() const {
     typedef boost::GraphvizGraph gvGraph;
     typedef boost::graph_traits< gvGraph >::vertex_descriptor gvVertex;
@@ -160,6 +278,29 @@ void Weave::writeGraph() const {
     //boost::put( boost::vertex_name , g2 , v , vprop );
     boost::write_graphviz("weave.dot", g2);
 }
+
+boost::python::list Weave::getCLPoints() const {
+    boost::python::list plist;
+    VertexIterator it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        if ( boost::get( boost::vertex_color, g, *itr ) ) // a CL-point
+            plist.append( boost::get( boost::vertex_name, g, *itr ) );
+    }
+    return plist;
+}
+        
+boost::python::list Weave::getIPoints() const {
+    boost::python::list plist;
+    VertexIterator it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        if ( !boost::get( boost::vertex_color, g, *itr ) ) // a CL-point
+            plist.append( boost::get( boost::vertex_name, g, *itr ) );
+    }
+    return plist;
+}
+        
 
 std::string Weave::str() const {
     std::ostringstream o;

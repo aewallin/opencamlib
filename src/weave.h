@@ -24,6 +24,7 @@
 
 #include <boost/graph/adjacency_list.hpp> // graph class
 #include <boost/graph/graphviz.hpp>
+#include <boost/python.hpp>
 
 #include "point.h"
 #include "ccpoint.h"
@@ -34,21 +35,7 @@
 namespace ocl
 {
 
-/*
-typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
-                                   boost::vecS,     // vertex set stored in a std::vector
-                                   boost::undirectedS,  // an un directed  graph.
-                                   // vertex properties:
-                                   boost::property< boost::vertex_name_t , Point,
-                                        boost::property< boost::vertex_color_t, bool > >,
-                                   // edge properties:
-                                   boost::property< boost::edge_weight_t, double >
-                                   > WeaveGraph; 
-                    // graph_traits< G >::edge_parallel_category
-                    // tags: disallow_parallel_edge_tag
-typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
-typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
-*/                            
+// see weave_typedef.h for boost-graph classes                         
                     
 /// weave-graph
 class Weave {
@@ -57,13 +44,22 @@ class Weave {
         virtual ~Weave() {};
         void addFiber(Fiber& f);
         void build();
+        void build2();
+        void invert();
+        void sort_fibers();
+        void add_xy_fibers_to_g2();
         std::vector<Fiber> fibers;
         std::vector<Fiber> xfibers;
         std::vector<Fiber> yfibers;
         std::string str() const;
         void printGraph() const;
+        void printGraph2() const;
         void writeGraph() const; // write to dot file
+        // python debug/test interface:
+        boost::python::list getCLPoints() const;
+        boost::python::list getIPoints() const;
         WeaveGraph g;
+        InvWeaveGraph g2;
 };
 
 

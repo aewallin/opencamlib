@@ -27,7 +27,7 @@
 #include "point.h"
 #include "ccpoint.h"
 #include "numeric.h"
-#include "weave_typedef.h"
+//#include "weave_typedef.h"
 
 namespace ocl
 {
@@ -53,8 +53,11 @@ class Interval {
         double upper;
         double lower;
         bool in_weave; // flag for use by Weave::build()
-        VertexDescriptor vert_lower;
-        VertexDescriptor vert_upper;
+        //VertexDescriptor vert_lower;
+        //VertexDescriptor vert_upper;
+        Point p1;
+        Point p2;
+        Point point(double t) const;
 };
 
 
