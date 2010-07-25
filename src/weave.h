@@ -22,7 +22,8 @@
 
 #include <vector>
 
-#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/adjacency_list.hpp> // graph class
+#include <boost/graph/graphviz.hpp>
 
 #include "point.h"
 #include "ccpoint.h"
@@ -61,6 +62,7 @@ class Weave {
         std::vector<Fiber> yfibers;
         std::string str() const;
         void printGraph() const;
+        void writeGraph() const; // write to dot file
         WeaveGraph g;
 };
 

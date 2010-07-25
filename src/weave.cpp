@@ -142,6 +142,24 @@ void Weave::printGraph() const {
     std::cout << "    internal-nodes: " << n_internal << "\n";
 }
 
+void Weave::writeGraph() const {
+    typedef boost::GraphvizGraph gvGraph;
+    typedef boost::graph_traits< gvGraph >::vertex_descriptor gvVertex;
+
+    gvGraph g2;
+    // edge attributes:    std::map< std::string , std::string >
+    //boost::property_map< gvGraph , boost::vertex_attribute_t >::type& 
+    //    vertex_attr_map = boost::get( boost::vertex_attribute, g2);
+
+    // write vertices/edges of g to g2
+    gvVertex v;
+    //boost::property< boost::vertex_name_t, int > vprop(2); 
+    v = boost::add_vertex( g2 );
+    //vertex_attr_map[v]["name"]="test";
+    //boost::put( boost::vertex_property , g2 , v , "v name one" ); //FIXME...
+    //boost::put( boost::vertex_name , g2 , v , vprop );
+    boost::write_graphviz("weave.dot", g2);
+}
 
 std::string Weave::str() const {
     std::ostringstream o;

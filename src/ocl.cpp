@@ -109,6 +109,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("addFiber", &Weave::addFiber)
         .def("build", &Weave::build)
         .def("printGraph", &Weave::printGraph)
+        .def("writeGraph", &Weave::writeGraph)
         .def("__str__", &Weave::str)
     ;
     bp::class_<Line>("Line")

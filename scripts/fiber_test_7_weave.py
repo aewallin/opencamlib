@@ -94,6 +94,7 @@ if __name__ == "__main__":
     w.build()
     print w
     w.printGraph()
+    w.writeGraph()
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
