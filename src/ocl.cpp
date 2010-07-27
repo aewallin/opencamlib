@@ -114,6 +114,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("writeGraph", &Weave::writeGraph)
         .def("getCLPoints", &Weave::getCLPoints)
         .def("getIPoints", &Weave::getIPoints)
+        .def("getEdges", &Weave::getEdges)
         .def("invert", &Weave::invert)
         .def("__str__", &Weave::str)
     ;

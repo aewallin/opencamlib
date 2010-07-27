@@ -58,8 +58,9 @@ class Weave {
         // python debug/test interface:
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
+        boost::python::list getEdges() const;
         WeaveGraph g;
-        InvWeaveGraph g2;
+        //InvWeaveGraph g2;
 };
 
 

@@ -31,13 +31,15 @@
 namespace ocl
 {
 
-
+/// vertex type: CL-point, internal point, adjacent point
+enum VertexType {CL, INT, ADJ};
+             
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
                                    // vertex properties:
                                    boost::property< boost::vertex_name_t , Point,
-                                        boost::property< boost::vertex_color_t, bool > >,
+                                        boost::property< boost::vertex_color_t, VertexType > >,
                                    // edge properties:
                                    boost::property< boost::edge_weight_t, double >
                                    > WeaveGraph; 
@@ -45,7 +47,9 @@ typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std
                     // tags: disallow_parallel_edge_tag
 typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
+typedef boost::graph_traits< WeaveGraph >::edge_iterator EdgeIterator;
 
+/*
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
@@ -59,7 +63,7 @@ typedef boost::graph_traits< InvWeaveGraph >::vertex_descriptor InvVertexDescrip
 typedef boost::graph_traits< InvWeaveGraph >::edge_descriptor InvEdgeDescriptor;
 typedef boost::graph_traits< InvWeaveGraph >::vertex_iterator InvVertexIterator;
 typedef boost::graph_traits< InvWeaveGraph >::edge_iterator InvEdgeIterator;
-                                   
+  */                                 
 
 }
 #endif

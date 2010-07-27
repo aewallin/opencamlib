@@ -91,27 +91,37 @@ if __name__ == "__main__":
         w.addFiber(f)
         
 
-    print "inv build()"
-    w.build2()
-    w.printGraph2()
+    #print "inv build()"
+    w.build()
+    #w.printGraph2()
     
-    print "before invert()"
-    print w
-    print "invert()"
-    w.invert()
-    print w
-    w.printGraph()
+    #print "before invert()"
+    #print w
+    #print "invert()"
+    #w.invert()
+    #print w
+    #w.printGraph()
     #w.writeGraph()
     
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
-    print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
-    for p in w_clpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+0.2), radius=0.01, color=camvtk.pink ) )
-    for p in w_ipts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+0.2), radius=0.01, color=camvtk.orange ) )
-        
+    w_edges = w.getEdges()
     
+    print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
+    print " got: ", len(w_edges), " edges"
+    zoffset = 0.2
+    for p in w_clpts:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.pink ) )
+    for p in w_ipts:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.orange ) )
+    ne = 0
+    dzoffset = 0.002
+    for e in w_edges:
+        p1 = e[0]
+        p2 = e[1]
+        myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
+        ne = ne+1
+        
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
