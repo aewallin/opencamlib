@@ -172,7 +172,7 @@ void Fiber::addInterval(Interval& i) {
         while (itr!=ints.end()) { // loop through all intervals
             if ( ! (itr->outside( i )) ) {
                 overlaps.push_back(*itr); // add overlaps here
-                ints.erase(itr); // erase overlaps from ints
+                itr = ints.erase(itr); // erase overlaps from ints
             } else {
                 ++itr;
             }

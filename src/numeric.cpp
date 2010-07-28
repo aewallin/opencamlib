@@ -70,7 +70,7 @@ int determinant_sign(const bnu::permutation_matrix<std::size_t>& pm)
     int pm_sign=1;
     for (std::size_t i = 0; i < pm.size(); ++i)
         if (i != pm(i))
-            pm_sign *= -1.0; // swap_rows would swap a pair of rows here, so we change sign
+            pm_sign *= -1; // swap_rows would swap a pair of rows here, so we change sign
     return pm_sign;
 }
 

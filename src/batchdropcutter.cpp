@@ -128,7 +128,7 @@ void BatchDropCutter::dropCutter4() {
             " cl-points and " << surf->tris.size() << " triangles.\n";
     dcCalls = 0;
     int calls=0;
-    long int ntris;
+    long int ntris = 0;
     std::list<Triangle>* tris;
     unsigned int n;
     unsigned int Nmax = clpoints->size();
@@ -198,7 +198,7 @@ void BatchDropCutter::dropCutter5() {
             " cl-points and " << surf->tris.size() << " triangles.\n";
     dcCalls = 0;
     int calls=0;
-    long int ntris;
+    long int ntris = 0;
     std::list<Triangle>* tris;
     Bbox* bb;
     unsigned int n;

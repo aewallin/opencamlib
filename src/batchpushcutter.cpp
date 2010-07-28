@@ -106,7 +106,7 @@ void BatchPushCutter::pushCutter2() {
             xfiber = true;
         assert( xfiber || yfiber );
         overlap_triangles=new std::list<Triangle>();
-        double plane = 0; // the kd-tree search plane
+        unsigned int plane = 0; // the kd-tree search plane
         if ( xfiber ) {
             plane = 1; // search in YZ plane
             bb = new Bbox(     f.p1.x, 
@@ -164,7 +164,7 @@ void BatchPushCutter::pushCutter3() {
             xfiber = true;
         assert( xfiber || yfiber );
         overlap_triangles=new std::list<Triangle>();
-        double plane = 0; // the kd-tree search plane
+        unsigned int plane = 0; // the kd-tree search plane
         if ( xfiber ) {
             plane = 1; // search in YZ plane
             bb = new Bbox(     f.p1.x, 
