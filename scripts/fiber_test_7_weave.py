@@ -116,7 +116,7 @@ if __name__ == "__main__":
     zoffset2=zoffset+0.1
     np = 0
     previous = 0
-    dzoffset = 0.005
+    dzoffset = 0.0005
     for p in w_loop:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.01, color=camvtk.red ) )        
         if np is not 0:

@@ -56,27 +56,9 @@ copy_graph(NewGraph& g, Tag) {
   return graph_copier<NewGraph, Tag>(g);
 }
 
-
-template < typename TimeMap > 
-class bfs_time_visitor : public boost::default_bfs_visitor {
-    typedef typename boost::property_traits<TimeMap>::value_type T;
-    public:
-        bfs_time_visitor(TimeMap tmap, T& t):m_timemap(tmap), m_time(t) { }
-  
-        template < typename Vertex, typename Graph >
-        void discover_vertex(Vertex u, const Graph& g) const {
-            boost::put( m_timemap, u, m_time++);
-            //boost::put( boost::vertex_color, g, u, INT);
-        }
-        TimeMap m_timemap;
-        T& m_time;
-};
-
 typedef std::pair< std::size_t, Point > TimePointPair;
 typedef std::pair< std::size_t, VertexDescriptor > TimeVertexPair;
 typedef std::pair< double, VertexDescriptor > DistanceVertexPair;
-
-//typedef std::pair< bool , VertexDescriptor > BoolVertPair;
 
 bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs );
 bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs );

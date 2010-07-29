@@ -32,9 +32,6 @@
 namespace ocl
 {
 
-
-
-
 /// interval for use by fiber and weave
 class Interval {
     public:
@@ -56,13 +53,7 @@ class Interval {
         bool in_weave; // flag for use by Weave::build()
         VertexDescriptor vert_lower; // weave vertex corresponding to lower CL-point
         VertexDescriptor vert_upper; // upper CL-point weave vertex
-        
         std::set< VertexPair, VertexPairCompare > intersections; // store intersection coordinates with other fibers here
-        
-        
-        //Point p1;
-        //Point p2;
-        //Point point(double t) const;
 };
 
 
@@ -100,7 +91,7 @@ class Fiber {
         /// the intervals in this Fiber
         std::vector<Interval> ints;
     private:
-        // set the directio(tangent) vector
+        // set the direction(tangent) vector
         void calcDir();
 };
 

@@ -24,8 +24,6 @@
 #include <boost/graph/adjacency_list.hpp>
 
 #include "point.h"
-//#include "ccpoint.h"
-//#include "numeric.h"
 #include "fiber.h"
 
 namespace boost {
@@ -37,9 +35,6 @@ namespace boost {
 
 namespace ocl
 {
-
-
-
 
 /// vertex type: CL-point, internal point, adjacent point
 enum VertexType {CL, INT, ADJ, CL_DONE};
@@ -65,31 +60,13 @@ typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
 typedef boost::graph_traits< WeaveGraph >::edge_iterator EdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
 typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;
-
-
 typedef std::pair< VertexDescriptor, double > VertexPair;
+
 struct VertexPairCompare {
   bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
   { return lhs.second < rhs.second ;}
 };
-typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;
-//typedef ::iterator VertexPairIterator;
-
-/*
-typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
-                                   boost::vecS,     // vertex set stored in a std::vector
-                                   boost::undirectedS,  // an un directed  graph.
-                                   // vertex properties:
-                                   boost::property< boost::vertex_name_t , Interval,
-                                        boost::property< boost::vertex_color_t, bool > >,
-                                   // edge properties:
-                                   boost::property< boost::edge_weight_t, Point >
-                                   > InvWeaveGraph;
-typedef boost::graph_traits< InvWeaveGraph >::vertex_descriptor InvVertexDescriptor;
-typedef boost::graph_traits< InvWeaveGraph >::edge_descriptor InvEdgeDescriptor;
-typedef boost::graph_traits< InvWeaveGraph >::vertex_iterator InvVertexIterator;
-typedef boost::graph_traits< InvWeaveGraph >::edge_iterator InvEdgeIterator;
-  */                                 
+typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;                               
 
 }
 #endif

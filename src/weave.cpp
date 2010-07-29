@@ -68,8 +68,7 @@ void Weave::build() {
     // 6) graph-search to find CL-point order 
                                 
     sort_fibers(); // fibers are sorted into xfibers and yfibers
-    bool first_only = false; // for debugging only
-    //bool first_only = true;
+
     
     BOOST_FOREACH( Fiber& xf, xfibers) {
         if ( !xf.ints.empty() ) {
@@ -159,14 +158,10 @@ void Weave::build() {
                                 boost::add_edge( y_above->first , v , g );
                                 boost::add_edge( y_below->first , v , g );
                             }
-                        } // end y interval loon
+                        } // end y interval loop
                     } // end if(potential intersection)
                 } // end y fiber loop
-                
             } // x interval loop
-            
-            if (first_only) // debug mechanism...
-                break;
         } // end if( x-interval empty)
     } // end X-fiber loop
      
@@ -193,10 +188,7 @@ void Weave::mark_adj_vertices() {
 /// return a vector of vertices which are closest to source
 std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
     typedef boost::property_map< WeaveGraph, boost::vertex_distance_t>::type dist_map_t;
-    //VertexSize time = 0;
-    //bfs_time_visitor<dtime_map_t> vis( boost::get( boost::vertex_discover_time, g), time); 
     dist_map_t dmap = boost::get( boost::vertex_distance, g);
-    //dtime_map_t dmap;
     WeaveGraph G_copy( boost::num_vertices( g ) );
     std::vector<VertexDescriptor> p( boost::num_vertices(g) );
     
@@ -212,11 +204,7 @@ std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
                                     )
                                  )
                                  );
-
-                   
-    
-
-
+                                 
     // put all CL-points in a list
     VertexIterator it_begin, it_end, it, first;
     boost::tie( it_begin, it_end ) = boost::vertices( g );
@@ -232,16 +220,14 @@ std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
     
     std::vector<VertexDescriptor> nearest_neighbors;
     std::vector<TimeVertexPair>::iterator pi;
-    VertexSize min_time = boost::get( boost::vertex_distance, g, neighbors[0].second );
-    std::cout << "the min time is=" << min_time << "\n";
+    VertexSize min_dist = boost::get( boost::vertex_distance, g, neighbors[0].second );
+    //std::cout << "the min time is=" << min_dist << "\n";
     
     for( pi=neighbors.begin() ; pi!=neighbors.end() ; ++pi) {
-        if ( pi->first == min_time )
+        if ( pi->first == min_dist )
             nearest_neighbors.push_back( pi->second );
     }
-    std::cout << nearest_neighbors.size() << " nn at dist=" << min_time << "\n";
-    //loop.push_back(neighbors[1].second);
-    //VertexSize min_time =
+    //std::cout << nearest_neighbors.size() << " nn at dist=" << min_time << "\n";
     return nearest_neighbors;
 }
 
@@ -257,14 +243,12 @@ VertexDescriptor Weave::get_next_vertex(VertexDescriptor& source) {
         std::vector<DistanceVertexPair> nvector;
         BOOST_FOREACH( VertexDescriptor v, nn) {
             Point p = boost::get( boost::vertex_position, g, v);
-            std::cout << " dist to" << p << " is " << (sp-p).norm() << "\n";
+            // std::cout << " dist to" << p << " is " << (sp-p).norm() << "\n";
             nvector.push_back( DistanceVertexPair( (sp-p).norm() , v ) );
         }
         // sort the list
         std::sort( nvector.begin(), nvector.end(), FirstSortPredicate);
-        
-        std::cout << " choosing dist=" << nvector[0].first << " \n";
-        
+        //std::cout << " choosing dist=" << nvector[0].first << " \n";
         boost::put( boost::vertex_type, g, nvector[0].second, CL_DONE);
         return nvector[0].second; 
     }
@@ -303,55 +287,14 @@ void Weave::order_points() {
     VertexDescriptor currentvertex = startvertex;
     int niterations=0;
     while ( clpoints_size()>0 ) {
-        std::cout << " finding neigbors from " << currentvertex << " \n ";
+        //std::cout << " finding neigbors from " << currentvertex << " \n ";
         nextvertex = get_next_vertex(currentvertex);
         // << nextvertex << "\n";
-        loop.push_back(boost::get ( boost::vertex_position, g, nextvertex  ) );
+        loop.push_back( boost::get( boost::vertex_position, g, nextvertex  ) );
         currentvertex = nextvertex;
         ++niterations;
     }
     
-    /*
-    std::vector<VertexDescriptor> nn = get_neighbors(clpts[0]);
-    if (nn.size() == 1) {// this is the easy case
-        loop.push_back( boost::get ( boost::vertex_name, g, nn[0] ) );
-    }
-    std::cout << " found "<< nn.size() << " closest neighbors\n";
-    */
-    
-    
-    /*
-    //std::vector<VertexSize> dtime( boost::num_vertices( g ) ); // store discover time here
-    typedef boost::property_map< WeaveGraph, boost::vertex_discover_time_t>::type dtime_map_t;
-    //dtime_map_t dtime_map = boost::get( boost::vertex_discover_time, g);
-    VertexSize time = 0;
-    bfs_time_visitor<dtime_map_t> vis( boost::get( boost::vertex_discover_time, g), time); 
-    boost::breadth_first_search( g, clpts[0] , visitor(vis) );
-    
-    
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    std::vector<TimePointPair> neighbors;
-    for( it = it_begin ; it != it_end ; ++it ) {
-        if ( boost::get( boost::vertex_color , g , *it ) == CL  ) {
-            std::size_t t = boost::get( boost::vertex_discover_time , g , *it );
-            Point p = boost::get( boost::vertex_name , g , *it );
-            neighbors.push_back( TimePointPair( t , p ) );
-        }
-    }
-    // sort the neigbors 
-    std::sort( neighbors.begin(), neighbors.end(), TimeSortPredicate);
-    
-    std::vector<TimePointPair>::iterator pi;
-    std::cout << " closest discover times:\n";
-    for( pi=neighbors.begin() ; pi!=neighbors.end() ; ++pi) {
-        std::cout << pi->first << " : " << pi->second << "\n";
-        
-    }
-    loop.push_back(neighbors[1].second);
-    */
-    
-    
-    //, buffer, visitor, color);
 }
 
 bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs ) {
@@ -365,25 +308,6 @@ bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs 
 bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPair& rhs ) {
     return lhs.first < rhs.first;
 }
-
-/*
-void Weave::remove_int_vertices() {
-    VertexIterator it_begin, it_end, it, next;
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    it = it_begin;
-    for( next = it_begin ; it != it_end ; it = next ) {
-        if ( boost::get( boost::vertex_color , g , *next ) == INT ) {
-            ++next; // jump out of way
-            boost::clear_vertex( *it, g);
-            boost::remove_vertex( *it , g); // this invalidates *it !!
-        } else {
-            ++next;
-        }
-        
-    }
-}*/
-
-
 
 void Weave::printGraph() const {
     std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
@@ -404,10 +328,7 @@ void Weave::printGraph() const {
     std::cout << "    internal-nodes: " << n_internal << "\n";
 }
 
-
-
-
-
+/// return CL-points to python
 boost::python::list Weave::getCLPoints() const {
     boost::python::list plist;
     VertexIterator it_begin, it_end, itr;
@@ -474,7 +395,6 @@ boost::python::list Weave::getLoop() const {
 
 std::string Weave::str() const {
     std::ostringstream o;
-    
     o << "Weave\n";
     o << "  " << fibers.size() << " fibers\n";
     o << "  " << xfibers.size() << " X-fibers\n";

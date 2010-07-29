@@ -122,7 +122,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("writeGraph", &Weave::writeGraph)
         .def("mark_adj_vertices", &Weave::mark_adj_vertices)
         .def("order_points", &Weave::order_points)
-        //.def("remove_int_vertices", &Weave::remove_int_vertices)
         .def("getCLPoints", &Weave::getCLPoints)
         .def("getIPoints", &Weave::getIPoints)
         .def("getADJPoints", &Weave::getADJPoints)
