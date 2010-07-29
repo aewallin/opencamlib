@@ -47,8 +47,8 @@ if __name__ == "__main__":
     cutter.length = 4.0
     print "lengt=", cutter.length
     print "fiber..."
-    range=6
-    Nmax = 50
+    range=4
+    Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     zmin = -0.1
@@ -93,29 +93,42 @@ if __name__ == "__main__":
 
     #print "inv build()"
     w.build()
-    #w.printGraph2()
-    
-    #print "before invert()"
-    #print w
-    #print "invert()"
-    #w.invert()
-    #print w
-    #w.printGraph()
-    #w.writeGraph()
+    w.mark_adj_vertices()
+    w.order_points()
     
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
+    w_adjpts = w.getADJPoints()
     w_edges = w.getEdges()
+    w_loop = w.getLoop()
     
     print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
+    
     print " got: ", len(w_edges), " edges"
+    print " got: ", len(w_loop), " loop points"
     zoffset = 0.2
     for p in w_clpts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.pink ) )
     for p in w_ipts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.orange ) )
+    for p in w_adjpts:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.green ) )
+    zoffset2=zoffset+0.1
+    np = 0
+    previous = 0
+    dzoffset = 0.005
+    for p in w_loop:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.01, color=camvtk.red ) )        
+        if np is not 0:
+            myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
+        np=np+1
+        previous = p
+        
+        
+        
     ne = 0
-    dzoffset = 0.002
+    zoffset=0.2
+    dzoffset = 0
     for e in w_edges:
         p1 = e[0]
         p2 = e[1]

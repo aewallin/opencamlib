@@ -100,12 +100,12 @@ bool Interval::empty() const {
     else
         return false;
 }
-
+/*
 /// return a point on the interval at given t-value
 Point Interval::point(double t) const {
     Point p = p1 + t*(p2-p1);
     return p;
-}
+}*/
 
 std::string Interval::str() const {
     std::ostringstream o;
@@ -153,8 +153,8 @@ void Fiber::addInterval(Interval& i) {
     if (i.empty())
         return; // do nothing.
     
-    i.p1=p1;
-    i.p2=p2;
+    //i.p1=p1;
+    //i.p2=p2;
     
     if (ints.empty()) { // empty fiber case
         ints.push_back(i); 

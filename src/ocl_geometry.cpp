@@ -128,17 +128,7 @@ void export_geometry() {
         .def_readonly("maxpt", &Bbox::maxpt)
         .def_readonly("minpt", &Bbox::minpt)
     ;
-    bp::class_<Interval>("Interval")
-        .def(bp::init<double, double>())
-        .def_readonly("upper", &Interval::upper )
-        .def_readonly("lower", &Interval::lower )
-        .def_readonly("lower_cc", &Interval::lower_cc )
-        .def_readonly("upper_cc", &Interval::upper_cc )
-        .def("updateUpper", &Interval::updateUpper )
-        .def("updateLower", &Interval::updateLower )
-        .def("empty", &Interval::empty )
-        .def("__str__", &Interval::str )
-    ;
+
     // Epos and the Ellipse are used for the toroidal tool edge-tests
     bp::class_<Epos>("Epos")
         .def("setS", &Epos::setS)

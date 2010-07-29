@@ -28,18 +28,33 @@
 //#include "numeric.h"
 #include "fiber.h"
 
+namespace boost {
+    enum vertex_position_t {vertex_position=20};
+    enum vertex_type_t {vertex_type=21};
+    BOOST_INSTALL_PROPERTY(vertex, position);
+    BOOST_INSTALL_PROPERTY(vertex, type);
+}
+
 namespace ocl
 {
 
+
+
+
 /// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, INT, ADJ};
+enum VertexType {CL, INT, ADJ, CL_DONE};
              
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
                                    // vertex properties:
-                                   boost::property< boost::vertex_name_t , Point,
-                                        boost::property< boost::vertex_color_t, VertexType > >,
+                                   boost::property< boost::vertex_position_t , Point, // 3D position in space
+                                        boost::property< boost::vertex_color_t, boost::default_color_type  ,
+                                        boost::property< boost::vertex_type_t, VertexType  ,
+                                        boost::property< boost::vertex_distance_t, std::size_t, 
+                                        boost::property<boost::vertex_degree_t, int,
+                                        boost::property<boost::vertex_in_degree_t, int,
+                                        boost::property<boost::vertex_out_degree_t, int > > > > > > >, 
                                    // edge properties:
                                    boost::property< boost::edge_weight_t, double >
                                    > WeaveGraph; 
@@ -48,6 +63,17 @@ typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std
 typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
 typedef boost::graph_traits< WeaveGraph >::edge_iterator EdgeIterator;
+typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
+typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;
+
+
+typedef std::pair< VertexDescriptor, double > VertexPair;
+struct VertexPairCompare {
+  bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
+  { return lhs.second < rhs.second ;}
+};
+typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;
+//typedef ::iterator VertexPairIterator;
 
 /*
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list

@@ -23,6 +23,7 @@
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp> // graph class
+#include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graphviz.hpp>
 #include <boost/python.hpp>
 
@@ -35,6 +36,52 @@
 namespace ocl
 {
 
+template <class NewGraph, class Tag>
+struct graph_copier : public boost::base_visitor<graph_copier<NewGraph, Tag> >
+{
+        typedef Tag event_filter;
+        graph_copier(NewGraph& graph) : new_g(graph) { }
+        template <class Edge, class Graph>
+        void operator()(Edge e, Graph& g) {
+            boost::add_edge(boost::source(e, g), boost::target(e, g), new_g);
+        } 
+    private:
+        NewGraph& new_g;
+};
+
+
+template <class NewGraph, class Tag>
+inline graph_copier<NewGraph, Tag> 
+copy_graph(NewGraph& g, Tag) {
+  return graph_copier<NewGraph, Tag>(g);
+}
+
+
+template < typename TimeMap > 
+class bfs_time_visitor : public boost::default_bfs_visitor {
+    typedef typename boost::property_traits<TimeMap>::value_type T;
+    public:
+        bfs_time_visitor(TimeMap tmap, T& t):m_timemap(tmap), m_time(t) { }
+  
+        template < typename Vertex, typename Graph >
+        void discover_vertex(Vertex u, const Graph& g) const {
+            boost::put( m_timemap, u, m_time++);
+            //boost::put( boost::vertex_color, g, u, INT);
+        }
+        TimeMap m_timemap;
+        T& m_time;
+};
+
+typedef std::pair< std::size_t, Point > TimePointPair;
+typedef std::pair< std::size_t, VertexDescriptor > TimeVertexPair;
+typedef std::pair< double, VertexDescriptor > DistanceVertexPair;
+
+//typedef std::pair< bool , VertexDescriptor > BoolVertPair;
+
+bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs );
+bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs );
+bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPair& rhs );
+
 // see weave_typedef.h for boost-graph classes                         
                     
 /// weave-graph
@@ -44,23 +91,29 @@ class Weave {
         virtual ~Weave() {};
         void addFiber(Fiber& f);
         void build();
-        void build2();
+        void mark_adj_vertices();
+        void order_points();
+        std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
+        VertexDescriptor get_next_vertex(VertexDescriptor& source);
         void invert();
         void sort_fibers();
-        void add_xy_fibers_to_g2();
+        unsigned int clpoints_size();
         std::vector<Fiber> fibers;
         std::vector<Fiber> xfibers;
         std::vector<Fiber> yfibers;
         std::string str() const;
         void printGraph() const;
-        void printGraph2() const;
+        
         void writeGraph() const; // write to dot file
         // python debug/test interface:
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
+        boost::python::list getADJPoints() const;
         boost::python::list getEdges() const;
+        boost::python::list getLoop() const;
         WeaveGraph g;
-        //InvWeaveGraph g2;
+        
+        std::vector<Point> loop;
 };
 
 
