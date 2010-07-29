@@ -77,6 +77,8 @@ class Weave {
         void order_points();
         std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
         VertexDescriptor get_next_vertex(VertexDescriptor& source);
+        void split_components();
+        
         void invert();
         void sort_fibers();
         unsigned int clpoints_size();
@@ -94,6 +96,7 @@ class Weave {
         boost::python::list getEdges() const;
         boost::python::list getLoop() const;
         WeaveGraph g;
+        std::vector<WeaveGraph> g_components;
         
         std::vector<Point> loop;
 };

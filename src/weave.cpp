@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 #include <boost/graph/breadth_first_search.hpp>
-
+#include <boost/graph/connected_components.hpp>
 #include "weave.h"
 
 
@@ -54,7 +54,6 @@ void Weave::sort_fibers() {
 }
 
 void Weave::build() {
-
     // 1) add CL-points of X-fiber (if not already in graph)
     // 2) add CL-points of Y-fiber (if not already in graph)
     // 3) add intersection point (if not already in graph) (will allways be new??)
@@ -63,19 +62,12 @@ void Weave::build() {
     //      xcl_lower <-> intp <-> xcl_upper
     // if this connects points that are already connected, then remove old edge and
     // provide this "via" connection
-    // 5) remove internal nodes connecting only to non-CL nodes
-    //     'false' node which connects only to 'false' nodes
-    // 6) graph-search to find CL-point order 
-                                
     sort_fibers(); // fibers are sorted into xfibers and yfibers
-
-    
     BOOST_FOREACH( Fiber& xf, xfibers) {
         if ( !xf.ints.empty() ) {
             BOOST_FOREACH( Interval& xi, xf.ints ) {
                 double xmin = xf.point(xi.lower).x;
                 double xmax = xf.point(xi.upper).x;
-                
                 if (!xi.in_weave) { // add the interval end-points to the weave
                     // 1) CL-points of X-fiber (check if already added)
                     xi.vert_lower = boost::add_vertex(g);
@@ -88,7 +80,6 @@ void Weave::build() {
                     xi.intersections.insert( VertexPair( xi.vert_upper, xf.point(xi.upper).x ) );
                     xi.in_weave = true;
                 }
-                
                 BOOST_FOREACH( Fiber& yf, yfibers ) {
                     if ( (xmin <= yf.p1.x) && ( yf.p1.x <= xmax ) ) {// potential intersection
                         BOOST_FOREACH( Interval& yi, yf.ints ) {
@@ -165,6 +156,31 @@ void Weave::build() {
         } // end if( x-interval empty)
     } // end X-fiber loop
      
+}
+
+/// assuming that the graph is built
+/// find out the number of components
+/// and split into different compontents
+void Weave::split_components() {
+    typedef boost::property_map< WeaveGraph, boost::vertex_component_t>::type ComponentMap;
+    ComponentMap comp_map = boost::get( boost::vertex_component, g);
+    //std::vector<int> component( boost::num_vertices(g) );
+    std::size_t components = boost::connected_components( g, comp_map );
+    std::cout << " graph has " << components << " components\n";
+    
+    g_components = std::vector<WeaveGraph>(components);
+    
+    VertexIterator it_begin, it_end, it;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for( it = it_begin ; it != it_end ; ++it ) {
+        std::size_t v_comp = boost::get( boost::vertex_component, g, *it);
+        VertexDescriptor v = boost::add_vertex( g_components[ v_comp ] );
+    }
+    //for (unsigned int i = 0; i != component.size(); ++i)
+    //    std::cout << "Vertex " << i <<" is in component " << component[i] << std::endl;
+    //std::cout << std::endl;
+
+
 }
 
 void Weave::mark_adj_vertices() {

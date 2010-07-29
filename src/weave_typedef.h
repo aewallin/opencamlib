@@ -29,8 +29,10 @@
 namespace boost {
     enum vertex_position_t {vertex_position=20};
     enum vertex_type_t {vertex_type=21};
+    enum vertex_component_t {vertex_component=22};
     BOOST_INSTALL_PROPERTY(vertex, position);
     BOOST_INSTALL_PROPERTY(vertex, type);
+    BOOST_INSTALL_PROPERTY(vertex, component);
 }
 
 namespace ocl
@@ -47,9 +49,10 @@ typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std
                                         boost::property< boost::vertex_color_t, boost::default_color_type  ,
                                         boost::property< boost::vertex_type_t, VertexType  ,
                                         boost::property< boost::vertex_distance_t, std::size_t, 
+                                        boost::property<boost::vertex_component_t, std::size_t,
                                         boost::property<boost::vertex_degree_t, int,
                                         boost::property<boost::vertex_in_degree_t, int,
-                                        boost::property<boost::vertex_out_degree_t, int > > > > > > >, 
+                                        boost::property<boost::vertex_out_degree_t, int > > > > > > > >, 
                                    // edge properties:
                                    boost::property< boost::edge_weight_t, double >
                                    > WeaveGraph; 
