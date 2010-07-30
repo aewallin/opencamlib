@@ -97,7 +97,6 @@ class Weave {
         boost::python::list getEdges() const;
         boost::python::list getLoop() const;
         WeaveGraph g;
-        std::vector<WeaveGraph> g_components;
         
         std::vector<Point> loop;
 };

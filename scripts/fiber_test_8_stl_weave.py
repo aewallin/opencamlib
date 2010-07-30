@@ -15,7 +15,6 @@ def generateRange(zmin,zmax,zNmax):
 
 if __name__ == "__main__":  
     print ocl.revision()
-    
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
@@ -36,7 +35,7 @@ if __name__ == "__main__":
     print cutter
     xmin=-1
     xmax=15
-    N=50
+    N=200
     ymin=-1
     ymax=15
     yvals = generateRange(ymin,ymax,N)

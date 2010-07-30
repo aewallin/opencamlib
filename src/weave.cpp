@@ -167,7 +167,7 @@ std::vector<Weave> Weave::split_components() {
     //std::vector<int> component( boost::num_vertices(g) );
     std::size_t components = boost::connected_components( g, comp_map );
     std::cout << " graph has " << components << " components\n";
-    
+    std::vector<WeaveGraph> g_components;
     g_components = std::vector<WeaveGraph>(components);
     for( unsigned int m=0;m<g_components.size();++m)
         g_components[m] = g; // copy everything into g_components
@@ -179,15 +179,14 @@ std::vector<Weave> Weave::split_components() {
             std::size_t v_comp = boost::get( boost::vertex_component, g_components[m], *it); // get component number
             if ( v_comp != m ) {
                 boost::clear_vertex( *it , g_components[m] ); // this removes all edges
-                boost::put( boost::vertex_type, g_components[m], *it, INT);
+                boost::put( boost::vertex_type, g_components[m], *it, INT); // mark INT, so we don't start at a false CL-point
             }
         }
     }
-    for( unsigned int m=0;m<g_components.size();++m) {
-        std::cout << "comp " << m << " verts=" << boost::num_vertices(g_components[m]) << " edges=" << boost::num_edges(g_components[m]) << "\n";
-    }
+
     std::vector<Weave> outw;
     for( unsigned int m=0;m<g_components.size();++m) {
+        std::cout << "comp " << m << " verts=" << boost::num_vertices(g_components[m]) << " edges=" << boost::num_edges(g_components[m]) << "\n";
         Weave* w = new Weave();
         w->g = g_components[m];
         outw.push_back(*w);

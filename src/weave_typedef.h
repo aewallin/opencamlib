@@ -42,7 +42,7 @@ namespace ocl
 enum VertexType {CL, INT, ADJ, CL_DONE};
              
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
-                                   boost::vecS,     // vertex set stored in a std::list
+                                   boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
                                    // vertex properties:
                                    boost::property< boost::vertex_position_t , Point, // 3D position in space
