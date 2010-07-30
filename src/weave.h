@@ -77,7 +77,7 @@ class Weave {
         void order_points();
         std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
         VertexDescriptor get_next_vertex(VertexDescriptor& source);
-        void split_components();
+        std::vector<Weave> split_components();
         
         void invert();
         void sort_fibers();
@@ -90,6 +90,7 @@ class Weave {
         
         void writeGraph() const; // write to dot file
         // python debug/test interface:
+        boost::python::list get_components();
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
         boost::python::list getADJPoints() const;

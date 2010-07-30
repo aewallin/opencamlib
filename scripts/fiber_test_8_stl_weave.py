@@ -20,8 +20,8 @@ if __name__ == "__main__":
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
-    #stl.SetWireframe()
-    stl.SetSurface()
+    stl.SetWireframe()
+    #stl.SetSurface()
     stl.SetColor(camvtk.cyan)
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     print cutter
     xmin=-1
     xmax=15
-    N=100
+    N=50
     ymin=-1
     ymax=15
     yvals = generateRange(ymin,ymax,N)
@@ -107,12 +107,13 @@ if __name__ == "__main__":
             w.addFiber(f)
         w.build()
         print " build() done"
-        w.split_components()
+        subw = w.get_components()
         print " split() done"
-        w.order_points()
-        print " order_points() done"
-        w_loop = w.getLoop()
-        loops.append(w_loop)
+        for sw in subw:
+            sw.order_points()
+            print " order_points() done"
+            w_loop = sw.getLoop()
+            loops.append(w_loop)
     
     print " found", len(loops)," loops"
     for lop in loops:
@@ -121,7 +122,7 @@ if __name__ == "__main__":
         for p in lop:
             if first==1:
                 previous=p
-                previous.z = 5
+                #previous.z = 5
                 first = 0
             else:
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )

@@ -123,6 +123,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("mark_adj_vertices", &Weave::mark_adj_vertices)
         .def("order_points", &Weave::order_points)
         .def("split_components", &Weave::split_components)
+        .def("get_components", &Weave::get_components)
         .def("getCLPoints", &Weave::getCLPoints)
         .def("getIPoints", &Weave::getIPoints)
         .def("getADJPoints", &Weave::getADJPoints)

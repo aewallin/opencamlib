@@ -161,7 +161,7 @@ void Weave::build() {
 /// assuming that the graph is built
 /// find out the number of components
 /// and split into different compontents
-void Weave::split_components() {
+std::vector<Weave> Weave::split_components() {
     typedef boost::property_map< WeaveGraph, boost::vertex_component_t>::type ComponentMap;
     ComponentMap comp_map = boost::get( boost::vertex_component, g);
     //std::vector<int> component( boost::num_vertices(g) );
@@ -169,18 +169,41 @@ void Weave::split_components() {
     std::cout << " graph has " << components << " components\n";
     
     g_components = std::vector<WeaveGraph>(components);
+    for( unsigned int m=0;m<g_components.size();++m)
+        g_components[m] = g; // copy everything into g_components
     
-    VertexIterator it_begin, it_end, it;
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    for( it = it_begin ; it != it_end ; ++it ) {
-        std::size_t v_comp = boost::get( boost::vertex_component, g, *it);
-        VertexDescriptor v = boost::add_vertex( g_components[ v_comp ] );
+    for( unsigned int m=0;m<g_components.size();++m) {
+        VertexIterator it, it_end;
+        boost::tie( it, it_end ) = boost::vertices( g_components[m] );
+        for(  ; it != it_end ; ++it ) {
+            std::size_t v_comp = boost::get( boost::vertex_component, g_components[m], *it); // get component number
+            if ( v_comp != m ) {
+                boost::clear_vertex( *it , g_components[m] ); // this removes all edges
+                boost::put( boost::vertex_type, g_components[m], *it, INT);
+            }
+        }
     }
-    //for (unsigned int i = 0; i != component.size(); ++i)
-    //    std::cout << "Vertex " << i <<" is in component " << component[i] << std::endl;
-    //std::cout << std::endl;
+    for( unsigned int m=0;m<g_components.size();++m) {
+        std::cout << "comp " << m << " verts=" << boost::num_vertices(g_components[m]) << " edges=" << boost::num_edges(g_components[m]) << "\n";
+    }
+    std::vector<Weave> outw;
+    for( unsigned int m=0;m<g_components.size();++m) {
+        Weave* w = new Weave();
+        w->g = g_components[m];
+        outw.push_back(*w);
+    }
+    return outw;
+}
 
-
+/// split the weave into components and return a list
+/// of sub-weaves to python
+boost::python::list Weave::get_components() {
+    boost::python::list wlist;
+    std::vector<Weave> weaves = split_components();
+    BOOST_FOREACH( Weave w, weaves ) {
+        wlist.append( w );
+    }
+    return wlist;
 }
 
 void Weave::mark_adj_vertices() {
@@ -212,7 +235,7 @@ std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
                                  source ,
                                  boost::visitor( 
                                  boost::make_bfs_visitor(
-                                    std::make_pair( boost::record_distances(dmap, boost::on_tree_edge() ),
+                                    std::make_pair( boost::record_distances(dmap, boost::on_tree_edge() )  ,
                                         std::make_pair(boost::record_predecessors( &p[0] , boost::on_tree_edge() ),
                                                         copy_graph(G_copy, boost::on_examine_edge())
                                                        ) 
