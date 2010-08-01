@@ -125,7 +125,7 @@ add_library(
 )
 MESSAGE(STATUS "linking with boost: " ${Boost_LIBRARIES})
 target_link_libraries(ocl ${Boost_LIBRARIES})
-set_target_properties(ocl PROPERTIES PREFIX "")
+set_target_properties(ocl PROPERTIES PREFIX "") # this makes the lib name ocl.so and not libocl.so
 
 # was:
 # target_link_libraries(ocl ${LIB_BOOST_PYTHON})

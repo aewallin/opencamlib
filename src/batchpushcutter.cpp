@@ -23,7 +23,7 @@
 
 
 #ifndef WIN32
-#include <omp.h>
+    #include <omp.h>
 #endif
 
 #include "millingcutter.h"
@@ -59,7 +59,7 @@ void BatchPushCutter::setCutter(MillingCutter *c) {
     cutter = c;
 }
 
-void BatchPushCutter::setThreads(int n) {
+void BatchPushCutter::setThreads(unsigned int n) {
     nthreads = n;
 }
 
@@ -67,7 +67,8 @@ void BatchPushCutter::appendFiber(Fiber& f) {
     fibers->push_back(f);
 }
 
-
+/// very simple batch push-cutter
+/// each fiber is tested against all triangles in STLSurf
 void BatchPushCutter::pushCutter1() {
     std::cout << "BatchPushCutter1 with " << fibers->size() << 
               " fibers and " << surf->tris.size() << " triangles..." << std::endl;
@@ -89,7 +90,8 @@ void BatchPushCutter::pushCutter1() {
     return;
 }
 
-// use kd-tree search
+/// push-cutter which uses KDNode2 kd-tree search to find triangles 
+/// overlapping with the cutter.
 void BatchPushCutter::pushCutter2() {
     std::cout << "BatchPushCutter2 with " << fibers->size() << 
               " fibers and " << surf->tris.size() << " triangles..." << std::endl;
@@ -127,7 +129,6 @@ void BatchPushCutter::pushCutter2() {
                            
         KDNode2::search_kdtree( overlap_triangles, *bb, root, plane); // find overlapping triangles
         assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf 
-            
         BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
             if ( bb->overlaps( t.bb ) ) {
                 Interval i;
@@ -142,12 +143,12 @@ void BatchPushCutter::pushCutter2() {
         delete( bb );
         ++show_progress;
     }
-    std::cout << "BatchPushCutter done." << std::endl;
-    
+    std::cout << "BatchPushCutter2 done." << std::endl;
     return;
 }
 
-// use kd-tree search
+/// use kd-tree search to find overlapping triangles
+/// use OpenMP for multi-threading
 void BatchPushCutter::pushCutter3() {
     std::cout << "BatchPushCutter3 with " << fibers->size() << 
               " fibers and " << surf->tris.size() << " triangles..." << std::endl;
@@ -182,20 +183,16 @@ void BatchPushCutter::pushCutter3() {
                                f.p1.z,
                                f.p1.z + cutter->getLength() ); 
         }
-                           
         KDNode2::search_kdtree( overlap_triangles, *bb, root, plane); // find overlapping triangles
         //assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf 
-            
         BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
             if ( bb->overlaps( t.bb ) ) {
                 Interval i;
-                // 282us w. vertex, facet, edge
-                // 168us wo edge
-                // 13us wo facet                  orig      mod    mod2(126)
-                cutter->vertexPush(f,i,t);  // ca 13us      15
-                cutter->facetPush(f,i,t); // ca 155us      150  
-                cutter->edgePush(f,i,t);  // ca 114us       17
-                f.addInterval(i); // 'fast' (?)
+                // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
+                cutter->vertexPush(f,i,t);  
+                cutter->facetPush(f,i,t);  
+                cutter->edgePush(f,i,t);  
+                f.addInterval(i); 
                 ++nCalls;
             }
         }
@@ -203,14 +200,14 @@ void BatchPushCutter::pushCutter3() {
         delete( bb );
         ++show_progress;
     }
-    std::cout << "BatchPushCutter done." << std::endl;
-    
+    std::cout << "BatchPushCutter3 done." << std::endl;
     return;
 }
 
 
 
-// used only for testing, not actual work
+/// return list of overlapping triangles to python
+/// used only for testing, not actual work
 boost::python::list BatchPushCutter::getOverlapTriangles(Fiber& f, MillingCutter& cutter)
 {
     boost::python::list trilist;
@@ -226,7 +223,7 @@ boost::python::list BatchPushCutter::getOverlapTriangles(Fiber& f, MillingCutter
     return trilist;
 }
 
-// return CL points to python
+/// return list of CL points to python
 boost::python::list BatchPushCutter::getCLPoints() const
 {
     boost::python::list plist;
@@ -248,8 +245,8 @@ boost::python::list BatchPushCutter::getCLPoints() const
     return plist;
 }
 
-boost::python::list BatchPushCutter::getFibers() const
-{
+/// return list of fibers to python
+boost::python::list BatchPushCutter::getFibers() const {
     boost::python::list flist;
     BOOST_FOREACH(Fiber f, *fibers) {
         flist.append(f);

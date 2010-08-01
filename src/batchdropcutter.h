@@ -70,21 +70,18 @@ class BatchDropCutter {
         // DATA
         /// the MillingCutter used
         MillingCutter *cutter;
-        
         /// pointer to list of CL-points on which to run drop-cutter.
         std::vector<CLPoint>* clpoints;
         /// root of the kd-tree
         KDNode *root;
         KDNode2 *root2;
-        
         /// the STLSurf which we test against.
         STLSurf *surf;
-        
         /// how many times DropCutter was called. Useful for optimization.
         int dcCalls;
-
-        /// number of threads to use
+        /// number of OpenMP threads to use
         unsigned int nthreads;
+        /// when building the kd-tree, use this bucket-size
         unsigned int bucketSize;
 };
 

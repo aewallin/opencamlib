@@ -20,7 +20,7 @@
 
 #include <boost/foreach.hpp>
 #ifndef WIN32
-#include <omp.h>
+    #include <omp.h>
 #endif
 
 #include "millingcutter.h"

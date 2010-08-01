@@ -47,7 +47,7 @@ class BatchPushCutter {
         /// set the MillingCutter to use
         void setCutter(MillingCutter *cutter);
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
-        void setThreads(int n);
+        void setThreads(unsigned int n);
         /// append to list of Fibers to evaluate
         void appendFiber(Fiber& f);
         
