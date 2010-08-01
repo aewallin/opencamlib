@@ -153,53 +153,75 @@ void BatchPushCutter::pushCutter3() {
     std::cout << "BatchPushCutter3 with " << fibers->size() << 
               " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
-    std::list<Triangle>* overlap_triangles;
+    std::list<Triangle>* tris;
     Bbox* bb;
     boost::progress_display show_progress( fibers->size() );
-    BOOST_FOREACH(Fiber& f, *fibers) {
+#ifndef WIN32
+    omp_set_num_threads(nthreads);
+#endif
+    unsigned int Nmax = fibers->size(); // the number of fibers to process
+    std::list<Triangle>::iterator it,it_end; // for looping over found trinagles
+    Interval* i;
+    //MillingCutter& cutref = *cutter;
+    std::vector<Fiber>& fiberr = *fibers;
+    unsigned int n; // loop variable
+    unsigned int calls=0;
+    double r = cutter->getRadius();
+    double L = cutter->getLength();
+    #pragma omp parallel for shared( calls, fiberr) private(n,i,tris,bb,it,it_end)
+    for (n=0; n<Nmax; ++n) {
+#ifndef WIN32
+        if ( n== 0 ) { // first iteration
+            if (omp_get_thread_num() == 0 ) 
+                std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
+        }
+#endif
+        
         bool xfiber = false;
         bool yfiber = false;
-        if ( f.p1.x == f.p2.x )
+        if ( fiberr[n].p1.x == fiberr[n].p2.x )
             yfiber = true;
-        if ( f.p1.y == f.p2.y )
+        if ( fiberr[n].p1.y == fiberr[n].p2.y )
             xfiber = true;
         assert( xfiber || yfiber );
-        overlap_triangles=new std::list<Triangle>();
+        tris = new std::list<Triangle>();
         unsigned int plane = 0; // the kd-tree search plane
         if ( xfiber ) {
             plane = 1; // search in YZ plane
-            bb = new Bbox(     f.p1.x, 
-                               f.p2.x, 
-                               f.p1.y - cutter->getRadius(), 
-                               f.p1.y + cutter->getRadius(),
-                               f.p1.z,
-                               f.p1.z + cutter->getLength() ); 
+            bb = new Bbox(     fiberr[n].p1.x, 
+                               fiberr[n].p2.x, 
+                               fiberr[n].p1.y - r, 
+                               fiberr[n].p1.y + r,
+                               fiberr[n].p1.z,
+                               fiberr[n].p1.z + L ); 
         } else if (yfiber ) {
             plane = 2; // search in XZ plane
-            bb = new Bbox(     f.p1.x - cutter->getRadius(), 
-                               f.p1.x + cutter->getRadius(),
-                               f.p1.y, 
-                               f.p2.y, 
-                               f.p1.z,
-                               f.p1.z + cutter->getLength() ); 
+            bb = new Bbox(     fiberr[n].p1.x - r, 
+                               fiberr[n].p1.x + r,
+                               fiberr[n].p1.y, 
+                               fiberr[n].p2.y, 
+                               fiberr[n].p1.z,
+                               fiberr[n].p1.z + L ); 
         }
-        KDNode2::search_kdtree( overlap_triangles, *bb, root, plane); // find overlapping triangles
+        KDNode2::search_kdtree( tris, *bb, root, plane); // find overlapping triangles
         //assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf 
-        BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
-            if ( bb->overlaps( t.bb ) ) {
-                Interval i;
+        it_end = tris->end();
+        for ( it=tris->begin() ; it!=it_end ; ++it) {
+            if ( bb->overlaps( it->bb ) ) {
                 // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
-                cutter->vertexPush(f,i,t);  
-                cutter->facetPush(f,i,t);  
-                cutter->edgePush(f,i,t);  
-                f.addInterval(i); 
-                ++nCalls;
+                i = new Interval();
+                cutter->vertexPush(fiberr[n],*i,*it);  
+                cutter->facetPush(fiberr[n],*i,*it);  
+                cutter->edgePush(fiberr[n],*i,*it);  
+                fiberr[n].addInterval(*i); 
+                ++calls;
             }
         }
-        delete( overlap_triangles );
+        delete( tris );
         delete( bb );
         ++show_progress;
     }
+    this->nCalls = calls;
     std::cout << "BatchPushCutter3 done." << std::endl;
     return;
 }

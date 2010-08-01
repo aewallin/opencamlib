@@ -49,8 +49,11 @@ if __name__ == "__main__":
     print " calculating waterlines at ", len(zvals)," different z-heights"
     #print zvals
     bpc = ocl.BatchPushCutter()
+    bpc2 = ocl.BatchPushCutter()
     bpc.setSTL(s)
+    bpc2.setSTL(s)
     bpc.setCutter(cutter)
+    bpc2.setCutter(cutter)
     # create fibers
     nfibers=0
     for zh in zvals:
@@ -59,23 +62,31 @@ if __name__ == "__main__":
             f2 = ocl.Point(xmax,y,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
             bpc.appendFiber(f)
+            bpc2.appendFiber(f)
             nfibers=nfibers+1
         for x in xvals:
             f1 = ocl.Point(x,ymin,zh) # start point of fiber
             f2 = ocl.Point(x,ymax,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
             bpc.appendFiber(f)
+            bpc2.appendFiber(f)
             nfibers=nfibers+1
-            
     # run
+    t_before = time.time() 
+    bpc2.pushCutter2()
+    t_after = time.time()
+    push_calctime = t_after-t_before
+    print " BPC done in ", push_calctime," s", bpc2.nCalls," push-calls" 
+    print (push_calctime/bpc2.nCalls)*1e6, " us/call"
+
     t_before = time.time() 
     bpc.pushCutter3()
     t_after = time.time()
     push_calctime = t_after-t_before
-    print " BPC done in ", push_calctime," s", bpc.nCalls," push-calls" 
+    print " BPC 3 done in ", push_calctime," s", bpc.nCalls," push-calls" 
     print (push_calctime/bpc.nCalls)*1e6, " us/call"
-
     
+        
     clpoints = bpc.getCLPoints()
     print "got ", len(clpoints), " CL-points"
     print "rendering raw CL-points."

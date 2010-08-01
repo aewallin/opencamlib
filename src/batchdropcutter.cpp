@@ -237,12 +237,10 @@ void BatchDropCutter::dropCutter5() {
                     ++calls;
                 }
             }
-            
             ntris += tris->size();
             delete( tris );
             delete( bb );
         } // end OpenMP PARALLEL for
-
     dcCalls = calls;
     std::cout << " " << dcCalls << " dropCutter() calls.\n";
     return;

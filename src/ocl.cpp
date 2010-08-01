@@ -83,7 +83,6 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("pushCutter1", &BatchPushCutter::pushCutter1)
         .def("pushCutter2", &BatchPushCutter::pushCutter2)
         .def("pushCutter3", &BatchPushCutter::pushCutter3)
-        //.def("pushCutter4", &BatchPushCutter::pushCutter4)
         .def("setSTL", &BatchPushCutter::setSTL)
         .def("setCutter", &BatchPushCutter::setCutter)
         .def("setThreads", &BatchPushCutter::setThreads)
