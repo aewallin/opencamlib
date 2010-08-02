@@ -35,7 +35,7 @@ Interval::Interval() {
     in_weave=false;
 }
 
-Interval::Interval(double l, double u) {
+Interval::Interval(const double l, const double u) {
     assert( l <= u );
     lower = l;
     upper = u;
@@ -46,9 +46,8 @@ Interval::~Interval() {
     return;
 }
 
-void Interval::updateUpper(double t, CCPoint& p) {
+void Interval::updateUpper(const double t, CCPoint& p) {
     if (upper_cc.type == NONE) {
-        //std::cout << " I: updateUpper() NONE up=lo=" << t << "\n";
         upper = t;
         lower = t;
         upper_cc = p;
@@ -61,9 +60,8 @@ void Interval::updateUpper(double t, CCPoint& p) {
     } 
 }
 
-void Interval::updateLower(double t, CCPoint& p) {
+void Interval::updateLower(const double t, CCPoint& p) {
     if (lower_cc.type == NONE) {
-        //std::cout << " I: updateLower() NONE up=lo=" << t << "\n";
         lower = t;
         upper = t;
         lower_cc = p;
@@ -94,8 +92,9 @@ bool Interval::inside(const Interval& i) const {
         return false;
 }
 
+/// return true if lower==upper==0.0  
 bool Interval::empty() const {
-    if ( isZero_tol(lower)  && isZero_tol(upper) )
+    if ( lower==0.0  && upper==0.0 )
         return true;
     else
         return false;

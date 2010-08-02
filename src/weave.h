@@ -60,8 +60,11 @@ typedef std::pair< std::size_t, Point > TimePointPair;
 typedef std::pair< std::size_t, VertexDescriptor > TimeVertexPair;
 typedef std::pair< double, VertexDescriptor > DistanceVertexPair;
 
-bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs );
+
+//bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs );
+
 bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs );
+
 bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPair& rhs );
 
 // see weave_typedef.h for boost-graph classes                         
@@ -71,33 +74,41 @@ class Weave {
     public:
         Weave();
         virtual ~Weave() {};
+        void add_vertex( Point& position, VertexType t, Interval& i, double ipos);
         void addFiber(Fiber& f);
         void build();
-        void mark_adj_vertices();
         void order_points();
+        void add_loop_edges();
         std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
+        std::vector<VertexDescriptor> get_neighbors2(VertexDescriptor& source);
         VertexDescriptor get_next_vertex(VertexDescriptor& source);
         std::vector<Weave> split_components();
         
-        void invert();
-        void sort_fibers();
+        // void invert();
+        void mark_adj_vertices();
+        void sort_fibers(); // sort into X and Y fibers
         unsigned int clpoints_size();
-        std::vector<Fiber> fibers;
-        std::vector<Fiber> xfibers;
-        std::vector<Fiber> yfibers;
-        std::string str() const;
-        void printGraph() const;
-        
         void writeGraph() const; // write to dot file
+        
         // python debug/test interface:
         boost::python::list get_components();
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
         boost::python::list getADJPoints() const;
         boost::python::list getEdges() const;
+        boost::python::list getCLEdges() const;
         boost::python::list getLoop() const;
-        WeaveGraph g;
         
+        // string repr
+        std::string str() const;
+        void printGraph() const;
+        
+        // DATA
+        std::vector<Fiber> fibers;
+        std::vector<Fiber> xfibers;
+        std::vector<Fiber> yfibers;
+        
+        WeaveGraph g;
         std::vector<Point> loop;
 };
 

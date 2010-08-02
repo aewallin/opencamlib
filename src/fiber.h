@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include <boost/graph/adjacency_list.hpp>
+// #include <boost/graph/adjacency_list.hpp>
 
 #include "point.h"
 #include "ccpoint.h"
@@ -36,24 +36,28 @@ namespace ocl
 class Interval {
     public:
         Interval();
-        Interval(double l, double u);
+        Interval(const double l, const double u);
         virtual ~Interval();
         
-        void updateUpper(double t, CCPoint& p);
-        void updateLower(double t, CCPoint& p);
+        void updateUpper(const double t, CCPoint& p);
+        void updateLower(const double t, CCPoint& p);
         bool outside(const Interval& i) const;
         bool inside(const Interval& i) const;
         bool empty() const;
         std::string str() const;
-                
+        
+        /// cutter contact points at upper and lower are stored in upper_cc and lower_cc
         CCPoint upper_cc;
         CCPoint lower_cc;
-        double upper;
+        /// the upper t-value 
+        double upper; 
+        /// the lower t-value
         double lower;
+        
         bool in_weave; // flag for use by Weave::build()
-        VertexDescriptor vert_lower; // weave vertex corresponding to lower CL-point
-        VertexDescriptor vert_upper; // upper CL-point weave vertex
-        std::set< VertexPair, VertexPairCompare > intersections; // store intersection coordinates with other fibers here
+        /// intersections with other intervals are stored in this set of
+        /// VertexPairs of type std::set<VertexDescriptor, double>
+        std::set< VertexPair, VertexPairCompare > intersections; 
 };
 
 

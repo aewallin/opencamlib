@@ -53,6 +53,15 @@ void Weave::sort_fibers() {
     }    
 }
 
+void Weave::add_vertex( Point& position, VertexType t, Interval& i, double ipos) {
+    VertexDescriptor  v;
+    v = boost::add_vertex(g);
+    boost::put( boost::vertex_position , g , v , position );
+    boost::put( boost::vertex_type , g , v , t );
+    i.intersections.insert( VertexPair( v, ipos) );
+}
+
+/// this builds a BGL graph g by looking at xfibers and yfibers
 void Weave::build() {
     // 1) add CL-points of X-fiber (if not already in graph)
     // 2) add CL-points of Y-fiber (if not already in graph)
@@ -70,14 +79,10 @@ void Weave::build() {
                 double xmax = xf.point(xi.upper).x;
                 if (!xi.in_weave) { // add the interval end-points to the weave
                     // 1) CL-points of X-fiber (check if already added)
-                    xi.vert_lower = boost::add_vertex(g);
-                    xi.vert_upper = boost::add_vertex(g);
-                    boost::put( boost::vertex_position , g , xi.vert_lower , xf.point(xi.lower) );
-                    boost::put( boost::vertex_position , g , xi.vert_upper , xf.point(xi.upper) );
-                    boost::put( boost::vertex_type , g , xi.vert_lower , CL );
-                    boost::put( boost::vertex_type , g , xi.vert_upper, CL );
-                    xi.intersections.insert( VertexPair( xi.vert_lower, xf.point(xi.lower).x ) );
-                    xi.intersections.insert( VertexPair( xi.vert_upper, xf.point(xi.upper).x ) );
+                    Point p = xf.point(xi.lower);
+                    add_vertex( p, CL , xi, p.x );
+                    p = xf.point(xi.upper);
+                    add_vertex( p, CL , xi, p.x );
                     xi.in_weave = true;
                 }
                 BOOST_FOREACH( Fiber& yf, yfibers ) {
@@ -85,21 +90,16 @@ void Weave::build() {
                         BOOST_FOREACH( Interval& yi, yf.ints ) {
                             double ymin = yf.point(yi.lower).y;
                             double ymax = yf.point(yi.upper).y;
-                            if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) {
+                            if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) { // actual intersection
                                 // X interval xi on fiber xf intersects with Y interval yi on fiber yf
                                 // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z)
 
                                 // 2) CL-points of Y-fiber (check if already added)
                                 if (!yi.in_weave) {
-                                    //VertexDescriptor  yp1, yp2;
-                                    yi.vert_lower = boost::add_vertex(g);
-                                    yi.vert_upper = boost::add_vertex(g);
-                                    boost::put( boost::vertex_position , g , yi.vert_lower , yf.point(yi.lower) );
-                                    boost::put( boost::vertex_position , g , yi.vert_upper , yf.point(yi.upper) );
-                                    boost::put( boost::vertex_type , g , yi.vert_lower , CL );
-                                    boost::put( boost::vertex_type , g , yi.vert_upper , CL );
-                                    yi.intersections.insert( VertexPair( yi.vert_lower, yf.point(yi.lower).y ) );
-                                    yi.intersections.insert( VertexPair( yi.vert_upper, yf.point(yi.upper).y ) );
+                                    Point p = yf.point(yi.lower);
+                                    add_vertex( p, CL , yi, p.y );
+                                    p = yf.point(yi.upper);
+                                    add_vertex( p, CL , yi, p.y );
                                     yi.in_weave = true;
                                 }
                                 // 3) intersection point (this is always new, no need to check for existence??)
@@ -120,11 +120,6 @@ void Weave::build() {
                                 VertexPairIterator x_below = x_tmp;
                                 ++x_above;
                                 --x_below;
-                                /*
-                                std::cout << "xfiber btw x_lower=" << xf.point(xi.lower).x << " and x_upper=" <<  xf.point(xi.upper).x << "\n";
-                                std::cout << " adding i-vert at x=" << v_position.x << "\n";
-                                std::cout << "  x_below=" << x_below->second << "  x_above=" << x_above->second <<"\n";
-                                */
                                 // if x_above and x_below are already connected, we need to remove that edge.
                                 boost::remove_edge( x_above->first, x_below->first, g);
                                 boost::add_edge( x_above->first , v , g );
@@ -138,12 +133,6 @@ void Weave::build() {
                                 VertexPairIterator y_below = y_tmp;
                                 ++y_above;
                                 --y_below;
-                                /*
-                                std::cout << "yfiber btw y_lower=" << yf.point(yi.lower).y << " and y_upper=" <<  yf.point(yi.upper).y << "\n";
-                                std::cout << " adding i-vert at y=" << v_position.y << "\n";
-                                std::cout << "   y_tmp=" << y_tmp->second << "\n";
-                                std::cout << "     y_below=" << y_below->second << "  y_above=" << y_above->second <<"\n";
-                                */
                                 // if y_above and y_below are already connected, we need to remove that edge.
                                 boost::remove_edge( y_above->first, y_below->first, g);
                                 boost::add_edge( y_above->first , v , g );
@@ -158,37 +147,32 @@ void Weave::build() {
      
 }
 
-/// assuming that the graph is built
-/// find out the number of components
-/// and split into different compontents
+/// assuming that the graph is built,
+/// find out the number of components,
+/// and split and return a list of the the unconnected compontents
 std::vector<Weave> Weave::split_components() {
     typedef boost::property_map< WeaveGraph, boost::vertex_component_t>::type ComponentMap;
     ComponentMap comp_map = boost::get( boost::vertex_component, g);
     //std::vector<int> component( boost::num_vertices(g) );
-    std::size_t components = boost::connected_components( g, comp_map );
-    std::cout << " graph has " << components << " components\n";
-    std::vector<WeaveGraph> g_components;
-    g_components = std::vector<WeaveGraph>(components);
-    for( unsigned int m=0;m<g_components.size();++m)
-        g_components[m] = g; // copy everything into g_components
-    
-    for( unsigned int m=0;m<g_components.size();++m) {
+    std::size_t N = boost::connected_components( g, comp_map );
+    std::cout << " graph has " << N << " components\n";
+    WeaveGraph gcomp;
+    std::vector<Weave> outw;
+    for( unsigned int m=0;m<N;++m) {
+        gcomp = g; // copy everything into g_components
         VertexIterator it, it_end;
-        boost::tie( it, it_end ) = boost::vertices( g_components[m] );
+        boost::tie( it, it_end ) = boost::vertices( gcomp );
         for(  ; it != it_end ; ++it ) {
-            std::size_t v_comp = boost::get( boost::vertex_component, g_components[m], *it); // get component number
+            std::size_t v_comp = boost::get( boost::vertex_component, gcomp, *it); // get component number
             if ( v_comp != m ) {
-                boost::clear_vertex( *it , g_components[m] ); // this removes all edges
-                boost::put( boost::vertex_type, g_components[m], *it, INT); // mark INT, so we don't start at a false CL-point
+                boost::clear_vertex( *it , gcomp ); // this removes all edges
+                boost::put( boost::vertex_type, gcomp, *it, INT); // mark INT, so we don't start at a false CL-point
             }
         }
-    }
-
-    std::vector<Weave> outw;
-    for( unsigned int m=0;m<g_components.size();++m) {
-        std::cout << "comp " << m << " verts=" << boost::num_vertices(g_components[m]) << " edges=" << boost::num_edges(g_components[m]) << "\n";
+        std::cout << "comp " << m << " verts=" << boost::num_vertices(gcomp) << " edges=" << boost::num_edges(gcomp) << "\n";
+        // now create an new Weave
         Weave* w = new Weave();
-        w->g = g_components[m];
+        w->g = gcomp;
         outw.push_back(*w);
     }
     return outw;
@@ -205,21 +189,37 @@ boost::python::list Weave::get_components() {
     return wlist;
 }
 
-void Weave::mark_adj_vertices() {
-    // go through the vertices and mark the ones that connect to CL-points
-    // as being of type ADJ
-    VertexIterator it_begin, it_end, it;
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    for( it = it_begin ; it != it_end ; ++it ) {
-        AdjacencyIterator adj_begin, adj_end, adj_itr;
-        boost::tie( adj_begin, adj_end ) = boost::adjacent_vertices( *it , g );
-        bool adj_type = false;
-        for ( adj_itr = adj_begin ; adj_itr != adj_end ; ++adj_itr ) {
-            if ( boost::get( boost::vertex_type , g , *adj_itr ) == CL )
-                adj_type = true;
+
+void Weave::add_loop_edges() {
+    // find and add edges that make up the toolpath loop
+    VertexIterator it, it_end;
+    boost::tie( it, it_end ) = boost::vertices( g );
+    std::vector<VertexDescriptor> mark_cl;
+    for(  ; it != it_end ; ++it ) {
+        if ( boost::get( boost::vertex_type, g, *it) == ADJ ) {
+            // ADJ vertices that have two CL-neighbors
+            AdjacencyIterator adj_it, adj_end;
+            boost::tie(adj_it, adj_end) = boost::adjacent_vertices(*it, g);
+            std::vector<VertexDescriptor> cln; // adjacent cl-points
+            std::vector<VertexDescriptor> adjn; // adjacent adj-points
+            for (  ; adj_it != adj_end ; ++adj_it ) {
+                if ( boost::get( boost::vertex_type, g, *adj_it) == CL ) {
+                    cln.push_back(*adj_it);
+                } else if ( boost::get( boost::vertex_type, g, *adj_it) == ADJ ) {
+                    adjn.push_back(*adj_it);
+                }
+            }
+            if (cln.size()==2) { 
+                bool added;
+                EdgeDescriptor e;
+                boost::tie( e, added ) = boost::add_edge( cln[0] , cln[1], g);
+                boost::put( boost::edge_color, g, e, true);
+                mark_cl.push_back(*it);
+            } 
         }
-        if (adj_type)
-            boost::put( boost::vertex_type, g , *it , ADJ);
+    }
+    BOOST_FOREACH( VertexDescriptor v, mark_cl) {
+        boost::put( boost::vertex_type, g, v, CL);
     }
 }
 
@@ -269,6 +269,7 @@ std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
     return nearest_neighbors;
 }
 
+/// given the source vertex, find the next vertex
 VertexDescriptor Weave::get_next_vertex(VertexDescriptor& source) {
     std::vector<VertexDescriptor> nn = get_neighbors(source);
     if (nn.size() == 1) {// this is the easy case
@@ -292,7 +293,7 @@ VertexDescriptor Weave::get_next_vertex(VertexDescriptor& source) {
     }
 }
 
-// count the number of cl-points
+/// count the number of cl-points in the weave
 unsigned int Weave::clpoints_size() {
     VertexIterator it_begin, it_end, it, first;
     boost::tie( it_begin, it_end ) = boost::vertices( g );
@@ -305,6 +306,7 @@ unsigned int Weave::clpoints_size() {
     return ncl;
 }
 
+/// find a first CL point, and call get_next_vertex() until we are done
 void Weave::order_points() {
     // find a first CL-point
     VertexIterator it_begin, it_end, it, first;
@@ -335,17 +337,34 @@ void Weave::order_points() {
     
 }
 
-bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs ) {
-    return lhs.first < rhs.first;
-}
 
 bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs ) {
     return lhs.first < rhs.first;
 }
-
 bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPair& rhs ) {
     return lhs.first < rhs.first;
 }
+
+void Weave::mark_adj_vertices() {
+    // go through the vertices and mark the ones that connect to CL-points
+    // as being of type ADJ
+    VertexIterator it_begin, it_end, it;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for( it = it_begin ; it != it_end ; ++it ) {
+        AdjacencyIterator adj_begin, adj_end, adj_itr;
+        boost::tie( adj_begin, adj_end ) = boost::adjacent_vertices( *it , g );
+        bool has_CL_adjacent = false;
+        for ( adj_itr = adj_begin ; adj_itr != adj_end ; ++adj_itr ) {
+            if ( boost::get( boost::vertex_type , g , *adj_itr ) == CL )
+                has_CL_adjacent = true;
+        }
+        if (has_CL_adjacent && (boost::get( boost::vertex_type , g , *it ) == INT) )
+            boost::put( boost::vertex_type, g , *it , ADJ);
+    }
+}
+
+
+
 
 void Weave::printGraph() const {
     std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
@@ -410,18 +429,41 @@ boost::python::list Weave::getEdges() const {
     EdgeIterator it_begin, it_end, itr;
     boost::tie( it_begin, it_end ) = boost::edges( g );
     for ( itr=it_begin ; itr != it_end ; ++itr ) { // loop through each edge
-        boost::python::list point_list; // the endpoints of each edge
-        VertexDescriptor v1 = boost::source( *itr, g  );
-        VertexDescriptor v2 = boost::target( *itr, g  );
-        Point p1 = boost::get( boost::vertex_position, g, v1 );
-        Point p2 = boost::get( boost::vertex_position, g, v2 );
-        point_list.append(p1);
-        point_list.append(p2);
-        edge_list.append(point_list);
+        if ( ! boost::get( boost::edge_color, g, *itr ) ) {
+            boost::python::list point_list; // the endpoints of each edge
+            VertexDescriptor v1 = boost::source( *itr, g  );
+            VertexDescriptor v2 = boost::target( *itr, g  );
+            Point p1 = boost::get( boost::vertex_position, g, v1 );
+            Point p2 = boost::get( boost::vertex_position, g, v2 );
+            point_list.append(p1);
+            point_list.append(p2);
+            edge_list.append(point_list);
+        }
     }
     return edge_list;
 }
 
+
+boost::python::list Weave::getCLEdges() const {
+    boost::python::list edge_list;
+    EdgeIterator it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::edges( g );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) { // loop through each edge
+        if ( boost::get( boost::edge_color, g, *itr ) ) {
+            boost::python::list point_list; // the endpoints of each edge
+            VertexDescriptor v1 = boost::source( *itr, g  );
+            VertexDescriptor v2 = boost::target( *itr, g  );
+            Point p1 = boost::get( boost::vertex_position, g, v1 );
+            Point p2 = boost::get( boost::vertex_position, g, v2 );
+            point_list.append(p1);
+            point_list.append(p2);
+            edge_list.append(point_list);
+        }
+    }
+    return edge_list;
+}
+
+/// output points from variable this->loop to python
 boost::python::list Weave::getLoop() const {
     boost::python::list plist;
     BOOST_FOREACH( Point p, loop ) {

@@ -54,12 +54,13 @@ typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std
                                         boost::property<boost::vertex_in_degree_t, int,
                                         boost::property<boost::vertex_out_degree_t, int > > > > > > > >, 
                                    // edge properties:
-                                   boost::property< boost::edge_weight_t, double >
+                                   boost::property< boost::edge_color_t, bool >
                                    > WeaveGraph; 
                     // graph_traits< G >::edge_parallel_category
                     // tags: disallow_parallel_edge_tag
 typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
+typedef boost::graph_traits< WeaveGraph >::edge_descriptor EdgeDescriptor;
 typedef boost::graph_traits< WeaveGraph >::edge_iterator EdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
 typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;

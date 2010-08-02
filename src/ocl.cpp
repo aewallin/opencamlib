@@ -121,6 +121,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("printGraph", &Weave::printGraph)
         .def("writeGraph", &Weave::writeGraph)
         .def("mark_adj_vertices", &Weave::mark_adj_vertices)
+        .def("add_loop_edges", &Weave::add_loop_edges)
         .def("order_points", &Weave::order_points)
         .def("split_components", &Weave::split_components)
         .def("get_components", &Weave::get_components)
@@ -128,6 +129,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getIPoints", &Weave::getIPoints)
         .def("getADJPoints", &Weave::getADJPoints)
         .def("getEdges", &Weave::getEdges)
+        .def("getCLEdges", &Weave::getCLEdges)
         .def("getLoop", &Weave::getLoop)
         .def("__str__", &Weave::str)
     ;

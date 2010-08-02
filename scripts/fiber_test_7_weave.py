@@ -83,23 +83,36 @@ if __name__ == "__main__":
     print " got ",len(fibers)," fibers from bpc"
     print "rendering fibers and CL-points."
     #camvtk.drawCLPointCloud(myscreen, clpoints)
-    for f in fibers:
-        drawFiber(myscreen, f, camvtk.red)
+    #for f in fibers:
+    #    drawFiber(myscreen, f, camvtk.red)
     
     w = ocl.Weave()
+    print "push fibers to Weave...",
     for f in fibers:
         w.addFiber(f)
+    print "done."
         
 
-    #print "inv build()"
+    print "Weave build()...",
     w.build()
+    print "done"
     w.mark_adj_vertices()
-    w.order_points()
+    print "add loop edges...",
+    w.add_loop_edges()
+    w.mark_adj_vertices()
+    w.add_loop_edges()
+    #w.mark_adj_vertices()
+    #w.add_loop_edges()
+    #w.add_loop_edges()
+    #w.add_loop_edges()
+    #w.add_loop_edges()
+    print "done."
     
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
     w_adjpts = w.getADJPoints()
     w_edges = w.getEdges()
+    w_cle = w.getCLEdges()
     w_loop = w.getLoop()
     
     print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
@@ -108,21 +121,24 @@ if __name__ == "__main__":
     print " got: ", len(w_loop), " loop points"
     zoffset = 0.2
     for p in w_clpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.pink ) )
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
     for p in w_ipts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.orange ) )
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0061, color=camvtk.orange ) )
     for p in w_adjpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.01, color=camvtk.green ) )
-    zoffset2=zoffset+0.1
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0061, color=camvtk.green ) )
+    
+    zoffset2=zoffset + 0.1
     np = 0
     previous = 0
     dzoffset = 0.0005
+    
     for p in w_loop:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.01, color=camvtk.red ) )        
-        if np is not 0:
-            myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
-        np=np+1
-        previous = p
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.006, color=camvtk.pink ) )        
+        
+        #if np is not 0:
+        #    myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
+        #np=np+1
+        #previous = p
         
         
         
@@ -134,6 +150,10 @@ if __name__ == "__main__":
         p2 = e[1]
         myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
         ne = ne+1
+    for e in w_cle:
+        p1 = e[0]
+        p2 = e[1]
+        myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset), p2=(p2.x,p2.y,p2.z+zoffset), color=camvtk.yellow ) )
         
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)

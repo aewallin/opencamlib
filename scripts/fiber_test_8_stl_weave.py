@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print cutter
     xmin=-1
     xmax=15
-    N=200
+    N=100
     ymin=-1
     ymax=15
     yvals = generateRange(ymin,ymax,N)
@@ -98,23 +98,33 @@ if __name__ == "__main__":
     
     n=0
     loops = []
+    t2_before = time.time()
     for zlev_fibers in sorted_fibers:
         print " z-level ",n," at z=", zvals[n], " has ", len(zlev_fibers), "fibers"
         n=n+1
         w = ocl.Weave()
         for f in zlev_fibers:
             w.addFiber(f)
+        print " build()...",
         w.build()
-        print " build() done"
+        print "done"
+        print " split()...",
         subw = w.get_components()
-        print " split() done"
+        print "done, got ", len(subw)," sub-weaves"
+        m=0
         for sw in subw:
+            print m," order_points...",
+            t_before = time.time()
             sw.order_points()
-            print " order_points() done"
+            t_after = time.time()
+            calctime = t_after-t_before
+            print "done in ", calctime," s"
             w_loop = sw.getLoop()
             loops.append(w_loop)
-    
+            m=m+1
+    t2_after = time.time()
     print " found", len(loops)," loops"
+    print " loop extraction took ", t2_after-t2_before," seconds"
     for lop in loops:
         first = 1
         previous=ocl.Point(-1,-1,5)
