@@ -499,29 +499,11 @@ bool CylCutter::facetPush(const Fiber& fib, Interval& intv,  const Triangle& t) 
     Point q2 = q1+tangent;
     if ( !xy_line_line_intersection( q1 , q2, v_cc, fib.p1, fib.p2, t_cl ) )
         assert(0); 
-     
-     
+    
     // [ tang.x  -(p2-p1).x ] [ v ]  = [ (-q-r*n+p1).x ]
     // [ tang.y  -(p2-p1).y ] [ t ]  = [ (-q-r*n+p1).y ]
     // or
     // Mx=y
-    /*
-    bnu::matrix<double> M(2,2);
-    M(0,0) = tangent.x;
-    M(0,1) = -(f.p2.x - f.p1.x);
-    M(1,0) = tangent.y;
-    M(1,1) = -(f.p2.y - f.p1.y);
-    bnu::vector<double> y(2);
-    y(0) = -q.x - radius*normal.x + f.p1.x;
-    y(1) = -q.y - radius*normal.y + f.p1.y;
-    bnu::matrix<double> Minv(M.size1(),M.size2());
-    Minv = bnu::identity_matrix<double>(M.size1());
-    bnu::permutation_matrix<size_t> pm(M.size1());
-    bnu::lu_factorize(M,pm);
-    bnu::lu_substitute( M, pm, Minv );
-    bnu::vector<double> x(2);
-    x = bnu::prod( Minv, y );
-    */
     // there are two solutions
     double cc_vval1 = v_cc;
     double cl_tval1 = t_cl;

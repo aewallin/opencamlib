@@ -307,7 +307,18 @@ bool BallCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) cons
 
 bool BallCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
-    // find a point on the plane from which radius*normal lands on the fiber
+    Point normal; // facet surface normal 
+    if ( t.n->zParallel() ) { // normal points in z-dir   
+        return result; //can't push against horizontal plane, stop here.
+    }
+    else if (t.n->z < 0) {  // normal is pointing down
+        normal = -1* (*t.n); // flip normal
+    } else {
+        normal = *t.n;
+    }
+    
+    // find a point on the plane from which radius*normal lands on the fiber+radius*Point(0,0,1) 
+    
     
     return result;
 }
