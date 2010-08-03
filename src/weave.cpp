@@ -189,37 +189,152 @@ boost::python::list Weave::get_components() {
     return wlist;
 }
 
+void Weave::cap_edges() {
+    VertexIterator it, it_end;
+    boost::tie( it, it_end ) = boost::vertices( g );
+    std::vector<VertexDescriptor> processed;
+    for(  ; it != it_end ; ++it ) {
+        if ( boost::get( boost::vertex_type, g, *it) == ADJ ) {
+            AdjacencyIterator adj_it, adj_end;
+            boost::tie(adj_it, adj_end) = boost::adjacent_vertices(*it, g);
+            std::vector<VertexDescriptor> adj_cl;
+            std::vector<VertexDescriptor> adj_other;
+            for (  ; adj_it != adj_end ; ++adj_it ) {
+                if ( boost::get( boost::vertex_type, g, *adj_it) == CL ) {
+                    adj_cl.push_back(*adj_it);
+                } else {
+                    adj_other.push_back(*adj_it);
+                }
+            }
+            if ( adj_cl.size()==2) {
+                bool added;
+                EdgeDescriptor e;
+                boost::tie( e, added ) = boost::add_edge( adj_cl[0] , adj_cl[1], g);
+                boost::put( boost::edge_color, g, e, true);
+                processed.push_back( *it );
+                //assert( adj_other.size()==2 );
+                // now disconnect *it from weave
+                // 
+                // boost::put( boost::vertex_type, g, *it, INT);
+                // and add replacing edges
+                //boost::tie( e, added ) = boost::add_edge( adj_cl[0] , adj_other[0], g);
+                //boost::tie( e, added ) = boost::add_edge( adj_cl[1] , adj_other[1], g);
+            }
+        }
+
+    }
+    BOOST_FOREACH( VertexDescriptor v, processed ) {
+        // find the adjacent CL and other points
+        AdjacencyIterator adj_it, adj_end;
+        boost::tie(adj_it, adj_end) = boost::adjacent_vertices( v, g);
+        std::vector<VertexDescriptor> adj_cl;
+        std::vector<VertexDescriptor> adj_other;
+        for (  ; adj_it != adj_end ; ++adj_it ) {
+            if ( boost::get( boost::vertex_type, g, *adj_it) == CL ) {
+                adj_cl.push_back(*adj_it);
+            } else {
+                adj_other.push_back(*adj_it);
+            }
+        }
+        
+        if ( adj_other.size()==2 && adj_cl.size()==2) {
+            // now add two edges
+            bool added;
+            EdgeDescriptor e;
+            boost::clear_vertex( v, g);
+            // find out the shorter combination
+            Point cl0 = boost::get( boost::vertex_position, g, adj_cl[0] );
+            Point o0 = boost::get( boost::vertex_position, g, adj_other[0] );
+            Point o1 = boost::get( boost::vertex_position, g, adj_other[1] );
+            if ( (cl0-o0).norm() < (cl0-o1).norm() ) {
+                boost::tie( e, added ) = boost::add_edge( adj_cl[0] , adj_other[0], g);
+                boost::tie( e, added ) = boost::add_edge( adj_cl[1] , adj_other[1], g);
+            } else {
+                boost::tie( e, added ) = boost::add_edge( adj_cl[0] , adj_other[1], g);
+                boost::tie( e, added ) = boost::add_edge( adj_cl[1] , adj_other[0], g);
+            }
+        } else if ( adj_other.size()==1 && adj_cl.size()==2) {
+            // add only one edge
+            bool added;
+            EdgeDescriptor e;
+            boost::clear_vertex( v, g);
+            // find out the shorter combination
+            Point cl0 = boost::get( boost::vertex_position, g, adj_cl[0] );
+            Point cl1 = boost::get( boost::vertex_position, g, adj_cl[1] );
+            Point o0 = boost::get( boost::vertex_position, g, adj_other[0] );
+            if ( (cl0-o0).norm() < (cl1-o0).norm() ) {
+                boost::tie( e, added ) = boost::add_edge( adj_cl[0] , adj_other[0], g);
+                //boost::tie( e, added ) = boost::add_edge( adj_cl[1] , adj_other[1], g);
+            } else {
+                //boost::tie( e, added ) = boost::add_edge( adj_cl[0] , adj_other[1], g);
+                boost::tie( e, added ) = boost::add_edge( adj_cl[1] , adj_other[0], g);
+            }
+        } else if ( adj_other.size()==0) {
+            boost::clear_vertex( v, g);
+        }
+    }
+}
 
 void Weave::add_loop_edges() {
     // find and add edges that make up the toolpath loop
     VertexIterator it, it_end;
     boost::tie( it, it_end ) = boost::vertices( g );
-    std::vector<VertexDescriptor> mark_cl;
+    std::vector<VertexDescriptor> mark_for_clear;
     for(  ; it != it_end ; ++it ) {
-        if ( boost::get( boost::vertex_type, g, *it) == ADJ ) {
+        if ( boost::get( boost::vertex_type, g, *it) == TWOADJ ) {
             // ADJ vertices that have two CL-neighbors
             AdjacencyIterator adj_it, adj_end;
             boost::tie(adj_it, adj_end) = boost::adjacent_vertices(*it, g);
-            std::vector<VertexDescriptor> cln; // adjacent cl-points
+            // std::vector<VertexDescriptor> cln; // adjacent cl-points
             std::vector<VertexDescriptor> adjn; // adjacent adj-points
             for (  ; adj_it != adj_end ; ++adj_it ) {
-                if ( boost::get( boost::vertex_type, g, *adj_it) == CL ) {
-                    cln.push_back(*adj_it);
-                } else if ( boost::get( boost::vertex_type, g, *adj_it) == ADJ ) {
+                if ( boost::get( boost::vertex_type, g, *adj_it) == ADJ ) {
                     adjn.push_back(*adj_it);
-                }
+                } 
             }
-            if (cln.size()==2) { 
+            assert( adjn.size() == 2);
+            if (adjn.size()==2) { 
                 bool added;
                 EdgeDescriptor e;
-                boost::tie( e, added ) = boost::add_edge( cln[0] , cln[1], g);
-                boost::put( boost::edge_color, g, e, true);
-                mark_cl.push_back(*it);
+                boost::tie( e, added ) = boost::add_edge( adjn[0] , adjn[1], g);
+                //boost::put( boost::edge_color, g, e, true);
+                mark_for_clear.push_back(*it);
             } 
         }
     }
-    BOOST_FOREACH( VertexDescriptor v, mark_cl) {
-        boost::put( boost::vertex_type, g, v, CL);
+    BOOST_FOREACH( VertexDescriptor v, mark_for_clear) {
+        boost::clear_vertex( v, g );
+    }
+    mark_for_clear.clear();
+    // ADJ-vertices which have one CL-adjacent can now be deleted
+    boost::tie( it, it_end ) = boost::vertices( g );
+    for(  ; it != it_end ; ++it ) {
+        if ( boost::get( boost::vertex_type, g, *it) == ADJ ) {
+            AdjacencyIterator adj_it, adj_end;
+            boost::tie(adj_it, adj_end) = boost::adjacent_vertices(*it, g);
+            std::vector<VertexDescriptor> adjcl;
+            std::vector<VertexDescriptor> adjadj;
+            for (  ; adj_it != adj_end ; ++adj_it ) {
+                if ( boost::get( boost::vertex_type, g, *adj_it) == CL ) {
+                    adjcl.push_back( *adj_it );
+                } else if ( boost::get( boost::vertex_type, g, *adj_it) == ADJ ) {
+                    adjadj.push_back( *adj_it );
+                } 
+            }
+            if (adjcl.size()==1) {
+                assert( adjadj.size() == 2);
+                // add edges
+                bool added;
+                EdgeDescriptor e;
+                boost::tie( e, added ) = boost::add_edge( adjcl[0] , adjadj[0], g);
+                boost::tie( e, added ) = boost::add_edge( adjcl[0] , adjadj[1], g);
+                mark_for_clear.push_back(*it);
+            }
+        }
+    }
+    BOOST_FOREACH( VertexDescriptor v, mark_for_clear) {
+        boost::clear_vertex( v, g );
+        boost::put( boost::vertex_type, g, v, INT);
     }
 }
 
@@ -278,15 +393,13 @@ VertexDescriptor Weave::get_next_vertex(VertexDescriptor& source) {
     } else { // the harder case
         // choose based on euclidean distance??
         Point sp = boost::get( boost::vertex_position, g, source);
-        
         std::vector<DistanceVertexPair> nvector;
         BOOST_FOREACH( VertexDescriptor v, nn) {
             Point p = boost::get( boost::vertex_position, g, v);
             // std::cout << " dist to" << p << " is " << (sp-p).norm() << "\n";
             nvector.push_back( DistanceVertexPair( (sp-p).norm() , v ) );
         }
-        // sort the list
-        std::sort( nvector.begin(), nvector.end(), FirstSortPredicate);
+        std::sort( nvector.begin(), nvector.end(), FirstSortPredicate); // sort the list
         //std::cout << " choosing dist=" << nvector[0].first << " \n";
         boost::put( boost::vertex_type, g, nvector[0].second, CL_DONE);
         return nvector[0].second; 
@@ -308,19 +421,17 @@ unsigned int Weave::clpoints_size() {
 
 /// find a first CL point, and call get_next_vertex() until we are done
 void Weave::order_points() {
-    // find a first CL-point
+    
     VertexIterator it_begin, it_end, it, first;
     boost::tie( it_begin, it_end ) = boost::vertices( g );
-
-    // put all CL-points into a vector
-    std::vector<VertexDescriptor> clpts;
+    std::vector<VertexDescriptor> clpts;// put all CL-points into a vector
     for( it = it_begin ; it != it_end ; ++it ) {
         if ( boost::get( boost::vertex_type , g , *it ) == CL ) {
             clpts.push_back( *it );
         }
     }
-    VertexDescriptor startvertex = clpts[0];
-    loop.push_back(boost::get ( boost::vertex_position, g, startvertex ) );
+    VertexDescriptor startvertex = clpts[0];// find a first CL-point
+    loop.push_back( boost::get( boost::vertex_position, g, startvertex ) );
     boost::put( boost::vertex_type, g, startvertex, CL_DONE); 
        
     VertexDescriptor nextvertex;
@@ -358,8 +469,35 @@ void Weave::mark_adj_vertices() {
             if ( boost::get( boost::vertex_type , g , *adj_itr ) == CL )
                 has_CL_adjacent = true;
         }
-        if (has_CL_adjacent && (boost::get( boost::vertex_type , g , *it ) == INT) )
+        if (has_CL_adjacent && ( boost::get( boost::vertex_type , g , *it ) != CL) )
             boost::put( boost::vertex_type, g , *it , ADJ);
+    }
+    // go through once more
+    // mark INT points which connect to two ADJ points as TWOADJ
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for( it = it_begin ; it != it_end ; ++it ) {
+        AdjacencyIterator adj_begin, adj_end, adj_itr;
+        boost::tie( adj_begin, adj_end ) = boost::adjacent_vertices( *it , g );
+        // bool has_CL_adjacent = false;
+        
+        if ( boost::get( boost::vertex_type , g , *it ) == INT ) {
+            unsigned int adj_neighbors=0;
+            for ( adj_itr = adj_begin ; adj_itr != adj_end ; ++adj_itr ) {
+                if ( boost::get( boost::vertex_type , g , *adj_itr ) == ADJ )
+                    ++adj_neighbors;
+            }
+            if ( adj_neighbors==2 )
+                boost::put( boost::vertex_type, g , *it , TWOADJ);
+        }
+    }
+    
+    // go through again
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for( it = it_begin ; it != it_end ; ++it ) {
+        // clear INT vertices
+        if ( boost::get( boost::vertex_type , g , *it ) == INT ) {
+            boost::clear_vertex(*it, g); // or just mark edges invalid??
+        }
     }
 }
 
@@ -421,6 +559,17 @@ boost::python::list Weave::getADJPoints() const {
     return plist;
 }
 
+/// return the ADJ points of the weave to python
+boost::python::list Weave::get2ADJPoints() const {
+    boost::python::list plist;
+    VertexIterator it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        if ( boost::get( boost::vertex_type, g, *itr ) == TWOADJ ) 
+            plist.append( boost::get( boost::vertex_position, g, *itr ) );
+    }
+    return plist;
+}
 
 /// put all edges in a list of lists for output to python
 /// format is [ [p1,p2] , [p3,p4] , ... ]

@@ -98,9 +98,16 @@ if __name__ == "__main__":
     print "done"
     w.mark_adj_vertices()
     print "add loop edges...",
-    w.add_loop_edges()
+    w.cap_edges()
     w.mark_adj_vertices()
-    w.add_loop_edges()
+    #w.cap_edges()
+    #w.mark_adj_vertices()
+    #w.cap_edges()
+    #w.mark_adj_vertices()
+    #w.cap_edges()
+    #w.add_loop_edges()
+    #w.mark_adj_vertices()
+    #w.add_loop_edges()
     #w.mark_adj_vertices()
     #w.add_loop_edges()
     #w.add_loop_edges()
@@ -111,6 +118,7 @@ if __name__ == "__main__":
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
     w_adjpts = w.getADJPoints()
+    w_2adjpts = w.get2ADJPoints()
     w_edges = w.getEdges()
     w_cle = w.getCLEdges()
     w_loop = w.getLoop()
@@ -123,9 +131,11 @@ if __name__ == "__main__":
     for p in w_clpts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
     for p in w_ipts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0061, color=camvtk.orange ) )
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.orange ) )
     for p in w_adjpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0061, color=camvtk.green ) )
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.green ) )
+    for p in w_2adjpts:
+        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0061, color=camvtk.lblue ) )
     
     zoffset2=zoffset + 0.1
     np = 0

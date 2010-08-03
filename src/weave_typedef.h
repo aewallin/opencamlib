@@ -39,7 +39,7 @@ namespace ocl
 {
 
 /// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, INT, ADJ, CL_DONE};
+enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
              
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector

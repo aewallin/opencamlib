@@ -79,6 +79,7 @@ class Weave {
         void build();
         void order_points();
         void add_loop_edges();
+        void cap_edges();
         std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
         std::vector<VertexDescriptor> get_neighbors2(VertexDescriptor& source);
         VertexDescriptor get_next_vertex(VertexDescriptor& source);
@@ -95,6 +96,7 @@ class Weave {
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
         boost::python::list getADJPoints() const;
+        boost::python::list get2ADJPoints() const;
         boost::python::list getEdges() const;
         boost::python::list getCLEdges() const;
         boost::python::list getLoop() const;
