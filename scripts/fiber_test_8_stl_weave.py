@@ -16,8 +16,8 @@ def generateRange(zmin,zmax,zNmax):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    stl = camvtk.STLSurf("../stl/demo.stl")
-    #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    #stl = camvtk.STLSurf("../stl/demo.stl")
+    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     #stl.SetSurface()
@@ -28,14 +28,14 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     bounds = s.getBounds()
     print "STLSurf.Bounds()=", bounds
-    cutter = ocl.CylCutter(0.3)
+    cutter = ocl.CylCutter(1.6)
     #cutter = ocl.BallCutter(0.3)
         
     cutter.length = 4.0
     print cutter
     xmin=-1
     xmax=15
-    N=200
+    N=100
     ymin=-1
     ymax=15
     yvals = generateRange(ymin,ymax,N)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     #print xvals
     zmin = -0.1
     zmax = 2.75
-    zNmax = 20
+    zNmax = 5
     zvals = generateRange(zmin,zmax,zNmax)
     print " calculating waterlines at ", len(zvals)," different z-heights"
     #print zvals

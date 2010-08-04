@@ -98,32 +98,14 @@ if __name__ == "__main__":
     print "Weave build()...",
     w.build()
     print "done"
-    #w.mark_adj_vertices()
     print "face_traverse..."
     w.face_traverse()
-    #w.cap_edges()
-    #w.mark_adj_vertices()
-    #w.cap_edges()
-    #w.mark_adj_vertices()
-    #w.cap_edges()
-    #w.mark_adj_vertices()
-    #w.cap_edges()
-    #w.add_loop_edges()
-    #w.mark_adj_vertices()
-    #w.add_loop_edges()
-    #w.mark_adj_vertices()
-    #w.add_loop_edges()
-    #w.add_loop_edges()
-    #w.add_loop_edges()
-    #w.add_loop_edges()
     print "done."
     
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
-    w_adjpts = w.getADJPoints()
-    w_2adjpts = w.get2ADJPoints()
     w_edges = w.getEdges()
-    w_cle = w.getCLEdges()
+
     w_loop = w.getLoops()
     
     print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
@@ -135,10 +117,7 @@ if __name__ == "__main__":
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
     for p in w_ipts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.orange ) )
-    for p in w_adjpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.green ) )
-    for p in w_2adjpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0061, color=camvtk.lblue ) )
+
     
     zoffset2=zoffset + 0.1
     np = 0
@@ -161,10 +140,6 @@ if __name__ == "__main__":
         p2 = e[1]
         myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
         ne = ne+1
-    for e in w_cle:
-        p1 = e[0]
-        p2 = e[1]
-        myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset), p2=(p2.x,p2.y,p2.z+zoffset), color=camvtk.yellow ) )
         
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)

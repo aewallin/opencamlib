@@ -23,11 +23,7 @@
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp> // graph class
-#include <boost/graph/breadth_first_search.hpp>
-#include <boost/graph/graphviz.hpp>
 #include <boost/graph/planar_face_traversal.hpp>
-
-
 #include <boost/python.hpp>
 
 #include "point.h"
@@ -39,44 +35,6 @@
 namespace ocl
 {
 
-template <class NewGraph, class Tag>
-struct graph_copier : public boost::base_visitor<graph_copier<NewGraph, Tag> >
-{
-        typedef Tag event_filter;
-        graph_copier(NewGraph& graph) : new_g(graph) { }
-        template <class Edge, class Graph>
-        void operator()(Edge e, Graph& g) {
-            boost::add_edge(boost::source(e, g), boost::target(e, g), new_g);
-        } 
-    private:
-        NewGraph& new_g;
-};
-
-
-template <class NewGraph, class Tag>
-inline graph_copier<NewGraph, Tag> 
-copy_graph(NewGraph& g, Tag) {
-  return graph_copier<NewGraph, Tag>(g);
-}
-
-typedef std::pair< std::size_t, Point > TimePointPair;
-typedef std::pair< std::size_t, VertexDescriptor > TimeVertexPair;
-typedef std::pair< double, VertexDescriptor > DistanceVertexPair;
-
-
-//bool TimeSortPredicate( const TimePointPair& lhs, const TimePointPair& rhs );
-
-bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs );
-
-bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPair& rhs );
-
-
-
-
-
-
-
-
 // see weave_typedef.h for boost-graph classes                         
                     
 /// weave-graph
@@ -86,31 +44,23 @@ class Weave {
         virtual ~Weave() {};
         void add_vertex( Point& position, VertexType t, Interval& i, double ipos);
         void addFiber(Fiber& f);
+        /// sort into X and Y fibers
+        void sort_fibers(); 
+        /// from the list of fibers, build a graph
         void build();
+        /// build a planar embedding of the graph
         void build_embedding(PlanarEmbedding& e);
-        //void order_points();
-        //void add_loop_edges();
-        //void cap_edges();
         void face_traverse();
-        //std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
-        //std::vector<VertexDescriptor> get_neighbors2(VertexDescriptor& source);
-        //VertexDescriptor get_next_vertex(VertexDescriptor& source);
         std::vector<Weave> split_components();
         
-        // void invert();
-        //void mark_adj_vertices();
-        void sort_fibers(); // sort into X and Y fibers
-        //unsigned int clpoints_size();
-        void writeGraph() const; // write to dot file
-        
+
+
         // python debug/test interface:
         boost::python::list get_components();
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
-        boost::python::list getADJPoints() const;
-        boost::python::list get2ADJPoints() const;
         boost::python::list getEdges() const;
-        boost::python::list getCLEdges() const;
+
         boost::python::list getLoops() const;
         
         // string repr
