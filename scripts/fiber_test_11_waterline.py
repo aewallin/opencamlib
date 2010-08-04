@@ -14,57 +14,7 @@ def generateRange(zmin,zmax,zNmax):
     for n in xrange(0,zNmax):
         zvals.append(zmin+n*dz)
     return zvals
-    
-def waterline(cutter, s, zh, tol = 0.1 ):
-    bpc = ocl.BatchPushCutter()
-    bpc.setSTL(s)
-    bpc.setCutter(cutter)
-    bounds = s.getBounds()
-    xmin= bounds[0] - 2*cutter.radius
-    xmax= bounds[1] + 2*cutter.radius
-    ymin= bounds[2] - 2*cutter.radius
-    ymax= bounds[3] + 2*cutter.radius
-    Nx= int( (xmax-xmin)/tol )
-    Ny= int( (ymax-ymin)/tol )
-    xvals = generateRange(xmin,xmax,Nx)
-    yvals = generateRange(ymin,ymax,Ny)
-    for y in yvals:
-        f1 = ocl.Point(xmin,y,zh) # start point of fiber
-        f2 = ocl.Point(xmax,y,zh)  # end point of fiber
-        f =  ocl.Fiber( f1, f2)
-        bpc.appendFiber(f)
-    for x in xvals:
-        f1 = ocl.Point(x,ymin,zh) # start point of fiber
-        f2 = ocl.Point(x,ymax,zh)  # end point of fiber
-        f =  ocl.Fiber( f1, f2)
-        bpc.appendFiber(f)
-    bpc.pushCutter3()
-    fibers = bpc.getFibers() # get fibers
-    w = ocl.Weave()
-    for f in fibers:
-        w.addFiber(f)
-
-    print " build()...",
-    w.build()
-    print "done"
-    print " split()...",
-    subw = w.get_components()
-    print "done. graph has", len(subw),"sub-weaves"
-    m=0
-    loops = []
-    for sw in subw:
-        print m," face_traverse...",
-        t_before = time.time()
-        sw.face_traverse()
-        t_after = time.time()
-        calctime = t_after-t_before
-        print "done in ", calctime," s."
-        sw_loops = sw.getLoops()
-        for lop in sw_loops:
-            loops.append(lop)
-        m=m+1
-    return loops
-    
+        
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
@@ -78,12 +28,19 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
-    zh=1.9
-    cutter_diams = generateRange(0.1, 6, 5)
+    zh=0.3145
+    cutter_diams = generateRange(0.1, 3, 3)
     loops = []
     for diam in cutter_diams:
         cutter = ocl.CylCutter( diam )
-        cutter_loops = waterline(cutter, s, zh, 0.05 )
+        cutter.length = 10
+        wl = ocl.Waterline()
+        wl.setSTL(s)
+        wl.setCutter(cutter)
+        wl.setZ(zh)
+        wl.setTolerance(0.04)
+        wl.run()
+        cutter_loops = wl.getLoops()
         for l in cutter_loops:
             loops.append(l)
 
@@ -106,7 +63,7 @@ if __name__ == "__main__":
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
                 previous=p
             n=n+1
-
+    
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)

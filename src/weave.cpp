@@ -334,10 +334,22 @@ boost::python::list Weave::getEdges() const {
     return edge_list;
 }
 
-
+/// return loops as vector of vector<Point>
+std::vector< std::vector<Point> > Weave::getLoops() const {
+    std::vector< std::vector<Point> > loop_list;
+    BOOST_FOREACH( std::vector<VertexDescriptor> loop, loops ) {
+        std::vector<Point> point_list;
+        BOOST_FOREACH( VertexDescriptor v, loop ) {
+            Point p = boost::get( boost::vertex_position, g, v);
+            point_list.push_back( p );
+        }
+        loop_list.push_back(point_list);
+    }
+    return loop_list;
+}
 
 /// output points from variable this->loops to python
-boost::python::list Weave::getLoops() const {
+boost::python::list Weave::py_getLoops() const {
     boost::python::list loop_list;
     BOOST_FOREACH( std::vector<VertexDescriptor> loop, loops ) {
         boost::python::list point_list;

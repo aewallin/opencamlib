@@ -121,6 +121,7 @@ add_library(
     stlreader.cpp
     triangle.cpp
     volume.cpp
+    waterline.cpp
     weave.cpp
 )
 MESSAGE(STATUS "linking with boost: " ${Boost_LIBRARIES})

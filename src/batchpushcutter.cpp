@@ -48,14 +48,18 @@ BatchPushCutter::BatchPushCutter() {
     bucketSize = 1;
 }
 
-void BatchPushCutter::setSTL(STLSurf &s) {
+BatchPushCutter::~BatchPushCutter() {
+    delete fibers;
+}
+
+void BatchPushCutter::setSTL(const STLSurf &s) {
     surf = &s;
     std::cout << "Building kd-tree... bucketSize=" << bucketSize << "..";
     root = KDNode2::build_kdtree( &(surf->tris), bucketSize );
     std::cout << " done.\n";
 }
 
-void BatchPushCutter::setCutter(MillingCutter *c) {
+void BatchPushCutter::setCutter(const MillingCutter *c) {
     cutter = c;
 }
 
@@ -151,7 +155,8 @@ void BatchPushCutter::pushCutter2() {
 /// use OpenMP for multi-threading
 void BatchPushCutter::pushCutter3() {
     std::cout << "BatchPushCutter3 with " << fibers->size() << 
-              " fibers and " << surf->tris.size() << " triangles..." << std::endl;
+              " fibers and " << surf->tris.size() << " triangles." << std::endl;
+    std::cout << " cutter = " << cutter->str() << "\n";
     nCalls = 0;
     std::list<Triangle>* tris;
     Bbox* bb;

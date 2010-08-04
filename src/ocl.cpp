@@ -115,6 +115,14 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("printInts", &Fiber::printInts)
         .def("getInts", &Fiber::getInts)
     ;
+    bp::class_<Waterline>("Waterline")
+        .def("setCutter", &Waterline::setCutter)
+        .def("setSTL", &Waterline::setSTL)
+        .def("setZ", &Waterline::setZ)
+        .def("setTolerance", &Waterline::setTolerance)
+        .def("run", &Waterline::run)
+        .def("getLoops", &Waterline::py_getLoops)
+    ;
     bp::class_<Weave>("Weave")
         .def("addFiber", &Weave::addFiber)
         .def("build", &Weave::build)
@@ -125,7 +133,7 @@ BOOST_PYTHON_MODULE(ocl) {
         .def("getCLPoints", &Weave::getCLPoints)
         .def("getIPoints", &Weave::getIPoints)
         .def("getEdges", &Weave::getEdges)
-        .def("getLoops", &Weave::getLoops)
+        .def("getLoops", &Weave::py_getLoops)
         .def("__str__", &Weave::str)
     ;
     bp::class_<Line>("Line")

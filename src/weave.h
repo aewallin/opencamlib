@@ -53,16 +53,13 @@ class Weave {
         void face_traverse();
         std::vector<Weave> split_components();
         
-
-
         // python debug/test interface:
         boost::python::list get_components();
         boost::python::list getCLPoints() const;
         boost::python::list getIPoints() const;
         boost::python::list getEdges() const;
-
-        boost::python::list getLoops() const;
-        
+        boost::python::list py_getLoops() const;
+        std::vector< std::vector<Point> > getLoops() const;
         // string repr
         std::string str() const;
         void printGraph() const;

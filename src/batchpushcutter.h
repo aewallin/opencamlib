@@ -41,11 +41,12 @@ class MillingCutter;
 class BatchPushCutter {
     public:
         BatchPushCutter();
+        virtual ~BatchPushCutter();
         
         /// set the STL-surface and build kd-tree
-        void setSTL(STLSurf &s);
+        void setSTL(const STLSurf &s);
         /// set the MillingCutter to use
-        void setCutter(MillingCutter *cutter);
+        void setCutter(const MillingCutter *cutter);
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n);
         /// append to list of Fibers to evaluate
@@ -71,15 +72,16 @@ class BatchPushCutter {
         unsigned int nthreads;
         /// size of bucket-node in KD-tree
         unsigned int bucketSize;
-    private:
-        /// the MillingCutter used
-        MillingCutter *cutter;
         /// pointer to list of Fibers
         std::vector<Fiber>* fibers;
+    private:
+        /// the MillingCutter used
+        const MillingCutter *cutter;
+        /// the STLSurf which we test against.
+        const STLSurf *surf;
         /// root of the kd-tree
         KDNode2 *root;
-        /// the STLSurf which we test against.
-        STLSurf *surf;
+
 
 };
 
