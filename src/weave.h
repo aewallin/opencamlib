@@ -25,6 +25,9 @@
 #include <boost/graph/adjacency_list.hpp> // graph class
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/graphviz.hpp>
+#include <boost/graph/planar_face_traversal.hpp>
+
+
 #include <boost/python.hpp>
 
 #include "point.h"
@@ -67,6 +70,13 @@ bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs 
 
 bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPair& rhs );
 
+
+
+
+
+
+
+
 // see weave_typedef.h for boost-graph classes                         
                     
 /// weave-graph
@@ -77,18 +87,20 @@ class Weave {
         void add_vertex( Point& position, VertexType t, Interval& i, double ipos);
         void addFiber(Fiber& f);
         void build();
-        void order_points();
-        void add_loop_edges();
-        void cap_edges();
-        std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
-        std::vector<VertexDescriptor> get_neighbors2(VertexDescriptor& source);
-        VertexDescriptor get_next_vertex(VertexDescriptor& source);
+        void build_embedding(PlanarEmbedding& e);
+        //void order_points();
+        //void add_loop_edges();
+        //void cap_edges();
+        void face_traverse();
+        //std::vector<VertexDescriptor> get_neighbors(VertexDescriptor& source);
+        //std::vector<VertexDescriptor> get_neighbors2(VertexDescriptor& source);
+        //VertexDescriptor get_next_vertex(VertexDescriptor& source);
         std::vector<Weave> split_components();
         
         // void invert();
-        void mark_adj_vertices();
+        //void mark_adj_vertices();
         void sort_fibers(); // sort into X and Y fibers
-        unsigned int clpoints_size();
+        //unsigned int clpoints_size();
         void writeGraph() const; // write to dot file
         
         // python debug/test interface:
@@ -99,11 +111,12 @@ class Weave {
         boost::python::list get2ADJPoints() const;
         boost::python::list getEdges() const;
         boost::python::list getCLEdges() const;
-        boost::python::list getLoop() const;
+        boost::python::list getLoops() const;
         
         // string repr
         std::string str() const;
         void printGraph() const;
+        void print_embedding(PlanarEmbedding& e);
         
         // DATA
         std::vector<Fiber> fibers;
@@ -111,7 +124,7 @@ class Weave {
         std::vector<Fiber> yfibers;
         
         WeaveGraph g;
-        std::vector<Point> loop;
+        std::vector< std::vector<VertexDescriptor> > loops;
 };
 
 

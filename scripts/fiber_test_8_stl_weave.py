@@ -16,8 +16,8 @@ def generateRange(zmin,zmax,zNmax):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    #stl = camvtk.STLSurf("../stl/demo.stl")
-    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../stl/demo.stl")
+    #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     #stl.SetSurface()
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print cutter
     xmin=-1
     xmax=15
-    N=100
+    N=200
     ymin=-1
     ymax=15
     yvals = generateRange(ymin,ymax,N)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     #print xvals
     zmin = -0.1
     zmax = 2.75
-    zNmax = 5
+    zNmax = 20
     zvals = generateRange(zmin,zmax,zNmax)
     print " calculating waterlines at ", len(zvals)," different z-heights"
     #print zvals
@@ -80,9 +80,9 @@ if __name__ == "__main__":
     print "rendering raw CL-points."
     
     # draw the CL-points
-    camvtk.drawCLPointCloud(myscreen, clpoints)
-    for p in clpoints:
-         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z),radius=0.02, color=camvtk.clColor( p.cc() ) ) )
+    #camvtk.drawCLPointCloud(myscreen, clpoints)
+    #for p in clpoints:
+    #     myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z),radius=0.02, color=camvtk.clColor( p.cc() ) ) )
     
     
     fibers = bpc.getFibers()
@@ -110,32 +110,40 @@ if __name__ == "__main__":
         print "done"
         print " split()...",
         subw = w.get_components()
-        print "done, got ", len(subw)," sub-weaves"
+        print " graph has ", len(subw)," sub-weaves"
         m=0
         for sw in subw:
-            print m," order_points...",
+            print m," face_traverse...",
             t_before = time.time()
-            sw.order_points()
+            sw.face_traverse()
             t_after = time.time()
             calctime = t_after-t_before
             print "done in ", calctime," s"
-            w_loop = sw.getLoop()
-            loops.append(w_loop)
+            w_loop = sw.getLoops()
+            for lop in w_loop:
+                loops.append(lop)
             m=m+1
     t2_after = time.time()
     print " found", len(loops)," loops"
     print " loop extraction took ", t2_after-t2_before," seconds"
+    # draw the loops
     for lop in loops:
-        first = 1
+        n = 0
+        N = len(lop)
+        first_point=ocl.Point(-1,-1,5)
         previous=ocl.Point(-1,-1,5)
         for p in lop:
-            if first==1:
-                previous=p
-                #previous.z = 5
-                first = 0
+            if n==0: # don't draw anything on the first iteration
+                previous=p 
+                first_point = p
+            elif n== (N-1): # the last point
+                myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) ) # the normal line
+                # and a line from p to the first point
+                myscreen.addActor( camvtk.Line(p1=(p.x,p.y,p.z),p2=(first_point.x,first_point.y,first_point.z),color=camvtk.yellow) )
             else:
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
                 previous=p
+            n=n+1
                 
     t2 = camvtk.Text()
     stltext = "%s\n%i triangles\n%i waterlines\n%i Fibers\n%i CL-points\n%i pushCutter() calls\n%0.1f seconds\n%0.3f us/call"  \

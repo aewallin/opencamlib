@@ -22,8 +22,10 @@
 #include <boost/python.hpp>
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/connected_components.hpp>
-#include "weave.h"
+#include <boost/graph/boyer_myrvold_planar_test.hpp>
 
+#include "weave.h"
+#include "pft_visitor.h"
 
 namespace ocl
 {
@@ -59,6 +61,87 @@ void Weave::add_vertex( Point& position, VertexType t, Interval& i, double ipos)
     boost::put( boost::vertex_position , g , v , position );
     boost::put( boost::vertex_type , g , v , t );
     i.intersections.insert( VertexPair( v, ipos) );
+}
+
+void Weave::print_embedding(PlanarEmbedding& e) {
+    unsigned int m = e.size();
+    std::cout << " graph has " << boost::num_vertices(g) << " vertices\n";
+    std::cout << " e has " << m << " rows\n";
+    for (unsigned int i=0; i<m ; ++i ) {
+        unsigned int N = e[i].size();
+        std::cout << i << " : ";
+        for (unsigned int j=0; j<N ; ++j) {
+            std::cout << (e[i])[j] << " " ;
+        }
+        std::cout << "\n";
+    }
+}
+
+
+void Weave::build_embedding(PlanarEmbedding& e) {
+    e = PlanarEmbedding(boost::num_vertices(g)); // one row for each vertex
+    // each row has adjacent edges for this vertex, in the correct order
+    VertexIterator it, it_end;
+    for( boost::tie(it, it_end)=boost::vertices(g); it!=it_end ; ++it ) {
+        int idx = boost::get( boost::vertex_index, g, *it);
+        Point v_pos = boost::get( boost::vertex_position, g, *it);
+        OutEdgeIterator eit, eit_end;
+        typedef std::pair< bool, EdgeDescriptor > BoolEdgePair;
+        // edges can go in four directions: N, E, S, W
+        std::vector< BoolEdgePair > ordered_edges(4, BoolEdgePair(false,  EdgeDescriptor() ) ); // store possible out-edges in a size=4 vector
+        for ( boost::tie(eit,eit_end)=boost::out_edges(*it,g); eit!=eit_end ; ++eit) { // look at each edge connecting to this vertex
+            VertexDescriptor adjacent = boost::target( *eit, g);
+            Point adj_pos = boost::get( boost::vertex_position, g, adjacent);
+            Point diff = v_pos-adj_pos;
+            if (diff.y > 0) // in the N direction
+                ordered_edges[0] = BoolEdgePair(true, *eit); // naive
+            else if (diff.x > 0) // in the E direction
+                ordered_edges[1] = BoolEdgePair(true, *eit); 
+            else if (diff.y < 0) // in the S direction
+                ordered_edges[2] = BoolEdgePair(true, *eit); 
+            else if (diff.x < 0) // in the W direction
+                ordered_edges[3] = BoolEdgePair(true, *eit); 
+            else
+                assert(0);
+        }
+        BOOST_FOREACH( BoolEdgePair p, ordered_edges) {
+            if (p.first)
+                e[idx].push_back(p.second);
+        }
+    }
+}
+
+void Weave::face_traverse() {
+    // void planar_face_traversal(const Graph& g, PlanarEmbedding embedding, PlanarFaceVisitor& visitor, EdgeIndexMap em);
+    // std::cout << " face_traverse() \n";
+    // Initialize the interior edge index
+    boost::property_map<WeaveGraph, boost::edge_index_t>::type e_index = boost::get(boost::edge_index, g);
+    boost::graph_traits<WeaveGraph>::edges_size_type edge_count = 0;
+    EdgeIterator ei, ei_end;
+    for(boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei)
+        boost::put(e_index, *ei, edge_count++);
+    
+    // test for planarity and build embedding as side-effect
+    PlanarEmbedding e(boost::num_vertices(g));
+    build_embedding(e);
+    
+    /*
+    if ( boost::boyer_myrvold_planarity_test( boost::boyer_myrvold_params::graph = g,
+                                   boost::boyer_myrvold_params::embedding = &e[0]) )
+        std::cout << "Input graph is planar" << std::endl;
+    else
+        std::cout << "Input graph is not planar" << std::endl;
+    */
+    //print_embedding(e);
+    
+    //std::cout << std::endl << "Vertices on the faces: " << std::endl;
+    vertex_output_visitor v_vis(this, g);
+    boost::planar_face_traversal(g, &e[0], v_vis);
+    /*
+    for (unsigned int m=0; m< v_vis.loop.size() ; ++m) {
+        Point p = boost::get( boost::vertex_position, g, v_vis.loop[m] );
+        loop.push_back(p);
+    }*/
 }
 
 /// this builds a BGL graph g by looking at xfibers and yfibers
@@ -155,7 +238,7 @@ std::vector<Weave> Weave::split_components() {
     ComponentMap comp_map = boost::get( boost::vertex_component, g);
     //std::vector<int> component( boost::num_vertices(g) );
     std::size_t N = boost::connected_components( g, comp_map );
-    std::cout << " graph has " << N << " components\n";
+    //std::cout << " graph has " << N << " components\n";
     WeaveGraph gcomp;
     std::vector<Weave> outw;
     for( unsigned int m=0;m<N;++m) {
@@ -169,7 +252,7 @@ std::vector<Weave> Weave::split_components() {
                 boost::put( boost::vertex_type, gcomp, *it, INT); // mark INT, so we don't start at a false CL-point
             }
         }
-        std::cout << "comp " << m << " verts=" << boost::num_vertices(gcomp) << " edges=" << boost::num_edges(gcomp) << "\n";
+        //std::cout << "comp " << m << " verts=" << boost::num_vertices(gcomp) << " edges=" << boost::num_edges(gcomp) << "\n";
         // now create an new Weave
         Weave* w = new Weave();
         w->g = gcomp;
@@ -189,6 +272,8 @@ boost::python::list Weave::get_components() {
     return wlist;
 }
 
+
+/*
 void Weave::cap_edges() {
     VertexIterator it, it_end;
     boost::tie( it, it_end ) = boost::vertices( g );
@@ -273,8 +358,10 @@ void Weave::cap_edges() {
             boost::clear_vertex( v, g);
         }
     }
-}
+}*/
 
+
+/*
 void Weave::add_loop_edges() {
     // find and add edges that make up the toolpath loop
     VertexIterator it, it_end;
@@ -336,8 +423,11 @@ void Weave::add_loop_edges() {
         boost::clear_vertex( v, g );
         boost::put( boost::vertex_type, g, v, INT);
     }
-}
+}*/
 
+
+
+/*
 /// return a vector of vertices which are closest to source
 std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
     typedef boost::property_map< WeaveGraph, boost::vertex_distance_t>::type dist_map_t;
@@ -382,8 +472,9 @@ std::vector<VertexDescriptor> Weave::get_neighbors(VertexDescriptor& source) {
     }
     //std::cout << nearest_neighbors.size() << " nn at dist=" << min_time << "\n";
     return nearest_neighbors;
-}
+}*/
 
+/*
 /// given the source vertex, find the next vertex
 VertexDescriptor Weave::get_next_vertex(VertexDescriptor& source) {
     std::vector<VertexDescriptor> nn = get_neighbors(source);
@@ -404,8 +495,9 @@ VertexDescriptor Weave::get_next_vertex(VertexDescriptor& source) {
         boost::put( boost::vertex_type, g, nvector[0].second, CL_DONE);
         return nvector[0].second; 
     }
-}
+}*/
 
+/*
 /// count the number of cl-points in the weave
 unsigned int Weave::clpoints_size() {
     VertexIterator it_begin, it_end, it, first;
@@ -417,8 +509,10 @@ unsigned int Weave::clpoints_size() {
         }
     }
     return ncl;
-}
+}*/
 
+
+/*
 /// find a first CL point, and call get_next_vertex() until we are done
 void Weave::order_points() {
     
@@ -446,7 +540,7 @@ void Weave::order_points() {
         ++niterations;
     }
     
-}
+}*/
 
 
 bool TimeSortPredicate2( const  TimeVertexPair& lhs, const  TimeVertexPair& rhs ) {
@@ -456,6 +550,7 @@ bool FirstSortPredicate( const  DistanceVertexPair& lhs, const  DistanceVertexPa
     return lhs.first < rhs.first;
 }
 
+/*
 void Weave::mark_adj_vertices() {
     // go through the vertices and mark the ones that connect to CL-points
     // as being of type ADJ
@@ -500,7 +595,7 @@ void Weave::mark_adj_vertices() {
         }
     }
 }
-
+*/
 
 
 
@@ -612,13 +707,18 @@ boost::python::list Weave::getCLEdges() const {
     return edge_list;
 }
 
-/// output points from variable this->loop to python
-boost::python::list Weave::getLoop() const {
-    boost::python::list plist;
-    BOOST_FOREACH( Point p, loop ) {
-        plist.append( p );
+/// output points from variable this->loops to python
+boost::python::list Weave::getLoops() const {
+    boost::python::list loop_list;
+    BOOST_FOREACH( std::vector<VertexDescriptor> loop, loops ) {
+        boost::python::list point_list;
+        BOOST_FOREACH( VertexDescriptor v, loop ) {
+            Point p = boost::get( boost::vertex_position, g, v);
+            point_list.append( p );
+        }
+        loop_list.append(point_list);
     }
-    return plist;
+    return loop_list;
 }
         
 

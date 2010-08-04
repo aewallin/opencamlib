@@ -41,8 +41,8 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    #cutter = ocl.CylCutter(0.3)
-    cutter = ocl.BallCutter(0.3)
+    cutter = ocl.CylCutter(0.3)
+    #cutter = ocl.BallCutter(0.3)
         
     cutter.length = 4.0
     print "lengt=", cutter.length
@@ -57,8 +57,8 @@ if __name__ == "__main__":
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     zvals.append(0.2)
-    for n in xrange(0,zNmax):
-        zvals.append(zmin+n*dz)
+    #for n in xrange(0,zNmax):
+    #    zvals.append(zmin+n*dz)
 
     bpc = ocl.BatchPushCutter()
     bpc.setSTL(s)
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     for f in fibers:
         drawFiber(myscreen, f, camvtk.red)
     
-    exit()
+    #exit()
     
     w = ocl.Weave()
     print "push fibers to Weave...",
@@ -99,7 +99,8 @@ if __name__ == "__main__":
     w.build()
     print "done"
     #w.mark_adj_vertices()
-    print "add loop edges...",
+    print "face_traverse..."
+    w.face_traverse()
     #w.cap_edges()
     #w.mark_adj_vertices()
     #w.cap_edges()
@@ -123,7 +124,7 @@ if __name__ == "__main__":
     w_2adjpts = w.get2ADJPoints()
     w_edges = w.getEdges()
     w_cle = w.getCLEdges()
-    w_loop = w.getLoop()
+    w_loop = w.getLoops()
     
     print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
     
@@ -142,18 +143,16 @@ if __name__ == "__main__":
     zoffset2=zoffset + 0.1
     np = 0
     previous = 0
-    dzoffset = 0.0005
+    dzoffset = 0.0015
     
-    for p in w_loop:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.006, color=camvtk.pink ) )        
-        
-        #if np is not 0:
-        #    myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
-        #np=np+1
-        #previous = p
-        
-        
-        
+    for loop in w_loop:
+        for p in loop:
+            #myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.006, color=camvtk.pink ) )        
+            if np is not 0:
+                myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
+            np=np+1
+            previous = p
+            
     ne = 0
     zoffset=0.2
     dzoffset = 0
