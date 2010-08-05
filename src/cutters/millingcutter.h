@@ -59,7 +59,7 @@ class MillingCutter {
         double getLength() const;
         
         /// return a MillingCutter which is larger than *this by d
-        virtual MillingCutter* offsetCutter(double d) const;
+        virtual MillingCutter* offsetCutter(const double d) const;
         
         /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
         /// works in the xy-plane 
@@ -152,13 +152,13 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
         
         // offset cutter
         // FIXME, return type to python does not seem to work... ?
-        MillingCutter* offsetCutter(double d) const
+        MillingCutter* offsetCutter(const double d) const
         {
             if ( boost::python::override ovr_offsetCutter = this->get_override("offsetCutter") )
                 return ovr_offsetCutter(d);
             return MillingCutter::offsetCutter(d);
         };   
-        MillingCutter* default_offsetCutter(double d) const {
+        MillingCutter* default_offsetCutter(const double d) const {
             return this->MillingCutter::offsetCutter(d);
         };
         
@@ -195,7 +195,7 @@ class CylCutter : public MillingCutter {
         /// create CylCutter with diameter = d
         explicit CylCutter(const double d);
         
-        MillingCutter* offsetCutter(double d) const;
+        MillingCutter* offsetCutter(const double d) const;
 
         // dropCutter methods
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
@@ -228,7 +228,7 @@ class BallCutter : public MillingCutter {
         /// create a BallCutter with diameter d and radius d/2
         explicit BallCutter(const double d);
         
-        MillingCutter* offsetCutter(double d) const;
+        MillingCutter* offsetCutter(const double d) const;
         
         // dropCutter methods
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
@@ -262,7 +262,7 @@ class BullCutter : public MillingCutter {
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
         
-        MillingCutter* offsetCutter(double d) const;
+        MillingCutter* offsetCutter(const double d) const;
         
         /// drop cutter
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
@@ -299,15 +299,14 @@ class ConeCutter : public MillingCutter {
         /// for a 90-degree cone specify the half-angle  angle= pi/4
         ConeCutter(const double d, const double angle);
         
-        MillingCutter* offsetCutter(double d) const;
-                
+        MillingCutter* offsetCutter(const double d) const;
+        // drop-cutter
         int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
-        /// string repr
         std::string str() const;
         
     protected:
@@ -339,7 +338,7 @@ class CompoundCutter : public MillingCutter {
         bool ccValid(int n, CLPoint& cl) const;
         
         // offsetCutter
-        MillingCutter* offsetCutter(double d) const;
+        MillingCutter* offsetCutter(const double d) const;
         
         // dropCutter methods
         int vertexDrop(CLPoint &cl, const Triangle &t) const;

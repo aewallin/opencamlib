@@ -390,7 +390,7 @@ if ((ecen.z-radius2)< -0.15) {
                         
 
 /// offset of bull is bull
-MillingCutter* BullCutter::offsetCutter(double d) const {
+MillingCutter* BullCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, radius2+d) ;
 }
 

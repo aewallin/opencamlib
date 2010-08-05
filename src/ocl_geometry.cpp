@@ -29,6 +29,8 @@
 #include "millingcutter.h"
 #include "bbox.h"
 #include "fiber.h"
+#include "path.h"
+#include "stlreader.h"
 
 /*
  *  Python wrapping
@@ -113,15 +115,18 @@ void export_geometry() {
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("id", &STLSurf::id)
         .def_readonly("bb", &STLSurf::bb)
-        .def("build_kdtree", &STLSurf::build_kdtree)
-        .def("get_kd_triangles", &STLSurf::get_kd_triangles)
-        .def("jump_kd_up", &STLSurf::jump_kd_up)
-        .def("jump_kd_hi", &STLSurf::jump_kd_hi)
-        .def("jump_kd_lo", &STLSurf::jump_kd_lo)
-        .def("jump_kd_reset", &STLSurf::jump_kd_reset)
-        .def("get_kd_level", &STLSurf::get_kd_level)
-        .def("get_kd_cut", &STLSurf::get_kd_cut)
-        .def("getTrianglesUnderCutter", &STLSurf::getTrianglesUnderCutter)
+        //.def("build_kdtree", &STLSurf::build_kdtree)
+        //.def("get_kd_triangles", &STLSurf::get_kd_triangles)
+        //.def("jump_kd_up", &STLSurf::jump_kd_up)
+        //.def("jump_kd_hi", &STLSurf::jump_kd_hi)
+        //.def("jump_kd_lo", &STLSurf::jump_kd_lo)
+        //.def("jump_kd_reset", &STLSurf::jump_kd_reset)
+        //.def("get_kd_level", &STLSurf::get_kd_level)
+        //.def("get_kd_cut", &STLSurf::get_kd_cut)
+        //.def("getTrianglesUnderCutter", &STLSurf::getTrianglesUnderCutter)
+    ;
+    bp::class_<STLReader>("STLReader")
+        .def(bp::init<const std::wstring&, STLSurf&>())
     ;
     bp::class_<Bbox>("Bbox")
         .def("isInside", &Bbox::isInside )
@@ -152,6 +157,34 @@ void export_geometry() {
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
-
+    
+    
+    bp::class_<Line>("Line")
+        .def(bp::init<Point,Point>())
+        .def(bp::init<Line>())
+        .def_readwrite("p1", &Line::p1)
+        .def_readwrite("p2", &Line::p2)
+    ;
+    bp::class_<Arc>("Arc")
+        .def(bp::init<Point,Point,Point,bool>())
+        .def(bp::init<Arc>())
+        .def_readwrite("p1", &Arc::p1)
+        .def_readwrite("p2", &Arc::p2)
+        .def_readwrite("c",  &Arc::c)
+        .def_readwrite("dir",  &Arc::dir)
+    ;
+    bp::enum_<SpanType>("SpanType")
+        .value("LineSpanType", LineSpanType)
+        .value("ArcSpanType", ArcSpanType)
+        .export_values()
+    ;
+    bp::class_<Path>("Path")
+        .def(bp::init<>())
+        .def(bp::init<Path>())
+        .def("getSpans", &Path::getSpans)
+        .def("getTypeSpanPairs", &Path::getTypeSpanPairs)
+        .def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
+        .def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
+    ;
 }
 

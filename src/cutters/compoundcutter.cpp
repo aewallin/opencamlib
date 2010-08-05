@@ -135,7 +135,7 @@ int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
     return result;
 }
 
-MillingCutter* CompoundCutter::offsetCutter(double d) const {
+MillingCutter* CompoundCutter::offsetCutter(const double d) const {
     std::cout << " ERROR: not implemented.\n";
     assert(0);
     return  new CylCutter(); //FIXME!
@@ -168,7 +168,6 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)
     MillingCutter* c1 = new CylCutter(diam1);
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double cone_offset= - (diam1/2)/tan(angle);
-    
     addCutter( *c1, diam1/2.0, 0.0 );
     addCutter( *c2, diam2/2.0, cone_offset );
 }
@@ -179,10 +178,8 @@ BallConeCutter::BallConeCutter(double diam1, double diam2, double angle)
 {
     MillingCutter* c1 = new BallCutter(diam1); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle);
-    
     double cone_offset = - ( (diam1/2.0)/sin(angle) - diam1/2.0);
     double rcontact = (diam1/2.0)*cos(angle);
-    
     addCutter( *c1, rcontact, 0.0 );
     addCutter( *c2, diam2/2.0, cone_offset );
 }
@@ -194,12 +191,10 @@ BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, doubl
 {
     MillingCutter* c1 = new BullCutter(diam1, radius1); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle);
-    
     double h1 = radius1*sin(angle); // the contact point is this much down from the toroid-ring
     double rad = sqrt( square(radius1) - square(h1) );
     double rcontact = (diam1/2.0) - radius1 + rad; // radius of the contact-ring
     double cone_offset= - ( rcontact/tan(angle) - (radius1-h1));
-    
     addCutter( *c1, rcontact, 0.0 );
     addCutter( *c2, diam2/2.0, cone_offset );
 }
@@ -211,11 +206,9 @@ ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double
 {
     MillingCutter* c1 = new ConeCutter(diam1, angle1); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle2);
-    
     double h1 = (diam1/2.0)/tan(angle1); 
     double h2 = (diam1/2.0)/tan(angle2);
     double cone_offset= - ( h2-h1);
-    
     addCutter( *c1, diam1/2.0, 0.0 );
     addCutter( *c2, diam2/2.0, cone_offset );
 }

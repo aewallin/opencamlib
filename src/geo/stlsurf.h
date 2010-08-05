@@ -23,7 +23,7 @@
 #include <list>
 
 #include "triangle.h"
-#include "kdtree.h"
+// #include "kdtree.h"
 #include "bbox.h"
 
 namespace ocl
@@ -71,31 +71,31 @@ class STLSurf {
         boost::python::list getTriangles() const;
         
         /// build a kd-tree from the triangles in the surface
-        void build_kdtree();
+        //void build_kdtree();
         
         /// jump up in the kd-tree
-        int jump_kd_up();
+        //int jump_kd_up();
         /// jump hi
-        int jump_kd_hi();
+        //int jump_kd_hi();
         /// jumo lo
-        int jump_kd_lo();
+        //int jump_kd_lo();
         /// set node = root
-        void jump_kd_reset();
+        //void jump_kd_reset();
         /// return level of node
-        int get_kd_level();
+        //int get_kd_level();
         /// return triangles in node
-        boost::python::list get_kd_triangles();
+        //boost::python::list get_kd_triangles();
         /// return cut-dim and value of node
-        boost::python::list get_kd_cut();
+        //boost::python::list get_kd_cut();
         
         /// return list of triangles under cutter
-        boost::python::list getTrianglesUnderCutter(const CLPoint &cl, const MillingCutter &cutter) const;
+        //boost::python::list getTrianglesUnderCutter(const CLPoint &cl, const MillingCutter &cutter) const;
         
         /// root of kd-tree
-        KDNode *root;
+        //KDNode *root;
         
         /// node of kd-tree
-        KDNode *node;
+        //KDNode *node;
 
     private:
         /// set the id-number

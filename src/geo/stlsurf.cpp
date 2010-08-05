@@ -57,6 +57,7 @@ unsigned int STLSurf::size() const {
     return tris.size();
 }
 
+/*
 void STLSurf::build_kdtree()
 {
     root = KDNode::build_kdtree( &tris );
@@ -130,7 +131,7 @@ boost::python::list STLSurf::getTrianglesUnderCutter(const CLPoint &cl, const Mi
     }
     delete triangles_under_cutter;
     return trilist;
-}
+}*/
 
 boost::python::list STLSurf::getTriangles() const
 {

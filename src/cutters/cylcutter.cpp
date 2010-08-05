@@ -41,7 +41,7 @@ CylCutter::CylCutter(const double d) {
 }
 
 /// offset of CylCutter is BullCutter
-MillingCutter* CylCutter::offsetCutter(double d) const {
+MillingCutter* CylCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, d) ;
 }
 

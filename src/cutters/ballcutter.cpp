@@ -332,7 +332,7 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
 //**********************************************************************
 
 /// offset of ball is a bigger ball
-MillingCutter* BallCutter::offsetCutter(double d) const {
+MillingCutter* BallCutter::offsetCutter(const double d) const {
     return  new BallCutter(diameter+2*d) ;
 }
 

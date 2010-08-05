@@ -1,15 +1,11 @@
-
-
 project(OpenCamLib)
 
 cmake_minimum_required(VERSION 2.4)
-
 
 #
 # Turn compiler warnings up to 11, at least with gcc.  I dont know how to
 # do this with other compilers we might support and I'm leaving it up to
 # the relevant platform maintainers...
-#
 # #include'ing the boost graph-library creates deprecated warnings
 # thus we use now use -Wno-deprecated here.
 #
@@ -17,7 +13,6 @@ cmake_minimum_required(VERSION 2.4)
 if (CMAKE_BUILD_TOOL MATCHES "make")
     add_definitions(-Wall -Werror -Wno-deprecated)
 endif (CMAKE_BUILD_TOOL MATCHES "make")
-
 
 #
 # this figures out the Python include directories and adds them to the
@@ -32,7 +27,6 @@ execute_process(
 )
 include_directories(${Python_Includes})
 
-
 # run get_revision.py which generates revision.h needed by ocl.revision()
 
 execute_process(
@@ -41,18 +35,7 @@ execute_process(
 MESSAGE(STATUS "running get_revision.py to generate revision.h")
 
 
-#
-# this finds the boost python library (it's installed under different names
-# on Ubuntu Hardy through Karmic vs Lucid)
-#
-
-# this is the old (pre 2010May12) way of finding boost-python
-# find_library(
-#     LIB_BOOST_PYTHON
-#     NAMES boost_python-mt boost_python
-# )
-# MESSAGE(STATUS "found boost-python: " ${LIB_BOOST_PYTHON})
-
+# find BOOST and boost-python
 find_package( Boost COMPONENTS python REQUIRED)
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -70,17 +53,19 @@ find_package( OpenMP REQUIRED )
 IF (OPENMP_FOUND)
     MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    MESSAGE(STATUS "flags are now: " ${CMAKE_CXX_FLAGS})
 ENDIF(OPENMP_FOUND)
 
-# alternative markup for getting the revision string
-#add_custom_command(
-#            OUTPUT revision.h
-#            COMMAND python get_revision.py
-#            COMMENT running revision.py
-#            DEPENDS get_revision.py
-#)
 
+# this branches into the cutters dir and compiles stuff there
+ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
+ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
+ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  )
+ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
+include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
+include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
+include_directories( ${OpenCamLib_SOURCE_DIR} )
 #
 # this makes the ocl Python module
 #
@@ -88,80 +73,16 @@ ENDIF(OPENMP_FOUND)
 add_library(
     ocl 
     MODULE
-    arc.cpp
-    ballcutter.cpp
-    batchdropcutter.cpp
-    batchpushcutter.cpp
-    bbox.cpp
-    bullcutter.cpp
-    compoundcutter.cpp
-    conecutter.cpp
-    millingcutter.cpp
-    cylcutter.cpp
-    fiber.cpp
-    kdtree.cpp
-    kdtree2.cpp
-    line.cpp
-    numeric.cpp
     ocl_cutters.cpp
     ocl_geometry.cpp
-    ocl_octree.cpp
+    ocl_cutsim.cpp
+    ocl_algo.cpp
     ocl.cpp
-    ocode.cpp
-    octree.cpp
-    oellipse.cpp
-    epos.cpp
-    path.cpp
-    pathdropcutter.cpp
-    point.cpp
-    ccpoint.cpp
-    clpoint.cpp
-    clfilter.cpp
-    stlsurf.cpp
-    stlreader.cpp
-    triangle.cpp
-    volume.cpp
-    waterline.cpp
-    weave.cpp
 )
 MESSAGE(STATUS "linking with boost: " ${Boost_LIBRARIES})
-target_link_libraries(ocl ${Boost_LIBRARIES})
+target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ocl_cutsim ${Boost_LIBRARIES})
 set_target_properties(ocl PROPERTIES PREFIX "") # this makes the lib name ocl.so and not libocl.so
 
-# was:
-# target_link_libraries(ocl ${LIB_BOOST_PYTHON})
-
-
-
-#
-# this makes a shared library for use by c/c++ code
-#
-# FIXME: make this work
-#
-# add_library(
-#    ocl10.4
-#    SHARED
-#    arc.cpp
-#    ballcutter.cpp
-#    bullcutter.cpp
-#    conecutter.cpp
-#    cutter.cpp
-#    cylcutter.cpp
-#    kdtree.cpp
-#    line.cpp
-#    numeric.cpp
-#    #ocl.cpp
-#    octree.cpp
-#    oellipse.cpp
-#    path.cpp
-#    pathfinish.cpp
-#    pfinish.cpp
-#    point.cpp
-#    stlsurf.cpp
-#    triangle.cpp
-#    volume.cpp
-# )
-# target_link_libraries(ocl "")
 
 #
 # this figures out where to install the Python modules
@@ -183,7 +104,7 @@ install(
     # FILES ../lib/camvtk.py
     DIRECTORY ../lib/
     DESTINATION ${Python_site_packages}
-    # PATTERN .svn EXCLUDE
+    PATTERN .svn EXCLUDE
 )
 
 
@@ -191,17 +112,17 @@ install(
 # this installs the examples
 #
 
-install(
-    DIRECTORY ../scripts/
-    DESTINATION share/doc/python-opencam/examples
-    PATTERN .svn EXCLUDE
-)
+# install(
+#     DIRECTORY ../scripts/
+#    DESTINATION share/doc/python-opencam/examples
+#    PATTERN .svn EXCLUDE
+# )
 
-install(
-    DIRECTORY ../stl/
-    DESTINATION share/doc/python-opencam/examples/stl
-    PATTERN .svn EXCLUDE
-)
+# install(
+#     DIRECTORY ../stl/
+#     DESTINATION share/doc/python-opencam/examples/stl
+#     PATTERN .svn EXCLUDE
+# )
 
 
 #
@@ -271,21 +192,21 @@ IF (DOXYGEN_FOUND)
         DEPENDS doc/latex/index.tex
     )
 
-    install(
-        DIRECTORY doc/latex/
-        DESTINATION share/doc/python-opencam/pdf
-        FILES_MATCHING PATTERN *.pdf
-    )
+    #install(
+    #    DIRECTORY doc/latex/
+    #    DESTINATION share/doc/python-opencam/pdf
+    #    FILES_MATCHING PATTERN *.pdf
+    #)
 
-    install(
-        FILES doc/ocl-manual.pdf
-        DESTINATION share/doc/python-opencam/pdf
-    )
+    #install(
+    #    FILES doc/ocl-manual.pdf
+    #    DESTINATION share/doc/python-opencam/pdf
+    #)
 
-    install(
-        DIRECTORY doc/html
-        DESTINATION share/doc/python-opencam/
-    )
+    #install(
+    #    DIRECTORY doc/html
+    #    DESTINATION share/doc/python-opencam/
+    #)
 
 ENDIF(DOXYGEN_FOUND)
 

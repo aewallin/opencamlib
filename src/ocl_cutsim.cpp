@@ -20,8 +20,8 @@
 
 #include <boost/python.hpp>
 
-#include "point.h"
-#include "oellipse.h"
+//#include "point.h"
+//#include "oellipse.h"
 #include "millingcutter.h"
 #include "volume.h"
 #include "octree.h"
@@ -35,7 +35,7 @@ using namespace ocl;
 
 namespace bp = boost::python;
 
-void export_octree() {
+void export_cutsim() {
    
     bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
