@@ -127,6 +127,7 @@ void LinOCT::build(OCTVolume* vol)
     std::list<Ocode>::iterator it;
     std::list<Ocode>::iterator temp;
     it = clist.begin();
+    int calc_calls = 0;
     while ( it != clist.end()  ) { 
         if (  ! (vol->isInsideBBo( *it )) ) { // nodes outside bounding-box can be deleted
             temp = it;
@@ -138,6 +139,7 @@ void LinOCT::build(OCTVolume* vol)
         }
         else {  // this ocode contains the bounding-box
             it->calcScore( vol ); // expensive call...
+            ++calc_calls;
             if ( (it->score == 9) ) { // black node
                 it++; // node is black, so leave it in the list, and move forward
             } else if ( (it->score == 0) && (it->deg > 5) ) { 
@@ -173,6 +175,7 @@ void LinOCT::build(OCTVolume* vol)
             }
         }
     }
+    std::cout << " LinOCT::build() " << calc_calls << " calcScore() calls \n";
     // std::cout << size() << " nodes after build()\n";  
 }
 

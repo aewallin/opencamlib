@@ -453,5 +453,30 @@ bool CylMoveOCTVolume::isInside(Point& p) const
 
 }
 
+//************* CylCutterVolume **************/
+
+CylCutterVolume::CylCutterVolume() {
+    radius = 1.0;
+    length = 1.0;
+    pos = Point(0,0,0);
+    calcBB();
+}
+
+void CylCutterVolume::calcBB() {
+    bb.addPoint( pos + Point(radius,radius,0) );
+    bb.addPoint( pos + Point(-radius,-radius,length) );
+}
+
+bool CylCutterVolume::isInside(Point& p) const {
+    Point t = p-pos;
+    if (t.z < 0 )
+        return false;
+    else {
+        double det = std::max( fabs(t.z-length/2)-length/2 , t.x*t.x+t.y*t.y-radius*radius );
+        return (det < 0.0); 
+    }
+}
+
+
 } // end namespace
 // end of file volume.cpp

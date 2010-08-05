@@ -148,6 +148,17 @@ class EtubeOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
 };
 
+class CylCutterVolume: public OCTVolume {
+    public:
+        CylCutterVolume();
+        double radius;
+        double length;
+        /// start CL-Point for this move
+        Point pos;
+        bool isInside(Point& p) const;
+        /// update the Bbox
+        void calcBB();
+};
 
 /// cutter-swept volume of a CylCutter
 class CylMoveOCTVolume: public OCTVolume {

@@ -107,6 +107,13 @@ void export_octree() {
         .def_readwrite("v2", &BoxOCTVolume::v2)
         .def_readwrite("v3", &BoxOCTVolume::v3)
     ;
+    bp::class_<CylCutterVolume, bp::bases<OCTVolume> >("CylCutterVolume")
+        .def("isInside", &CylCutterVolume::isInside )
+        .def("calcBB", &CylCutterVolume::calcBB )
+        .def_readwrite("radius", &CylCutterVolume::radius)
+        .def_readwrite("pos", &CylCutterVolume::pos)
+        .def_readwrite("length", &CylCutterVolume::length)
+    ;
 
 }
 
