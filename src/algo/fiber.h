@@ -22,8 +22,6 @@
 
 #include <vector>
 
-// #include <boost/graph/adjacency_list.hpp>
-
 #include "point.h"
 #include "ccpoint.h"
 #include "numeric.h"

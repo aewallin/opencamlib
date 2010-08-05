@@ -64,23 +64,16 @@ void Waterline::setZ(const double z) {
         
 void Waterline::run() {
     this->init_fibers();
-    // run the actual push-cutter
-    bpc->pushCutter3();
-    // run the weave-analysis to generate the loops
-    // std::vector<Fiber> fibers = *(bpc->fibers);
+    bpc->pushCutter3(); // run the actual push-cutter
     std::cout << "Weave..." << std::flush;
     Weave w;
-    int n=0;
     BOOST_FOREACH( Fiber f, *(bpc->fibers) ) {
         w.addFiber(f);
-        ++n;
     }
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
-    //w.printGraph();
     std::cout << "split()..." << std::flush;
     std::vector<Weave> subweaves = w.split_components(); // split into components
-    //std::cout << " weave split into " << subweaves.size() << " components\n";
     std::cout << "traverse()..." << std::flush;
     std::vector< std::vector<Point> > subweave_loops;
     BOOST_FOREACH( Weave sw, subweaves ) {
@@ -94,15 +87,12 @@ void Waterline::run() {
 }
 
 void Waterline::init_fibers() {
-    //std::cout << " cutter->getRadius()=" << cutter->getRadius() << "\n";
     double minx = surface->bb.minpt.x - 2*cutter->getRadius();
     double maxx = surface->bb.maxpt.x + 2*cutter->getRadius();
     double miny = surface->bb.minpt.y - 2*cutter->getRadius();
     double maxy = surface->bb.maxpt.y + 2*cutter->getRadius();
     int Nx = (int)( (maxx-minx)/tolerance );
     int Ny = (int)( (maxy-miny)/tolerance );
-    //std::cout << minx << "  " <<  maxx << "  " << miny << "  " << maxy <<  "\n";
-    //std::cout << " tolerance= " << tolerance << " Nx=" << Nx << " Ny=" << Ny << "\n";
     std::vector<double> xvals = generate_range(minx,maxx,Nx);
     std::vector<double> yvals = generate_range(miny,maxy,Ny);
     BOOST_FOREACH( double y, yvals ) {
@@ -146,4 +136,4 @@ boost::python::list Waterline::py_getLoops() const {
 
 }// end namespace
 
-// end file batchpushcutter.cpp
+// end file waterline.cpp

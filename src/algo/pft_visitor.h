@@ -22,12 +22,11 @@
 #define PFT_VISITOR_H
 
 #include <vector>
-
-
 #include <boost/graph/planar_face_traversal.hpp>
 
 #include "weave_typedef.h"
 #include "weave.h"
+
 namespace ocl
 {
     
@@ -41,7 +40,7 @@ struct vertex_output_visitor : public boost::planar_face_traversal_visitor
     } 
     
     void next_vertex(VertexDescriptor v) { 
-        if ( boost::get( boost::vertex_type, g_, v) == CL ) {
+        if ( boost::get( boost::vertex_type, g_, v) == CL ) { // could instead check for vertex degree?
             current_loop.push_back(v);
         }
     }

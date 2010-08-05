@@ -21,9 +21,7 @@
 #define STLSURF_H
 
 #include <list>
-
 #include "triangle.h"
-// #include "kdtree.h"
 #include "bbox.h"
 
 namespace ocl
@@ -54,10 +52,6 @@ class STLSurf {
         /// return number of triangles in surface
         unsigned int size() const;
         
-        /// id-number count (obsolete?)
-        static int count;
-        /// id-number (obsolete?)
-        int id;
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
         
@@ -69,37 +63,7 @@ class STLSurf {
         
         /// return list of all triangles to python
         boost::python::list getTriangles() const;
-        
-        /// build a kd-tree from the triangles in the surface
-        //void build_kdtree();
-        
-        /// jump up in the kd-tree
-        //int jump_kd_up();
-        /// jump hi
-        //int jump_kd_hi();
-        /// jumo lo
-        //int jump_kd_lo();
-        /// set node = root
-        //void jump_kd_reset();
-        /// return level of node
-        //int get_kd_level();
-        /// return triangles in node
-        //boost::python::list get_kd_triangles();
-        /// return cut-dim and value of node
-        //boost::python::list get_kd_cut();
-        
-        /// return list of triangles under cutter
-        //boost::python::list getTrianglesUnderCutter(const CLPoint &cl, const MillingCutter &cutter) const;
-        
-        /// root of kd-tree
-        //KDNode *root;
-        
-        /// node of kd-tree
-        //KDNode *node;
 
-    private:
-        /// set the id-number
-        void setId();
 };
 
 } // end namespace

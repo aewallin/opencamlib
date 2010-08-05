@@ -56,14 +56,9 @@ class Triangle {
         Point p[3]; // vertices
         /// normal vector
         Point *n;    // surface normal
-        /// id-number count 
-        static int count;
-        /// id-number
-        int id;
-        
+
         /// bounding-box 
         Bbox bb;
-        
         // these values are set from the Bbox object:
         double maxx;
         double maxy;

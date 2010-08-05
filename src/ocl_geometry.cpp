@@ -104,7 +104,6 @@ void export_geometry() {
         .def("getPoints", &Triangle::getPoints)
         .def("__str__", &Triangle::str) 
         .def_readonly("p", &Triangle::p)
-        .def_readonly("id", &Triangle::id)
     ;
     bp::class_<STLSurf>("STLSurf")
         .def("addTriangle", &STLSurf::addTriangle)
@@ -113,7 +112,6 @@ void export_geometry() {
         .def("getBounds", &STLSurf::getBounds)
         .def("getTriangles", &STLSurf::getTriangles)
         .def_readonly("tris", &STLSurf::tris)
-        .def_readonly("id", &STLSurf::id)
         .def_readonly("bb", &STLSurf::bb)
         //.def("build_kdtree", &STLSurf::build_kdtree)
         //.def("get_kd_triangles", &STLSurf::get_kd_triangles)

@@ -41,13 +41,12 @@ class MillingCutter;
 /// \brief Drop cutter interface
 class Waterline {
     public:
-        Waterline(); // dummy constructor, don't use.
+        Waterline(); 
         virtual ~Waterline();
         void setSTL(const STLSurf& s);
         void setCutter(const MillingCutter& c);
         void setTolerance(const double tol);
         void setZ(const double z);
-        
         void run();
         
         boost::python::list py_getLoops() const;
@@ -61,7 +60,7 @@ class Waterline {
         BatchPushCutter* bpc;
         double zh;
         double tolerance;
-        std::vector< std::vector<Point> >  loops;
+        std::vector< std::vector<Point> >  loops; // change to CLPoint?
 };
 
 } // end namespace

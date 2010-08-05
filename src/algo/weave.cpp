@@ -20,9 +20,10 @@
 
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
-#include <boost/graph/breadth_first_search.hpp>
+#include <boost/graph/adjacency_list.hpp> 
 #include <boost/graph/connected_components.hpp>
-#include <boost/graph/boyer_myrvold_planar_test.hpp>
+#include <boost/graph/planar_face_traversal.hpp>
+
 
 #include "weave.h"
 #include "pft_visitor.h"

@@ -29,7 +29,7 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     zh=0.3145
-    cutter_diams = generateRange(0.1, 3, 3)
+    cutter_diams = generateRange(0.1, 3, 1)
     loops = []
     for diam in cutter_diams:
         cutter = ocl.CylCutter( diam )

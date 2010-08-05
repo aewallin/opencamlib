@@ -23,7 +23,6 @@
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp> // graph class
-#include <boost/graph/planar_face_traversal.hpp>
 #include <boost/python.hpp>
 
 #include "point.h"
@@ -35,7 +34,7 @@
 namespace ocl
 {
 
-// see weave_typedef.h for boost-graph classes                         
+// see weave_typedef.h for boost-graph typedefs                       
                     
 /// weave-graph
 class Weave {
