@@ -137,7 +137,9 @@ void Octree::diff_positive(Octnode* root, OCTVolume* vol) {
                 Octnode* parent = n->parent;
                 if (parent)
                     parent->delete_child(n);
-                
+                    if (parent->leaf) { // if the parent has become a leaf
+                        diff_positive( parent, vol );
+                    }
             } else if (n->inside) {
             } else {
                 // std::cout << " intermediate node, subdivide\n";
@@ -160,6 +162,9 @@ void Octree::diff_negative(Octnode* root, OCTVolume* vol) {
                 Octnode* parent = n->parent;
                 if (parent)
                     parent->delete_child(n);
+                    if (parent->leaf) { // if the parent has become a leaf
+                        diff_negative( parent, vol ); // then it must be processed
+                    }
             } else if (n->outside) {
             } else {
                 if ( root->depth < (this->max_depth-1) ) {
@@ -547,7 +552,6 @@ void Octnode::delete_child(Octnode* c) {
             all_zero = false;
     }
     if (all_zero==true) {
-        //std::cout << " all children zero!\n";
         this->leaf = true;
     }
 }
