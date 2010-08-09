@@ -111,6 +111,58 @@ void Weave::build_embedding(PlanarEmbedding& e) {
         }
     }
 }
+/*
+ * This shows an example,using print_embedding() of planar emebddings of a simple graph generated with
+ * the boost planarity test, or simply adding edges in the order of iteration, or by figuring
+ * out the NESW, direction correctly:
+ * boyer_myrvold_planarity_test
+0 : (0,4) 
+1 : (7,1) 
+2 : (4,2) 
+3 : (13,3) 
+4 : (4,13) (4,7) (4,2) (0,4) 
+5 : (7,5) 
+6 : (7,6) 
+7 : (7,5) (7,6) (7,1) (4,7) 
+8 : (12,8) 
+9 : (13,9) 
+10 : (12,10) 
+11 : (12,11) 
+12 : (12,10) (12,11) (12,8) (13,12) 
+13 : (13,3) (13,12) (13,9) (4,13) 
+
+naive
+0 : (0,4) 
+1 : (1,7) 
+2 : (2,4) 
+3 : (3,13) 
+4 : (4,0) (4,2) (4,7) (4,13) 
+5 : (5,7) 
+6 : (6,7) 
+7 : (7,1) (7,4) (7,6) (7,5) 
+8 : (8,12) 
+9 : (9,13) 
+10 : (10,12) 
+11 : (11,12) 
+12 : (12,8) (12,11) (12,10) (12,13) 
+13 : (13,9) (13,12) (13,3) (13,4) 
+
+correct:
+0 : (0,4) 
+1 : (1,7) 
+2 : (2,4) 
+3 : (3,13) 
+4 : (4,2) (4,0) (4,13) (4,7) 
+5 : (5,7) 
+6 : (6,7) 
+7 : (7,5) (7,4) (7,6) (7,1) 
+8 : (8,12) 
+9 : (9,13) 
+10 : (10,12) 
+11 : (11,12) 
+12 : (12,10) (12,8) (12,11) (12,13) 
+13 : (13,4) (13,12) (13,3) (13,9) 
+ */
 
 void Weave::face_traverse() {
     // void planar_face_traversal(const Graph& g, PlanarEmbedding embedding, PlanarFaceVisitor& visitor, EdgeIndexMap em);
