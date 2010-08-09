@@ -30,6 +30,7 @@ add_library(
     ocode.cpp
     octree.cpp
     volume.cpp
+    octree2.cpp
 )
 
 
