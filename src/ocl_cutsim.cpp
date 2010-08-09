@@ -54,13 +54,12 @@ void export_cutsim() {
     bp::class_<Octnode>("Octnode")
         .def_readonly("depth", &Octnode::depth)
         .def_readonly("scale", &Octnode::scale)
-        .def_readonly("center", &Octnode::py_get_center)
+        .def("center", &Octnode::py_get_center)
         .def("subdivide",        &Octnode::subdivide)
         .def("__str__",        &Octnode::str)
         .def("vertices",       &Octnode::py_get_vertices)
     ;
-    
-    bp::class_<Ocode>("Ocode")
+	bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
         .def(bp::init<Ocode>())
         .def("point", &Ocode::point)
@@ -73,7 +72,8 @@ void export_cutsim() {
         .def("containedIn", &Ocode::containedIn)
         .def("str", &Ocode::str)
     ;
-    bp::class_<LinOCT>("LinOCT")
+ 
+   bp::class_<LinOCT>("LinOCT")
         .def(bp::init<>())
         .def("append", &LinOCT::append)
         .def("size", &LinOCT::size)

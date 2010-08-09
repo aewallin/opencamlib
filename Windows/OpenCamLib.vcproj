@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;$(PYTHON_INCLUDE)"
+				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;&quot;$(PYTHON_INCLUDE)&quot;;../src/algo;../src/cutsim;../src/cutters;../src/geo"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPENCAMLIB_EXPORTS;__BOOST_PYTHON_NO_LIB__;BOOST_PYTHON_STATIC_LIB=1;BOOST_LIB_DIAGNOSTIC;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -178,162 +178,96 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\arc.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\ballcutter.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\batchdropcutter.cpp"
+				RelativePath="..\src\geo\arc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\bbox.cpp"
+				RelativePath="..\src\cutters\ballcutter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\bullcutter.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\ccpoint.cpp"
+				RelativePath="..\src\algo\batchdropcutter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\clfilter.cpp"
+				RelativePath="..\src\algo\batchpushcutter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\clpoint.cpp"
+				RelativePath="..\src\geo\bbox.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\compoundcutter.cpp"
+				RelativePath="..\src\cutters\bullcutter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\conecutter.cpp"
+				RelativePath="..\src\geo\ccpoint.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\cylcutter.cpp"
+				RelativePath="..\src\algo\clfilter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\geo\clpoint.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\compoundcutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\conecutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\cylcutter.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\dllmain.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\epos.cpp"
+				RelativePath="..\src\cutters\epos.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\fiber.cpp"
+				RelativePath="..\src\algo\fiber.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\kdtree.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\line.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\millingcutter.cpp"
+				RelativePath="..\src\algo\kdtree.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\numeric.cpp"
+				RelativePath="..\src\algo\kdtree2.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\geo\line.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\millingcutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\numeric.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\src\ocl.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\ocl_algo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ocl_cutsim.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\src\ocl_cutters.cpp"
@@ -344,111 +278,63 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\ocl_octree.cpp"
+				RelativePath="..\src\cutsim\ocode.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ocode.cpp"
+				RelativePath="..\src\cutsim\octree.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\octree.cpp"
+				RelativePath="..\src\cutsim\octree2.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\oellipse.cpp"
+				RelativePath="..\src\cutters\oellipse.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\OpenCamLib.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\path.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\src\pathdropcutter.cpp"
+				RelativePath="..\src\geo\path.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\point.cpp"
+				RelativePath="..\src\algo\pathdropcutter.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\src\geo\point.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\stlreader.cpp"
+				RelativePath="..\src\geo\stlreader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\stlsurf.cpp"
+				RelativePath="..\src\geo\stlsurf.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\triangle.cpp"
+				RelativePath="..\src\geo\triangle.cpp"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\src\volume.cpp"
+				RelativePath="..\src\cutsim\volume.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\waterline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\weave.cpp"
 				>
 			</File>
 		</Filter>
@@ -458,51 +344,67 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\src\arc.h"
+				RelativePath="..\src\geo\arc.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\batchdropcutter.h"
+				RelativePath="..\src\algo\batchdropcutter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\bbox.h"
+				RelativePath="..\src\algo\batchpushcutter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ccpoint.h"
+				RelativePath="..\src\geo\bbox.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\clfilter.h"
+				RelativePath="..\src\algo\brent_zero.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\clpoint.h"
+				RelativePath="..\src\geo\ccpoint.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\cutter.h"
+				RelativePath="..\src\algo\clfilter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\epos.h"
+				RelativePath="..\src\geo\clpoint.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\fiber.h"
+				RelativePath="..\src\cutters\epos.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\kdtree.h"
+				RelativePath="..\src\algo\fiber.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\line.h"
+				RelativePath="..\src\algo\kdtree.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\numeric.h"
+				RelativePath="..\src\algo\kdtree2.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\geo\line.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\manual.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\millingcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\numeric.h"
 				>
 			</File>
 			<File
@@ -510,27 +412,43 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\ocode.h"
+				RelativePath="..\src\cutsim\ocode.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\octree.h"
+				RelativePath="..\src\cutsim\octree.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\oellipse.h"
+				RelativePath="..\src\cutsim\octree2.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\path.h"
+				RelativePath="..\src\cutters\oellipse.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\pathdropcutter.h"
+				RelativePath="..\src\geo\path.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\point.h"
+				RelativePath="..\src\algo\pathdropcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\pft_visitor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\geo\point.h"
+				>
+			</File>
+			<File
+				RelativePath=".\revision.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\revision.h"
 				>
 			</File>
 			<File
@@ -538,11 +456,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\stlreader.h"
+				RelativePath="..\src\geo\stlreader.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\stlsurf.h"
+				RelativePath="..\src\geo\stlsurf.h"
 				>
 			</File>
 			<File
@@ -554,7 +472,23 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\volume.h"
+				RelativePath="..\src\geo\triangle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutsim\volume.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\waterline.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\weave.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\weave_typedef.h"
 				>
 			</File>
 		</Filter>
