@@ -1,4 +1,4 @@
-/*  $Id: $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -24,6 +24,7 @@
 // #define NDEBUG
 #include <cassert>
 
+
 #include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
@@ -48,19 +49,7 @@ Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
     root = new Octnode( 0, &root_center, root_scale, 0 );
 }
 
-// search tree and return list of leaf-nodes
-boost::python::list Octree::py_get_leaf_nodes() const {
-    //std::cout << " py_get_leaf_nodes() \n";
-    std::vector<Octnode*> nodelist;
-    //std::cout << " get_leaf_nodes() \n";
-    Octree::get_leaf_nodes(root, nodelist);
-    //std::cout << " got " << nodelist.size() << " nodes\n";
-    boost::python::list pynodelist;
-    BOOST_FOREACH(Octnode* n, nodelist) {
-        pynodelist.append( *n );
-    }
-    return pynodelist;
-}
+
 
 void Octree::init(unsigned int n) {
     // subdivide n-times
@@ -84,6 +73,49 @@ void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
         for ( int n=0;n<8;++n) {
             if ( current->child[n] != 0 )
                 Octree::get_leaf_nodes( current->child[n], nodelist );
+        }
+    }
+}
+
+std::vector<Triangle> Octree::mc() {
+    std::cout << " mc() \n";
+    std::vector<Octnode*> surface_nodes;
+    get_surface_nodes(surface_nodes);
+    std::cout << " mc(): got " << surface_nodes.size() << " surface nodes\n";
+   
+    std::vector<Triangle> mc_triangles;
+    BOOST_FOREACH(Octnode* n, surface_nodes) {
+        std::vector<Triangle> tris = n->mc_triangles();
+        BOOST_FOREACH( Triangle t, tris) {
+            mc_triangles.push_back(t);
+        }
+        //++inside_verts[ninside]; //histogram of mc-types
+    }
+    
+    std::cout << " mc() got " << mc_triangles.size() << " triangles \n";
+    return mc_triangles;
+}
+
+boost::python::list Octree::py_mc_triangles() {
+    std::vector<Triangle> mc_triangles = mc();
+    boost::python::list tlist;
+    BOOST_FOREACH( Triangle t, mc_triangles ) {
+        tlist.append( t );
+    }
+    return tlist;
+}
+
+void Octree::get_surface_nodes(std::vector<Octnode*>& nodelist) const {
+    std::vector<Octnode*> leaf_nodes;
+    get_leaf_nodes(root, leaf_nodes);
+    //std::vector<Octnode*> surface_nodes;
+    std::cout << " surface nodes: got " << leaf_nodes.size() << " leaf-nodes\n";
+    BOOST_FOREACH(Octnode* n, leaf_nodes) {
+        assert( n->outside==false ); // don't want any outside nodes in the tree at this point
+        if ( n->inside == false ) {
+            Point c = *(n->center);
+            if ( c.x > 0 )
+                nodelist.push_back(n);
         }
     }
 }
@@ -127,6 +159,28 @@ void Octree::build(Octnode* root, OCTVolume* vol) {
 }
 
 
+boost::python::list Octree::py_get_surface_nodes() const {
+    std::vector<Octnode*> nodelist;
+    get_surface_nodes(nodelist);
+    boost::python::list pynodelist;
+    BOOST_FOREACH(Octnode* n, nodelist) {
+        pynodelist.append( *n );
+    }
+    return pynodelist;
+}
+
+// search tree and return list of leaf-nodes
+boost::python::list Octree::py_get_leaf_nodes() const {
+    std::vector<Octnode*> nodelist;
+    Octree::get_leaf_nodes(root, nodelist);
+    boost::python::list pynodelist;
+    BOOST_FOREACH(Octnode* n, nodelist) {
+        pynodelist.append( *n );
+    }
+    return pynodelist;
+}
+
+
 /// string repr
 std::string Octree::str() const {
     std::ostringstream o;
@@ -137,7 +191,7 @@ std::string Octree::str() const {
     BOOST_FOREACH( Octnode* n, nodelist) {
         ++nodelevel[n->depth];
     }
-    o << "  " << nodelist.size() << " leaf-nodes";
+    o << "  " << nodelist.size() << " leaf-nodes:\n";
     int m=0;
     BOOST_FOREACH( int count, nodelevel) {
         o << "depth="<<m <<" has " << count << " nodes\n";
@@ -206,6 +260,98 @@ void Octnode::evaluate(OCTVolume* vol) {
     }
 }
 
+std::vector<Triangle> Octnode::mc_triangles() {
+    std::vector<Triangle> tris;
+    int ninside=0;
+    std::vector<int> inside_verts_idx;
+    std::vector<int> outside_verts_idx;
+    for(int m=0;m<8;++m) {
+        if (f[m] <= 0.0 ) {
+            ++ninside;
+            inside_verts_idx.push_back( m );
+        } else {
+            outside_verts_idx.push_back( m );
+        }
+    }
+    assert(ninside > 0); // 0 would be an outside vertex
+    assert(ninside < 8); // 8 would be an inside vertex
+    
+    if ( ninside==1 ) { // one inside vertex
+        assert( f[ inside_verts_idx[0] ] < 0.0 );
+        std::vector<int> nb = neighbor_verts( inside_verts_idx[0] );
+        std::vector<Point> tri_points;
+        BOOST_FOREACH( int nvert, nb ) {
+            double wsum = fabs(f[nvert]) + fabs(f[ inside_verts_idx[0] ]);
+            double w0norm = fabs(f[ inside_verts_idx[0] ]) /wsum; //normalize
+            double nw_norm = fabs(f[nvert])/wsum;
+            Point tri_point = w0norm* (*vertex[ nvert ]) + nw_norm* (*vertex[ inside_verts_idx[0] ]);
+            tri_points.push_back( tri_point );
+        }
+        tris.push_back( Triangle( tri_points[0], tri_points[1], tri_points[2] ) );
+    } else if ( ninside == 7 ) { // one outside vertex
+        assert( outside_verts_idx.size() == 1 );
+        std::vector<int> nb = neighbor_verts( outside_verts_idx[0] );
+        std::vector<Point> tri_points;
+        BOOST_FOREACH( int nvert, nb ) {
+            double wsum = fabs(f[nvert]) + fabs(f[ outside_verts_idx[0] ]);
+            double w0norm = fabs(f[ outside_verts_idx[0] ]) /wsum; //normalize
+            double nw_norm = fabs(f[nvert])/wsum;
+            Point tri_point = w0norm* (*vertex[ nvert ]) + nw_norm* (*vertex[ outside_verts_idx[0] ]);
+            tri_points.push_back( tri_point );
+        }
+        tris.push_back( Triangle( tri_points[0], tri_points[1], tri_points[2] ) );
+    }
+    
+    return tris;
+}
+
+std::vector<int> Octnode::neighbor_verts(int idx) {
+    std::vector<int> result;
+    switch (idx) {
+        case 0:
+            result.push_back(1);
+            result.push_back(3);
+            result.push_back(4);
+            return result;
+        case 1:
+            result.push_back(0);
+            result.push_back(2);
+            result.push_back(5);
+            return result;
+        case 2:
+            result.push_back(1);
+            result.push_back(3);
+            result.push_back(6);
+            return result;
+        case 3:
+            result.push_back(0);
+            result.push_back(2);
+            result.push_back(7);
+            return result;
+        case 4:
+            result.push_back(0);
+            result.push_back(5);
+            result.push_back(7);
+            return result;
+        case 5:
+            result.push_back(1);
+            result.push_back(4);
+            result.push_back(6);
+            return result;
+        case 6:
+            result.push_back(2);
+            result.push_back(5);
+            result.push_back(7);
+            return result;
+        case 7:
+            result.push_back(3);
+            result.push_back(4);
+            result.push_back(6);
+            return result;
+    }
+    assert(0);
+    return result;
+}
 
 
 /// return centerpoint of child n

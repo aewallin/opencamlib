@@ -43,8 +43,11 @@ void export_cutsim() {
         .def_readonly("root_scale", &Octree::root_scale)
         .def_readonly("root_center", &Octree::root_center)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
+        .def("get_surface_nodes",       &Octree::py_get_surface_nodes)
+        .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("build", &Octree::build_root)
         .def("init",       &Octree::init)
+        .def("mc",       &Octree::mc)
         .def("__str__",            &Octree::str)
     ;
     bp::class_<Octnode>("Octnode")

@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -26,6 +26,7 @@
 
 #include "point.h"
 #include "volume.h"
+#include "triangle.h"
 
 namespace ocl
 {
@@ -45,6 +46,8 @@ class Octnode {
         void setvertices(); // set vertices[]
         void evaluate(OCTVolume* vol);
         void delete_child(Octnode* c);
+        std::vector<Triangle> mc_triangles();
+        std::vector<int> neighbor_verts(int idx);
         
         // python interface
         boost::python::list py_get_vertices() const;
@@ -83,11 +86,15 @@ class Octree {
         void build(Octnode* root, OCTVolume* vol);
         
         static void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
+        void get_surface_nodes(std::vector<Octnode*>& nodelist) const;
+        std::vector<Triangle> mc();
+        
         void init(unsigned int n);
         
     // python interface
         boost::python::list py_get_leaf_nodes() const;
-        
+        boost::python::list py_get_surface_nodes() const;
+        boost::python::list py_mc_triangles(); 
     // DATA
         double root_scale;
         double max_depth;

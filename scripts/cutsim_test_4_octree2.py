@@ -30,7 +30,7 @@ def main(filename="frame/f.png"):
     print "cutter length=", c.length
     
     cp= ocl.Point(0,0,0)
-    max_depth = 7
+    max_depth = 4
     root_scale = 3
     t = ocl.Octree(root_scale, max_depth, cp)
     print t
@@ -44,11 +44,15 @@ def main(filename="frame/f.png"):
     print "build...",
     t.build(s)
     print "done."
+    print t
+    
     sphere = camvtk.Sphere( center=(s.center.x,s.center.y,s.center.z), radius=s.radius, color=camvtk.cyan)
     sphere.SetOpacity(0.1)
     myscreen.addActor( sphere );
-    nodes = t.get_leaf_nodes()
     
+    
+    nodes = t.get_surface_nodes()
+    print "got ", len(nodes)," surface nodes"
    
     points=[]
     for n in nodes:
@@ -64,7 +68,8 @@ def main(filename="frame/f.png"):
             points.append(v)
     myscreen.addActor( camvtk.PointCloud( pointlist= points))
     
-    print t
+    tris = t.mc_triangles()
+    myscreen.addActor( camvtk.STLSurf( triangleList=tris, color=camvtk.red))
     print " render()...",
     myscreen.render()
     print "done."
