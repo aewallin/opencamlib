@@ -660,6 +660,40 @@ class PointCloud(CamvtkActor):
     def __init__(self, pointlist=[]):
         points = vtk.vtkPoints()
         cellArr = vtk.vtkCellArray()
+        #Colors = vtk.vtkUnsignedCharArray()
+        #Colors.SetNumberOfComponents(3)
+        #Colors.SetName("Colors")
+        
+        
+        n=0
+        for p in pointlist:
+            vert = vtk.vtkVertex()
+            points.InsertNextPoint(p.x, p.y, p.z)
+            vert.GetPointIds().SetId(0,n)
+            cellArr.InsertNextCell( vert )
+            #col = clColor(p.cc())
+            #Colors.InsertNextTuple3( float(255)*col[0], float(255)*col[1], float(255)*col[2] )
+            n=n+1
+        
+        
+        polydata= vtk.vtkPolyData()
+        polydata.SetPoints(points)
+        polydata.SetVerts( cellArr )
+        #polydata.GetPointData().SetScalars(Colors)
+
+        polydata.Modified()
+        polydata.Update()
+        self.src=polydata
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInput(self.src)
+        self.SetMapper(self.mapper)
+        #self.SetColor(color)
+        
+
+class CLPointCloud(CamvtkActor):
+    def __init__(self, pointlist=[]):
+        points = vtk.vtkPoints()
+        cellArr = vtk.vtkCellArray()
         Colors = vtk.vtkUnsignedCharArray()
         Colors.SetNumberOfComponents(3)
         Colors.SetName("Colors")

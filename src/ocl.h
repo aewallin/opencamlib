@@ -49,6 +49,7 @@
 #include "pathdropcutter.h"
 #include "oellipse.h"
 #include "octree.h"
+#include "octree2.h"
 #include "volume.h"
 #include "batchdropcutter.h"
 #include "batchpushcutter.h"

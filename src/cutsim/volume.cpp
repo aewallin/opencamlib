@@ -86,6 +86,11 @@ SphereOCTVolume::SphereOCTVolume()
     calcBB();
 }
 
+double SphereOCTVolume::dist(Point& p ) const {
+    double d = (center-p).norm();
+    return d-radius;
+}
+
 /// set the bounding box values
 void SphereOCTVolume::calcBB() {
     Point maxpt = Point(center.x + radius, center.y + radius, center.z + radius);

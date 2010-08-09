@@ -56,16 +56,19 @@ IF (OPENMP_FOUND)
 ENDIF(OPENMP_FOUND)
 
 
-# this branches into the cutters dir and compiles stuff there
+# this branches into the dirs and compiles stuff there
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
+
+# include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
+
 #
 # this makes the ocl Python module
 #

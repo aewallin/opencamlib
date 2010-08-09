@@ -18,37 +18,47 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OCTREE_H
-#define OCTREE_H
+#ifndef OCTREE2_H
+#define OCTREE2_H
 
 #include <iostream>
 #include <list>
 
 #include "point.h"
+#include "volume.h"
 
 namespace ocl
 {
 
+
+
+
 /// octree node
 class Octnode {
     public:
-        Octnode(Octnode* parent, Point& centerp, double nodescale, unsigned int nodedepth);
+        Octnode(){};
+        Octnode(Octnode* parent, Point* centerp, double nodescale, unsigned int nodedepth);
         virtual ~Octnode() {};
         
         void subdivide(); // create children
-        Point childcenter(int n); // return position of child centerpoint
+        Point* childcenter(int n); // return position of child centerpoint
         void setvertices(); // set vertices[]
+        void evaluate(OCTVolume* vol);
+        void delete_child(Octnode* c);
         
-        /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
-        /// string repr
-        std::string str() const;
+        // python interface
+        boost::python::list py_get_vertices() const;
+        Point py_get_center() const;
         
+    // DATA
         /// pointer to children
         Octnode* child[8];
+        bool leaf; // leaf node?
         Octnode* parent;
         Point* vertex[8]; // eight corners of this node
         double f[8]; // value of implicit function at vertex
+        bool outside;
+        bool inside;
         bool surface[6]; // flag for surface triangles
         Point* center; // the centerpoint of this node
         unsigned int depth; // depth of node
@@ -56,6 +66,34 @@ class Octnode {
         
         /// the direction to the vertices, from the center 
         static Point direction[8];
+        
+        
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
+        /// string repr
+        std::string str() const;
+};
+
+class Octree {
+    public:
+        Octree() {};
+        Octree(double root_scale, unsigned int max_depth, Point& centerp);
+        std::string str() const;
+        void build_root(OCTVolume* vol);
+        void build(Octnode* root, OCTVolume* vol);
+        
+        static void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
+        void init(unsigned int n);
+        
+    // python interface
+        boost::python::list py_get_leaf_nodes() const;
+        
+    // DATA
+        double root_scale;
+        double max_depth;
+        Point root_center;
+        /// root node of tree
+        Octnode* root; 
 };
 
 } // end namespace

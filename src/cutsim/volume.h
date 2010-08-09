@@ -44,6 +44,7 @@ class OCTVolume {
         OCTVolume(){};
         /// return true if Point p is inside volume
         virtual bool isInside(Point& p) const = 0;
+        virtual double dist(Point& p) const = 0;
         /// return true if Point p is in the bounding box
         bool isInsideBB(Point& p) const;
         /// return true if the Ocode o is inside the volume
@@ -78,6 +79,7 @@ class SphereOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
         /// update the Bbox
         void calcBB();
+        double dist(Point& p) const;
 };
 
 /// cube at center with side-length side
@@ -92,6 +94,7 @@ class CubeOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
         /// update bounding-box
         void calcBB();
+        double dist(Point& p) const {return -1;}
 };
 
 /// cylinder volume
@@ -108,6 +111,7 @@ class CylinderOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
         /// update the bounding box
         void calcBB();
+        double dist(Point& p) const {return -1;}
 };
 
 /// box-volume
@@ -128,6 +132,7 @@ class BoxOCTVolume: public OCTVolume {
         Point v3;
         bool isInside(Point& p) const;
         void calcBB();
+        double dist(Point& p) const {return -1;}
 };
 
 /// elliptic tube volume
@@ -146,6 +151,7 @@ class EtubeOCTVolume: public OCTVolume {
         /// ellipse b-axis
         Point b; // b-axis of ellipse
         bool isInside(Point& p) const;
+        double dist(Point& p) const {return -1;}
 };
 
 class CylCutterVolume: public OCTVolume {
@@ -158,6 +164,7 @@ class CylCutterVolume: public OCTVolume {
         bool isInside(Point& p) const;
         /// update the Bbox
         void calcBB();
+        double dist(Point& p) const {return -1;}
 };
 
 /// cutter-swept volume of a CylCutter
@@ -182,6 +189,7 @@ class CylMoveOCTVolume: public OCTVolume {
         /// the box-part of the swept-volume
         BoxOCTVolume box;
         bool isInside(Point& p) const;
+        double dist(Point& p) const {return -1;}
 };
 
 } // end namespace

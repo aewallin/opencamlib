@@ -26,6 +26,7 @@
 #include "volume.h"
 #include "octree.h"
 #include "ocode.h"
+#include "octree2.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -36,7 +37,25 @@ using namespace ocl;
 namespace bp = boost::python;
 
 void export_cutsim() {
-   
+    bp::class_<Octree>("Octree")
+        .def(bp::init<double, unsigned int, Point& >())
+        .def_readonly("max_depth", &Octree::max_depth)
+        .def_readonly("root_scale", &Octree::root_scale)
+        .def_readonly("root_center", &Octree::root_center)
+        .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
+        .def("build", &Octree::build_root)
+        .def("init",       &Octree::init)
+        .def("__str__",            &Octree::str)
+    ;
+    bp::class_<Octnode>("Octnode")
+        .def_readonly("depth", &Octnode::depth)
+        .def_readonly("scale", &Octnode::scale)
+        .def_readonly("center", &Octnode::py_get_center)
+        .def("subdivide",        &Octnode::subdivide)
+        .def("__str__",        &Octnode::str)
+        .def("vertices",       &Octnode::py_get_vertices)
+    ;
+    
     bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
         .def(bp::init<Ocode>())
