@@ -88,7 +88,7 @@ def main():
         #lwr.Write()
             
         #mc_surf.SetWireframe()
-        time.sleep(0.02)
+        time.sleep(1.02)
             
         
         if n is not nmax:

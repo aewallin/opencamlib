@@ -40,7 +40,6 @@ class Octnode {
         Octnode(){};
         Octnode(Octnode* parent, Point* centerp, double nodescale, unsigned int nodedepth);
         virtual ~Octnode() {};
-        
         void subdivide(); // create children
         Point* childcenter(int n); // return position of child centerpoint
         void setvertices(); // set vertices[]
