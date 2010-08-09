@@ -48,6 +48,7 @@ class Octnode {
         void delete_child(Octnode* c);
         std::vector<Triangle> mc_triangles();
         std::vector<int> neighbor_verts(int idx);
+        Point interpolate(int idx1, int idx2);
         
         // python interface
         boost::python::list py_get_vertices() const;
@@ -69,6 +70,8 @@ class Octnode {
         
         /// the direction to the vertices, from the center 
         static Point direction[8];
+        static const unsigned int edgeTable[256];
+        static const int triTable[256][16];
         
         
         /// string repr
@@ -101,6 +104,9 @@ class Octree {
         Point root_center;
         /// root node of tree
         Octnode* root; 
+        
+        
+        
 };
 
 } // end namespace

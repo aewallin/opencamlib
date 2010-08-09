@@ -30,7 +30,7 @@ def main(filename="frame/f.png"):
     print "cutter length=", c.length
     
     cp= ocl.Point(0,0,0)
-    max_depth = 4
+    max_depth = 9
     root_scale = 3
     t = ocl.Octree(root_scale, max_depth, cp)
     print t
@@ -66,10 +66,13 @@ def main(filename="frame/f.png"):
             #myscreen.addActor( camvtk.Sphere( center=(v.x,v.y,v.z), radius=0.1 ))
             #
             points.append(v)
-    myscreen.addActor( camvtk.PointCloud( pointlist= points))
+            
+    #myscreen.addActor( camvtk.PointCloud( pointlist= points))
     
     tris = t.mc_triangles()
-    myscreen.addActor( camvtk.STLSurf( triangleList=tris, color=camvtk.red))
+    mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
+    #mc_surf.SetWireframe()
+    myscreen.addActor( mc_surf )
     print " render()...",
     myscreen.render()
     print "done."
