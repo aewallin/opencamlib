@@ -78,21 +78,19 @@ void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
 }
 
 std::vector<Triangle> Octree::mc() {
-    std::cout << " mc() \n";
+    //std::cout << " mc() \n";
     std::vector<Octnode*> surface_nodes;
     get_surface_nodes(surface_nodes);
-    std::cout << " mc(): got " << surface_nodes.size() << " surface nodes\n";
-   
+    //std::cout << " mc(): got " << surface_nodes.size() << " surface nodes\n";
     std::vector<Triangle> mc_triangles;
     BOOST_FOREACH(Octnode* n, surface_nodes) {
         std::vector<Triangle> tris = n->mc_triangles();
         BOOST_FOREACH( Triangle t, tris) {
             mc_triangles.push_back(t);
         }
-        //++inside_verts[ninside]; //histogram of mc-types
     }
     
-    std::cout << " mc() got " << mc_triangles.size() << " triangles \n";
+    //std::cout << " mc() got " << mc_triangles.size() << " triangles \n";
     return mc_triangles;
 }
 
@@ -108,28 +106,29 @@ boost::python::list Octree::py_mc_triangles() {
 void Octree::get_surface_nodes(std::vector<Octnode*>& nodelist) const {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(root, leaf_nodes);
-    //std::vector<Octnode*> surface_nodes;
-    std::cout << " surface nodes: got " << leaf_nodes.size() << " leaf-nodes\n";
+    //std::cout << " surface nodes: got " << leaf_nodes.size() << " leaf-nodes\n";
     BOOST_FOREACH(Octnode* n, leaf_nodes) {
-        assert( n->outside==false ); // don't want any outside nodes in the tree at this point
+        //assert( n->outside==false ); // don't want any outside nodes in the tree at this point
         if ( n->inside == false ) {
-            Point c = *(n->center);
-            if ( c.x > 0 )
+            //Point c = *(n->center);
+            //if ( c.x > 0 )
                 nodelist.push_back(n);
         }
     }
 }
 
-void Octree::build_root(OCTVolume* vol) {
-    build( this->root, vol);
+void Octree::diff_negative_root(OCTVolume* vol) {
+    diff_negative( this->root, vol);
 }
 
-void Octree::build(Octnode* root, OCTVolume* vol) {
+void Octree::diff_positive_root(OCTVolume* vol) {
+    diff_positive( this->root, vol);
+}
+
+void Octree::diff_positive(Octnode* root, OCTVolume* vol) {
     std::vector<Octnode*> nodelist;
     Octree::get_leaf_nodes(root, nodelist); // get leafs of this root
     int nevals=0;
-    int ndeleted=0;
-    int ninside=0;
     BOOST_FOREACH( Octnode* n, nodelist) { // go through each leaf
             n->evaluate( vol );
             ++nevals;
@@ -138,24 +137,39 @@ void Octree::build(Octnode* root, OCTVolume* vol) {
                 Octnode* parent = n->parent;
                 if (parent)
                     parent->delete_child(n);
-                ++ndeleted;
+                
             } else if (n->inside) {
-                //std::cout << " inside node, do nothing\n";
-                ++ninside;
             } else {
                 // std::cout << " intermediate node, subdivide\n";
                 if ( root->depth < (this->max_depth-1) ) {
                     n->subdivide();
                     for(int m=0;m<8;++m) {
-                        Octree::build( n->child[m], vol); // build child
+                        Octree::diff_positive( n->child[m], vol); // build child
                     }
                 }
             }
     }
-    
-    //std::cout << " build() made "<<nevals<<" vol->evaluate() calls\n";
-    //std::cout << " build() "<<ndeleted<<" nodes were deleted\n";
-    //std::cout << " build() "<<ninside<<" nodes inside\n";
+}
+
+void Octree::diff_negative(Octnode* root, OCTVolume* vol) {
+    std::vector<Octnode*> nodelist;
+    Octree::get_leaf_nodes(root, nodelist); // get leafs of this root
+    BOOST_FOREACH( Octnode* n, nodelist) { // go through each leaf
+            n->evaluate( vol );
+            if ( n->inside ) {
+                Octnode* parent = n->parent;
+                if (parent)
+                    parent->delete_child(n);
+            } else if (n->outside) {
+            } else {
+                if ( root->depth < (this->max_depth-1) ) {
+                    n->subdivide();
+                    for(int m=0;m<8;++m) {
+                        Octree::diff_negative( n->child[m], vol); // build child
+                    }
+                }
+            }
+    }
 }
 
 
@@ -520,9 +534,21 @@ Octnode::Octnode(Octnode* nodeparent, Point* centerp, double nodescale, unsigned
 void Octnode::delete_child(Octnode* c) {
     for( int n=0;n<8;++n ) {
         if ( this->child[n] == c ) { // FIXMEEE
+            //std::cout << " deleting child " << n << "\n";
             delete this->child[n];
             this->child[n] = 0;
         }
+    }
+    // this might cause all children to be deleted, thus making this a
+    // leaf node again
+    bool all_zero = true;
+    for( int n=0;n<8;++n ) {
+        if ( !(this->child[n] == 0) )
+            all_zero = false;
+    }
+    if (all_zero==true) {
+        //std::cout << " all children zero!\n";
+        this->leaf = true;
     }
 }
 
@@ -530,10 +556,9 @@ void Octnode::delete_child(Octnode* c) {
 void Octnode::subdivide() {
     if (this->leaf) {
         for( int n=0;n<8;++n ) {
-            //Point* childc = ;
-            //std::cout << " childcenter("<<n<<") is " << childc << "\n";
             this->child[n] = new Octnode( this, this->childcenter(n) , scale/2.0 , depth+1 );
             // inherit the surface property here...
+            // optimization: inherit one f[n] from the corner?
         }
         this->leaf = false;
     }
@@ -545,10 +570,12 @@ void Octnode::evaluate(OCTVolume* vol) {
     outside = true;
     inside = true;
     for ( int n=0;n<8;++n) {
-        f[n] = vol->dist( *(vertex[n]) );
-        if ( f[n] <= 0.0 ) // if one vertex is inside
+        //if ( f[n] >= 0.0 )
+            f[n] = vol->dist( *(vertex[n]) );
+
+        if ( f[n] <= 0.0 ) {// if one vertex is inside
             outside = false; // then it's not an outside-node
-        else { // if one vertex is outside
+        } else { // if one vertex is outside
             assert( f[n] > 0.0 );
             inside = false; // then it's not an inside node anymore
         }
@@ -582,8 +609,9 @@ std::vector<Triangle> Octnode::mc_triangles() {
     // the edge is cut by the isosurface
     unsigned int edges = edgeTable[edgeTableIndex];
     //std::cout << " edges= " << edges << "\n";
-    if ( edges == 0)
-        assert(0);
+    if ( edges == 0 )
+        return tris;
+        //assert(0);
     
     // calculate intersection points by linear interpolation
     // there are now 12 different cases:
@@ -613,11 +641,6 @@ std::vector<Triangle> Octnode::mc_triangles() {
     if ( edges & 2048 )
         vertices[11] = interpolate( 3 , 7 );
     
-    //BOOST_FOREACH( Point p, vertices ) {
-    //    std::cout << p << "\n";
-    //}
-    //unsigned int edges = edgeTable[edgeTableIndex];
-    
     // form facets
     for (int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
     
@@ -626,95 +649,10 @@ std::vector<Triangle> Octnode::mc_triangles() {
         Point p2 = vertices[ triTable[edgeTableIndex][i+2] ];
         tris.push_back( Triangle(p0,p1,p2) );
     }
-    
-    /*
-    for(int m=0;m<8;++m) {
-        if (f[m] <= 0.0 ) {
-            ++ninside;
-            inside_verts_idx.push_back( m );
-        } else {
-            outside_verts_idx.push_back( m );
-        }
-    }
-    assert(ninside > 0); // 0 would be an outside vertex
-    assert(ninside < 8); // 8 would be an inside vertex
-    
-    if ( ninside==1 ) { // one inside vertex
-        assert( f[ inside_verts_idx[0] ] < 0.0 );
-        std::vector<int> nb = neighbor_verts( inside_verts_idx[0] );
-        std::vector<Point> tri_points;
-        BOOST_FOREACH( int nvert, nb ) {
-            double wsum = fabs(f[nvert]) + fabs(f[ inside_verts_idx[0] ]);
-            double w0norm = fabs(f[ inside_verts_idx[0] ]) /wsum; //normalize
-            double nw_norm = fabs(f[nvert])/wsum;
-            Point tri_point = w0norm* (*vertex[ nvert ]) + nw_norm* (*vertex[ inside_verts_idx[0] ]);
-            tri_points.push_back( tri_point );
-        }
-        tris.push_back( Triangle( tri_points[0], tri_points[1], tri_points[2] ) );
-    } else if ( ninside == 7 ) { // one outside vertex
-        assert( outside_verts_idx.size() == 1 );
-        std::vector<int> nb = neighbor_verts( outside_verts_idx[0] );
-        std::vector<Point> tri_points;
-        BOOST_FOREACH( int nvert, nb ) {
-            double wsum = fabs(f[nvert]) + fabs(f[ outside_verts_idx[0] ]);
-            double w0norm = fabs(f[ outside_verts_idx[0] ]) /wsum; //normalize
-            double nw_norm = fabs(f[nvert])/wsum;
-            Point tri_point = w0norm* (*vertex[ nvert ]) + nw_norm* (*vertex[ outside_verts_idx[0] ]);
-            tri_points.push_back( tri_point );
-        }
-        tris.push_back( Triangle( tri_points[0], tri_points[1], tri_points[2] ) );
-    }*/
-    
+
     return tris;
 }
 
-std::vector<int> Octnode::neighbor_verts(int idx) {
-    std::vector<int> result;
-    switch (idx) {
-        case 0:
-            result.push_back(1);
-            result.push_back(3);
-            result.push_back(4);
-            return result;
-        case 1:
-            result.push_back(0);
-            result.push_back(2);
-            result.push_back(5);
-            return result;
-        case 2:
-            result.push_back(1);
-            result.push_back(3);
-            result.push_back(6);
-            return result;
-        case 3:
-            result.push_back(0);
-            result.push_back(2);
-            result.push_back(7);
-            return result;
-        case 4:
-            result.push_back(0);
-            result.push_back(5);
-            result.push_back(7);
-            return result;
-        case 5:
-            result.push_back(1);
-            result.push_back(4);
-            result.push_back(6);
-            return result;
-        case 6:
-            result.push_back(2);
-            result.push_back(5);
-            result.push_back(7);
-            return result;
-        case 7:
-            result.push_back(3);
-            result.push_back(4);
-            result.push_back(6);
-            return result;
-    }
-    assert(0);
-    return result;
-}
 
 
 /// return centerpoint of child n

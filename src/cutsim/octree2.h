@@ -47,7 +47,7 @@ class Octnode {
         void evaluate(OCTVolume* vol);
         void delete_child(Octnode* c);
         std::vector<Triangle> mc_triangles();
-        std::vector<int> neighbor_verts(int idx);
+        // std::vector<int> neighbor_verts(int idx);
         Point interpolate(int idx1, int idx2);
         
         // python interface
@@ -85,8 +85,11 @@ class Octree {
         Octree() {};
         Octree(double root_scale, unsigned int max_depth, Point& centerp);
         std::string str() const;
-        void build_root(OCTVolume* vol);
-        void build(Octnode* root, OCTVolume* vol);
+        void diff_positive_root(OCTVolume* vol);
+        void diff_positive(Octnode* root, OCTVolume* vol);
+        void diff_negative_root(OCTVolume* vol);
+        void diff_negative(Octnode* root, OCTVolume* vol);
+        
         
         static void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
         void get_surface_nodes(std::vector<Octnode*>& nodelist) const;
