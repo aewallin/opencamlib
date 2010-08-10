@@ -78,9 +78,9 @@ void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
 }
 
 std::vector<Triangle> Octree::mc() {
-    //std::cout << " mc() \n";
     std::vector<Octnode*> surface_nodes;
     get_surface_nodes(surface_nodes);
+    //Octree::get_leaf_nodes( root, surface_nodes );
     //std::cout << " mc(): got " << surface_nodes.size() << " surface nodes\n";
     std::vector<Triangle> mc_triangles;
     BOOST_FOREACH(Octnode* n, surface_nodes) {
@@ -118,7 +118,9 @@ void Octree::get_surface_nodes(std::vector<Octnode*>& nodelist) const {
 }
 
 void Octree::diff_negative_root(OCTVolume* vol) {
+    std::cout << " diff_negative_root()\n";
     diff_negative( this->root, vol);
+    std::cout << " diff_negative_root() DONE.\n";
 }
 
 void Octree::diff_positive_root(OCTVolume* vol) {
@@ -126,6 +128,7 @@ void Octree::diff_positive_root(OCTVolume* vol) {
 }
 
 void Octree::diff_positive(Octnode* root, OCTVolume* vol) {
+    
     std::vector<Octnode*> nodelist;
     Octree::get_leaf_nodes(root, nodelist); // get leafs of this root
     int nevals=0;
@@ -154,24 +157,39 @@ void Octree::diff_positive(Octnode* root, OCTVolume* vol) {
 }
 
 void Octree::diff_negative(Octnode* root, OCTVolume* vol) {
+    std::cout << " diff_neg depth=" << root->depth << " center=" << *(root->center) << ", ";
     std::vector<Octnode*> nodelist;
     Octree::get_leaf_nodes(root, nodelist); // get leafs of this root
+    std::cout << " got" << nodelist.size() << " leafs, ";
     BOOST_FOREACH( Octnode* n, nodelist) { // go through each leaf
             n->evaluate( vol );
-            if ( n->inside ) {
+            if ( n->inside ) { // inside nodes should be deleted
+                std::cout << " inside, delete.\n";
                 Octnode* parent = n->parent;
-                if (parent)
+                if (parent) {
                     parent->delete_child(n);
                     if (parent->leaf) { // if the parent has become a leaf
+                        parent->mc_tris_valid = false;
                         diff_negative( parent, vol ); // then it must be processed
                     }
+                } else {
+                    assert(0);
+                }
             } else if (n->outside) {
+                std::cout << " outside.\n";
+                // we do nothing to outside nodes.
             } else {
+                // these are intermediate nodes
+                std::cout << " subdivide. ";
                 if ( root->depth < (this->max_depth-1) ) {
+                    std::cout << " done.\n ";
                     n->subdivide();
+                    n->mc_tris_valid = false;
                     for(int m=0;m<8;++m) {
                         Octree::diff_negative( n->child[m], vol); // build child
                     }
+                } else {
+                    std::cout << " max_depth reached.\n ";
                 }
             }
     }
@@ -534,6 +552,11 @@ Octnode::Octnode(Octnode* nodeparent, Point* centerp, double nodescale, unsigned
     depth = nodedepth;
     leaf = true;
     setvertices();
+    mc_tris_valid = false;
+    evaluated = false;
+    for( int n=0;n<8;++n ) {
+        f[n] = 1e6;
+    }
 }
 
 void Octnode::delete_child(Octnode* c) {
@@ -553,6 +576,7 @@ void Octnode::delete_child(Octnode* c) {
     }
     if (all_zero==true) {
         this->leaf = true;
+        this->mc_tris_valid = false;
     }
 }
 
@@ -565,35 +589,54 @@ void Octnode::subdivide() {
             // optimization: inherit one f[n] from the corner?
         }
         this->leaf = false;
+    } else {
+        assert(0);
     }
 }
 
 void Octnode::evaluate(OCTVolume* vol) {
-    //bool outside=true;
-    //bool inside=true;
+    assert( leaf );
     outside = true;
     inside = true;
     for ( int n=0;n<8;++n) {
-        //if ( f[n] >= 0.0 )
-            f[n] = vol->dist( *(vertex[n]) );
-
+        //if ( f[n] >= 0.0 ) // vol->dist( *(vertex[n]) )
+        double newf = vol->dist( *(vertex[n]) );
+        //if ( !evaluated) {
+        //if( fabs(newf) < fabs(f[n]) )
+            f[n] = newf;
+        //} else if( fabs(newf) < fabs(f[n]) ) {
+        //    f[n] = newf; 
+        //} //else if ( f[n] 
+            //vol->dist( *(vertex[n]) );
+            
         if ( f[n] <= 0.0 ) {// if one vertex is inside
             outside = false; // then it's not an outside-node
+            //this->mc_tris_valid = false;
         } else { // if one vertex is outside
             assert( f[n] > 0.0 );
             inside = false; // then it's not an inside node anymore
         }
     }
+    evaluated = true;
+    //if (inside)
+    //    
+    //if (!outside && !inside) 
+    //    this->mc_tris_valid = false;
 }
 
 Point Octnode::interpolate(int idx1, int idx2) {
     // p = p1 - v1 (p2-p1)/(v2-v1)
+    assert( !isZero_tol( f[idx2]-f[idx1]  ) );
     return *vertex[idx1] - f[idx1]*( *vertex[idx2]-(*vertex[idx1]) ) * 
                                     (1.0/(f[idx2]-f[idx1]));
 }
 
 std::vector<Triangle> Octnode::mc_triangles() {
     std::vector<Triangle> tris;
+    if (mc_tris_valid) {
+        assert( mc_tris.size() > 0 );
+        return mc_tris;
+    }
     //std::cout << " mc_triangles() \n";
     //int ninside=0;
     //std::vector<int> inside_verts_idx;
@@ -613,9 +656,11 @@ std::vector<Triangle> Octnode::mc_triangles() {
     // the edge is cut by the isosurface
     unsigned int edges = edgeTable[edgeTableIndex];
     //std::cout << " edges= " << edges << "\n";
-    if ( edges == 0 )
+    if ( edges == 0 ) {
+        // assert(0);
         return tris;
-        //assert(0);
+    }
+        //
     
     // calculate intersection points by linear interpolation
     // there are now 12 different cases:
@@ -653,7 +698,8 @@ std::vector<Triangle> Octnode::mc_triangles() {
         Point p2 = vertices[ triTable[edgeTableIndex][i+2] ];
         tris.push_back( Triangle(p0,p1,p2) );
     }
-
+    mc_tris = tris;
+    mc_tris_valid = true;
     return tris;
 }
 

@@ -17,9 +17,9 @@ def main():
     s.center = ocl.Point(-0.60,-0.6,0)
     s.radius = 1.6345
     
-    sphere = camvtk.Sphere( center=(s.center.x,s.center.y,s.center.z), radius=s.radius, color=camvtk.cyan)
-    sphere.SetOpacity(0.1)
-    myscreen.addActor( sphere );
+    #sphere = camvtk.Sphere( center=(s.center.x,s.center.y,s.center.z), radius=s.radius, color=camvtk.cyan)
+    #sphere.SetOpacity(0.1)
+    #myscreen.addActor( sphere );
     
     
     # screenshot writer
@@ -38,12 +38,12 @@ def main():
     
     cp= ocl.Point(0,0,-3)
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 7
+    max_depth = 6
     root_scale = 3
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(3)
     n = 0 # the frame number
-    nmax=5
+    nmax=1
     while (n<=nmax):
         print "diff...",
         t_before = time.time() 
@@ -62,15 +62,16 @@ def main():
         octtext.SetText(infotext)
         
         mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
+        #mc_surf.SetWireframe()
         print " STLSurf()...",
         myscreen.addActor( mc_surf )
         print "done."
         nodes = t.get_leaf_nodes()
-        allpoints=[]
-        for no in nodes:
-            verts = no.vertices()
-            for v in verts:
-                allpoints.append(v)
+        #allpoints=[]
+        #for no in nodes:
+        #    verts = no.vertices()
+        #    for v in verts:
+        #        allpoints.append(v)
         #oct_points = camvtk.PointCloud( allpoints )
         print " PointCloud()...",
         #myscreen.addActor( oct_points )
@@ -88,7 +89,9 @@ def main():
         #lwr.Write()
             
         #mc_surf.SetWireframe()
+        print "sleep...",
         time.sleep(1.02)
+        print "done."
             
         
         if n is not nmax:
@@ -96,8 +99,9 @@ def main():
             #myscreen.removeActor( oct_points )
         
         # move forward
-        s.center = s.center + ocl.Point(0.3,0.3,0.0)  
         
+        s.center = s.center + ocl.Point(0.7,0.67,0.0)  
+        print "center moved to", s.center
         n=n+1
     print "All done."
     myscreen.iren.Start() 

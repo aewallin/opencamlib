@@ -66,6 +66,10 @@ class Octnode {
         Point* center; // the centerpoint of this node
         unsigned int depth; // depth of node
         double scale; // distance from center to vertices
+        bool evaluated;
+        
+        std::vector<Triangle> mc_tris;
+        bool mc_tris_valid;
         
         /// the direction to the vertices, from the center 
         static Point direction[8];
@@ -89,11 +93,9 @@ class Octree {
         void diff_negative_root(OCTVolume* vol);
         void diff_negative(Octnode* root, OCTVolume* vol);
         
-        
         static void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
         void get_surface_nodes(std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
-        
         void init(unsigned int n);
         
     // python interface
@@ -105,10 +107,8 @@ class Octree {
         double max_depth;
         Point root_center;
         /// root node of tree
-        Octnode* root; 
-        
-        
-        
+        Octnode* root;
+
 };
 
 } // end namespace
