@@ -644,7 +644,8 @@ class STLSurf(CamvtkActor):
             self.mapper = vtk.vtkPolyDataMapper()
             self.mapper.SetInput(self.src)
             self.SetMapper(self.mapper)
-        else:
+            
+        else: # a filename was specified
             self.src = vtk.vtkSTLReader()
             self.src.SetFileName(filename)
             self.src.Update()

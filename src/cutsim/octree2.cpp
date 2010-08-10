@@ -77,6 +77,18 @@ void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
     }
 }
 
+void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
+    if ( current ) {
+        nodelist.push_back( current );
+        for ( int n=0;n<8;++n) {
+            if ( current->child[n] != 0 )
+                Octree::get_all_nodes( current->child[n], nodelist );
+        }
+    }
+}
+
+
+
 std::vector<Triangle> Octree::mc() {
     std::vector<Octnode*> surface_nodes;
     get_surface_nodes(surface_nodes);
@@ -157,41 +169,81 @@ void Octree::diff_positive(Octnode* root, OCTVolume* vol) {
 }
 
 void Octree::diff_negative(Octnode* root, OCTVolume* vol) {
-    std::cout << " diff_neg depth=" << root->depth << " center=" << *(root->center) << ", ";
+    //std::cout << " diff_neg depth=" << root->depth << " center=" << *(root->center) << ", ";
     std::vector<Octnode*> nodelist;
     Octree::get_leaf_nodes(root, nodelist); // get leafs of this root
-    std::cout << " got" << nodelist.size() << " leafs, ";
+    
+    //std::cout << " got" << nodelist.size() << " leafs, ";
     BOOST_FOREACH( Octnode* n, nodelist) { // go through each leaf
             n->evaluate( vol );
             if ( n->inside ) { // inside nodes should be deleted
-                std::cout << " inside, delete.\n";
                 Octnode* parent = n->parent;
                 if (parent) {
                     parent->delete_child(n);
                     if (parent->leaf) { // if the parent has become a leaf
-                        parent->mc_tris_valid = false;
                         diff_negative( parent, vol ); // then it must be processed
                     }
                 } else {
                     assert(0);
                 }
             } else if (n->outside) {
-                std::cout << " outside.\n";
+                // std::cout << " outside.\n";
                 // we do nothing to outside nodes.
             } else {
                 // these are intermediate nodes
-                std::cout << " subdivide. ";
                 if ( root->depth < (this->max_depth-1) ) {
-                    std::cout << " done.\n ";
+                    //std::cout << " done.\n ";
                     n->subdivide();
-                    n->mc_tris_valid = false;
                     for(int m=0;m<8;++m) {
                         Octree::diff_negative( n->child[m], vol); // build child
                     }
-                } else {
-                    std::cout << " max_depth reached.\n ";
+                } else { // max depth reached, can't subdivide
+                    //std::cout << " max_depth reached.\n ";
                 }
             }
+    }
+}
+
+void Octree::diff_negative2_root(OCTVolume* vol) {
+    std::cout << " diff_negative_root()\n";
+    diff_negative2( this->root, vol);
+    std::cout << " diff_negative_root() DONE.\n";
+}
+
+void Octree::diff_negative2(Octnode* current, OCTVolume* vol) {
+    if ( current->leaf ) {
+        current->evaluate( vol );
+        if ( current->inside ) { // inside nodes should be deleted
+            Octnode* parent = current->parent;
+            if (parent) {
+                parent->delete_child(current);
+                if (parent->leaf) { // if the parent has become a leaf
+                    diff_negative( parent, vol ); // then it must be processed
+                }
+            } else {
+                assert(0);
+            }
+        } else if (current->outside) {
+            // std::cout << " outside.\n";
+            // we do nothing to outside nodes.
+        } else {
+            // these are intermediate nodes
+            if ( current->depth < (this->max_depth-1) ) {
+                //std::cout << " done.\n ";
+                current->subdivide();
+                for(int m=0;m<8;++m) {
+                    Octree::diff_negative2( current->child[m], vol); // build child
+                }
+            } else { // max depth reached, can't subdivide
+                //std::cout << " max_depth reached.\n ";
+            }
+        }
+    } else {
+        // not a leaf, so go deeper into tree
+        for(int m=0;m<8;++m) {
+            if ( current->child[m] )
+                Octree::diff_negative2( current->child[m], vol); // build child
+        }
     }
 }
 
@@ -554,9 +606,6 @@ Octnode::Octnode(Octnode* nodeparent, Point* centerp, double nodescale, unsigned
     setvertices();
     mc_tris_valid = false;
     evaluated = false;
-    for( int n=0;n<8;++n ) {
-        f[n] = 1e6;
-    }
 }
 
 void Octnode::delete_child(Octnode* c) {
@@ -574,7 +623,7 @@ void Octnode::delete_child(Octnode* c) {
         if ( !(this->child[n] == 0) )
             all_zero = false;
     }
-    if (all_zero==true) {
+    if (all_zero) {
         this->leaf = true;
         this->mc_tris_valid = false;
     }
@@ -590,7 +639,7 @@ void Octnode::subdivide() {
         }
         this->leaf = false;
     } else {
-        assert(0);
+        assert(0); // DON'T subdivide a non-leaf node
     }
 }
 
@@ -601,13 +650,22 @@ void Octnode::evaluate(OCTVolume* vol) {
     for ( int n=0;n<8;++n) {
         //if ( f[n] >= 0.0 ) // vol->dist( *(vertex[n]) )
         double newf = vol->dist( *(vertex[n]) );
-        //if ( !evaluated) {
-        //if( fabs(newf) < fabs(f[n]) )
+        if ( !evaluated ) {
+            //std::cout << " !evaluated \n";
             f[n] = newf;
-        //} else if( fabs(newf) < fabs(f[n]) ) {
-        //    f[n] = newf; 
-        //} //else if ( f[n] 
-            //vol->dist( *(vertex[n]) );
+            //mc_tris_valid = false;
+        } else if( (f[n] < 0.0) && (newf < 0.0) && (newf > f[n])  ) {
+            // negative f, negative newf, update if newf > f[n] (closer to zero)
+            f[n] = newf;
+            assert( f[n] < 0.0 );
+            mc_tris_valid = false; 
+        } else if ( ( f[n] >= 0.0 ) &&  (newf < f[n]) ) {
+            // positive f, update if distance decreases
+            //std::cout << " pos,  update \n";
+            f[n] = newf;
+            mc_tris_valid = false;
+        }  
+        f[n] = newf;
             
         if ( f[n] <= 0.0 ) {// if one vertex is inside
             outside = false; // then it's not an outside-node
@@ -714,6 +772,7 @@ Point* Octnode::childcenter(int n) {
 void Octnode::setvertices() {
     for ( int n=0;n<8;++n) {
         vertex[n] = new Point(*center + scale*direction[n] ) ;
+        f[n] = 0.0;
     }
 }
 

@@ -47,6 +47,7 @@ void export_cutsim() {
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("diff_positive", &Octree::diff_positive_root)
         .def("diff_negative", &Octree::diff_negative_root)
+        .def("diff_negative2", &Octree::diff_negative2_root)
         .def("init",       &Octree::init)
         .def("mc",       &Octree::mc)
         .def("__str__",            &Octree::str)
@@ -59,7 +60,7 @@ void export_cutsim() {
         .def("__str__",        &Octnode::str)
         .def("vertices",       &Octnode::py_get_vertices)
     ;
-	bp::class_<Ocode>("Ocode")
+    bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
         .def(bp::init<Ocode>())
         .def("point", &Ocode::point)

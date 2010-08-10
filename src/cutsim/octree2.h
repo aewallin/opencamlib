@@ -91,9 +91,14 @@ class Octree {
         void diff_positive_root(OCTVolume* vol);
         void diff_positive(Octnode* root, OCTVolume* vol);
         void diff_negative_root(OCTVolume* vol);
-        void diff_negative(Octnode* root, OCTVolume* vol);
+        void diff_negative(Octnode* current, OCTVolume* vol);
+        void diff_negative2_root(OCTVolume* vol);
+        void diff_negative2(Octnode* current, OCTVolume* vol);
+        
         
         static void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
+        static void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
+        
         void get_surface_nodes(std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
         void init(unsigned int n);
