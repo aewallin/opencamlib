@@ -12,42 +12,30 @@ def main():
     myscreen.camera.SetPosition(-15, -8, 15)
     myscreen.camera.SetFocalPoint(0,0, 0)   
     # axis arrows
-    camvtk.drawArrows(myscreen,center=(0,0,0))
+    #camvtk.drawArrows(myscreen,center=(0,0,0))
 
     s = ocl.SphereOCTVolume()
     s.center = ocl.Point(-2.50,-0.6,0)
     s.radius = 0.6345
-    
-    #sphere = camvtk.Sphere( center=(s.center.x,s.center.y,s.center.z), radius=s.radius, color=camvtk.cyan)
-    #sphere.SetOpacity(0.1)
-    #myscreen.addActor( sphere );
-    
-    
+
     # screenshot writer
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
     
-    # text
-    #camvtk.drawOCLtext(myscreen)
-    #octtext = camvtk.Text()
-    #octtext.SetPos( (myscreen.width-400, myscreen.height-290) )
-    #myscreen.addActor( octtext)
-
-    
-    
     cp= ocl.Point(0,0,-3)
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 7
+    max_depth = 10
     root_scale = 3
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(4)
     n = 0 # the frame number
-    nmax=3
+    nmax=100
     theta=0
-    dtheta=0.5
-    s.center =  ocl.Point( 0.5*math.cos(theta),0.3*math.sin(theta),theta)  
+    dtheta=0.025
+    thetalift=-0.01
+    s.center =  ocl.Point( 1.5*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
     while (n<=nmax):
         print "diff...",
         t_before = time.time() 
@@ -55,12 +43,6 @@ def main():
         t_after = time.time() 
         build_time = t_after-t_before
         print "done in ", build_time," s"
-        
-        
-
-        #infotext= "Octree + Marching-Cubes test\nmax octree-depth:%i \ntriangles: %i \nbuild() time: %f ms" % (max_depth, 
-        #                                                  len(tris), build_time*1e3 )
-        #octtext.SetText(infotext)
         
         if n==nmax:
             t_before = time.time() 
@@ -109,7 +91,12 @@ def main():
         
         # move forward
         theta = n*dtheta
-        s.center =  ocl.Point( 1.5*math.cos(theta),0.3*math.sin(theta),0.01*theta)  
+        sp1 = ocl.Point(s.center)
+        s.center =  ocl.Point( 1.5*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
+        sp2 = ocl.Point(s.center)
+        print "line from ",sp1," to ",sp2
+        if n is not nmax:
+            myscreen.addActor( camvtk.Line( p1=(sp1.x,sp1.y,sp1.z),p2=(sp2.x,sp2.y,sp2.z), color=camvtk.red ) )
         print "center moved to", s.center
         n=n+1
     print "All done."

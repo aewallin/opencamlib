@@ -104,7 +104,7 @@ class Octree {
     // DATA
         double root_scale;
         double max_depth;
-        Point root_center;
+        //Point root_center;
         /// root node of tree
         Octnode* root;
 

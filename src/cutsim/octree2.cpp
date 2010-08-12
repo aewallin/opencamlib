@@ -43,9 +43,10 @@ namespace ocl
 Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
     root_scale = scale;
     max_depth = depth;
-    root_center = centerp;
+    //root_center = centerp;
                     // parent, idx, scale, depth
     root = new Octnode( 0, 0, root_scale, 0 );
+    root->center = &centerp;
 }
 
 
@@ -118,8 +119,8 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
             Octnode* parent = current->parent;
             assert( parent != NULL );
             parent->delete_child( current->idx );
-            if (parent->leaf) 
-                Octree::diff_negative( parent, vol ); // then it must be processed
+            //if (parent->leaf)  // this probably causes segfaulting??
+            //    Octree::diff_negative( parent, vol ); // then it must be processed
         } else if (current->outside) {// we do nothing to outside nodes.
         } else {// these are intermediate nodes
             if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
@@ -220,7 +221,6 @@ void Octnode::delete_child(unsigned int index) {
     if (all_zero) {
         for( int n=0;n<8;++n )
             assert( (this->child[n] == 0) );
-            
         this->leaf = true;
         this->mc_tris_valid = false;
     }

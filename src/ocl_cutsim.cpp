@@ -38,7 +38,7 @@ void export_cutsim() {
         .def(bp::init<double, unsigned int, Point& >())
         .def_readonly("max_depth", &Octree::max_depth)
         .def_readonly("root_scale", &Octree::root_scale)
-        .def_readonly("root_center", &Octree::root_center)
+        //.def_readonly("root_center", &Octree::root_center)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("diff_negative", &Octree::diff_negative_root)
