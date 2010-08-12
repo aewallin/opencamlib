@@ -38,13 +38,14 @@ namespace ocl
 class Octnode {
     public:
         Octnode(){};
-        Octnode(Octnode* parent, Point* centerp, double nodescale, unsigned int nodedepth);
+        Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth);
         virtual ~Octnode() {};
         void subdivide(); // create children
         Point* childcenter(int n); // return position of child centerpoint
         void setvertices(); // set vertices[]
         void evaluate(OCTVolume* vol);
         void delete_child(Octnode* c);
+        void delete_child(unsigned int index);
         std::vector<Triangle> mc_triangles();
         // std::vector<int> neighbor_verts(int idx);
         Point interpolate(int idx1, int idx2);
@@ -65,6 +66,7 @@ class Octnode {
         bool surface[6]; // flag for surface triangles
         Point* center; // the centerpoint of this node
         unsigned int depth; // depth of node
+        unsigned int idx; // index of node
         double scale; // distance from center to vertices
         bool evaluated;
         
@@ -99,13 +101,13 @@ class Octree {
         static void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
         static void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist);
         
-        void get_surface_nodes(std::vector<Octnode*>& nodelist) const;
+        //void get_surface_nodes(std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
         void init(unsigned int n);
         
     // python interface
         boost::python::list py_get_leaf_nodes() const;
-        boost::python::list py_get_surface_nodes() const;
+        //boost::python::list py_get_surface_nodes() const;
         boost::python::list py_mc_triangles(); 
     // DATA
         double root_scale;

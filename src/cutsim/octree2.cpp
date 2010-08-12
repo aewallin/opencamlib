@@ -45,8 +45,8 @@ Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
     root_scale = scale;
     max_depth = depth;
     root_center = centerp;
-                    // parent, center, scale, depth
-    root = new Octnode( 0, &root_center, root_scale, 0 );
+                    // parent, idx, scale, depth
+    root = new Octnode( 0, 0, root_scale, 0 );
 }
 
 
@@ -66,16 +66,27 @@ void Octree::init(unsigned int n) {
 // static!
 void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
     if ( current->leaf == true ) {
-        //std::cout << " current->leaf=" << current->leaf << " \n";
         nodelist.push_back( current );
     } else {
-        //std::cout << " not a leaf \n";
         for ( int n=0;n<8;++n) {
             if ( current->child[n] != 0 )
                 Octree::get_leaf_nodes( current->child[n], nodelist );
         }
     }
 }
+
+/*
+void Octree::get_surface_nodes(std::vector<Octnode*>& nodelist) const {
+    std::vector<Octnode*> leaf_nodes;
+    get_leaf_nodes(root, leaf_nodes);
+    //std::cout << " surface nodes: got " << leaf_nodes.size() << " leaf-nodes\n";
+    BOOST_FOREACH(Octnode* n, leaf_nodes) {
+        //assert( n->outside==false ); // don't want any outside nodes in the tree at this point
+        if ( n->inside == false ) {
+            nodelist.push_back(n);
+        }
+    }
+}*/
 
 void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
     if ( current ) {
@@ -88,14 +99,18 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) {
 }
 
 
-
+/// run marching cubes on the whole octree, returning the surface triangles
 std::vector<Triangle> Octree::mc() {
-    std::vector<Octnode*> surface_nodes;
-    get_surface_nodes(surface_nodes);
-    //Octree::get_leaf_nodes( root, surface_nodes );
+    //std::vector<Octnode*> surface_nodes;
+    std::vector<Octnode*> leaf_nodes;
+    //get_surface_nodes(surface_nodes);
+    get_leaf_nodes(this->root, leaf_nodes);
+    
     //std::cout << " mc(): got " << surface_nodes.size() << " surface nodes\n";
+    //std::cout << " mc(): got " << leaf_nodes.size() << " leaf nodes\n";
+    
     std::vector<Triangle> mc_triangles;
-    BOOST_FOREACH(Octnode* n, surface_nodes) {
+    BOOST_FOREACH(Octnode* n, leaf_nodes) {
         std::vector<Triangle> tris = n->mc_triangles();
         BOOST_FOREACH( Triangle t, tris) {
             mc_triangles.push_back(t);
@@ -115,19 +130,8 @@ boost::python::list Octree::py_mc_triangles() {
     return tlist;
 }
 
-void Octree::get_surface_nodes(std::vector<Octnode*>& nodelist) const {
-    std::vector<Octnode*> leaf_nodes;
-    get_leaf_nodes(root, leaf_nodes);
-    //std::cout << " surface nodes: got " << leaf_nodes.size() << " leaf-nodes\n";
-    BOOST_FOREACH(Octnode* n, leaf_nodes) {
-        //assert( n->outside==false ); // don't want any outside nodes in the tree at this point
-        if ( n->inside == false ) {
-            //Point c = *(n->center);
-            //if ( c.x > 0 )
-                nodelist.push_back(n);
-        }
-    }
-}
+
+
 
 void Octree::diff_negative_root(OCTVolume* vol) {
     std::cout << " diff_negative_root()\n";
@@ -211,56 +215,36 @@ void Octree::diff_negative2_root(OCTVolume* vol) {
 }
 
 void Octree::diff_negative2(Octnode* current, OCTVolume* vol) {
-    static bool pardel = false;
     if ( current->leaf ) {
         current->evaluate( vol );
-        if (pardel) {
-            std::cout << "depth="<<current->depth<<"inside="<<current->inside<<" outside="<<current->outside<<"\n";
-        }
         if ( current->inside ) { // inside nodes should be deleted
             Octnode* parent = current->parent;
-            if (parent) {
-                parent->delete_child(current);
-                if (parent->leaf) { // if the parent has become a leaf
-                    std::cout << " depth=" << parent->depth << " parent became leaf case !\n";
-                    pardel = true;
-                    Octree::diff_negative2( parent, vol ); // then it must be processed
-                    pardel = false;
-                } 
-            } else {
-                std::cout << " diff_negative2(): inside node has no parent!\n";
-                assert(0);
-            }
+            assert( parent != NULL );
+            parent->delete_child( current->idx );
+            if (parent->leaf) 
+                Octree::diff_negative2( parent, vol ); // then it must be processed
         } else if (current->outside) {// we do nothing to outside nodes.
         } else {// these are intermediate nodes
             if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
-                if (pardel) {
-                    std::cout << "depth=" << current->depth << " subdivide() on previously collapsed node!\n";
-                    //assert(0);
-                }
                 current->subdivide();
-                if (pardel) {
-                    std::cout << " subdivide() DONE.\n";
-                }
                 for(int m=0;m<8;++m) {
                     if (current->child[m])
                         Octree::diff_negative2( current->child[m], vol); // build child
                 }
-            } else { // max depth reached, can't subdivide
-                if (pardel)
-                    std::cout << " max_depth reached.\n ";
+            } else { 
+                // max depth reached, can't subdivide
             }
         }
     } else {
-        // not a leaf, so go deeper into tree
-        for(int m=0;m<8;++m) {
-            if ( current->child[m] )
+        for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
+            if ( current->child[m] ) {
                 Octree::diff_negative2( current->child[m], vol); // build child
+            }
         }
     }
 }
 
-
+/*
 boost::python::list Octree::py_get_surface_nodes() const {
     std::vector<Octnode*> nodelist;
     get_surface_nodes(nodelist);
@@ -269,7 +253,7 @@ boost::python::list Octree::py_get_surface_nodes() const {
         pynodelist.append( *n );
     }
     return pynodelist;
-}
+}*/
 
 // search tree and return list of leaf-nodes
 boost::python::list Octree::py_get_leaf_nodes() const {
@@ -315,6 +299,7 @@ Point Octnode::direction[8] = {
                     Point( 1,-1, 1)
                     };
 
+// see http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/
 const unsigned int Octnode::edgeTable[256] = {
     0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
     0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -350,6 +335,7 @@ const unsigned int Octnode::edgeTable[256] = {
     0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0
 };
 
+// see http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/
 const int Octnode::triTable[256][16] = {
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     {0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -610,9 +596,14 @@ const int Octnode::triTable[256][16] = {
 };
 
 
-Octnode::Octnode(Octnode* nodeparent, Point* centerp, double nodescale, unsigned int nodedepth) {
+Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsigned int nodedepth) {
     parent = nodeparent;
-    center = centerp;
+    idx = index;
+    if (nodeparent)
+        center = nodeparent->childcenter(idx);
+    else
+        center = new Point(0,0,0); // default center for root is (0,0,0)
+        
     scale = nodescale;
     depth = nodedepth;
     leaf = true;
@@ -621,24 +612,39 @@ Octnode::Octnode(Octnode* nodeparent, Point* centerp, double nodescale, unsigned
     evaluated = false;
 }
 
+void Octnode::delete_child(unsigned int index) {
+    if ( this->child[index] ) {
+        delete this->child[index];
+        this->child[index] = 0;
+    }
+}
+
 void Octnode::delete_child(Octnode* c) {
+    int deleted=0;
     for( int n=0;n<8;++n ) {
         if ( (this->child[n]) && (this->child[n] == c) ) { // FIXMEEE
             
-            for( int m=0;m<8;++m ) {
-                if ( c->child[m] )
-                    c->delete_child( c->child[m] );
-            }
-    
+            
+                if ( !c->leaf ) {
+                    for( int m=0;m<8;++m ) {
+                        if ( c->child[m] != 0 ) {
+                            // do something
+                        }
+                    }
+                }
+
             delete this->child[n];
             this->child[n] = 0;
+            deleted++;
         }
     }
+    assert(deleted==1);
+    
     // this might cause all children to be deleted, thus making this a
     // leaf node again
     bool all_zero = true;
     for( int n=0;n<8;++n ) {
-        if ( !(this->child[n] == 0) )
+        if ( !(this->child[n] == NULL) )
             all_zero = false;
     }
     if (all_zero) {
@@ -647,7 +653,7 @@ void Octnode::delete_child(Octnode* c) {
             
         this->leaf = true;
         this->mc_tris_valid = false;
-        std::cout <<"depth="<<depth<<" del() -> leaf\n";
+        //std::cout <<"depth="<<depth<<" del() -> leaf\n";
     }
 }
 
@@ -655,7 +661,8 @@ void Octnode::delete_child(Octnode* c) {
 void Octnode::subdivide() {
     if (this->leaf) {
         for( int n=0;n<8;++n ) {
-            this->child[n] = new Octnode( this, this->childcenter(n) , scale/2.0 , depth+1 );
+                                        // parent,  idx,              scale,   depth
+            this->child[n] = new Octnode( this, n , scale/2.0 , depth+1 );
             // inherit the surface property here...
             // optimization: inherit one f[n] from the corner?
         }
@@ -685,12 +692,9 @@ void Octnode::evaluate(OCTVolume* vol) {
         }
     }
     evaluated = true;
-    //if (inside)
-    //    
-    //if (!outside && !inside) 
-    //    this->mc_tris_valid = false;
 }
 
+/// interpolate f-value between vertices idx1 and idx2
 Point Octnode::interpolate(int idx1, int idx2) {
     // p = p1 - v1 (p2-p1)/(v2-v1)
     assert( !isZero_tol( f[idx2]-f[idx1]  ) );
@@ -698,16 +702,19 @@ Point Octnode::interpolate(int idx1, int idx2) {
                                     (1.0/(f[idx2]-f[idx1]));
 }
 
+/// use marching-cubes and return a list of triangles for this node
 std::vector<Triangle> Octnode::mc_triangles() {
+    assert( this->leaf ); // don't call this on non-leafs!
+    assert( !this->inside ); // there should be no inside nodes in the tree!
     std::vector<Triangle> tris;
-    if (mc_tris_valid) {
+    if ( this->outside) {
+        return tris; // outside nodes do not produce triangles
+    } else if (mc_tris_valid) { // if triangles already calculated
         assert( mc_tris.size() > 0 );
-        return mc_tris;
+        return mc_tris; // return the stored ones
     }
-    //std::cout << " mc_triangles() \n";
-    //int ninside=0;
-    //std::vector<int> inside_verts_idx;
-    //std::vector<int> outside_verts_idx;
+    assert( !this->outside );
+    
     unsigned int edgeTableIndex = 0;
     if (f[0] < 0.0 ) edgeTableIndex |= 1;
     if (f[1] < 0.0 ) edgeTableIndex |= 2;
@@ -722,12 +729,12 @@ std::vector<Triangle> Octnode::mc_triangles() {
     // the lookup returns a 12-bit number, where each bit indicates wether 
     // the edge is cut by the isosurface
     unsigned int edges = edgeTable[edgeTableIndex];
-    //std::cout << " edges= " << edges << "\n";
-    if ( edges == 0 ) {
-        // assert(0);
-        return tris;
-    }
-        //
+    
+    // we should return early (above) from these degenerate cases
+    // and not deal with them here
+    assert( edges != 0 );
+    assert( edges != 4096 );
+
     
     // calculate intersection points by linear interpolation
     // there are now 12 different cases:
@@ -759,25 +766,25 @@ std::vector<Triangle> Octnode::mc_triangles() {
     
     // form facets
     for (int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
-    
-        Point p0 = vertices[ triTable[edgeTableIndex][i  ] ];
-        Point p1 = vertices[ triTable[edgeTableIndex][i+1] ];
-        Point p2 = vertices[ triTable[edgeTableIndex][i+2] ];
-        tris.push_back( Triangle(p0,p1,p2) );
+        tris.push_back( Triangle(vertices[ triTable[edgeTableIndex][i  ] ],
+                                 vertices[ triTable[edgeTableIndex][i+1] ], 
+                                 vertices[ triTable[edgeTableIndex][i+2] ]
+                                 ) 
+                      );
     }
-    mc_tris = tris;
-    mc_tris_valid = true;
+    this->mc_tris = tris;
+    this->mc_tris_valid = true;
     return tris;
 }
 
 
 
-/// return centerpoint of child n
+/// return centerpoint of child with index n
 Point* Octnode::childcenter(int n) {
     return  new Point(*center + (0.5*scale * direction[n]));
 }
 
-/// set the vertex positions
+/// set the vertex positions and f[n]=0
 void Octnode::setvertices() {
     for ( int n=0;n<8;++n) {
         vertex[n] = new Point(*center + scale*direction[n] ) ;

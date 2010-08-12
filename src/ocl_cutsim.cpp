@@ -43,7 +43,7 @@ void export_cutsim() {
         .def_readonly("root_scale", &Octree::root_scale)
         .def_readonly("root_center", &Octree::root_center)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
-        .def("get_surface_nodes",       &Octree::py_get_surface_nodes)
+        //.def("get_surface_nodes",       &Octree::py_get_surface_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("diff_positive", &Octree::diff_positive_root)
         .def("diff_negative", &Octree::diff_negative_root)
