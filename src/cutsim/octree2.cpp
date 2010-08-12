@@ -205,37 +205,50 @@ void Octree::diff_negative(Octnode* root, OCTVolume* vol) {
 }
 
 void Octree::diff_negative2_root(OCTVolume* vol) {
-    std::cout << " diff_negative_root()\n";
+    std::cout << " diff_negative2_root()\n";
     diff_negative2( this->root, vol);
-    std::cout << " diff_negative_root() DONE.\n";
+    std::cout << " diff_negative2_root() DONE.\n";
 }
 
 void Octree::diff_negative2(Octnode* current, OCTVolume* vol) {
+    static bool pardel = false;
     if ( current->leaf ) {
         current->evaluate( vol );
+        if (pardel) {
+            std::cout << "depth="<<current->depth<<"inside="<<current->inside<<" outside="<<current->outside<<"\n";
+        }
         if ( current->inside ) { // inside nodes should be deleted
             Octnode* parent = current->parent;
             if (parent) {
                 parent->delete_child(current);
                 if (parent->leaf) { // if the parent has become a leaf
-                    diff_negative( parent, vol ); // then it must be processed
-                }
+                    std::cout << " depth=" << parent->depth << " parent became leaf case !\n";
+                    pardel = true;
+                    Octree::diff_negative2( parent, vol ); // then it must be processed
+                    pardel = false;
+                } 
             } else {
+                std::cout << " diff_negative2(): inside node has no parent!\n";
                 assert(0);
             }
-        } else if (current->outside) {
-            // std::cout << " outside.\n";
-            // we do nothing to outside nodes.
-        } else {
-            // these are intermediate nodes
-            if ( current->depth < (this->max_depth-1) ) {
-                //std::cout << " done.\n ";
+        } else if (current->outside) {// we do nothing to outside nodes.
+        } else {// these are intermediate nodes
+            if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
+                if (pardel) {
+                    std::cout << "depth=" << current->depth << " subdivide() on previously collapsed node!\n";
+                    //assert(0);
+                }
                 current->subdivide();
+                if (pardel) {
+                    std::cout << " subdivide() DONE.\n";
+                }
                 for(int m=0;m<8;++m) {
-                    Octree::diff_negative2( current->child[m], vol); // build child
+                    if (current->child[m])
+                        Octree::diff_negative2( current->child[m], vol); // build child
                 }
             } else { // max depth reached, can't subdivide
-                //std::cout << " max_depth reached.\n ";
+                if (pardel)
+                    std::cout << " max_depth reached.\n ";
             }
         }
     } else {
@@ -610,8 +623,13 @@ Octnode::Octnode(Octnode* nodeparent, Point* centerp, double nodescale, unsigned
 
 void Octnode::delete_child(Octnode* c) {
     for( int n=0;n<8;++n ) {
-        if ( this->child[n] == c ) { // FIXMEEE
-            //std::cout << " deleting child " << n << "\n";
+        if ( (this->child[n]) && (this->child[n] == c) ) { // FIXMEEE
+            
+            for( int m=0;m<8;++m ) {
+                if ( c->child[m] )
+                    c->delete_child( c->child[m] );
+            }
+    
             delete this->child[n];
             this->child[n] = 0;
         }
@@ -624,8 +642,12 @@ void Octnode::delete_child(Octnode* c) {
             all_zero = false;
     }
     if (all_zero) {
+        for( int n=0;n<8;++n )
+            assert( (this->child[n] == 0) );
+            
         this->leaf = true;
         this->mc_tris_valid = false;
+        std::cout <<"depth="<<depth<<" del() -> leaf\n";
     }
 }
 
@@ -648,28 +670,15 @@ void Octnode::evaluate(OCTVolume* vol) {
     outside = true;
     inside = true;
     for ( int n=0;n<8;++n) {
-        //if ( f[n] >= 0.0 ) // vol->dist( *(vertex[n]) )
         double newf = vol->dist( *(vertex[n]) );
         if ( !evaluated ) {
-            //std::cout << " !evaluated \n";
             f[n] = newf;
-            //mc_tris_valid = false;
-        } else if( (f[n] < 0.0) && (newf < 0.0) && (newf > f[n])  ) {
-            // negative f, negative newf, update if newf > f[n] (closer to zero)
+        } else if( (newf < f[n] )   ) {
             f[n] = newf;
-            assert( f[n] < 0.0 );
             mc_tris_valid = false; 
-        } else if ( ( f[n] >= 0.0 ) &&  (newf < f[n]) ) {
-            // positive f, update if distance decreases
-            //std::cout << " pos,  update \n";
-            f[n] = newf;
-            mc_tris_valid = false;
-        }  
-        f[n] = newf;
-            
+        } 
         if ( f[n] <= 0.0 ) {// if one vertex is inside
             outside = false; // then it's not an outside-node
-            //this->mc_tris_valid = false;
         } else { // if one vertex is outside
             assert( f[n] > 0.0 );
             inside = false; // then it's not an inside node anymore
