@@ -113,14 +113,20 @@ void Octree::diff_negative_root(OCTVolume* vol) {
 }
 
 void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
+
     if ( current->leaf ) {
-        current->evaluate( vol );
+
+        current->evaluate( vol ); // this sets the inside/outside flags
         if ( current->inside ) { // inside nodes should be deleted
-            //Octnode* parent = current->parent;
-            //assert( parent != NULL );
-            //parent->delete_child( current->idx );
-            //if (parent->leaf)  // this probably causes segfaulting??
-                //Octree::diff_negative( parent, vol ); // then it must be processed
+            Octnode* parent = current->parent;
+            assert( parent != NULL );
+            delete parent->child[ current->idx ];
+            parent->child[ current->idx ]=0;
+
+            if (parent->leaf)  {// this probably causes segfaulting??
+                assert(0);
+                Octree::diff_negative( parent, vol ); // then it must be processed
+            }
         } else if (current->outside) {// we do nothing to outside nodes.
         } else {// these are intermediate nodes
             if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
@@ -135,12 +141,14 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
             }
         }
     } else {
+
         for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
             if ( current->child[m] ) {
                 diff_negative( current->child[m], vol); // build child
             }
         }
     }
+
     // now need to go through tree and delete inside nodes
     //prune_inside_root();
 }
@@ -150,7 +158,10 @@ void Octree::prune_inside_root() {
 }
 void Octree::prune_inside( Octnode* current ) {
     if (current->inside && current->leaf) {
-        delete current;
+        Octnode* parent = current->parent;
+        delete parent->child[ current->idx ];
+        parent->child[ current->idx ] = 0;
+        //delete current;
     } else {
         for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
             if ( current->child[m] ) {
@@ -229,14 +240,20 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
 
 
 Octnode::~Octnode() {
-    for( int n=0;n<8;++n ) {
-        if (this->vertex[n])
-            delete this->vertex[n];
-        if ( this->child[n]  )
-            delete this->child[n];
+    for(int n=0;n<8;++n) {
+        if (child[n]) {
+            delete child[n];
+            child[n] = 0;
+        }
+        if (vertex[n]) {
+            delete vertex[n];
+            vertex[n] = 0;
+        }
     }
-    if (center)
+    if (center) {
         delete center;
+        center = 0;
+    }
 }
 
 
@@ -281,6 +298,7 @@ void Octnode::subdivide() {
         }
         this->leaf = false;
     } else {
+        std::cout << " DON'T subdivide a non-leaf node \n";
         assert(0); // DON'T subdivide a non-leaf node
     }
 }

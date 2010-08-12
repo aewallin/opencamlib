@@ -16,7 +16,7 @@ def main():
 
     s = ocl.SphereOCTVolume()
     s.center = ocl.Point(-2.50,-0.6,0)
-    s.radius = 0.6345
+    s.radius = 1.1345
 
     # screenshot writer
     w2if = vtk.vtkWindowToImageFilter()
@@ -29,13 +29,13 @@ def main():
     max_depth = 7
     root_scale = 4
     t = ocl.Octree(root_scale, max_depth, cp)
-    t.init(3)
+    t.init(4)
     n = 0 # the frame number
-    nmax=120
+    nmax=3
     theta=0
-    dtheta=0.065
-    thetalift=-0.01
-    s.center =  ocl.Point( 1.5*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
+    dtheta=1.6
+    thetalift=-0.0
+    s.center =  ocl.Point( 1.7*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
     while (n<=nmax):
         print "diff...",
         t_before = time.time() 
@@ -53,7 +53,7 @@ def main():
             print "done in ", mc_time," s"
             print " mc() got ", len(tris), " triangles"
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
-            mc_surf.SetWireframe()
+            #mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
             print " STLSurf()...",
             myscreen.addActor( mc_surf )
@@ -92,7 +92,7 @@ def main():
         # move forward
         theta = n*dtheta
         sp1 = ocl.Point(s.center)
-        s.center =  ocl.Point( 1.5*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
+        s.center =  ocl.Point( 1.7*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
         sp2 = ocl.Point(s.center)
         print "line from ",sp1," to ",sp2
         if n is not nmax:
