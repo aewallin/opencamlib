@@ -43,11 +43,11 @@ def main():
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(4)
     n = 0 # the frame number
-    nmax=0
+    nmax=6
     while (n<=nmax):
         print "diff...",
         t_before = time.time() 
-        t.diff_negative2(s)  
+        t.diff_negative(s)  
         t_after = time.time() 
         build_time = t_after-t_before
         print "done in ", build_time," s"

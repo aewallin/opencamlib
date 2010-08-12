@@ -27,8 +27,6 @@ INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/algo )
 add_library(
     ocl_cutsim
     STATIC
-    ocode.cpp
-    octree.cpp
     volume.cpp
     octree2.cpp
 )

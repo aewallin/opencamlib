@@ -29,7 +29,7 @@
 #include "triangle.h"
 #include "millingcutter.h"
 #include "numeric.h"
-#include "octree.h"
+//#include "octree.h"
 #include "volume.h"
 
 namespace ocl
@@ -42,6 +42,7 @@ bool OCTVolume::isInsideBB(Point& p) const{
     return bb.isInside(p);
 }
 
+/*
 /// return false if the Ocode is outside the Bbox
 bool OCTVolume::isInsideBBo(Ocode& o) const
 {
@@ -66,15 +67,9 @@ bool OCTVolume::isInsideBBo(Ocode& o) const
         return false;
             
     return true;
-    /* old bad way of doing this
-    for (int n=0;n<9;n++) { // loop through the 9 points of the ocode
-        Point p = o.corner(n);
-        if (isInsideBB(p)) // this is too expensive. avoid.
-            return true;
-    }
-    return false;
-    */
-}
+
+}*/
+
 
 //************* Sphere **************/
 

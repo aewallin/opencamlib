@@ -24,8 +24,8 @@
 //#include "oellipse.h"
 #include "millingcutter.h"
 #include "volume.h"
-#include "octree.h"
-#include "ocode.h"
+//#include "octree.h"
+//#include "ocode.h"
 #include "octree2.h"
 
 /*
@@ -43,11 +43,9 @@ void export_cutsim() {
         .def_readonly("root_scale", &Octree::root_scale)
         .def_readonly("root_center", &Octree::root_center)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
-        //.def("get_surface_nodes",       &Octree::py_get_surface_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("diff_positive", &Octree::diff_positive_root)
         .def("diff_negative", &Octree::diff_negative_root)
-        .def("diff_negative2", &Octree::diff_negative2_root)
         .def("init",       &Octree::init)
         .def("mc",       &Octree::mc)
         .def("__str__",            &Octree::str)
@@ -60,6 +58,7 @@ void export_cutsim() {
         .def("__str__",        &Octnode::str)
         .def("vertices",       &Octnode::py_get_vertices)
     ;
+    /*
     bp::class_<Ocode>("Ocode")
         .def(bp::init<>())
         .def(bp::init<Ocode>())
@@ -88,7 +87,8 @@ void export_cutsim() {
         .def("sort", &LinOCT::sort)
         .def("condense", &LinOCT::condense)
         .def("str", &LinOCT::str)
-    ;
+    ;*/
+    
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
         .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
     ;

@@ -24,7 +24,7 @@
 #include <iostream>
 #include <list>
 #include "bbox.h"
-#include "ocode.h"
+//#include "ocode.h"
 
 
 
@@ -48,7 +48,7 @@ class OCTVolume {
         /// return true if Point p is in the bounding box
         bool isInsideBB(Point& p) const;
         /// return true if the Ocode o is inside the volume
-        bool isInsideBBo(Ocode& o) const;
+        //bool isInsideBBo(Ocode& o) const;
         /// bounding-box
         Bbox bb;
 };
