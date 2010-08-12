@@ -19,6 +19,8 @@
 */
 
 #include <boost/foreach.hpp>
+#include <boost/progress.hpp>
+
 #ifndef WIN32
     #include <omp.h>
 #endif
@@ -126,6 +128,7 @@ void BatchDropCutter::dropCutter3() {
 void BatchDropCutter::dropCutter4() {
     std::cout << "dropCutterSTL4 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
+    boost::progress_display show_progress( clpoints->size() );
     dcCalls = 0;
     int calls=0;
     long int ntris = 0;
@@ -183,6 +186,7 @@ void BatchDropCutter::dropCutter4() {
             
             ntris += tris->size();
             delete( tris );
+            ++show_progress;
         } // end OpenMP PARALLEL for
 
     dcCalls = calls;

@@ -167,6 +167,17 @@ class CylCutterVolume: public OCTVolume {
         double dist(Point& p) const {return -1;}
 };
 
+class BallCutterVolume: public OCTVolume {
+    public:
+        BallCutterVolume();
+        double radius;
+        double length;
+        Point pos;
+        bool isInside(Point& p) const {return false;};
+        /// update the Bbox
+        double dist(Point& p) const;
+};
+
 /// cutter-swept volume of a CylCutter
 class CylMoveOCTVolume: public OCTVolume {
     public:

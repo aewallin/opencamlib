@@ -26,14 +26,14 @@ def main():
     
     cp= ocl.Point(0,0,-4)
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 7
+    max_depth = 9
     root_scale = 4
     t = ocl.Octree(root_scale, max_depth, cp)
-    t.init(4)
+    t.init(3)
     n = 0 # the frame number
-    nmax=3
+    nmax=30
     theta=0
-    dtheta=1.6
+    dtheta=0.06
     thetalift=-0.0
     s.center =  ocl.Point( 1.7*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
     while (n<=nmax):

@@ -476,6 +476,25 @@ bool CylCutterVolume::isInside(Point& p) const {
     }
 }
 
+//************* BallCutterVolume **************/
+
+BallCutterVolume::BallCutterVolume() {
+    radius = 1.0;
+    length = 1.0;
+    pos = Point(0,0,0);
+}
+
+
+
+double BallCutterVolume::dist(Point& p) const {
+    Point t = p - pos - Point(0,0,radius);
+    if (t.z < 0 )
+        return t.norm() - square( radius );
+    else {
+        return std::max( fabs(t.z)-length , t.x*t.x+t.y*t.y-radius*radius );
+    }
+}
+
 
 } // end namespace
 // end of file volume.cpp
