@@ -107,42 +107,6 @@ boost::python::list Octree::py_mc_triangles() {
     return tlist;
 }
 
-
-
-void Octree::diff_positive_root(OCTVolume* vol) {
-    diff_positive( this->root, vol);
-}
-
-void Octree::diff_positive(Octnode* root, OCTVolume* vol) {
-    std::vector<Octnode*> nodelist;
-    Octree::get_leaf_nodes(root, nodelist); // get leafs of this root
-    int nevals=0;
-    BOOST_FOREACH( Octnode* n, nodelist) { // go through each leaf
-            n->evaluate( vol );
-            ++nevals;
-            if ( n->outside ) {
-                //std::cout << " outside node, delete\n";
-                Octnode* parent = n->parent;
-                if (parent)
-                    //parent->delete_child(n);
-                    if (parent->leaf) { // if the parent has become a leaf
-                        diff_positive( parent, vol );
-                    }
-            } else if (n->inside) {
-            } else {
-                // std::cout << " intermediate node, subdivide\n";
-                if ( root->depth < (this->max_depth-1) ) {
-                    n->subdivide();
-                    for(int m=0;m<8;++m) {
-                        Octree::diff_positive( n->child[m], vol); // build child
-                    }
-                }
-            }
-    }
-}
-
-
-
 void Octree::diff_negative_root(OCTVolume* vol) {
     diff_negative( this->root, vol);
 }
@@ -176,8 +140,6 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
         }
     }
 }
-
-
 
 // search tree and return list of leaf-nodes
 boost::python::list Octree::py_get_leaf_nodes() const {
@@ -215,14 +177,14 @@ std::string Octree::str() const {
 // this defines the position of each octree-vertex with relation
 // to the center of the node
 Point Octnode::direction[8] = {
-                    Point( 1, 1,-1),
-                    Point(-1, 1,-1),
-                    Point(-1,-1,-1),
-                    Point( 1,-1,-1),
-                    Point( 1, 1, 1),
-                    Point(-1, 1, 1),
-                    Point(-1,-1, 1),
-                    Point( 1,-1, 1)
+                     Point( 1, 1,-1),
+                     Point(-1, 1,-1),
+                     Point(-1,-1,-1),
+                     Point( 1,-1,-1),
+                     Point( 1, 1, 1),
+                     Point(-1, 1, 1),
+                     Point(-1,-1, 1),
+                     Point( 1,-1, 1)
                     };
 
 
@@ -247,29 +209,6 @@ void Octnode::delete_child(unsigned int index) {
         delete this->child[index];
         this->child[index] = 0;
     }
-}
-
-/*
-void Octnode::delete_child(Octnode* c) {
-    int deleted=0;
-    for( int n=0;n<8;++n ) {
-        if ( (this->child[n]) && (this->child[n] == c) ) { // FIXMEEE
-            
-            
-                if ( !c->leaf ) {
-                    for( int m=0;m<8;++m ) {
-                        if ( c->child[m] != 0 ) {
-                            // do something
-                        }
-                    }
-                }
-
-            delete this->child[n];
-            this->child[n] = 0;
-            deleted++;
-        }
-    }
-    assert(deleted==1);
     
     // this might cause all children to be deleted, thus making this a
     // leaf node again
@@ -284,10 +223,8 @@ void Octnode::delete_child(Octnode* c) {
             
         this->leaf = true;
         this->mc_tris_valid = false;
-        //std::cout <<"depth="<<depth<<" del() -> leaf\n";
     }
-}*/
-
+}
 
 /// create 8 children of this node
 void Octnode::subdivide() {

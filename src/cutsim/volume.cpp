@@ -29,7 +29,6 @@
 #include "triangle.h"
 #include "millingcutter.h"
 #include "numeric.h"
-//#include "octree.h"
 #include "volume.h"
 
 namespace ocl

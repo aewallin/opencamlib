@@ -38,7 +38,7 @@ def main():
     
     cp= ocl.Point(0,0,-3)
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 8
+    max_depth = 9
     root_scale = 3
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(4)
@@ -47,39 +47,41 @@ def main():
     while (n<=nmax):
         print "diff...",
         t_before = time.time() 
-        t.diff_negative(s)  
+        t.diff_negative(s)
         t_after = time.time() 
         build_time = t_after-t_before
         print "done in ", build_time," s"
         
         
-        t_before = time.time() 
-        print "mc()...",
-        tris = t.mc_triangles()
-        t_after = time.time() 
-        mc_time = t_after-t_before
-        print "done in ", mc_time," s"
+
         #infotext= "Octree + Marching-Cubes test\nmax octree-depth:%i \ntriangles: %i \nbuild() time: %f ms" % (max_depth, 
         #                                                  len(tris), build_time*1e3 )
         #octtext.SetText(infotext)
         
         if n==nmax:
+            t_before = time.time() 
+            print "mc()...",
+            tris = t.mc_triangles()
+            t_after = time.time() 
+            mc_time = t_after-t_before
+            print "done in ", mc_time," s"
+            print " mc() got ", len(tris), " triangles"
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
             #mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
             print " STLSurf()...",
             myscreen.addActor( mc_surf )
             print "done."
-            nodes = t.get_leaf_nodes()
-            allpoints=[]
-            for no in nodes:
-                verts = no.vertices()
-                for v in verts:
-                    allpoints.append(v)
-            oct_points = camvtk.PointCloud( allpoints )
-            print " PointCloud()...",
-            myscreen.addActor( oct_points )
-            print "done."
+            #nodes = t.get_leaf_nodes()
+            #allpoints=[]
+            #for no in nodes:
+            #    verts = no.vertices()
+            #    for v in verts:
+            #        allpoints.append(v)
+            #oct_points = camvtk.PointCloud( allpoints )
+            #print " PointCloud()...",
+            #myscreen.addActor( oct_points )
+            #print "done."
             print " render()...",
             myscreen.render()
 
@@ -99,11 +101,11 @@ def main():
             
             if n is not nmax:
                 myscreen.removeActor( mc_surf )
-                myscreen.removeActor( oct_points )
+                #myscreen.removeActor( oct_points )
         
         # move forward
         
-        s.center = s.center + ocl.Point(0.0511,0.0,0.0)  
+        s.center = s.center + ocl.Point(0.511,0.0,0.0)  
         print "center moved to", s.center
         n=n+1
     print "All done."

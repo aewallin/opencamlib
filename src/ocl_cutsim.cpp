@@ -20,12 +20,9 @@
 
 #include <boost/python.hpp>
 
-//#include "point.h"
-//#include "oellipse.h"
+
 #include "millingcutter.h"
 #include "volume.h"
-//#include "octree.h"
-//#include "ocode.h"
 #include "octree2.h"
 
 /*
@@ -44,7 +41,6 @@ void export_cutsim() {
         .def_readonly("root_center", &Octree::root_center)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
-        .def("diff_positive", &Octree::diff_positive_root)
         .def("diff_negative", &Octree::diff_negative_root)
         .def("init",       &Octree::init)
         .def("mc",       &Octree::mc)
@@ -58,37 +54,6 @@ void export_cutsim() {
         .def("__str__",        &Octnode::str)
         .def("vertices",       &Octnode::py_get_vertices)
     ;
-    /*
-    bp::class_<Ocode>("Ocode")
-        .def(bp::init<>())
-        .def(bp::init<Ocode>())
-        .def("point", &Ocode::point)
-        .def("corner", &Ocode::corner)
-        .def("degree", &Ocode::degree)
-        .def("get_scale", &Ocode::get_scale)
-        .def("set_scale", &Ocode::set_scale)
-        .def("get_depth", &Ocode::get_depth)
-        .def("set_depth", &Ocode::set_depth)
-        .def("containedIn", &Ocode::containedIn)
-        .def("str", &Ocode::str)
-    ;
- 
-   bp::class_<LinOCT>("LinOCT")
-        .def(bp::init<>())
-        .def("append", &LinOCT::append)
-        .def("size", &LinOCT::size)
-        .def("get_nodes", &LinOCT::get_nodes)
-        .def("get_triangles", &LinOCT::get_triangles)
-        .def("build", &LinOCT::build)
-        .def("init", &LinOCT::init)
-        .def("sum", &LinOCT::sum)
-        .def("diff", &LinOCT::diff)
-        .def("operation", &LinOCT::operation)
-        .def("sort", &LinOCT::sort)
-        .def("condense", &LinOCT::condense)
-        .def("str", &LinOCT::str)
-    ;*/
-    
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
         .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
     ;
