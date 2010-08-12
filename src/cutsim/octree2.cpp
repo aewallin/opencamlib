@@ -116,18 +116,19 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
     if ( current->leaf ) {
         current->evaluate( vol );
         if ( current->inside ) { // inside nodes should be deleted
-            Octnode* parent = current->parent;
-            assert( parent != NULL );
-            parent->delete_child( current->idx );
+            //Octnode* parent = current->parent;
+            //assert( parent != NULL );
+            //parent->delete_child( current->idx );
             //if (parent->leaf)  // this probably causes segfaulting??
-            //    Octree::diff_negative( parent, vol ); // then it must be processed
+                //Octree::diff_negative( parent, vol ); // then it must be processed
         } else if (current->outside) {// we do nothing to outside nodes.
         } else {// these are intermediate nodes
             if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
                 current->subdivide();
                 for(int m=0;m<8;++m) {
+                    assert(current->child[m]);
                     if (current->child[m])
-                        Octree::diff_negative( current->child[m], vol); // build child
+                        diff_negative( current->child[m], vol); // build child
                 }
             } else { 
                 // max depth reached, can't subdivide
@@ -136,7 +137,24 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
     } else {
         for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
             if ( current->child[m] ) {
-                Octree::diff_negative( current->child[m], vol); // build child
+                diff_negative( current->child[m], vol); // build child
+            }
+        }
+    }
+    // now need to go through tree and delete inside nodes
+    //prune_inside_root();
+}
+
+void Octree::prune_inside_root() {
+    prune_inside( this->root );
+}
+void Octree::prune_inside( Octnode* current ) {
+    if (current->inside && current->leaf) {
+        delete current;
+    } else {
+        for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
+            if ( current->child[m] ) {
+                prune_inside( current->child[m] ); // build child
             }
         }
     }
@@ -197,6 +215,10 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     else
         center = new Point(0,0,0); // default center for root is (0,0,0)
         
+    child.resize(8);
+    vertex.resize(8);
+    f.resize(8);
+    
     scale = nodescale;
     depth = nodedepth;
     leaf = true;
@@ -205,25 +227,47 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     evaluated = false;
 }
 
+
+Octnode::~Octnode() {
+    for( int n=0;n<8;++n ) {
+        if (this->vertex[n])
+            delete this->vertex[n];
+        if ( this->child[n]  )
+            delete this->child[n];
+    }
+    if (center)
+        delete center;
+}
+
+
 void Octnode::delete_child(unsigned int index) {
-    if ( this->child[index] ) {
-        delete this->child[index];
+    if ( this->child[index] ) { // if child exists
+        //Octnode* c = this->child[index];
+        //assert( c );
+        //for (int n=0;n<8;++n) {
+           // if (c->child[n])
+                //c->delete_child(n);
+        //}
+        delete this->child[index]; // delete
         this->child[index] = 0;
+        
+        // this might cause all children to have been deleted, thus making this a
+        // leaf node again
+        bool all_zero = true;
+        for( int n=0;n<8;++n ) {
+            if ( !(this->child[n] == NULL) )
+                all_zero = false;
+        }
+        if (all_zero) {
+            for( int n=0;n<8;++n )
+                assert( (this->child[n] == 0) );
+            this->leaf = true;
+            this->mc_tris_valid = false;
+        }
+    
     }
     
-    // this might cause all children to be deleted, thus making this a
-    // leaf node again
-    bool all_zero = true;
-    for( int n=0;n<8;++n ) {
-        if ( !(this->child[n] == NULL) )
-            all_zero = false;
-    }
-    if (all_zero) {
-        for( int n=0;n<8;++n )
-            assert( (this->child[n] == 0) );
-        this->leaf = true;
-        this->mc_tris_valid = false;
-    }
+
 }
 
 /// create 8 children of this node
@@ -274,7 +318,7 @@ Point Octnode::interpolate(int idx1, int idx2) {
 /// use marching-cubes and return a list of triangles for this node
 std::vector<Triangle> Octnode::mc_triangles() {
     assert( this->leaf ); // don't call this on non-leafs!
-    assert( !this->inside ); // there should be no inside nodes in the tree!
+    //assert( !this->inside ); // there should be no inside nodes in the tree!
     std::vector<Triangle> tris;
     if ( this->outside) {
         return tris; // outside nodes do not produce triangles
@@ -301,8 +345,8 @@ std::vector<Triangle> Octnode::mc_triangles() {
     
     // we should return early (above) from these degenerate cases
     // and not deal with them here
-    assert( edges != 0 );
-    assert( edges != 4096 );
+    //assert( edges != 0 );
+    //assert( edges != 4096 );
 
     
     // calculate intersection points by linear interpolation

@@ -24,16 +24,16 @@ def main():
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
     
-    cp= ocl.Point(0,0,-3)
+    cp= ocl.Point(0,0,-4)
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 10
-    root_scale = 3
+    max_depth = 7
+    root_scale = 4
     t = ocl.Octree(root_scale, max_depth, cp)
-    t.init(4)
+    t.init(3)
     n = 0 # the frame number
-    nmax=100
+    nmax=120
     theta=0
-    dtheta=0.025
+    dtheta=0.065
     thetalift=-0.01
     s.center =  ocl.Point( 1.5*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
     while (n<=nmax):
@@ -53,21 +53,21 @@ def main():
             print "done in ", mc_time," s"
             print " mc() got ", len(tris), " triangles"
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
-            #mc_surf.SetWireframe()
+            mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
             print " STLSurf()...",
             myscreen.addActor( mc_surf )
             print "done."
-            #nodes = t.get_leaf_nodes()
-            #allpoints=[]
-            #for no in nodes:
-            #    verts = no.vertices()
-            #    for v in verts:
-            #        allpoints.append(v)
-            #oct_points = camvtk.PointCloud( allpoints )
-            #print " PointCloud()...",
-            #myscreen.addActor( oct_points )
-            #print "done."
+            nodes = t.get_leaf_nodes()
+            allpoints=[]
+            for no in nodes:
+                verts = no.vertices()
+                for v in verts:
+                    allpoints.append(v)
+            oct_points = camvtk.PointCloud( allpoints )
+            print " PointCloud()...",
+            myscreen.addActor( oct_points )
+            print "done."
             print " render()...",
             myscreen.render()
 

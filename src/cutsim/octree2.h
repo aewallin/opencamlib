@@ -39,7 +39,7 @@ class Octnode {
     public:
         Octnode(){};
         Octnode(Octnode* parent, unsigned int idx, double nodescale, unsigned int nodedepth);
-        virtual ~Octnode() {};
+        virtual ~Octnode();
         void subdivide(); // create children
         Point* childcenter(int n); // return position of child centerpoint
         void setvertices(); // set vertices[]
@@ -55,12 +55,16 @@ class Octnode {
         Point py_get_center() const;
         
     // DATA
-        /// pointer to children
-        Octnode* child[8];
-        bool leaf; // leaf node?
+        /// pointers to child nodes
+        std::vector<Octnode*> child;
+        /// pointer to parent node
         Octnode* parent;
-        Point* vertex[8]; // eight corners of this node
-        double f[8]; // value of implicit function at vertex
+        /// a leaf ndoe?
+        bool leaf; 
+        /// The eight corners of this node
+        std::vector<Point*> vertex; 
+        /// value of implicit function at vertex
+        std::vector<double> f; 
         bool outside;
         bool inside;
         bool surface[6]; // flag for surface triangles
@@ -92,6 +96,9 @@ class Octree {
         std::string str() const;
         void diff_negative_root(OCTVolume* vol);
         void diff_negative(Octnode* current, OCTVolume* vol);
+        void prune_inside_root();
+        void prune_inside( Octnode* current );
+        
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
@@ -103,7 +110,7 @@ class Octree {
         boost::python::list py_mc_triangles(); 
     // DATA
         double root_scale;
-        double max_depth;
+        unsigned int max_depth;
         //Point root_center;
         /// root node of tree
         Octnode* root;
