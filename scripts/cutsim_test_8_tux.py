@@ -35,7 +35,7 @@ def main():
     dx=0.1/3
     maxx=9
     miny=0
-    dy=1
+    dy=cutter.radius/1.5
     maxy=12
     z=-1
     # this generates a list of CL-points in a grid
@@ -77,7 +77,7 @@ def main():
     
     cp= ocl.Point(5,5,-6) # center of octree
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 9
+    max_depth = 8
     root_scale = 10
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(4)
@@ -89,13 +89,13 @@ def main():
     #dtheta=0.06
     #thetalift=-0.0
     #s.center =  ocl.Point( 1.7*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
-    renderinterleave=200
+    renderinterleave=400
     while (n<len(clpoints)):
         #if n==1:
         #    print clpoints[n]
             #exit()
         s.pos = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
-        print "diff...",
+        print n,": diff...",
         t_before = time.time() 
         t.diff_negative(s)
         #tris = t.mc_triangles()

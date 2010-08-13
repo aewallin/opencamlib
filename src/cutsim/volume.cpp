@@ -484,17 +484,22 @@ BallCutterVolume::BallCutterVolume() {
     pos = Point(0,0,0);
 }
 
-
-
 double BallCutterVolume::dist(Point& p) const {
     Point t = p - pos - Point(0,0,radius);
     if (t.z < 0 )
-        return t.norm() - square( radius );
+        return square(t.x) + square(t.y) + square(t.z) - square( radius );
     else {
-        return std::max( fabs(t.z)-length , t.x*t.x+t.y*t.y-radius*radius );
+        return std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square(radius) );
     }
 }
 
+// bullcutter:
+// if (t.z >= 0.0 )
+//      std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square( r1+r2) )
+// else if ( fabs(x) <= (r1+r2) )
+//      std::max( fabs(t.z)-r2 , square(t.x) + square(t.y) - square( r1 ) )
+// else
+//      square(t.x) + square(t.y) + square(t.z) + square( r1 ) - square( r2 ) - 4*square(r1)*(square(t.x)+square(t.z))
 
 } // end namespace
 // end of file volume.cpp
