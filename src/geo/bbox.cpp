@@ -53,6 +53,10 @@ Bbox::~Bbox() {
     return;
 }
 
+void Bbox::clear() {
+    initialized = false;
+}
+
 bool Bbox::isInside(Point& p) const {
     assert( initialized );
     if (p.x > maxpt.x)

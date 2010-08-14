@@ -99,17 +99,22 @@ void export_cutsim() {
     bp::class_<CylCutterVolume, bp::bases<OCTVolume> >("CylCutterVolume")
         .def("isInside", &CylCutterVolume::isInside )
         .def("calcBB", &CylCutterVolume::calcBB )
+        .def("setPos", &CylCutterVolume::setPos )
         .def_readwrite("radius", &CylCutterVolume::radius)
         .def_readwrite("pos", &CylCutterVolume::pos)
         .def_readwrite("length", &CylCutterVolume::length)
     ;
     bp::class_<BallCutterVolume, bp::bases<OCTVolume> >("BallCutterVolume")
-        //.def("isInside", &CylCutterVolume::isInside )
-        //.def("calcBB", &CylCutterVolume::calcBB )
+        .def("setPos", &BallCutterVolume::setPos )
         .def_readwrite("radius", &BallCutterVolume::radius)
         .def_readwrite("pos", &BallCutterVolume::pos)
         .def_readwrite("length", &BallCutterVolume::length)
     ;
+    bp::class_<PlaneVolume, bp::bases<OCTVolume> >("PlaneVolume")
+        .def(bp::init< bool, unsigned int, double>())
+        //.def("setPos", &BallCutterVolume::setPos )
+        //.def_readwrite("radius", &BallCutterVolume::radius)
 
+    ;
 }
 

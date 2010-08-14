@@ -461,7 +461,13 @@ CylCutterVolume::CylCutterVolume() {
     calcBB();
 }
 
+void CylCutterVolume::setPos(Point& p) {
+    pos = p;
+    calcBB();
+}
+
 void CylCutterVolume::calcBB() {
+    bb.clear();
     bb.addPoint( pos + Point(radius,radius,0) );
     bb.addPoint( pos + Point(-radius,-radius,length) );
 }
@@ -476,6 +482,23 @@ bool CylCutterVolume::isInside(Point& p) const {
     }
 }
 
+double CylCutterVolume::dist(Point& p) const {
+    Point t = p-pos;
+    if (t.z >= 0 )
+        return std::max( fabs(t.z-length/2)-length/2 , t.x*t.x+t.y*t.y-radius*radius );
+    else {
+        // if we are under the cutter, then return distance to flat cutter bottom
+        if ( t.x*t.x+t.y*t.y < radius*radius )
+            return -t.z; 
+        else { // outside the cutter, return a distance to the outer "ring" of the cutter
+            Point nxy = t;
+            nxy.xyNormalize();
+            nxy = radius * nxy;
+            return (t.x-nxy.x)*(t.x-nxy.x) + (t.y-nxy.y)*(t.y-nxy.y) + t.z*t.z;
+        }
+    }
+}
+
 //************* BallCutterVolume **************/
 
 BallCutterVolume::BallCutterVolume() {
@@ -484,12 +507,80 @@ BallCutterVolume::BallCutterVolume() {
     pos = Point(0,0,0);
 }
 
+void BallCutterVolume::setPos(Point& p) {
+    pos = p;
+    calcBB();
+}
+
+void BallCutterVolume::calcBB() {
+    bb.clear();
+    bb.addPoint( pos + Point(radius,radius,0) );
+    bb.addPoint( pos + Point(-radius,-radius,length) );
+}
+
 double BallCutterVolume::dist(Point& p) const {
     Point t = p - pos - Point(0,0,radius);
     if (t.z < 0 )
         return square(t.x) + square(t.y) + square(t.z) - square( radius );
     else {
         return std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square(radius) );
+    }
+}
+
+//************* BallCutterVolume **************/
+
+PlaneVolume::PlaneVolume(bool s, unsigned int a, double p) {
+    sign = s;
+    axis = a;
+    position = p;
+    calcBB();
+}
+
+void PlaneVolume::calcBB() {
+    bb.clear();
+    Point maxp;
+    Point minp;
+    double bignum = 1e6;
+    /*
+    if (axis==0) 
+        maxp = Point(position,bignum,bignum);
+    else if ( axis==1)
+        maxp = Point(bignum,position,bignum);
+    else if (axis==2)
+        maxp = Point(bignum,bignum,position);
+    else
+        assert(0);
+        
+    if (sign)
+        minp = Point( +bignum,-bignum,-bignum);
+    else
+        minp = Point( -bignum,-bignum,-bignum);
+    */
+    maxp = Point(bignum,bignum,bignum);
+    minp = Point( -bignum,-bignum,-bignum);
+    bb.addPoint( maxp  );
+    bb.addPoint( minp );
+}
+
+double PlaneVolume::dist(Point& p) const {
+    if (axis==0) {
+        if (sign)
+            return p.x - position;
+        else
+            return -(p.x - position);
+    } else if (axis==1) {
+        if (sign)
+            return p.y - position;
+        else
+            return -(p.y - position);
+    } else if (axis==2) {
+        if (sign)
+            return p.z - position;
+        else
+            return -(p.z - position);
+    } else {
+        assert(0);
+        return -1;
     }
 }
 

@@ -47,8 +47,6 @@ class OCTVolume {
         virtual double dist(Point& p) const = 0;
         /// return true if Point p is in the bounding box
         bool isInsideBB(Point& p) const;
-        /// return true if the Ocode o is inside the volume
-        //bool isInsideBBo(Ocode& o) const;
         /// bounding-box
         Bbox bb;
 };
@@ -160,11 +158,12 @@ class CylCutterVolume: public OCTVolume {
         double radius;
         double length;
         /// start CL-Point for this move
+        void setPos(Point& p);
         Point pos;
         bool isInside(Point& p) const;
         /// update the Bbox
         void calcBB();
-        double dist(Point& p) const {return -1;}
+        double dist(Point& p) const;
 };
 
 class BallCutterVolume: public OCTVolume {
@@ -172,11 +171,25 @@ class BallCutterVolume: public OCTVolume {
         BallCutterVolume();
         double radius;
         double length;
+        void setPos(Point& p);
         Point pos;
         bool isInside(Point& p) const {return false;};
-        /// update the Bbox
+        void calcBB();
         double dist(Point& p) const;
 };
+
+class PlaneVolume: public OCTVolume {
+    public:
+        PlaneVolume() {};
+        PlaneVolume(bool sign, unsigned int axis, double pos);
+        bool sign;
+        double position;
+        unsigned int axis;
+        bool isInside(Point& p) const {return false;};
+        void calcBB();
+        double dist(Point& p) const;
+};
+
 
 /// cutter-swept volume of a CylCutter
 class CylMoveOCTVolume: public OCTVolume {

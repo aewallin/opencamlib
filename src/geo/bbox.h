@@ -46,6 +46,8 @@ class Bbox {
         
         bool overlaps(const Bbox& b) const;
         
+        void clear();
+        
         /// Add a Point to the Bbox.
         /// This enlarges the Bbox so that p is contained within it.
         void addPoint(const Point& p);

@@ -27,6 +27,7 @@
 #include "point.h"
 #include "volume.h"
 #include "triangle.h"
+#include "bbox.h"
 
 namespace ocl
 {
@@ -67,12 +68,13 @@ class Octnode {
         std::vector<double> f; 
         bool outside;
         bool inside;
-        bool surface[6]; // flag for surface triangles
+        bool surface[6]; // flag for surface triangles FIXME!
         Point* center; // the centerpoint of this node
         unsigned int depth; // depth of node
         unsigned int idx; // index of node
         double scale; // distance from center to vertices
         bool evaluated;
+        Bbox bb;
         
         std::vector<Triangle> mc_tris;
         bool mc_tris_valid;

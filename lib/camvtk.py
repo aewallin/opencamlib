@@ -190,7 +190,20 @@ def drawCylCutter(myscreen, c, p):
                             rotXYZ=(90,0,0), color=grey)
     cyl.SetWireframe()
     myscreen.addActor(cyl) 
-    
+
+def drawBallCutter(myscreen, c, p):
+    cyl = Cylinder(center=(p.x,p.y,p.z+c.radius), radius=c.radius,
+                            height=c.length,
+                            rotXYZ=(90,0,0), color=red)
+    #cyl.SetWireframe()
+    sph = Sphere(center=(p.x,p.y,p.z+c.radius), radius=c.radius, color=red)
+    myscreen.addActor(cyl) 
+    myscreen.addActor(sph)
+    acts=[]
+    acts.append(cyl)
+    acts.append(sph)
+    return acts 
+
 
 class VTKScreen():
     """

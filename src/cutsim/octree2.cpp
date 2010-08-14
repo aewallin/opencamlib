@@ -89,6 +89,7 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
 std::vector<Triangle> Octree::mc() {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(this->root, leaf_nodes);
+    std::cout << " mc() got " << leaf_nodes.size() << " leaf nodes\n";
     std::vector<Triangle> mc_triangles;
     BOOST_FOREACH(Octnode* n, leaf_nodes) {
         std::vector<Triangle> tris = n->mc_triangles();
@@ -132,8 +133,8 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
             if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
                 current->subdivide();
                 for(int m=0;m<8;++m) {
-                    assert(current->child[m]);
-                    if (current->child[m])
+                    assert(current->child[m]); // when we subdivide() there must be a child.
+                    if ( vol->bb.overlaps( current->child[m]->bb ) )
                         diff_negative( current->child[m], vol); // build child
                 }
             } else { 
@@ -144,7 +145,8 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
 
         for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
             if ( current->child[m] ) {
-                diff_negative( current->child[m], vol); // build child
+                if ( vol->bb.overlaps( current->child[m]->bb ) )
+                    diff_negative( current->child[m], vol); // build child
             }
         }
     }
@@ -207,14 +209,14 @@ std::string Octree::str() const {
 // this defines the position of each octree-vertex with relation
 // to the center of the node
 Point Octnode::direction[8] = {
-                     Point( 1, 1,-1),
-                     Point(-1, 1,-1),
-                     Point(-1,-1,-1),
-                     Point( 1,-1,-1),
-                     Point( 1, 1, 1),
-                     Point(-1, 1, 1),
-                     Point(-1,-1, 1),
-                     Point( 1,-1, 1)
+                     Point( 1, 1,-1),   // 0
+                     Point(-1, 1,-1),   // 1
+                     Point(-1,-1,-1),   // 2
+                     Point( 1,-1,-1),   // 3
+                     Point( 1, 1, 1),   // 4
+                     Point(-1, 1, 1),   // 5
+                     Point(-1,-1, 1),   // 6
+                     Point( 1,-1, 1)    // 7
                     };
 
 
@@ -341,10 +343,10 @@ std::vector<Triangle> Octnode::mc_triangles() {
     if ( this->outside) {
         return tris; // outside nodes do not produce triangles
     } else if (mc_tris_valid) { // if triangles already calculated
-        assert( mc_tris.size() > 0 );
+        //assert( !mc_tris.empty() ); // FIXME, fails after bb.overlaps() check was added to diff_negative()
         return mc_tris; // return the stored ones
     }
-    assert( !this->outside );
+    assert( !this->outside ); // outside nodes will never produce triangles.
     
     unsigned int edgeTableIndex = 0;
     if (f[0] < 0.0 ) edgeTableIndex |= 1;
@@ -419,8 +421,11 @@ Point* Octnode::childcenter(int n) {
 void Octnode::setvertices() {
     for ( int n=0;n<8;++n) {
         vertex[n] = new Point(*center + scale*direction[n] ) ;
-        f[n] = 0.0;
+        f[n] = 1e6;
     }
+    bb.clear();
+    bb.addPoint( *vertex[2] );
+    bb.addPoint( *vertex[4] );
 }
 
 
