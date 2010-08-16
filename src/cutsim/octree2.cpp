@@ -118,14 +118,16 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
     if ( current->leaf ) {
 
         current->evaluate( vol ); // this sets the inside/outside flags
+        assert( current->idx < 8 );
         if ( current->inside ) { // inside nodes should be deleted
             Octnode* parent = current->parent;
             assert( parent != NULL );
-            delete parent->child[ current->idx ];
-            parent->child[ current->idx ]=0;
+            unsigned int delete_index = current->idx;
+            delete parent->child[ delete_index ];
+            parent->child[ delete_index ]=0;
 
             if (parent->leaf)  {// this probably causes segfaulting??
-                assert(0);
+                //assert(0); //FIXME
                 Octree::diff_negative( parent, vol ); // then it must be processed
             }
         } else if (current->outside) {// we do nothing to outside nodes.
@@ -151,26 +153,6 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
         }
     }
 
-    // now need to go through tree and delete inside nodes
-    //prune_inside_root();
-}
-
-void Octree::prune_inside_root() {
-    prune_inside( this->root );
-}
-void Octree::prune_inside( Octnode* current ) {
-    if (current->inside && current->leaf) {
-        Octnode* parent = current->parent;
-        delete parent->child[ current->idx ];
-        parent->child[ current->idx ] = 0;
-        //delete current;
-    } else {
-        for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
-            if ( current->child[m] ) {
-                prune_inside( current->child[m] ); // build child
-            }
-        }
-    }
 }
 
 // search tree and return list of leaf-nodes

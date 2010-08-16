@@ -32,9 +32,6 @@
 namespace ocl
 {
 
-
-
-
 /// octree node
 class Octnode {
     public:
@@ -83,8 +80,7 @@ class Octnode {
         static Point direction[8];
         static const unsigned int edgeTable[256];
         static const int triTable[256][16];
-        
-        
+
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
@@ -98,8 +94,6 @@ class Octree {
         std::string str() const;
         void diff_negative_root(OCTVolume* vol);
         void diff_negative(Octnode* current, OCTVolume* vol);
-        void prune_inside_root();
-        void prune_inside( Octnode* current );
         
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;

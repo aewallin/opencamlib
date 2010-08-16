@@ -41,34 +41,6 @@ bool OCTVolume::isInsideBB(Point& p) const{
     return bb.isInside(p);
 }
 
-/*
-/// return false if the Ocode is outside the Bbox
-bool OCTVolume::isInsideBBo(Ocode& o) const
-{
-    // bb.maxpt has maximum xyz coords
-    // bb.minpt has minimum xyz coords
-    // o.corner(0) is max
-    // o.corner(7) is min
-    // so we compare these:
-    Point o_maxpt = o.corner(0);
-    Point o_minpt = o.corner(7);
-    if ( bb.maxpt.x < o_minpt.x )
-        return false;
-    else if ( bb.minpt.x > o_maxpt.x )
-        return false;
-    else if ( bb.maxpt.y < o_minpt.y )
-        return false;
-    else if ( bb.minpt.y > o_maxpt.y )
-        return false;
-    else if ( bb.maxpt.z < o_minpt.z )
-        return false;
-    else if ( bb.minpt.z > o_maxpt.z )
-        return false;
-            
-    return true;
-
-}*/
-
 
 //************* Sphere **************/
 
@@ -468,8 +440,8 @@ void CylCutterVolume::setPos(Point& p) {
 
 void CylCutterVolume::calcBB() {
     bb.clear();
-    bb.addPoint( pos + Point(radius,radius,0) );
-    bb.addPoint( pos + Point(-radius,-radius,length) );
+    bb.addPoint( pos + Point(radius,radius,0) ); //FIXME
+    bb.addPoint( pos + Point(-radius,-radius,length) ); // FIXME
 }
 
 bool CylCutterVolume::isInside(Point& p) const {
@@ -514,8 +486,8 @@ void BallCutterVolume::setPos(Point& p) {
 
 void BallCutterVolume::calcBB() {
     bb.clear();
-    bb.addPoint( pos + Point(radius,radius,0) );
-    bb.addPoint( pos + Point(-radius,-radius,length) );
+    bb.addPoint( pos + Point(1.5*radius,1.5*radius,-0.5*length) );
+    bb.addPoint( pos + Point(-1.5*radius,-1.5*radius,1.5*length) );
 }
 
 double BallCutterVolume::dist(Point& p) const {
@@ -527,7 +499,7 @@ double BallCutterVolume::dist(Point& p) const {
     }
 }
 
-//************* BallCutterVolume **************/
+//************* PlaneVolume **************/
 
 PlaneVolume::PlaneVolume(bool s, unsigned int a, double p) {
     sign = s;
@@ -541,21 +513,6 @@ void PlaneVolume::calcBB() {
     Point maxp;
     Point minp;
     double bignum = 1e6;
-    /*
-    if (axis==0) 
-        maxp = Point(position,bignum,bignum);
-    else if ( axis==1)
-        maxp = Point(bignum,position,bignum);
-    else if (axis==2)
-        maxp = Point(bignum,bignum,position);
-    else
-        assert(0);
-        
-    if (sign)
-        minp = Point( +bignum,-bignum,-bignum);
-    else
-        minp = Point( -bignum,-bignum,-bignum);
-    */
     maxp = Point(bignum,bignum,bignum);
     minp = Point( -bignum,-bignum,-bignum);
     bb.addPoint( maxp  );
