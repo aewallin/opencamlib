@@ -89,10 +89,10 @@ def main():
     
     cp= ocl.Point(5,5,-6) # center of octree
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 9
+    max_depth = 10
     root_scale = 10
     t = ocl.Octree(root_scale, max_depth, cp)
-    t.init(5)
+    t.init(6)
     n = 0 # the frame number
     
     stockbox = ocl.PlaneVolume( 1, 0, 0.1)
@@ -119,12 +119,13 @@ def main():
     print " STLSurf()...",
     myscreen.addActor( mc_surf )
     print "done."
-            
+    cl = ocl.Point(0,0,5)
+    cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
     myscreen.render()
     #myscreen.iren.Start() 
     #exit()
     myscreen.removeActor( mc_surf )
-    renderinterleave=10
+    renderinterleave=450
     step_time = 0
     while (n<len(clpoints)):
         cl = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
@@ -138,6 +139,10 @@ def main():
         print "done in ", build_time," s"
         step_time=step_time+build_time
         n=n+1
+        if n<(len(clpoints)-renderinterleave):
+            myscreen.removeActor( mc_surf )
+            for c in cactors:
+                myscreen.removeActor( c )
         if ( (n%renderinterleave)==0):
             infotext= "Octree max_depth=%i \nCL-point %i of %i \ndiff() CPU-time: %f ms/CL-point" % (max_depth,n, 
                                                                                                       len(clpoints), 1e3*step_time/renderinterleave )
@@ -146,35 +151,29 @@ def main():
             cltext.SetText(postext)
             
             cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
-            print cactors
             t_before = time.time() 
             print "mc()...",
             tris = t.mc_triangles()
-            t_after = time.time() 
-            mc_time = t_after-t_before
+            mc_time = time.time()-t_before
             print "done in ", mc_time," s"
             print " mc() got ", len(tris), " triangles"
+            print " STLSurf()...",
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
             #mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
-            print " STLSurf()...",
             myscreen.addActor( mc_surf )
             print "done."
 
             print " render()...",
             myscreen.render()
-            myscreen.camera.Azimuth( 0.5 )
-            lwr.SetFileName("frames/cutsim_d9_frame"+ ('%06d' % n)+".png")
+            myscreen.camera.Azimuth( 0.1 )
+            lwr.SetFileName("frames/cutsim_d10_frame"+ ('%06d' % n)+".png")
             w2if.Modified() 
             lwr.Write()
             
             print "done."
-            myscreen.removeActor( mc_surf )
-            for c in cactors:
-                myscreen.removeActor( c )
+
             step_time = 0
-        
-        
         
         #lwr.SetFileName("frames/mc8_frame"+ ('%06d' % n)+".png")
         #myscreen.camera.Azimuth( 2 )
@@ -186,18 +185,7 @@ def main():
         #print "sleep...",
         #time.sleep(1.02)
         #print "done."
-                
-        
 
-        # move forward
-        #theta = n*dtheta
-        #sp1 = ocl.Point(s.center)
-        #s.center =  ocl.Point( 1.7*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
-        #sp2 = ocl.Point(s.center)
-        #print "line from ",sp1," to ",sp2
-        #if n is not nmax:
-        #    myscreen.addActor( camvtk.Line( p1=(sp1.x,sp1.y,sp1.z),p2=(sp2.x,sp2.y,sp2.z), color=camvtk.red ) )
-        #print "center moved to", s.center
     
     print " clpts= ", len(clpoints)
     print "All done."
