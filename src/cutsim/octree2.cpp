@@ -47,6 +47,7 @@ Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
                     // parent, idx, scale, depth
     root = new Octnode( 0, 0, root_scale, 0 );
     root->center = &centerp;
+    
 }
 
 
@@ -64,7 +65,7 @@ void Octree::init(unsigned int n) {
 
 /// put all leaf nodes into nodelist
 void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const {
-    if ( current->leaf == true ) {
+    if ( current->childcount == 0 ) {
         nodelist.push_back( current );
     } else {
         for ( int n=0;n<8;++n) {
@@ -109,31 +110,42 @@ boost::python::list Octree::py_mc_triangles() {
     return tlist;
 }
 
-void Octree::diff_negative_root(OCTVolume* vol) {
+void Octree::diff_negative_root(const OCTVolume* vol) {
+    
     diff_negative( this->root, vol);
+
 }
 
-void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
 
-    if ( current->leaf ) {
 
-        current->evaluate( vol ); // this sets the inside/outside flags
+
+void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
+    current->evaluate( vol ); // this sets the inside/outside flags
+    if ( current->childcount == 0) { // evalute() only leaf-nodes
+        //current->evaluate( vol ); // this sets the inside/outside flags
         assert( current->idx < 8 );
         if ( current->inside ) { // inside nodes should be deleted
             Octnode* parent = current->parent;
-            assert( parent != NULL );
-            unsigned int delete_index = current->idx;
-            delete parent->child[ delete_index ];
-            parent->child[ delete_index ]=0;
-
-            if (parent->leaf)  {// this probably causes segfaulting??
-                //assert(0); //FIXME
-                Octree::diff_negative( parent, vol ); // then it must be processed
+            assert( parent );
+            if (parent) {
+                unsigned int delete_index = current->idx;
+                assert( delete_index >=0 && delete_index <=7 ); 
+                delete parent->child[ delete_index ];
+                parent->child[ delete_index ]=0;
+                --parent->childcount;
+                assert( parent->childcount >=0 && parent->childcount <=8);
+                
+                if (parent->childcount == 0)  { // if the parent has become a leaf node
+                    parent->evaluate( vol );
+                    assert( parent->inside  ); // then it is itself inside, should be removed!
+                    //Octree::diff_negative( parent, vol ); // this causes segfault!
+                }
             }
         } else if (current->outside) {// we do nothing to outside nodes.
         } else {// these are intermediate nodes
             if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
                 current->subdivide();
+                assert( current->childcount == 8 );
                 for(int m=0;m<8;++m) {
                     assert(current->child[m]); // when we subdivide() there must be a child.
                     if ( vol->bb.overlaps( current->child[m]->bb ) )
@@ -144,12 +156,11 @@ void Octree::diff_negative(Octnode* current, OCTVolume* vol) {
             }
         }
     } else {
-
         for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
-            if ( current->child[m] ) {
-                if ( vol->bb.overlaps( current->child[m]->bb ) )
-                    diff_negative( current->child[m], vol); // build child
-            }
+                if ( current->child[m] ) {
+                    if ( vol->bb.overlaps( current->child[m]->bb ) )
+                        diff_negative( current->child[m], vol); // build child
+                }
         }
     }
 
@@ -216,10 +227,10 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     
     scale = nodescale;
     depth = nodedepth;
-    leaf = true;
     setvertices();
     mc_tris_valid = false;
     evaluated = false;
+    childcount = 0;
 }
 
 
@@ -240,7 +251,7 @@ Octnode::~Octnode() {
     }
 }
 
-
+/*
 void Octnode::delete_child(unsigned int index) {
     if ( this->child[index] ) { // if child exists
         //Octnode* c = this->child[index];
@@ -269,32 +280,33 @@ void Octnode::delete_child(unsigned int index) {
     }
     
 
-}
+}*/
 
 /// create 8 children of this node
 void Octnode::subdivide() {
-    if (this->leaf) {
+    if (this->childcount==0) {
         for( int n=0;n<8;++n ) {
                                         // parent,  idx,              scale,   depth
             this->child[n] = new Octnode( this, n , scale/2.0 , depth+1 );
+            ++childcount;
             // inherit the surface property here...
             // optimization: inherit one f[n] from the corner?
         }
-        this->leaf = false;
     } else {
         std::cout << " DON'T subdivide a non-leaf node \n";
-        assert(0); // DON'T subdivide a non-leaf node
+        assert(0); 
     }
 }
 
-void Octnode::evaluate(OCTVolume* vol) {
-    assert( leaf );
+void Octnode::evaluate(const OCTVolume* vol) {
+    //assert( childcount==0 );
     outside = true;
     inside = true;
     for ( int n=0;n<8;++n) {
         double newf = vol->dist( *(vertex[n]) );
         if ( !evaluated ) {
             f[n] = newf;
+            mc_tris_valid = false; 
         } else if( (newf < f[n] )   ) {
             f[n] = newf;
             mc_tris_valid = false; 
@@ -319,7 +331,7 @@ Point Octnode::interpolate(int idx1, int idx2) {
 
 /// use marching-cubes and return a list of triangles for this node
 std::vector<Triangle> Octnode::mc_triangles() {
-    assert( this->leaf ); // don't call this on non-leafs!
+    assert( this->childcount == 0 ); // don't call this on non-leafs!
     //assert( !this->inside ); // there should be no inside nodes in the tree!
     std::vector<Triangle> tris;
     if ( this->outside) {

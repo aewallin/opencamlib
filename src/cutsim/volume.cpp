@@ -486,16 +486,17 @@ void BallCutterVolume::setPos(Point& p) {
 
 void BallCutterVolume::calcBB() {
     bb.clear();
-    bb.addPoint( pos + Point(1.5*radius,1.5*radius,-0.5*length) );
-    bb.addPoint( pos + Point(-1.5*radius,-1.5*radius,1.5*length) );
+    double safety = 1;
+    bb.addPoint( pos + Point(safety*radius,safety*radius,safety*length) );
+    bb.addPoint( pos + Point(-safety*radius,-safety*radius,-safety*length) );
 }
 
 double BallCutterVolume::dist(Point& p) const {
     Point t = p - pos - Point(0,0,radius);
     if (t.z < 0 )
-        return square(t.x) + square(t.y) + square(t.z) - square( radius );
+        return  square(t.x) + square(t.y) + square(t.z) -  square( radius ) ;
     else {
-        return std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square(radius) );
+        return std::max( fabs(t.z)-length ,  square(t.x) + square(t.y)  - square(radius) ) ;
     }
 }
 

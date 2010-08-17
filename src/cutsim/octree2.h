@@ -41,9 +41,9 @@ class Octnode {
         void subdivide(); // create children
         Point* childcenter(int n); // return position of child centerpoint
         void setvertices(); // set vertices[]
-        void evaluate(OCTVolume* vol);
+        void evaluate(const OCTVolume* vol);
 
-        void delete_child(unsigned int index);
+        // void delete_child(unsigned int index);
         std::vector<Triangle> mc_triangles();
 
         Point interpolate(int idx1, int idx2);
@@ -55,10 +55,11 @@ class Octnode {
     // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;
+        unsigned int childcount;
         /// pointer to parent node
         Octnode* parent;
-        /// a leaf ndoe?
-        bool leaf; 
+        /// a leaf node?
+        //bool leaf; 
         /// The eight corners of this node
         std::vector<Point*> vertex; 
         /// value of implicit function at vertex
@@ -92,8 +93,8 @@ class Octree {
         Octree() {};
         Octree(double root_scale, unsigned int max_depth, Point& centerp);
         std::string str() const;
-        void diff_negative_root(OCTVolume* vol);
-        void diff_negative(Octnode* current, OCTVolume* vol);
+        void diff_negative_root(const OCTVolume* vol);
+        void diff_negative(Octnode* current, const OCTVolume* vol);
         
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
@@ -110,6 +111,7 @@ class Octree {
         //Point root_center;
         /// root node of tree
         Octnode* root;
+        //std::vector<Octnode*> delete_list;
 
 };
 

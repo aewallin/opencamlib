@@ -53,7 +53,7 @@ def main():
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
-    bdc.bucketSize = 10
+    bdc.bucketSize = 7
     bdc.setSTL(s)
     bdc.setCutter(cutter)
     #bdc.setThreads(1)  # explicitly setting one thread is better for debugging
@@ -87,12 +87,12 @@ def main():
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
     
-    cp= ocl.Point(5,5,-6) # center of octree
+    cp= ocl.Point(5,5,-3) # center of octree
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 10
-    root_scale = 10
+    max_depth = 9
+    root_scale = 7
     t = ocl.Octree(root_scale, max_depth, cp)
-    t.init(6)
+    t.init(5)
     n = 0 # the frame number
     
     stockbox = ocl.PlaneVolume( 1, 0, 0.1)
@@ -125,27 +125,27 @@ def main():
     #myscreen.iren.Start() 
     #exit()
     myscreen.removeActor( mc_surf )
-    renderinterleave=450
+    renderinterleave=900
     step_time = 0
     while (n<len(clpoints)):
         cl = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
-        s.setPos( cl )
-        #myscreen.addActor( camvtk.Point( center=(cl.x,cl.y,cl.z), color=camvtk.yellow))
-        print n,": diff...",
+        s.setPos( cl ) # move the cutter
         t_before = time.time() 
-        t.diff_negative(s)
+        t.diff_negative(s) # subtract cutter from stock
         t_after = time.time() 
         build_time = t_after-t_before
-        print "done in ", build_time," s"
         step_time=step_time+build_time
+        
         n=n+1
         if n<(len(clpoints)-renderinterleave):
             myscreen.removeActor( mc_surf )
             for c in cactors:
                 myscreen.removeActor( c )
         if ( (n%renderinterleave)==0):
+            call_ms = 1e3*step_time/renderinterleave
+            print renderinterleave," diff() calls in", step_time, " = ", call_ms," ms/call"
             infotext= "Octree max_depth=%i \nCL-point %i of %i \ndiff() CPU-time: %f ms/CL-point" % (max_depth,n, 
-                                                                                                      len(clpoints), 1e3*step_time/renderinterleave )
+                                                                                                      len(clpoints), call_ms )
             octtext.SetText(infotext)
             postext= "X: %f\nY: %f\nZ: %f" % (cl.x,cl.y,cl.z )
             cltext.SetText(postext)
@@ -169,7 +169,8 @@ def main():
             myscreen.camera.Azimuth( 0.1 )
             lwr.SetFileName("frames/cutsim_d10_frame"+ ('%06d' % n)+".png")
             w2if.Modified() 
-            lwr.Write()
+            
+            #lwr.Write()
             
             print "done."
 
