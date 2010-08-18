@@ -43,9 +43,9 @@ class Octnode {
         void setvertices(); // set vertices[]
         void evaluate(const OCTVolume* vol);
 
-        // void delete_child(unsigned int index);
         std::vector<Triangle> mc_triangles();
-
+        std::vector<Triangle> side_triangles();
+        
         Point interpolate(int idx1, int idx2);
         
         // python interface
@@ -66,7 +66,7 @@ class Octnode {
         std::vector<double> f; 
         bool outside;
         bool inside;
-        bool surface[6]; // flag for surface triangles FIXME!
+        std::vector<bool> surface; // flag for surface triangles FIXME!
         Point* center; // the centerpoint of this node
         unsigned int depth; // depth of node
         unsigned int idx; // index of node
@@ -79,13 +79,18 @@ class Octnode {
         
         /// the direction to the vertices, from the center 
         static Point direction[8];
+        /// Marching-Cubes edge table
         static const unsigned int edgeTable[256];
+        /// Marching-Cubes triangle table
         static const int triTable[256][16];
 
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
+        void print_surfaces(); 
+    private:
+        void set_surfaces();
 };
 
 class Octree {
@@ -95,16 +100,18 @@ class Octree {
         std::string str() const;
         void diff_negative_root(const OCTVolume* vol);
         void diff_negative(Octnode* current, const OCTVolume* vol);
-        
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
+        std::vector<Triangle> side_triangles();
+        
         void init(const unsigned int n);
         
     // python interface
         boost::python::list py_get_leaf_nodes() const;
-        //boost::python::list py_get_surface_nodes() const;
         boost::python::list py_mc_triangles(); 
+        boost::python::list py_s_triangles(); 
+        
     // DATA
         double root_scale;
         unsigned int max_depth;

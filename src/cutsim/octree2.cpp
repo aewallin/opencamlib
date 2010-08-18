@@ -63,7 +63,7 @@ void Octree::init(const unsigned int n) {
     }
 }
 
-/// put all leaf nodes into nodelist
+/// put leaf nodes into nodelist
 void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const {
     if ( current->childcount == 0 ) {
         nodelist.push_back( current );
@@ -101,10 +101,34 @@ std::vector<Triangle> Octree::mc() {
     return mc_triangles;
 }
 
+/// generate side_triangles
+std::vector<Triangle> Octree::side_triangles() {
+    std::vector<Octnode*> leaf_nodes;
+    get_leaf_nodes(this->root, leaf_nodes);
+    std::cout << " Octree::side_triangles() got " << leaf_nodes.size() << " leaf nodes\n";
+    std::vector<Triangle> s_triangles;
+    BOOST_FOREACH(Octnode* n, leaf_nodes) {
+        std::vector<Triangle> tris = n->side_triangles();
+        BOOST_FOREACH( Triangle t, tris) {
+            s_triangles.push_back(t);
+        }
+    }
+    return s_triangles;
+}
+
 boost::python::list Octree::py_mc_triangles() {
     std::vector<Triangle> mc_triangles = mc();
     boost::python::list tlist;
     BOOST_FOREACH( Triangle t, mc_triangles ) {
+        tlist.append( t );
+    }
+    return tlist;
+}
+
+boost::python::list Octree::py_s_triangles() {
+    std::vector<Triangle> s_triangles = side_triangles();
+    boost::python::list tlist;
+    BOOST_FOREACH( Triangle t, s_triangles ) {
         tlist.append( t );
     }
     return tlist;
@@ -216,21 +240,28 @@ Point Octnode::direction[8] = {
 Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsigned int nodedepth) {
     parent = nodeparent;
     idx = index;
-    if (nodeparent)
-        center = nodeparent->childcenter(idx);
-    else
-        center = new Point(0,0,0); // default center for root is (0,0,0)
-        
     child.resize(8);
     vertex.resize(8);
     f.resize(8);
+    surface.resize(6);
     
+    if (parent) {
+        center = parent->childcenter(idx);
+        set_surfaces();
+        inside = parent->inside;
+        outside = parent->outside;
+    } else {
+        outside = true;
+        inside = false;
+        center = new Point(0,0,0); // default center for root is (0,0,0)
+    }
     scale = nodescale;
     depth = nodedepth;
     setvertices();
     mc_tris_valid = false;
     evaluated = false;
     childcount = 0;
+
 }
 
 
@@ -249,6 +280,68 @@ Octnode::~Octnode() {
         delete center;
         center = 0;
     }
+}
+
+void Octnode::print_surfaces() {
+    for (int n=0;n<6;++n)
+        std::cout << surface[n];
+    std::cout << "\n";
+}
+
+void Octnode::set_surfaces() {
+    assert( parent );
+    surface = parent->surface; // copy surface flags from parent
+    // switch(parent index)
+    //std::cout << "set_surfaces() on idx="<<idx<< " before= ";
+    
+    //print_surfaces();
+    
+    switch ( this->idx ) {
+        case 0:
+            surface[0]=false;
+            surface[3]=false;
+            surface[5]=false;
+            break;
+        case 1:
+            surface[0]=false;
+            surface[1]=false;
+            surface[5]=false;
+            break;
+        case 2:
+            surface[1]=false;
+            surface[2]=false;
+            surface[5]=false;
+            break;
+        case 3:
+            surface[2]=false;
+            surface[3]=false;
+            surface[5]=false;
+            break;
+        case 4:
+            surface[0]=false;
+            surface[3]=false;
+            surface[4]=false;
+            break;
+        case 5:
+            surface[0]=false;
+            surface[1]=false;
+            surface[4]=false;
+            break;
+        case 6:
+            surface[1]=false;
+            surface[2]=false;
+            surface[4]=false;
+            break;
+        case 7:
+            surface[2]=false;
+            surface[3]=false;
+            surface[4]=false;
+            break;
+        default:
+            assert(0);
+    }
+    //std::cout << " after=";
+    //print_surfaces();
 }
 
 /// create 8 children of this node
@@ -374,6 +467,49 @@ std::vector<Triangle> Octnode::mc_triangles() {
     return tris;
 }
 
+std::vector<Triangle> Octnode::side_triangles() {
+    assert( this->childcount == 0 ); // this is a leaf-node
+    std::vector<Triangle> tris;
+    //std::cout << " side_tris() : ";
+    //print_surfaces();
+    //if ( this->outside) {
+        Point vertices[12];
+        vertices[0] = *vertex[0];
+        vertices[1] = *vertex[1];
+        vertices[2] = *vertex[2];
+        vertices[3] = *vertex[3];
+        vertices[4] = *vertex[4];
+        vertices[5] = *vertex[5];
+        vertices[6] = *vertex[6];
+        vertices[7] = *vertex[7];
+        if(surface[0] == true) {
+            tris.push_back( Triangle(vertices[2],vertices[3] , vertices[7]) );
+            tris.push_back( Triangle(vertices[2],vertices[7] , vertices[6]) );
+        }
+        if(surface[1] == true) {
+            tris.push_back( Triangle(vertices[0], vertices[4] , vertices[7]) );
+            tris.push_back( Triangle(vertices[0],vertices[7] , vertices[3]) );
+        }
+        if(surface[2] == true) {
+            tris.push_back( Triangle(vertices[1],vertices[0] , vertices[4]) );
+            tris.push_back( Triangle(vertices[1],vertices[4] , vertices[5]) );
+        }
+        if(surface[3] == true) {
+            tris.push_back( Triangle(vertices[1],vertices[5] , vertices[6]) );
+            tris.push_back( Triangle(vertices[1],vertices[6] , vertices[2]) );
+        }
+        if(surface[4] == true) {
+            tris.push_back( Triangle(vertices[2],vertices[3] , vertices[0]) );
+            tris.push_back( Triangle(vertices[2],vertices[0] , vertices[1]) );
+        }
+        if(surface[5] == true) {
+            tris.push_back( Triangle(vertices[6],vertices[7] , vertices[4]) );
+            tris.push_back( Triangle(vertices[6],vertices[4] , vertices[5]) );
+        }
+    //}
+    //std::cout << " side_tris()  returning " << tris.size() << " triangles \n";
+    return tris;
+}
 
 
 /// return centerpoint of child with index n
@@ -386,6 +522,7 @@ void Octnode::setvertices() {
     for ( int n=0;n<8;++n) {
         vertex[n] = new Point(*center + scale*direction[n] ) ;
         f[n] = 1e6;
+        //surface[n]=false;
     }
     bb.clear();
     bb.addPoint( *vertex[2] );
