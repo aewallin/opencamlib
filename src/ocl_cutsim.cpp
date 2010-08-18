@@ -36,8 +36,8 @@ namespace bp = boost::python;
 void export_cutsim() {
     bp::class_<Octree>("Octree")
         .def(bp::init<double, unsigned int, Point& >())
-        .def_readonly("max_depth", &Octree::max_depth)
-        .def_readonly("root_scale", &Octree::root_scale)
+        .def("max_depth", &Octree::get_max_depth)
+        .def("root_scale", &Octree::get_root_scale)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("side_triangles",       &Octree::py_s_triangles)

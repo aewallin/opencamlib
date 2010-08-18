@@ -88,30 +88,35 @@ class Octnode {
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
-        void print_surfaces(); 
+        
     private:
+        void print_surfaces(); 
         void set_surfaces();
 };
 
 class Octree {
     public:
-        Octree() {};
+        Octree() { assert(0); };
+        virtual ~Octree();
         Octree(double root_scale, unsigned int max_depth, Point& centerp);
-        std::string str() const;
         void diff_negative_root(const OCTVolume* vol);
-        void diff_negative(Octnode* current, const OCTVolume* vol);
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
         std::vector<Triangle> side_triangles();
-        
         void init(const unsigned int n);
+        unsigned int get_max_depth() const;
+        double get_root_scale() const;
+        std::string str() const;
         
     // python interface
         boost::python::list py_get_leaf_nodes() const;
         boost::python::list py_mc_triangles(); 
         boost::python::list py_s_triangles(); 
         
+    
+    private:
+        void diff_negative(Octnode* current, const OCTVolume* vol);
     // DATA
         double root_scale;
         unsigned int max_depth;

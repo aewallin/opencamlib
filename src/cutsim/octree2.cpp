@@ -50,8 +50,17 @@ Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
     for (int m=0;m<6;++m) // the root node has all cube-surfaces
         root->surface[m]=true;
 }
-
-
+Octree::~Octree() {
+    delete root;
+    root = 0;
+}
+unsigned int Octree::get_max_depth() const {
+    return max_depth;
+}
+double Octree::get_root_scale() const {
+    return root_scale;
+}
+        
 /// subdivide the Octree n-times
 void Octree::init(const unsigned int n) {
     for (unsigned int m=0;m<n;++m) {
@@ -90,7 +99,7 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
 std::vector<Triangle> Octree::mc() {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(this->root, leaf_nodes);
-    std::cout << " mc() got " << leaf_nodes.size() << " leaf nodes\n";
+    //std::cout << " mc() got " << leaf_nodes.size() << " leaf nodes\n";
     std::vector<Triangle> mc_triangles;
     BOOST_FOREACH(Octnode* n, leaf_nodes) {
         std::vector<Triangle> tris = n->mc_triangles();
@@ -105,7 +114,7 @@ std::vector<Triangle> Octree::mc() {
 std::vector<Triangle> Octree::side_triangles() {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(this->root, leaf_nodes);
-    std::cout << " Octree::side_triangles() got " << leaf_nodes.size() << " leaf nodes\n";
+    //std::cout << " Octree::side_triangles() got " << leaf_nodes.size() << " leaf nodes\n";
     std::vector<Triangle> s_triangles;
     BOOST_FOREACH(Octnode* n, leaf_nodes) {
         std::vector<Triangle> tris = n->side_triangles();
@@ -472,7 +481,7 @@ std::vector<Triangle> Octnode::side_triangles() {
     std::vector<Triangle> tris;
     //std::cout << " side_tris() : ";
     //print_surfaces();
-    //if ( this->outside) {
+    if ( !this->inside) {
         Point vertices[12];
         vertices[0] = *vertex[0];
         vertices[1] = *vertex[1];
@@ -506,7 +515,7 @@ std::vector<Triangle> Octnode::side_triangles() {
             tris.push_back( Triangle(vertices[6],vertices[7] , vertices[4]) );
             tris.push_back( Triangle(vertices[6],vertices[4] , vertices[5]) );
         }
-    //}
+    }
     //std::cout << " side_tris()  returning " << tris.size() << " triangles \n";
     return tris;
 }
