@@ -99,7 +99,7 @@ class Octree {
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         std::vector<Triangle> mc();
-        void init(unsigned int n);
+        void init(const unsigned int n);
         
     // python interface
         boost::python::list py_get_leaf_nodes() const;
@@ -108,11 +108,7 @@ class Octree {
     // DATA
         double root_scale;
         unsigned int max_depth;
-        //Point root_center;
-        /// root node of tree
         Octnode* root;
-        //std::vector<Octnode*> delete_list;
-
 };
 
 } // end namespace

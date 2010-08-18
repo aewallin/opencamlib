@@ -397,6 +397,24 @@ class Line(CamvtkActor):
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
+class Tube(CamvtkActor):
+    """ line with tube filter"""
+    def __init__(self,p1=(0,0,0) , p2=(1,1,1), radius=0.1, color=(0,1,1) ):   
+        self.src = vtk.vtkLineSource()
+        self.src.SetPoint1(p1)
+        self.src.SetPoint2(p2)
+        
+        self.tubefilter = vtk.vtkTubeFilter()
+        self.tubefilter.SetInput( self.src.GetOutput() )
+        self.tubefilter.SetRadius( radius )
+        self.tubefilter.SetNumberOfSides( 30 )
+        self.tubefilter.Update()
+        
+        self.mapper = vtk.vtkPolyDataMapper()
+        self.mapper.SetInputConnection( self.tubefilter.GetOutputPort() )
+        self.SetMapper(self.mapper)
+        self.SetColor(color)
+
 
 class Circle(CamvtkActor):
     """ circle"""
@@ -519,33 +537,33 @@ class Text(vtk.vtkTextActor):
         """ set text to be displayed """
         self.SetInput(text)
 
-class Text3D(vtk.vtkActor):
+class Text3D(vtk.vtkFollower):
     """ 3D text rendered in the scene"""
-    def __init__(self, color=(1,1,1), center=(0,0,0), text="hello", scale=1):
+    def __init__(self, color=(1,1,1), center=(0,0,0), text="hello", scale=1, camera=[]):
         """ create text """
         self.src = vtk.vtkVectorText()
         self.SetText(text)
         #self.SetCamera(camera)
         transform = vtk.vtkTransform()
+        
         transform.Translate(center[0], center[1], center[2])
         transform.Scale(scale, scale, scale)
-        
         #transform.RotateY(90)
         #transform2 = vtk.vtkTransform()
-        
         #transform.Concatenate(transform2)
         #transformFilter=vtk.vtkTransformPolyDataFilter()
         #transformFilter.SetTransform(transform)
         #transformFilter.SetInputConnection(self.src.GetOutputPort())
         #transformFilter.Update()
-        self.SetUserTransform(transform)
         
+        #follower = vtk.vtkFollower()
+        #follower.SetMapper
+        
+        self.SetUserTransform(transform)
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInputConnection(self.src.GetOutputPort())
         self.SetMapper(self.mapper)
-        
         self.SetColor(color)
-        
         
     def SetText(self, text):
         """ set text to be displayed"""
@@ -755,7 +773,6 @@ class Plane(CamvtkActor):
 # TODO:
 # vtkArcSource
 # vtkDiskSource
-# vtkEarthSource (?)
 # vtkFrustumSource
 # vtkOutlineSource
 # vtkParametricFunctionSource
