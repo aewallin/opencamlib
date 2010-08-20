@@ -528,7 +528,8 @@ double BullCutterVolume::dist(Point& p) const {
     if (t.z >= 0.0 ) // cylindrical part, above toroid
         return std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square(r1+r2) );
     else if ( square(t.x)+square(t.y) <= square(r1) ) // cylindrical part, inside toroid
-        return std::max( fabs(t.z)-r2 , square(t.x) + square(t.y) - square( r1 ) );
+                     //was fabs(t.z)-r2
+        return std::max( square(t.z)-square(r2) , square(t.x) + square(t.y) - square( r1 ) );
     else // toroid
         return square( square(t.x) + square(t.y) + square(t.z) + square( r1 ) - square( r2 ) ) - 
                4*square(r1)*(square(t.x)+square(t.y));

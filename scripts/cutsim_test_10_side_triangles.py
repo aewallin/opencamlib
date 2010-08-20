@@ -34,7 +34,7 @@ def main():
     lwr.SetInput( w2if.GetOutput() )
     
     cp= ocl.Point(0,0,0) # center of octree
-    max_depth = 8
+    max_depth = 6
     root_scale = 1
     t = ocl.Octree(root_scale, max_depth, cp)
     
@@ -93,16 +93,17 @@ def main():
     #step_time = 0
     Nmax=10
     #dy = float(-2)/float(Nmax)
-    dy = - 0.5678* t.leaf_scale()
+    dy = - 2* t.leaf_scale()
     cl = startpoint
     while (n<Nmax):
         cl = cl + ocl.Point(0.0,dy,0)
         #cl = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
         s.setPos( cl ) # move the cutter
-        #t_before = time.time() 
+        t_before = time.time() 
         t.diff_negative(s) # subtract cutter from stock
-        #t_after = time.time() 
-        #build_time = t_after-t_before
+        t_after = time.time() 
+        build_time = t_after-t_before
+        print n," diff() took ",build_time," s"
         #step_time=step_time+build_time
         if n<Nmax:
             myscreen.removeActor( mc_surf )
@@ -121,10 +122,10 @@ def main():
         #t_before = time.time() 
         #print "mc()...",
         tris = t.mc_triangles()
-        tris2 = t.side_triangles()
+        #tris2 = t.side_triangles()
         #print "appending"
-        for tr in tris2:
-            tris.append(tr)
+        #for tr in tris2:
+        #    tris.append(tr)
         #mc_time = time.time()-t_before
         #print "done in ", mc_time," s"
         #print " mc() got ", len(tris), " triangles"
@@ -147,7 +148,7 @@ def main():
         n=n+1
         #myscreen.camera.SetPosition(3*math.cos( 7*float(n)/(float(Nmax)) ), 3*math.sin( 7*float(n)/(float(Nmax)) ), 5)
         #myscreen.camera.Azimuth( math.sin( 5*float(n)/(float(Nmax)) ) )
-
+    print "all done."
     myscreen.iren.Start() 
     exit()
 
