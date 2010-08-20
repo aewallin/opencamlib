@@ -60,6 +60,9 @@ unsigned int Octree::get_max_depth() const {
 double Octree::get_root_scale() const {
     return root_scale;
 }
+double Octree::leaf_scale() const {
+    return (2.0*root_scale) / pow(2.0, max_depth );
+}
         
 /// subdivide the Octree n-times
 void Octree::init(const unsigned int n) {
@@ -168,7 +171,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
             }
         } else if (current->outside) {// we do nothing to outside nodes.
         } else {// these are intermediate nodes
-            if ( current->depth < (this->max_depth-1) ) { // subdivide, if possible
+            if ( current->depth < (this->max_depth) ) { // subdivide, if possible
                 current->subdivide();
                 assert( current->childcount == 8 );
                 for(int m=0;m<8;++m) {

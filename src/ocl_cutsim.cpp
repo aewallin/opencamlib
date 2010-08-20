@@ -38,6 +38,7 @@ void export_cutsim() {
         .def(bp::init<double, unsigned int, Point& >())
         .def("max_depth", &Octree::get_max_depth)
         .def("root_scale", &Octree::get_root_scale)
+        .def("leaf_scale", &Octree::leaf_scale)
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("side_triangles",       &Octree::py_s_triangles)
@@ -109,6 +110,14 @@ void export_cutsim() {
         .def_readwrite("radius", &BallCutterVolume::radius)
         .def_readwrite("pos", &BallCutterVolume::pos)
         .def_readwrite("length", &BallCutterVolume::length)
+    ;
+    bp::class_<BullCutterVolume, bp::bases<OCTVolume> >("BullCutterVolume")
+        .def("setPos", &BullCutterVolume::setPos )
+        .def_readwrite("radius", &BullCutterVolume::radius)
+        .def_readwrite("r1", &BullCutterVolume::r1)
+        .def_readwrite("r2", &BullCutterVolume::r2)
+        .def_readwrite("pos", &BullCutterVolume::pos)
+        .def_readwrite("length", &BullCutterVolume::length)
     ;
     bp::class_<PlaneVolume, bp::bases<OCTVolume> >("PlaneVolume")
         .def(bp::init< bool, unsigned int, double>())

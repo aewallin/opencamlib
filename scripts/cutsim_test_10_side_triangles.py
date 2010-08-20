@@ -9,19 +9,22 @@ import math
 def main():  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()   
-    myscreen.camera.SetPosition(3, 0, 5)
+    myscreen.camera.SetPosition(2, 2, 5)
     myscreen.camera.SetFocalPoint(0.5,0, 1)   
     # axis arrows
     camvtk.drawArrows(myscreen,center=(-2,-2,0))
     camvtk.drawOCLtext(myscreen)
     
     
-    s = ocl.BallCutterVolume()
+    #s = ocl.BallCutterVolume()
     #s = ocl.CylCutterVolume()
+    s = ocl.BullCutterVolume()
     #s.center = ocl.Point(-2.50,-0.6,0)
+    s.r1=0.3
+    s.r2=0.1
     s.radius = 0.4
     s.length = 2
-    startpoint = ocl.Point(0.46,1.5,0.4)
+    startpoint = ocl.Point(0.46,1.0,0.4)
     s.setPos( startpoint )
 
     # screenshot writer
@@ -38,9 +41,30 @@ def main():
     t.init(2)
     n = 0 # the frame number
     
+    print "root_scale = ", t.root_scale()
+    print " max_depth = ", t.max_depth()
+    print " leaf_scale=", t.leaf_scale()
+    
+    # X
+    #stockbox = ocl.PlaneVolume( 1, 0, -0.9)
+    #t.diff_negative(stockbox)
+    #stockbox = ocl.PlaneVolume( 0, 0, 0.9  )
+    #t.diff_negative(stockbox)
+    
+    # Y
+    #stockbox = ocl.PlaneVolume( 1, 1, -0.9)
+    #t.diff_negative(stockbox)
+    #stockbox = ocl.PlaneVolume( 0, 1, 0.9  )
+    #t.diff_negative(stockbox)
+    
+    # Z
+    #stockbox = ocl.PlaneVolume( 1, 2, 0.1  )
+    #t.diff_negative(stockbox)
+    #stockbox = ocl.PlaneVolume( 0, 2, 0.8)
+    #t.diff_negative(stockbox)
     
     
-    t.diff_negative(s)
+    #t.diff_negative(s)
     
     print "mc()...",
     tris = t.mc_triangles()
@@ -67,8 +91,9 @@ def main():
     myscreen.removeActor( mc_surf )
     #renderinterleave=900
     #step_time = 0
-    Nmax=2500
-    dy = float(-2)/float(Nmax)
+    Nmax=10
+    #dy = float(-2)/float(Nmax)
+    dy = - 0.5678* t.leaf_scale()
     cl = startpoint
     while (n<Nmax):
         cl = cl + ocl.Point(0.0,dy,0)
@@ -112,15 +137,15 @@ def main():
         #print " render()...",
         myscreen.render()
         #myscreen.camera.Azimuth( 0.1 )
-        lwr.SetFileName("frames/wireframe3_d8_frame"+ ('%06d' % n)+".png")
-        w2if.Modified() 
-        lwr.Write()
+        #lwr.SetFileName("frames/wireframe3_d8_frame"+ ('%06d' % n)+".png")
+        #w2if.Modified() 
+        #lwr.Write()
         
         #print "done."   
         #time.sleep(0.4)
-        print n
+        #print n
         n=n+1
-        myscreen.camera.SetPosition(3*math.cos( 7*float(n)/(float(Nmax)) ), 3*math.sin( 7*float(n)/(float(Nmax)) ), 5)
+        #myscreen.camera.SetPosition(3*math.cos( 7*float(n)/(float(Nmax)) ), 3*math.sin( 7*float(n)/(float(Nmax)) ), 5)
         #myscreen.camera.Azimuth( math.sin( 5*float(n)/(float(Nmax)) ) )
 
     myscreen.iren.Start() 

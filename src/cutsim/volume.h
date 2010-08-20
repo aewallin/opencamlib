@@ -178,6 +178,20 @@ class BallCutterVolume: public OCTVolume {
         double dist(Point& p) const;
 };
 
+class BullCutterVolume: public OCTVolume {
+    public:
+        BullCutterVolume();
+        double radius;
+        double r1;
+        double r2;
+        double length;
+        void setPos(Point& p);
+        Point pos;
+        bool isInside(Point& p) const {return false;};
+        void calcBB();
+        double dist(Point& p) const;
+};
+
 class PlaneVolume: public OCTVolume {
     public:
         PlaneVolume() {};

@@ -500,12 +500,46 @@ double BallCutterVolume::dist(Point& p) const {
     }
 }
 
+//************* BullCutterVolume **************/
+// TOROID 
+
+BullCutterVolume::BullCutterVolume() {
+    r1 = 1.0;
+    r2 = r1/3.0;
+    radius = r1+r2;
+    length = 1.0;
+    pos = Point(0,0,0);
+}
+
+void BullCutterVolume::setPos(Point& p) {
+    pos = p;
+    calcBB();
+}
+
+void BullCutterVolume::calcBB() {
+    bb.clear();
+    double safety = 1;
+    bb.addPoint( pos + Point(safety*radius,safety*radius,safety*length) );
+    bb.addPoint( pos + Point(-safety*radius,-safety*radius,-safety*length) );
+}
+
+double BullCutterVolume::dist(Point& p) const {
+    Point t = p - pos - Point(0,0,r2); // shift up by tube radius
+    if (t.z >= 0.0 ) // cylindrical part, above toroid
+        return std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square(r1+r2) );
+    else if ( square(t.x)+square(t.y) <= square(r1) ) // cylindrical part, inside toroid
+        return std::max( fabs(t.z)-r2 , square(t.x) + square(t.y) - square( r1 ) );
+    else // toroid
+        return square( square(t.x) + square(t.y) + square(t.z) + square( r1 ) - square( r2 ) ) - 
+               4*square(r1)*(square(t.x)+square(t.y));
+}
+
 //************* PlaneVolume **************/
 
 PlaneVolume::PlaneVolume(bool s, unsigned int a, double p) {
     sign = s;
     axis = a;
-    position = p;
+    position = p; // FIXME, position=0 does not seem to work right!
     calcBB();
 }
 
@@ -542,13 +576,6 @@ double PlaneVolume::dist(Point& p) const {
     }
 }
 
-// bullcutter:
-// if (t.z >= 0.0 )
-//      std::max( fabs(t.z)-length , square(t.x) + square(t.y) - square( r1+r2) )
-// else if ( fabs(x) <= (r1+r2) )
-//      std::max( fabs(t.z)-r2 , square(t.x) + square(t.y) - square( r1 ) )
-// else
-//      square(t.x) + square(t.y) + square(t.z) + square( r1 ) - square( r2 ) - 4*square(r1)*(square(t.x)+square(t.z))
 
 } // end namespace
 // end of file volume.cpp

@@ -107,6 +107,7 @@ class Octree {
         void init(const unsigned int n);
         unsigned int get_max_depth() const;
         double get_root_scale() const;
+        double leaf_scale() const;
         std::string str() const;
         
     // python interface
