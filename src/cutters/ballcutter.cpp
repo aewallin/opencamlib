@@ -305,7 +305,7 @@ bool BallCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) cons
     return result;
 }
 
-bool BallCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) const {
+bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;
     Point normal; // facet surface normal 
     if ( t.n->zParallel() ) { // normal points in z-dir   
@@ -316,9 +316,116 @@ bool BallCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) cons
     } else {
         normal = *t.n;
     }
+    // now we know the normal points upwards
     
     // find a point on the plane from which radius*normal lands on the fiber+radius*Point(0,0,1) 
-    
+    //
+    //  (u,v) locates a point on the triangle facet    v0+ u*(v1-v0)+v*(v2-v0)    u,v in [0,1]
+    //   t locates a point along the fiber:            p1 + t*(p2-p1)             t in [0,1]
+    // 
+    //   facet-point + radius * normal = fiber-point + radius*Point(0,0,1)
+    //   =>
+    //   v0+ u*(v1-v0)+v*(v2-v0) + radius*normal = p1 + t*(p2-p1) + radius*Point(0,0,1)
+    //
+    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r*nx = p1x + t*(p2x-p1x)         p2x-p1x==0 for Y-fiber
+    //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r*ny = p1y + t*(p2y-p1y)         p2y-p1y==0 for X-fiber
+    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r*nz = p1z + t*(p2z-p1z) + r    (p2z-p1z)==0 for XY-fibers!!
+    //   X-fiber:
+    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r*nx = p1x + t*(p2x-p1x)         
+    //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r*ny = p1y                    solve these  two for (u,v)
+    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r*nz = p1z + r                and substitute above for t
+    //   Y-fiber:
+    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r*nx = p1x                        p2x-p1x==0 for Y-fiber
+    //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r*ny = p1y + t*(p2y-p1y)         
+    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r*nz = p1z +  r                   (p2z-p1z)==0 for XY-fibers!!
+
+    if ( fib.p1.y == fib.p2.y ) {
+        // X-fiber case
+        //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r*ny = p1y                    
+        //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r*nz = p1z + r                
+        //   => 
+        //   u*(v1y-v0y) + v*(v2y-v0y) = -v0y - r*ny + p1y                    
+        //   u*(v1z-v0z) + v*(v2z-v0z) = -v0z - r*nz + p1z + r                
+        //   =>
+        //   [ (v1y-v0y)    (v2y-v0y) ] [ u ] = [ -v0y - r*ny + p1y     ]
+        //   [ (v1z-v0z)    (v2z-v0z) ] [ v ] = [ -v0z - r*nz + p1z + r ]
+        double a = t.p[1].y - t.p[0].y;
+        double b = t.p[2].y - t.p[0].y;
+        double c = t.p[1].z - t.p[0].z;
+        double d = t.p[2].z - t.p[0].z;
+        double det = a*d-b*c;
+        if ( isZero_tol( det ) )
+            return result; // no solution
+        // matrix inverse is
+        //          [ d  -b ]
+        //  1/det * [ -c  a ]
+        //  so
+        //  [u]              [ d  -b ] [ e ]
+        //  [v]  =  1/det *  [ -c  a ] [ f ]
+        double e = -t.p[0].y - radius*normal.y + fib.p1.y;
+        double f = -t.p[0].z - radius*normal.z + fib.p1.z + radius;
+        double u = (1.0/det) * (d*e - b*f);
+        double v = (1.0/det) * (-c*e + a*f);
+        if ( u > 0.0 && u < 1.0 && v > 0.0 && v < 1.0 && (u + v < 1.0)) { // the cc-point is in the facet
+            // compute cl-point
+            // v0x + u*(v1x-v0x) + v*(v2x-v0x) + r*nx = p1x + t*(p2x-p1x) 
+            // =>
+            // t = 1/(p2x-p1x) * ( v0x + r*nx - p1x +  u*(v1x-v0x) + v*(v2x-v0x)       )
+            CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
+            cc.type = FACET;
+            if ( ! cc.isInside( t ) ) {
+                std::cout << " X-fiber: (u,v)= ("<<u<<" , "<<v<<")\n";
+                assert( cc.isInside( t ) );
+            }
+            assert( !isZero_tol( fib.p2.x - fib.p1.x )  );
+            double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + radius*normal.x - fib.p1.x + u*(t.p[1].x-t.p[0].x)+v*(t.p[2].x-t.p[0].x) );
+            if ( tval < 0.0 || tval > 1.0  ) {
+                std::cout << "BallCutter::facetPush() tval= " << tval << " error!?\n";
+            } 
+            assert( tval > 0.0 && tval < 1.0 );
+            i.updateUpper( tval  , cc );
+            i.updateLower( tval  , cc );
+            result = true;
+        }
+        
+    } else if (fib.p1.x == fib.p2.x) {
+        // Y-fiber case
+        //   [ (v1x-v0x)    (v2x-v0x) ] [ u ] = [ -v0x - r*nx + p1x     ]
+        //   [ (v1z-v0z)    (v2z-v0z) ] [ v ] = [ -v0z - r*nz + p1z + r ]
+        double a = t.p[1].x - t.p[0].x;
+        double b = t.p[2].x - t.p[0].x;
+        double c = t.p[1].z - t.p[0].z;
+        double d = t.p[2].z - t.p[0].z;
+        double det = a*d-b*c;
+        if ( isZero_tol( det ) )
+            return result; // no solution
+        double e = -t.p[0].x - radius*normal.x + fib.p1.x;
+        double f = -t.p[0].z - radius*normal.z + fib.p1.z + radius;
+        double u = (1.0/det) * (d*e - b*f);
+        double v = (1.0/det) * (-c*e + a*f);
+        if ( u > 0.0 && u < 1.0 && v > 0.0 && v < 1.0 && (u + v < 1.0)) { // the cc-point is in the facet
+            // compute cl-point
+            // v0y + u*(v1y-v0y) + v*(v2y-v0y) + r*ny = p1y + t*(p2y-p1y) 
+            CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
+            cc.type = FACET;
+            if ( ! cc.isInside( t ) ) {
+                std::cout << " Y-fiber: (u,v)= ("<<u<<" , "<<v<<")\n";
+                assert( cc.isInside( t ) );
+            }
+            assert( !isZero_tol( fib.p2.y - fib.p1.y )  );
+            double tval = (1.0/( fib.p2.y - fib.p1.y )) * ( t.p[0].y + radius*normal.y - fib.p1.y + u*(t.p[1].y-t.p[0].y)+v*(t.p[2].y-t.p[0].y) );
+            if ( tval < 0.0 || tval > 1.0  ) {
+                std::cout << "BallCutter::facetPush() tval= " << tval << " error!?\n";
+            } 
+            assert( tval > 0.0 && tval < 1.0 );
+            i.updateUpper( tval  , cc );
+            i.updateLower( tval  , cc );
+            result = true;
+        }
+    } else {
+        assert(0);
+    }
+    //
     
     return result;
 }
@@ -326,6 +433,7 @@ bool BallCutter::facetPush(const Fiber& f, Interval& i,  const Triangle& t) cons
 bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
     // FIXME, nothing here yet.
+    // assert(0);
     return result;
 }
 

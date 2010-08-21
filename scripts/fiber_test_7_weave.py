@@ -13,10 +13,17 @@ def drawFiber(myscreen, f, fibercolor=camvtk.red):
             myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=fibercolor) )
             myscreen.addActor( camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z),radius=0.005, color=camvtk.clColor( i.lower_cc) ) )
             myscreen.addActor( camvtk.Sphere(center=(ip2.x,ip2.y,ip2.z),radius=0.005, color=camvtk.clColor( i.upper_cc) ) )
-            #cc1 = i.lower_cc
-            #cc2 = i.upper_cc
-            #myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.lgreen ) )
-            #myscreen.addActor( camvtk.Sphere(center=(cc2.x,cc2.y,cc2.z),radius=0.005, color=camvtk.lgreen ) )
+            cc1 = i.lower_cc
+            cc2 = i.upper_cc
+            myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.lgreen ) )
+            myscreen.addActor( camvtk.Sphere(center=(cc2.x,cc2.y,cc2.z),radius=0.005, color=camvtk.lgreen ) )
+            
+            if cc1.type == ocl.CCType.FACET:
+                cactor = camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z+cutter.radius), radius=cutter.radius, color=camvtk.cyan ) 
+                cactor.SetOpacity(0.2)
+                myscreen.addActor( cactor )
+        
+            
             # cutter circle
             #c1 = camvtk.Circle(center=(ip1.x,ip1.y,ip1.z), radius = 0.3/2, color=fibercolor)
             #myscreen.addActor(c1)
@@ -32,7 +39,7 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(0,0,0)
+    c = ocl.Point(0,0,0.1)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
@@ -41,11 +48,12 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BallCutter(0.3)
+    #cutter = ocl.CylCutter(0.3)
+    cutter = ocl.BallCutter(0.4)
         
     cutter.length = 4.0
     print "lengt=", cutter.length
+    print "radius=", cutter.radius
     print "fiber..."
     range=4
     Nmax = 100
@@ -112,26 +120,33 @@ if __name__ == "__main__":
     
     print " got: ", len(w_edges), " edges"
     print " got: ", len(w_loop), " loop points"
-    zoffset = 0.2
+    zoffset = 0.0
     for p in w_clpts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
-    for p in w_ipts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.orange ) )
+
+    
+    #for p in w_ipts:
+    #    myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.orange ) )
 
     
     zoffset2=zoffset + 0.1
-    np = 0
+    #np = 0
     previous = 0
-    dzoffset = 0.0015
+    dzoffset = 0.0
     
+    # draw the loop as a yellow line
     for loop in w_loop:
+        np = 0
         for p in loop:
             #myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.006, color=camvtk.pink ) )        
             if np is not 0:
                 myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
             np=np+1
             previous = p
-            
+    
+    
+    # draw edges of weave
+    """
     ne = 0
     zoffset=0.2
     dzoffset = 0
@@ -140,6 +155,7 @@ if __name__ == "__main__":
         p2 = e[1]
         myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
         ne = ne+1
+    """
         
     print "done."
     myscreen.camera.SetPosition(0.5, 3, 2)
