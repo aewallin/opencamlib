@@ -338,9 +338,80 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;
         int end=(n+1)%3;
-        Point p1 = t.p[start];
+        Point p1 = t.p[start]; // edge is from p1 to p2
         Point p2 = t.p[end];
-        // edge is from p1 to p2
+        
+        Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
+        Point ufp2 = f.p2 + Point(0,0,radius);
+        // and intersect it with a cylinder around the edge p1-p2
+        //--------------------------------------------------------------------------
+        // Ray : P(t) = O + V * t   from point O, in direction V
+        // Cylinder [A, B, r]   from point A to point B, radius r
+        // Point P on infinite cylinder if ((P - A) x (B - A))^2 = r^2 * (B - A)^2
+        // expand : ((O - A) x (B - A) + t * (V x (B - A)))^2 = r^2 * (B - A)^2
+        // equation in the form (X + t * Y)^2 = d
+        // where : 
+        //  X = (O - A) x (B - A)
+        //  Y = V x (B - A)
+        //  d = r^2 * (B - A)^2
+        // expand the equation :
+        // t^2 * (Y . Y) + t * (2 * (X . Y)) + (X . X) - d = 0
+        // => second order equation in the form : a*t^2 + b*t + c = 0 where
+        // a = (Y . Y)
+        // b = 2 * (X . Y)
+        // c = (X . X) - d
+        //--------------------------------------------------------------------------
+        Point ab = p2-p1; // axis of the cylinder
+        Point ao = (ufp1 - p1); // cyl start to ray start
+        Point ao_x_ab = ao.cross(ab); // cross product
+        Point v_x_ab  = (ufp2-ufp1).cross(ab); // cross product
+        double ab2 = ab.dot(ab); // dot product
+        double a = v_x_ab.dot(v_x_ab); // dot product
+        double b = 2 * ( v_x_ab.dot(ao_x_ab) ); // dot product
+        double c = ao_x_ab.dot(ao_x_ab) - (radius*radius * ab2);
+        // solve second order equation : a*t^2 + b*t + c = 0
+        // t = (-b +/- sqrt( b^2 - 4ac ) )   / 2a
+        double discr = b*b-4*a*c;
+        double t1;
+        double t2;
+        if ( isZero_tol( discr ) ) { // tangent case
+            //std::cout << "TANGENT CASE!\n";
+            t1= -b/(2*a); // only one root
+            Point cl1 = f.point(t1);
+            Point cl1_center = f.point(t1) + Point(0,0,radius);
+            CCPoint cc_tmp = cl1.closestPoint(p1,p2);
+            cc_tmp.type = EDGE;
+            double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
+            if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
+                i.updateUpper( t1  , cc_tmp );
+                i.updateLower( t1  , cc_tmp );
+                result = true;
+            }
+        } else if ( discr > 0.0 ) { // two roots
+            //std::cout << " GENERAL CASE!\n";
+            t1 = (-b + sqrt( discr))/(2*a);
+            t2 = (-b - sqrt( discr))/(2*a);
+            // now calculate the cl-points
+            Point cl1 = f.point(t1);
+            Point cl1_center = f.point(t1) + Point(0,0,radius);
+            Point cl2 = f.point(t2);
+            // cc-point is on p1-p2 line, closest to CL
+            CCPoint cc_tmp = cl1.closestPoint(p1,p2);
+            // edge: p1 + t*(p2-p1) = cc_tmp
+            // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
+            double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
+            cc_tmp.type = EDGE;
+            if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
+                i.updateUpper( t1  , cc_tmp );
+                i.updateLower( t1  , cc_tmp );
+                i.updateUpper( t2  , cc_tmp );
+                i.updateLower( t2  , cc_tmp );
+                result = true;
+            }
+        } else {
+            // no solution to quadratic, i.e. no contact with the ball
+        }
+
         
     }
     return result;

@@ -214,9 +214,8 @@ bool Point::isInside(const Triangle &t) const
 
 
 #define TOLERANCE 0.000001 // FIXME: magic number constant...
-
-bool Point::isInsidePoints(const Point &p1, const Point &p2) const
-{
+// FIXME, use t-parameter instead!
+bool Point::isInsidePoints(const Point &p1, const Point &p2) const {
     double minx,maxx,miny,maxy;
     if (p1.x > p2.x) {
         minx = p2.x;
@@ -239,14 +238,10 @@ bool Point::isInsidePoints(const Point &p1, const Point &p2) const
     bool b3 = (y>= (miny-TOLERANCE));
     bool b4 = (y<= (maxy+TOLERANCE));
     //std::cout << "b1=" << b1 << " b2=" << b2 << " b3=" << b3 << " b4=" << b4 << "\n";
-    if ( b1 && b2 && b3 && b4) {
-        //std::cout << "returning true\n";
+    if ( b1 && b2 && b3 && b4) 
         return true;
-    } 
-    else {
-        //std::cout << "returning false\n";
+    else 
         return false;
-    }
 }
 
 

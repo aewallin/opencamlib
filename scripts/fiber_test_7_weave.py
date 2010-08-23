@@ -48,8 +48,8 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BallCutter(0.4)
+    #cutter = ocl.CylCutter(0.3)
+    cutter = ocl.BallCutter(0.4)
         
     cutter.length = 4.0
     print "lengt=", cutter.length
@@ -120,27 +120,19 @@ if __name__ == "__main__":
     
     print " got: ", len(w_edges), " edges"
     print " got: ", len(w_loop), " loop points"
-    zoffset = 0.0
-    for p in w_clpts:
-        myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
+    #zoffset = 0.0
+    #for p in w_clpts:
+    #    myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
 
-    
-    #for p in w_ipts:
-    #    myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.00261, color=camvtk.orange ) )
-
-    
-    zoffset2=zoffset + 0.1
-    #np = 0
     previous = 0
-    dzoffset = 0.0
-    
     # draw the loop as a yellow line
     for loop in w_loop:
         np = 0
         for p in loop:
             #myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset2), radius=0.006, color=camvtk.pink ) )        
             if np is not 0:
-                myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z+zoffset2+np*dzoffset), p2=(p.x,p.y,p.z+zoffset2+np*dzoffset), color=camvtk.yellow) )
+                myscreen.addActor( camvtk.Line( p1=(previous.x,previous.y, previous.z), 
+                                                p2=(p.x,p.y,p.z), color=camvtk.yellow) )
             np=np+1
             previous = p
     

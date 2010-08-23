@@ -190,7 +190,7 @@ double Fiber::tval(Point& p) const {
 }
 
 /// return a point on the fiber at given t-value
-Point Fiber::point(double t) const {
+Point Fiber::point(const double t) const {
     Point p = p1 + t*(p2-p1);
     return p;
 }

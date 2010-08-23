@@ -75,7 +75,7 @@ class Fiber {
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value
-        Point point(double t) const;
+        Point point(const double t) const;
         /// return intervals to python
         boost::python::list getInts() const;
         /// print the intervals
