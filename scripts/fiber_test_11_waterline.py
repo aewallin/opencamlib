@@ -28,11 +28,12 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
-    zh=0.3145
-    cutter_diams = generateRange(0.1, 3, 1)
+    zh=1.75145
+    cutter_diams = generateRange(0.4, 3, 3)
     loops = []
     for diam in cutter_diams:
         cutter = ocl.CylCutter( diam )
+        #cutter = ocl.BallCutter( diam )
         cutter.length = 10
         wl = ocl.Waterline()
         wl.setSTL(s)

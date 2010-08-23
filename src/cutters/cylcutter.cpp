@@ -434,52 +434,11 @@ bool CylCutter::facetPush(const Fiber& fib, Interval& intv,  const Triangle& t) 
                   -b*(e*(k*p-o*l)-g*(i*p-m*l)+h*(i*o-m*k))
                   +c*(e*(j*p-n*l)-f*(i*p-m*l)+h*(i*n-m*j))
                   -d*(e*(j*o-n*k)-f*(i*o-m*k)+g*(i*n-m*j));
-    //namespace bnu = boost::numeric::ublas;
-    //bnu::matrix<double> A(4,4);
-    //bnu::matrix<double> B(4,4);
-    /*
-    A(0,0) = 1.0;
-    A(0,1) = 1.0;
-    A(0,2) = 1.0;
-    A(0,3) = 1.0;
-    A(1,0) = t.p[0].x; // xvals
-    A(1,1) = t.p[1].x;
-    A(1,2) = t.p[2].x;
-    A(1,3) = f.p1.x;
-    A(2,0) = t.p[0].y; // yvals
-    A(2,1) = t.p[1].y;
-    A(2,2) = t.p[2].y;
-    A(2,3) = f.p1.y;
-    A(3,0) = t.p[0].z; // zvals
-    A(3,1) = t.p[1].z;
-    A(3,2) = t.p[2].z;
-    A(3,3) = f.p1.z;    
 
-    B(0,0) = 1.0;
-    B(0,1) = 1.0;
-    B(0,2) = 1.0;
-    B(0,3) = 0.0;
-    B(1,0) = t.p[0].x; // xvals
-    B(1,1) = t.p[1].x;
-    B(1,2) = t.p[2].x;
-    B(1,3) = fib.p2.x - fib.p1.x;
-    B(2,0) = t.p[0].y; // yvals
-    B(2,1) = t.p[1].y;
-    B(2,2) = t.p[2].y;
-    B(2,3) = fib.p2.y - fib.p1.y;
-    B(3,0) = t.p[0].z; // zvals
-    B(3,1) = t.p[1].z;
-    B(3,2) = t.p[2].z;
-    B(3,3) = fib.p2.z - fib.p1.z;      
-    */
-    
-    //std::cout << A << std::endl;
-    
-    //double detB = determinant(B);
     if ( isZero_tol( detB ) )
         return result; // no intersection btw. line and plane
         
-    //double detA = determinant(A);
+
     double q_tval = - detA/detB;
     Point q = fib.p1 + q_tval*(fib.p2 - fib.p1); // the intersection point.
     
@@ -491,19 +450,18 @@ bool CylCutter::facetPush(const Fiber& fib, Interval& intv,  const Triangle& t) 
     // and then a distance r along the normal
     // we should end up on the fiber
     // q + t*tangent + r*normal = p1 + t*(p2-p1)
-               
     // from q, go v-units along tangent, then r*normal, and end up on fiber:
-    // q + t*tangent + r*normal = p1 + t*(p2-p1)
+    // q + v*tangent + r*normal = p1 + t*(p2-p1)
+    // in matrix form:
+    // [ tang.x  -(p2-p1).x ] [ v ]  = [ (-q.x -r*n.x +p1.x ) ]
+    // [ tang.y  -(p2-p1).y ] [ t ]  = [ (-q.y -r*n.y +p1.y ) ]
+
     double v_cc, t_cl;
     Point q1 = q+radius*normal;
     Point q2 = q1+tangent;
     if ( !xy_line_line_intersection( q1 , q2, v_cc, fib.p1, fib.p2, t_cl ) )
         assert(0); 
     
-    // [ tang.x  -(p2-p1).x ] [ v ]  = [ (-q-r*n+p1).x ]
-    // [ tang.y  -(p2-p1).y ] [ t ]  = [ (-q-r*n+p1).y ]
-    // or
-    // Mx=y
     // there are two solutions
     double cc_vval1 = v_cc;
     double cl_tval1 = t_cl;

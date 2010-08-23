@@ -96,50 +96,6 @@ double eps() {
   return ( 2.0 * r );
 }
 
-
-/// find an intersection point in the XY-plane between two lines
-/// first line:   p1 + v*(p2-p1)
-/// second line:  p3 + t*(p4-p3)
-/// returns true if an intersection was found 
-bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
-                                const Point& p3, const Point& p4, double& t) {
-    // in the XY plane we move a distance v along l1
-    // and a distance t along line2
-    // we should end up at the same point
-    // p1 + v*(p2-p1) = p3 + t*(p4-p3)
-    // this leads to a matrix equation:
-    // [ (p2-p1).x  -(p4-p3).x ] [ v ]  = [ (p3-p1).x ]
-    // [ (p2-p1).y  -(p4-p3).y ] [ t ]  = [ (p3-p1).y ]
-    // or
-    // M * x = y
-    // with solution:
-    // x = Minv * y
-    //namespace bnu = boost::numeric::ublas;
-    //bnu::matrix<double> M(2,2);
-    //M(0,0) = (p2.x-p1.x);
-    //M(0,1) = (p4.x - p3.x);
-    //M(1,0) = (p2.y-p1.y);
-    //M(1,1) = (p4.y - p3.y);
-    
-    double a = (p2.x-p1.x);
-    double b = (p4.x - p3.x);
-    double c = (p2.y-p1.y);
-    double d = (p4.y - p3.y);
-    double detM = a*d-c*b;
-    //double detM = determinant(M);
-    if ( isZero_tol( detM ) )
-        return false; // parallell lines, no intersection
-    
-    double v_numer = (p4.x-p3.x)*(p1.y-p3.y) - (p4.y-p3.y)*(p1.x-p3.x);
-    double t_numer = (p2.x-p1.x)*(p1.y-p3.y) - (p2.y-p1.y)*(p1.x-p3.x);
-    if( isZero_tol( t_numer ) && isZero_tol( v_numer) )
-        return false;
-
-    t = t_numer/detM;
-    v = v_numer/detM;
-    return true;
-}
-
 /// solve system Ax = y by inverting A
 /// x = Ainv * y
 /// returns false if det(A)==0, i.e. no solution found
@@ -166,6 +122,24 @@ bool two_by_two_solver( const double& a,
     v = (1.0/det) * (-c*e + a*f);
     return true;
 }
+
+
+/// find an intersection point in the XY-plane between two lines
+/// first line:   p1 + v*(p2-p1)
+/// second line:  p3 + t*(p4-p3)
+/// sets (v,t) to the intersection point and returns true if an intersection was found 
+bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
+                                const Point& p3, const Point& p4, double& t) {
+    // p1 + v*(p2-p1) = p3 + t*(p4-p3)
+    // =>
+    // [ (p2-p1).x  -(p4-p3).x ] [ v ]  = [ (p3-p1).x ]
+    // [ (p2-p1).y  -(p4-p3).y ] [ t ]  = [ (p3-p1).y ]
+    return two_by_two_solver( (p2-p1).x , -(p4-p3).x , (p2-p1).y , -(p4-p3).y,  (p3-p1).x, (p3-p1).y, v, t);
+    
+
+}
+
+
 
 } // end namespace
 // end file numeric.cpp
