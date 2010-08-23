@@ -338,8 +338,8 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;
         int end=(n+1)%3;
-        Point p1 = t.p[start]; // edge is from p1 to p2
-        Point p2 = t.p[end];
+        const Point p1 = t.p[start]; // edge is from p1 to p2
+        const Point p2 = t.p[end];
         
         Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
         Point ufp2 = f.p2 + Point(0,0,radius);
