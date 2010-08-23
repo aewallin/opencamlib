@@ -26,25 +26,20 @@ namespace ocl
 {
 
 //********   CylCutter ********************** */
-BallCutter::BallCutter()
-{
+BallCutter::BallCutter() {
     setDiameter(1.0);
 }
 
-BallCutter::BallCutter(const double d)
-{
-    setDiameter(d);
+BallCutter::BallCutter(const double d) {
+    if (d>0.0)
+        setDiameter(d);
 }
 
 //********   drop-cutter methods ********************** */
-int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
-{
-    // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
-    
+int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
     CCPoint* cc_tmp;
-    BOOST_FOREACH( const Point& p, t.p)
-    {
+    BOOST_FOREACH( const Point& p, t.p) {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if (q<= radius) { // p is inside the cutter
             // q^2 + h2^2 = r^2
@@ -66,12 +61,8 @@ int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
 }
 
 //********   facet ********************** */
-int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
-{
-    // Drop cutter at (cl.x, cl.y) against facet of Triangle t
-
+int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     Point normal; // facet surface normal
-    
     if ( isZero_tol( t.n->z ) )  {// vertical surface
         return -1;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
@@ -79,15 +70,13 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     } else {
         normal = *t.n;
     }   
-    
     assert( isPositive( normal.z ) );
     
     if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane special case
-        // so any vertex is at the correct height
         CCPoint* cc_tmp = new CCPoint();
         cc_tmp->x = cl.x;
         cc_tmp->y = cl.y;
-        cc_tmp->z = t.p[0].z;
+        cc_tmp->z = t.p[0].z; // so any vertex is at the correct height
         if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
             if ( cl.liftZ(cc_tmp->z) ) {
                 cc_tmp->type = FACET;
@@ -102,7 +91,6 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
         }
     } // end horizontal plane case.
     
-    
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
@@ -110,9 +98,7 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     double a = normal.x;
     double b = normal.y;
     double c = normal.z;
-    //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    double d = - normal.dot(t.p[0]);
-        
+    double d = - normal.dot(t.p[0]); //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
     normal.normalize(); // make length of normal == 1.0
     
     // define the radiusvector which points from the 
@@ -122,16 +108,11 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
     // find the xy-coordinates of the cc-point
     CCPoint* cc_tmp = new CCPoint(); 
     *cc_tmp = cl + radiusvector;
-    
     // find the z-coordinate of the cc-point.
-    // it lies in the plane.
-    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // NOTE: potential for divide-by-zero (?!)
+    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // it lies in the plane.
     cc_tmp->type = FACET;
-    
-    // now find the z-coordinate of the cl-point
-    double tip_z = cc_tmp->z - radiusvector.z - radius;
-        
-    if (cc_tmp->isInside(t)) { // NOTE: cc.z is ignored in isInside()       
+    double tip_z = cc_tmp->z - radiusvector.z - radius;// now find the z-coordinate of the cl-point
+    if (cc_tmp->isInside(t)) {     
         if ( cl.liftZ(tip_z) ) {
             cl.cc = cc_tmp;
             return 1;
@@ -142,71 +123,47 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const
         delete cc_tmp;
         return 0;
     }
-    
-    
     return 0; // we never get here (?)
 }
 
 
 //********   edge **************************************************** */
-int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
-{
-    // Drop cutter at (p.x, p.y) against edges of Triangle t
-    // strategy:
-    // 1) calculate distance to infinite line
-    // 2) calculate intersection points w. cutter
-    // 3) pick the higher intersection point and test if it is in the edge
-    
+int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
-    
     for (int n=0;n<3;n++) { // loop through all three edges
-    
-        // 1) distance from point to line in xy plane
         int start=n;      // index of the start-point of the edge
         int end=(n+1)%3;  // index of the end-point of the edge
-        //std::cout << "testing edge " << start << " to " << end << "\n";
         Point p1 = t.p[start];
         Point p2 = t.p[end];
-        
         // check that there is an edge in the xy-plane
         // can't drop against vertical edges!
         if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
-        
-            //std::cout << "Points " << p1 << " to " << p2 << "\n";
-            double d = cl.xyDistanceToLine(p1, p2);
+            double d = cl.xyDistanceToLine(p1, p2); // 1) distance from point to line in xy plane
             assert( d >= 0.0 );
-                
             if (d<=radius) { // potential hit
-            
                 // the plane of the line will slice the spherical cutter at
                 // a distance d from the center of the cutter
                 // here the radius of the circular section is
                 double s = sqrt( square(radius) - square(d) );
-                    
                 // the center-point of this circle, in the xy plane lies at
                 Point sc = cl.xyClosestPoint( p1, p2 );   
-                
                 Point v = p2 - p1;
                 v.z=0;
                 v.xyNormalize();
-                
+                // move to a new coordinate system:
                 double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
                 double p1u = (p1-sc).dot(v);
-
                 // in the vertical plane of the line:
                 // (du,dz) points in the direction of the line
-                // so (dz, -du) is a normal to the line                
                 double dz = p2.z - p1.z;  
                 double du = p2u-p1u;             
-                Point normal = Point (dz, -du, 0);
+                Point normal = Point (dz, -du, 0); // so (dz, -du) is a normal to the line 
                 normal.xyNormalize();
-                if (normal.y < 0) { // flip normal so it points upward
+                if (normal.y < 0)  // flip normal so it points upward
                     normal = -1*normal;
-                } 
-
-                double cl_z;
-                CCPoint* cc_tmp = new CCPoint();
                 
+                CCPoint* cc_tmp = new CCPoint(); // suggested cc-point
+                double cl_z; // corresponding cl z-coord
                 if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
                     *cc_tmp = sc;
                     // locate cc_tmp on the edge
@@ -217,42 +174,26 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                         // z = p1 + t*(p2-p1)
                         double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
                         cc_tmp->z = p1.z + t*(p2.z-p1.z);
-                    } else {
-                        // the y-coord is better for the above calculation
+                    } else { // the y-coord is better for the above calculation
                         double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
                         cc_tmp->z = p1.z + t*(p2.z-p1.z); 
                     }
-                    
                     cl_z = cc_tmp->z + s - radius;
-                    
-                } else {
-                    // this is the general case
-                    // now normal should point up
-                    if (  !isPositive(normal.y)) {
-                        std::cout << "ballcutter.cpp edgeDrop() normal.y=" << normal.y << " !!\n";
-                        assert( isPositive(normal.y) );
-                    }
-                
+                } else { // this is the general case
+                    assert_msg( isPositive(normal.y), "ERROR: BallCutter::edgeDrop(), general case, normal.y<0 !!\n" ); 
                     Point start2sc = sc - p1;
-                    //double sc_u = start2sc.dot( start2sc_dir  ); // horiz distance from startpoint to sc
-                    
                     double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
-                    
                     *cc_tmp = sc + cc_u*v; // located in the XY-plane
-                    
-                    // now locate z-coord of cc_tmp on edge
                     double t;
                     if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-                        t = (cc_tmp->x - p1.x) / (p2.x-p1.x);
+                        t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now locate z-coord of cc_tmp on edge
                     } else {
                         t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
                     }
                     cc_tmp->z = p1.z + t*(p2.z-p1.z);
-                    
                     cl_z = cc_tmp->z + s*normal.y - radius;
                 } // end non-horizontal case
-                
-                // test if cc-point is in edge
+                // test if suggested cc-point cc_tmp is in edge
                 if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
                     if (cl.liftZ(cl_z)) {
                         cc_tmp->type = EDGE;
@@ -280,7 +221,6 @@ bool BallCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) cons
             double eff_radius = radius; // default, shaft radius
             if (h< radius) // eff_radius is smaller if we hit the ball
                 eff_radius = sqrt( square(radius) - square(radius-h) );
-                    
             if ( q <= eff_radius ) { // we are going to hit the vertex p
                 double ofs = sqrt( square(eff_radius) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
@@ -414,15 +354,13 @@ MillingCutter* BallCutter::offsetCutter(const double d) const {
 }
 
 //******** string output ********************** */
-std::string BallCutter::str() const
-{
+std::string BallCutter::str() const {
     std::ostringstream o;
     o << *this; 
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, BallCutter c)
-{
+std::ostream& operator<<(std::ostream &stream, BallCutter c) {
   stream << "BallCutter(d=" << c.diameter << ", radius=" << c.radius << ")";
   return stream;
 }

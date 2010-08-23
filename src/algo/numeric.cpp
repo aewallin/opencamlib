@@ -19,7 +19,7 @@
 */
 
 #include <cmath> // for fabs()
-
+#include <cassert>
 
 
 #include "oellipse.h"
@@ -69,6 +69,14 @@ double eps() {
     r = r / 2.0;
   return ( 2.0 * r );
 }
+
+void assert_msg( bool assertion, std::string message) {
+    if ( !assertion ) {
+        std::cout << message;
+        assert( assertion );
+    }
+}
+
 
 /// solve system Ax = y by inverting A
 /// x = Ainv * y

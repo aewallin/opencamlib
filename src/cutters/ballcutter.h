@@ -56,12 +56,10 @@ class BallCutter : public MillingCutter {
         bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
-        
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         /// string repr
         std::string str() const;
-        
 };
 
 } // end namespace

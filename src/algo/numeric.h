@@ -50,6 +50,8 @@ bool isZero_tol(double x);
 /// but 1 == 1 + eps/2 
 double eps();
 
+void assert_msg( bool assertion, std::string message);
+
 /// solves 2x2 matrix system Ax=y
 bool two_by_two_solver( const double& a, 
                         const double& b, 
