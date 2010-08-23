@@ -140,5 +140,32 @@ bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
     return true;
 }
 
+/// solve system Ax = y by inverting A
+/// x = Ainv * y
+/// returns false if det(A)==0, i.e. no solution found
+bool two_by_two_solver( const double& a, 
+                        const double& b, 
+                        const double& c,
+                        const double& d,
+                        const double& e,
+                        const double& f,
+                        double& u,
+                        double& v) {
+    //  [ a  b ] [u] = [ e ]
+    //  [ c  d ] [v] = [ f ]
+    // matrix inverse is
+    //          [ d  -b ]
+    //  1/det * [ -c  a ]
+    //  so
+    //  [u]              [ d  -b ] [ e ]
+    //  [v]  =  1/det *  [ -c  a ] [ f ]
+    double det = a*d-c*b;
+    if (isZero_tol(det))
+        return false;
+    u = (1.0/det) * (d*e - b*f);
+    v = (1.0/det) * (-c*e + a*f);
+    return true;
+}
+
 } // end namespace
 // end file numeric.cpp
