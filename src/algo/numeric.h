@@ -20,19 +20,8 @@
 #ifndef NUMERIC_H
 #define NUMERIC_H
 
-
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/io.hpp>
-#include <boost/numeric/ublas/lu.hpp>
-
-// #include "cutters/oellipse.h"
-
-
-
 namespace ocl
 {
-
-namespace bnu = boost::numeric::ublas;
     
 #define PI 3.1415926535897932
 
@@ -56,17 +45,12 @@ bool isPositive(double x);
 /// return true if x is zero, to within tolerance 
 bool isZero_tol(double x);
 
-/// compute determinant of matrix m
-double determinant( bnu::matrix<double>& m );
-
-/// helper function for determinant()
-int determinant_sign(const bnu::permutation_matrix<std::size_t>& pm);
-
 /// returns machine-epsilon
 /// eps is such that 1 < 1 + eps
 /// but 1 == 1 + eps/2 
 double eps();
 
+/// solves 2x2 matrix system Ax=y
 bool two_by_two_solver( const double& a, 
                         const double& b, 
                         const double& c,
@@ -75,13 +59,10 @@ bool two_by_two_solver( const double& a,
                         const double& f,
                         double& u,
                         double& v);
-                        
+
+/// returns intersection in XY plane btw. lines p1,p2 and p3,p4
 bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
                                 const Point& p3, const Point& p4, double& t);
-                                
-
-
-                                
 
 } // end namespace
 #endif
