@@ -20,12 +20,8 @@
 
 #include <boost/foreach.hpp>
 
-// #include "millingcutter.h"
-#include "bullcutter.h"
 
-//#include "point.h"
-//#include "triangle.h"
-//#include "numeric.h"
+#include "bullcutter.h"
 #include "oellipse.h"
 
 namespace ocl

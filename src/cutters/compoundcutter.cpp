@@ -24,11 +24,6 @@
 #include "bullcutter.h"
 #include "conecutter.h"
 
-//#include "point.h"
-//#include "triangle.h"
-//#include "stlsurf.h"
-//#include "numeric.h"
-
 
 namespace ocl
 {

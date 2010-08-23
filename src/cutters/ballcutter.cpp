@@ -20,14 +20,7 @@
 
 #include <boost/foreach.hpp>
 
-//#include "millingcutter.h"
 #include "ballcutter.h"
-
-//#include "point.h"
-//#include "triangle.h"
-//#include "stlsurf.h"
-//#include "millingcutter.h"
-//#include "numeric.h"
 
 namespace ocl
 {

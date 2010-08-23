@@ -174,24 +174,7 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
         std::string default_str() const {
             return this->MillingCutter::str();
         };
-    
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 } // end namespace

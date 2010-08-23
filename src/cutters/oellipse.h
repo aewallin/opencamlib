@@ -52,9 +52,6 @@ class Ellipse {
         /// return a normalized tangent vector to the ellipse at the given Epos
         Point tangent(Epos& position) const;
         
-        /// offset-ellipse Newton-Rhapson solver
-        //int solver_nr( Point& p ); 
-        
         /// offset-ellipse Brent solver
         int solver_brent( Point& p );
         void print_solutions( Point& p);

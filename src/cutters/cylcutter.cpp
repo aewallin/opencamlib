@@ -23,12 +23,6 @@
 #include "cylcutter.h"
 #include "bullcutter.h" // for offsetCutter()
 
-//#include "point.h"
-//#include "triangle.h"
-
-// #include "numeric.h"
-//#include "fiber.h"
-
 // #define EDGEDROP_DEBUG
 
 namespace ocl
