@@ -20,11 +20,14 @@
 
 #include <boost/foreach.hpp>
 
-#include "point.h"
-#include "triangle.h"
-#include "millingcutter.h"
-#include "numeric.h"
-#include "fiber.h"
+#include "cylcutter.h"
+#include "bullcutter.h" // for offsetCutter()
+
+//#include "point.h"
+//#include "triangle.h"
+
+// #include "numeric.h"
+//#include "fiber.h"
 
 // #define EDGEDROP_DEBUG
 

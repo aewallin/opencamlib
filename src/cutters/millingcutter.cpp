@@ -75,7 +75,7 @@ double MillingCutter::getLength() const {
 
 MillingCutter* MillingCutter::offsetCutter(double d) const {
     assert(0); // DON'T call me
-    return  new CylCutter();
+    return  new MillingCutter();
 }
 
 /// call vertex, facet, and edge drop methods

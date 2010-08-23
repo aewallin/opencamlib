@@ -18,11 +18,17 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "millingcutter.h"
-#include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "numeric.h"
+#include "compoundcutter.h"
+#include "cylcutter.h"
+#include "ballcutter.h"
+#include "bullcutter.h"
+#include "conecutter.h"
+
+//#include "point.h"
+//#include "triangle.h"
+//#include "stlsurf.h"
+//#include "numeric.h"
+
 
 namespace ocl
 {

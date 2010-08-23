@@ -22,7 +22,11 @@
 #include <boost/python.hpp>
 #include "point.h"
 #include "millingcutter.h"
-
+#include "cylcutter.h"
+#include "ballcutter.h"
+#include "bullcutter.h"
+#include "conecutter.h"
+#include "compoundcutter.h"
 
 /*
  *  wrap cutters

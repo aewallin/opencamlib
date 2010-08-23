@@ -24,8 +24,7 @@
 #include <iostream>
 #include <list>
 #include "bbox.h"
-//#include "ocode.h"
-
+#include "cylcutter.h"
 
 
 namespace ocl
@@ -34,7 +33,7 @@ namespace ocl
 class Point;
 class Triangle;
 class MillingCutter;
-class CylCutter;
+
 
 
 /// base-class for defining volumes to build octrees

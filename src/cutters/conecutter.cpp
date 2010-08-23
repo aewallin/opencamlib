@@ -17,18 +17,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
+
 
 #include <boost/foreach.hpp>
 
-#include "millingcutter.h"
-#include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "numeric.h"
+
+#include "conecutter.h"
+#include "compoundcutter.h" // for offsetCutter()
+
+//#include "point.h"
+//#include "triangle.h"
+//#include "stlsurf.h"
+//#include "numeric.h"
 
 namespace ocl
 {

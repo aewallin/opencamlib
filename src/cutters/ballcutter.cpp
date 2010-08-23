@@ -20,12 +20,14 @@
 
 #include <boost/foreach.hpp>
 
-#include "millingcutter.h"
-#include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
-#include "millingcutter.h"
-#include "numeric.h"
+//#include "millingcutter.h"
+#include "ballcutter.h"
+
+//#include "point.h"
+//#include "triangle.h"
+//#include "stlsurf.h"
+//#include "millingcutter.h"
+//#include "numeric.h"
 
 namespace ocl
 {
@@ -265,13 +267,9 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                         result = 1;
                     }
                 }
-                
             }// end if(potential hit)
-
         }// end if(vertical edge)
-        
     } // end loop through all edges
-        
     return result;
 }
 
@@ -318,9 +316,9 @@ bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
     }
     // now we know the normal points upwards
     
-    // find a point on the plane from which radius*normal lands on the fiber+radius*Point(0,0,1) 
+    //   find a point on the plane from which radius*normal lands on the fiber+radius*Point(0,0,1) 
     //
-    //  (u,v) locates a point on the triangle facet    v0+ u*(v1-v0)+v*(v2-v0)    u,v in [0,1]
+    //   (u,v) locates a point on the triangle facet    v0+ u*(v1-v0)+v*(v2-v0)    u,v in [0,1]
     //   t locates a point along the fiber:            p1 + t*(p2-p1)             t in [0,1]
     // 
     //   facet-point + radius * normal = fiber-point + radius*Point(0,0,1)
@@ -339,9 +337,9 @@ bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
     //   [ (v1z-v0z)    (v2z-v0z) ] [ v ] = [ -v0z - r*nz + p1z + r ]
     //
     //   Y-fiber:
-    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r*nx = p1x                        p2x-p1x==0 for Y-fiber
+    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r*nx = p1x                        
     //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r*ny = p1y + t*(p2y-p1y)         
-    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r*nz = p1z +  r                   (p2z-p1z)==0 for XY-fibers!!
+    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r*nz = p1z +  r                   
     //   or 
     //   [ (v1x-v0x)    (v2x-v0x) ] [ u ] = [ -v0x - r*nx + p1x     ]
     //   [ (v1z-v0z)    (v2z-v0z) ] [ v ] = [ -v0z - r*nz + p1z + r ]
@@ -377,7 +375,6 @@ bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
         i.updateUpper( tval  , cc );
         i.updateLower( tval  , cc );
         result = true;
-        
     } else if (fib.p1.x == fib.p2.x) {
         a = t.p[1].x - t.p[0].x;
         b = t.p[2].x - t.p[0].x;
@@ -405,8 +402,14 @@ bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
 
 bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
-    // FIXME, nothing here yet.
-    // assert(0);
+    for (int n=0;n<3;n++) { // loop through all three edges
+        int start=n;
+        int end=(n+1)%3;
+        Point p1 = t.p[start];
+        Point p2 = t.p[end];
+        // edge is from p1 to p2
+        
+    }
     return result;
 }
 

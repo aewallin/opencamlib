@@ -26,6 +26,7 @@
 #endif
 
 #include "millingcutter.h"
+
 #include "point.h"
 #include "triangle.h"
 #include "kdtree.h"
@@ -44,7 +45,7 @@ BatchDropCutter::BatchDropCutter() {
 #ifndef WIN32
     nthreads = omp_get_num_procs(); // figure out how many cores we have
 #endif
-    cutter = new CylCutter(1.0);
+    cutter = NULL;
     bucketSize = 1;
 }
 

@@ -28,6 +28,8 @@
 #include "point.h"
 #include "triangle.h"
 #include "millingcutter.h"
+#include "cylcutter.h"
+
 #include "numeric.h"
 #include "volume.h"
 

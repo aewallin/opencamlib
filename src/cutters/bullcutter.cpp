@@ -20,10 +20,12 @@
 
 #include <boost/foreach.hpp>
 
-#include "millingcutter.h"
-#include "point.h"
-#include "triangle.h"
-#include "numeric.h"
+// #include "millingcutter.h"
+#include "bullcutter.h"
+
+//#include "point.h"
+//#include "triangle.h"
+//#include "numeric.h"
 #include "oellipse.h"
 
 namespace ocl
@@ -377,24 +379,22 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
     return result;
 }
 
+                        
+//********  BullCutter push-cutter methods ****************************/
 
-/*  OLD DEBUG CODE (used when switching to Brent-solver)
-if ((ecen.z-radius2)< -0.15) {
-    std::cout << " ellipse=" << e <<"\n";
-    std::cout << "epos1=" << e.epos2 << " epos2="<< e.epos1 << "\n";
-    std::cout << "ecen=" << ecen << " radius2="<< radius2 << "\n";
-    std::cout << "ecen1.z=" << ecen1.z << " ecen2.z=" << ecen2.z << " chosen="<< ecen.z <<"\n";
-    assert(0);
-}*/
-                        
-                        
+
+
+
+
+//*********************************************************************/
+
 
 /// offset of bull is bull
 MillingCutter* BullCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, radius2+d) ;
 }
 
-//********  CylCutter string output ********************** */
+//********  BullCutter string output ********************** */
 std::string BullCutter::str() const
 {
     std::ostringstream o;
