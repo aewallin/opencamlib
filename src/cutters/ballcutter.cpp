@@ -255,7 +255,6 @@ bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
     // now we know the normal points upwards
     
     //   find a point on the plane from which radius*normal lands on the fiber+radius*Point(0,0,1) 
-    //
     //   (u,v) locates a point on the triangle facet    v0+ u*(v1-v0)+v*(v2-v0)    u,v in [0,1]
     //   t locates a point along the fiber:            p1 + t*(p2-p1)             t in [0,1]
     // 

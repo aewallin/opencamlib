@@ -66,6 +66,9 @@ void export_cutters() {
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
+        .def("vertexPush", &BullCutter::vertexPush)
+        .def("facetPush", &BullCutter::facetPush)
+        .def("edgePush", &BullCutter::edgePush) // FIXME, put in base-class
         .def(bp::init<double, double>())
     ;
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")

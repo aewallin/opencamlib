@@ -76,7 +76,7 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b = ocl.Point(1,0.5,0.2)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(0.1,0.1,0.30)
+    c = ocl.Point(0.1,0.1,0.60)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
@@ -84,18 +84,19 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
 
     #cutter = ocl.CylCutter(0.3)
-    cutter = ocl.BallCutter(0.3)
-        
+    #cutter = ocl.BallCutter(0.3)
+    cutter = ocl.BullCutter(0.3,0.1)
+    
     cutter.length = 4.0
     print "lengt=", cutter.length
     print "fiber..."
     range=2
-    Nmax = 100
+    Nmax = 200
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = -0.4
-    zmax = 0.6
-    zNmax = 50
+    zmin = 0.0
+    zmax = 0.65
+    zNmax = 40
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     for n in xrange(0,zNmax):

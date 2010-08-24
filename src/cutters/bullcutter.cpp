@@ -28,31 +28,27 @@ namespace ocl
 {
 
 //********   CylCutter ********************** */
-BullCutter::BullCutter()
-{
+BullCutter::BullCutter() {
     setDiameter(1.0);
     radius1= 0.3;
     radius2= 0.2;
     setRadius();
 }
 
-BullCutter::BullCutter(const double d, const double r)
-{
+BullCutter::BullCutter(const double d, const double r) {
     setDiameter(d);
     radius = d/2;        // total cutter radius
     radius1 = d/2 - r;   // cylindrical middle part radius
     radius2 = r;         // corner radius
 }
 
-void BullCutter::setRadius()
-{
+void BullCutter::setRadius() {
     radius= radius1+radius2;
 }
 
 
 //********   drop-cutter methods ********************** */
-int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
-{
+int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     int result = 0;
     BOOST_FOREACH( const Point& p, t.p){
@@ -167,8 +163,7 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 
 
 /// Toroidal cutter edge-test
-int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
-{
+int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against the three edges of Triangle t
     int result = 0;    
     for (int n=0;n<3;n++) { // loop through all three edges
@@ -176,13 +171,11 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
         int end=(n+1)%3;
         Point p1 = t.p[start];
         Point p2 = t.p[end];
-        
         // check that there is an edge in the xy-plane
         // can't drop against vertical edges!
         if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
             double d = cl.xyDistanceToLine(p1,p2);
             assert( d >= 0.0 ); // FIXME d==0.0 is another special case...
-            
             // is the edge close enough?
             if (d<=diameter/2) { // potential hit
                 if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
@@ -378,9 +371,144 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                         
 //********  BullCutter push-cutter methods ****************************/
 
+bool BullCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    bool result = false;
+    
+    BOOST_FOREACH( const Point& p, t.p) {
+        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
+            Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
+            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
+            double h = p.z - f.p1.z; // height of p above fiber
+            assert( h>= 0.0);
+            double eff_radius = radius; // default, shaft radius
+            CCType cc_type;
+            if (h < radius2) { // eff_radius is smaller if we hit the toroid
+                eff_radius = radius1 + sqrt( square(radius2) - square(radius2-h) );
+                assert( eff_radius <= radius );
+                cc_type = VERTEX;
+            } else {
+                cc_type = VERTEX_CYL; // hit the cylinder
+            }
+            if ( q <= eff_radius ) { // we are going to hit the vertex p
+                double ofs = sqrt( square(eff_radius) - square(q) ); // distance along fiber 
+                Point start = pq - ofs*f.dir;
+                Point stop  = pq + ofs*f.dir;
+                CCPoint cc_tmp = CCPoint(p);
+                cc_tmp.type = cc_type;
+                i.updateUpper( f.tval(stop) , cc_tmp );
+                i.updateLower( f.tval(start) , cc_tmp );
+                result = true;                
+            }             
+        }
+    }
+    
+    return result;
+}
 
+bool BullCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
+    bool result = false;
+    
+    Point normal; // facet surface normal 
+    if ( t.n->zParallel() ) { // normal points in z-dir   
+        return result; //can't push against horizontal plane, stop here.
+    }
+    else if (t.n->z < 0) {  // normal is pointing down
+        normal = -1* (*t.n); // flip normal
+    } else {
+        normal = *t.n;
+    }
+    // now we know the normal points upwards
+    normal.normalize();
+    Point xy_normal = normal;
+    xy_normal.z = 0;
+    xy_normal.xyNormalize();
+    
+    //   find a point on the plane from which radius2*normal+radius1*xy_normal lands on the fiber+radius2*Point(0,0,1) 
+    //   (u,v) locates a point on the triangle facet    v0+ u*(v1-v0)+v*(v2-v0)    u,v in [0,1]
+    //   t locates a point along the fiber:             p1 + t*(p2-p1)             t in [0,1]
+    // 
+    //   facet-point + r2 * n + r1* xy_n = fiber-point + r2*Point(0,0,1)
+    //   =>
+    //   v0+ u*(v1-v0)+v*(v2-v0) + r2 * n + r1* xy_n  = p1 + t*(p2-p1) + r2*Point(0,0,1)
+    //
+    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r2*nx + r1*xy_n.x  = p1x + t*(p2x-p1x)          p2x-p1x==0 for Y-fiber
+    //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r2*ny + r1*xy_n.y  = p1y + t*(p2y-p1y)          p2y-p1y==0 for X-fiber
+    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r2*nz              = p1z + t*(p2z-p1z) + r2    (p2z-p1z)==0 for XY-fibers!!
+    //   X-fiber:
+    //   v0x + u*(v1x-v0x) + v*(v2x-v0x) + r2*nx + r1*xy_n.x  = p1x + t*(p2x-p1x)         
+    //   v0y + u*(v1y-v0y) + v*(v2y-v0y) + r2*ny + r1*xy_n.y  = p1y                    solve these  two for (u,v)
+    //   v0z + u*(v1z-v0z) + v*(v2z-v0z) + r2*nz              = p1z + r2               and substitute above for t
+    //   or
+    //   [ (v1y-v0y)    (v2y-v0y) ] [ u ] = [ -v0y - r2*ny - r1*xy_n.y + p1y     ]
+    //   [ (v1z-v0z)    (v2z-v0z) ] [ v ] = [ -v0z - r2*nz + p1z + r2            ]
+    //
+    //   Y-fiber:
+    //   [ (v1x-v0x)    (v2x-v0x) ] [ u ] = [ -v0x - r2*nx - r1*xy_n.x + p1x     ]
+    
+    double a;
+    double b;
+    double c = t.p[1].z - t.p[0].z;
+    double d = t.p[2].z - t.p[0].z;
+    double e;
+    double f = -t.p[0].z - radius2*normal.z + fib.p1.z + radius2;
+    double u;
+    double v;
+    // a,b,e depend on the fiber:
+    if ( fib.p1.y == fib.p2.y ) { // XFIBER
+        a = t.p[1].y - t.p[0].y;
+        b = t.p[2].y - t.p[0].y;
+        e = -t.p[0].y - radius2*normal.y - radius1*xy_normal.y + fib.p1.y;
+        if (!two_by_two_solver(a,b,c,d,e,f,u,v))
+            return result;
+        CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
+        cc.type = FACET;
+        if ( ! cc.isInside( t ) ) 
+            return result;
+        // v0x + u*(v1x-v0x) + v*(v2x-v0x) + r2*nx + r1*xy_n.x = p1x + t*(p2x-p1x) 
+        // =>
+        // t = 1/(p2x-p1x) * ( v0x + r2*nx + r1*xy_n.x - p1x +  u*(v1x-v0x) + v*(v2x-v0x)       )
+        assert( !isZero_tol( fib.p2.x - fib.p1.x )  );
+        double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + radius2*normal.x + radius1*xy_normal.x - fib.p1.x 
+                                                        + u*(t.p[1].x-t.p[0].x)+v*(t.p[2].x-t.p[0].x) );
+        if ( tval < 0.0 || tval > 1.0  ) {
+            std::cout << "BullCutter::facetPush() tval= " << tval << " error!?\n";
+        } 
+        assert( tval > 0.0 && tval < 1.0 );
+        i.updateUpper( tval  , cc );
+        i.updateLower( tval  , cc );
+        result = true;
+    } else if (fib.p1.x == fib.p2.x) { // YFIBER
+        a = t.p[1].x - t.p[0].x;
+        b = t.p[2].x - t.p[0].x;
+        e = -t.p[0].x - radius2*normal.x - radius1*xy_normal.x + fib.p1.x;
+        if (!two_by_two_solver(a,b,c,d,e,f,u,v))
+            return result;
+        CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
+        cc.type = FACET;
+        if ( ! cc.isInside( t ) ) 
+            return result;
+        assert( !isZero_tol( fib.p2.y - fib.p1.y )  );
+        double tval = (1.0/( fib.p2.y - fib.p1.y )) * ( t.p[0].y + radius2*normal.y + radius1*xy_normal.y - fib.p1.y 
+                                                        + u*(t.p[1].y-t.p[0].y)+v*(t.p[2].y-t.p[0].y) );
+        if ( tval < 0.0 || tval > 1.0  ) {
+            std::cout << "BullCutter::facetPush() tval= " << tval << " error!?\n";
+        } 
+        assert( tval > 0.0 && tval < 1.0 );
+        i.updateUpper( tval  , cc );
+        i.updateLower( tval  , cc );
+        result = true;    
+    } else {
+        assert(0);
+    }
+    
+    
+    return result;
+}
 
-
+bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
+    bool result = false;
+    return result;
+}
 
 //*********************************************************************/
 
