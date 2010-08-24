@@ -18,10 +18,10 @@ def drawFiber(myscreen, f, fibercolor=camvtk.red):
             myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.lgreen ) )
             myscreen.addActor( camvtk.Sphere(center=(cc2.x,cc2.y,cc2.z),radius=0.005, color=camvtk.lgreen ) )
             
-            if cc1.type == ocl.CCType.FACET:
-                cactor = camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z+cutter.radius), radius=cutter.radius, color=camvtk.cyan ) 
-                cactor.SetOpacity(0.2)
-                myscreen.addActor( cactor )
+            #if cc1.type == ocl.CCType.FACET:
+            #    cactor = camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z+cutter.radius), radius=cutter.radius, color=camvtk.cyan ) 
+            #    cactor.SetOpacity(0.2)
+            #    myscreen.addActor( cactor )
         
             
             # cutter circle
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     zmax = 0.5
     zNmax = 5
     dz = (zmax-zmin)/(zNmax-1)
-    zvals=[]
-    zvals.append(0.2)
+    zvals=[  0.2]
+    #zvals.append(0.2)
     #for n in xrange(0,zNmax):
     #    zvals.append(zmin+n*dz)
 

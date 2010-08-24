@@ -49,8 +49,8 @@ def yfiber(yvals,t,zh,myscreen):
         f2 = ocl.Point(1.5,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        #cutter.vertexPush(f,i,t)
-        #cutter.facetPush(f,i,t)
+        cutter.vertexPush(f,i,t)
+        cutter.facetPush(f,i,t)
         cutter.edgePush(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.red)
@@ -61,8 +61,8 @@ def xfiber(xvals,t,zh,myscreen):
         f2 = ocl.Point(x,1.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        #cutter.vertexPush(f,i,t)
-        #cutter.facetPush(f,i,t)
+        cutter.vertexPush(f,i,t)
+        cutter.facetPush(f,i,t)
         cutter.edgePush(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.lblue)
@@ -74,9 +74,9 @@ if __name__ == "__main__":
     
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b = ocl.Point(1,0.5,-0.2)    
+    b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(0.1,0.1,-0.10)
+    c = ocl.Point(0.1,0.1,0.30)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
@@ -90,7 +90,7 @@ if __name__ == "__main__":
     print "lengt=", cutter.length
     print "fiber..."
     range=2
-    Nmax = 200
+    Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     zmin = -0.4

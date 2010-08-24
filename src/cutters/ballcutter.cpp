@@ -379,7 +379,7 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             t1= -b/(2*a); // only one root
             Point cl1 = f.point(t1);
             Point cl1_center = f.point(t1) + Point(0,0,radius);
-            CCPoint cc_tmp = cl1.closestPoint(p1,p2);
+            CCPoint cc_tmp = cl1_center.closestPoint(p1,p2);
             cc_tmp.type = EDGE;
             double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
             if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
@@ -393,25 +393,25 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             t2 = (-b - sqrt( discr))/(2*a);
             // now calculate the cl-points
             Point cl1 = f.point(t1);
+            Point cl2 = f.point(t2);
             Point cl1_center = f.point(t1) + Point(0,0,radius);
             Point cl2_center = f.point(t2) + Point(0,0,radius);
-            Point cl2 = f.point(t2);
             // cc-point is on p1-p2 line, closest to CL
-            CCPoint cc_tmp1 = cl1.closestPoint(p1,p2);
+            CCPoint cc_tmp1 = cl1_center.closestPoint(p1,p2);
+            CCPoint cc_tmp2 = cl2_center.closestPoint(p1,p2);
             // edge: p1 + t*(p2-p1) = cc_tmp
             // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
             double cct1 = (cc_tmp1-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
+            double cct2 = (cc_tmp2-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
             cc_tmp1.type = EDGE;
+            cc_tmp2.type = EDGE;
             if ( cct1 > 0.0 && cct1 < 1.0 && ((cl1_center-cc_tmp1).z >=0) ) {
                 i.updateUpper( t1  , cc_tmp1 );
                 i.updateLower( t1  , cc_tmp1 );
                 result = true;
             }
-            CCPoint cc_tmp2 = cl2.closestPoint(p1,p2);
             // edge: p1 + t*(p2-p1) = cc_tmp
             // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
-            double cct2 = (cc_tmp2-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
-            cc_tmp2.type = EDGE;
             if ( cct2 > 0.0 && cct2 < 1.0 && ((cl2_center-cc_tmp2).z >=0) ) {
                 i.updateUpper( t2  , cc_tmp2 );
                 i.updateLower( t2  , cc_tmp2 );
