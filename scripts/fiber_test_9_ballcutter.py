@@ -44,7 +44,7 @@ if __name__ == "__main__":
     #cutter = ocl.CylCutter(0.3)
     cutter = ocl.BallCutter(0.3)
         
-    cutter.length = 4.0
+    cutter.length = 40.0
     print "lengt=", cutter.length
     print "fiber..."
     range=4

@@ -63,7 +63,7 @@ if __name__ == "__main__":
     zmax = 0.5
     zNmax = 5
     dz = (zmax-zmin)/(zNmax-1)
-    zvals=[  0.2]
+    zvals=[ 0.15]
     #zvals.append(0.2)
     #for n in xrange(0,zNmax):
     #    zvals.append(zmin+n*dz)

@@ -36,7 +36,8 @@ def clColor(cc):
     """
     if cc.type == ocl.CCType.VERTEX:
         col = red
-        
+    elif cc.type==ocl.CCType.VERTEX_CYL:
+        col = pink
     elif cc.type==ocl.CCType.FACET:
         col = green
     elif cc.type == ocl.CCType.FACET_TIP: # conecutter tip-contact
@@ -46,6 +47,8 @@ def clColor(cc):
 
     elif cc.type == ocl.CCType.EDGE:
         col = blue
+    elif cc.type == ocl.CCType.EDGE_CYL:
+        col = lblue
     elif cc.type == ocl.CCType.EDGE_POS:
         col = lblue
     elif cc.type == ocl.CCType.EDGE_NEG:

@@ -219,14 +219,19 @@ bool BallCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) cons
             double h = p.z - f.p1.z;
             assert( h>= 0.0);
             double eff_radius = radius; // default, shaft radius
-            if (h< radius) // eff_radius is smaller if we hit the ball
+            CCType cc_type;
+            if (h< radius) { // eff_radius is smaller if we hit the ball
                 eff_radius = sqrt( square(radius) - square(radius-h) );
+                cc_type = VERTEX;
+            } else {
+                cc_type = VERTEX_CYL; // hit the cylinder
+            }
             if ( q <= eff_radius ) { // we are going to hit the vertex p
                 double ofs = sqrt( square(eff_radius) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
                 Point stop  = pq + ofs*f.dir;
                 CCPoint cc_tmp = CCPoint(p);
-                cc_tmp.type = VERTEX;
+                cc_tmp.type = cc_type;
                 i.updateUpper( f.tval(stop) , cc_tmp );
                 i.updateLower( f.tval(start) , cc_tmp );
                 result = true;                
@@ -420,7 +425,45 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
         } else {
             // no solution to quadratic, i.e. no contact with the ball
         }
-
+        
+            
+        // instead we test for contact with the cylindrical shaft
+        
+        // fiber is f.p1 + v*(f.p2-f.p1)
+        // line  is p1 + u*(p2-p1)
+        double u,v;
+        if ( xy_line_line_intersection(p1, p2, u, f.p1, f.p2, v ) ) { // find XY-intersection btw fiber and edge
+            Point q = p1 + u*(p2-p1); // intersection point, on edge
+            //Point q = f.p1 + v*(f.p2-f.p1); // q on fiber
+            // from q, go v_cc*xy_tangent, then r*xy_normal, and end up on fiber:
+            // q + v_cc*tangent + r*xy_normal = p1 + t_cl*(p2-p1)
+            Point xy_tang=p2-p1;
+            xy_tang.z=0;
+            xy_tang.xyNormalize();
+            Point xy_normal = xy_tang.xyPerp();
+            Point q1 = q  + radius*xy_normal;
+            Point q2 = q1 + (p2-p1);
+            double u_cc, t_cl;
+            if ( xy_line_line_intersection( q1 , q2, u_cc, f.p1, f.p2, t_cl ) ) {
+                double t_cl1 = t_cl;
+                double t_cl2 = v + (v-t_cl );
+                CCPoint cc_tmp1 = q + u_cc*(p2-p1);
+                CCPoint cc_tmp2 = q - u_cc*(p2-p1); 
+                cc_tmp1.type = EDGE_CYL;
+                cc_tmp2.type = EDGE_CYL;
+                if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= (f.p1.z+radius) ) ) {
+                    i.updateUpper( t_cl1  , cc_tmp1 );
+                    i.updateLower( t_cl1  , cc_tmp1 );
+                    result = true;
+                }
+                if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= (f.p1.z+radius) ) ) {
+                    i.updateUpper( t_cl2  , cc_tmp2 );
+                    i.updateLower( t_cl2  , cc_tmp2 );
+                    result = true;
+                }
+            }
+        }
+            
         
     }
     return result;

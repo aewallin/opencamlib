@@ -31,9 +31,10 @@ namespace ocl
 //class Triangle; // fwd declaration
 
 /// type of cc-point
-enum CCType {NONE, VERTEX, 
+enum CCType {NONE, 
+             VERTEX, VERTEX_CYL, 
              EDGE, EDGE_HORIZ_CYL, EDGE_HORIZ_TOR, 
-             EDGE_POS, EDGE_NEG,  
+             EDGE_POS, EDGE_NEG,  EDGE_CYL,
              FACET, FACET_TIP, FACET_CYL, 
              ERROR};
 

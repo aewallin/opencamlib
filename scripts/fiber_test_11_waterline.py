@@ -32,8 +32,8 @@ if __name__ == "__main__":
     cutter_diams = generateRange(0.4, 3, 3)
     loops = []
     for diam in cutter_diams:
-        cutter = ocl.CylCutter( diam )
-        #cutter = ocl.BallCutter( diam )
+        #cutter = ocl.CylCutter( diam )
+        cutter = ocl.BallCutter( diam )
         cutter.length = 10
         wl = ocl.Waterline()
         wl.setSTL(s)

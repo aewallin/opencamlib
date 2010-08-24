@@ -430,14 +430,15 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
             double tq, v;
             if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ){
                 Point q = p1 + v*(p2-p1); // intersection point, on edge
+                // Point q = f.p1 + tq*(f.p2-f.p1);
                 // from q, go v-units along tangent, then r*normal, and end up on fiber:
                 // q + t*tangent + r*normal = p1 + t*(p2-p1)
                 double v_cc, t_cl;
-                Point tang=p2-p1;
-                tang.z=0;
-                tang.xyNormalize();
-                Point normal = tang.xyPerp();
-                Point q1 = q+radius*normal;
+                Point xy_tang=p2-p1;
+                xy_tang.z=0;
+                xy_tang.xyNormalize();
+                Point xy_normal = xy_tang.xyPerp();
+                Point q1 = q+radius*xy_normal;
                 Point q2 = q1+(p2-p1);
                 if ( xy_line_line_intersection( q1 , q2, v_cc, f.p1, f.p2, t_cl ) ) {
                     double t_cl1 = t_cl;
