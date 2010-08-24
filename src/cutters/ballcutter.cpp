@@ -341,8 +341,8 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
         const Point p1 = t.p[start]; // edge is from p1 to p2
         const Point p2 = t.p[end];
         
-        Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
-        Point ufp2 = f.p2 + Point(0,0,radius);
+        const Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
+        const Point ufp2 = f.p2 + Point(0,0,radius);
         // and intersect it with a cylinder around the edge p1-p2
         //--------------------------------------------------------------------------
         // Ray : P(t) = O + V * t   from point O, in direction V
@@ -394,18 +394,27 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             // now calculate the cl-points
             Point cl1 = f.point(t1);
             Point cl1_center = f.point(t1) + Point(0,0,radius);
+            Point cl2_center = f.point(t2) + Point(0,0,radius);
             Point cl2 = f.point(t2);
             // cc-point is on p1-p2 line, closest to CL
-            CCPoint cc_tmp = cl1.closestPoint(p1,p2);
+            CCPoint cc_tmp1 = cl1.closestPoint(p1,p2);
             // edge: p1 + t*(p2-p1) = cc_tmp
             // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
-            double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
-            cc_tmp.type = EDGE;
-            if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
-                i.updateUpper( t1  , cc_tmp );
-                i.updateLower( t1  , cc_tmp );
-                i.updateUpper( t2  , cc_tmp );
-                i.updateLower( t2  , cc_tmp );
+            double cct1 = (cc_tmp1-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
+            cc_tmp1.type = EDGE;
+            if ( cct1 > 0.0 && cct1 < 1.0 && ((cl1_center-cc_tmp1).z >=0) ) {
+                i.updateUpper( t1  , cc_tmp1 );
+                i.updateLower( t1  , cc_tmp1 );
+                result = true;
+            }
+            CCPoint cc_tmp2 = cl2.closestPoint(p1,p2);
+            // edge: p1 + t*(p2-p1) = cc_tmp
+            // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
+            double cct2 = (cc_tmp2-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
+            cc_tmp2.type = EDGE;
+            if ( cct2 > 0.0 && cct2 < 1.0 && ((cl2_center-cc_tmp2).z >=0) ) {
+                i.updateUpper( t2  , cc_tmp2 );
+                i.updateLower( t2  , cc_tmp2 );
                 result = true;
             }
         } else {
