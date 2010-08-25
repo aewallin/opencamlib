@@ -34,6 +34,9 @@ CylCutter::CylCutter() {
 CylCutter::CylCutter(const double d) {
     if (d>0.0)
         setDiameter(d);
+    xy_normal_length = radius;
+    normal_length = 0.0;
+    xy_normal_length = 0.0;
 }
 
 /// offset of CylCutter is BullCutter
@@ -54,15 +57,7 @@ double CylCutter::height(const double r) const {
 double CylCutter::width(const double h) const {
     return radius;
 }
-double CylCutter::xy_normal_length() const {
-    return radius;
-}
-double CylCutter::normal_length() const {
-    return 0;
-}
-double CylCutter::center_height() const {
-    return 0;
-}        
+  
 
 //********   drop-cutter methods ********************** */
 

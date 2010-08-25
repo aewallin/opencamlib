@@ -106,11 +106,14 @@ class MillingCutter {
         /// return the width of the cutter at height h.
         /// should be redefined by a subclass.
         virtual double width(const double h) const {assert(0); return -1;};
-        /// return xy_normal lenghts that locate the cutter center relative to a
+        /// xy_normal lenght that locates the cutter center relative to a
         /// cc-point on a facet.
-        virtual double xy_normal_length() const {assert(0); return -1;};
-        virtual double normal_length() const {assert(0); return -1;};
-        virtual double center_height() const {assert(0); return -1;};
+        double xy_normal_length;
+        /// normal lenght that locates the cutter center relative to a
+        /// cc-point on a facet.
+        double normal_length;
+        /// height of cutter center
+        double center_height;
         
         /// diameter of cutter
         double diameter;

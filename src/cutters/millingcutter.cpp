@@ -69,7 +69,7 @@ double MillingCutter::getLength() const {
 
 MillingCutter* MillingCutter::offsetCutter(double d) const {
     assert(0); // DON'T call me
-    return  new MillingCutter();
+    return  NULL;
 }
 
 /// general purpose vertex-drop which delegates the this->height(r) to 
@@ -92,7 +92,7 @@ int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-/// general purpose facet-drop which calls xy_normal_length() normal_length() 
+/// general purpose facet-drop which calls xy_normal_length(), normal_length(), 
 /// and center_height() on the subclass
 int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
@@ -123,7 +123,6 @@ int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         }
     } // end horizontal plane case.
     
-    
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
@@ -139,9 +138,8 @@ int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     xyNormal.xyNormalize();
     
     // define the radiusvector which points from the 
-    // torus-center to the cc-point.
-    //Point radiusvector = -radius2*normal - radius1*xyNormal;
-    Point radiusvector = this->xy_normal_length()*xyNormal - this->normal_length()*normal;
+    // cc-point to the cutter-center 
+    Point radiusvector = this->xy_normal_length*xyNormal - this->normal_length*normal;
     // find the xy-coordinates of the cc-point
     CCPoint* cc_tmp = new CCPoint();
     *cc_tmp = cl - radiusvector; // NOTE xy-coords right, z-coord is not.
@@ -149,7 +147,7 @@ int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     cc_tmp->type = FACET;
     if (cc_tmp->isInside(t)) {   
         // now find the z-coordinate of the cl-point
-        double tip_z = cc_tmp->z + radiusvector.z - this->center_height();
+        double tip_z = cc_tmp->z + radiusvector.z - this->center_height;
         if ( cl.liftZ(tip_z) ) {
             cl.cc = cc_tmp;
             return 1;
@@ -232,14 +230,14 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     double c = t.p[1].z - t.p[0].z;
     double d = t.p[2].z - t.p[0].z;
     double e;
-    double f = -t.p[0].z - this->normal_length()*normal.z + fib.p1.z + this->center_height();
+    double f = -t.p[0].z - this->normal_length*normal.z + fib.p1.z + this->center_height;
     double u;
     double v;
     // a,b,e depend on the fiber:
     if ( fib.p1.y == fib.p2.y ) { // XFIBER
         a = t.p[1].y - t.p[0].y;
         b = t.p[2].y - t.p[0].y;
-        e = -t.p[0].y - this->normal_length()*normal.y - this->xy_normal_length()*xy_normal.y + fib.p1.y;
+        e = -t.p[0].y - this->normal_length*normal.y - this->xy_normal_length*xy_normal.y + fib.p1.y;
         if (!two_by_two_solver(a,b,c,d,e,f,u,v))
             return result;
         CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
@@ -250,10 +248,10 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
         // =>
         // t = 1/(p2x-p1x) * ( v0x + r2*nx + r1*xy_n.x - p1x +  u*(v1x-v0x) + v*(v2x-v0x)       )
         assert( !isZero_tol( fib.p2.x - fib.p1.x )  );
-        double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + this->normal_length()*normal.x + this->xy_normal_length()*xy_normal.x - fib.p1.x 
+        double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + this->normal_length*normal.x + this->xy_normal_length*xy_normal.x - fib.p1.x 
                                                         + u*(t.p[1].x-t.p[0].x)+v*(t.p[2].x-t.p[0].x) );
         if ( tval < 0.0 || tval > 1.0  ) {
-            std::cout << "BullCutter::facetPush() tval= " << tval << " error!?\n";
+            std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
         i.updateUpper( tval  , cc );
@@ -262,7 +260,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     } else if (fib.p1.x == fib.p2.x) { // YFIBER
         a = t.p[1].x - t.p[0].x;
         b = t.p[2].x - t.p[0].x;
-        e = -t.p[0].x - this->normal_length()*normal.x - this->xy_normal_length()*xy_normal.x + fib.p1.x;
+        e = -t.p[0].x - this->normal_length*normal.x - this->xy_normal_length*xy_normal.x + fib.p1.x;
         if (!two_by_two_solver(a,b,c,d,e,f,u,v))
             return result;
         CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
@@ -270,10 +268,10 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
         if ( ! cc.isInside( t ) ) 
             return result;
         assert( !isZero_tol( fib.p2.y - fib.p1.y )  );
-        double tval = (1.0/( fib.p2.y - fib.p1.y )) * ( t.p[0].y + this->normal_length()*normal.y + this->xy_normal_length()*xy_normal.y - fib.p1.y 
+        double tval = (1.0/( fib.p2.y - fib.p1.y )) * ( t.p[0].y + this->normal_length*normal.y + this->xy_normal_length*xy_normal.y - fib.p1.y 
                                                         + u*(t.p[1].y-t.p[0].y)+v*(t.p[2].y-t.p[0].y) );
         if ( tval < 0.0 || tval > 1.0  ) {
-            std::cout << "BullCutter::facetPush() tval= " << tval << " error!?\n";
+            std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
         i.updateUpper( tval  , cc );
@@ -298,7 +296,7 @@ int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
         facetDrop(cl,t); 
         edgeDrop(cl,t);
     }
-    return 0; // void would be better, return value not used for anything
+    return 0; // void would be better, return value not used for anything(?)
 }
 
 // TESTING ONLY, don't use for real

@@ -40,6 +40,9 @@ BullCutter::BullCutter(const double d, const double r) {
     radius = d/2;        // total cutter radius
     radius1 = d/2 - r;   // cylindrical middle part radius
     radius2 = r;         // corner radius
+    xy_normal_length = radius1;
+    normal_length = radius2;
+    center_height = radius2;
 }
 
 void BullCutter::setRadius() {
@@ -65,15 +68,6 @@ double BullCutter::width(const double h) const {
         return radius1 + sqrt( square(radius2) - square(radius2-h) );
 }
 
-double BullCutter::xy_normal_length() const {
-    return radius1;
-}
-double BullCutter::normal_length() const {
-    return radius2;
-}
-double BullCutter::center_height() const {
-    return radius2;
-}
 
 //********   drop-cutter methods ********************** */
 

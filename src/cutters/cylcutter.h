@@ -62,9 +62,6 @@ class CylCutter : public MillingCutter {
     protected:
         double height(const double r) const;
         double width(const double h) const; 
-        double xy_normal_length() const;
-        double normal_length() const;
-        double center_height() const;
 };
 
 } // end namespace

@@ -33,6 +33,9 @@ BallCutter::BallCutter() {
 BallCutter::BallCutter(const double d) {
     if (d>0.0)
         setDiameter(d);
+    normal_length = radius;
+    center_height = radius;
+    xy_normal_length = 0.0;
 }
 
 // height of cutter at radius r
@@ -48,15 +51,8 @@ double BallCutter::width(const double h) const {
         return sqrt( square(radius) - square(radius-h) );
 }
 
-double BallCutter::xy_normal_length() const {
-    return 0;
-}
-double BallCutter::normal_length() const {
-    return radius;
-}
-double BallCutter::center_height() const {
-    return radius;
-}
+
+
 
 //********   drop-cutter methods ********************** */
 
