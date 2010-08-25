@@ -53,7 +53,6 @@ class CylCutter : public MillingCutter {
         
         // pushCutter methods
         bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
-        //bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         /// text output
