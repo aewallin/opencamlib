@@ -44,9 +44,8 @@ class BullCutter : public MillingCutter {
         /// Create bull-cutter with default diameter and corner radius.
         BullCutter();
         /// Create bull-cutter with diamter d and corner radius r.
-        BullCutter(const double d, const double r);
+        BullCutter(const double d, const double r, const double l);
 
-        
         MillingCutter* offsetCutter(const double d) const;
         
         /// drop cutter
@@ -63,9 +62,7 @@ class BullCutter : public MillingCutter {
     protected:
         double height(const double r) const;
         double width(const double h) const; 
-        
-        /// set radius of cutter
-        void setRadius();  
+          
         /// radius of cylindrical part of cutter
         double radius1;
         /// tube radius of toroid

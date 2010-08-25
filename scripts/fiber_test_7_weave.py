@@ -48,11 +48,11 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    #cutter = ocl.CylCutter(0.3)
-    cutter = ocl.BallCutter(0.4)
-    #cutter = ocl.BullCutter(0.4, 0.1)
+    cutter = ocl.CylCutter(0.3, 5)
+    #cutter = ocl.BallCutter(0.4, 5)
+    #cutter = ocl.BullCutter(0.4, 0.1, 5)
     
-    cutter.length = 4.0
+   
     print "lengt=", cutter.length
     print "radius=", cutter.radius
     print "fiber..."
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     zmax = 0.5
     zNmax = 5
     dz = (zmax-zmin)/(zNmax-1)
-    zvals=[ 0.15]
+    zvals=[ 0.23]
     #zvals.append(0.2)
     #for n in xrange(0,zNmax):
     #    zvals.append(zmin+n*dz)

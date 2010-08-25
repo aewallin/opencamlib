@@ -31,13 +31,14 @@ namespace ocl
 
 //********   constructors ********************** */
 ConeCutter::ConeCutter() {
-    setDiameter(1.0);
+    diameter = 1.0;
     angle = 45;
     length = radius/tan(angle);
 }
 
 ConeCutter::ConeCutter(const double d, const double a) {
-    setDiameter(d);
+    diameter = d;
+    radius = d/2.0;
     angle = a;
     length = radius/tan(angle);
 }

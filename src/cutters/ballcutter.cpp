@@ -27,15 +27,17 @@ namespace ocl
 
 //********   CylCutter ********************** */
 BallCutter::BallCutter() {
-    setDiameter(1.0);
+    assert(0);
 }
 
-BallCutter::BallCutter(const double d) {
-    if (d>0.0)
-        setDiameter(d);
+BallCutter::BallCutter(const double d, const double l) {
+    assert( d>0.0 );
+    diameter = d;
+    radius = d/2.0;
+    length = l;
     normal_length = radius;
-    center_height = radius;
     xy_normal_length = 0.0;
+    center_height = radius;
 }
 
 // height of cutter at radius r
@@ -278,7 +280,7 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
 
 /// offset of ball is a bigger ball
 MillingCutter* BallCutter::offsetCutter(const double d) const {
-    return  new BallCutter(diameter+2*d) ;
+    return  new BallCutter(diameter+2*d, length+d) ;
 }
 
 //******** string output ********************** */

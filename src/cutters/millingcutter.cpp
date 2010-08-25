@@ -30,10 +30,12 @@ namespace ocl
 //********   MillingCutter ********************** */
 
 MillingCutter::MillingCutter() {   
-    setDiameter( 1.0 );
-    setLength( 1.0 );
+    diameter =  1.0 ;
+    radius = diameter/2.0;
+    length = 1.0;
 }
 
+/*
 void MillingCutter::setDiameter(double d) {
     if ( d >= 0.0 ) {
         diameter=d;
@@ -43,8 +45,9 @@ void MillingCutter::setDiameter(double d) {
         diameter=1.0;
         radius = diameter/2.0;
     }
-}
+}*/
 
+/*
 void MillingCutter::setLength(double l) {
     if ( l > 0.0 ) {
         length=l;
@@ -52,7 +55,7 @@ void MillingCutter::setLength(double l) {
         std::cout << "cutter.cpp: ERROR, MillingCutter.setLength(l) called with l<0 !!";
         length=1.0;
     }
-}
+}*/
 
 
 double MillingCutter::getDiameter() const {

@@ -42,7 +42,7 @@ class BallCutter : public MillingCutter {
     public:
         BallCutter();
         /// create a BallCutter with diameter d and radius d/2
-        explicit BallCutter(const double d);
+        explicit BallCutter(const double d, const double l);
 
         MillingCutter* offsetCutter(const double d) const;
         

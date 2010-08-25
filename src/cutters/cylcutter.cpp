@@ -28,20 +28,22 @@ namespace ocl
 
 //********   CylCutter ********************** */
 CylCutter::CylCutter() {
-    setDiameter(1.0);
+    assert(0);
 }
 
-CylCutter::CylCutter(const double d) {
-    if (d>0.0)
-        setDiameter(d);
+CylCutter::CylCutter(const double d, const double l) {
+    assert( d > 0.0);
+    diameter= d;
+    radius= d/2.0;
+    length = l;
     xy_normal_length = radius;
     normal_length = 0.0;
-    xy_normal_length = 0.0;
+    center_height = 0.0;
 }
 
 /// offset of CylCutter is BullCutter
 MillingCutter* CylCutter::offsetCutter(const double d) const {
-    return new BullCutter(diameter+2*d, d) ;
+    return new BullCutter(diameter+2*d, d, length+d) ;
 }
 
 double CylCutter::height(const double r) const {

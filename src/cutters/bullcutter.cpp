@@ -29,25 +29,26 @@ namespace ocl
 
 //********   CylCutter ********************** */
 BullCutter::BullCutter() {
-    setDiameter(1.0);
+    assert(0);
+    diameter= 1.0;
+    radius=diameter/2.0;
     radius1= 0.3;
     radius2= 0.2;
-    setRadius();
 }
 
-BullCutter::BullCutter(const double d, const double r) {
-    setDiameter(d);
-    radius = d/2;        // total cutter radius
-    radius1 = d/2 - r;   // cylindrical middle part radius
+BullCutter::BullCutter(const double d, const double r, const double l) {
+    assert( d > 0.0 );
+    diameter = d;
+    radius = d/2.0;        // total cutter radius
+    radius1 = d/2.0 - r;   // cylindrical middle part radius
     radius2 = r;         // corner radius
+    length = l;
     xy_normal_length = radius1;
     normal_length = radius2;
     center_height = radius2;
 }
 
-void BullCutter::setRadius() {
-    radius= radius1+radius2;
-}
+
 
 double BullCutter::height(const double r) const {
     if ( r <= radius1 )
@@ -294,7 +295,7 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
 
 /// offset of bull is bull
 MillingCutter* BullCutter::offsetCutter(const double d) const {
-    return new BullCutter(diameter+2*d, radius2+d) ;
+    return new BullCutter(diameter+2*d, radius2+d, length+d) ;
 }
 
 //********  BullCutter string output ********************** */

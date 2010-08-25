@@ -83,20 +83,20 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
 
-    #cutter = ocl.CylCutter(0.3)
-    cutter = ocl.BallCutter(0.3)
-    #cutter = ocl.BullCutter(0.3,0.1)
+    cutter = ocl.CylCutter(0.3, 5)
+    #cutter = ocl.BallCutter(0.3, 5)
+    #cutter = ocl.BullCutter(0.3, 0.1, 5)
     
-    cutter.length = 4.0
+    print "cutter= ", cutter
     print "lengt=", cutter.length
     print "fiber..."
     range=2
-    Nmax = 200
+    Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     zmin = 0.0
     zmax = 0.65
-    zNmax = 40
+    zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     for n in xrange(0,zNmax):

@@ -45,31 +45,28 @@ void export_cutters() {
         .def("facetDrop",  &MillingCutter::facetDrop,  &MillingCutterWrap::default_facetDrop )
         .def("edgeDrop",   &MillingCutter::edgeDrop,   &MillingCutterWrap::default_edgeDrop )
         .def("dropCutter", &MillingCutter::dropCutter)
+        .def("vertexPush", &MillingCutter::vertexPush)
+        .def("facetPush", &MillingCutter::facetPush)
+        .def("edgePush", &MillingCutter::edgePush)
         .def("offsetCutter", &MillingCutter::offsetCutter,  bp::return_value_policy<bp::manage_new_object>() )
         .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
         .add_property("radius", &MillingCutter::getRadius )
-        .add_property("length", &MillingCutter::getLength, &MillingCutter::setLength  )
-        .add_property("diameter", &MillingCutter::getDiameter, &MillingCutter::setDiameter )
+        .add_property("length", &MillingCutter::getLength )
+        .add_property("diameter", &MillingCutter::getDiameter )
     ; 
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
-        .def(bp::init<double>()) 
-        //.def("vertexPush", &CylCutter::vertexPush)
-        //.def("facetPush", &CylCutter::facetPush)
+        .def(bp::init<double, double>()) 
         .def("edgePush", &CylCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
-        .def(bp::init<double>())
-        //.def("vertexPush", &BallCutter::vertexPush)
-        //.def("facetPush", &BallCutter::facetPush)
+        .def(bp::init<double, double>())
         .def("edgePush", &BallCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
-        //.def("vertexPush", &BullCutter::vertexPush)
-        //.def("facetPush", &BullCutter::facetPush)
+        .def(bp::init<double, double, double>())
         .def("edgePush", &BullCutter::edgePush) // FIXME, put in base-class
-        .def(bp::init<double, double>())
     ;
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
         .def(bp::init<double, double>())

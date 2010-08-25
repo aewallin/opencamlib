@@ -167,7 +167,7 @@ std::string CompoundCutter::str() const {
 /// of diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)
 {
-    MillingCutter* c1 = new CylCutter(diam1);
+    MillingCutter* c1 = new CylCutter(diam1, 1 );
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double cone_offset= - (diam1/2)/tan(angle);
     addCutter( *c1, diam1/2.0, 0.0 );
@@ -178,7 +178,7 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)
 /// with ball-diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2
 BallConeCutter::BallConeCutter(double diam1, double diam2, double angle)
 {
-    MillingCutter* c1 = new BallCutter(diam1); // at offset zero
+    MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero  FIXME: length
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double cone_offset = - ( (diam1/2.0)/sin(angle) - diam1/2.0);
     double rcontact = (diam1/2.0)*cos(angle);
@@ -191,7 +191,7 @@ BallConeCutter::BallConeCutter(double diam1, double diam2, double angle)
 /// and an outer conical part with a slope angle, and maximum diameter diam2
 BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, double angle)
 {
-    MillingCutter* c1 = new BullCutter(diam1, radius1); // at offset zero
+    MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero FIXME: length
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double h1 = radius1*sin(angle); // the contact point is this much down from the toroid-ring
     double rad = sqrt( square(radius1) - square(h1) );

@@ -43,9 +43,8 @@ class CylCutter : public MillingCutter {
         /// create CylCutter with diameter = 1.0
         CylCutter();
         /// create CylCutter with diameter = d
-        explicit CylCutter(const double d);
+        explicit CylCutter(const double d, const double l);
 
-        
         MillingCutter* offsetCutter(const double d) const;
 
         // dropCutter methods

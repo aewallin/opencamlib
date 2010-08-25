@@ -22,20 +22,23 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     
     angle = math.pi/4
-    cutter = ocl.BallCutter(1.4321)
-    #cutter = ocl.CylCutter(1.123)
-    #cutter = ocl.BullCutter(1.123, 0.2)
-    #cutter = ocl.ConeCutter(1.123, angle)
-    #cutter = cutter.offsetCutter( 0.1 )
+    diameter=1.4321
+    length=5
+    #cutter = ocl.BallCutter(diameter, length)
+    cutter = ocl.CylCutter(diameter, length)
+    #cutter = ocl.BullCutter(diameter, 0.2, length)
+    #cutter = ocl.ConeCutter(diameter, angle)
+    cutter = cutter.offsetCutter( 0.1 )
     
     print cutter
     
     minx=0
-    dx=0.1/5
-    maxx=10
+    dx=0.1/20
+    
+    maxx=9
     miny=0
     dy=1
-    maxy=10
+    maxy=12
     z=-1
     # this generates a list of CL-points in a grid
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)

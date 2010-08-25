@@ -49,13 +49,13 @@ class MillingCutter {
         virtual ~MillingCutter() {};
         
         /// set the diameter of the cutter to d
-        void setDiameter(double d);
+        // void setDiameter(double d);
         /// return the diameter of the cutter
         double getDiameter() const;
         /// return the radius of the cutter
         double getRadius() const;
         /// set the length of the cutter to l
-        void setLength(double l);
+        // void setLength(double l);
         /// return the length of the cutter
         double getLength() const;
         

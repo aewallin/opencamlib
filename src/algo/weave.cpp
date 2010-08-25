@@ -102,8 +102,10 @@ void Weave::build_embedding(PlanarEmbedding& e) {
                 ordered_edges[2] = BoolEdgePair(true, *eit); 
             else if (diff.x < 0) // in the W direction
                 ordered_edges[3] = BoolEdgePair(true, *eit); 
-            else
+            else {
+                std::cout << " diff.x="<<diff.x<<" diff.y="<<diff.y<<"\n";
                 assert(0);
+            }
         }
         BOOST_FOREACH( BoolEdgePair p, ordered_edges) {
             if (p.first)
