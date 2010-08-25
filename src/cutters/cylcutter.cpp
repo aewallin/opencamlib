@@ -234,6 +234,7 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
     return result;
 }
 
+/*
 /// push cutter along Fiber against facet of Triangle t
 /// Update Interval i where the cutter interferes
 bool CylCutter::facetPush(const Fiber& fib, Interval& intv,  const Triangle& t) const {
@@ -381,7 +382,7 @@ bool CylCutter::facetPush(const Fiber& fib, Interval& intv,  const Triangle& t) 
         result = true;
     }
     return result;
-}
+} */
 
 bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;

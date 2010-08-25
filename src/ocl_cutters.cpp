@@ -53,21 +53,21 @@ void export_cutters() {
     ; 
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double>()) 
-        .def("vertexPush", &CylCutter::vertexPush)
-        .def("facetPush", &CylCutter::facetPush)
+        //.def("vertexPush", &CylCutter::vertexPush)
+        //.def("facetPush", &CylCutter::facetPush)
         .def("edgePush", &CylCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
         .def(bp::init<double>())
-        .def("vertexPush", &BallCutter::vertexPush)
-        .def("facetPush", &BallCutter::facetPush)
+        //.def("vertexPush", &BallCutter::vertexPush)
+        //.def("facetPush", &BallCutter::facetPush)
         .def("edgePush", &BallCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
-        .def("vertexPush", &BullCutter::vertexPush)
-        .def("facetPush", &BullCutter::facetPush)
+        //.def("vertexPush", &BullCutter::vertexPush)
+        //.def("facetPush", &BullCutter::facetPush)
         .def("edgePush", &BullCutter::edgePush) // FIXME, put in base-class
         .def(bp::init<double, double>())
     ;

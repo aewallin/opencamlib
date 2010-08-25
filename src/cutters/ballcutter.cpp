@@ -145,7 +145,7 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 
 //******************* PUSH-CUTTER **************************************
 
-
+/*
 bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;
     Point normal; // facet surface normal 
@@ -240,7 +240,7 @@ bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
         assert(0);
     }
     return result;
-}
+}*/
 
 bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;

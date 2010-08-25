@@ -93,7 +93,7 @@ class MillingCutter {
         
         // pushCutter methods
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
-        virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
+        virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
         
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
@@ -106,7 +106,7 @@ class MillingCutter {
         /// return the width of the cutter at height h.
         /// should be redefined by a subclass.
         virtual double width(const double h) const {assert(0); return -1;};
-        /// return two normal-lenghts that locate the cutter center relative to a
+        /// return xy_normal lenghts that locate the cutter center relative to a
         /// cc-point on a facet.
         virtual double xy_normal_length() const {assert(0); return -1;};
         virtual double normal_length() const {assert(0); return -1;};

@@ -48,8 +48,8 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    #cutter = ocl.CylCutter(0.3)
-    cutter = ocl.BallCutter(0.4)
+    cutter = ocl.CylCutter(0.3)
+    #cutter = ocl.BallCutter(0.4)
     #cutter = ocl.BullCutter(0.4, 0.1)
     
     cutter.length = 4.0
