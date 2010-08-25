@@ -66,132 +66,117 @@ double CylCutter::width(const double h) const {
 // vertexDrop is handled by the base-class
 // facetDrop is handled by the base-class
 
-bool CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
-    // strategy:
-    // 1) calculate distance to infinite line
-    // 2) calculate intersection points w. cutter (xy plane?)
-    // 3) pick the higher intersection point and test if it is in the edge
-    bool result = false;
-    for (int n=0;n<3;n++) { // loop through all three edges
-        int start=n;
-        int end=(n+1)%3;
-        Point p1 = t.p[start];
-        Point p2 = t.p[end];
-        // check that there is an edge in the xy-plane
-        // can't drop against vertical edges!
-        if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
-            double d = cl.xyDistanceToLine(t.p[start],t.p[end]);// 1) distance from point to line
-            if (d<=radius) { // potential hit
-                // 2) calculate intersection points with cutter circle.
-                // points are on line and radius from cl.
-                // see http://mathworld.wolfram.com/Circle-LineIntersection.html
-                double x1 = t.p[start].x - cl.x; // translate to cl=(0,0)
-                double y1 = t.p[start].y - cl.y;
-                double x2 = t.p[end].x - cl.x;
-                double y2 = t.p[end].y - cl.y;
-                double dx = x2-x1;
-                double dy = y2-y1;
-                double dr_sq = dx*dx + dy*dy;
-                double dr = sqrt( dr_sq );
-                double D = x1*y2 - x2*y1;
-                double discr = square( radius ) * square(dr) - square(D);
-                if ( !isZero_tol(discr) && isNegative(discr) ) {
-                    std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
-                    assert(0);
-                    return false;
-                } else if ( isZero_tol(discr) ) {// discr==0.0 means line is tangent to cutter circle
-                    CCPoint* cc_tmp = new CCPoint();
-                    cc_tmp->x =  D*dy / dr_sq + cl.x; // translate back to cl
-                    cc_tmp->y = -D*dx / dr_sq + cl.y;
-                    // 3) check if cc is in edge
-                    if ( cc_tmp->isInsidePoints(t.p[start], t.p[end]) ) { 
-                        // determine height of point. must be on line, so:
-                        // z-z1 = ((z2-z1)/(x2-x1)) * (x - x1)  // two point formula for line:
-                        // z = z1 + ((z2-z1)/(x2-x1)) * (x-x1)
-                        double z1 = t.p[start].z;
-                        double z2 = t.p[end].z;
-                        double x1 = t.p[start].x;
-                        double x2 = t.p[end].x;
-                        double y1 = t.p[start].y;
-                        double y2 = t.p[end].y;
-                        // use either x-coord or y-coord to calculate z-height
-                        if ( fabs(x1 - x2) > fabs(y2 - y1) ) 
-                            cc_tmp->z = z1 + ((z2-z1)/(x2-x1)) * (cc_tmp->x-x1);
-                        else if ( !isZero_tol( y2-y1) ) // guard against division by zero
-                            cc_tmp->z = z1 + ((z2-z1)/(y2-y1)) * (cc_tmp->y-y1);
-                        else 
-                            assert_msg(0, "CylCutter::edgeDrop(), tangent case, cannot compute cc_tmp.z"); // trouble.
+bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
+    bool result=false;
+    // 2) calculate intersection points with cutter circle.
+    // points are on line and radius from cl.
+    // see http://mathworld.wolfram.com/Circle-LineIntersection.html
+    double x1 = p1.x - cl.x; // translate to cl=(0,0)
+    double y1 = p1.y - cl.y;
+    double x2 = p2.x - cl.x;
+    double y2 = p2.y - cl.y;
+    double dx = x2-x1;
+    double dy = y2-y1;
+    double dr_sq = dx*dx + dy*dy;
+    double dr = sqrt( dr_sq );
+    double D = x1*y2 - x2*y1;
+    double discr = square( radius ) * square(dr) - square(D);
+    if ( !isZero_tol(discr) && isNegative(discr) ) {
+        std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
+        assert(0);
+        return false;
+    } else if ( isZero_tol(discr) ) {// discr==0.0 means line is tangent to cutter circle
+        CCPoint* cc_tmp = new CCPoint();
+        cc_tmp->x =  D*dy / dr_sq + cl.x; // translate back to cl
+        cc_tmp->y = -D*dx / dr_sq + cl.y;
+        // 3) check if cc is in edge
+        if ( cc_tmp->isInsidePoints(p1, p2) ) { 
+            // determine height of point. must be on line, so:
+            // z-z1 = ((z2-z1)/(x2-x1)) * (x - x1)  // two point formula for line:
+            // z = z1 + ((z2-z1)/(x2-x1)) * (x-x1)
+            double z1 = p1.z;
+            double z2 = p2.z;
+            double x1 = p1.x;
+            double x2 = p2.x;
+            double y1 = p1.y;
+            double y2 = p2.y;
+            // use either x-coord or y-coord to calculate z-height
+            if ( fabs(x1 - x2) > fabs(y2 - y1) ) 
+                cc_tmp->z = z1 + ((z2-z1)/(x2-x1)) * (cc_tmp->x-x1);
+            else if ( !isZero_tol( y2-y1) ) // guard against division by zero
+                cc_tmp->z = z1 + ((z2-z1)/(y2-y1)) * (cc_tmp->y-y1);
+            else 
+                assert_msg(0, "CylCutter::edgeDrop(), tangent case, cannot compute cc_tmp.z"); // trouble.
 
-                        if ( cl.liftZ(cc_tmp->z) ) {
-                            cc_tmp->type = EDGE;
-                            cl.cc = cc_tmp;
-                            result = true;
-                        } else {
-                            delete cc_tmp;
-                        }
-                    } else {
-                            delete cc_tmp;
-                    }
-                } else { // discr > 0, two intersection points
-                    assert( discr > 0.0 );
-                    CCPoint* cc1 = new CCPoint();
-                    CCPoint* cc2 = new CCPoint();
-                    double sqrt_discr = sqrt(discr);
-                    cc1->x= ( D*dy + sign(dy)*dx*sqrt_discr) / dr_sq + cl.x; // remember to translate back to cl
-                    cc1->y= (-D*dx + fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
-                    cc1->z=0;
-                    cc2->x= ( D*dy - sign(dy)*dx*sqrt_discr) / dr_sq + cl.x;
-                    cc2->y= (-D*dx - fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
-                    cc2->z=0;
-                    double x1 = t.p[start].x;
-                    double x2 = t.p[end].x;
-                    double y1 = t.p[start].y;
-                    double y2 = t.p[end].y;
-                    double z1 = t.p[start].z;
-                    double z2 = t.p[end].z;
-                    if ( cc1->isInsidePoints(t.p[start], t.p[end]) ) { // 3) check if in edge
-                        // determine height of point. must be on line, so:
-                        if (  fabs(x1 - x2) > fabs(y1 - y2)   )   //  compute using x-coords
-                            cc1->z = z1 + ((z2-z1)/(x2-x1)) * (cc1->x-x1);
-                        else if ( !isZero_tol( fabs(y1 - y2) ) ) //  compute using y-coords
-                            cc1->z = z1 + ((z2-z1)/(y2-y1)) * (cc1->y-y1);
-                        else  // we are in trouble.
-                            assert_msg( 0, "CylCutter::edgeDrop(), general case, unable to compute cc1.z. stop.\n");
-                        
-                        if (cl.liftZ(cc1->z)) {
-                            cc1->type = EDGE;
-                            cl.cc = cc1;
-                            result = true;
-                        } else {
-                            delete cc1;
-                        }
-                    } else {
-                        delete cc1;
-                    }
-                    if ( cc2->isInsidePoints(t.p[start], t.p[end]) ) {
-                        if ( fabs(x1 - x2) > fabs(y1 - y2)  )  // determine z- height of cc point
-                            cc2->z = z1 + ((z2-z1)/(x2-x1)) * (cc2->x-x1);
-                        else if ( !isZero_tol( fabs(y1 - y2) )  ) 
-                            cc2->z = z1 + ((z2-z1)/(y2-y1)) * (cc2->y-y1);
-                        else // we are in trouble.
-                            assert_msg(0, "cyclutter edge-test, unable to compute cc-point. stop.\n");
-                        
-                        if (cl.liftZ(cc2->z)) {     
-                            cc2->type = EDGE;
-                            cl.cc = cc2;                     
-                            result=true;
-                        } else {
-                            delete cc2;
-                        }
-                    } else { // end cc2.isInside()
-                        delete cc2;
-                    }
-                } //end two intersection points case
-            }// end if(potential hit)
-        } // end if(vertical edge)
-    } // end loop through all edges
+            if ( cl.liftZ(cc_tmp->z) ) {
+                cc_tmp->type = EDGE;
+                cl.cc = cc_tmp;
+                result = true;
+            } else {
+                delete cc_tmp;
+            }
+        } else {
+                delete cc_tmp;
+        }
+    } else { // discr > 0, two intersection points
+        assert( discr > 0.0 );
+        CCPoint* cc1 = new CCPoint();
+        CCPoint* cc2 = new CCPoint();
+        double sqrt_discr = sqrt(discr);
+        cc1->x= ( D*dy + sign(dy)*dx*sqrt_discr) / dr_sq + cl.x; // remember to translate back to cl
+        cc1->y= (-D*dx + fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
+        cc1->z=0;
+        cc2->x= ( D*dy - sign(dy)*dx*sqrt_discr) / dr_sq + cl.x;
+        cc2->y= (-D*dx - fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
+        cc2->z=0;
+        double x1 = p1.x;
+        double x2 = p2.x;
+        double y1 = p1.y;
+        double y2 = p2.y;
+        double z1 = p1.z;
+        double z2 = p2.z;
+        if ( cc1->isInsidePoints(p1, p2) ) { // 3) check if in edge
+            // determine height of point. must be on line, so:
+            if (  fabs(x1 - x2) > fabs(y1 - y2)   )   //  compute using x-coords
+                cc1->z = z1 + ((z2-z1)/(x2-x1)) * (cc1->x-x1);
+            else if ( !isZero_tol( fabs(y1 - y2) ) ) //  compute using y-coords
+                cc1->z = z1 + ((z2-z1)/(y2-y1)) * (cc1->y-y1);
+            else  // we are in trouble.
+                assert_msg( 0, "CylCutter::edgeDrop(), general case, unable to compute cc1.z. stop.\n");
+            
+            if (cl.liftZ(cc1->z)) {
+                cc1->type = EDGE;
+                cl.cc = cc1;
+                result = true;
+            } else {
+                delete cc1;
+            }
+        } else {
+            delete cc1;
+        }
+        if ( cc2->isInsidePoints(p1, p2) ) {
+            if ( fabs(x1 - x2) > fabs(y1 - y2)  )  // determine z- height of cc point
+                cc2->z = z1 + ((z2-z1)/(x2-x1)) * (cc2->x-x1);
+            else if ( !isZero_tol( fabs(y1 - y2) )  ) 
+                cc2->z = z1 + ((z2-z1)/(y2-y1)) * (cc2->y-y1);
+            else // we are in trouble.
+                assert_msg(0, "cyclutter edge-test, unable to compute cc-point. stop.\n");
+            
+            if (cl.liftZ(cc2->z)) {     
+                cc2->type = EDGE;
+                cl.cc = cc2;                     
+                result=true;
+            } else {
+                delete cc2;
+            }
+        } else { // end cc2.isInside()
+            delete cc2;
+        }
+    } //end two intersection points case
+
     return result;
 }
+
 
 //************** push cutter methods **********************************/
 
@@ -232,6 +217,10 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
 }
 
 // facet handled in base-class
+
+
+
+
 
 bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;

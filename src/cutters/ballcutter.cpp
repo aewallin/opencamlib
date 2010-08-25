@@ -62,82 +62,73 @@ double BallCutter::width(const double h) const {
 
 
 //********   edge **************************************************** */
-bool BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+
+bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result = false;
-    for (int n=0;n<3;n++) { // loop through all three edges
-        int start=n;      // index of the start-point of the edge
-        int end=(n+1)%3;  // index of the end-point of the edge
-        Point p1 = t.p[start];
-        Point p2 = t.p[end];
-        // check that there is an edge in the xy-plane
-        // can't drop against vertical edges!
-        if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
-            double d = cl.xyDistanceToLine(p1, p2); // 1) distance from point to line in xy plane
-            assert( d >= 0.0 );
-            if (d<=radius) { // potential hit
-                // the plane of the line will slice the spherical cutter at
-                // a distance d from the center of the cutter
-                // here the radius of the circular section is
-                double s = sqrt( square(radius) - square(d) );
-                // the center-point of this circle, in the xy plane lies at
-                Point sc = cl.xyClosestPoint( p1, p2 );   
-                Point v = p2 - p1;
-                v.z=0;
-                v.xyNormalize();
-                // move to a new coordinate system:
-                double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
-                double p1u = (p1-sc).dot(v);
-                // in the vertical plane of the line:
-                // (du,dz) points in the direction of the line
-                double dz = p2.z - p1.z;  
-                double du = p2u-p1u;             
-                Point normal = Point (dz, -du, 0); // so (dz, -du) is a normal to the line 
-                normal.xyNormalize();
-                if (normal.y < 0)  // flip normal so it points upward
-                    normal = -1*normal;
-                
-                CCPoint* cc_tmp = new CCPoint(); // suggested cc-point
-                double cl_z; // corresponding cl z-coord
-                if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
-                    *cc_tmp = sc;
-                    // locate cc_tmp on the edge
-                    // edge = p1 + t*(p2-p1)
-                    if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
-                        // x = p1.x + t*(p2.x-p1.x)
-                        // t = (x - p1.x) / (p2.x -p1.x)
-                        // z = p1 + t*(p2-p1)
-                        double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
-                        cc_tmp->z = p1.z + t*(p2.z-p1.z);
-                    } else { // the y-coord is better for the above calculation
-                        double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
-                        cc_tmp->z = p1.z + t*(p2.z-p1.z); 
-                    }
-                    cl_z = cc_tmp->z + s - radius;
-                } else { // this is the general case
-                    assert_msg( isPositive(normal.y), "ERROR: BallCutter::edgeDrop(), general case, normal.y<0 !!\n" ); 
-                    Point start2sc = sc - p1;
-                    double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
-                    *cc_tmp = sc + cc_u*v; // located in the XY-plane
-                    double t;
-                    if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-                        t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now locate z-coord of cc_tmp on edge
-                    } else {
-                        t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
-                    }
-                    cc_tmp->z = p1.z + t*(p2.z-p1.z);
-                    cl_z = cc_tmp->z + s*normal.y - radius;
-                } // end non-horizontal case
-                // test if suggested cc-point cc_tmp is in edge
-                if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
-                    if (cl.liftZ(cl_z)) {
-                        cc_tmp->type = EDGE;
-                        cl.cc = cc_tmp;
-                        result = true;
-                    }
-                }
-            }// end if(potential hit)
-        }// end if(vertical edge)
-    } // end loop through all edges
+
+    //assert( d >= 0.0 );
+    //assert( d<= radius );
+        
+    // the plane of the line will slice the spherical cutter at
+    // a distance d from the center of the cutter
+    // here the radius of the circular section is
+    double s = sqrt( square(radius) - square(d) );
+    // the center-point of this circle, in the xy plane lies at
+    Point sc = cl.xyClosestPoint( p1, p2 );   
+    Point v = p2 - p1;
+    v.z=0;
+    v.xyNormalize();
+    // move to a new coordinate system:
+    double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
+    double p1u = (p1-sc).dot(v);
+    // in the vertical plane of the line:
+    // (du,dz) points in the direction of the line
+    double dz = p2.z - p1.z;  
+    double du = p2u-p1u;             
+    Point normal = Point (dz, -du, 0); // so (dz, -du) is a normal to the line 
+    normal.xyNormalize();
+    if (normal.y < 0)  // flip normal so it points upward
+        normal = -1*normal;
+    
+    CCPoint* cc_tmp = new CCPoint(); // suggested cc-point
+    double cl_z; // corresponding cl z-coord
+    if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
+        *cc_tmp = sc;
+        // locate cc_tmp on the edge
+        // edge = p1 + t*(p2-p1)
+        if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
+            // x = p1.x + t*(p2.x-p1.x)
+            // t = (x - p1.x) / (p2.x -p1.x)
+            // z = p1 + t*(p2-p1)
+            double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
+            cc_tmp->z = p1.z + t*(p2.z-p1.z);
+        } else { // the y-coord is better for the above calculation
+            double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
+            cc_tmp->z = p1.z + t*(p2.z-p1.z); 
+        }
+        cl_z = cc_tmp->z + s - radius;
+    } else { // this is the general case
+        assert_msg( isPositive(normal.y), "ERROR: BallCutter::edgeDrop(), general case, normal.y<0 !!\n" ); 
+        Point start2sc = sc - p1;
+        double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
+        *cc_tmp = sc + cc_u*v; // located in the XY-plane
+        double t;
+        if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
+            t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now locate z-coord of cc_tmp on edge
+        } else {
+            t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
+        }
+        cc_tmp->z = p1.z + t*(p2.z-p1.z);
+        cl_z = cc_tmp->z + s*normal.y - radius;
+    } // end non-horizontal case
+    
+    if ( cc_tmp->isInsidePoints( p1, p2 ) ) { // test if suggested cc-point cc_tmp is in edge
+        if (cl.liftZ(cl_z)) {
+            cc_tmp->type = EDGE;
+            cl.cc = cc_tmp;
+            result = true;
+        }
+    }
     return result;
 }
 

@@ -198,9 +198,11 @@ void BatchDropCutter::dropCutter4() {
 
 // use OpenMP to share work between threads
 // use the new KDNode2 class
+// FIXME: as of r395 this is slightly slower than dropCutter4 above.
 void BatchDropCutter::dropCutter5() {
     std::cout << "dropCutterSTL5 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
+    boost::progress_display show_progress( clpoints->size() );
     dcCalls = 0;
     int calls=0;
     long int ntris = 0;
@@ -245,6 +247,7 @@ void BatchDropCutter::dropCutter5() {
             ntris += tris->size();
             delete( tris );
             delete( bb );
+            ++show_progress;
         } // end OpenMP PARALLEL for
     dcCalls = calls;
     std::cout << " " << dcCalls << " dropCutter() calls.\n";
@@ -254,13 +257,11 @@ void BatchDropCutter::dropCutter5() {
 
 
 // used only for testing, not actual work
-boost::python::list BatchDropCutter::getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter)
-{
+boost::python::list BatchDropCutter::getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter) {
     boost::python::list trilist;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
-    BOOST_FOREACH(Triangle t, *triangles_under_cutter)
-    {
+    BOOST_FOREACH(Triangle t, *triangles_under_cutter) {
         trilist.append(t);
     }
     delete triangles_under_cutter;
@@ -268,8 +269,7 @@ boost::python::list BatchDropCutter::getTrianglesUnderCutter(CLPoint &cl, Millin
 }
 
 // return CL points to python
-boost::python::list BatchDropCutter::getCLPoints()
-{
+boost::python::list BatchDropCutter::getCLPoints() {
     boost::python::list plist;
     BOOST_FOREACH(CLPoint p, *clpoints) {
         plist.append(p);

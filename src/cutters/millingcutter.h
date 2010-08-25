@@ -72,7 +72,8 @@ class MillingCutter {
         
         /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
         /// needs to be defined by a subclass
-        virtual bool edgeDrop(CLPoint &cl, const Triangle &t) const {return -1;};
+        virtual bool edgeDrop(CLPoint& cl, const Triangle &t) const;
+        
         
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with Triangle t.
@@ -95,7 +96,10 @@ class MillingCutter {
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
     protected:
-    
+        
+        /// drop cutter against edge p1-p2
+        virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {return false;};
+        
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.
         virtual double height(const double r) const {assert(0); return -1;};

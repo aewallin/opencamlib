@@ -28,7 +28,7 @@ if __name__ == "__main__":
     cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, 0.2, length)
     #cutter = ocl.ConeCutter(diameter, angle)
-    cutter = cutter.offsetCutter( 0.1 )
+    #cutter = cutter.offsetCutter( 0.1 )
     
     print cutter
     
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         bdc.appendPoint(p)
     
     t_before = time.time()    
-    bdc.dropCutter4()
+    bdc.dropCutter5()
     dc_calls = bdc.dcCalls
     t_after = time.time()
     calctime = t_after-t_before

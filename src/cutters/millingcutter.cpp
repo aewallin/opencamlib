@@ -139,6 +139,26 @@ bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     return false; // we never get here (?)
 }
 
+bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+    //return this->singleEdgeDrop(cl,t.p[0],t.p[1]) || this->singleEdgeDrop(cl,t.p[1],t.p[2]) || this->singleEdgeDrop(cl,t.p[2],t.p[0]);
+    bool result = false;
+    for (int n=0;n<3;n++) { // loop through all three edges
+        // 1) distance from point to line in xy plane
+        int start=n;      // index of the start-point of the edge
+        int end=(n+1)%3;  // index of the end-point of the edge
+        const Point p1 = t.p[start];
+        const Point p2 = t.p[end];
+        if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
+            const double d = cl.xyDistanceToLine(p1,p2);
+            if (d<=radius) { // potential contact with edge
+                if ( this->singleEdgeDrop(cl,p1,p2,d) )
+                    result=true;
+            }
+        }
+    }
+    return result;
+}
+
 /// general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
@@ -266,6 +286,8 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
 /// call vertex, facet, and edge drop methods
 int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     /* template-method, or "self-delegation", pattern */
+    
+    /*
     if (cl.below(t))
         vertexDrop(cl,t);
         
@@ -273,7 +295,17 @@ int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     if ( cl.below(t) ) {
         facetDrop(cl,t); 
         edgeDrop(cl,t);
+    }*/
+    
+    if (cl.below(t)) {
+        if (!facetDrop(cl,t)) {
+            vertexDrop(cl,t);
+            if ( cl.below(t) ) {
+                edgeDrop(cl,t);
+            }
+        }
     }
+    
     return 0; // void would be better, return value not used for anything(?)
 }
 
@@ -287,13 +319,13 @@ int MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
 }
 
 bool MillingCutter::overlaps(Point &cl, const Triangle &t) const {
-    if ( t.maxx < cl.x-radius )
+    if ( t.bb.maxpt.x < cl.x-radius )
         return false;
-    else if ( t.minx > cl.x+radius )
+    else if ( t.bb.minpt.x > cl.x+radius )
         return false;
-    else if ( t.maxy < cl.y-radius )
+    else if ( t.bb.maxpt.y < cl.y-radius )
         return false;
-    else if ( t.miny > cl.y+radius )
+    else if ( t.bb.minpt.y > cl.y+radius )
         return false;
     else
         return true;
