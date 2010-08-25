@@ -275,7 +275,74 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
 
 bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
-    // FIXME
+    for (int n=0;n<3;n++) { // loop through all three edges
+        int start=n;
+        int end=(n+1)%3;
+        const Point p1 = t.p[start]; // edge is from p1 to p2
+        const Point p2 = t.p[end];
+        const Point ufp1 = f.p1 + Point(0,0,radius2); // take a fiber which is raised up by radius
+        const Point ufp2 = f.p2 + Point(0,0,radius2);
+        // find where the plane slices the edge
+        // edge: p1+t*(p2-p1)
+        if ( isZero_tol( p2.z-p1.z ) ) { // this is the horizontal-edge special case
+            double h = p1.z - f.p1.z;
+            if ( h > 0.0 ) {
+                // the cutter acts as a cylinder with radius:
+                double eff_radius = this->width( h ) ;
+                // contact this cylinder/circle against edge in xy-plane
+                // fiber is f.p1 + qt*(f.p2-f.p1)
+                // line  is p1 + qv*(p2-p1)
+                double qt;
+                double qv;
+                if (xy_line_line_intersection( p1 , p2, qv, f.p1, f.p2, qt ) ) {
+                    Point q = p1 + qv*(p2-p1); // the intersection point
+                    // from q, go v-units along tangent, then eff_r*normal, and end up on fiber:
+                    // q + ccv*tangent + r*normal = p1 + clt*(p2-p1)
+                    
+                    double ccv, clt;
+                    Point xy_tang=p2-p1;
+                    xy_tang.z=0;
+                    xy_tang.xyNormalize();
+                    Point xy_normal = xy_tang.xyPerp();
+                    Point q1 = q+eff_radius*xy_normal;
+                    Point q2 = q1+(p2-p1);
+                    if ( xy_line_line_intersection( q1 , q2, ccv, f.p1, f.p2, clt ) ) {
+                        double t_cl1 = clt;
+                        double t_cl2 = qt + (qt - clt );
+                        CCPoint cc_tmp1 = q+ccv*(p2-p1);
+                        CCPoint cc_tmp2 = q-ccv*(p2-p1); 
+                        cc_tmp1.type = EDGE;
+                        cc_tmp2.type = EDGE;
+                        if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
+                            i.updateUpper( t_cl1  , cc_tmp1 );
+                            i.updateLower( t_cl1  , cc_tmp1 );
+                            result = true;
+                        }
+                        if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= f.p1.z) ) {
+                            i.updateUpper( t_cl2  , cc_tmp2 );
+                            i.updateLower( t_cl2  , cc_tmp2 );
+                            result = true;
+                        }
+                    }
+                }
+            }
+        } else { // general non-horizontal-edge  case
+            double tplane = (ufp1.z - p1.z ) / (p2.z-p1.z);
+            Point ell_center = p1+tplane*(p2-p1);
+            assert( isZero_tol( fabs(ell_center.z - ufp1.z) ) );
+            // find the dimensions of the ellipse
+            Point major_dir = p2-p1;
+            major_dir.z = 0;
+            major_dir.xyNormalize();
+            Point minor_dir = major_dir.xyPerp();
+            Point minor_axis = radius2*minor_dir;
+            assert( (p2-p1).xyNorm() > 0.0 ); // avoid divide-by-zero
+            double theta = atan( (p2.z - p1.z) / (p2-p1).norm() ); 
+            double major_axis_length = fabs( radius2/sin(theta) );
+            Point major_axis = major_axis_length*major_dir;
+        
+        }
+    }
     return result;
 }
 

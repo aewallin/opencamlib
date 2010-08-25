@@ -287,7 +287,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
 int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     /* template-method, or "self-delegation", pattern */
     
-    /*
+    /* // alternative ordering of the tests:
     if (cl.below(t))
         vertexDrop(cl,t);
         

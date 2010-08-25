@@ -218,10 +218,6 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
 
 // facet handled in base-class
 
-
-
-
-
 bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
@@ -232,11 +228,10 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
         // check that there is an edge in the xy-plane
         // can't push against vertical edges ??
         if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
-            // find XY-intersection btw fiber and edge
             // fiber is f.p1 + t*(f.p2-f.p1)
             // line  is p1 + v*(p2-p1)
             double tq, v;
-            if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ){
+            if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ) {  // find XY-intersection btw fiber and edge
                 Point q = p1 + v*(p2-p1); // intersection point, on edge
                 // Point q = f.p1 + tq*(f.p2-f.p1);
                 // from q, go v-units along tangent, then r*normal, and end up on fiber:

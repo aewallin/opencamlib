@@ -183,8 +183,6 @@ void BatchDropCutter::dropCutter4() {
                 }
             }
             
-            
-            
             ntris += tris->size();
             delete( tris );
             ++show_progress;

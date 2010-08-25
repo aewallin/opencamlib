@@ -74,18 +74,24 @@ if __name__ == "__main__":
     
     a = ocl.Point(0,1,0.1)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b = ocl.Point(1,0.5,0.2)    
+    b = ocl.Point(1,0.5,0.21)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(0.1,0.1,0.60)
+    c = ocl.Point(0.1,0.1,0.1)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
-
-    #cutter = ocl.CylCutter(0.3, 5)
-    #cutter = ocl.BallCutter(0.3, 5)
-    cutter = ocl.BullCutter(0.3, 0.1, 5)
+    
+    angle = math.pi/4
+    diameter=0.3
+    length=5
+    #cutter = ocl.BallCutter(diameter, length)
+    #cutter = ocl.CylCutter(diameter, length)
+    cutter = ocl.BullCutter(diameter, diameter/4, length)
+    #cutter = ocl.ConeCutter(diameter, angle)
+    #cutter = cutter.offsetCutter( 0.1 )
+    
     
     print "cutter= ", cutter
     print "lengt=", cutter.length
@@ -94,8 +100,8 @@ if __name__ == "__main__":
     Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = 0.0
-    zmax = 0.65
+    zmin = -0.10082
+    zmax = 0.3115
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
