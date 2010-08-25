@@ -33,14 +33,12 @@ namespace ocl
 ConeCutter::ConeCutter() {
     setDiameter(1.0);
     angle = 45;
-    //height = radius/tan(angle);
     length = radius/tan(angle);
 }
 
 ConeCutter::ConeCutter(const double d, const double a) {
     setDiameter(d);
     angle = a;
-    //height = radius/tan(angle);
     length = radius/tan(angle);
 }
 
@@ -50,29 +48,6 @@ double ConeCutter::height(const double r) const {
 }
 
 //********   drop-cutter methods ********************** */
-/*
-int ConeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
-    int result = 0;
-    BOOST_FOREACH( const Point& p, t.p)
-    {
-        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        if ( q <= radius ) { // p is inside the cutter
-            // h1 = q / tan(alfa)
-            // cutter_tip = p.z - h1
-            // double h1 =  q/tan(angle);
-            CCPoint* cc_tmp = new CCPoint(p);
-            if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
-                cc_tmp->type = VERTEX;
-                cl.cc = cc_tmp;
-                result = 1;
-            } else {
-                delete cc_tmp;
-            }
-        } 
-    }
-    return result;
-}*/
-
 
 // we either hit the tip, when the slope of the plane is smaller than angle
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft

@@ -57,29 +57,16 @@ double BullCutter::height(const double r) const {
     }
 }
 
-//********   drop-cutter methods ********************** */
-/*
-int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
-    // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
-    int result = 0;
-    CCPoint* cc_tmp;
-    BOOST_FOREACH( const Point& p, t.p){
-        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        cc_tmp = new CCPoint();
-        if ( q <= radius ) { // p is inside the cylindrrical part of the cutter
-            cc_tmp = new CCPoint(p);
-            if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
-                cc_tmp->type = VERTEX;
-                cl.cc = cc_tmp;
-                result = 1;
-            } else {
-                delete cc_tmp;
-            }
-        }
-    }
-    return result;
-}*/
+// width of cutter at height h
+double BullCutter::width(const double h) const {
+    if ( h >= radius2 )
+        return radius; // cylindrical part
+    else // toroid
+        return radius1 + sqrt( square(radius2) - square(radius2-h) );
+}
 
+
+//********   drop-cutter methods ********************** */
 
 int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
@@ -365,39 +352,6 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                         
 //********  BullCutter push-cutter methods ****************************/
 
-bool BullCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
-    bool result = false;
-    
-    BOOST_FOREACH( const Point& p, t.p) {
-        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
-            Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
-            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
-            double h = p.z - f.p1.z; // height of p above fiber
-            assert( h>= 0.0);
-            double eff_radius = radius; // default, shaft radius
-            CCType cc_type;
-            if (h < radius2) { // eff_radius is smaller if we hit the toroid
-                eff_radius = radius1 + sqrt( square(radius2) - square(radius2-h) );
-                assert( eff_radius <= radius );
-                cc_type = VERTEX;
-            } else {
-                cc_type = VERTEX_CYL; // hit the cylinder
-            }
-            if ( q <= eff_radius ) { // we are going to hit the vertex p
-                double ofs = sqrt( square(eff_radius) - square(q) ); // distance along fiber 
-                Point start = pq - ofs*f.dir;
-                Point stop  = pq + ofs*f.dir;
-                CCPoint cc_tmp = CCPoint(p);
-                cc_tmp.type = cc_type;
-                i.updateUpper( f.tval(stop) , cc_tmp );
-                i.updateLower( f.tval(start) , cc_tmp );
-                result = true;                
-            }             
-        }
-    }
-    
-    return result;
-}
 
 bool BullCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;

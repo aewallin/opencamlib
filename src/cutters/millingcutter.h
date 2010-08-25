@@ -66,11 +66,15 @@ class MillingCutter {
         /// works in the xy-plane 
         bool overlaps(Point &cl, const Triangle &t) const;
         
-        /// return the height of the cutter at radius r
+        /// return the height of the cutter at radius r.
+        /// should be redefined by a subclass.
         virtual double height(const double r) const {assert(0); return -1;};
+        /// return the width of the cutter at height h.
+        /// should be redefined by a subclass.
+        virtual double width(const double h) const {assert(0); return -1;};
         
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
-        /// needs to be redefined by a subclass
+        /// calls this->height(r) on the subclass of MillingCutter we are using.
         virtual int vertexDrop(CLPoint &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
@@ -95,10 +99,9 @@ class MillingCutter {
         int dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
         // pushCutter methods
-        virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
+        virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
-        
         
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
@@ -155,7 +158,6 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
         };
         
         // offset cutter
-        // FIXME, return type to python does not seem to work... ?
         MillingCutter* offsetCutter(const double d) const
         {
             if ( boost::python::override ovr_offsetCutter = this->get_override("offsetCutter") )

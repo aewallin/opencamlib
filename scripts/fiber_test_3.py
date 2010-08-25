@@ -84,8 +84,8 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
 
     #cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BallCutter(0.3)
-    cutter = ocl.BullCutter(0.3,0.1)
+    cutter = ocl.BallCutter(0.3)
+    #cutter = ocl.BullCutter(0.3,0.1)
     
     cutter.length = 4.0
     print "lengt=", cutter.length

@@ -50,7 +50,6 @@ class ConeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(const double d) const;
         // drop-cutter
-        // int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         

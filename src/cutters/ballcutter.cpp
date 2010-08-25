@@ -35,35 +35,21 @@ BallCutter::BallCutter(const double d) {
         setDiameter(d);
 }
 
+// height of cutter at radius r
 double BallCutter::height(const double r) const {
     return radius - sqrt( square(radius) - square(r) );
 }
 
+// width of cutter at height h
+double BallCutter::width(const double h) const {
+    if ( h >= radius )
+        return radius;
+    else 
+        return sqrt( square(radius) - square(radius-h) );
+}
+
+
 //********   drop-cutter methods ********************** */
-/*
-int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
-    int result = 0;
-    CCPoint* cc_tmp;
-    BOOST_FOREACH( const Point& p, t.p) {
-        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        if (q<= radius) { // p is inside the cutter
-            // q^2 + h2^2 = r^2
-            // h2 = sqrt( r^2 - q^2 )
-            // h1 = r - h2
-            // cutter_tip = p.z - h1
-            // double h1 = radius - sqrt( square(radius) - square(q) );
-            cc_tmp = new CCPoint(p);
-            if (cl.liftZ(p.z - this->height(q) ) ) { // we need to lift the cutter
-                cc_tmp->type = VERTEX;
-                cl.cc = cc_tmp;
-                result = 1;
-            } else {
-                delete cc_tmp;
-            }
-        } 
-    }
-    return result;
-}*/
 
 //********   facet ********************** */
 int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
@@ -214,37 +200,6 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 
 //******************* PUSH-CUTTER **************************************
 
-bool BallCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
-    // same test as for cylcutter, but with an adjusted eff_radius
-    bool result = false;
-    BOOST_FOREACH( const Point& p, t.p) {
-        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
-            Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
-            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
-            double h = p.z - f.p1.z;
-            assert( h>= 0.0);
-            double eff_radius = radius; // default, shaft radius
-            CCType cc_type;
-            if (h< radius) { // eff_radius is smaller if we hit the ball
-                eff_radius = sqrt( square(radius) - square(radius-h) );
-                cc_type = VERTEX;
-            } else {
-                cc_type = VERTEX_CYL; // hit the cylinder
-            }
-            if ( q <= eff_radius ) { // we are going to hit the vertex p
-                double ofs = sqrt( square(eff_radius) - square(q) ); // distance along fiber 
-                Point start = pq - ofs*f.dir;
-                Point stop  = pq + ofs*f.dir;
-                CCPoint cc_tmp = CCPoint(p);
-                cc_tmp.type = cc_type;
-                i.updateUpper( f.tval(stop) , cc_tmp );
-                i.updateLower( f.tval(start) , cc_tmp );
-                result = true;                
-            }             
-        }
-    }
-    return result;
-}
 
 bool BallCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;

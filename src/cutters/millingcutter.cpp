@@ -76,7 +76,7 @@ MillingCutter* MillingCutter::offsetCutter(double d) const {
 /// the specific subclass of cutter 
 int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
-    BOOST_FOREACH( const Point& p, t.p){
+    BOOST_FOREACH( const Point& p, t.p) { // test each vertex of triangle
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if ( q <= radius ) { // p is inside the cutter
             CCPoint* cc_tmp = new CCPoint(p);
@@ -91,6 +91,32 @@ int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     }
     return result;
 }
+
+/// general purpose vertexPush, delegates to this->width(h) 
+bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    bool result = false;
+    BOOST_FOREACH( const Point& p, t.p) {
+        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
+            Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
+            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
+            double h = p.z - f.p1.z;
+            assert( h>= 0.0);
+            double cwidth = this->width( h );
+            if ( q <= cwidth ) { // we are going to hit the vertex p
+                double ofs = sqrt( square( cwidth ) - square(q) ); // distance along fiber 
+                Point start = pq - ofs*f.dir;
+                Point stop  = pq + ofs*f.dir;
+                CCPoint cc_tmp = CCPoint(p);
+                cc_tmp.type = VERTEX;
+                i.updateUpper( f.tval(stop) , cc_tmp );
+                i.updateLower( f.tval(start) , cc_tmp );
+                result = true;                
+            }             
+        }
+    }
+    return result;
+}
+
 
 /// call vertex, facet, and edge drop methods
 int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {

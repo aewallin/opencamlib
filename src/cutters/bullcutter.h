@@ -46,16 +46,17 @@ class BullCutter : public MillingCutter {
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
         double height(const double r) const;
+        double width(const double h) const; 
+        
         
         MillingCutter* offsetCutter(const double d) const;
         
         /// drop cutter
-        //int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods   
-        bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        // bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         

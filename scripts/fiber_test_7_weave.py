@@ -50,7 +50,8 @@ if __name__ == "__main__":
     
     #cutter = ocl.CylCutter(0.3)
     cutter = ocl.BallCutter(0.4)
-        
+    #cutter = ocl.BullCutter(0.4, 0.1)
+    
     cutter.length = 4.0
     print "lengt=", cutter.length
     print "radius=", cutter.radius

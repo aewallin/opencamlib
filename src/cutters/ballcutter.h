@@ -44,16 +44,16 @@ class BallCutter : public MillingCutter {
         /// create a BallCutter with diameter d and radius d/2
         explicit BallCutter(const double d);
         double height(const double r) const;
-            
+        double width(const double h) const; 
+        
         MillingCutter* offsetCutter(const double d) const;
         
         // dropCutter methods
-        //int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods   
-        bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        // bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
