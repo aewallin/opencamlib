@@ -18,7 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef CONE_CUTTER_H
 #define CONE_CUTTER_H
 
@@ -46,7 +45,6 @@ class ConeCutter : public MillingCutter {
         /// create a ConeCutter with specified maximum diameter and cone-angle
         /// for a 90-degree cone specify the half-angle  angle= pi/4
         ConeCutter(const double d, const double angle);
-        double height(const double r) const;
         
         MillingCutter* offsetCutter(const double d) const;
         // drop-cutter
@@ -58,10 +56,10 @@ class ConeCutter : public MillingCutter {
         std::string str() const;
         
     protected:
+        double height(const double r) const;
+        
         /// the half-angle of the cone, in radians
         double angle;
-        /// the height of the cone
-        //double height;
 };
 
 } // end namespace

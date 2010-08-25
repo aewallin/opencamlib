@@ -66,50 +66,8 @@ double CylCutter::center_height() const {
 
 //********   drop-cutter methods ********************** */
 
-/*
-int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
-    Point normal; // facet surface normal
-    if ( isZero_tol( t.n->z ) )  { // vertical surface
-        return -1;  // can't drop against vertical surface
-    } else if (t.n->z < 0) {  // normal is pointing down
-        normal = -1* (*t.n); // flip normal
-    } else {
-        normal = *t.n;
-    }
-    assert(  normal.z > 0.0 ); // we are in trouble if n.z is not positive by now...
-    normal.normalize();
-    
-    // define plane containing facet
-    // a*x + b*y + c*z + d = 0, so
-    // d = -a*x - b*y - c*z, where
-    // (a,b,c) = surface normal
-    double a = normal.x;
-    double b = normal.y;
-    double c = normal.z;
-    double d = - normal.dot(t.p[0]); //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    Point xyNormal = normal;
-    xyNormal.z = 0;
-    xyNormal.xyNormalize();
-    // the contact point with the plane is on the periphery
-    // of the cutter, a length radius from cl in the direction of -normal
-    Point radiusvector  = this->xy_normal_length()*xyNormal - this->normal_length()*normal;
-    CCPoint* cc_tmp = new CCPoint();
-    *cc_tmp = cl - radiusvector ; // NOTE: at this point the z-coord is rubbish.
-    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // locate on the plane
-    if (cc_tmp->isInside(t)) { 
-        if (cl.liftZ(cc_tmp->z)) {
-            cc_tmp->type = FACET;
-            cl.cc = cc_tmp;
-            return 1;
-        } else {
-            delete cc_tmp;
-        }
-    } else {
-        delete cc_tmp;
-        return 0;
-    }
-    return 0;
-}*/
+// vertexDrop is handled by the base-class
+// facetDrop is handled by the base-class
 
 int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     // strategy:

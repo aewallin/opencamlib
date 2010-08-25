@@ -60,75 +60,7 @@ double BallCutter::center_height() const {
 
 //********   drop-cutter methods ********************** */
 
-//********   facet ********************** */
-/*
-int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
-    Point normal; // facet surface normal
-    if ( isZero_tol( t.n->z ) )  {// vertical surface
-        return -1;  //can't drop against vertical surface
-    } else if (t.n->z < 0) {  // normal is pointing down
-        normal = -1* (*t.n); // flip normal
-    } else {
-        normal = *t.n;
-    }   
-    assert( isPositive( normal.z ) );
-    
-    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { // horizontal plane special case
-        CCPoint* cc_tmp = new CCPoint();
-        cc_tmp->x = cl.x;
-        cc_tmp->y = cl.y;
-        cc_tmp->z = t.p[0].z; // so any vertex is at the correct height
-        if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
-            if ( cl.liftZ(cc_tmp->z) ) {
-                cc_tmp->type = FACET;
-                cl.cc = cc_tmp;
-                return 1;
-            } else {
-                delete cc_tmp;
-            }
-        } else { // not inside facet
-            delete cc_tmp;
-            return 0;
-        }
-    } // end horizontal plane case.
-    
-    // define plane containing facet
-    // a*x + b*y + c*z + d = 0, so
-    // d = -a*x - b*y - c*z, where
-    // (a,b,c) = surface normal
-    double a = normal.x;
-    double b = normal.y;
-    double c = normal.z;
-    double d = - normal.dot(t.p[0]); //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    normal.normalize(); // make length of normal == 1.0
-    Point xyNormal = normal;
-    xyNormal.z = 0;
-    xyNormal.xyNormalize();
-    
-    // define the radiusvector which points from the 
-    // ball-center to the cc-point.
-    //Point radiusvector = -radius*normal;
-    Point radiusvector  = this->xy_normal_length()*xyNormal - this->normal_length()*normal; //from cc to ball center
-    // find the xy-coordinates of the cc-point
-    CCPoint* cc_tmp = new CCPoint(); 
-    *cc_tmp = cl - radiusvector;
-    // find the z-coordinate of the cc-point.
-    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // it lies in the plane.
-    cc_tmp->type = FACET;
-    double tip_z = cc_tmp->z + radiusvector.z - this->center_height();// now find the z-coordinate of the cl-point
-    if (cc_tmp->isInside(t)) {     
-        if ( cl.liftZ(tip_z) ) {
-            cl.cc = cc_tmp;
-            return 1;
-        } else {
-            delete cc_tmp;
-        }
-    } else {
-        delete cc_tmp;
-        return 0;
-    }
-    return 0; // we never get here (?)
-}*/
+// vertex, facet, handled in base-class
 
 
 //********   edge **************************************************** */

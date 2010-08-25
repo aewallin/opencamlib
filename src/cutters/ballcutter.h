@@ -48,11 +48,9 @@ class BallCutter : public MillingCutter {
         MillingCutter* offsetCutter(const double d) const;
         
         // dropCutter methods
-        //int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods   
-        // bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
