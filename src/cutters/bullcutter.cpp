@@ -46,45 +46,39 @@ void BullCutter::setRadius() {
     radius= radius1+radius2;
 }
 
+double BullCutter::height(const double r) const {
+    if ( r <= radius1 )
+        return 0.0;
+    else if ( r <= radius )
+        return radius2 - sqrt( square(radius2) - square(r-radius1) );
+    else {
+        assert(0);
+        return -1;
+    }
+}
 
 //********   drop-cutter methods ********************** */
+/*
 int BullCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     // some math here: http://www.anderswallin.net/2007/06/drop-cutter-part-13-cutter-vs-vertex/
     int result = 0;
+    CCPoint* cc_tmp;
     BOOST_FOREACH( const Point& p, t.p){
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        assert( q >= 0.0 );
-        CCPoint* cc_tmp = new CCPoint();
-        if ( q <= radius1 ) { // p is inside the cylindrrical part of the cutter
-            if (cl.liftZ(p.z )) { // we need to lift the cutter
-                *cc_tmp = p;
+        cc_tmp = new CCPoint();
+        if ( q <= radius ) { // p is inside the cylindrrical part of the cutter
+            cc_tmp = new CCPoint(p);
+            if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
                 cc_tmp->type = VERTEX;
                 cl.cc = cc_tmp;
                 result = 1;
             } else {
                 delete cc_tmp;
             }
-        }
-        else if ( q <= radius ) { // p is in the toroidal part of the cutter
-            // (q-r1)^2 + h2^2 = r2^2
-            // h2 = sqrt( r2^2 - (q-r1)^2 )
-            // h1 = r2 - h2
-            // cutter_tip = p.z - h1
-            double h1 = radius2 - sqrt( square(radius2) - square(q-radius1) );
-            if ( cl.liftZ(p.z - h1) ) { // we need to lift the cutter
-                *cc_tmp = p;
-                cc_tmp->type = VERTEX;
-                cl.cc = cc_tmp;
-                result = 1;
-            } else {
-                delete cc_tmp;
-            }
-        } else {
-            delete cc_tmp;
         }
     }
     return result;
-}
+}*/
 
 
 int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {

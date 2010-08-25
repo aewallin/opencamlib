@@ -66,9 +66,12 @@ class MillingCutter {
         /// works in the xy-plane 
         bool overlaps(Point &cl, const Triangle &t) const;
         
+        /// return the height of the cutter at radius r
+        virtual double height(const double r) const {assert(0); return -1;};
+        
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// needs to be redefined by a subclass
-        virtual int vertexDrop(CLPoint &cl, const Triangle &t) const {return -1;};
+        virtual int vertexDrop(CLPoint &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         /// needs to be defined by a subclass

@@ -64,8 +64,9 @@ bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
 }
 
 //********   drop-cutter methods ********************** */
-int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const
-{
+
+// delegate to the sub-cutters, and pick the right one.
+int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);

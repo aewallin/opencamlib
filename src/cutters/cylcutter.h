@@ -44,11 +44,12 @@ class CylCutter : public MillingCutter {
         CylCutter();
         /// create CylCutter with diameter = d
         explicit CylCutter(const double d);
+        double height(const double r) const;
         
         MillingCutter* offsetCutter(const double d) const;
 
         // dropCutter methods
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        //int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         

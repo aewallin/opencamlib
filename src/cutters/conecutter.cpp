@@ -30,23 +30,27 @@ namespace ocl
     
 
 //********   constructors ********************** */
-ConeCutter::ConeCutter()
-{
+ConeCutter::ConeCutter() {
     setDiameter(1.0);
     angle = 45;
-    height = radius/tan(angle);
+    //height = radius/tan(angle);
+    length = radius/tan(angle);
 }
 
-ConeCutter::ConeCutter(const double d, const double a)
-{
+ConeCutter::ConeCutter(const double d, const double a) {
     setDiameter(d);
     angle = a;
-    height = radius/tan(angle);
+    //height = radius/tan(angle);
+    length = radius/tan(angle);
 }
 
-
+double ConeCutter::height(const double r) const {
+    assert( tan(angle) > 0.0 ); // guard against division by zero
+    return r/tan(angle);
+}
 
 //********   drop-cutter methods ********************** */
+/*
 int ConeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
     BOOST_FOREACH( const Point& p, t.p)
@@ -55,11 +59,9 @@ int ConeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
         if ( q <= radius ) { // p is inside the cutter
             // h1 = q / tan(alfa)
             // cutter_tip = p.z - h1
-            assert( tan(angle) > 0.0 ); // guard against division by zero
-            double h1 =  q/tan(angle);
+            // double h1 =  q/tan(angle);
             CCPoint* cc_tmp = new CCPoint(p);
-            
-            if (cl.liftZ(p.z - h1)) { // we need to lift the cutter
+            if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
                 cc_tmp->type = VERTEX;
                 cl.cc = cc_tmp;
                 result = 1;
@@ -69,7 +71,7 @@ int ConeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
         } 
     }
     return result;
-}
+}*/
 
 
 // we either hit the tip, when the slope of the plane is smaller than angle
@@ -123,7 +125,7 @@ int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     CCPoint* cyl_cc_tmp = new CCPoint();
     *cyl_cc_tmp = cl - radius*normal;
     cyl_cc_tmp->z = (1.0/c)*(-d-a*cyl_cc_tmp->x-b*cyl_cc_tmp->y);
-    double cyl_cl_z = cyl_cc_tmp->z - height; // tip positioned here
+    double cyl_cl_z = cyl_cc_tmp->z - length; // tip positioned here
     cyl_cc_tmp->type = FACET_CYL;
     
     // tip contact with facet
@@ -205,7 +207,7 @@ int ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                 assert( xu <= radius );
                 // here the slope has a maximum
                 // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + d^2 ))
-                double mu = (height/radius ) * xu / sqrt( square(xu) + square(d) ) ;
+                double mu = (length/radius ) * xu / sqrt( square(xu) + square(d) ) ;
                 // find contact point where slopes match.
                 // there are two cases:
                 // 1) if abs(m) <= abs(mu)  we contact the curve at
@@ -213,7 +215,7 @@ int ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                 double ccu;
                 if (fabs(m) <= fabs(mu) ) { // 1) hyperbola case
                     ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / 
-                                         (square(height) -square(radius)*square(m) ) );
+                                         (square(length) -square(radius)*square(m) ) );
                 } else if ( fabs(m)>fabs(mu) ) {
                     // 2) if abs(m) > abs(mu) there is contact with the circular edge
                     // xp = sign(m) * xu
@@ -240,10 +242,10 @@ int ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                 double cl_z;
                 if (fabs(m) <= fabs(mu) ) {
                     // 1) zc = zp - Lc + (R - sqrt(xp^2 + d^2)) / tan(beta2)
-                    cl_z = cc_tmp->z - height + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
+                    cl_z = cc_tmp->z - length + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
                 } else if ( fabs(m)>fabs(mu) ) {
                     // 2) zc = zp - Lc
-                    cl_z = cc_tmp->z - height; // case where we hit the edge of the cone
+                    cl_z = cc_tmp->z - length; // case where we hit the edge of the cone
                 } else {
                     assert(0);
                 }
@@ -280,7 +282,7 @@ std::string ConeCutter::str() const {
 }
 
 std::ostream& operator<<(std::ostream &stream, ConeCutter c) {
-  stream << "ConeCutter (d=" << c.diameter << ", angle=" << c.angle << ", height=" << c.height << ")";
+  stream << "ConeCutter (d=" << c.diameter << ", angle=" << c.angle << ", length=" << c.length << ")";
   return stream;
 }
 

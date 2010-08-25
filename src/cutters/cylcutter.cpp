@@ -41,7 +41,17 @@ MillingCutter* CylCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, d) ;
 }
 
+double CylCutter::height(const double r) const {
+    if ( r <= radius )
+        return 0.0;
+    else {
+        assert(0);
+        return -1;
+    }
+}
+
 //********   drop-cutter methods ********************** */
+/*
 int CylCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
     CCPoint* cc_tmp;
@@ -49,7 +59,7 @@ int CylCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if (q<= radius) { // p is inside the cutter
             cc_tmp = new CCPoint(p);
-            if (cl.liftZ(p.z)) { // we need to lift the cutter
+            if (cl.liftZ(p.z - this->height(q) )) { // we need to lift the cutter
                 cc_tmp->type = VERTEX;
                 cl.cc = cc_tmp;
                 result = 1;
@@ -59,7 +69,7 @@ int CylCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
         } 
     }
     return result;
-}
+}*/
 
 int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     Point normal; // facet surface normal

@@ -46,10 +46,11 @@ class ConeCutter : public MillingCutter {
         /// create a ConeCutter with specified maximum diameter and cone-angle
         /// for a 90-degree cone specify the half-angle  angle= pi/4
         ConeCutter(const double d, const double angle);
+        double height(const double r) const;
         
         MillingCutter* offsetCutter(const double d) const;
         // drop-cutter
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        // int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
@@ -61,7 +62,7 @@ class ConeCutter : public MillingCutter {
         /// the half-angle of the cone, in radians
         double angle;
         /// the height of the cone
-        double height;
+        //double height;
 };
 
 } // end namespace

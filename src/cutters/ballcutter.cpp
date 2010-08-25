@@ -35,7 +35,12 @@ BallCutter::BallCutter(const double d) {
         setDiameter(d);
 }
 
+double BallCutter::height(const double r) const {
+    return radius - sqrt( square(radius) - square(r) );
+}
+
 //********   drop-cutter methods ********************** */
+/*
 int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     int result = 0;
     CCPoint* cc_tmp;
@@ -46,9 +51,9 @@ int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
             // h2 = sqrt( r^2 - q^2 )
             // h1 = r - h2
             // cutter_tip = p.z - h1
-            double h1 = radius - sqrt( square(radius) - square(q) );
+            // double h1 = radius - sqrt( square(radius) - square(q) );
             cc_tmp = new CCPoint(p);
-            if (cl.liftZ(p.z - h1) ) { // we need to lift the cutter
+            if (cl.liftZ(p.z - this->height(q) ) ) { // we need to lift the cutter
                 cc_tmp->type = VERTEX;
                 cl.cc = cc_tmp;
                 result = 1;
@@ -58,7 +63,7 @@ int BallCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
         } 
     }
     return result;
-}
+}*/
 
 //********   facet ********************** */
 int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {

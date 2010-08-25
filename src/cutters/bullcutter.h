@@ -45,11 +45,12 @@ class BullCutter : public MillingCutter {
         BullCutter();
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
+        double height(const double r) const;
         
         MillingCutter* offsetCutter(const double d) const;
         
         /// drop cutter
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        //int vertexDrop(CLPoint &cl, const Triangle &t) const;
         int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         

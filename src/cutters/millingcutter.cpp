@@ -72,6 +72,26 @@ MillingCutter* MillingCutter::offsetCutter(double d) const {
     return  new MillingCutter();
 }
 
+/// general purpose vertex-drop which delegates the this->height(r) to 
+/// the specific subclass of cutter 
+int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
+    int result = 0;
+    BOOST_FOREACH( const Point& p, t.p){
+        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
+        if ( q <= radius ) { // p is inside the cutter
+            CCPoint* cc_tmp = new CCPoint(p);
+            if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
+                cc_tmp->type = VERTEX;
+                cl.cc = cc_tmp;
+                result = 1;
+            } else {
+                delete cc_tmp;
+            }
+        } 
+    }
+    return result;
+}
+
 /// call vertex, facet, and edge drop methods
 int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     /* template-method, or "self-delegation", pattern */

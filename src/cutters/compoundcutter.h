@@ -33,7 +33,7 @@ namespace ocl
 {
 
 /* ********************************************************************
- *  CompoundCutter(s)        compoundcutter.cpp
+ *  CompoundCutter base class
  * ********************************************************************/
 /// \brief a CompoundCutter is composed one or more MillingCutters
 /// the cutters are stored in a vector *cutter* and their axial offsets
@@ -70,6 +70,13 @@ class CompoundCutter : public MillingCutter {
         /// vector of cutters in this CompoundCutter
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
 };
+
+
+
+
+/* ********************************************************************
+ *  different cutter shapes
+ * ********************************************************************/
 
 /// \brief a MillingCutter::CompoundCutter with a cylindrical/flat central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
