@@ -65,9 +65,18 @@ double BullCutter::width(const double h) const {
         return radius1 + sqrt( square(radius2) - square(radius2-h) );
 }
 
+double BullCutter::xy_normal_length() const {
+    return radius1;
+}
+double BullCutter::normal_length() const {
+    return radius2;
+}
+double BullCutter::center_height() const {
+    return radius2;
+}
 
 //********   drop-cutter methods ********************** */
-
+/*
 int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
@@ -83,7 +92,6 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // horizontal plane special case
     if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { 
         CCPoint* cc_tmp = new CCPoint(cl.x,cl.y,t.p[0].z);
-        
         if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
             if ( cl.liftZ(cc_tmp->z) ) {
                 cc_tmp->type = FACET;
@@ -108,7 +116,6 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     double c = normal.z;
     //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
     double d = - normal.dot(t.p[0]);
-        
     normal.normalize(); // make length of normal == 1.0
     Point xyNormal = normal;
     xyNormal.z = 0;
@@ -116,17 +123,16 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     
     // define the radiusvector which points from the 
     // torus-center to the cc-point.
-    Point radiusvector = -radius2*normal - radius1*xyNormal;
-    
+    //Point radiusvector = -radius2*normal - radius1*xyNormal;
+    Point radiusvector = this->xy_normal_length()*xyNormal - this->normal_length()*normal;
     // find the xy-coordinates of the cc-point
     CCPoint* cc_tmp = new CCPoint();
-    *cc_tmp = cl + radiusvector; // NOTE xy-coords right, z-coord is not.
+    *cc_tmp = cl - radiusvector; // NOTE xy-coords right, z-coord is not.
     cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // cc-point lies in the plane.
     cc_tmp->type = FACET;
     if (cc_tmp->isInside(t)) {   
         // now find the z-coordinate of the cl-point
-        double tip_z = cc_tmp->z + radius2*normal.z - radius2;
-        
+        double tip_z = cc_tmp->z + radiusvector.z - this->center_height();
         if ( cl.liftZ(tip_z) ) {
             cl.cc = cc_tmp;
             return 1;
@@ -139,7 +145,7 @@ int BullCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     }
     
     return 0; // we never get here (?)
-}
+}*/
 
 
 

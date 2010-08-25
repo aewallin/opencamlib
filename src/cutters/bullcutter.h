@@ -45,14 +45,12 @@ class BullCutter : public MillingCutter {
         BullCutter();
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r);
-        double height(const double r) const;
-        double width(const double h) const; 
-        
+
         
         MillingCutter* offsetCutter(const double d) const;
         
         /// drop cutter
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
+        //int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods   
@@ -66,6 +64,11 @@ class BullCutter : public MillingCutter {
         std::string str() const;
         
     protected:
+        double height(const double r) const;
+        double width(const double h) const; 
+        double xy_normal_length() const;
+        double normal_length() const;
+        double center_height() const;
         
         /// set radius of cutter
         void setRadius();  

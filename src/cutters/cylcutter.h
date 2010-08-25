@@ -44,13 +44,12 @@ class CylCutter : public MillingCutter {
         CylCutter();
         /// create CylCutter with diameter = d
         explicit CylCutter(const double d);
-        double height(const double r) const;
-        double width(const double h) const; 
+
         
         MillingCutter* offsetCutter(const double d) const;
 
         // dropCutter methods
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
+        //int facetDrop(CLPoint &cl, const Triangle &t) const;
         int edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods
@@ -62,7 +61,12 @@ class CylCutter : public MillingCutter {
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
         /// string repr
         std::string str() const;
-        
+    protected:
+        double height(const double r) const;
+        double width(const double h) const; 
+        double xy_normal_length() const;
+        double normal_length() const;
+        double center_height() const;
 };
 
 } // end namespace

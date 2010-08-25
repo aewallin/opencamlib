@@ -48,10 +48,20 @@ double BallCutter::width(const double h) const {
         return sqrt( square(radius) - square(radius-h) );
 }
 
+double BallCutter::xy_normal_length() const {
+    return 0;
+}
+double BallCutter::normal_length() const {
+    return radius;
+}
+double BallCutter::center_height() const {
+    return radius;
+}
 
 //********   drop-cutter methods ********************** */
 
 //********   facet ********************** */
+/*
 int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     Point normal; // facet surface normal
     if ( isZero_tol( t.n->z ) )  {// vertical surface
@@ -91,18 +101,21 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     double c = normal.z;
     double d = - normal.dot(t.p[0]); //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
     normal.normalize(); // make length of normal == 1.0
+    Point xyNormal = normal;
+    xyNormal.z = 0;
+    xyNormal.xyNormalize();
     
     // define the radiusvector which points from the 
     // ball-center to the cc-point.
-    Point radiusvector = -radius*normal;
-    
+    //Point radiusvector = -radius*normal;
+    Point radiusvector  = this->xy_normal_length()*xyNormal - this->normal_length()*normal; //from cc to ball center
     // find the xy-coordinates of the cc-point
     CCPoint* cc_tmp = new CCPoint(); 
-    *cc_tmp = cl + radiusvector;
+    *cc_tmp = cl - radiusvector;
     // find the z-coordinate of the cc-point.
     cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // it lies in the plane.
     cc_tmp->type = FACET;
-    double tip_z = cc_tmp->z - radiusvector.z - radius;// now find the z-coordinate of the cl-point
+    double tip_z = cc_tmp->z + radiusvector.z - this->center_height();// now find the z-coordinate of the cl-point
     if (cc_tmp->isInside(t)) {     
         if ( cl.liftZ(tip_z) ) {
             cl.cc = cc_tmp;
@@ -115,7 +128,7 @@ int BallCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         return 0;
     }
     return 0; // we never get here (?)
-}
+}*/
 
 
 //********   edge **************************************************** */

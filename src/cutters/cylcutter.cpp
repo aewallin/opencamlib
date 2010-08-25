@@ -54,10 +54,19 @@ double CylCutter::height(const double r) const {
 double CylCutter::width(const double h) const {
     return radius;
 }
-
+double CylCutter::xy_normal_length() const {
+    return radius;
+}
+double CylCutter::normal_length() const {
+    return 0;
+}
+double CylCutter::center_height() const {
+    return 0;
+}        
 
 //********   drop-cutter methods ********************** */
 
+/*
 int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     Point normal; // facet surface normal
     if ( isZero_tol( t.n->z ) )  { // vertical surface
@@ -68,6 +77,8 @@ int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         normal = *t.n;
     }
     assert(  normal.z > 0.0 ); // we are in trouble if n.z is not positive by now...
+    normal.normalize();
+    
     // define plane containing facet
     // a*x + b*y + c*z + d = 0, so
     // d = -a*x - b*y - c*z, where
@@ -76,11 +87,14 @@ int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     double b = normal.y;
     double c = normal.z;
     double d = - normal.dot(t.p[0]); //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    normal.xyNormalize(); // make length of normal in xy plane == 1.0
+    Point xyNormal = normal;
+    xyNormal.z = 0;
+    xyNormal.xyNormalize();
     // the contact point with the plane is on the periphery
     // of the cutter, a length radius from cl in the direction of -normal
+    Point radiusvector  = this->xy_normal_length()*xyNormal - this->normal_length()*normal;
     CCPoint* cc_tmp = new CCPoint();
-    *cc_tmp = cl - (radius)*normal; // NOTE: at this point the z-coord is rubbish.
+    *cc_tmp = cl - radiusvector ; // NOTE: at this point the z-coord is rubbish.
     cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // locate on the plane
     if (cc_tmp->isInside(t)) { 
         if (cl.liftZ(cc_tmp->z)) {
@@ -95,7 +109,7 @@ int CylCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         return 0;
     }
     return 0;
-}
+}*/
 
 int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     // strategy:

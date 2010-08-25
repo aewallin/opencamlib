@@ -66,20 +66,13 @@ class MillingCutter {
         /// works in the xy-plane 
         bool overlaps(Point &cl, const Triangle &t) const;
         
-        /// return the height of the cutter at radius r.
-        /// should be redefined by a subclass.
-        virtual double height(const double r) const {assert(0); return -1;};
-        /// return the width of the cutter at height h.
-        /// should be redefined by a subclass.
-        virtual double width(const double h) const {assert(0); return -1;};
-        
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// calls this->height(r) on the subclass of MillingCutter we are using.
         virtual int vertexDrop(CLPoint &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
-        /// needs to be defined by a subclass
-        virtual int facetDrop(CLPoint &cl, const Triangle &t) const {return -1;};
+        /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
+        virtual int facetDrop(CLPoint &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
         /// needs to be defined by a subclass
@@ -106,6 +99,19 @@ class MillingCutter {
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
     protected:
+    
+        /// return the height of the cutter at radius r.
+        /// should be redefined by a subclass.
+        virtual double height(const double r) const {assert(0); return -1;};
+        /// return the width of the cutter at height h.
+        /// should be redefined by a subclass.
+        virtual double width(const double h) const {assert(0); return -1;};
+        /// return two normal-lenghts that locate the cutter center relative to a
+        /// cc-point on a facet.
+        virtual double xy_normal_length() const {assert(0); return -1;};
+        virtual double normal_length() const {assert(0); return -1;};
+        virtual double center_height() const {assert(0); return -1;};
+        
         /// diameter of cutter
         double diameter;
         /// radius of cutter

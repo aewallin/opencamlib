@@ -92,6 +92,77 @@ int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
+/// general purpose facet-drop which calls xy_normal_length() normal_length() 
+/// and center_height() on the subclass
+int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
+    // Drop cutter at (cl.x, cl.y) against facet of Triangle t
+    Point normal; // facet surface normal
+    if ( isZero_tol( t.n->z ) )  {// vertical surface
+        return -1;  //can't drop against vertical surface
+    } else if (t.n->z < 0) {  // normal is pointing down
+        normal = -1 * (*t.n); // flip normal
+    } else {
+        normal = *t.n;
+    }   
+    assert( isPositive( normal.z ) );
+    
+    // horizontal plane special case
+    if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { 
+        CCPoint* cc_tmp = new CCPoint(cl.x,cl.y,t.p[0].z);
+        if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
+            if ( cl.liftZ(cc_tmp->z) ) {
+                cc_tmp->type = FACET;
+                cl.cc = cc_tmp;
+                return 1;
+            } else {
+                delete cc_tmp;
+            }
+        } else { // not inside facet
+            delete cc_tmp;
+            return 0;
+        }
+    } // end horizontal plane case.
+    
+    
+    // define plane containing facet
+    // a*x + b*y + c*z + d = 0, so
+    // d = -a*x - b*y - c*z, where
+    // (a,b,c) = surface normal
+    double a = normal.x;
+    double b = normal.y;
+    double c = normal.z;
+    //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
+    double d = - normal.dot(t.p[0]);
+    normal.normalize(); // make length of normal == 1.0
+    Point xyNormal = normal;
+    xyNormal.z = 0;
+    xyNormal.xyNormalize();
+    
+    // define the radiusvector which points from the 
+    // torus-center to the cc-point.
+    //Point radiusvector = -radius2*normal - radius1*xyNormal;
+    Point radiusvector = this->xy_normal_length()*xyNormal - this->normal_length()*normal;
+    // find the xy-coordinates of the cc-point
+    CCPoint* cc_tmp = new CCPoint();
+    *cc_tmp = cl - radiusvector; // NOTE xy-coords right, z-coord is not.
+    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // cc-point lies in the plane.
+    cc_tmp->type = FACET;
+    if (cc_tmp->isInside(t)) {   
+        // now find the z-coordinate of the cl-point
+        double tip_z = cc_tmp->z + radiusvector.z - this->center_height();
+        if ( cl.liftZ(tip_z) ) {
+            cl.cc = cc_tmp;
+            return 1;
+        } else {
+            delete cc_tmp;
+        }
+    } else {
+        delete cc_tmp;
+        return 0;
+    }
+    return 0; // we never get here (?)
+}
+
 /// general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
