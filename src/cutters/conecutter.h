@@ -48,8 +48,8 @@ class ConeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(const double d) const;
         // drop-cutter
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        bool facetDrop(CLPoint &cl, const Triangle &t) const;
+        bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);

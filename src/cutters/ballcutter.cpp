@@ -62,8 +62,8 @@ double BallCutter::width(const double h) const {
 
 
 //********   edge **************************************************** */
-int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
-    int result = 0;
+bool BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+    bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;      // index of the start-point of the edge
         int end=(n+1)%3;  // index of the end-point of the edge
@@ -132,7 +132,7 @@ int BallCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                     if (cl.liftZ(cl_z)) {
                         cc_tmp->type = EDGE;
                         cl.cc = cc_tmp;
-                        result = 1;
+                        result = true;
                     }
                 }
             }// end if(potential hit)

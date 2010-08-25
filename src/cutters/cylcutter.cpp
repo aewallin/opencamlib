@@ -66,12 +66,12 @@ double CylCutter::width(const double h) const {
 // vertexDrop is handled by the base-class
 // facetDrop is handled by the base-class
 
-int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+bool CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     // strategy:
     // 1) calculate distance to infinite line
     // 2) calculate intersection points w. cutter (xy plane?)
     // 3) pick the higher intersection point and test if it is in the edge
-    int result = 0;
+    bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;
         int end=(n+1)%3;
@@ -98,7 +98,7 @@ int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                 if ( !isZero_tol(discr) && isNegative(discr) ) {
                     std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
                     assert(0);
-                    return 0;
+                    return false;
                 } else if ( isZero_tol(discr) ) {// discr==0.0 means line is tangent to cutter circle
                     CCPoint* cc_tmp = new CCPoint();
                     cc_tmp->x =  D*dy / dr_sq + cl.x; // translate back to cl
@@ -125,7 +125,7 @@ int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                         if ( cl.liftZ(cc_tmp->z) ) {
                             cc_tmp->type = EDGE;
                             cl.cc = cc_tmp;
-                            result = 1;
+                            result = true;
                         } else {
                             delete cc_tmp;
                         }
@@ -161,7 +161,7 @@ int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                         if (cl.liftZ(cc1->z)) {
                             cc1->type = EDGE;
                             cl.cc = cc1;
-                            result = 1;
+                            result = true;
                         } else {
                             delete cc1;
                         }
@@ -179,7 +179,7 @@ int CylCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                         if (cl.liftZ(cc2->z)) {     
                             cc2->type = EDGE;
                             cl.cc = cc2;                     
-                            result=1;
+                            result=true;
                         } else {
                             delete cc2;
                         }

@@ -48,7 +48,7 @@ class CylCutter : public MillingCutter {
         MillingCutter* offsetCutter(const double d) const;
 
         // dropCutter methods
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // pushCutter methods
         bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;

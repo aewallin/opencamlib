@@ -75,9 +75,9 @@ double BullCutter::width(const double h) const {
 // vertex, facet, handled in base-class
 
 /// Toroidal cutter edge-test
-int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+bool BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against the three edges of Triangle t
-    int result = 0;    
+    bool result = false;    
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;
         int end=(n+1)%3;
@@ -99,7 +99,7 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                         if ( cc_tmp->isInsidePoints( p1, p2 ) ) { // test if cc-point is in edge
                             if (cl.liftZ(p1.z)) {
                                 cl.cc = cc_tmp;
-                                result = 1;
+                                result = true;
                             } else {
                                 delete cc_tmp;
                             }
@@ -121,7 +121,7 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
                             double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
                             if ( cl.liftZ(p1.z - h1) ) {
                                 cl.cc = cc_tmp;                                 
-                                result = 1;
+                                result = true;
                             } else {
                                 delete cc_tmp;
                             }
@@ -264,7 +264,7 @@ int BullCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 
                         if ( cl.liftZ(ecen.z-radius2) ) {
                             cl.cc = cc_tmp;
-                            result = 1;
+                            result = true;
                         } else {
                             delete cc_tmp;
                         }

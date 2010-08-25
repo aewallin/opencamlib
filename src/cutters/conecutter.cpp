@@ -52,8 +52,8 @@ double ConeCutter::height(const double r) const {
 
 // we either hit the tip, when the slope of the plane is smaller than angle
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft
-int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
-    int result = 0;
+bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
+    bool result = false;
     Point normal; // facet surface normal    
     if ( isZero_tol( t.n->z ) )  {// vertical surface
         return -1;  //can't drop against vertical surface
@@ -75,13 +75,13 @@ int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         if (cc_tmp->isInside(t)) { // cc-point is on the axis of the cutter       
             if ( cl.liftZ(cc_tmp->z) ) {
                 cl.cc = cc_tmp;
-                return 1;
+                return true;
             } else {
                 delete cc_tmp;
             }
         } else { // not inside facet
             delete cc_tmp;
-            return 0;
+            return false;
         }
     } // end horizontal plane case.
     
@@ -113,7 +113,7 @@ int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     if (tip_cc_tmp->isInside(t)) { // TIP case     
         if ( cl.liftZ(tip_cl_z) ) {
             cl.cc = tip_cc_tmp;
-            result = 1;
+            result = true;
         } else {
             delete tip_cc_tmp;
         }
@@ -124,7 +124,7 @@ int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     if (cyl_cc_tmp->isInside(t))  { // CYLINDER case
         if ( cl.liftZ( cyl_cl_z) ) {
             cl.cc = cyl_cc_tmp;
-            result = 1; 
+            result = true; 
         } else {
             delete cyl_cc_tmp;
         }
@@ -137,9 +137,9 @@ int ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
 // find point where hyperbola and line slopes match
-int ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
+bool ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
 {
-    int result = 0;
+    bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
         // 1) distance from point to line in xy plane
         int start=n;      // index of the start-point of the edge
@@ -231,7 +231,7 @@ int ConeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                 if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
                     if (cl.liftZ(cl_z)) {
                         cl.cc = cc_tmp;
-                        result = 1;
+                        result = true;
                     } else {
                         delete cc_tmp;
                     }

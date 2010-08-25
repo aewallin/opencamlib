@@ -55,9 +55,9 @@ class CompoundCutter : public MillingCutter {
         MillingCutter* offsetCutter(const double d) const;
         
         // dropCutter methods
-        int vertexDrop(CLPoint &cl, const Triangle &t) const;
-        int facetDrop(CLPoint &cl, const Triangle &t) const;
-        int edgeDrop(CLPoint &cl, const Triangle &t) const;
+        bool vertexDrop(CLPoint &cl, const Triangle &t) const;
+        bool facetDrop(CLPoint &cl, const Triangle &t) const;
+        bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         // string output
         std::string str() const;

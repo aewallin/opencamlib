@@ -83,8 +83,8 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
 
-    cutter = ocl.CylCutter(0.3, 5)
-    #cutter = ocl.BallCutter(0.3, 5)
+    #cutter = ocl.CylCutter(0.3, 5)
+    cutter = ocl.BallCutter(0.3, 5)
     #cutter = ocl.BullCutter(0.3, 0.1, 5)
     
     print "cutter= ", cutter

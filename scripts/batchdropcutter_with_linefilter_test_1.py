@@ -33,7 +33,7 @@ if __name__ == "__main__":
     print cutter
     
     minx=0
-    dx=0.1/20
+    dx=0.1/2
     
     maxx=9
     miny=0

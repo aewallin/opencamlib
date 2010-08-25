@@ -30,33 +30,8 @@ namespace ocl
 //********   MillingCutter ********************** */
 
 MillingCutter::MillingCutter() {   
-    diameter =  1.0 ;
-    radius = diameter/2.0;
-    length = 1.0;
+
 }
-
-/*
-void MillingCutter::setDiameter(double d) {
-    if ( d >= 0.0 ) {
-        diameter=d;
-        radius = d/2.0;
-    } else {
-        std::cout << "cutter.cpp: ERROR, MillingCutter.setDiameter(d) called with d<0 !!";
-        diameter=1.0;
-        radius = diameter/2.0;
-    }
-}*/
-
-/*
-void MillingCutter::setLength(double l) {
-    if ( l > 0.0 ) {
-        length=l;
-    } else {
-        std::cout << "cutter.cpp: ERROR, MillingCutter.setLength(l) called with l<0 !!";
-        length=1.0;
-    }
-}*/
-
 
 double MillingCutter::getDiameter() const {
     return diameter;
@@ -77,8 +52,8 @@ MillingCutter* MillingCutter::offsetCutter(double d) const {
 
 /// general purpose vertex-drop which delegates the this->height(r) to 
 /// the specific subclass of cutter 
-int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
-    int result = 0;
+bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
+    bool result = false;
     BOOST_FOREACH( const Point& p, t.p) { // test each vertex of triangle
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if ( q <= radius ) { // p is inside the cutter
@@ -86,7 +61,7 @@ int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
             if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
                 cc_tmp->type = VERTEX;
                 cl.cc = cc_tmp;
-                result = 1;
+                result = true;
             } else {
                 delete cc_tmp;
             }
@@ -97,7 +72,7 @@ int MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
 
 /// general purpose facet-drop which calls xy_normal_length(), normal_length(), 
 /// and center_height() on the subclass
-int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
+bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
     if ( isZero_tol( t.n->z ) )  {// vertical surface
@@ -116,13 +91,13 @@ int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
             if ( cl.liftZ(cc_tmp->z) ) {
                 cc_tmp->type = FACET;
                 cl.cc = cc_tmp;
-                return 1;
+                return true;
             } else {
                 delete cc_tmp;
             }
         } else { // not inside facet
             delete cc_tmp;
-            return 0;
+            return false;
         }
     } // end horizontal plane case.
     
@@ -153,15 +128,15 @@ int MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         double tip_z = cc_tmp->z + radiusvector.z - this->center_height;
         if ( cl.liftZ(tip_z) ) {
             cl.cc = cc_tmp;
-            return 1;
+            return true;
         } else {
             delete cc_tmp;
         }
     } else {
         delete cc_tmp;
-        return 0;
+        return false;
     }
-    return 0; // we never get here (?)
+    return false; // we never get here (?)
 }
 
 /// general purpose vertexPush, delegates to this->width(h) 

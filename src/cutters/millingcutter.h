@@ -48,14 +48,10 @@ class MillingCutter {
         MillingCutter();
         virtual ~MillingCutter() {};
         
-        /// set the diameter of the cutter to d
-        // void setDiameter(double d);
         /// return the diameter of the cutter
         double getDiameter() const;
         /// return the radius of the cutter
         double getRadius() const;
-        /// set the length of the cutter to l
-        // void setLength(double l);
         /// return the length of the cutter
         double getLength() const;
         
@@ -68,15 +64,15 @@ class MillingCutter {
         
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// calls this->height(r) on the subclass of MillingCutter we are using.
-        virtual int vertexDrop(CLPoint &cl, const Triangle &t) const;
+        virtual bool vertexDrop(CLPoint &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
-        virtual int facetDrop(CLPoint &cl, const Triangle &t) const;
+        virtual bool facetDrop(CLPoint &cl, const Triangle &t) const;
         
         /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
         /// needs to be defined by a subclass
-        virtual int edgeDrop(CLPoint &cl, const Triangle &t) const {return -1;};
+        virtual bool edgeDrop(CLPoint &cl, const Triangle &t) const {return -1;};
         
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with Triangle t.
@@ -133,36 +129,36 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
 {
     public:
         // vertex
-        int vertexDrop(CLPoint &cl, const Triangle &t) const
+        bool vertexDrop(CLPoint &cl, const Triangle &t) const
         {
             if ( boost::python::override ovr_vertexDrop = this->get_override("vertexDrop"))
                 return ovr_vertexDrop(cl, t);
             return MillingCutter::vertexDrop(cl, t);
         };
-        int default_vertexDrop(CLPoint &cl, const Triangle &t) const{
+        bool default_vertexDrop(CLPoint &cl, const Triangle &t) const{
             return this->MillingCutter::vertexDrop(cl,t);
         };
         
         // facet
-        int facetDrop(CLPoint &cl, const Triangle &t) const
+        bool facetDrop(CLPoint &cl, const Triangle &t) const
         {
             if ( boost::python::override ovr_facetDrop = this->get_override("facetDrop"))
                 return ovr_facetDrop(cl, t);
             return MillingCutter::facetDrop(cl, t);
         };
-        int default_facetDrop(CLPoint &cl, const Triangle &t) const{
+        bool default_facetDrop(CLPoint &cl, const Triangle &t) const{
             return this->MillingCutter::facetDrop(cl,t);
         };
         
         
         // edge
-        int edgeDrop(CLPoint &cl, const Triangle &t) const
+        bool edgeDrop(CLPoint &cl, const Triangle &t) const
         {   
             if ( boost::python::override ovr_edgeDrop = this->get_override("edgeDrop"))
                 return ovr_edgeDrop(cl, t);
             return MillingCutter::edgeDrop(cl, t);
         };    
-        int default_edgeDrop(CLPoint &cl, const Triangle &t) const{
+        bool default_edgeDrop(CLPoint &cl, const Triangle &t) const{
             return this->MillingCutter::edgeDrop(cl,t);
         };
         

@@ -66,8 +66,8 @@ bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
 //********   drop-cutter methods ********************** */
 
 // delegate to the sub-cutters, and pick the right one.
-int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
-    int result = 0;
+bool CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
+    bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
         CCPoint* cc_tmp; 
@@ -78,7 +78,7 @@ int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
                 if (cl.liftZ( cl_tmp.z-zoffset[n] )) { // and we need to lift the cutter
                     cc_tmp->type = VERTEX;
                     cl.cc = cc_tmp;
-                    result = 1;
+                    result = true;
                 } else {
                     delete cc_tmp;
                 }
@@ -89,9 +89,8 @@ int CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
 }
 
 //********   facet ********************** */
-int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
-{
-    int result = 0;
+bool CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
+    bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
         CCPoint* cc_tmp;
@@ -102,7 +101,7 @@ int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
                 if (cl.liftZ( cl_tmp.z - zoffset[n] )) { // we need to lift the cutter
                     cc_tmp->type = FACET;
                     cl.cc = cc_tmp;
-                    result = 1;
+                    result = true;
                 } else {
                     delete cc_tmp;
                 }
@@ -114,10 +113,8 @@ int CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const
 
 
 //********   edge **************************************************** */
-int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
-{
-    int result = 0;
-    
+bool CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+    bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         CCPoint* cc_tmp;
@@ -127,7 +124,7 @@ int CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const
                 if (cl.liftZ( cl_tmp.z - zoffset[n] ) ) { // we need to lift the cutter
                     cc_tmp->type = EDGE;
                     cl.cc = cc_tmp;
-                    result = 1;
+                    result = true;
                 } else {
                     delete cc_tmp;
                 }
