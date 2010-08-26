@@ -38,17 +38,8 @@ class Epos {
         /// create an epos
         Epos();
         
-        /// set s=sin and compute t
-        void setS(double sin, bool side);
-        
-        /// set t=tin and compute s
-        void setT(double tin, bool side);
-        
         /// set (s,t) pair to the position corresponding to diangle
         void setD();
-        
-        /// step along the (s,t)-parameter in the tangent direction 
-        void stepTangent(Ellipse e, double delta);
         
         /// s-parameter in [-1, 1]
         double s;
@@ -57,7 +48,7 @@ class Epos {
         
         /// diamond angle parameter in [0,4] (modulo 4)
         /// this models an angle [0,2pi] and maps 
-        /// from the angle to an Epos (s,t) pair
+        /// from the angle to an (s,t) pair using setD()
         double diangle;
         
         /// set rhs Epos (s,t) values equal to lhs Epos

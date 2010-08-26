@@ -36,22 +36,17 @@ class Ellipse {
         Ellipse(){}; 
         /// create an Ellipse with centerpoint center, X-axis a, Y-axis b, and offset distance offset.
         Ellipse(Point& centerin, double a, double b, double offset);
-        
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);
         
         /// return a point on the ellipse at given Epos
-        Point ePoint(Epos& position) const;
-        
+        Point ePoint(const Epos& position) const;
         /// return a point on the offset-ellipse at given Epos
-        Point oePoint(Epos& position) const;
-         
+        Point oePoint(const Epos& position) const;
         /// return a normalized normal vector of the ellipse at the given Epos
-        Point normal(Epos& position) const;
-        
+        Point normal(const Epos& position) const;
         /// return a normalized tangent vector to the ellipse at the given Epos
-        Point tangent(Epos& position) const;
-        
+        Point tangent(const Epos& position) const;
         /// offset-ellipse Brent solver
         int solver_brent( Point& p );
         void print_solutions( Point& p);
@@ -63,27 +58,28 @@ class Ellipse {
         
         /// error function for the solver
         double error_old(Epos& position, Point& p);
-        double error( double dia );
+        double error(const double dia);
         
         /// calculate ellipse center
         Point calcEcenter(Point& cl, Point& up1, Point& up2, int sln);
         
         /// the center point of the ellipse
         Point center;
-        
-        /// a-axis
-        double a;
-        /// b-axis
-        double b;
         /// eccentricity = a/b
         double eccen;
-        /// offset
-        double offset;
         
         /// first Epos solution found by solver()
         Epos epos1;
         /// second Epos solution found by solver()
         Epos epos2;
+    private:
+        /// a-axis, in the X-direction
+        double a;  
+        /// b-axis, in the Y-direction
+        double b;
+
+        /// offset
+        double offset;
         
 };
 

@@ -20,7 +20,6 @@
 
 #include <sstream>
 #include <cmath>
-#include <string>
 // uncomment to disable assert() calls
 // #define NDEBUG
 #include <cassert>
@@ -33,9 +32,8 @@ namespace ocl
 {
 
 //********   Epos ********************** */
-Epos::Epos()
-{
-    setT(1, true);
+Epos::Epos() {
+    setD();
 }
 
 void Epos::setD() {
@@ -43,20 +41,13 @@ void Epos::setD() {
     // see: http://www.freesteel.co.uk/wpblog/2009/06/encoding-2d-angles-without-trigonometry/
     // return P2( (a < 2 ? 1-a : a-3),
     //           (a < 3 ? ((a > 1) ? 2-a : a) : a-4)
-    
     double d = diangle;
-    // make d a diangle in [0,4]
-    while ( d > 4.0 )
+    while ( d > 4.0 ) // make d a diangle in [0,4]
         d -= 4.0;
     while ( d < 0.0)
         d+=4.0;
-    
+    assert( d >= 0.0 && d <= 4.0 ); // now we should be in [0,4]
     // std::cout << "Epos::setD(): " << diangle << " mod 4 = " << d << "\n";
-    
-    // now we should be in [0,4]
-    assert( d >= 0.0 );
-    assert( d <= 4.0 );
-    
     Point p;
     if ( d < 2.0 ) // we are in the y>0 region
         p.x = 1-d; // in quadrant1 and quadrant2
@@ -68,8 +59,7 @@ void Epos::setD() {
             p.y = 2-d; // d=[1,3] in q2 and q3
         else
             p.y = d;  // d=[0,1] in q1
-    }
-    else {
+    } else {
         p.y = d - 4; // d=[3,4] in q4
     }
     // now we have a vector pointing in the right direction
@@ -77,40 +67,6 @@ void Epos::setD() {
     p.normalize();
     s = p.x;
     t = p.y;
-    assert( this->isValid() );
-}
-
-void Epos::setT(double tin, bool side)
-{
-    if (tin > 1.0)
-        tin = 1.0;
-    if (tin < -1.0)
-        tin = -1.0;
-    
-    t = tin;
-    double ssq = 1 - square(t); 
-    if (side == true)
-        s =  1 * sqrt(ssq);
-    else
-        s = -1 * sqrt(ssq);
-    
-    assert( this->isValid() );
-}
-
-void Epos::setS(double sin, bool side)
-{   // this is exactly like setT() but with s<->t swapped
-    if (sin > 1.0)
-        sin = 1.0;
-    if (sin < -1.0)
-        sin = -1.0;
-    
-    s = sin;
-    double tsq = 1 - square(s); 
-    if (side == true)
-        t =  1 * sqrt(tsq);
-    else
-        t = -1 * sqrt(tsq);
-    
     assert( this->isValid() );
 }
 
@@ -122,39 +78,17 @@ bool Epos::isValid() const {
         return false;
 }
 
-
-// move Epos by taking a step of length delta along the tangent
-void Epos::stepTangent(Ellipse e, double delta)
-{
-    Point tang = e.tangent(*this); // normalized tangent
-    if ( fabs(tang.x) > fabs(tang.y) ) { //  "s-dir step"
-        double news = s + delta*tang.x / e.a;
-        if (t > 0)
-            setS(news,1);
-        else
-            setS(news,0);
-    } else {
-        // t-dir step"
-        double newt = t + delta*tang.y / e.b; 
-        if (s>0)
-            setT( newt,1);
-        else
-            setT( newt,0);
-    }
-    assert( this->isValid() );
-}
-
-Epos& Epos::operator=(const Epos &pos) 
-{
+Epos& Epos::operator=(const Epos &pos)  {
     s = pos.s;
     t = pos.t;
+    diangle = pos.diangle;
     return *this;
 }
 
 std::string Epos::str() const {
-        std::ostringstream o;
-        o << *this;
-        return o.str();
+    std::ostringstream o;
+    o << *this;
+    return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, Epos pos) {

@@ -35,8 +35,7 @@ namespace ocl
 
 
 //********   Ellipse ********************** */
-Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin)
-{
+Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin) {
     center = centerin;
     a = ain;
     b = bin;
@@ -45,7 +44,7 @@ Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin)
     offset = offsetin;
 }
         
-Point Ellipse::ePoint(Epos& pos) const {
+Point Ellipse::ePoint(const Epos& pos) const {
     // (s, t) where:  s^2 + t^2 = 1
     // a and b are the orthogonal axes of the ellipse
     // point of ellipse is:  center + a s + b t
@@ -53,23 +52,23 @@ Point Ellipse::ePoint(Epos& pos) const {
     // normal at point is:    b s + a t 
     // point on offset-ellipse:  point on ellipse + offset*normal
     Point p = Point(center);
-    p.x += a*pos.s;
-    p.y += b*pos.t;
+    p.x += a*pos.s;  // a is in X-direction
+    p.y += b*pos.t;  // b is in Y-direction
     return p;
 }
 
-Point Ellipse::oePoint(Epos& pos) const {
+Point Ellipse::oePoint(const Epos& pos) const {
     return ePoint(pos) + offset * normal(pos); // offset-point  = ellipse-point + offset*normal 
 }    
 
-Point Ellipse::normal(Epos& pos) const {
+Point Ellipse::normal(const Epos& pos) const {
     assert( pos.isValid() );
     Point n = Point( b*pos.s, a*pos.t, 0);
     n.normalize();
     return n;
 }    
 
-Point Ellipse::tangent(Epos& pos) const {
+Point Ellipse::tangent(const Epos& pos) const {
     assert( pos.isValid() );
     Point t = Point( -a*pos.t, b*pos.s, 0);
     t.normalize();
@@ -134,6 +133,7 @@ bool Ellipse::find_epos2(Point& p) {
 /// offfset-ellipse solver using Brent's method
 /// find the epos that makes the offset-ellipse point be at p
 /// this is a zero of Ellipse::error()
+/// returns number of iterations
 int Ellipse::solver_brent (Point& p) {
     int iters = 1;
     // Brent's method requires bracketing the root
@@ -178,9 +178,7 @@ int Ellipse::solver_brent (Point& p) {
     std::cout << " prod=" <<  this->error(a,p) * this->error(b,p) << "\n";
     */
     // root is now bracketed.
-    
     target = p; // the target point
-    
     double dia_sln = brent_zero( a.diangle, b.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); 
     a.diangle = dia_sln;
     a.setD();
@@ -206,12 +204,13 @@ void Ellipse::print_solutions(Point& p) {
     std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error_old(this->epos2, p) << "\n";
 }
 
-double Ellipse::error( double dia ) {
+double Ellipse::error(const double dia ) {
     epos1.diangle = dia;
     epos1.setD();
     Point p1 = oePoint(epos1);
     return p1.y - target.y;
 }
+
 
 
 /// error-function for the offset-ellipse solver

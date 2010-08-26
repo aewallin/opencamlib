@@ -124,33 +124,26 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         // this is the offset-ellipse case
         // instead of dropping a Toroid(r1,r2) against a line(p1,p2)
         // we drop a cylinder Cylinder(r1) against a Cylinder(radius=r2) around line(p1,p2)
-        // std::cout << "BullCutter:edgeDrop(): general case\n";
         // the "canonical" case for which the offset-ellipse solver is written
         // requires p1.y == p2.y, i.e. the edge needs to be rotated so that it is parallel
         // to the X-axis.
         // and the cutter is positioned at (0,0) in this coordinate system.
-        
         Point v = p2 - p1; // vector along edge, from p1 -> p2
         Point vxy = v;
         vxy.z = 0;
         vxy.xyNormalize(); // normalized XY edge vector
-         
-        // figure out u-coordinates of p1 and p2
+        // figure out u-coordinates of p1 and p2 (i.e. x-coord in the rotated system)
         Point sc = cl.xyClosestPoint( p1, p2 );   
         assert( ( (cl-sc).xyNorm() - d ) < 1E-6 );
         double p1u = (p1-sc).dot(vxy);
         double p2u = (p2-sc).dot(vxy); 
-    
         // edge endpoints in the new coordinate system
-        Point up1 = Point( p2u, d, p2.z);
+        Point up1 = Point( p2u, d, p2.z); // d, distance to line, is the y-coord in the rotated system
         Point up2 = Point( p1u, d, p1.z);
-                           
         // in these coordinates, CL is at origo
         Point ucl = Point( 0.0 , 0.0, cl.z );
-        
         //  short axis of ellipse = radius2
-        //  long axis of ellipse = radius2/sin(theta)
-        //  where theta is the slope of the line
+        //  long axis of ellipse = radius2/sin(theta)       (theta is the slope of the line)
         double b_axis = radius2;
         assert( fabs(up2.x-up1.x) > 0.0 ); // avoid divide-by-zero
         double theta = atan( (up2.z - up1.z) / (up2.x-up1.x) ); 
@@ -158,7 +151,7 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         assert( a_axis > 0.0 );
         assert( b_axis > 0.0 );
         
-        // double eccen = a_axis/b_axis;
+        // double eccen = a_axis/b_axis; // ellipse eccentricity
         // bool debugNR = false;
         // if (eccen > 370000) {
         //    std::cout << "high eccen case eccen=" << eccen << "\n";
@@ -170,17 +163,19 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         // locate ellipse in the XY plane
         Point ellcenter = Point(0,d,0); // only ellcenter.y != 0.0
                               
-        // the ellipse and the solver
+        // the ellipse 
         Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
         // if (debugNR) {
         //if (e.eccen > 10000)
         //    std::cout << " ellipse=" << e << "\n";
         //    std::cout << " ucl=" << ucl << "\n";
         // }
+        
         // run the solver
-        //int iters = e.solver_nr(ucl);  // old Newton-Rhapson solver
         int iters = e.solver_brent(ucl);
-        // now epos1 and epos2 are the correct Epos positions where error is zero
+        // now epos1 and epos2 are the correct Epos positions where e.error is zero
+        assert( iters < 200 ); // it's probably an error if the solver takes too long...
+        
         /*
         if (e.epos1.s == e.epos2.s && e.epos1.t==e.epos2.t) {
             if ( !isZero_tol(e.epos1.s) || !isZero_tol(e.epos1.t) ) {
@@ -189,15 +184,12 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             }
         }*/
             
-        assert( iters < 200 ); // it's probably an error if the solver takes too long...
-        
         // the corresponding solved ellipse-centers
         Point ecen1 = e.calcEcenter( ucl, up1, up2, 1);
         Point ecen2 = e.calcEcenter( ucl, up1, up2, 2);
         assert( ecen1.y == d ); // ellipse-centers are on the edge
         assert( ecen2.y == d );
-        
-        // choose the one with higher z-value
+        // for drop-cutter we choose the one with higher z-value
         Point ecen;
         Epos pos_hi;
         int ep_sign = 0;
@@ -214,15 +206,13 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         }
         //if (e.eccen > 1000)
         //    std::cout << "ecen1.z=" << ecen1.z << " ecen2.z=" << ecen2.z << " chosen="<< ecen.z <<"\n";
-            
         // a new ellipse in the right place        
         // this is at the correct z-height 
         Ellipse e_hi = Ellipse(ecen, a_axis, b_axis, radius1);
         assert( ecen.y == d );
         assert( ecen.z >= ecen1.z );
         assert( ecen.z >= ecen2.z );
-        
-        // cc-point on the ellipse/cylinder, in the CL=origo system
+        // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
         Point ell_ccp = e_hi.ePoint(pos_hi);
         if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-5 ) { // should be on the cylinder-circle   
             std::cout << " eccen=" << e.eccen << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
@@ -230,12 +220,10 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             assert(0);
         }
         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5 );                 
-        
+        // find real cc-point
         Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
-                            
         CCPoint* cc_tmp = new CCPoint();
-        *cc_tmp = sc + cc_tmp_u.x*vxy; //locate in XY plane
-        
+        *cc_tmp = sc + cc_tmp_u.x*vxy; // locates in XY plane
         double t;
         if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
             t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now find the z-coord of cc_tmp
@@ -243,14 +231,11 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
         }
         cc_tmp->z = p1.z + t*(p2.z-p1.z);
-        
         if (ep_sign > 0) // sign matters only for cc.type
             cc_tmp->type = EDGE_POS;
         else
             cc_tmp->type = EDGE_NEG;
-            
         if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
-
             if ( cl.liftZ(ecen.z-radius2) ) {
                 cl.cc = cc_tmp;
                 result = true;

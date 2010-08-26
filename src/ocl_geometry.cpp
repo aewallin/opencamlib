@@ -65,7 +65,6 @@ void export_geometry() {
         .def_readwrite("y", &Point::y)
         .def_readwrite("z", &Point::z)
     ;
-    
     bp::class_<CLPoint>("CLPoint")  // FIXME: should inherit from Point
         .def(bp::init<CLPoint>())
         .def(bp::init<double, double, double>())
@@ -115,15 +114,6 @@ void export_geometry() {
         .def("getTriangles", &STLSurf::getTriangles)
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("bb", &STLSurf::bb)
-        //.def("build_kdtree", &STLSurf::build_kdtree)
-        //.def("get_kd_triangles", &STLSurf::get_kd_triangles)
-        //.def("jump_kd_up", &STLSurf::jump_kd_up)
-        //.def("jump_kd_hi", &STLSurf::jump_kd_hi)
-        //.def("jump_kd_lo", &STLSurf::jump_kd_lo)
-        //.def("jump_kd_reset", &STLSurf::jump_kd_reset)
-        //.def("get_kd_level", &STLSurf::get_kd_level)
-        //.def("get_kd_cut", &STLSurf::get_kd_cut)
-        //.def("getTrianglesUnderCutter", &STLSurf::getTrianglesUnderCutter)
     ;
     bp::class_<STLReader>("STLReader")
         .def(bp::init<const std::wstring&, STLSurf&>())
@@ -133,13 +123,9 @@ void export_geometry() {
         .def_readonly("maxpt", &Bbox::maxpt)
         .def_readonly("minpt", &Bbox::minpt)
     ;
-
     // Epos and the Ellipse are used for the toroidal tool edge-tests
     bp::class_<Epos>("Epos")
-        .def("setS", &Epos::setS)
-        .def("setT", &Epos::setT)
         .def("setD", &Epos::setD)
-        .def("stepTangent", &Epos::stepTangent)
         .def_readwrite("s", &Epos::s)
         .def_readwrite("t", &Epos::t)
         .def_readwrite("d", &Epos::diangle)
@@ -152,13 +138,10 @@ void export_geometry() {
         .def("normal", &Ellipse::normal)
         .def("tangent", &Ellipse::tangent)
         //.def("error", &Ellipse::error)
-        //.def("solver_nr", &Ellipse::solver_nr)
         .def_readonly("epos1", &Ellipse::epos1)
         .def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
-    
-    
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())
         .def(bp::init<Line>())

@@ -21,10 +21,8 @@
 #ifndef BRENT_ZERO_H
 #define BRENT_ZERO_H
 
-// #include "oellipse.h"
 namespace ocl
 {
-
 
 /// Brent's root finding algorithm
 /// http://en.wikipedia.org/wiki/Brent's_method
@@ -32,7 +30,7 @@ namespace ocl
 /// find a zero of function f in the interval [a,b]
 /// a and b must bracket the root, i.e. f(a) must have different sign than f(b)
 /// needs a pointer to an ErrObj which must provide a function
-/// ErrObj::error(double x) for which we try to find a zero
+/// double ErrObj::error(double x) for which we try to find a zero
 template <class ErrObj>
 double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
     // f must have unequal sign at a and b, i.e.
@@ -43,19 +41,16 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
     double fa,fb,fc; // function values
     double m,p,q,r,s;
     double tol;
-
     fa = ell->error(a); // f(a);
     fb = ell->error(b); // f(b);
     if (fa*fb >= 0.0) {// check for opposite signs
         std::cout << " brent_zero() called with invalid interval [a,b] !\n";
         assert(0);
     }
-        
     c  = a; // set c sln equal to a sln
     fc = fa; 
     e  = b-a; // interval width
     d  = e; // interval width
-      
     while (true) {
         if (fabs(fc)<fabs(fb)) { // sln at c is better than at b
             a = b;  // a is the old solution
@@ -100,7 +95,6 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
                 d = e;
             }                
         }
-        
         a = b; // store the old b-solution in a
         fa = fb;
         if (fabs(d) > tol ) // if d is "large"
@@ -120,9 +114,7 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
             e = b-a; // interval width
             d = e;
         }
-        
     } // end iteration-loop
-
     return b;
 }
 
