@@ -25,8 +25,8 @@ if __name__ == "__main__":
     diameter=1.4321
     length=5
     #cutter = ocl.BallCutter(diameter, length)
-    cutter = ocl.CylCutter(diameter, length)
-    #cutter = ocl.BullCutter(diameter, 0.2, length)
+    #cutter = ocl.CylCutter(diameter, length)
+    cutter = ocl.BullCutter(diameter, 0.2, length)
     #cutter = ocl.ConeCutter(diameter, angle)
     #cutter = cutter.offsetCutter( 0.1 )
     
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     
     maxx=9
     miny=0
-    dy=1
+    dy=1/float(2)
     maxy=12
     z=-1
     # this generates a list of CL-points in a grid
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         bdc.appendPoint(p)
     
     t_before = time.time()    
-    bdc.dropCutter5()
+    bdc.dropCutter4()
     dc_calls = bdc.dcCalls
     t_after = time.time()
     calctime = t_after-t_before
@@ -68,7 +68,6 @@ if __name__ == "__main__":
     
     # draw the CL-points
     camvtk.drawCLPointCloud(myscreen, clpoints)
-    
     
     # filter
     print "filtering. before filter we have", len(clpoints),"cl-points"
@@ -92,14 +91,9 @@ if __name__ == "__main__":
     
     print "rendering filtered CL-points."
     camvtk.drawCLPointCloud(myscreen, clp2)
-    
-    
     print "all done."
-        
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
-    
-    
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()

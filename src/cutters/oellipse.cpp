@@ -43,7 +43,18 @@ Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin) {
     eccen = a/b;
     offset = offsetin;
 }
-        
+
+AlignedEllipse::AlignedEllipse(Point& centerin, double ain, double bin, double offsetin, Point& major, Point& minor) {
+    center = centerin;
+    a = ain;
+    b = bin;
+    assert( b > 0.0 );
+    eccen = a/b;
+    offset = offsetin;
+    major_dir=major;
+    minor_dir=minor;
+}
+
 Point Ellipse::ePoint(const Epos& pos) const {
     // (s, t) where:  s^2 + t^2 = 1
     // a and b are the orthogonal axes of the ellipse

@@ -197,23 +197,22 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             ecen = ecen1;
             pos_hi = e.epos1;
             ep_sign = -1;
-            // std::cout << "epos1 chosen\n";
         } else {
             ecen = ecen2;
             pos_hi = e.epos2;
             ep_sign = 1;
-            // std::cout << "epos2 chosen\n";
         }
         //if (e.eccen > 1000)
         //    std::cout << "ecen1.z=" << ecen1.z << " ecen2.z=" << ecen2.z << " chosen="<< ecen.z <<"\n";
         // a new ellipse in the right place        
         // this is at the correct z-height 
-        Ellipse e_hi = Ellipse(ecen, a_axis, b_axis, radius1);
+        //Ellipse e_hi = Ellipse(ecen, a_axis, b_axis, radius1); // only the center changes, do we really need a new object?
+        e.center = ecen; 
         assert( ecen.y == d );
         assert( ecen.z >= ecen1.z );
         assert( ecen.z >= ecen2.z );
         // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
-        Point ell_ccp = e_hi.ePoint(pos_hi);
+        Point ell_ccp = e.ePoint(pos_hi);
         if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-5 ) { // should be on the cylinder-circle   
             std::cout << " eccen=" << e.eccen << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
             std::cout << " ell_ccp.xyNorm() - radius1 =" << ell_ccp.xyNorm() - radius1 << "\n";
@@ -320,12 +319,15 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             major_dir.z = 0;
             major_dir.xyNormalize();
             Point minor_dir = major_dir.xyPerp();
-            Point minor_axis = radius2*minor_dir;
+            //Point minor_axis = radius2*minor_dir;
             assert( (p2-p1).xyNorm() > 0.0 ); // avoid divide-by-zero
             double theta = atan( (p2.z - p1.z) / (p2-p1).norm() ); 
             double major_axis_length = fabs( radius2/sin(theta) );
-            Point major_axis = major_axis_length*major_dir;
-        
+            //Point major_axis = major_axis_length*major_dir;
+            Ellipse e = AlignedEllipse(ell_center, major_axis_length, radius2, radius1, major_dir, minor_dir );
+            // now we want the offset-ellipse point to lie on the fiber
+            // take the distance along major_axis as the error to be minimized
+            
         }
     }
     return result;

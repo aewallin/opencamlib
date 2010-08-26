@@ -1,4 +1,4 @@
-/*
+
 std::vector<Triangle>* Triangle::zslice(const double zcut) const {
     std::vector<Triangle>* tlist = new std::vector<Triangle>();
     if ( (zcut < this->bb.minpt.z) || ((zcut > this->bb.maxpt.z)) ) {
@@ -63,9 +63,9 @@ std::vector<Triangle>* Triangle::zslice(const double zcut) const {
     
     return tlist;
 }
-*/
 
-/*
+
+
 boost::python::list Triangle::getZslice(const double zcut) const {
     boost::python::list py_tlist;
     std::vector<Triangle>* tlist;
@@ -75,4 +75,4 @@ boost::python::list Triangle::getZslice(const double zcut) const {
     }
     return py_tlist;
 }
-*/
+

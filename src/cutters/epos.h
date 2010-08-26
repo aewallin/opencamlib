@@ -60,6 +60,7 @@ class Epos {
         friend std::ostream& operator<<(std::ostream &stream, Epos pos);
         
         /// return true if (s,t) is valid, i.e. lies on the unit circle
+        /// checks s^2 + t^2 == 1  (to within tolerance) 
         bool isValid() const;
 };
     

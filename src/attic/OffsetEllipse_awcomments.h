@@ -219,14 +219,14 @@ struct AlignedEllipsOffsetPos
 //////////////////////////////////////////////////////////////////////
 struct AlignedEllipseOffset
 {
-	double j; // major radius (along u)
-	double n; // minor radius (along v)
-	double offrad; // offset radius
-	double jsq; // squares?
+	double j;       // major radius (along u)
+	double n;       // minor radius (along v)
+	double offrad;  // offset radius
+	double jsq;     // squares?
 	double nsq; 
 	double osq; 
 	double uprecision;  // ?
-	int aeoiterations;  // ?
+	int aeoiterations;  // ? solver iterations?
 
 	AlignedEllipseOffset(double lj, double ln, double loffrad); 
 	void LowerIntersectU(AlignedEllipsOffsetPos& aeopm, double u); 

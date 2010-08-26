@@ -29,29 +29,26 @@ namespace GroundSteel
 
 #ifdef MDEBUG
 //////////////////////////////////////////////////////////////////////
-P2 Ellipse::D_EEval(double s, double t) const 
-{
-	TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid
+P2 Ellipse::D_EEval(double s, double t) const {
+    TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid
     // ellipse-definition: ( j*cos(theta) , n*sin(theta) )
     // s=cos(theta)   t=sin(theta)
-	return ecen + j * s + n * t;            // return a point on the ellipse
+    return ecen + j * s + n * t;            // return a point on the ellipse
 }
 
-P2 Ellipse::D_Norm(double s, double t) const 
-{
-	TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid
+P2 Ellipse::D_Norm(double s, double t) const  {
+    TOL_ZERO(Square(s) + Square(t) - 1.0);  // check that s,t parameters are valid
     // return normal to ellipse
     // ellipse: ( norm(j)*cos(theta) ,  norm(n)*sin(theta) )
-    // normal:  ( norm(n)*sin(theta) , -norm(j)*cos(theta) )            exchnage and flip one sign
+    // normal:  ( norm(n)*sin(theta) , -norm(j)*cos(theta) )            exchange and flip one sign
     //  s=cos(theta)   t=sin(theta)
     // normal is  j*s/eccen + n*(t*eccen)
 	return ZNorm(j * (s / eccen) + n * (t * eccen));   // what does Znorm() do? normalize to length 1?
 }
 
-P2 EllipseOffset::D_Eval(double s, double t) const
-{
+P2 EllipseOffset::D_Eval(double s, double t) const {
     // return point on offset-ellipse = ellipse + normal*offrad
-	return D_EEval(s, t) + D_Norm(s, t) * offrad; 
+    return D_EEval(s, t) + D_Norm(s, t) * offrad; 
 }
 #endif
 
@@ -67,43 +64,35 @@ P2 EllipseOffset::D_Eval(double s, double t) const
 void Ellipse::SetEllipseVals(const P2& lecen, const P2& lj, const P2& ln, double lnlen, double leccen)  
 {
 #ifdef TRACE_ELLIPSE_CALLS
-	TECcallcount++; 
-	if ((TECcallcount % TRACE_ELLIPSE_CALLS) == 0)
-		fprintf(stderr, strsetellipse, lecen.u, lecen.v, lj.u, lj.v, ln.u, ln.v, lnlen, leccen); 
+    TECcallcount++; 
+    if ((TECcallcount % TRACE_ELLIPSE_CALLS) == 0)
+        fprintf(stderr, strsetellipse, lecen.u, lecen.v, lj.u, lj.v, ln.u, ln.v, lnlen, leccen); 
 #endif
-
-	// ellipse centre point 
-	ecen = lecen; 
-
+    // ellipse centre point 
+    ecen = lecen; 
 	// the major axis
-	j = lj; 
-	ASSERT(j.v >= 0.0); // axis is tilted upwards (wlog)
-
-	// the minor axis 
-	n = ln; 
-	nlen = lnlen; 
-	TOL_ZERO(n.Len() - nlen);  // check that nlen is valid
-	ASSERT(n.u <= 0.0);        // ellipse allways tilted so that n.u <= 0
-
-	// the eccentricity (ratio of the two axes)
-	ASSERT(leccen >= 1.0 - MDTOL_SMALL); 
-	eccen = max(1.0, leccen); // eccentricity must be >= 1.0
-	eccensq = Square(eccen);  
-	IF_TOL_ZERO( (eccen < 1e10), eccen - j.Len() / nlen ); // more checking...
-
+    j = lj; 
+    ASSERT(j.v >= 0.0); // axis is tilted upwards (wlog)
+    // the minor axis 
+    n = ln; 
+    nlen = lnlen; 
+    TOL_ZERO(n.Len() - nlen);  // check that nlen is valid
+    ASSERT(n.u <= 0.0);        // ellipse allways tilted so that n.u <= 0
+    // the eccentricity (ratio of the two axes)
+    ASSERT(leccen >= 1.0 - MDTOL_SMALL); 
+    eccen = max(1.0, leccen); // eccentricity must be >= 1.0
+    eccensq = Square(eccen);  
+    IF_TOL_ZERO( (eccen < 1e10), eccen - j.Len() / nlen ); // more checking...
 	// find parameters of points where the tangent is parallel to the v axis; 
 	// these points also define the extents in u for the offset ellipse.  
 	// solve for (j s / eccen + n t eccen).v = 0
-    
 	TOL_ZERO( fabs(j.u / eccen) - fabs(n.v) ); // j.u/eccen should be == j.v
 	P2 stangv = ZNorm( P2(j.u, -n.u) );        // (s, t) of the position of the tangent 
 	tang_s = -stangv.u;
 	tang_t = stangv.v;
-
 	TOL_ZERO(j.v * tang_s / eccen + n.v * tang_t * eccen); 
 	TOL_ZERO(D_Norm(tang_s, tang_t).v); // check that tang-point has no v-component
 	// other side is by negating stangv
-
 	// solve for (j s / eccen + n t eccen).v = 0
 	TOL_ZERO(j.v / eccen + n.u); 
 	P2 sperpv = ZNorm(P2(j.v, n.v)); // (s, t) of the position of the tangent 
@@ -114,17 +103,15 @@ void Ellipse::SetEllipseVals(const P2& lecen, const P2& lj, const P2& ln, double
 
 
 //////////////////////////////////////////////////////////////////////
-void EllipseOffset::SetOffsetRadius(double loffrad)
-{
+void EllipseOffset::SetOffsetRadius(double loffrad) {
 // appends onto the end of the line 
 #ifdef TRACE_ELLIPSE_CALLS
 	if ((TECcallcount % TRACE_ELLIPSE_CALLS) == 0)
 		fprintf(stderr, " offrad= %.12lg\n", loffrad); 
 #endif
-
-	// the offset distance 
-	offrad = loffrad; 
-	radrat = offrad / nlen;  // (radius ratio)
+    // the offset distance 
+    offrad = loffrad; 
+    radrat = offrad / nlen;  // (radius ratio)
 }
 
 
@@ -139,16 +126,14 @@ void EllipseOffset::SetOffsetEllipseVals(const P2& lecen,      // center of elli
                                          double jlenfac,       
                                          double loffrad)       // offset radius
 {
-	ASSERT((veaxis.v > 0.0) || ((veaxis.v == 0.0) && (veaxis.u > 0.0))); 
-	TOL_ZERO(veaxis.Len() - veaxislen); 
-    
+    ASSERT((veaxis.v > 0.0) || ((veaxis.v == 0.0) && (veaxis.u > 0.0))); 
+    TOL_ZERO(veaxis.Len() - veaxislen); 
 	SetEllipseVals( lecen,                                  // ellipse center
                     (veaxis * (crad * jlenfac)),            // major axis
                     (APerp(veaxis) * (crad / veaxislen)),   // minor axis
                     crad,                                   // length of minor axis == cutter radius
                     (jlenfac * veaxislen));                 // eccentricity
-                     
-	SetOffsetRadius(loffrad); 
+    SetOffsetRadius(loffrad); 
 }
 
 
@@ -157,45 +142,34 @@ void EllipseOffset::SetOffsetEllipseVals(const P2& lecen,      // center of elli
 
 ////////////////////////////////////////////////////////////////////////
 #ifdef MDEBUG
-bool EllipsOffsetPos::D_CheckVal(const EllipseOffset& eoff) 
-{
-	IF_TOL_ZERO((eoff.eccen < 1e6), (eoff.D_Eval(s, t) - p).Len() );  // p should be a point on the offset-ellipse at (s,t) (?)
-	return true; 
+bool EllipsOffsetPos::D_CheckVal(const EllipseOffset& eoff) {
+    IF_TOL_ZERO((eoff.eccen < 1e6), (eoff.D_Eval(s, t) - p).Len() );  // p should be a point on the offset-ellipse at (s,t) (?)
+    return true; 
 }
 #endif
 
 
 ////////////////////////////////////////////////////////////////////////
 void EllipsOffsetPos::SetPosCardinal(const EllipseOffset& eoff, bool btangnorm, bool bgopos) 
-{
-	if (btangnorm)
-	{
+{ // set ellipse-position (s,t) to one of the "cardinal" positions
+	if (btangnorm) {
 		P2 tdis = eoff.j * eoff.tang_s + eoff.n * eoff.tang_t - P2(eoff.offrad, 0.0); 
-		if (bgopos)
-		{
+		if (bgopos) {
 			s = eoff.tang_s; 
 			t = eoff.tang_t; 
 			p = eoff.ecen + tdis; 
-		}
-		else
-		{
+		} else {
 			s = -eoff.tang_s; 
 			t = -eoff.tang_t; 
 			p = eoff.ecen - tdis; 
 		}
-	}
-
-	else
-	{
+	} else {
 		P2 pdis = eoff.j * eoff.perp_s + eoff.n * eoff.perp_t + P2(0.0, eoff.offrad); 
-		if (bgopos)
-		{
+		if (bgopos) {
 			s = eoff.perp_s; 
 			t = eoff.perp_t; 
 			p = eoff.ecen + pdis; 
-		}
-		else
-		{
+		} else {
 			s = -eoff.perp_s; 
 			t = -eoff.perp_t; 
 			p = eoff.ecen - pdis; 
@@ -206,8 +180,7 @@ void EllipsOffsetPos::SetPosCardinal(const EllipseOffset& eoff, bool btangnorm, 
 
 
 //////////////////////////////////////////////////////////////////////
-void EllipsOffsetPos::SetPosGirth(const EllipseOffset& eoff, bool bnposgirth) 
-{
+void EllipsOffsetPos::SetPosGirth(const EllipseOffset& eoff, bool bnposgirth)  {
 	s = 0.0; 
 	t = (bnposgirth ? 1.0 : -1.0); 
     // start at center, move along minor axis to ellipse-edge and then to offset-ellipse
@@ -215,21 +188,17 @@ void EllipsOffsetPos::SetPosGirth(const EllipseOffset& eoff, bool bnposgirth)
 	ASSERT(D_CheckVal(eoff));  // check that values are ok
 }
 
-
-
-
 //////////////////////////////////////////////////////////////////////
 void EllipsOffsetPos::SetPos(const EllipseOffset& eoff, 
                              bool bst, 
                              bool bgopos, 
                              double lam, 
-                             EllipsOffsetPos& eopa,    // position a
-                             EllipsOffsetPos& eopb)    // position b
+                             EllipsOffsetPos& eopa,    // position (a.s , a.t)
+                             EllipsOffsetPos& eopb)    // position (b.s , b.t)
 {
 	// linear approximation 
 	// we should get the evaluation to this type of thing by a controlled manner
-	if ((eoff.eccen > 1e8) && ( (fabs(eopa.s - eopb.s) < 1e-8) || (fabs(eopa.t - eopb.t) < 1e-8) ) ) 
-	{
+	if ((eoff.eccen > 1e8) && ( (fabs(eopa.s - eopb.s) < 1e-8) || (fabs(eopa.t - eopb.t) < 1e-8) ) ) {
         // a special case with extreme eccentricity, 
         // and when eopa or eopb are close to eachother.
 		s = AlongAcc(lam, eopa.s, eopb.s); 
@@ -239,29 +208,23 @@ void EllipsOffsetPos::SetPos(const EllipseOffset& eoff,
 		ASSERT(D_CheckVal(eoff));  
 		return; 
 	}
-
 	double ssq; 
 	double tsq; 
-	if (bst)  // a switch to select variable s or t
-	{
+	if (bst) { // a switch to select variable s or t
 		s = AlongPushIn(lam, eopa.s, eopb.s); // calculate a new s-value somehow (?how)
 		ssq = Square(s); 
 		tsq = 1.0 - ssq; 
 		t = sqrt(tsq) * (bgopos ? 1 : -1);     // the corresponding t-value
-		ASSERT(I1::SCombine(eopa.t, eopb.t).Contains(t));  // ?check that the new t-value value is contained within [eopa.t, eopb.t]  ?
-	}
-	else
-	{   // modify the t-value
+		ASSERT(I1::SCombine(eopa.t, eopb.t).Contains(t));  // ?check that the new t-value value is contained within [eopa.t , eopb.t]  ?
+	} else {   // modify the t-value
 		t = AlongPushIn(lam, eopa.t, eopb.t); 
 		tsq = Square(t); 
 		ssq = 1.0 - tsq;  
 		s = sqrt(ssq) * (bgopos ? 1 : -1); // corresponding s-value 
 		ASSERT(I1::SCombine(eopa.s, eopb.s).Contains(s)); // check
 	}
-
 	k = 1.0 / sqrt(eoff.eccensq * tsq + ssq); // ?k-value?
 	double kf = k * eoff.radrat; 
-    
     // calculation of point on the offset-ellipse?
 	p = eoff.ecen + eoff.j * (s * (1.0 + kf / eoff.eccen)) + eoff.n * (t * (1.0 + kf * eoff.eccen)); 
 	ASSERT(D_CheckVal(eoff));  
@@ -269,58 +232,43 @@ void EllipsOffsetPos::SetPos(const EllipseOffset& eoff,
 
 
 //////////////////////////////////////////////////////////////////////
-double EllipsOffsetPos::dpds(const EllipseOffset& eoff, bool bgopos)  
-{
+double EllipsOffsetPos::dpds(const EllipseOffset& eoff, bool bgopos) {
 	// k = (eccensq - (eccensq - 1) * ssq)^(-1/2)
 	double dkds = k * k * k * s * (eoff.eccensq - 1.0); 
 	double jfac = 1.0 + (eoff.radrat / eoff.eccen) * (k + s * dkds); 
 	// dtds = -s/t
 	double sbt = s / t; 
 	double nfac = -sbt + (eoff.radrat * eoff.eccen) * (-sbt * k + t * dkds); 
-
 	return eoff.j.u * jfac + eoff.n.u * nfac; 
 }
 
-
-
 //////////////////////////////////////////////////////////////////////
 // Move in by alongs on the parameters 
-bool EllipseOffset::EllIntersMonoByParap(EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp) 
-{
+bool EllipseOffset::EllIntersMonoByParap(EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp)  {
 	double lam = -eopa.p.u / (eopb.p.u - eopa.p.u); 
-
 	EllipsOffsetPos eops; 
 	eops.SetPos(*this, true, bnp, lam, eopa, eopb); 
 	bool bspos = ((eopa.s > 0.0) || ((eopa.s == 0.0) && (eopb.s > 0.0))); 
 	EllipsOffsetPos eopt; 
 	eopt.SetPos(*this, false, bspos, lam, eopa, eopb); 
-
-	if (EqualOr(eops.s, eopa.s, eopb.s) && EqualOr(eopt.s, eopa.s, eopb.s)) 
-	{
+	if (EqualOr(eops.s, eopa.s, eopb.s) && EqualOr(eopt.s, eopa.s, eopb.s))  {
 		ASSERT(0); // limit of subdividing... 
 		return false; 
 	}
-
 	// try and fit this pair in (don't know which order it should be)  
 	bool bslt = (eops.p.u < eopt.p.u); 
-	if (((bslt ? eops.p.u : eopt.p.u) < eopa.p.u) || ((bslt ? eopt.p.u : eops.p.u) > eopb.p.u))
-	{
+	if (((bslt ? eops.p.u : eopt.p.u) < eopa.p.u) || ((bslt ? eopt.p.u : eops.p.u) > eopb.p.u)) {
 		ASSERT(0); // outside the u-searching range 
 		return false; 
 	}
-	if (((bslt ? eops.p.u : eopt.p.u) > 0.0) || ((bslt ? eopt.p.u : eops.p.u) < 0.0))
-	{
+	if (((bslt ? eops.p.u : eopt.p.u) > 0.0) || ((bslt ? eopt.p.u : eops.p.u) < 0.0)) {
 		//ASSERT(0); // outside the u-searching range 
 		return false; 
 	}
-
-	if (bslt)
-	{
+	if (bslt) {
 		eopa = eops; 
 		eopb = eopt; 
-	}
-	else
-	{
+	} else {
 		eopa = eopt; 
 		eopb = eops; 
 	}
@@ -330,43 +278,32 @@ bool EllipseOffset::EllIntersMonoByParap(EllipsOffsetPos& eopa, EllipsOffsetPos&
 
 //////////////////////////////////////////////////////////////////////
 // Move in by half
-bool EllipseOffset::EllIntersMonoByHalf(EllipsOffsetPos& eopa, bool bst, EllipsOffsetPos& eopb, bool bjp, bool bnp) 
-{
+bool EllipseOffset::EllIntersMonoByHalf(EllipsOffsetPos& eopa, bool bst, EllipsOffsetPos& eopb, bool bjp, bool bnp)  {
 	EllipsOffsetPos eopd; 
-
-	if (bst)
-	{
+	if (bst) {
 		eopd.SetPos(*this, true, bnp, 0.5, eopa, eopb); 
 		ASSERT(bnp ? ((eopa.t >= 0.0) && (eopb.t >= 0.0)) : ((eopa.t <= 0.0) && (eopb.t <= 0.0))); 
-		if (EqualOr(eopd.s, eopa.s, eopb.s)) 
-		{
+		if (EqualOr(eopd.s, eopa.s, eopb.s)) {
 			ASSERT(0); // limit of subdividing... 
 			return false; 
 		}
-	}
-	else
-	{
+	} else {
 		bool bgopos = ((eopa.s >= 0.0) && (eopb.s >= 0.0)); 
 		ASSERT(bgopos ? ((eopa.s >= 0.0) && (eopb.s >= 0.0)) : ((eopa.s <= 0.0) && (eopb.s <= 0.0))); 
 		eopd.SetPos(*this, false, bgopos, 0.5, eopa, eopb); 
-		if (EqualOr(eopd.t, eopa.t, eopb.t)) 
-		{
+		if (EqualOr(eopd.t, eopa.t, eopb.t)) {
 			ASSERT(0); // limit of subdividing... 
 			return false; 
 		}
 	}
-
-	if ((eopd.p.u < eopa.p.u) || (eopd.p.u > eopb.p.u))
-	{
+	if ((eopd.p.u < eopa.p.u) || (eopd.p.u > eopb.p.u)) {
 		ASSERT(0); // outside the u-searching range 
 		return false; 
 	}
-
 	if (eopd.p.u < 0.0) 
 		eopa = eopd; 
 	else
 		eopb = eopd; 
-
 	return true; 
 }
 
@@ -374,29 +311,24 @@ bool EllipseOffset::EllIntersMonoByHalf(EllipsOffsetPos& eopa, bool bst, EllipsO
 
 //////////////////////////////////////////////////////////////////////
 // these asserts are brittle, as I try to find how this geometry works.  
-double EllipseOffset::EllIntersMonoByNR(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp)  
-{
+
+// Newton-Rhapson solver (?)
+double EllipseOffset::EllIntersMonoByNR(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp)  {
 // if there's any problem, phase in the function, use the slow version which does by binary subdivision.  
 //return EllIntersMono(eopa, eopb, bjp, bnp);  
-
 	double lam = -eopa.p.u / (eopb.p.u - eopa.p.u); 
 	//EllipsOffsetPos eopm; 
 	bool bspos = ((eopa.s > 0.0) || ((eopa.s == 0.0) && (eopb.s > 0.0))); 
-	if (fabs(eopa.s - eopb.s) > fabs(eopa.t - eopb.t))
-	{
+	if (fabs(eopa.s - eopb.s) > fabs(eopa.t - eopb.t)) {
 		eopm.SetPos(*this, true, bnp, lam, eopa, eopb); 
 		ASSERT(I1::SCombine(eopa.t, eopb.t).Contains(eopm.t)); 
-	}
-	else
-	{
+	} else {
 		eopm.SetPos(*this, false, bspos, lam, eopa, eopb); 
 		ASSERT(I1::SCombine(eopa.s, eopb.s).Contains(eopm.s)); 
 	}
-
 	// the loop searching for the best value 
 	DEBUG_ONLY(int Diters = 0); 
-	while (fabs(eopm.p.u) > 0.0000001)  // fixed value included (shouldn't be)
-	{
+	while (fabs(eopm.p.u) > 0.0000001) { // fixed value included (shouldn't be)
 		ASSERT(I1(eopa.p.u, eopb.p.u).Contains(eopm.p.u)); 
 		if (!I1::SCombine(eopa.s, eopb.s).ContainsStrict(eopm.s))  // bail out 
 			return EllIntersMono(eopm, eopa, eopb, bjp, bnp);  
@@ -405,18 +337,14 @@ double EllipseOffset::EllIntersMonoByNR(EllipsOffsetPos& eopm, EllipsOffsetPos& 
 		else
 			eopb = eopm; 
 		ASSERT(bspos == ((eopa.s > 0.0) || ((eopa.s == 0.0) && (eopb.s > 0.0)))); 
-
 		// work in s 
 		// calculates the derivative by ds at this position
 		double vdpds = eopm.dpds(*this, bnp); 
 		double dels = -eopm.p.u / vdpds; 
 		double ns = eopm.s + dels; 
-
-
 		// bail out 
 		if (!I1::SCombine(eopa.s, eopb.s).ContainsStrict(ns)) 
 			return EllIntersMono(eopm, eopa, eopb, bjp, bnp);  
-
 		double lam = (ns - eopa.s) / (eopb.s - eopa.s); 
 		TOL_ZERO(Along(lam, eopa.s, eopb.s) - ns); 
 		double pushlam = I1(0.00001, 0.99999).PushInto(lam); 
@@ -425,8 +353,7 @@ double EllipseOffset::EllIntersMonoByNR(EllipsOffsetPos& eopm, EllipsOffsetPos& 
 		DEBUG_ONLY(Diters++); 
 		ASSERT(Diters < 10000); 
 	}
-
-	return eopm.p.v; 
+	return eopm.p.v;
 }
 
 
@@ -434,15 +361,12 @@ double EllipseOffset::EllIntersMonoByNR(EllipsOffsetPos& eopm, EllipsOffsetPos& 
 
 //////////////////////////////////////////////////////////////////////
 // do by subdivision for now 
-double EllipseOffset::EllIntersMono(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp) 
-{
+double EllipseOffset::EllIntersMono(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, EllipsOffsetPos& eopb, bool bjp, bool bnp)  {
 	ASSERT((eopa.p.u <= 0.0) && (eopb.p.u >= 0.0)); 
 	bool bst = I1::SCombine(eopa.s, eopb.s).Overlaps(I1(-0.5, 0.5)); 
-
 	// precision 
 	DEBUG_ONLY(int niters = 0); 
-	while (fabs(eopa.p.v - eopb.p.v) > 0.000001)
-	{
+	while (fabs(eopa.p.v - eopb.p.v) > 0.000001) {
 //		if (!EllIntersMonoByParap(eopa, eopb, bjp, bnp)) 
 		{
 			if (!EllIntersMonoByHalf(eopa, bst, eopb, bjp, bnp)) 
@@ -450,7 +374,6 @@ double EllipseOffset::EllIntersMono(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa
 		}
 		DEBUG_ONLY(niters++); 
 	}
-
 	eopm = eopa;
 	return Half(eopa.p.v, eopb.p.v); 
 }
@@ -534,11 +457,9 @@ double EllipseOffset::EllInters(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, El
 // the geometry of the calculation is preserved throughout so we can see where the 
 // quartic becomes ill-conditioned
 // analytic solutions can be carried out in the original geometric setting.  
-
 //////////////////////////////////////////////////////////////////////
 AlignedEllipseOffset::AlignedEllipseOffset(double lj, double ln, double loffrad) :
-	j(lj), n(ln), offrad(loffrad)
-{
+	j(lj), n(ln), offrad(loffrad) {
 	ASSERT(n <= j); 
 	ASSERT(offrad >= 0.0); 
 	jsq = Square(j); 

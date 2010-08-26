@@ -36,6 +36,7 @@ class Ellipse {
         Ellipse(){}; 
         /// create an Ellipse with centerpoint center, X-axis a, Y-axis b, and offset distance offset.
         Ellipse(Point& centerin, double a, double b, double offset);
+        
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);
         
@@ -51,14 +52,14 @@ class Ellipse {
         int solver_brent( Point& p );
         void print_solutions( Point& p);
         
-        Point target;
+        
         
         /// given one epos solution, find the other.
         bool find_epos2(Point& p);
         
         /// error function for the solver
         double error_old(Epos& position, Point& p);
-        double error(const double dia);
+        virtual double error(const double dia);
         
         /// calculate ellipse center
         Point calcEcenter(Point& cl, Point& up1, Point& up2, int sln);
@@ -72,15 +73,26 @@ class Ellipse {
         Epos epos1;
         /// second Epos solution found by solver()
         Epos epos2;
-    private:
+    protected:
         /// a-axis, in the X-direction
         double a;  
         /// b-axis, in the Y-direction
         double b;
-
         /// offset
         double offset;
+        /// the target Point for the error-function
+        Point target;
+
         
+};
+
+class AlignedEllipse : public Ellipse {
+    public:
+        AlignedEllipse(Point& centerin, double a, double b, double offset, Point& major, Point& minor);
+        double error(const double dia);
+    private:
+        Point major_dir;
+        Point minor_dir;
 };
 
 } // end namespace
