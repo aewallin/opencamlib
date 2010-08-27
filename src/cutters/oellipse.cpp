@@ -33,7 +33,6 @@ namespace ocl
 {
 
 
-
 //********   Ellipse ********************** */
 Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin) {
     center = centerin;
@@ -53,6 +52,10 @@ AlignedEllipse::AlignedEllipse(Point& centerin, double ain, double bin, double o
     offset = offsetin;
     major_dir=major;
     minor_dir=minor;
+}
+
+double AlignedEllipse::error(const double x) {
+    return 0;
 }
 
 Point Ellipse::ePoint(const Epos& pos) const {

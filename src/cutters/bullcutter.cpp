@@ -324,7 +324,7 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             double theta = atan( (p2.z - p1.z) / (p2-p1).norm() ); 
             double major_axis_length = fabs( radius2/sin(theta) );
             //Point major_axis = major_axis_length*major_dir;
-            Ellipse e = AlignedEllipse(ell_center, major_axis_length, radius2, radius1, major_dir, minor_dir );
+            AlignedEllipse e = AlignedEllipse(ell_center, major_axis_length, radius2, radius1, major_dir, minor_dir );
             // now we want the offset-ellipse point to lie on the fiber
             // take the distance along major_axis as the error to be minimized
             

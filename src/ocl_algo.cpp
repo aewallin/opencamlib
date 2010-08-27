@@ -20,12 +20,8 @@
 
 #include <boost/python.hpp>
 
-//#include "point.h"
-//#include "oellipse.h"
+
 #include "millingcutter.h"
-//#include "volume.h"
-//#include "octree.h"
-//#include "ocode.h"
 
 #include "batchdropcutter.h"
 #include "batchpushcutter.h"
