@@ -19,26 +19,27 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles" 
     
-    cutter = ocl.CylCutter(0.6)
+    cutter = ocl.CylCutter(0.6, 6)
     print cutter
 
     minx=-0.2
-    dx=1
+    dx=2
     maxx=10.2
     miny=-0.2
-    dy=1
+    dy=3
     maxy=12.2
     z=-0.2
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-    print len(clpoints),"CL-points to evaluate"
+    print len(clpoints),"CL-points to evaluate..."
     tris = s.getTriangles()
     # very naive approach to drop-cutter (and doing loops in python is slow)
+    # this is so slow in practice it is not usable with the tux-model STL-file (22k triangles)
     for cl in clpoints: # loop through all the cl-points
         for t in tris: # for each cl-point loop through all triangles
             cutter.vertexDrop(cl,t) # vertex test
-            #cutter.edgeDrop(cl,t)  # edge test
-            #cutter.facetDrop(cl,t) # facet test
-        
+            cutter.edgeDrop(cl,t)  # edge test
+            cutter.facetDrop(cl,t) # facet test
+    print "done."
 
     camvtk.drawCLPointCloud(myscreen, clpoints)
 
