@@ -20,15 +20,17 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(0,0,0.3),p2=(0,1,0)) )
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = ocl.Triangle(a,b,c)
+    s = ocl.STLSurf()
+    s.addTriangle(t)
     
     diameter = 0.5234
     corneradius = 0.1
     angle = math.pi/4
-
-    #cutter = ocl.CylCutter(diameter)
-    #cutter = ocl.BallCutter(diameter)
-    cutter = ocl.BullCutter(diameter,corneradius)
-    #cutter = ocl.ConeCutter(diameter, angle)
+    length = 5
+    cutter = ocl.CylCutter(diameter, length)
+    #cutter = ocl.BallCutter(diameter, length)
+    #cutter = ocl.BullCutter(diameter,corneradius, length)
+    #cutter = ocl.ConeCutter(diameter, angle, length)
     
     print cutter
     
@@ -43,20 +45,16 @@ if __name__ == "__main__":
     print len(clpoints), "cl-points to evaluate"
     n=0
     clp=[]
-    for cl in clpoints:
-        #
-        cutter.vertexDrop(cl,t)
-        cutter.facetDrop(cl,t)
-        cutter.edgeDrop(cl,t)
-        #cutter.dropCutter(cl,t)
-        #ccpoints.append(cc)  
-        #clp.append(cl)      
-        n=n+1
-        if (n % int(len(clpoints)/10)) == 0:
-            print n/int(len(clpoints)/10), " ",
+    bdc = ocl.BatchDropCutter()
+    bdc.setSTL(s)
+    bdc.setCutter(cutter)
+    for p in clpoints:
+        bdc.appendPoint(p)
+        
+    bdc.dropCutter4()
    
     print "done."
-    
+    clpoints = bdc.getCLPoints()
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
 

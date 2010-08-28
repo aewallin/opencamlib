@@ -117,7 +117,7 @@ bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     
     // define the radiusvector which points from the 
     // cc-point to the cutter-center 
-    Point radiusvector = this->xy_normal_length*xyNormal - this->normal_length*normal;
+    Point radiusvector = this->xy_normal_length*xyNormal + this->normal_length*normal;
     // find the xy-coordinates of the cc-point
     CCPoint* cc_tmp = new CCPoint();
     *cc_tmp = cl - radiusvector; // NOTE xy-coords right, z-coord is not.
