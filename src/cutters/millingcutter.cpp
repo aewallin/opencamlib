@@ -228,7 +228,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     double c = t.p[1].z - t.p[0].z;
     double d = t.p[2].z - t.p[0].z;
     double e;
-    double f = -t.p[0].z - this->normal_length*normal.z + fib.p1.z + this->center_height;
+    double f = -t.p[0].z - this->normal_length*normal.z + fib.p1.z + this->center_height; // note: the xy_normal does not have a z-component, so omitted here.
     double u;
     double v;
     // a,b,e depend on the fiber:

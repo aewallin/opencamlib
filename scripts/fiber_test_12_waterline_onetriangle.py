@@ -47,7 +47,6 @@ def drawLoop(myscreen, w_loop):  # draw the loop as a yellow line
                                                 p2=(p.x,p.y,p.z), color=camvtk.yellow) )
             np=np+1
             previous = p
-            
 
 if __name__ == "__main__":  
     print ocl.revision()

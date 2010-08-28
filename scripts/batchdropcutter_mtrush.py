@@ -22,10 +22,11 @@ if __name__ == "__main__":
     print "STL surface with", s.size(), "triangles read"
     
     # define a cutter
-    cutter = ocl.BallCutter(15.4321)
-    #cutter = ocl.CylCutter(1.123)
-    #cutter = ocl.BullCutter(1.123, 0.2)
-    #cutter = ocl.ConeCutter(0.43, math.pi/7)
+    length=5
+    cutter = ocl.BallCutter(15.4321, length)
+    #cutter = ocl.CylCutter(1.123, length)
+    #cutter = ocl.BullCutter(1.123, 0.2, length)
+    #cutter = ocl.ConeCutter(0.43, math.pi/7, length)
     
     
     print cutter
@@ -43,7 +44,7 @@ if __name__ == "__main__":
     
     # batchdropcutter    
     bdc1 = ocl.BatchDropCutter()
-    bdc1.setSTL(s,1)
+    bdc1.setSTL(s)
     bdc1.setCutter(cutter)
     
     # push the points to ocl

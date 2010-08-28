@@ -31,10 +31,11 @@ if __name__ == "__main__":
     t = ocl.Triangle(a,b,c)
     
     angle = math.pi/8
-    #c1 = ocl.BullCutter(0.5,0.1)
-    c1 = ocl.CylCutter(0.5)
-    #c1 = ocl.BallCutter(0.5)
-    #c1 = ocl.ConeCutter(0.5,angle)    
+    length = 5
+    #c1 = ocl.BullCutter(0.5,0.1, length)
+    #c1 = ocl.CylCutter(0.5, length)
+    c1 = ocl.BallCutter(0.5, length)
+    #c1 = ocl.ConeCutter(0.5,angle, length)    
     cutter = c1
     #cutter = c1.offsetCutter(0.4)
     
@@ -93,6 +94,7 @@ if __name__ == "__main__":
         w2if.Modified() 
         #lwr.Write() # write screenshot to file
     """
+    myscreen.render()
     myscreen.iren.Start()
     raw_input("Press Enter to terminate") 
     

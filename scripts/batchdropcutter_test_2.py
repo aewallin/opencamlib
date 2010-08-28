@@ -20,11 +20,11 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read ", s.size(), " triangles"
-    
-    cutter = ocl.BallCutter(1.4321)
-    #cutter = ocl.CylCutter(1.123)
-    #cutter = ocl.BullCutter(1.4123, 0.5)
-    #cutter = ocl.ConeCutter(0.43, math.pi/7)
+    length=5
+    cutter = ocl.BallCutter(1.4321, length)
+    #cutter = ocl.CylCutter(1.123, length)
+    #cutter = ocl.BullCutter(1.4123, 0.5, length)
+    #cutter = ocl.ConeCutter(0.43, math.pi/7, length)
     print cutter
     
     minx=0
@@ -39,7 +39,7 @@ if __name__ == "__main__":
     
     # batchdropcutter    
     bdc1 = ocl.BatchDropCutter()
-    bdc1.setSTL(s,1)
+    bdc1.setSTL(s)
     bdc1.setCutter(cutter)
     
     for p in clpoints:

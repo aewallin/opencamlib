@@ -113,7 +113,7 @@ CCPoint CLPoint::getCC() {
 std::string CLPoint::str() const
 {
     std::ostringstream o;
-    o << "CL(" << x << ", " << y << ", " << z << ") " << cc ;
+    o << "CL(" << x << ", " << y << ", " << z << ") cc=" << *cc ;
     return o.str();
 }
 

@@ -4,7 +4,7 @@ import ocl
 
 if __name__ == "__main__":
     print ocl.revision()
-    cutter = ocl.CylCutter(3.0)
+    cutter = ocl.CylCutter(3.0, 6)
     path = ocl.Path()
     path.append(ocl.Line(ocl.Point(-6.51, 0, 0), ocl.Point(6.51, 1.2, 0)))
     s=ocl.STLSurf()

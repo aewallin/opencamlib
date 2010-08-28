@@ -30,11 +30,12 @@ if __name__ == "__main__":
     
     t = ocl.Triangle(b,c,a)
     radius1=1
+    length=5
     angle = math.pi/4
-    cutter = ocl.ConeCutter(0.37, angle)
-    #cutter = ocl.BallCutter(0.532)
-    #cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BullCutter(0.5,0.123)
+    #cutter = ocl.ConeCutter(0.37, angle)
+    cutter = ocl.BallCutter(0.532, length)
+    #cutter = ocl.CylCutter(0.3, length)
+    #cutter = ocl.BullCutter(0.5,0.123, length)
     print cutter
     
     
@@ -73,15 +74,7 @@ if __name__ == "__main__":
      
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
+    
     myscreen.render()
-    
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    
-    t = camvtk.Text()
-    t.SetPos( (myscreen.width-350, myscreen.height-30) )
-    myscreen.addActor(t)
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
