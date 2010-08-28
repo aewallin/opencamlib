@@ -17,11 +17,9 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(1,0,0),p2=(0,1,0)) )
     t = ocl.Triangle(a,b,c)
     
-    cutter = ocl.CylCutter(.3)
+    cutter = ocl.CylCutter(.3, 5)
     print cutter
     
-    cc = ocl.CCPoint()
-
     minx=-0.2
     dx=0.02
     maxx=1.2
@@ -37,6 +35,7 @@ if __name__ == "__main__":
     print len(clpoints), " cl points evaluated"
     # draw the points
     camvtk.drawCLPointCloud(myscreen, clpoints)
+    myscreen.render()
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
     
