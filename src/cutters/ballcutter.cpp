@@ -27,6 +27,7 @@ namespace ocl
 
 //********   CylCutter ********************** */
 BallCutter::BallCutter() {
+    std::cout << " usage: BallCutter( double diameter, double length ) \n";
     assert(0);
 }
 

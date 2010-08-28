@@ -29,6 +29,7 @@ namespace ocl
 
 //********   CylCutter ********************** */
 BullCutter::BullCutter() {
+    std::cout << " usage: BullCutter( double diameter, double corner_radius, double length ) \n";
     assert(0);
     diameter= 1.0;
     radius=diameter/2.0;
