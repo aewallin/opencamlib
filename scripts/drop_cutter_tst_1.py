@@ -3,7 +3,7 @@ import camvtk
 import time
 
 if __name__ == "__main__":  
-    cutter = ocl.CylCutter(.1)
+    cutter = ocl.CylCutter(.1, 5)
     print cutter
     a = ocl.Point(1,0,0)
     b = ocl.Point(0,1,0)
