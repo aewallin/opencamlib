@@ -1,22 +1,24 @@
 import ocl
 import math
 
+print ocl.revision()
+
 # cylinder
-c = ocl.CylCutter(2.345)
+c = ocl.CylCutter(2.345, 5)
 print c
 d = c.offsetCutter(0.1)
 print d
 print
 
 # ball
-c = ocl.BallCutter(2.345)
+c = ocl.BallCutter(2.345, 6)
 print c
 d = c.offsetCutter(0.1)
 print d
 print
 
 # bull
-c = ocl.BullCutter(2.345, 0.123)
+c = ocl.BullCutter(2.345, 0.123, 6)
 print c
 d = c.offsetCutter(0.1)
 print d

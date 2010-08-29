@@ -36,20 +36,18 @@ namespace ocl
  * ********************************************************************/
 /// \brief Ball or Spherical MillingCutter (ball-nose endmill)
 ///
-/// defined by one parameter. the cutter diameter.
-/// the sphere radius will be diameter/2
 class BallCutter : public MillingCutter {
     public:
         BallCutter();
-        /// create a BallCutter with diameter d and radius d/2
+        /// create a BallCutter with diameter d (radius d/2) and length l
         explicit BallCutter(const double d, const double l);
-
+        /// offset of Ball is Ball
         MillingCutter* offsetCutter(const double d) const;
         
-        // dropCutter methods
+        /// drop BallCutter against an edge p1-p2 at xy-distance d from CLPoint cl
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
         
-        // pushCutter methods   
+        /// push BallCutter along Fiber f against Triangle t, and update Interval i accordingly.   
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         /// string repr
@@ -57,7 +55,9 @@ class BallCutter : public MillingCutter {
         /// string repr
         std::string str() const;
     protected:
+        /// the height of the cutter at radius r
         double height(const double r) const;
+        /// the width/radius of the cutter at height h
         double width(const double h) const; 
 };
 

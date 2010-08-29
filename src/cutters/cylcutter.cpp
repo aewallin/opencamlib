@@ -26,7 +26,7 @@
 namespace ocl
 {
 
-//********   CylCutter ********************** */
+//********   CylCutter ************************************************/
 CylCutter::CylCutter() {
     std::cout << " usage: CylCutter( double diameter, double length ) \n";
     assert(0);
@@ -42,7 +42,7 @@ CylCutter::CylCutter(const double d, const double l) {
     center_height = 0.0;
 }
 
-/// offset of CylCutter is BullCutter
+// offset of CylCutter is BullCutter
 MillingCutter* CylCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, d, length+d) ;
 }
@@ -60,9 +60,8 @@ double CylCutter::height(const double r) const {
 double CylCutter::width(const double h) const {
     return radius;
 }
-  
 
-//********   drop-cutter methods ********************** */
+//********   drop-cutter methods **************************************/
 
 // vertexDrop is handled by the base-class
 // facetDrop is handled by the base-class
@@ -174,15 +173,14 @@ bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, co
             delete cc2;
         }
     } //end two intersection points case
-
     return result;
 }
 
 
 //************** push cutter methods **********************************/
 
-/// push cutter along Fiber against vertices of Triangle t
-/// update Interval i 
+// push cutter along Fiber against vertices of Triangle t
+// update Interval i 
 bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
     std::vector<Point> verts;
@@ -268,7 +266,7 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
     return result;
 }   
 
-//********  CylCutter string output ********************** */
+//********  CylCutter string output ***********************************/
 std::string CylCutter::str() const {
     std::ostringstream o;
     o << *this;
@@ -276,7 +274,7 @@ std::string CylCutter::str() const {
 }
 
 std::ostream& operator<<(std::ostream &stream, CylCutter c) {
-  stream << "CylCutter (d=" << c.diameter << ")";
+  stream << "CylCutter (d=" << c.diameter << ", L=" << c.length <<  ")";
   return stream;
 }
 

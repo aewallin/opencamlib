@@ -27,7 +27,7 @@ namespace ocl
 
 //********   CylCutter ********************** */
 BallCutter::BallCutter() {
-    std::cout << " usage: BallCutter( double diameter, double length ) \n";
+    std::cout << " usage: BallCutter( double diameter, double length )\n";
     assert(0);
 }
 
@@ -54,7 +54,10 @@ double BallCutter::width(const double h) const {
         return sqrt( square(radius) - square(radius-h) );
 }
 
-
+// offset of ball is a bigger ball
+MillingCutter* BallCutter::offsetCutter(const double d) const {
+    return  new BallCutter(diameter+2*d, length+d) ;
+}
 
 
 //********   drop-cutter methods ********************** */
@@ -62,14 +65,11 @@ double BallCutter::width(const double h) const {
 // vertex, facet, handled in base-class
 
 
-//********   edge **************************************************** */
+//********   edgeDrop *************************************************/
 
 bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result = false;
-
-    //assert( d >= 0.0 );
-    //assert( d<= radius );
-        
+    //  assert( d >= 0.0 );  assert( d<= radius );
     // the plane of the line will slice the spherical cutter at
     // a distance d from the center of the cutter
     // here the radius of the circular section is
@@ -262,20 +262,11 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
                 }
             }
         }
-            
-        
     }
     return result;
 }
 
-//**********************************************************************
-
-/// offset of ball is a bigger ball
-MillingCutter* BallCutter::offsetCutter(const double d) const {
-    return  new BallCutter(diameter+2*d, length+d) ;
-}
-
-//******** string output ********************** */
+//******** string output **********************************************/
 std::string BallCutter::str() const {
     std::ostringstream o;
     o << *this; 
@@ -283,7 +274,7 @@ std::string BallCutter::str() const {
 }
 
 std::ostream& operator<<(std::ostream &stream, BallCutter c) {
-  stream << "BallCutter(d=" << c.diameter << ", radius=" << c.radius << ")";
+  stream << "BallCutter(d=" << c.diameter << ", r=" << c.radius << ", L=" << c.length << ")";
   return stream;
 }
 

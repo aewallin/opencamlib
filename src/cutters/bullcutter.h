@@ -18,7 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef BULL_CUTTER_H
 #define BULL_CUTTER_H
 
@@ -45,14 +44,13 @@ class BullCutter : public MillingCutter {
         BullCutter();
         /// Create bull-cutter with diamter d and corner radius r.
         BullCutter(const double d, const double r, const double l);
-
+        /// offset of Bull is Bull
         MillingCutter* offsetCutter(const double d) const;
         
-        /// drop cutter
-        //bool edgeDrop(CLPoint &cl, const Triangle &t) const;
+        /// drop cutter against p1-p2 edge
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
         
-        // pushCutter methods   
+        /// push cutter against t
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         /// string repr
@@ -63,10 +61,9 @@ class BullCutter : public MillingCutter {
     protected:
         double height(const double r) const;
         double width(const double h) const; 
-          
         /// radius of cylindrical part of cutter
         double radius1;
-        /// tube radius of toroid
+        /// tube radius of torus
         double radius2;
 };
 

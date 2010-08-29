@@ -18,18 +18,15 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <boost/foreach.hpp>
-
 
 #include "conecutter.h"
 #include "compoundcutter.h" // for offsetCutter()
 
 namespace ocl
 {
-    
 
-//********   constructors ********************** */
+//********   ConeCutter ***********************************************/
 ConeCutter::ConeCutter() {
     diameter = 1.0;
     angle = 45;
@@ -48,7 +45,15 @@ double ConeCutter::height(const double r) const {
     return r/tan(angle);
 }
 
-//********   drop-cutter methods ********************** */
+// double ConeCutter::radius(const double h) const
+
+// offset of cone is BallConeCutter
+// ?? Ball-Cone-Bull ??
+MillingCutter* ConeCutter::offsetCutter(const double d) const {
+    return new BallConeCutter(2*d,  diameter+2*d, angle) ;
+}
+
+//********   drop-cutter methods **************************************/
 
 // we either hit the tip, when the slope of the plane is smaller than angle
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft
@@ -131,7 +136,6 @@ bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     } else {
         delete cyl_cc_tmp;
     }
-    
     return result; 
 }
 
@@ -225,16 +229,10 @@ bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     } else {
         delete cc_tmp;
     }
-
     return result;
 }
 
-/// offset of cone is BallConeCutter
-MillingCutter* ConeCutter::offsetCutter(const double d) const {
-    return new BallConeCutter(2*d,  diameter+2*d, angle) ;
-}
-
-//******** string output ********************** */
+//******** string output **********************************************/
 std::string ConeCutter::str() const {
     std::ostringstream o;
     o << *this;
@@ -242,7 +240,7 @@ std::string ConeCutter::str() const {
 }
 
 std::ostream& operator<<(std::ostream &stream, ConeCutter c) {
-  stream << "ConeCutter (d=" << c.diameter << ", angle=" << c.angle << ", length=" << c.length << ")";
+  stream << "ConeCutter (d=" << c.diameter << ", angle=" << c.angle << ", L=" << c.length << ")";
   return stream;
 }
 

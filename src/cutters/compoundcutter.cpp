@@ -24,10 +24,8 @@
 #include "bullcutter.h"
 #include "conecutter.h"
 
-
 namespace ocl
 {
-
 
 CompoundCutter::CompoundCutter() {
     radiusvec = std::vector<double>();
@@ -153,12 +151,11 @@ std::string CompoundCutter::str() const {
 
 
 
-//********   actual compound-cutters ********************************* /
+//********   actual compound-cutters **********************************/
 // 
 // only constructors required, drop-cutter calls handled by base-class
 //
-//
-//******************************************************************** /
+//*********************************************************************/
 
 /// define a CylCone cutter which consists of a cylindrical(flat) middle part
 /// of diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2

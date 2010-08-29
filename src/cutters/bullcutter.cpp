@@ -31,10 +31,6 @@ namespace ocl
 BullCutter::BullCutter() {
     std::cout << " usage: BullCutter( double diameter, double corner_radius, double length ) \n";
     assert(0);
-    diameter= 1.0;
-    radius=diameter/2.0;
-    radius1= 0.3;
-    radius2= 0.2;
 }
 
 BullCutter::BullCutter(const double d, const double r, const double l) {
@@ -49,8 +45,7 @@ BullCutter::BullCutter(const double d, const double r, const double l) {
     center_height = radius2;
 }
 
-
-
+// height of cutter at radius r
 double BullCutter::height(const double r) const {
     if ( r <= radius1 )
         return 0.0;
@@ -75,8 +70,7 @@ double BullCutter::width(const double h) const {
 
 // vertex, facet, handled in base-class
 
-
-/// Toroidal cutter edge-test
+// Toroidal cutter edge-test
 bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result = false;
 
@@ -246,14 +240,9 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             delete cc_tmp;
         }
     } // end general case
-            
-
     return result;
 }
 
-
-
-                        
 //********  BullCutter push-cutter methods ****************************/
 
 // vertex and facet handled by base-class
@@ -336,23 +325,20 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
 
 //*********************************************************************/
 
-
 /// offset of bull is bull
 MillingCutter* BullCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, radius2+d, length+d) ;
 }
 
-//********  BullCutter string output ********************** */
-std::string BullCutter::str() const
-{
+//********  BullCutter string output **********************************/
+std::string BullCutter::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, BullCutter c)
-{
-  stream << "BullCutter(d=" << c.diameter << ", r1=" << c.radius1 << " r2=" << c.radius2 << ")";
+std::ostream& operator<<(std::ostream &stream, BullCutter c) {
+  stream << "BullCutter(d=" << c.diameter << ", r1=" << c.radius1 << " r2=" << c.radius2 << ", L=" << c.length <<  ")";
   return stream;
 }
 

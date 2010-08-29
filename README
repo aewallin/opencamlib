@@ -13,6 +13,8 @@ http://groups.google.com/group/opencamlib
 SVN commit messages go to a mailing-list:
 http://groups.google.com/group/opencamlib-svn
 
+IRC-channel #cam on irc.freenode.net
+
 2. BUILDING and INSTALLING (on unix/debian-like systems)
 cd into the /src directory, then run
  $> cmake .
@@ -45,12 +47,12 @@ this should create the ocl manual named "ocl-manual.pdf" in the src/doc director
 |   `-- geo             primitive geometry classes (point,triangle,stlsurf, etc.)
 |-- stl                 STL files for testing
 `-- Windows             Visual-studio project for building on windows
-              
+
 
 3. Ubuntu 10.04LTS install and build
 - install 64-bit Ubuntu 10.04LTS
-- run update manager and install all suggested updates. reboot
-- using synaptic or apt-get install the following packages(and their dependencies)
+- run update manager and install all suggested updates. reboot.
+- using synaptic or apt-get, install the following packages(and their dependencies)
 -- build-essential
 -- cmake
 -- subversion
@@ -58,7 +60,8 @@ this should create the ocl manual named "ocl-manual.pdf" in the src/doc director
 -- texlive-latex-base
 -- libboost1.40-all-dev
 - checkout ocl from svn
-- in the /src directory, first run "cmake ." and the "make"
-this should build ocl correctly.
+-- instructions: http://code.google.com/p/opencamlib/source/checkout
+- in the /src directory, first run "cmake ." then "make" and then "sudo make install"
+-- this should build and install ocl correctly.
 
 
