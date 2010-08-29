@@ -47,6 +47,7 @@ class Ellipse {
         Point tangent(const Epos& position) const;
         /// offset-ellipse Brent solver
         int solver_brent( Point& p );
+        /// print out the found solutions
         void print_solutions( Point& p);
         
         /// given one epos solution, find the other.
@@ -54,6 +55,7 @@ class Ellipse {
         
         /// error function for the solver
         double error_old(Epos& position, Point& p);
+        /// error function for solver
         virtual double error(const double dia);
         
         /// calculate ellipse center
@@ -85,13 +87,17 @@ class Ellipse {
         
 };
 
+/// an aligned ellipse, used by the edgePush function of BullCutter
 class AlignedEllipse : public Ellipse {
     public:
         AlignedEllipse(){}; 
+        /// create an aligned ellipse
         AlignedEllipse(Point& centerin, double a, double b, double offset, Point& major, Point& minor);
         double error(const double dia);
     private:
+        /// direction of the major axis
         Point major_dir;
+        /// direction of the minor axis
         Point minor_dir;
 };
 

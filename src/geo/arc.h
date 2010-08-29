@@ -40,7 +40,7 @@ class Arc {
         /// create an arc from point p1 to point p2 with center c and direction dir.
         /// direction is true for anti-clockwise arcs.
         Arc(const Point &p1, const Point &p2, const Point &c, bool dir);
-        /// create a copy of an arc a.
+        /// copy constructor
         Arc(const Arc &a);
         virtual ~Arc() {};
         
@@ -64,6 +64,7 @@ class Arc {
         /// two vectors v1 and v2 in the direction of dir ( true=acw  false=cw)
         double xyIncludedAngle(const Point& v1, const Point& v2, bool dir = true);
     private:
+        /// set arc-properties
         void setProperties();
 };
 

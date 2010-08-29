@@ -60,11 +60,17 @@ class Triangle {
         /// bounding-box 
         Bbox bb;
         // these values are set from the Bbox object:
+        /// max x-coord
         double maxx;
+        /// max y-coord
         double maxy;
+        /// min x-coord
         double minx;
+        /// min y-coord
         double miny;
+        /// min z-coord
         double minz;
+        /// max z-coord
         double maxz;
         /// update bounding-box
         void calcBB();

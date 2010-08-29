@@ -34,35 +34,46 @@ namespace ocl
 class Interval {
     public:
         Interval();
+        /// create and interval [l,u]  (is this ever called??)
         Interval(const double l, const double u);
         virtual ~Interval();
         
+        /// update upper with t, and corresponding cc-point p
         void updateUpper(const double t, CCPoint& p);
+        /// update lower with t, and corresponding cc-point p
         void updateLower(const double t, CCPoint& p);
+        /// return true if Interval i is outside *this
         bool outside(const Interval& i) const;
+        /// return true if Interval i is inside *this
         bool inside(const Interval& i) const;
+        /// return true if the interval is empty
         bool empty() const;
+        /// string repr
         std::string str() const;
         
         /// cutter contact points at upper and lower are stored in upper_cc and lower_cc
         CCPoint upper_cc;
+        /// cutter contact point correspoinding to lower
         CCPoint lower_cc;
         /// the upper t-value 
         double upper; 
         /// the lower t-value
         double lower;
         
-        bool in_weave; // flag for use by Weave::build()
+        /// flag for use by Weave::build()
+        bool in_weave; 
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::set<VertexDescriptor, double>
         std::set< VertexPair, VertexPairCompare > intersections; 
 };
 
 
-
+/// a fiber is an infinite line in space along which the cutter can be pushed
+/// into contact with a triangle. A Weave is built from many X-fibers and Y-fibers
 class Fiber {
     public:
         Fiber(){ };
+        /// create a Fiber between points p1 and p2
         Fiber(const Point &p1, const Point &p2);
         virtual ~Fiber() {};
         /// add an interval to this Fiber
@@ -71,7 +82,8 @@ class Fiber {
         bool contains(Interval& i) const;
         /// return true if Interval i is completely missing (no overlaps) from Fiber
         bool missing(Interval& i) const;
-        void condense(); // get rid of this (??)
+        /// get rid of this (??)
+        void condense(); 
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value
@@ -93,7 +105,7 @@ class Fiber {
         /// the intervals in this Fiber
         std::vector<Interval> ints;
     private:
-        // set the direction(tangent) vector
+        /// set the direction(tangent) vector
         void calcDir();
 };
 

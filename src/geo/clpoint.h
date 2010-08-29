@@ -36,23 +36,27 @@ namespace ocl
 class CLPoint : public Point {
     public:
         CLPoint();
+        /// CLPoint at (x,y,z)
         CLPoint(double x, double y, double z);
+        /// CLPoint at (x,y,z) with CCPoint ccp
         CLPoint(double x, double y, double z, CCPoint& ccp);
+        /// copy constructor
         CLPoint(const CLPoint& cl);
         virtual ~CLPoint();
-        
-        CCPoint* cc; // the corresponding CC-point
+        /// Pointer to the corresponding CCPoint
+        CCPoint* cc; 
         /// string repr
         std::string str() const;
-        /// if zin > z, lift CLPoint and update cc-point 
+        /// if zin > z, lift CLPoint and update cc-point, and return true 
         int liftZ(double zin, CCPoint& ccp);
+        /// if zin > z, lift CLPoint and return true.
         bool liftZ(const double zin);
         /// return true if cl-point above triangle
         bool below(const Triangle& t) const;
         
-        // return cc-point to python
+        /// return the CCPoint (for python)
         CCPoint getCC();
-        
+        /// assignment
         CLPoint &operator=(const CLPoint &p);
         /// addition
         const CLPoint operator+(const CLPoint &p) const;

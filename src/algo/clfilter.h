@@ -29,14 +29,13 @@
 #include "point.h"
 #include "clpoint.h"
 
-
 namespace ocl
 {  
 
 ///
-/// \brief CL point filter base class
+/// \brief CL point filter virtual base class
 ///
-class CLFilter { // virtual base class for filters
+class CLFilter { 
     public:
         /// constructor
         CLFilter() {} ;
@@ -44,6 +43,7 @@ class CLFilter { // virtual base class for filters
         
         /// add CLPoint
         virtual void addCLPoint(const CLPoint& p) = 0;
+        /// set the tolerance value
         virtual void setTolerance(const double tol) = 0;
         
         /// run filter
@@ -67,7 +67,6 @@ class LineCLFilter : public CLFilter  {
         void setTolerance(const double tol);
         void run();
         boost::python::list getCLPoints(); 
-
 };
 
 } // end namespace

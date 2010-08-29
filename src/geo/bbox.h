@@ -37,15 +37,21 @@ class Bbox {
         Bbox(double b1, double b2, double b3, double b4, double b5, double b6);
         virtual ~Bbox();
         
-        Point maxpt; /// the maximum point
-        Point minpt; /// the minimum point
+        /// the maximum point
+        Point maxpt; 
+        /// the minimum point
+        Point minpt; 
+        /// index into maxpt and minpt returning a vector
+        /// [minx maxx miny maxy minz maxz]
         double operator[](const unsigned int idx) const;
         
         /// return true if Point p is inside this Bbox
         bool isInside(Point& p) const;
         
+        /// return true if *this overlaps Bbox b
         bool overlaps(const Bbox& b) const;
         
+        /// reset the Bbox (sets initialized=false)
         void clear();
         
         /// Add a Point to the Bbox.

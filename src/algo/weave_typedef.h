@@ -69,10 +69,13 @@ typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
 typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;
 typedef std::pair< VertexDescriptor, double > VertexPair;
 
+/// compare based on pair.second
 struct VertexPairCompare {
-  bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
-  { return lhs.second < rhs.second ;}
+    /// comparison operator
+    bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
+    { return lhs.second < rhs.second ;}
 };
+
 typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;                               
 
 typedef std::vector< std::vector< EdgeDescriptor > > PlanarEmbedding;

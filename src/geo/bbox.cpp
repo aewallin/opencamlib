@@ -119,9 +119,9 @@ bool Bbox::overlaps(const Bbox& b) const {
         return true;
 }
 
-/// return the bounding box values as a vector:
-///  0    1    2    3    4    5
-/// [minx maxx miny maxy minz maxz]
+// return the bounding box values as a vector:
+//  0    1    2    3    4    5
+// [minx maxx miny maxy minz maxz]
 double Bbox::operator[](const unsigned int idx) const{
     switch(idx) {
         case 0:

@@ -37,29 +37,44 @@ class KDNode2;
 class Triangle;
 class MillingCutter;
 
-///
-/// \brief Drop cutter interface
+
+/// The Waterline object is used for generating waterline or z-slice toolpaths
+/// from an STL-model. Waterline calls BatchPushCutter to do most of the work.
 class Waterline {
     public:
+        /// create an empty Waterline object
         Waterline(); 
         virtual ~Waterline();
+        /// Set the STL-surface to s
         void setSTL(const STLSurf& s);
+        /// Set the cutter
         void setCutter(const MillingCutter& c);
+        /// Set the sampling-interval for fibers
         void setTolerance(const double tol);
+        /// Set the z-coordinate for the waterline we generate
         void setZ(const double z);
+        /// run the algorithm
         void run();
-        
+        /// return the generated loops as a python list
         boost::python::list py_getLoops() const;
         
     private:
+        /// initialization
         void init_fibers();
+        /// x and y-coordinates for fiber generation
         std::vector<double> generate_range( double start, double end, int N) const;
         // DATA
+        /// the cutter for this operation
         const MillingCutter* cutter;
+        /// the surface for this operation
         const STLSurf* surface;
+        /// handle to BatchPushCutter that does the heavy lifting
         BatchPushCutter* bpc;
+        /// the z-height for this Waterline
         double zh;
+        /// fiber sampling interval
         double tolerance;
+        /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint?
 };
 

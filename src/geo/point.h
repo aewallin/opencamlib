@@ -100,7 +100,9 @@ class Point {
         
         /// return true if the x and y components are both zero.
         bool xParallel() const;
+        /// return true if vector parallel to y-axis
         bool yParallel() const;
+        /// return true if vector parallel to z-axis
         bool zParallel() const;
         
         /// assignment

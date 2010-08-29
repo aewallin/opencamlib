@@ -164,30 +164,29 @@ IF (DOXYGEN_FOUND)
 
     add_custom_target(
         doc
-        #ALL
         DEPENDS doc/latex/index.tex
     )
 
 
-    IF (EXISTS ${PDFLATEX_COMPILER})
-        add_custom_command(
-            OUTPUT doc/latex/refman.pdf
-            DEPENDS doc/latex/index.tex
-            WORKING_DIRECTORY doc/latex
-            COMMAND make pdf
-            COMMENT building PDF docs
-            COMMAND mv refman.pdf ../ocl-manual.pdf
-        )
-
-        add_custom_target(
-            doc-pdf
-            DEPENDS doc/latex/refman.pdf
-        )
-
-        add_dependencies(doc doc-pdf)
-    ELSE (EXISTS ${PDFLATEX_COMPILER}) 
-        message(STATUS "pdflatex compiler not found, PDF docs will not be built")
-    ENDIF (EXISTS ${PDFLATEX_COMPILER})
+#    IF (EXISTS ${PDFLATEX_COMPILER})
+#        add_custom_command(
+#            OUTPUT doc/latex/refman.pdf
+#            DEPENDS doc/latex/index.tex
+#            WORKING_DIRECTORY doc/latex
+#            COMMAND make pdf
+#            COMMENT building PDF docs
+#            COMMAND mv refman.pdf ../ocl-manual.pdf
+#        )
+#
+#        add_custom_target(
+#            doc-pdf
+#            DEPENDS doc/latex/refman.pdf
+#        )
+#
+#        add_dependencies(doc doc-pdf)
+#    ELSE (EXISTS ${PDFLATEX_COMPILER}) 
+ #       message(STATUS "pdflatex compiler not found, PDF docs will not be built")
+ #   ENDIF (EXISTS ${PDFLATEX_COMPILER})
 
 
     add_custom_target(

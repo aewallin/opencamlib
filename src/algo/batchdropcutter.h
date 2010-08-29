@@ -59,11 +59,12 @@ class BatchDropCutter {
         void dropCutter3();
         /// use OpenMP for multi-threading     
         void dropCutter4();
+        /// version 5 of the algorithm
         void dropCutter5();
+        
         // Python interface
         /// return CL-points to Python
         boost::python::list getCLPoints();
-
         /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
         boost::python::list getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter);
         
@@ -74,6 +75,7 @@ class BatchDropCutter {
         std::vector<CLPoint>* clpoints;
         /// root of the kd-tree
         KDNode *root;
+        /// root of KDNode2 kd-tree
         KDNode2 *root2;
         /// the STLSurf which we test against.
         STLSurf *surf;

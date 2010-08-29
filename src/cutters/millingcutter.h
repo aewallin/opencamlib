@@ -85,21 +85,22 @@ class MillingCutter {
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
-        // should not really be used for real work, demo/debug only
+        /// NOTE: should not really be used for real work, demo/debug only
         int dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
-        // pushCutter methods
+        /// push the cutter along Fiber f into contact with the vertices of Triangle t, updating Interval i
+        /// with the interfering interval.
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
-        
+        /// return a string representation of the MillingCutter
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
         
     protected:
-        
-        /// drop cutter against edge p1-p2
+        /// drop cutter against edge p1-p2 at xy-distance d from cl
         virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {return false;};
-        
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.
         virtual double height(const double r) const {assert(0); return -1;};
@@ -112,9 +113,8 @@ class MillingCutter {
         /// normal lenght that locates the cutter center relative to a
         /// cc-point on a facet.
         double normal_length;
-        /// height of cutter center
+        /// height of cutter center along z-axis
         double center_height;
-        
         /// diameter of cutter
         double diameter;
         /// radius of cutter
@@ -139,6 +139,7 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
                 return ovr_vertexDrop(cl, t);
             return MillingCutter::vertexDrop(cl, t);
         };
+        /// python-wrapper boilerplate...
         bool default_vertexDrop(CLPoint &cl, const Triangle &t) const{
             return this->MillingCutter::vertexDrop(cl,t);
         };
@@ -150,6 +151,7 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
                 return ovr_facetDrop(cl, t);
             return MillingCutter::facetDrop(cl, t);
         };
+        /// python-wrapper boilerplate...
         bool default_facetDrop(CLPoint &cl, const Triangle &t) const{
             return this->MillingCutter::facetDrop(cl,t);
         };
@@ -162,6 +164,7 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
                 return ovr_edgeDrop(cl, t);
             return MillingCutter::edgeDrop(cl, t);
         };    
+        /// python-wrapper boilerplate...
         bool default_edgeDrop(CLPoint &cl, const Triangle &t) const{
             return this->MillingCutter::edgeDrop(cl,t);
         };
@@ -173,6 +176,7 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
                 return ovr_offsetCutter(d);
             return MillingCutter::offsetCutter(d);
         };   
+        /// python-wrapper boilerplate...
         MillingCutter* default_offsetCutter(const double d) const {
             return this->MillingCutter::offsetCutter(d);
         };
@@ -185,6 +189,7 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
             }
             return MillingCutter::str();
         }; 
+        /// python-wrapper boilerplate...
         std::string default_str() const {
             return this->MillingCutter::str();
         };

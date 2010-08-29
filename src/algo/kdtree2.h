@@ -82,10 +82,13 @@ class KDNode2 {
         /// Child node hi should contain only triangles with a higher value than this.
         /// Child node lo contains triangles with lower values.
         double cutval;
-
-        KDNode2 *up; /// parent-node
-        KDNode2 *hi; /// Child-node hi.
-        KDNode2 *lo; /// Child-node lo.
+        
+        /// parent-node
+        KDNode2 *up; 
+        /// Child-node hi.
+        KDNode2 *hi; 
+        /// Child-node lo.
+        KDNode2 *lo; 
 
         /// A list of triangles, if this is a bucket-node
         const std::list<Triangle> *tris;
@@ -108,6 +111,7 @@ class KDNode2 {
                                    KDNode2 *root,
                                    const unsigned int plane = 0);
         
+        /// undocumented, related to selecting the search plane...
         static bool plane_valid(const unsigned int dim,const unsigned int plane);
         
         /// find all triangles under node

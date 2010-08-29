@@ -43,6 +43,7 @@ class OCTVolume {
         OCTVolume(){};
         /// return true if Point p is inside volume
         virtual bool isInside(Point& p) const = 0;
+        /// return signed distance from volume surface to Point p
         virtual double dist(Point& p) const = 0;
         /// return true if Point p is in the bounding box
         bool isInsideBB(Point& p) const;
@@ -55,14 +56,11 @@ class OCTVolume {
 class OCTVolumeWrap : public OCTVolume, public boost::python::wrapper<OCTVolume>
 {
     public:
-    bool isInside(Point &p) const
-    {
+    bool isInside(Point &p) const {
         return this->get_override("isInside")(p);
     }
 
 };
-
-
 
 /// sphere centered at center
 class SphereOCTVolume: public OCTVolume {
@@ -128,6 +126,7 @@ class BoxOCTVolume: public OCTVolume {
         /// third vector
         Point v3;
         bool isInside(Point& p) const;
+        /// update the bounding-box
         void calcBB();
         double dist(Point& p) const {return -1;}
 };
@@ -151,13 +150,17 @@ class EtubeOCTVolume: public OCTVolume {
         double dist(Point& p) const {return -1;}
 };
 
+/// cylindrical cutter volume
 class CylCutterVolume: public OCTVolume {
     public:
         CylCutterVolume();
+        /// cutter radius
         double radius;
+        /// cutter length
         double length;
         /// start CL-Point for this move
         void setPos(Point& p);
+        /// cutter position
         Point pos;
         bool isInside(Point& p) const;
         /// update the Bbox
@@ -165,40 +168,60 @@ class CylCutterVolume: public OCTVolume {
         double dist(Point& p) const;
 };
 
+/// ball-nose cutter volume
 class BallCutterVolume: public OCTVolume {
     public:
         BallCutterVolume();
+        /// cutter radius
         double radius;
+        /// cutter length
         double length;
+        /// position cutter at p
         void setPos(Point& p);
+        /// cutter position
         Point pos;
         bool isInside(Point& p) const {return false;};
+        /// update bounding box
         void calcBB();
         double dist(Point& p) const;
 };
 
+/// bull-nose cutter volume
 class BullCutterVolume: public OCTVolume {
     public:
         BullCutterVolume();
+        /// cutter radius
         double radius;
+        /// radius of cylinder-part
         double r1;
+        /// radius of torus
         double r2;
+        /// cutter length
         double length;
+        /// position cutter
         void setPos(Point& p);
+        /// position of cutter
         Point pos;
         bool isInside(Point& p) const {return false;};
+        /// update bounding box
         void calcBB();
         double dist(Point& p) const;
 };
 
+/// plane-volume, useful for cutting stock to shape
 class PlaneVolume: public OCTVolume {
     public:
         PlaneVolume() {};
+        /// create a plane orthogonal to axis at position pos 
         PlaneVolume(bool sign, unsigned int axis, double pos);
+        /// is +pos or -pos the positive side?
         bool sign;
+        /// tje position of the plane
         double position;
+        /// the axis of the plane
         unsigned int axis;
         bool isInside(Point& p) const {return false;};
+        /// update bounding box
         void calcBB();
         double dist(Point& p) const;
 };
