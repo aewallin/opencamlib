@@ -315,13 +315,31 @@ class CamvtkActor(vtk.vtkActor):
 
 class Cone(CamvtkActor):
     """ a cone"""
-    def __init__(self, resolution=60, center=(-2,0,0), color=(1,1,0) ):
+    def __init__(self,  center=(-2,0,0), radius = 1, angle=45, height=0.4, color=(1,1,0) , resolution=60):
         """ cone"""
         self.src = vtk.vtkConeSource()
         self.src.SetResolution(resolution)
-        self.src.SetCenter(center)
+        self.src.SetRadius( radius ) 
+        #self.src.SetAngle( angle )
+        self.src.SetHeight( height )
+        #self.src.SetCenter(center)
+        
+        transform = vtk.vtkTransform()
+        transform.Translate(center[0], center[1], center[2] - self.src.GetHeight()/2)
+        #transform.RotateX(rotXYZ[0])
+        transform.RotateY( -90 )
+        #transform.RotateZ(rotXYZ[2])
+        transformFilter=vtk.vtkTransformPolyDataFilter()
+        transformFilter.SetTransform(transform)
+        transformFilter.SetInputConnection(self.src.GetOutputPort())
+        transformFilter.Update()
+        
         self.mapper = vtk.vtkPolyDataMapper()
-        self.mapper.SetInput(self.src.GetOutput())
+        self.mapper.SetInput(transformFilter.GetOutput())
+        
+        
+        #self.mapper = vtk.vtkPolyDataMapper()
+        #self.mapper.SetInput(self.src.GetOutput())
         self.SetMapper(self.mapper)
         self.SetColor(color)
 
