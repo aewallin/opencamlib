@@ -24,7 +24,7 @@ def main():
     s.r2=0.1
     s.radius = 0.4
     s.length = 2
-    startpoint = ocl.Point(0.46,1.0,0.4)
+    startpoint = ocl.Point(0.46,0.0,0.4)
     s.setPos( startpoint )
 
     # screenshot writer
@@ -98,8 +98,9 @@ def main():
     #step_time = 0
     Nmax=20
     #dy = float(-2)/float(Nmax)
-    dy = - 2* t.leaf_scale()
+    dy = - 1* t.leaf_scale()
     cl = startpoint
+    renderinterleave=1
     while (n<Nmax):
         cl = cl + ocl.Point(0.0,dy,0)
         #cl = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
@@ -125,21 +126,21 @@ def main():
         #cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
         #t_before = time.time() 
         #print "mc()...",
-        tris = t.mc_triangles()
-        tris2 = t.side_triangles()
-
-        mc_surf = camvtk.STLSurf( triangleList=tris )
-        mc_surf.SetWireframe()
-        mc_surf.SetColor(camvtk.cyan)
-        myscreen.addActor( mc_surf )
-        s_surf = camvtk.STLSurf( triangleList=tris2 )
-        s_surf.SetWireframe()
-        s_surf.SetColor(camvtk.yellow)
-        myscreen.addActor( s_surf )
-        
-        #print "done."
-        #print " render()...",
-        myscreen.render()
+        if n%renderinterleave==0:
+            tris = t.mc_triangles()
+            tris2 = t.side_triangles()
+            mc_surf = camvtk.STLSurf( triangleList=tris )
+            #mc_surf.SetWireframe()
+            mc_surf.SetColor(camvtk.cyan)
+            myscreen.addActor( mc_surf )
+            s_surf = camvtk.STLSurf( triangleList=tris2 )
+            s_surf.SetWireframe()
+            s_surf.SetColor(camvtk.yellow)
+            myscreen.addActor( s_surf )
+            
+            #print "done."
+            #print " render()...",
+            myscreen.render()
         #myscreen.camera.Azimuth( 0.1 )
         #lwr.SetFileName("frames/wireframe3_d8_frame"+ ('%06d' % n)+".png")
         #w2if.Modified() 
