@@ -51,6 +51,7 @@ class Octnode {
         std::vector<Triangle> mc_triangles();
         /// a list of side-triangles
         std::vector<Triangle> side_triangles();
+        std::vector<Triangle> crack_triangles(std::vector<Point>& vertices);
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
         
@@ -128,6 +129,8 @@ class Octree {
         std::vector<Triangle> mc();
         /// generate the side-triangles
         std::vector<Triangle> side_triangles();
+        
+        
         /// initialize by recursively calling subdivide() on all nodes n times
         void init(const unsigned int n);
         /// return the maximum depth of the tree
@@ -146,6 +149,7 @@ class Octree {
         boost::python::list py_mc_triangles(); 
         /// return python-list of side-trianges
         boost::python::list py_s_triangles(); 
+        
         
     
     private:

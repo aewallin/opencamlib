@@ -146,6 +146,17 @@ boost::python::list Octree::py_s_triangles() {
     return tlist;
 }
 
+/*
+boost::python::list Octree::py_c_triangles() {
+    std::vector<Triangle> c_triangles = crack_triangles();
+    boost::python::list tlist;
+    BOOST_FOREACH( Triangle t, c_triangles ) {
+        tlist.append( t );
+    }
+    return tlist;
+}*/
+
+
 void Octree::diff_negative_root(const OCTVolume* vol) {
     diff_negative( this->root, vol);
 }
@@ -441,6 +452,14 @@ std::vector<Triangle> Octnode::mc_triangles() {
     // calculate intersection points by linear interpolation
     // there are now 12 different cases:
     std::vector<Point> vertices(12);
+    vertices[0] = *vertex[0];
+    vertices[1] = *vertex[1];
+    vertices[2] = *vertex[2];
+    vertices[3] = *vertex[3];
+    vertices[4] = *vertex[4];
+    vertices[5] = *vertex[5];
+    vertices[6] = *vertex[6];
+    vertices[7] = *vertex[7];
     if ( edges & 1 )
         vertices[0] = interpolate( 0 , 1 );
     if ( edges & 2 )
@@ -467,59 +486,151 @@ std::vector<Triangle> Octnode::mc_triangles() {
         vertices[11] = interpolate( 3 , 7 );
     
     // form facets
-    for (int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
-        tris.push_back( Triangle(vertices[ triTable[edgeTableIndex][i  ] ],
-                                 vertices[ triTable[edgeTableIndex][i+1] ], 
-                                 vertices[ triTable[edgeTableIndex][i+2] ]
-                                 ) 
-                      );
+    for (unsigned int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
+        tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
+                                  vertices[ triTable[edgeTableIndex][i+1] ], 
+                                  vertices[ triTable[edgeTableIndex][i+2] ]
+                                 ) );
     }
+    
+    std::vector<Triangle> crack_tris;
+    crack_tris = crack_triangles(vertices);
+    
+    for( unsigned int i = 0; i < crack_tris.size(); ++i)
+            tris.push_back( crack_tris[i] );
+                
     this->mc_tris = tris;
     this->mc_tris_valid = true;
+    return tris;
+}
+
+std::vector<Triangle> Octnode::crack_triangles(std::vector<Point>& vertices) {
+    assert( childcount == 0); // don't call this on non-leafs!
+    std::vector<Triangle> tris;
+    
+    if ( this->outside || this->inside || !evaluated) {
+        return tris; // outside nodes do not produce triangles
+    } 
+    if(!surface[0] && !surface[1] && !surface[2] && !surface[3] && !surface[4] && !surface[5])
+        return tris; // return early if no surface flags set
+
+    //init as surface[5] = true
+    int nV1 = 4; 
+    int nV2 = 5;
+    int nV3 = 6;
+    int nV4 = 7;
+    // surf     vertices  vertices
+    // 0:       2,3,7     2,6,7
+    // 1:       0,4,7     0,3,7
+    // 2:       0,1,4     1,4,5
+    // 3:       1,5,6     1,2,6
+    // 4:       0,2,3     0,1,2
+    // 5:       4,6,7     4,5,6
+    if(surface[0]) { //2376 
+            nV1 = 2; 
+            nV2 = 3;
+            nV3 = 7;
+            nV4 = 6;
+    } else if(surface[1]) { //0473
+            nV1 = 0; 
+            nV2 = 4;
+            nV3 = 7;
+            nV4 = 3;
+    } else if(surface[2]) {//0451
+            nV1 = 0; 
+            nV2 = 4;
+            nV3 = 5;
+            nV4 = 1;
+    } else if(surface[3]) { //1562
+            nV1 = 1; 
+            nV2 = 5;
+            nV3 = 6;
+            nV4 = 2;
+    } else if(surface[4]) { //1562
+            nV1 = 0; 
+            nV2 = 1;
+            nV3 = 2;
+            nV4 = 3;
+    }
+    double df[8];
+    for(int i = 0; i < 8; i++)
+            df[i] = f[i];
+    
+    if(f[nV4] <0 && f[nV1]>0 && f[nV2]>0 && f[nV3]>0 ) { //only nV4 of surface in tool
+        tris.push_back( Triangle(*vertex[ nV2 ],*vertex[ nV3 ],vertices[nV3]));
+        tris.push_back( Triangle(*vertex[ nV2 ],vertices[ nV3 ],vertices[nV4]));
+        tris.push_back( Triangle(*vertex[ nV2 ],vertices[ nV4 ],*vertex[nV1]));
+    } else if(f[nV3] <0 && f[nV1]>0 && f[nV2]>0 && f[nV4]>0) { //only nV3 of surface in tool
+        tris.push_back( Triangle(*vertex[ nV1 ],*vertex[ nV2 ],vertices[nV2]));
+        tris.push_back( Triangle(*vertex[ nV1 ],vertices[ nV2 ],vertices[nV3]));
+        tris.push_back( Triangle(*vertex[ nV1 ],vertices[ nV3 ],*vertex[nV4]));
+    } else if(f[nV2] <0 && f[nV1]>0 && f[nV3]>0 && f[nV4]>0) {//only nV2 of surface in tool
+        tris.push_back( Triangle(*vertex[ nV4 ],*vertex[ nV1 ],vertices[nV1]));
+        tris.push_back( Triangle(*vertex[ nV4 ],vertices[ nV1 ],vertices[nV2]));
+        tris.push_back( Triangle(*vertex[ nV4 ],vertices[ nV2 ],*vertex[nV3]));
+    } else if(f[nV1] <0 && f[nV2]>0 && f[nV3]>0 && f[nV4]>0) { //only nV1 of surface in tool    
+        tris.push_back( Triangle(*vertex[ nV3 ],*vertex[ nV4 ],vertices[nV4]));
+        tris.push_back( Triangle(*vertex[ nV3 ],vertices[ nV4 ],vertices[nV1]));
+        tris.push_back( Triangle(*vertex[ nV3 ],vertices[ nV1 ],*vertex[nV2]));
+    } else if(f[nV4]>0 && f[nV1] <= 0 && f[nV2] <= 0 && f[nV3] <= 0) { //only 7 out of tool //only nV4 of surface out of tool    
+        tris.push_back( Triangle(vertices[nV4 ],vertices[ nV3 ],*vertex[nV4]));
+    } else if(f[nV3]>0 && f[nV1] <= 0 && f[nV2] <= 0 && f[nV4] <= 0) { //only 6 out of tool //only nV3 of surface out of tool
+        tris.push_back( Triangle(vertices[nV2 ],*vertex[nV3],vertices[nV3]));
+    } else if(f[nV2]>0 && f[nV1] <= 0 && f[nV3] <= 0 && f[nV4] <= 0) { //only nV2 out of tool
+        tris.push_back( Triangle(vertices[nV1 ], vertices[ nV2 ],*vertex[nV2]));
+    } else if(f[nV1]>0 && f[nV2] <= 0 && f[nV3] <= 0 && f[nV4] <= 0) { //only 4 out of tool//only nV1 of surface out of tool
+        tris.push_back( Triangle(vertices[nV1 ],vertices[ nV4 ],*vertex[nV1]));
+    } else if(f[nV1] < 0 && f[nV4] < 0 && f[nV2] >= 0 && f[nV3] >= 0 ) { //4 and 7 in tool and 5,6 out //only nV1,nV4 of surface in tool
+        tris.push_back( Triangle(vertices[nV1 ],vertices[ nV3 ],*vertex[nV3]) );
+        tris.push_back( Triangle(vertices[nV1 ],*vertex[ nV3 ], *vertex[nV2]) );
+    } else if(f[nV2] < 0 && f[nV3] < 0 && f[nV1] >= 0 && f[nV4] >= 0 ) { //5 and 6 in tool and 4,7 out//only nV2,nV3 of surface in tool
+        tris.push_back( Triangle(*vertex[nV4],vertices[nV1],vertices[ nV3 ]));
+        tris.push_back( Triangle(*vertex[nV4],*vertex[nV1],vertices[ nV1 ]));
+    } else if(f[nV1] < 0 && f[nV2] < 0 && f[nV3] >= 0 && f[nV4] >= 0 ) { //4 and 5 in tool and 6,7 out //only nV1,nV2 of surface in tool
+        tris.push_back( Triangle(vertices[nV4],vertices[nV2],*vertex[ nV3 ]));
+        tris.push_back( Triangle(vertices[nV4],*vertex[nV3],*vertex[ nV4 ]));
+    } else if(f[nV3] < 0 && f[nV4] < 0 && f[nV1] >= 0 && f[nV2] >= 0 ) { //6 and 7 in tool and 4,5 out //only nV3,nV4 of surface in tool
+        tris.push_back( Triangle(vertices[nV2],vertices[nV4],*vertex[ nV1 ]));
+        tris.push_back( Triangle(vertices[nV2],*vertex[nV1],*vertex[ nV2 ]));
+    }
+    
     return tris;
 }
 
 std::vector<Triangle> Octnode::side_triangles() {
     assert( this->childcount == 0 ); // this is a leaf-node
     std::vector<Triangle> tris;
-    //std::cout << " side_tris() : ";
-    //print_surfaces();
+    if(!surface[0] && !surface[1] && !surface[2] && !surface[3] && !surface[4] && !surface[5]) // no surface faces
+        return tris; // return early
     if ( !this->inside) {
-        Point vertices[12];
-        vertices[0] = *vertex[0];
-        vertices[1] = *vertex[1];
-        vertices[2] = *vertex[2];
-        vertices[3] = *vertex[3];
-        vertices[4] = *vertex[4];
-        vertices[5] = *vertex[5];
-        vertices[6] = *vertex[6];
-        vertices[7] = *vertex[7];
+        if(!outside && evaluated) {
+            return tris; // return early, why?
+        }
         if(surface[0] == true) {
-            tris.push_back( Triangle(vertices[2],vertices[3] , vertices[7]) );
-            tris.push_back( Triangle(vertices[2],vertices[7] , vertices[6]) );
+            tris.push_back( Triangle( *vertex[2], *vertex[3] , *vertex[7]) );
+            tris.push_back( Triangle( *vertex[2], *vertex[7] , *vertex[6]) );
         }
         if(surface[1] == true) {
-            tris.push_back( Triangle(vertices[0], vertices[4] , vertices[7]) );
-            tris.push_back( Triangle(vertices[0],vertices[7] , vertices[3]) );
+            tris.push_back( Triangle( *vertex[0], *vertex[4] , *vertex[7]) );
+            tris.push_back( Triangle( *vertex[0], *vertex[7] , *vertex[3]) );
         }
         if(surface[2] == true) {
-            tris.push_back( Triangle(vertices[1],vertices[0] , vertices[4]) );
-            tris.push_back( Triangle(vertices[1],vertices[4] , vertices[5]) );
+            tris.push_back( Triangle( *vertex[1], *vertex[0] , *vertex[4]) );
+            tris.push_back( Triangle( *vertex[1], *vertex[4] , *vertex[5]) );
         }
         if(surface[3] == true) {
-            tris.push_back( Triangle(vertices[1],vertices[5] , vertices[6]) );
-            tris.push_back( Triangle(vertices[1],vertices[6] , vertices[2]) );
+            tris.push_back( Triangle( *vertex[1], *vertex[5] , *vertex[6]) );
+            tris.push_back( Triangle( *vertex[1], *vertex[6] , *vertex[2]) );
         }
         if(surface[4] == true) {
-            tris.push_back( Triangle(vertices[2],vertices[3] , vertices[0]) );
-            tris.push_back( Triangle(vertices[2],vertices[0] , vertices[1]) );
+            tris.push_back( Triangle( *vertex[2], *vertex[3] , *vertex[0]) );
+            tris.push_back( Triangle( *vertex[2], *vertex[0] , *vertex[1]) );
         }
         if(surface[5] == true) {
-            tris.push_back( Triangle(vertices[6],vertices[7] , vertices[4]) );
-            tris.push_back( Triangle(vertices[6],vertices[4] , vertices[5]) );
+            tris.push_back( Triangle( *vertex[6], *vertex[7] , *vertex[4]) );
+            tris.push_back( Triangle( *vertex[6], *vertex[4] , *vertex[5]) );
         }
     }
-    //std::cout << " side_tris()  returning " << tris.size() << " triangles \n";
     return tris;
 }
 

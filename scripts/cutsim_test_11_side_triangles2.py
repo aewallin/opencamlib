@@ -96,7 +96,7 @@ def main():
     myscreen.removeActor( s_surf )
     #renderinterleave=900
     #step_time = 0
-    Nmax=10
+    Nmax=20
     #dy = float(-2)/float(Nmax)
     dy = - 2* t.leaf_scale()
     cl = startpoint
@@ -113,8 +113,6 @@ def main():
         if n<Nmax:
             myscreen.removeActor( mc_surf )
             myscreen.removeActor( s_surf )
-            #for c in cactors:
-            #    myscreen.removeActor( c )
         
         #call_ms = 1e3*step_time/renderinterleave
         #print renderinterleave," diff() calls in", step_time, " = ", call_ms," ms/call"
@@ -129,13 +127,7 @@ def main():
         #print "mc()...",
         tris = t.mc_triangles()
         tris2 = t.side_triangles()
-        #print "appending"
-        #for tr in tris2:
-        #    tris.append(tr)
-        #mc_time = time.time()-t_before
-        #print "done in ", mc_time," s"
-        #print " mc() got ", len(tris), " triangles"
-        #print " STLSurf()...",
+
         mc_surf = camvtk.STLSurf( triangleList=tris )
         mc_surf.SetWireframe()
         mc_surf.SetColor(camvtk.cyan)

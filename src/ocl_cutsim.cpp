@@ -42,6 +42,7 @@ void export_cutsim() {
         .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
         .def("mc_triangles",       &Octree::py_mc_triangles)
         .def("side_triangles",       &Octree::py_s_triangles)
+        //.def("crack_triangles",       &Octree::py_c_triangles)
         .def("diff_negative", &Octree::diff_negative_root)
         .def("init",       &Octree::init)
         .def("mc",       &Octree::mc)
