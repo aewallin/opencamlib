@@ -20,7 +20,7 @@
 
 #include <list>
 
-#include <boost/foreach.hpp>
+//#include <boost/foreach.hpp>
 
 #include "point.h"
 #include "triangle.h"
@@ -50,6 +50,7 @@ unsigned int STLSurf::size() const {
     return tris.size();
 }
 
+/*
 boost::python::list STLSurf::getTriangles() const
 {
     boost::python::list tlist;
@@ -57,8 +58,9 @@ boost::python::list STLSurf::getTriangles() const
         tlist.append(t);
     }
     return tlist;
-}
+}*/
 
+/*
 boost::python::list STLSurf::getBounds() const
 {
     boost::python::list bounds;
@@ -69,13 +71,14 @@ boost::python::list STLSurf::getBounds() const
     bounds.append( bb.minpt.z );
     bounds.append( bb.maxpt.z );
     return bounds;
-}
+}*/
 
+/*
 std::string STLSurf::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
-}
+}*/
 
 std::ostream &operator<<(std::ostream &stream, const STLSurf s)
 {

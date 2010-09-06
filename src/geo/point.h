@@ -26,9 +26,7 @@
 namespace ocl
 {
 
-
 class Triangle; // fwd declaration
-
 
 ///
 /// \brief a point or vector in 3D space specified by its coordinates (x, y, z)
@@ -76,9 +74,6 @@ class Point {
         void xyRotate(double cosa, double sina);
         /// rotate point in xy-plane bu angle theta (radians or degrees??)
         void xyRotate(double angle);
-        
-        /// if z < zin, lift point so that z=zin. Used by drop-cutter etc.
-        //int liftZ(double zin);
         
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
@@ -140,8 +135,6 @@ class Point {
 
 /// scalar multiplication   scalar*Point
 const Point operator*(const double &a, const Point &p);
-
-
 
 } // end namespace
 #endif

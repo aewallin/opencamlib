@@ -22,7 +22,6 @@
 
 #include <boost/foreach.hpp>
 
-
 #include "triangle.h"
 #include "point.h"
 #include "numeric.h"
@@ -50,16 +49,6 @@ Triangle::~Triangle() {
     //delete n;
     //n = 0;
 }
-
-/// return vertices in a list to python
-/*
-boost::python::list Triangle::getPoints() const {
-    boost::python::list plist;
-    BOOST_FOREACH(Point vertex, p) {
-        plist.append(vertex);
-    }
-    return plist;
-}*/
 
 /// calculate bounding box values
 void Triangle::calcBB() {
@@ -141,15 +130,7 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
     
 }
 
-/*
-std::string Triangle::str() const {
-    std::ostringstream o;
-    o << *this;
-    return o.str();
-}*/
-
-std::ostream &operator<<(std::ostream &stream, const Triangle t)
-{
+std::ostream &operator<<(std::ostream &stream, const Triangle t) {
   stream <<  "T: " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) ;
   return stream;
 }

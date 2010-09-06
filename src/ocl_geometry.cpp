@@ -24,7 +24,7 @@
 #include "ccpoint.h"
 #include "clpoint.h"
 #include "triangle_py.h"  // note new-style python wrapper-class
-#include "stlsurf.h"
+#include "stlsurf_py.h" // new-style wrapper
 #include "oellipse.h"
 #include "millingcutter.h"
 #include "bbox.h"
@@ -100,7 +100,7 @@ void export_geometry() {
         .value("FACET_CYL", FACET_CYL)
         .value("ERROR", ERROR)
     ;
-    bp::class_<Triangle>("Triangle_base")
+    bp::class_<Triangle>("Triangle_base") // needed by Triangle_py as a base-class
     ;
     bp::class_<Triangle_py, bp::bases<Triangle> >("Triangle")
         .def(bp::init<Point,Point,Point>())
@@ -108,14 +108,16 @@ void export_geometry() {
         .def("__str__", &Triangle_py::str) 
         .def_readonly("p", &Triangle_py::p)
     ;
-    bp::class_<STLSurf>("STLSurf")
-        .def("addTriangle", &STLSurf::addTriangle)
-        .def("__str__", &STLSurf::str)
-        .def("size", &STLSurf::size)
-        .def("getBounds", &STLSurf::getBounds)
-        .def("getTriangles", &STLSurf::getTriangles)
-        .def_readonly("tris", &STLSurf::tris)
-        .def_readonly("bb", &STLSurf::bb)
+    bp::class_<STLSurf>("STLSurf_base")
+    ;
+    bp::class_<STLSurf_py, bp::bases<STLSurf> >("STLSurf")
+        .def("addTriangle", &STLSurf_py::addTriangle)
+        .def("__str__", &STLSurf_py::str)
+        .def("size", &STLSurf_py::size)
+        .def("getBounds", &STLSurf_py::getBounds)
+        .def("getTriangles", &STLSurf_py::getTriangles)
+        .def_readonly("tris", &STLSurf_py::tris)
+        .def_readonly("bb", &STLSurf_py::bb)
     ;
     bp::class_<STLReader>("STLReader")
         .def(bp::init<const std::wstring&, STLSurf&>())

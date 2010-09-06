@@ -21,7 +21,6 @@
 #define TRIANGLE_H
 
 #include <vector>
-//#include <boost/python.hpp>
 
 #include "point.h"
 #include "bbox.h"
@@ -44,13 +43,10 @@ class Triangle {
         bool zslice_verts(Point& p1,Point& p2, const double zcut) const;
         
         
-        /// string repr     
+        /// Triangle string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
-        /// string repr
-        //std::string str() const;
         
-        /// Returns a list of the vertices to Python
-        //boost::python::list getPoints() const;        
+       
 
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
@@ -59,7 +55,7 @@ class Triangle {
 
         /// bounding-box 
         Bbox bb;
-        // these values are set from the Bbox object:
+        // these values are set from the Bbox object: (consider removing!)
         /// max x-coord
         double maxx;
         /// max y-coord
