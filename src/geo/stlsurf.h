@@ -21,6 +21,9 @@
 #define STLSURF_H
 
 #include <list>
+
+#include <boost/python.hpp>
+
 #include "triangle.h"
 #include "bbox.h"
 
@@ -40,23 +43,21 @@ class STLSurf {
         STLSurf();
         /// destructor
         virtual ~STLSurf();
-        
         /// add Triangle t to this surface
-        void addTriangle(const Triangle &t);
-        
-        /// string repr
-        std::string str() const;
-        /// string repr
-        friend std::ostream &operator<<(std::ostream &stream, const STLSurf s);
-        
+        void addTriangle(const Triangle& t);
         /// return number of triangles in surface
         unsigned int size() const;
-        
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
-        
         /// bounding-box
         Bbox bb;
+        
+        /// string repr
+        friend std::ostream &operator<<(std::ostream& stream, const STLSurf s);
+        
+    // PYTHON
+        /// string repr
+        std::string str() const;
         
         /// return bounds in a list to python
         boost::python::list getBounds() const;

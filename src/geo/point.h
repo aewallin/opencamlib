@@ -53,7 +53,7 @@ class Point {
         Point cross(const Point &p) const;
         
         /// norm of vector, or distance from (0,0,0) to *this
-        double norm() const; //  or distance to (0,0,0) for a point
+        double norm() const; 
         
         /// scales vector so that norm()==1.0
         void normalize();

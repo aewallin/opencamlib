@@ -21,7 +21,7 @@
 #define TRIANGLE_H
 
 #include <vector>
-#include <boost/python.hpp>
+//#include <boost/python.hpp>
 
 #include "point.h"
 #include "bbox.h"
@@ -47,10 +47,10 @@ class Triangle {
         /// string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
         /// string repr
-        std::string str() const;
+        //std::string str() const;
         
         /// Returns a list of the vertices to Python
-        boost::python::list getPoints() const;        
+        //boost::python::list getPoints() const;        
 
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
@@ -75,7 +75,7 @@ class Triangle {
         /// update bounding-box
         void calcBB();
         
-    private:
+    protected:
         /// calculate and set Triangle normal
         void calcNormal();
 

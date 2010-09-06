@@ -18,6 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cassert>
+
 #include <boost/foreach.hpp>
 
 
@@ -50,13 +52,14 @@ Triangle::~Triangle() {
 }
 
 /// return vertices in a list to python
+/*
 boost::python::list Triangle::getPoints() const {
     boost::python::list plist;
     BOOST_FOREACH(Point vertex, p) {
         plist.append(vertex);
     }
     return plist;
-}
+}*/
 
 /// calculate bounding box values
 void Triangle::calcBB() {
@@ -138,11 +141,12 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
     
 }
 
+/*
 std::string Triangle::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
-}
+}*/
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t)
 {

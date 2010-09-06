@@ -23,7 +23,7 @@
 #include "point.h"
 #include "ccpoint.h"
 #include "clpoint.h"
-#include "triangle.h"
+#include "triangle_py.h"  // note new-style python wrapper-class
 #include "stlsurf.h"
 #include "oellipse.h"
 #include "millingcutter.h"
@@ -100,11 +100,13 @@ void export_geometry() {
         .value("FACET_CYL", FACET_CYL)
         .value("ERROR", ERROR)
     ;
-    bp::class_<Triangle>("Triangle")
+    bp::class_<Triangle>("Triangle_base")
+    ;
+    bp::class_<Triangle_py, bp::bases<Triangle> >("Triangle")
         .def(bp::init<Point,Point,Point>())
-        .def("getPoints", &Triangle::getPoints)
-        .def("__str__", &Triangle::str) 
-        .def_readonly("p", &Triangle::p)
+        .def("getPoints", &Triangle_py::getPoints)
+        .def("__str__", &Triangle_py::str) 
+        .def_readonly("p", &Triangle_py::p)
     ;
     bp::class_<STLSurf>("STLSurf")
         .def("addTriangle", &STLSurf::addTriangle)

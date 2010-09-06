@@ -18,7 +18,9 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #include "point.h"
+
+#include <sstream> // for str()
+
 #include "ccpoint.h"
 #include "triangle.h"
 #include "numeric.h"

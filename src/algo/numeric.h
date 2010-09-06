@@ -50,9 +50,13 @@ bool isZero_tol(double x);
 /// but 1 == 1 + eps/2 
 double eps();
 
+/// assertion with error message
 void assert_msg( bool assertion, std::string message);
 
-/// solves 2x2 matrix system Ax=y
+/// solves 2x2 matrix system Ax=y, solution is x = Ainv * y
+///  [ a  b ] [u] = [ e ]
+///  [ c  d ] [v] = [ f ]
+    
 bool two_by_two_solver( const double& a, 
                         const double& b, 
                         const double& c,
@@ -63,6 +67,8 @@ bool two_by_two_solver( const double& a,
                         double& v);
 
 /// returns intersection in XY plane btw. lines p1,p2 and p3,p4
+/// line1 is   p1 + v * (p2-p1)
+/// line2 is   p3 + t * (p4-p3)
 bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
                                 const Point& p3, const Point& p4, double& t);
 

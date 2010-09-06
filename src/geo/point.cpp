@@ -18,6 +18,10 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cmath> // sqrt, sin, cos, fabs
+#include <cassert>
+#include <sstream>
+
 #include "point.h"
 #include "triangle.h"
 #include "numeric.h"
