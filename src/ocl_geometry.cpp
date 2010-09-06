@@ -20,7 +20,7 @@
 
 #include <boost/python.hpp>
 
-#include "point.h"
+#include "point.h"          // contains no python-specific code
 #include "ccpoint.h"
 #include "clpoint.h"
 #include "triangle_py.h"  // note new-style python wrapper-class
@@ -108,7 +108,7 @@ void export_geometry() {
         .def("__str__", &Triangle_py::str) 
         .def_readonly("p", &Triangle_py::p)
     ;
-    bp::class_<STLSurf>("STLSurf_base")
+    bp::class_<STLSurf>("STLSurf_base") // needed by STLSurf_py below
     ;
     bp::class_<STLSurf_py, bp::bases<STLSurf> >("STLSurf")
         .def("addTriangle", &STLSurf_py::addTriangle)

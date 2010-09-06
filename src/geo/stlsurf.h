@@ -22,9 +22,6 @@
 
 #include <list>
 
-//#include <boost/python.hpp>
-//#include <boost/foreach.hpp>
-
 #include "triangle.h"
 #include "bbox.h"
 
@@ -54,8 +51,6 @@ class STLSurf {
         /// STLSurf string repr
         friend std::ostream &operator<<(std::ostream& stream, const STLSurf s);
 };
-
-
 
 } // end namespace
 #endif
