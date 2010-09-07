@@ -50,7 +50,7 @@ class CLFilter {
         virtual void run() = 0;
         
         /// return CL-points to Python
-        virtual boost::python::list getCLPoints() = 0;
+        virtual boost::python::list getCLPoints() = 0; //PYTHON
         
         /// the list of CL-points to be processed
         std::list<CLPoint> clpoints;
@@ -66,7 +66,7 @@ class LineCLFilter : public CLFilter  {
         void addCLPoint(const CLPoint& p); 
         void setTolerance(const double tol);
         void run();
-        boost::python::list getCLPoints(); 
+        boost::python::list getCLPoints(); // PYTHON
 };
 
 } // end namespace
