@@ -21,7 +21,6 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 
-
 #ifndef WIN32
     #include <omp.h>
 #endif
@@ -119,20 +118,6 @@ std::vector<double> Waterline::generate_range( double start, double end, int N) 
     }
     return output;
 }
-
-boost::python::list Waterline::py_getLoops() const {
-    boost::python::list loop_list;
-    BOOST_FOREACH( std::vector<Point> loop, this->loops ) {
-        boost::python::list point_list;
-        BOOST_FOREACH( Point p, loop ) {
-            point_list.append( p );
-        }
-        loop_list.append(point_list);
-    }
-    return loop_list;
-}
-
-
 
 }// end namespace
 

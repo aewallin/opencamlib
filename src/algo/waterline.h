@@ -55,15 +55,13 @@ class Waterline {
         void setZ(const double z);
         /// run the algorithm
         void run();
-        /// return the generated loops as a python list
-        boost::python::list py_getLoops() const;
         
-    private:
+    protected:
         /// initialization
         void init_fibers();
         /// x and y-coordinates for fiber generation
         std::vector<double> generate_range( double start, double end, int N) const;
-        // DATA
+    // DATA
         /// the cutter for this operation
         const MillingCutter* cutter;
         /// the surface for this operation
@@ -77,6 +75,8 @@ class Waterline {
         /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint?
 };
+
+
 
 } // end namespace
 

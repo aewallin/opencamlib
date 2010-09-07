@@ -20,13 +20,12 @@
 
 #include <boost/python.hpp>
 
-
 #include "batchdropcutter_py.h" // new-style wrapper
 #include "batchpushcutter_py.h" // new-style wrapper 
 #include "pathdropcutter.h"
 #include "fiber_py.h"           // new-style wrapper
 #include "weave_py.h"           // new-style wrapper
-#include "waterline.h"
+#include "waterline_py.h"       // new-style wrapper
 #include "clfilter.h"
 
 
@@ -97,13 +96,15 @@ void export_algo() {
         .def("printInts", &Fiber_py::printInts)
         .def("getInts", &Fiber_py::getInts)
     ;
-    bp::class_<Waterline>("Waterline")
-        .def("setCutter", &Waterline::setCutter)
-        .def("setSTL", &Waterline::setSTL)
-        .def("setZ", &Waterline::setZ)
-        .def("setTolerance", &Waterline::setTolerance)
-        .def("run", &Waterline::run)
-        .def("getLoops", &Waterline::py_getLoops)
+    bp::class_<Waterline>("Waterline_base")
+    ;
+    bp::class_<Waterline_py, bp::bases<Waterline> >("Waterline")
+        .def("setCutter", &Waterline_py::setCutter)
+        .def("setSTL", &Waterline_py::setSTL)
+        .def("setZ", &Waterline_py::setZ)
+        .def("setTolerance", &Waterline_py::setTolerance)
+        .def("run", &Waterline_py::run)
+        .def("getLoops", &Waterline_py::py_getLoops)
     ;
     bp::class_<Weave>("Weave_base")
     ;
