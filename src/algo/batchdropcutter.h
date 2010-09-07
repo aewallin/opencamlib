@@ -26,6 +26,8 @@
 #include <vector>
 
 #include "point.h"
+#include "clpoint.h"
+#include "millingcutter.h"
 
 namespace ocl
 {
@@ -34,7 +36,6 @@ class STLSurf;
 class KDNode;
 class KDNode2;
 class Triangle;
-class MillingCutter;
 
 ///
 /// \brief Drop cutter interface

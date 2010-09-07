@@ -21,15 +21,14 @@
 #include <boost/python.hpp>
 
 
-#include "millingcutter.h"
-
 #include "batchdropcutter_py.h" // new-style wrapper
 #include "batchpushcutter_py.h" // new-style wrapper 
 #include "pathdropcutter.h"
 #include "fiber_py.h"           // new-style wrapper
-#include "weave.h"
+#include "weave_py.h"           // new-style wrapper
 #include "waterline.h"
 #include "clfilter.h"
+
 
 /*
  *  Python wrapping of octree and related classes
@@ -106,18 +105,20 @@ void export_algo() {
         .def("run", &Waterline::run)
         .def("getLoops", &Waterline::py_getLoops)
     ;
-    bp::class_<Weave>("Weave")
-        .def("addFiber", &Weave::addFiber)
-        .def("build", &Weave::build)
-        .def("printGraph", &Weave::printGraph)
-        .def("face_traverse", &Weave::face_traverse)
-        .def("split_components", &Weave::split_components)
-        .def("get_components", &Weave::get_components)
-        .def("getCLPoints", &Weave::getCLPoints)
-        .def("getIPoints", &Weave::getIPoints)
-        .def("getEdges", &Weave::getEdges)
-        .def("getLoops", &Weave::py_getLoops)
-        .def("__str__", &Weave::str)
+    bp::class_<Weave>("Weave_base")
+    ;
+    bp::class_<Weave_py, bp::bases<Weave> >("Weave")
+        .def("addFiber", &Weave_py::addFiber)
+        .def("build", &Weave_py::build)
+        .def("printGraph", &Weave_py::printGraph)
+        .def("face_traverse", &Weave_py::face_traverse)
+        .def("split_components", &Weave_py::split_components)
+        .def("get_components", &Weave_py::get_components)
+        .def("getCLPoints", &Weave_py::getCLPoints)
+        .def("getIPoints", &Weave_py::getIPoints)
+        .def("getEdges", &Weave_py::getEdges)
+        .def("getLoops", &Weave_py::py_getLoops)
+        .def("__str__", &Weave_py::str)
     ;
     bp::class_<PathDropCutter>("PathDropCutter")
         .def(bp::init<STLSurf*>())

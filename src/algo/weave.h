@@ -23,7 +23,6 @@
 #include <vector>
 
 #include <boost/graph/adjacency_list.hpp> // graph class
-#include <boost/python.hpp>
 
 #include "point.h"
 #include "ccpoint.h"
@@ -56,17 +55,6 @@ class Weave {
         /// split this Weave into it's disconnected components
         std::vector<Weave> split_components();
         
-        // python debug/test interface:
-        /// return graph components to python
-        boost::python::list get_components();
-        /// return CL-points to python
-        boost::python::list getCLPoints() const;
-        /// return internal points to python
-        boost::python::list getIPoints() const;
-        /// return edges to python
-        boost::python::list getEdges() const;
-        /// return loops to pyton
-        boost::python::list py_getLoops() const;
         /// retrun list of loops
         std::vector< std::vector<Point> > getLoops() const;
         /// string representation
@@ -76,7 +64,7 @@ class Weave {
         /// print out the planar embedding
         void print_embedding(PlanarEmbedding& e);
         
-        // DATA
+    // DATA
         /// a list of all Fiber objects in this weave
         std::vector<Fiber> fibers;
         /// the X-fibers
@@ -85,11 +73,9 @@ class Weave {
         std::vector<Fiber> yfibers;
         /// the weave-graph
         WeaveGraph g;
-        /// list of loops in this weave
+        /// output: list of loops in this weave
         std::vector< std::vector<VertexDescriptor> > loops;
 };
-
-
 
 } // end namespace
 #endif

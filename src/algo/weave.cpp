@@ -19,11 +19,9 @@
 */
 
 #include <boost/foreach.hpp>
-#include <boost/python.hpp>
 #include <boost/graph/adjacency_list.hpp> 
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/planar_face_traversal.hpp>
-
 
 #include "weave.h"
 #include "pft_visitor.h"
@@ -311,17 +309,6 @@ std::vector<Weave> Weave::split_components() {
     return outw;
 }
 
-/// split the weave into components and return a list
-/// of sub-weaves to python
-boost::python::list Weave::get_components() {
-    boost::python::list wlist;
-    std::vector<Weave> weaves = split_components();
-    BOOST_FOREACH( Weave w, weaves ) {
-        wlist.append( w );
-    }
-    return wlist;
-}
-
 /// print out information about the graph
 void Weave::printGraph() const {
     std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
@@ -342,53 +329,6 @@ void Weave::printGraph() const {
     std::cout << "    internal-nodes: " << n_internal << "\n";
 }
 
-/// return CL-points to python
-boost::python::list Weave::getCLPoints() const {
-    boost::python::list plist;
-    VertexIterator it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        if ( boost::get( boost::vertex_type, g, *itr ) == CL ) // a CL-point
-            plist.append( boost::get( boost::vertex_position, g, *itr ) );
-    }
-    return plist;
-}
-
-/// return the internal points of the weave to python
-boost::python::list Weave::getIPoints() const {
-    boost::python::list plist;
-    VertexIterator it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        if ( boost::get( boost::vertex_type, g, *itr ) == INT ) 
-            plist.append( boost::get( boost::vertex_position, g, *itr ) );
-    }
-    return plist;
-}
-
-
-
-/// put all edges in a list of lists for output to python
-/// format is [ [p1,p2] , [p3,p4] , ... ]
-boost::python::list Weave::getEdges() const {
-    boost::python::list edge_list;
-    EdgeIterator it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::edges( g );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) { // loop through each edge
-        if ( ! boost::get( boost::edge_color, g, *itr ) ) {
-            boost::python::list point_list; // the endpoints of each edge
-            VertexDescriptor v1 = boost::source( *itr, g  );
-            VertexDescriptor v2 = boost::target( *itr, g  );
-            Point p1 = boost::get( boost::vertex_position, g, v1 );
-            Point p2 = boost::get( boost::vertex_position, g, v2 );
-            point_list.append(p1);
-            point_list.append(p2);
-            edge_list.append(point_list);
-        }
-    }
-    return edge_list;
-}
-
 /// return loops as vector of vector<Point>
 std::vector< std::vector<Point> > Weave::getLoops() const {
     std::vector< std::vector<Point> > loop_list;
@@ -401,22 +341,7 @@ std::vector< std::vector<Point> > Weave::getLoops() const {
         loop_list.push_back(point_list);
     }
     return loop_list;
-}
-
-/// output points from variable this->loops to python
-boost::python::list Weave::py_getLoops() const {
-    boost::python::list loop_list;
-    BOOST_FOREACH( std::vector<VertexDescriptor> loop, loops ) {
-        boost::python::list point_list;
-        BOOST_FOREACH( VertexDescriptor v, loop ) {
-            Point p = boost::get( boost::vertex_position, g, v);
-            point_list.append( p );
-        }
-        loop_list.append(point_list);
-    }
-    return loop_list;
-}
-        
+}       
 
 std::string Weave::str() const {
     std::ostringstream o;
@@ -426,9 +351,6 @@ std::string Weave::str() const {
     o << "  " << yfibers.size() << " Y-fibers\n";
     return o.str();
 }
-
-
-
 
 } // end namespace
 // end file weave.cpp

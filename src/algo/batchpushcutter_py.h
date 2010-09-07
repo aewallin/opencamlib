@@ -52,7 +52,8 @@ class BatchPushCutter_py : public BatchPushCutter {
             }
             return plist;
         };
-        /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
+        /// return triangles under cutter to Python. Not for CAM-algorithms, 
+        /// more for visualization and demonstration.
         boost::python::list getOverlapTriangles(Fiber& f, MillingCutter& cutter) {
             boost::python::list trilist;
             std::list<Triangle> *overlap_triangles = new std::list<Triangle>();
