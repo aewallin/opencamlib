@@ -20,14 +20,14 @@
 
 
 #include <boost/python.hpp>
-//#include "point.h"
+
 #include "millingcutter.h"              // cutter base-class, no boost-python
 #include "millingcutter_wrap.h"         // python wrapper
-#include "cylcutter.h"
-#include "ballcutter.h"
-#include "bullcutter.h"
-#include "conecutter.h"
-#include "compoundcutter.h"
+#include "cylcutter.h"                  // no boost-python
+#include "ballcutter.h"                 // no boost-python
+#include "bullcutter.h"                 // no boost-python
+#include "conecutter.h"                 // no boost-python
+#include "compoundcutter.h"             // no boost-python
 
 /*
  *  wrap cutters

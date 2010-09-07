@@ -20,7 +20,6 @@
 
 #include <boost/foreach.hpp>
 
-
 #include "bullcutter.h"
 #include "oellipse.h"
 

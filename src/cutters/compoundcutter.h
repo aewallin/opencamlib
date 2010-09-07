@@ -18,7 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #ifndef COMPOUND_CUTTER_H
 #define COMPOUND_CUTTER_H
 
@@ -26,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/python.hpp>
 #include "millingcutter.h"
 
 namespace ocl

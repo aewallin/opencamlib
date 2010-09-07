@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/python.hpp>
 #include "millingcutter.h"
 
 namespace ocl

@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include <boost/python.hpp>
+// #include <boost/python.hpp>
 
 #include "stlsurf.h"
 #include "fiber.h"
