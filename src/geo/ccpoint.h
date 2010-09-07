@@ -27,9 +27,6 @@
 namespace ocl
 {
 
-
-//class Triangle; // fwd declaration
-
 /// type of cc-point
 enum CCType {NONE, 
              VERTEX, VERTEX_CYL, 
@@ -49,7 +46,6 @@ class CCPoint : public Point {
         CCPoint();
         /// create CCPoint at (x,y,z)
         CCPoint(double x,double y,double z);
-        
         /// create a CCPoint at Point p
         CCPoint(const Point& p); 
         virtual ~CCPoint(){};
@@ -62,10 +58,7 @@ class CCPoint : public Point {
         std::string str() const;
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const CCPoint &p);
-        
 };
-
-
 
 } // end namespace
 #endif

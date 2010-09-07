@@ -83,13 +83,11 @@ class Fiber {
         /// return true if Interval i is completely missing (no overlaps) from Fiber
         bool missing(Interval& i) const;
         /// get rid of this (??)
-        void condense(); 
+        void condense();  // REMOVE??
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value
         Point point(const double t) const;
-        /// return intervals to python
-        boost::python::list getInts() const;
         /// print the intervals
         void printInts() const;
         /// string repr
@@ -104,10 +102,11 @@ class Fiber {
         Point dir;
         /// the intervals in this Fiber
         std::vector<Interval> ints;
-    private:
+    protected:
         /// set the direction(tangent) vector
         void calcDir();
 };
+
 
 } // end namespace
 #endif

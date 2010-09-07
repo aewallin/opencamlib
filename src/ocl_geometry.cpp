@@ -20,16 +20,14 @@
 
 #include <boost/python.hpp>
 
-#include "point.h"          // contains no python-specific code
-#include "ccpoint.h"
-#include "clpoint.h"
-#include "triangle_py.h"  // note new-style python wrapper-class
-#include "stlsurf_py.h" // new-style wrapper
-#include "oellipse.h"
-#include "millingcutter.h"
-#include "bbox.h"
-#include "fiber.h"
-#include "path.h"
+#include "point.h"              // contains no python-specific code
+#include "ccpoint.h"            // no python
+#include "clpoint.h"            // no python
+#include "triangle_py.h"        // new-style python wrapper-class
+#include "stlsurf_py.h"         // new-style wrapper
+#include "oellipse.h"           // no python
+#include "bbox.h"               // no python
+#include "path_py.h"            // new-style wrapper
 #include "stlreader.h"
 
 /*
@@ -165,13 +163,15 @@ void export_geometry() {
         .value("ArcSpanType", ArcSpanType)
         .export_values()
     ;
-    bp::class_<Path>("Path")
+    bp::class_<Path>("Path_base")
+    ;
+    bp::class_<Path_py, bp::bases<Path> >("Path")
         .def(bp::init<>())
         .def(bp::init<Path>())
-        .def("getSpans", &Path::getSpans)
-        .def("getTypeSpanPairs", &Path::getTypeSpanPairs)
-        .def("append",static_cast< void (Path::*)(const Line &l)>(&Path::append))
-        .def("append",static_cast< void (Path::*)(const Arc &a)>(&Path::append))
+        .def("getSpans", &Path_py::getSpans)
+        .def("getTypeSpanPairs", &Path_py::getTypeSpanPairs)
+        .def("append",static_cast< void (Path_py::*)(const Line &l)>(&Path_py::append))
+        .def("append",static_cast< void (Path_py::*)(const Arc &a)>(&Path_py::append))
     ;
 }
 

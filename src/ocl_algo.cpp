@@ -26,7 +26,7 @@
 #include "batchdropcutter.h"
 #include "batchpushcutter.h"
 #include "pathdropcutter.h"
-#include "fiber.h"
+#include "fiber_py.h"           // new-style wrapper
 #include "weave.h"
 #include "waterline.h"
 #include "clfilter.h"
@@ -82,15 +82,17 @@ void export_algo() {
         .def("empty", &Interval::empty )
         .def("__str__", &Interval::str )
     ;
-    bp::class_<Fiber>("Fiber")
+    bp::class_<Fiber>("Fiber_base")
+    ;
+    bp::class_<Fiber_py, bp::bases<Fiber> >("Fiber")
         .def(bp::init<Point,Point>())
-        .def_readonly("p1", &Fiber::p1)
-        .def_readonly("p2", &Fiber::p2)
-        .def_readonly("dir", &Fiber::dir)
-        .def("addInterval", &Fiber::addInterval)
-        .def("point", &Fiber::point)
-        .def("printInts", &Fiber::printInts)
-        .def("getInts", &Fiber::getInts)
+        .def_readonly("p1", &Fiber_py::p1)
+        .def_readonly("p2", &Fiber_py::p2)
+        .def_readonly("dir", &Fiber_py::dir)
+        .def("addInterval", &Fiber_py::addInterval)
+        .def("point", &Fiber_py::point)
+        .def("printInts", &Fiber_py::printInts)
+        .def("getInts", &Fiber_py::getInts)
     ;
     bp::class_<Waterline>("Waterline")
         .def("setCutter", &Waterline::setCutter)

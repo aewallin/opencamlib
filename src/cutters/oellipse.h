@@ -21,7 +21,6 @@
 #ifndef OELLIPSE_H
 #define OELLIPSE_H
 
-//#include <iostream>
 #include <list>
 #include "point.h"
 #include "epos.h"
@@ -72,7 +71,6 @@ class Ellipse {
         Epos epos2;
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);        
-        
         
     protected:
         /// a-axis, in the X-direction

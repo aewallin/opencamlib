@@ -17,12 +17,11 @@ if __name__ == "__main__":
     camvtk.drawOCLtext(myscreen)
     camvtk.drawArrows(myscreen,center=(-1,-2,0))
     a=ocl.Point(0,1.7,-0.6)
-    b=ocl.Point(0.2,0.11,0.3)    
+    b=ocl.Point(0,0.11,0.3)    
 
     drawEdge(myscreen, a, b)
     diameter=0.4
     length=1
-
     # spherical cutter and cylinder
     s1 = camvtk.Sphere(center=(a.x,a.y,a.z), radius=diameter/2, color=camvtk.lgreen)
     s2 = camvtk.Sphere(center=(b.x,b.y,b.z), radius=diameter/2, color=camvtk.pink)
@@ -40,7 +39,6 @@ if __name__ == "__main__":
     a = a + ocl.Point(1,0,0)
     b = b + ocl.Point(1,0,0)
     drawEdge(myscreen, a, b)
-    
     cir1 = camvtk.Circle(center=(a.x,a.y,a.z) , radius=diameter/2, color=camvtk.lgreen, resolution=50 )
     cir1.SetOpacity(1)
     myscreen.addActor(cir1)
@@ -54,7 +52,6 @@ if __name__ == "__main__":
     a = a + ocl.Point(1,0,0)
     b = b + ocl.Point(1,0,0)
     drawEdge(myscreen, a, b)
-    
     tor1 = camvtk.Toroid(r1=diameter/2, r2=diameter/6, center=(a.x,a.y,a.z), rotXYZ=(0,0,0), color=camvtk.lgreen)
     tor1.SetOpacity(1)
     myscreen.addActor(tor1)
@@ -66,7 +63,6 @@ if __name__ == "__main__":
     a = a + ocl.Point(1,0,0)
     b = b + ocl.Point(1,0,0)
     drawEdge(myscreen, a, b)
-    
     con1 = camvtk.Cone(center=(a.x,a.y,a.z), radius=diameter/2,  height = 0.3, color=camvtk.lgreen )
     myscreen.addActor(con1)
     con2 = camvtk.Cone(center=(b.x,b.y,b.z), radius=diameter/2,  height = 0.3, color=camvtk.pink )

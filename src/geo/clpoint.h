@@ -53,7 +53,6 @@ class CLPoint : public Point {
         bool liftZ(const double zin);
         /// return true if cl-point above triangle
         bool below(const Triangle& t) const;
-        
         /// return the CCPoint (for python)
         CCPoint getCC();
         /// assignment
@@ -61,9 +60,8 @@ class CLPoint : public Point {
         /// addition
         const CLPoint operator+(const CLPoint &p) const;
         const CLPoint operator+(const Point &p) const;
-        
 };
 
 } // end namespace
 #endif
-// end file point.h
+// end file clpoint.h

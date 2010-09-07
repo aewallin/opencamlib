@@ -29,33 +29,26 @@ namespace ocl
     
 /* ********************************************** CLPoint *************/
 
-
 CLPoint::CLPoint() 
     : Point() {
-    // delete cc;
     cc = new CCPoint();
 }
 
 CLPoint::CLPoint(double x, double y, double z) 
     : Point(x,y,z) {
-    // delete cc;
     cc = new CCPoint();
 }
 
 CLPoint::CLPoint(double x, double y, double z, CCPoint& ccp) 
     : Point(x,y,z) {
-    // delete cc;
     cc = new CCPoint( ccp );
 }
 
 
 CLPoint::CLPoint(const CLPoint& cl) 
     : Point(cl.x,cl.y,cl.z) {
-    // delete cc;
     cc = new CCPoint( *cl.cc );
 }
-
-
 
 CLPoint::~CLPoint() {
    delete cc;

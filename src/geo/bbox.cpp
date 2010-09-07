@@ -22,10 +22,6 @@
 #include <vector>
 #include <list>
 #include <cassert>
-// uncomment to disable assert() calls
-// #define NDEBUG
-
-#include <boost/python.hpp>
 
 #include "bbox.h"
 #include "point.h"

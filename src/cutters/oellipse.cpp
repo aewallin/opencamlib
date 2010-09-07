@@ -20,8 +20,7 @@
 #include <sstream>
 #include <cmath>
 #include <string>
-// uncomment to disable assert() calls
-// #define NDEBUG
+
 #include <cassert>
 
 #include "point.h"

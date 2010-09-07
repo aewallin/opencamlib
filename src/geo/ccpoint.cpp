@@ -18,18 +18,13 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <sstream> // for str()
 
 #include "ccpoint.h"
-#include "triangle.h"
-#include "numeric.h"
 
 namespace ocl
 {
     
-
-
 /* ********************************************** CCPoint *************/
 
 CCPoint::CCPoint() 
@@ -56,20 +51,16 @@ CCPoint& CCPoint::operator=(const Point &p) {
     return *this;
 }
 
-std::string CCPoint::str() const
-{
+std::string CCPoint::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, const CCPoint& p)
-{
+std::ostream& operator<<(std::ostream &stream, const CCPoint& p) {
   stream << "CC(" << p.x << ", " << p.y << ", " << p.z << ", t=" << p.type <<")"; 
   return stream;
 }
 
-
-
 } // end namespace
-// end file point.cpp
+// end file ccpoint.cpp

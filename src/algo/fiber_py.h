@@ -1,7 +1,7 @@
 /*  $Id$
- *
+ * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
- *
+ *  
  *  This file is part of OpenCAMlib.
  *
  *  OpenCAMlib is free software: you can redistribute it and/or modify
@@ -17,30 +17,32 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef FIBER_PY_H
+#define FIBER_PY_H
 
+#include <boost/foreach.hpp>
+#include <boost/python.hpp>
 
-
-#include "path.h"
+#include "fiber.h"
 
 namespace ocl
 {
 
-Path::Path() {
-}
-
-Path::Path(const Path &p) {
-}
-
-Path::~Path() {
-}
-
-void Path::append(const Line &l) {
-        span_list.push_back(new LineSpan(l));
-}
-
-void Path::append(const Arc &a) {
-        span_list.push_back(new ArcSpan(a));
-}
+/// python wrapper for Fiber
+class Fiber_py : public Fiber {
+    public:
+        Fiber_py() : Fiber () {};
+        Fiber_py(const Point &p1, const Point &p2) : Fiber(p1, p2) {};
+        
+        boost::python::list getInts() const {
+            boost::python::list l;
+            BOOST_FOREACH( Interval i, ints) {
+                l.append( i );
+            }
+            return l;
+        };
+};
 
 } // end namespace
-// end file path.cpp
+#endif
+// end file fiber_py.h

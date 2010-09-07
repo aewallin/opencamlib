@@ -95,12 +95,6 @@ class Path {
         /// destructor
         virtual ~Path();
 
-        /// return the span-list to python
-        boost::python::list getSpans();
-
-        /// return a list of type/span pairs
-        boost::python::list getTypeSpanPairs();
-
         /// list of spans in this path
         std::list<Span*> span_list;
 

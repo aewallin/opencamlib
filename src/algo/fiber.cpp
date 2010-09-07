@@ -19,10 +19,9 @@
 */
 
 #include <boost/foreach.hpp>
-#include <boost/python.hpp>
+// #include <boost/python.hpp>
 
 #include "fiber.h"
-
 
 namespace ocl
 {
@@ -196,13 +195,14 @@ Point Fiber::point(const double t) const {
 }
 
 /// return intervals as a list to python
+/*
 boost::python::list Fiber::getInts() const {
     boost::python::list l;
     BOOST_FOREACH( Interval i, ints) {
         l.append( i );
     }
     return l;
-}
+}*/
 
 /// print out all intervals
 void Fiber::printInts() const {

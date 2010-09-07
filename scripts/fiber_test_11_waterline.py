@@ -30,11 +30,11 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     zh=1.75145
     cutter_diams = generateRange(0.4, 3, 3)
+    length = 5
     loops = []
     for diam in cutter_diams:
-        #cutter = ocl.CylCutter( diam )
-        cutter = ocl.BallCutter( diam )
-        cutter.length = 10
+        #cutter = ocl.CylCutter( diam , length )
+        cutter = ocl.BallCutter( diam , length )
         wl = ocl.Waterline()
         wl.setSTL(s)
         wl.setCutter(cutter)
