@@ -27,19 +27,7 @@ INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/algo )
 add_library(
     ocl_algo
     STATIC
-    batchdropcutter.cpp
-    batchpushcutter.cpp
-    
-    clfilter.cpp
-    pathdropcutter.cpp
-    
-    fiber.cpp
-    waterline.cpp
-    weave.cpp
-    
-    numeric.cpp
-    kdtree.cpp
-    kdtree2.cpp
+    ${OCL_ALGO_SRC}
 )
 
 

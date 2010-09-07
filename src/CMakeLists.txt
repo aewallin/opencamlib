@@ -55,6 +55,45 @@ IF (OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF(OPENMP_FOUND)
 
+set(OCL_GEO_SRC
+    ${OpenCamLib_SOURCE_DIR}/geo/arc.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/bbox.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/clpoint.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/line.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/path.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/point.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/stlreader.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.cpp
+    ${OpenCamLib_SOURCE_DIR}/geo/triangle.cpp
+)
+
+set(OCL_CUTTER_SRC
+    ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/compoundcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/oellipse.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/epos.cpp
+)
+
+set(OCL_ALGO_SRC
+    ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
+    
+    ${OpenCamLib_SOURCE_DIR}/algo/clfilter.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.cpp
+    
+    ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
+    
+    ${OpenCamLib_SOURCE_DIR}/algo/numeric.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/kdtree.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/kdtree2.cpp
+)
 
 # this branches into the dirs and compiles stuff there
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
@@ -82,10 +121,25 @@ add_library(
     ocl_algo.cpp
     ocl.cpp
 )
-MESSAGE(STATUS "linking with boost: " ${Boost_LIBRARIES})
+MESSAGE(STATUS "linking ocl.so with boost: " ${Boost_LIBRARIES})
 target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ocl_cutsim ${Boost_LIBRARIES})
-set_target_properties(ocl PROPERTIES PREFIX "") # this makes the lib name ocl.so and not libocl.so
+# this makes the lib name ocl.so and not libocl.so
+set_target_properties(ocl PROPERTIES PREFIX "") 
 
+
+# this is the C++ shared library
+add_library(
+    libocl
+    SHARED
+    ${OCL_GEO_SRC}
+    ${OCL_CUTTER_SRC}
+    ${OCL_ALGO_SRC}
+    # ocl_algo
+    # ocl_cutsim
+)
+MESSAGE(STATUS "linking libocl.so with boost: " ${Boost_LIBRARIES})
+target_link_libraries(libocl ${Boost_LIBRARIES})
+set_target_properties(libocl PROPERTIES PREFIX "") 
 
 #
 # this figures out where to install the Python modules
@@ -104,7 +158,6 @@ install(
 )
 
 install(
-    # FILES ../lib/camvtk.py
     DIRECTORY ../lib/
     DESTINATION ${Python_site_packages}
     PATTERN .svn EXCLUDE
