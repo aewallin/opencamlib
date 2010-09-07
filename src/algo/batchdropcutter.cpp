@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 
-#ifndef WIN32
+#ifndef WIN32  // this should really not be a check for Windows, but a check for OpenMP
     #include <omp.h>
 #endif
 
@@ -40,7 +40,6 @@ namespace ocl
 
 BatchDropCutter::BatchDropCutter() {
     clpoints = new std::vector<CLPoint>();
-    //ccpoints = new std::vector<CCPoint>();
     dcCalls = 0;
 #ifndef WIN32
     nthreads = omp_get_num_procs(); // figure out how many cores we have
@@ -251,32 +250,6 @@ void BatchDropCutter::dropCutter5() {
     std::cout << " " << dcCalls << " dropCutter() calls.\n";
     return;
 }
-
-
-
-// used only for testing, not actual work
-boost::python::list BatchDropCutter::getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter) {
-    boost::python::list trilist;
-    std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-    KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
-    BOOST_FOREACH(Triangle t, *triangles_under_cutter) {
-        trilist.append(t);
-    }
-    delete triangles_under_cutter;
-    return trilist;
-}
-
-// return CL points to python
-boost::python::list BatchDropCutter::getCLPoints() {
-    boost::python::list plist;
-    BOOST_FOREACH(CLPoint p, *clpoints) {
-        plist.append(p);
-    }
-    return plist;
-}
-
-
-
 
 }// end namespace
 

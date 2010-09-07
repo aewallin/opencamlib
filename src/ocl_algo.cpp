@@ -23,8 +23,8 @@
 
 #include "millingcutter.h"
 
-#include "batchdropcutter.h"
-#include "batchpushcutter.h"
+#include "batchdropcutter_py.h" // new-style wrapper
+#include "batchpushcutter.h" 
 #include "pathdropcutter.h"
 #include "fiber_py.h"           // new-style wrapper
 #include "weave.h"
@@ -40,21 +40,23 @@ using namespace ocl;
 namespace bp = boost::python;
 
 void export_algo() {
-    bp::class_<BatchDropCutter>("BatchDropCutter")
-        .def("dropCutter1", &BatchDropCutter::dropCutter1)
-        .def("dropCutter2", &BatchDropCutter::dropCutter2)
-        .def("dropCutter3", &BatchDropCutter::dropCutter3)
-        .def("dropCutter4", &BatchDropCutter::dropCutter4)
-        .def("dropCutter5", &BatchDropCutter::dropCutter5)
-        .def("getCLPoints", &BatchDropCutter::getCLPoints)
-        .def("setSTL", &BatchDropCutter::setSTL)
-        .def("setCutter", &BatchDropCutter::setCutter)
-        .def("setThreads", &BatchDropCutter::setThreads)
-        .def("appendPoint", &BatchDropCutter::appendPoint)
-        .def("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter)
-        .def_readonly("dcCalls", &BatchDropCutter::dcCalls)
-        .def_readwrite("nthreads", &BatchDropCutter::nthreads)
-        .def_readwrite("bucketSize", &BatchDropCutter::bucketSize)
+    bp::class_<BatchDropCutter>("BatchDropCutter_base")
+    ;
+    bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
+        .def("dropCutter1", &BatchDropCutter_py::dropCutter1)
+        .def("dropCutter2", &BatchDropCutter_py::dropCutter2)
+        .def("dropCutter3", &BatchDropCutter_py::dropCutter3)
+        .def("dropCutter4", &BatchDropCutter_py::dropCutter4)
+        .def("dropCutter5", &BatchDropCutter_py::dropCutter5)
+        .def("getCLPoints", &BatchDropCutter_py::getCLPoints)
+        .def("setSTL", &BatchDropCutter_py::setSTL)
+        .def("setCutter", &BatchDropCutter_py::setCutter)
+        .def("setThreads", &BatchDropCutter_py::setThreads)
+        .def("appendPoint", &BatchDropCutter_py::appendPoint)
+        .def("getTrianglesUnderCutter", &BatchDropCutter_py::getTrianglesUnderCutter)
+        .def_readonly("dcCalls", &BatchDropCutter_py::dcCalls)
+        .def_readwrite("nthreads", &BatchDropCutter_py::nthreads)
+        .def_readwrite("bucketSize", &BatchDropCutter_py::bucketSize)
     ;
     bp::class_<BatchPushCutter>("BatchPushCutter")
         .def("pushCutter1", &BatchPushCutter::pushCutter1)

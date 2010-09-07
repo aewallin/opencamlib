@@ -137,8 +137,8 @@ add_library(
     # ocl_algo
     # ocl_cutsim
 )
-MESSAGE(STATUS "linking libocl.so with boost: " ${Boost_LIBRARIES})
-target_link_libraries(libocl ${Boost_LIBRARIES})
+# MESSAGE(STATUS "linking libocl.so with boost: " ${Boost_LIBRARIES})
+# target_link_libraries(libocl ${Boost_LIBRARIES})
 set_target_properties(libocl PROPERTIES PREFIX "") 
 
 #

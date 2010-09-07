@@ -24,7 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <boost/python.hpp>
+
 #include "point.h"
 
 namespace ocl
@@ -41,7 +41,6 @@ class MillingCutter;
 class BatchDropCutter {
     public:
         BatchDropCutter();
-        
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(STLSurf &s);
         /// set the MillingCutter to use
@@ -62,13 +61,7 @@ class BatchDropCutter {
         /// version 5 of the algorithm
         void dropCutter5();
         
-        // Python interface
-        /// return CL-points to Python
-        boost::python::list getCLPoints();
-        /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
-        boost::python::list getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter);
-        
-        // DATA
+    // DATA
         /// the MillingCutter used
         MillingCutter *cutter;
         /// pointer to list of CL-points on which to run drop-cutter.
@@ -87,6 +80,6 @@ class BatchDropCutter {
         unsigned int bucketSize;
 };
 
-}
+} // end namespace
 
 #endif
