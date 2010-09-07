@@ -20,8 +20,9 @@
 
 
 #include <boost/python.hpp>
-#include "point.h"
-#include "millingcutter.h"
+//#include "point.h"
+#include "millingcutter.h"              // cutter base-class, no boost-python
+#include "millingcutter_wrap.h"         // python wrapper
 #include "cylcutter.h"
 #include "ballcutter.h"
 #include "bullcutter.h"
