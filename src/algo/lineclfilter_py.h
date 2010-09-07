@@ -18,44 +18,29 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLFILTER_H
-#define CLFILTER_H
+#ifndef LINE_CL_FILTER_PY_H
+#define LINE_CL_FILTER_PY_H
 
-#include <iostream>
-#include <string>
-#include <list>
+#include <boost/python.hpp>
 
-#include "clpoint.h"
+#include "lineclfilter.h"
 
 namespace ocl
 {  
-
-///
-/// \brief CL point filter virtual base class
-///
-class CLFilter { 
+    
+class LineCLFilter_py : public LineCLFilter {
     public:
-        /// constructor
-        CLFilter() {} ;
-        virtual ~CLFilter() {};
-        
-        /// add CLPoint
-        virtual void addCLPoint(const CLPoint& p) = 0;
-        /// set the tolerance value
-        virtual void setTolerance(const double tol) = 0;
-        
-        /// run filter
-        virtual void run() = 0;
-        
-        /// return CL-points to Python
-        // virtual boost::python::list getCLPoints() = 0; //PYTHON
-        
-        /// the list of CL-points to be processed
-        std::list<CLPoint> clpoints;
-        /// tolerance
-        double tol;
+        LineCLFilter_py() : LineCLFilter() {};
+        boost::python::list getCLPoints() {
+            // return points to python
+            boost::python::list plist;
+            BOOST_FOREACH(CLPoint p, clpoints) {
+                plist.append(p);
+            }
+            return plist;
+        };
 };
 
 } // end namespace
 #endif
-// end file clfilter.h
+// end file lineclfilter_py.h

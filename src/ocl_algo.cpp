@@ -26,7 +26,7 @@
 #include "fiber_py.h"           // new-style wrapper
 #include "weave_py.h"           // new-style wrapper
 #include "waterline_py.h"       // new-style wrapper
-#include "clfilter.h"
+#include "lineclfilter_py.h"    // new-style wrapper
 
 
 /*
@@ -130,11 +130,13 @@ void export_algo() {
         .def("setPath", &PathDropCutter::setPath)
         .def_readwrite("minimumZ", &PathDropCutter::minimumZ)
     ;
-    bp::class_<LineCLFilter>("LineCLFilter")
-        .def("addCLPoint",  &LineCLFilter::addCLPoint)
-        .def("setTolerance",&LineCLFilter::setTolerance)
-        .def("run",         &LineCLFilter::run)
-        .def("getCLPoints", &LineCLFilter::getCLPoints)
+    bp::class_<LineCLFilter>("LineCLFilter_base")
+    ;
+    bp::class_<LineCLFilter_py, bp::bases<LineCLFilter> >("LineCLFilter")
+        .def("addCLPoint",  &LineCLFilter_py::addCLPoint)
+        .def("setTolerance",&LineCLFilter_py::setTolerance)
+        .def("run",         &LineCLFilter_py::run)
+        .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
 
 }

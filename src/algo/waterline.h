@@ -24,7 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <boost/python.hpp>
+
 #include "point.h"
 #include "fiber.h"
 #include "batchpushcutter.h"
@@ -73,7 +73,7 @@ class Waterline {
         /// fiber sampling interval
         double tolerance;
         /// the results of this operation, a list of loops
-        std::vector< std::vector<Point> >  loops; // change to CLPoint?
+        std::vector< std::vector<Point> >  loops; // change to CLPoint!!
 };
 
 

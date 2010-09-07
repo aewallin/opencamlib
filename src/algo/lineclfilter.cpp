@@ -18,15 +18,9 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <boost/foreach.hpp>
-
-#include "clfilter.h"
-#include "millingcutter.h"
+#include "lineclfilter.h"
 #include "point.h"
-#include "triangle.h"
-#include "kdtree.h"
-
+#include "clpoint.h"
 
 namespace ocl
 {
@@ -67,15 +61,5 @@ void LineCLFilter::run() {
     return;
 }
 
-boost::python::list LineCLFilter::getCLPoints() {
-    // return points to python
-    boost::python::list plist;
-    BOOST_FOREACH(CLPoint p, clpoints) {
-        plist.append(p);
-    }
-    return plist;
-}
-        
-
 } // end namespace
-// end file clfilter.cpp
+// end file lineclfilter.cpp
