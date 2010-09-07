@@ -30,6 +30,7 @@
 namespace ocl
 {
 
+/// Python wrapper for BatchDropCutter
 class BatchDropCutter_py : public BatchDropCutter {
     public:
         BatchDropCutter_py() : BatchDropCutter() {};

@@ -24,7 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <boost/python.hpp>
+
 #include "point.h"
 #include "fiber.h"
 
@@ -57,14 +57,6 @@ class BatchPushCutter {
         void pushCutter2();
         void pushCutter3();
         
-        // Python interface
-        /// return CL-points to Python
-        boost::python::list getCLPoints() const;
-        /// return triangles under cutter to Python. Not for CAM-algorithms, more for visualization and demonstration.
-        boost::python::list getOverlapTriangles(Fiber& f, MillingCutter& cutter);
-        /// return list of Fibers to python
-        boost::python::list getFibers() const;
-        
         // DATA
         /// how many low-level calls were made
         int nCalls;
@@ -74,15 +66,13 @@ class BatchPushCutter {
         unsigned int bucketSize;
         /// pointer to list of Fibers
         std::vector<Fiber>* fibers;
-    private:
+    protected:
         /// the MillingCutter used
         const MillingCutter *cutter;
         /// the STLSurf which we test against.
         const STLSurf *surf;
         /// root of the kd-tree
         KDNode2 *root;
-
-
 };
 
 } // end namespace

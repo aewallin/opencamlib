@@ -24,7 +24,7 @@
 #include "millingcutter.h"
 
 #include "batchdropcutter_py.h" // new-style wrapper
-#include "batchpushcutter.h" 
+#include "batchpushcutter_py.h" // new-style wrapper 
 #include "pathdropcutter.h"
 #include "fiber_py.h"           // new-style wrapper
 #include "weave.h"
@@ -58,20 +58,22 @@ void export_algo() {
         .def_readwrite("nthreads", &BatchDropCutter_py::nthreads)
         .def_readwrite("bucketSize", &BatchDropCutter_py::bucketSize)
     ;
-    bp::class_<BatchPushCutter>("BatchPushCutter")
-        .def("pushCutter1", &BatchPushCutter::pushCutter1)
-        .def("pushCutter2", &BatchPushCutter::pushCutter2)
-        .def("pushCutter3", &BatchPushCutter::pushCutter3)
-        .def("setSTL", &BatchPushCutter::setSTL)
-        .def("setCutter", &BatchPushCutter::setCutter)
-        .def("setThreads", &BatchPushCutter::setThreads)
-        .def("appendFiber", &BatchPushCutter::appendFiber)
-        .def("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
-        .def("getCLPoints", &BatchPushCutter::getCLPoints)
-        .def("getFibers", &BatchPushCutter::getFibers)
-        .def_readonly("nCalls", &BatchPushCutter::nCalls)
-        .def_readwrite("nthreads", &BatchPushCutter::nthreads)
-        .def_readwrite("bucketSize", &BatchPushCutter::bucketSize)
+    bp::class_<BatchPushCutter>("BatchPushCutter_base")
+    ;
+    bp::class_<BatchPushCutter_py, bp::bases<BatchPushCutter> >("BatchPushCutter")
+        .def("pushCutter1", &BatchPushCutter_py::pushCutter1)
+        .def("pushCutter2", &BatchPushCutter_py::pushCutter2)
+        .def("pushCutter3", &BatchPushCutter_py::pushCutter3)
+        .def("setSTL", &BatchPushCutter_py::setSTL)
+        .def("setCutter", &BatchPushCutter_py::setCutter)
+        .def("setThreads", &BatchPushCutter_py::setThreads)
+        .def("appendFiber", &BatchPushCutter_py::appendFiber)
+        .def("getOverlapTriangles", &BatchPushCutter_py::getOverlapTriangles)
+        .def("getCLPoints", &BatchPushCutter_py::getCLPoints)
+        .def("getFibers", &BatchPushCutter_py::getFibers)
+        .def_readonly("nCalls", &BatchPushCutter_py::nCalls)
+        .def_readwrite("nthreads", &BatchPushCutter_py::nthreads)
+        .def_readwrite("bucketSize", &BatchPushCutter_py::bucketSize)
     ;
     bp::class_<Interval>("Interval")
         .def(bp::init<double, double>())
