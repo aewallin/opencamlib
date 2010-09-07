@@ -28,7 +28,7 @@
 #include "oellipse.h"           // no python
 #include "bbox.h"               // no python
 #include "path_py.h"            // new-style wrapper
-#include "stlreader.h"
+#include "stlreader.h"          // no python
 
 /*
  *  Python wrapping
