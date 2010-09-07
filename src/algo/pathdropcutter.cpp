@@ -17,10 +17,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-//#include <iostream>
-//#include <stdio.h>
-//#include <sstream>
-//#include <math.h>
 
 #include <boost/foreach.hpp>
 
@@ -71,15 +67,13 @@ void PathDropCutter::run() {
     }
 }
 
-/// \todo these should be static members of the class, so they can be set by the user
+/// \todo these should be member of the class, so they can be set by the user
 /// to something else than the defaults, if desired.
 #define SPLIT_STEP 0.1
-// #define PATH_DROP_CUTTER_TOLERANCE 0.01
 
 void PathDropCutter::run(const Span* span)
 {
     std::list<CLPoint> point_list;
-    //std::list<CCPoint> cc_point_list;
     
     unsigned int num_steps = (unsigned int)(span->length2d() / SPLIT_STEP + 1);
     for(unsigned int i = 0; i<=num_steps; i++)
@@ -108,22 +102,5 @@ void PathDropCutter::run(const Span* span)
     
 }
 
-
-
-
-
-
-/// return a python list of CLPoints
-boost::python::list PathDropCutter::getCLPoints() {
-    boost::python::list plist;
-    BOOST_FOREACH(CLPoint p, clpoints) {
-        plist.append(p);
-    }
-    return plist;
-}
-
-
-
-
 } // end namespace
-// end file pathfinish.cpp
+// end file pathdropcutter.cpp

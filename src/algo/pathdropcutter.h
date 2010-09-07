@@ -21,8 +21,6 @@
 #ifndef PATHDROPCUTTER_H
 #define PATHDROPCUTTER_H
 
-#include <boost/python.hpp>
-
 #include <iostream>
 #include <string>
 #include <list>
@@ -42,9 +40,20 @@ class PathDropCutter {
     public:
         /// constructor
         PathDropCutter();
-        /// create a PathDropCutterFinish operation with surface surf.
-        PathDropCutter(const STLSurf *surf);
+        /// create a PathDropCutter operation with surface surf.
+        PathDropCutter(const STLSurf *surf); // consider replacing with setSTL method
+        /// run drop-cutter on the whole Path
+        void run();
+        /// run drop-cutter on Span
+        void run(const Span* span);
+        /// set the cutter
+        void setCutter(const MillingCutter *cutter);
+        /// set the path
+        void setPath(const Path *path);
+        void setZ(const double z) {minimumZ = z;};
+        double getZ() const {return minimumZ;};
         
+    protected:
         /// the path to follow
         const Path *path;
         /// the cutter used for this operation
@@ -57,26 +66,8 @@ class PathDropCutter {
         double minimumZ;
         /// list of CL-points
         std::list<CLPoint> clpoints;
-        
-        /// run drop-cutter on the whole Path
-        void run();
-        /// run drop-cutter on Span
-        void run(const Span* span);
-        
-        /// refines list of points (FIXME: more documentation here please)
-        /// \todo explain.
-        //void refinePointList(std::list<Point> &point_list);
-        
-        /// set the cutter
-        void setCutter(const MillingCutter *cutter);
-        /// set the path
-        void setPath(const Path *path);
-        
-        /// return CL-points to Python
-        boost::python::list getCLPoints();
-
 };
 
 } // end namespace
 #endif
-// end file pathfinish.h
+// end file pathdropcutter.h

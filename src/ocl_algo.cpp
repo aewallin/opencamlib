@@ -22,7 +22,7 @@
 
 #include "batchdropcutter_py.h" // new-style wrapper
 #include "batchpushcutter_py.h" // new-style wrapper 
-#include "pathdropcutter.h"
+#include "pathdropcutter_py.h"  // new-style wrapper
 #include "fiber_py.h"           // new-style wrapper
 #include "weave_py.h"           // new-style wrapper
 #include "waterline_py.h"       // new-style wrapper
@@ -121,14 +121,17 @@ void export_algo() {
         .def("getLoops", &Weave_py::py_getLoops)
         .def("__str__", &Weave_py::str)
     ;
-    bp::class_<PathDropCutter>("PathDropCutter")
+    bp::class_<PathDropCutter>("PathDropCutter_base")
+    ;
+    bp::class_<PathDropCutter_py>("PathDropCutter")
         .def(bp::init<STLSurf*>())
-        .def(bp::init<PathDropCutter>())
-        .def("getCLPoints", &PathDropCutter::getCLPoints)
-        .def("run",static_cast< void (PathDropCutter::*)(void)>(&PathDropCutter::run))
-        .def("setCutter", &PathDropCutter::setCutter)
-        .def("setPath", &PathDropCutter::setPath)
-        .def_readwrite("minimumZ", &PathDropCutter::minimumZ)
+        //.def(bp::init<PathDropCutter>())
+        .def("getCLPoints", &PathDropCutter_py::getCLPoints)
+        .def("run",static_cast< void (PathDropCutter_py::*)(void)>(&PathDropCutter_py::run))
+        .def("setCutter", &PathDropCutter_py::setCutter)
+        .def("setPath", &PathDropCutter_py::setPath)
+        .def("getZ", &PathDropCutter_py::getZ)
+        .def("setZ", &PathDropCutter_py::setZ)
     ;
     bp::class_<LineCLFilter>("LineCLFilter_base")
     ;
