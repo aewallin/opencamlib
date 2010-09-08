@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OCTREE2_H
-#define OCTREE2_H
+#ifndef OCTNODE_H
+#define OCTNODE_H
 
 #include <iostream>
 #include <list>
@@ -55,7 +55,7 @@ class Octnode {
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
         
-        // python interface
+    // python interface
         /// return vertices to python
         boost::python::list py_get_vertices() const;
         /// return center of this node
@@ -94,76 +94,25 @@ class Octnode {
         std::vector<Triangle> mc_tris;
         /// flag for telling if mc-triangles have been calculated and are valid
         bool mc_tris_valid;
+        
         /// the direction to the vertices, from the center 
         static Point direction[8];
         /// Marching-Cubes edge table
-        static const unsigned int edgeTable[256];
+        static const unsigned int edgeTable[256]; // see mc_tables.h
         /// Marching-Cubes triangle table
-        static const int triTable[256][16];
+        static const int triTable[256][16]; // see mc_tables.h
+        
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
-    private:
+    protected:
         /// print out surfaces
         void print_surfaces();
         /// inherit the surface-property from a parent 
         void set_surfaces();
 };
 
-/// octree class which stores the root-node and allows operations on the tree
-class Octree {
-    public:
-        Octree() { assert(0); };
-        virtual ~Octree();
-        /// create an octree with a root node with scale=root_scale, maximum
-        /// tree-depth of max_depth and centered at centerp.
-        Octree(double root_scale, unsigned int max_depth, Point& centerp);
-        /// subtract vol from tree
-        void diff_negative_root(const OCTVolume* vol);
-        /// return the leaf-nodes
-        void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
-        /// return all nodes in tree
-        void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
-        /// run marching-cubes on the tree
-        std::vector<Triangle> mc();
-        /// generate the side-triangles
-        std::vector<Triangle> side_triangles();
-        
-        
-        /// initialize by recursively calling subdivide() on all nodes n times
-        void init(const unsigned int n);
-        /// return the maximum depth of the tree
-        unsigned int get_max_depth() const;
-        /// return the root scale
-        double get_root_scale() const;
-        /// return the leaf scale (the minimum resolution of the tree)
-        double leaf_scale() const;
-        /// string output
-        std::string str() const;
-        
-    // python interface
-        /// return python-list of leaf nodes
-        boost::python::list py_get_leaf_nodes() const;
-        /// return python-list of marching-cubes triangles
-        boost::python::list py_mc_triangles(); 
-        /// return python-list of side-trianges
-        boost::python::list py_s_triangles(); 
-        
-        
-    
-    private:
-        /// recursively traverse the tree subtracting vol
-        void diff_negative(Octnode* current, const OCTVolume* vol);
-    // DATA
-        /// the root scale
-        double root_scale;
-        /// the maximum tree-depth
-        unsigned int max_depth;
-        /// pointer to the root node
-        Octnode* root;
-};
-
 } // end namespace
 #endif
-// end file octree2.h
+// end file octnode.h

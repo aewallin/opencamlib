@@ -20,10 +20,10 @@
 
 #include <boost/python.hpp>
 
-
-#include "millingcutter.h"
+//#include "millingcutter.h"
 #include "volume.h"
-#include "octree2.h"
+#include "octnode.h"
+#include "octree.h"
 
 /*
  *  Python wrapping of octree and related classes

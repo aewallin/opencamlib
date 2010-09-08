@@ -95,6 +95,12 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/kdtree2.cpp
 )
 
+set( OCL_CUTSIM_SRC
+    ${OpenCamLib_SOURCE_DIR}/cutsim/volume.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/octree.cpp
+)
+
 # this branches into the dirs and compiles stuff there
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
@@ -134,7 +140,6 @@ add_library(
     ${OCL_GEO_SRC}
     ${OCL_CUTTER_SRC}
     ${OCL_ALGO_SRC}
-    # ocl_algo
     # ocl_cutsim
 )
 # MESSAGE(STATUS "linking libocl.so with boost: " ${Boost_LIBRARIES})

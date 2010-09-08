@@ -17,9 +17,12 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "ocl.h"
-#include "revision.h"
+
+
+#include <boost/python.hpp>
 #include <boost/python/docstring_options.hpp>
+
+#include "revision.h"
 
 /// return the revision string
 std::string revision() {
@@ -30,12 +33,6 @@ std::string ocl_docstring() {
     return "OpenCAMLib docstring";
 }
 
-/*
- *  Python wrapping
- */
-
-using namespace ocl;
-
 namespace bp = boost::python;
 
 void export_cutters();
@@ -43,6 +40,7 @@ void export_geometry();
 void export_cutsim();
 void export_algo();
 
+// this defines the python ocl module
 BOOST_PYTHON_MODULE(ocl) {
     bp::docstring_options doc_options(false, false);
     //doc_options.disable_all();
@@ -51,8 +49,6 @@ BOOST_PYTHON_MODULE(ocl) {
     bp::def("revision", revision); // returns OCL revision string to python
 
     bp::def("__doc__", ocl_docstring);
-
-    bp::def("eps", eps); // machine epsilon, see numeric.cpp
 
     export_geometry(); // see ocl_geometry.cpp
 

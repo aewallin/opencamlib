@@ -38,6 +38,7 @@ using namespace ocl;
 namespace bp = boost::python;
 
 void export_algo() {
+    bp::def("eps", eps); // machine epsilon, see numeric.cpp
     bp::class_<BatchDropCutter>("BatchDropCutter_base")
     ;
     bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
