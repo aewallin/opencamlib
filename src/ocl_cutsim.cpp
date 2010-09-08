@@ -22,7 +22,7 @@
 
 #include "volume.h"
 #include "octnode_py.h"     // new-style wrapper
-#include "octree.h"
+#include "octree_py.h"      // new-style wrapper
 
 /*
  *  Python wrapping of octree and related classes
@@ -33,19 +33,20 @@ using namespace ocl;
 namespace bp = boost::python;
 
 void export_cutsim() {
-    bp::class_<Octree>("Octree")
+    bp::class_<Octree>("Octree_base")
+    ;
+    bp::class_<Octree_py, bp::bases<Octree> >("Octree")
         .def(bp::init<double, unsigned int, Point& >())
-        .def("max_depth", &Octree::get_max_depth)
-        .def("root_scale", &Octree::get_root_scale)
-        .def("leaf_scale", &Octree::leaf_scale)
-        .def("get_leaf_nodes",       &Octree::py_get_leaf_nodes)
-        .def("mc_triangles",       &Octree::py_mc_triangles)
-        .def("side_triangles",       &Octree::py_s_triangles)
-        //.def("crack_triangles",       &Octree::py_c_triangles)
-        .def("diff_negative", &Octree::diff_negative_root)
-        .def("init",       &Octree::init)
-        .def("mc",       &Octree::mc)
-        .def("__str__",            &Octree::str)
+        .def("max_depth", &Octree_py::get_max_depth)
+        .def("root_scale", &Octree_py::get_root_scale)
+        .def("leaf_scale", &Octree_py::leaf_scale)
+        .def("get_leaf_nodes",       &Octree_py::py_get_leaf_nodes)
+        .def("mc_triangles",       &Octree_py::py_mc_triangles)
+        .def("side_triangles",       &Octree_py::py_s_triangles)
+        .def("diff_negative", &Octree_py::diff_negative_root)
+        .def("init",       &Octree_py::init)
+        .def("mc",       &Octree_py::mc)
+        .def("__str__",            &Octree_py::str)
     ;
     bp::class_<Octnode>("Octnode_base")
     ;

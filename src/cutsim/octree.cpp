@@ -23,18 +23,14 @@
 // uncomment to disable assert() calls
 // #define NDEBUG
 #include <cassert>
-
-#include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
 #include "point.h"
 #include "triangle.h"
-#include "millingcutter.h"
 #include "numeric.h"
 #include "octree.h"
 #include "octnode.h"
 #include "volume.h"
-// #include "mc_tables.h"
 
 namespace ocl
 {
@@ -129,35 +125,6 @@ std::vector<Triangle> Octree::side_triangles() {
     return s_triangles;
 }
 
-boost::python::list Octree::py_mc_triangles() {
-    std::vector<Triangle> mc_triangles = mc();
-    boost::python::list tlist;
-    BOOST_FOREACH( Triangle t, mc_triangles ) {
-        tlist.append( t );
-    }
-    return tlist;
-}
-
-boost::python::list Octree::py_s_triangles() {
-    std::vector<Triangle> s_triangles = side_triangles();
-    boost::python::list tlist;
-    BOOST_FOREACH( Triangle t, s_triangles ) {
-        tlist.append( t );
-    }
-    return tlist;
-}
-
-/*
-boost::python::list Octree::py_c_triangles() {
-    std::vector<Triangle> c_triangles = crack_triangles();
-    boost::python::list tlist;
-    BOOST_FOREACH( Triangle t, c_triangles ) {
-        tlist.append( t );
-    }
-    return tlist;
-}*/
-
-
 void Octree::diff_negative_root(const OCTVolume* vol) {
     diff_negative( this->root, vol);
 }
@@ -206,17 +173,6 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
 
 }
 
-// search tree and return list of leaf-nodes
-boost::python::list Octree::py_get_leaf_nodes() const {
-    std::vector<Octnode*> nodelist;
-    Octree::get_leaf_nodes(root, nodelist);
-    boost::python::list pynodelist;
-    BOOST_FOREACH(Octnode* n, nodelist) {
-        pynodelist.append( *n );
-    }
-    return pynodelist;
-}
-
 /// string repr
 std::string Octree::str() const {
     std::ostringstream o;
@@ -237,4 +193,4 @@ std::string Octree::str() const {
 }
 
 } // end namespace
-// end of file octree2.cpp
+// end of file octree.cpp

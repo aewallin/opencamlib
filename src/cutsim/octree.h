@@ -64,14 +64,6 @@ class Octree {
         /// string output
         std::string str() const;
         
-    // python interface
-        /// return python-list of leaf nodes
-        boost::python::list py_get_leaf_nodes() const;
-        /// return python-list of marching-cubes triangles
-        boost::python::list py_mc_triangles(); 
-        /// return python-list of side-trianges
-        boost::python::list py_s_triangles(); 
-        
     protected:
         /// recursively traverse the tree subtracting vol
         void diff_negative(Octnode* current, const OCTVolume* vol);
@@ -86,4 +78,4 @@ class Octree {
 
 } // end namespace
 #endif
-// end file octree2.h
+// end file octree.h
