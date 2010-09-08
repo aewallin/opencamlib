@@ -140,7 +140,7 @@ add_library(
     ${OCL_GEO_SRC}
     ${OCL_CUTTER_SRC}
     ${OCL_ALGO_SRC}
-    # ocl_cutsim
+    ${OCL_CUTSIM_SRC}
 )
 # MESSAGE(STATUS "linking libocl.so with boost: " ${Boost_LIBRARIES})
 # target_link_libraries(libocl ${Boost_LIBRARIES})
