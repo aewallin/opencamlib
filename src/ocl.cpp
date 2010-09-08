@@ -18,7 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <boost/python.hpp>
 #include <boost/python/docstring_options.hpp>
 

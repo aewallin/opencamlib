@@ -23,7 +23,6 @@
 
 #include <iostream>
 #include <list>
-#include <boost/python.hpp>
 
 #include "bbox.h"
 #include "cylcutter.h"
@@ -48,17 +47,6 @@ class OCTVolume {
         bool isInsideBB(Point& p) const;
         /// bounding-box
         Bbox bb;
-};
-
-/* required wrapper class for virtual functions in boost-python */
-/// \brief a wrapper around OCTVolume required for boost-python
-class OCTVolumeWrap : public OCTVolume, public boost::python::wrapper<OCTVolume>
-{
-    public:
-    bool isInside(Point &p) const {
-        return this->get_override("isInside")(p);
-    }
-
 };
 
 /// sphere centered at center

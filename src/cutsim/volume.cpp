@@ -23,8 +23,6 @@
 // uncomment to disable assert() calls
 // #define NDEBUG
 
-#include <boost/python.hpp>
-
 #include "point.h"
 #include "triangle.h"
 #include "millingcutter.h"

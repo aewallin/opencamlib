@@ -20,7 +20,8 @@
 
 #include <boost/python.hpp>
 
-#include "volume.h"
+#include "volume.h"         // no boost-python
+#include "volume_wrap.h"    // wrapper
 #include "octnode_py.h"     // new-style wrapper
 #include "octree_py.h"      // new-style wrapper
 
