@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <list>
+#include <boost/python.hpp>
 
 #include "bbox.h"
 #include "cylcutter.h"

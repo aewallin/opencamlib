@@ -55,12 +55,6 @@ class Octnode {
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
         
-    // python interface
-        /// return vertices to python
-        boost::python::list py_get_vertices() const;
-        /// return center of this node
-        Point py_get_center() const;
-        
     // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;

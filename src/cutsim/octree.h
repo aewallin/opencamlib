@@ -25,10 +25,8 @@
 #include <list>
 
 #include "point.h"
-//#include "volume.h"
 #include "triangle.h"
 #include "bbox.h"
-//#include "octnode.h"
 
 namespace ocl
 {

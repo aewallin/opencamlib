@@ -24,12 +24,10 @@
 // #define NDEBUG
 #include <cassert>
 
-#include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
 #include "point.h"
 #include "triangle.h"
-// #include "millingcutter.h"
 #include "numeric.h"
 #include "octnode.h"
 #include "volume.h"
@@ -450,17 +448,6 @@ void Octnode::setvertices() {
     bb.clear();
     bb.addPoint( *vertex[2] );
     bb.addPoint( *vertex[4] );
-}
-
-Point Octnode::py_get_center() const {
-    return *center;
-}
- 
-boost::python::list Octnode::py_get_vertices() const {
-    boost::python::list vlist;
-    for ( int n=0;n<8;++n) 
-        vlist.append( *(vertex[n]) );
-    return vlist;
 }
 
 /// string repr

@@ -20,9 +20,8 @@
 
 #include <boost/python.hpp>
 
-//#include "millingcutter.h"
 #include "volume.h"
-#include "octnode.h"
+#include "octnode_py.h"     // new-style wrapper
 #include "octree.h"
 
 /*
@@ -48,13 +47,15 @@ void export_cutsim() {
         .def("mc",       &Octree::mc)
         .def("__str__",            &Octree::str)
     ;
-    bp::class_<Octnode>("Octnode")
-        .def_readonly("depth", &Octnode::depth)
-        .def_readonly("scale", &Octnode::scale)
-        .def("center", &Octnode::py_get_center)
-        .def("subdivide",        &Octnode::subdivide)
-        .def("__str__",        &Octnode::str)
-        .def("vertices",       &Octnode::py_get_vertices)
+    bp::class_<Octnode>("Octnode_base")
+    ;
+    bp::class_<Octnode_py, bp::bases<Octnode> >("Octnode")
+        .def_readonly("depth", &Octnode_py::depth)
+        .def_readonly("scale", &Octnode_py::scale)
+        .def("center", &Octnode_py::py_get_center)
+        .def("subdivide",        &Octnode_py::subdivide)
+        .def("__str__",        &Octnode_py::str)
+        .def("vertices",       &Octnode_py::py_get_vertices)
     ;
     bp::class_<OCTVolumeWrap, boost::noncopyable>("OCTVolume", bp::no_init)
         .def("isInside", bp::pure_virtual(&OCTVolume::isInside) )
