@@ -58,7 +58,7 @@ double Octree::get_root_scale() const {
     return root_scale;
 }
 double Octree::leaf_scale() const {
-    return (2.0*root_scale) / pow(2.0, max_depth );
+    return (2.0*root_scale) / pow(2.0, (int)max_depth );
 }
         
 /// subdivide the Octree n-times
