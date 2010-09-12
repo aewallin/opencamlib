@@ -61,7 +61,7 @@ bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     Point normal; // facet surface normal    
     if ( isZero_tol( t.n->z ) )  {// vertical surface
-        return -1;  //can't drop against vertical surface
+        return false;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1* (*t.n); // flip normal
     } else {
