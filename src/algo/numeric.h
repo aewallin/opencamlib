@@ -34,7 +34,7 @@ namespace ocl
 double sign(double x);
 
 /// return x*x
-inline double square(double x) { return x*x; };
+inline double square(double x) { return x*x; }
 
 /// return true if x is negative
 bool isNegative(double x);

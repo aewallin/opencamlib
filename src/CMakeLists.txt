@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 2.4)
 #
 
 if (CMAKE_BUILD_TOOL MATCHES "make")
-    add_definitions(-Wall -Werror -Wno-deprecated)
+    add_definitions(-Wall -Werror -Wno-deprecated -pedantic-errors)
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
 #

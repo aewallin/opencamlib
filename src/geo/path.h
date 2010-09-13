@@ -33,7 +33,7 @@ namespace ocl
 /// Span type
 enum SpanType{
     LineSpanType,
-    ArcSpanType,
+    ArcSpanType
 };
 
 /// \brief A finite curve which returns Point objects along its length.
