@@ -83,7 +83,8 @@ int CLPoint::liftZ(double zin, CCPoint& ccp)
 }
 
 CLPoint& CLPoint::operator=(const CLPoint &clp) {
-    // FIXME check for self-assignment
+    if (this == &clp)   // check for self-assignment
+        return *this;
     x=clp.x;
     y=clp.y;
     z=clp.z;
@@ -103,14 +104,11 @@ CCPoint CLPoint::getCC() {
     return *cc;
 }
 
-std::string CLPoint::str() const
-{
+std::string CLPoint::str() const {
     std::ostringstream o;
     o << "CL(" << x << ", " << y << ", " << z << ") cc=" << *cc ;
     return o.str();
 }
 
-
-
 } // end namespace
-// end file point.cpp
+// end file clpoint.cpp

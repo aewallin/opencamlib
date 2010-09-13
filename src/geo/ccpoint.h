@@ -22,6 +22,7 @@
 
 #include <string>
 #include <iostream>
+
 #include "point.h"
 
 namespace ocl
@@ -62,4 +63,4 @@ class CCPoint : public Point {
 
 } // end namespace
 #endif
-// end file point.h
+// end file ccpoint.h

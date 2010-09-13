@@ -46,12 +46,17 @@ if __name__ == "__main__":
     
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
+    print "bdc()"
     bdc.bucketSize = 10
+    print "bucketSize"
     bdc.setSTL(s)
+    print "setSTL()"
     bdc.setCutter(cutter)
+    print "setCutter()"
     #bdc.setThreads(1)  # explicitly setting one thread is better for debugging
     for p in clpoints:
         bdc.appendPoint(p)
+    print "bdc has ",len(clpoints)," cl-points"
     
     t_before = time.time()    
     bdc.dropCutter4()

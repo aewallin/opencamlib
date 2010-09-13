@@ -43,7 +43,6 @@ CCPoint::CCPoint(double x, double y, double z)
 }
 
 CCPoint& CCPoint::operator=(const Point &p) {
-    // FIXME check for self-assignment
     x=p.x;
     y=p.y;
     z=p.z;

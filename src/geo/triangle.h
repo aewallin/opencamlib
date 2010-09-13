@@ -40,6 +40,9 @@ class Triangle {
         /// Create a triangle with the vertices p1, p2, and p3.
         Triangle(Point p1, Point p2, Point p3);   
         
+        /// return true if Triangle is sliced by a z-plane at z=zcut
+        /// modify p1 and p2 so that they are intesections of the triangle edges
+        /// and the plane. These vertices are used by CylCutter::edgePush()
         bool zslice_verts(Point& p1,Point& p2, const double zcut) const;
         
         
@@ -68,13 +71,13 @@ class Triangle {
         double minz;
         /// max z-coord
         double maxz;
-        /// update bounding-box
-        void calcBB();
+
         
     protected:
         /// calculate and set Triangle normal
         void calcNormal();
-
+        /// update bounding-box
+        void calcBB();
 };
 
 } // end namespace

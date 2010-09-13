@@ -264,7 +264,7 @@ Point& Point::operator=(const Point &p) {
     return *this;
 }
 
-// scalar multiplication
+// Point*scalar multiplication
 Point& Point::operator*=(const double &a) {
     x*=a;
     y*=a;
@@ -298,6 +298,7 @@ const Point Point::operator*(const double &a) const {
     return Point(*this) *= a;
 }
 
+// scalar*Point
 const Point operator*(const double &a, const Point &p) {
     return Point(p) *= a;
 }
@@ -310,7 +311,6 @@ bool Point::operator!=(const Point &p) const {
     return !(*this == p);
 }
 
-/// return true if the vector has only a z-component
 bool Point::zParallel() const  {
     if (x != 0.0)
         return false;
@@ -320,9 +320,7 @@ bool Point::zParallel() const  {
         return true;
 }
 
-/// return true if the vector has only a x-component
-bool Point::xParallel() const 
-{
+bool Point::xParallel() const  {
     if ( isZero_tol( y ) && isZero_tol( z ) )
         return true;
     return false;
@@ -334,19 +332,16 @@ bool Point::yParallel() const  {
     return false;
 }
 
-std::string Point::str() const
-{
+std::string Point::str() const {
         std::ostringstream o;
         o << *this;
         return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, const Point& p)
-{
+std::ostream& operator<<(std::ostream &stream, const Point& p) {
   stream << "(" << p.x << ", " << p.y << ", " << p.z << ")"; 
   return stream;
 }
-
 
 } // end namespace
 // end file point.cpp

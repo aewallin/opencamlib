@@ -18,9 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-#include <vector>
-#include <list>
 #include <cassert>
 
 #include "bbox.h"
@@ -30,8 +27,7 @@
 namespace ocl
 {
 
-
-//************* Bounding-Box **************/
+//************* axis-aligned Bounding-Box **************/
 
 Bbox::Bbox() {
     minpt = Point(0,0,0);
@@ -43,10 +39,6 @@ Bbox::Bbox(double b1, double b2, double b3, double b4, double b5, double b6) {
     minpt = Point(b1,b3,b5);
     maxpt = Point(b2,b4,b6);
     initialized = true;
-}
-
-Bbox::~Bbox() {
-    return;
 }
 
 void Bbox::clear() {
@@ -92,7 +84,6 @@ void Bbox::addPoint(const Point &p) {
         if (p.z < minpt.z)
             minpt.z = p.z;
     }
-        
 }
 
 /// add each vertex of the Triangle      

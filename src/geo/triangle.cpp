@@ -46,8 +46,7 @@ Triangle::Triangle(Point p1, Point p2, Point p3) {
 }
 
 Triangle::~Triangle() {
-    //delete n;
-    //n = 0;
+    // delete n; // this causes segfault, for some reason??
 }
 
 /// calculate bounding box values
@@ -74,9 +73,7 @@ void Triangle::calcNormal() {
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
 }
 
-/// return true if Triangle is sliced by a z-plane at z=zcut
-/// modify p1 and p2 so that they are intesections of the triangle edges
-/// and the plane. These vertices are used by CylCutter::edgePush()
+
 bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
     if ( (zcut <= this->bb.minpt.z) || ((zcut >= this->bb.maxpt.z)) )
         return false; // no zslice

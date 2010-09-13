@@ -27,14 +27,6 @@
 namespace ocl
 {
 
-STLSurf::STLSurf() {
-    
-}
-
-STLSurf::~STLSurf() {
-    //delete tris;
-}
-
 void STLSurf::addTriangle(const Triangle &t) {
     tris.push_back(t);
     bb.addTriangle(t);
@@ -45,8 +37,7 @@ unsigned int STLSurf::size() const {
     return tris.size();
 }
 
-std::ostream &operator<<(std::ostream &stream, const STLSurf s)
-{
+std::ostream &operator<<(std::ostream &stream, const STLSurf s) {
   stream << "STLSurf(N="<< s.tris.size() <<")";
   return stream;
 }

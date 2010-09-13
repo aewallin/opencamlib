@@ -42,6 +42,7 @@ class Triangle;
 class BatchDropCutter {
     public:
         BatchDropCutter();
+        virtual ~BatchDropCutter() {};
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(STLSurf &s);
         /// set the MillingCutter to use

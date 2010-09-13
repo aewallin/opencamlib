@@ -35,7 +35,7 @@ class Bbox {
         Bbox();
         /// explicit constructor
         Bbox(double b1, double b2, double b3, double b4, double b5, double b6);
-        virtual ~Bbox();
+        virtual ~Bbox() {};
         
         /// the maximum point
         Point maxpt; 
@@ -66,7 +66,6 @@ class Bbox {
         /// false until one Point or one Triangle has been added
         bool initialized;
 };
-
 
 } // end namespace
 #endif

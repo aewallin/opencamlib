@@ -49,6 +49,7 @@ BatchDropCutter::BatchDropCutter() {
 }
 
 void BatchDropCutter::setSTL(STLSurf &s) {
+    std::cout << "bdc::setSTL()\n";
     surf = &s;
     std::cout << "Building kd-tree... bucketSize=" << bucketSize << "..";
     root = KDNode::build_kdtree( &(surf->tris), bucketSize );

@@ -37,9 +37,9 @@ class Point;
 class STLSurf {
     public:
         /// Create an empty STL-surface
-        STLSurf();
+        STLSurf() {};
         /// destructor
-        virtual ~STLSurf();
+        virtual ~STLSurf() {};
         /// add Triangle t to this surface
         void addTriangle(const Triangle& t);
         /// return number of triangles in surface
