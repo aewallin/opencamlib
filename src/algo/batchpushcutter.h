@@ -37,7 +37,10 @@ class Triangle;
 class MillingCutter;
 
 ///
-/// \brief Drop cutter interface
+/// BatchPushCutter takes a MillingCutter, an STLSurf, and many Fibers
+/// and pushes the cutter along the fibers into contact with the surface.
+/// When this runs the Fibers will be updated with the correct interval data.
+/// This is then used to build a weave and extract a waterline.
 class BatchPushCutter {
     public:
         BatchPushCutter();

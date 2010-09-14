@@ -30,9 +30,6 @@
 namespace ocl
 {
 
-/* ********************************************************************
- *  CONE        conecutter.cpp
- * ********************************************************************/
 /// \brief Conical MillingCutter 
 ///
 /// cone defined by diameter and the cone half-angle(in radians). sharp tip. 
@@ -47,7 +44,7 @@ class ConeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(const double d) const;
         // drop-cutter
-        bool facetDrop(CLPoint &cl, const Triangle &t) const;
+        bool facetDrop(CLPoint &cl, const Triangle &t) const; // FIXME, handle in base-class?
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
         
         /// string repr

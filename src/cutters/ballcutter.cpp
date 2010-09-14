@@ -21,6 +21,7 @@
 #include <boost/foreach.hpp>
 
 #include "ballcutter.h"
+#include "numeric.h"
 
 namespace ocl
 {

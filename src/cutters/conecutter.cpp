@@ -22,6 +22,7 @@
 
 #include "conecutter.h"
 #include "compoundcutter.h" // for offsetCutter()
+#include "numeric.h"
 
 namespace ocl
 {

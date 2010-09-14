@@ -86,6 +86,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/lineclfilter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.cpp
     
+    ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp

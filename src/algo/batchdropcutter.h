@@ -38,7 +38,12 @@ class KDNode2;
 class Triangle;
 
 ///
-/// \brief Drop cutter interface
+/// BatchDropCutter takes a MillingCutter, an STLSurf, and a list of CLPoint's
+/// and calls MillingCutter::dropCutter() for each CLPoint.
+/// To find triangles overlapping the cutter a kd-tree data structure is used.
+/// The list of CLPoint's will be updated with the correct z-height as well
+/// as corresponding CCPoint's
+/// Some versions of this algorithm use OpenMP for multi-threading.
 class BatchDropCutter {
     public:
         BatchDropCutter();

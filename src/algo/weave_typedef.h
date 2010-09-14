@@ -24,7 +24,6 @@
 #include <boost/graph/adjacency_list.hpp>
 
 #include "point.h"
-#include "fiber.h"
 
 namespace boost {
     enum vertex_position_t {vertex_position=20};
@@ -67,6 +66,7 @@ typedef boost::graph_traits< WeaveGraph >::edge_iterator EdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::out_edge_iterator OutEdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
 typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;
+
 typedef std::pair< VertexDescriptor, double > VertexPair;
 
 /// compare based on pair.second

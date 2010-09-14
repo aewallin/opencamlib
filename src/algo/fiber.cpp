@@ -19,97 +19,11 @@
 */
 
 #include <boost/foreach.hpp>
-// #include <boost/python.hpp>
 
 #include "fiber.h"
 
 namespace ocl
 {
-
-Interval::Interval() {
-    lower = 0.0;
-    upper = 0.0;
-    lower_cc = CCPoint();
-    upper_cc = CCPoint();
-    in_weave=false;
-}
-
-Interval::Interval(const double l, const double u) {
-    assert( l <= u );
-    lower = l;
-    upper = u;
-    in_weave=false;
-}
-
-Interval::~Interval() {
-    return;
-}
-
-void Interval::updateUpper(const double t, CCPoint& p) {
-    if (upper_cc.type == NONE) {
-        upper = t;
-        lower = t;
-        upper_cc = p;
-        lower_cc = p;
-    }
-    
-    if ( t > upper ) {
-        upper = t;
-        upper_cc = p;
-    } 
-}
-
-void Interval::updateLower(const double t, CCPoint& p) {
-    if (lower_cc.type == NONE) {
-        lower = t;
-        upper = t;
-        lower_cc = p;
-        upper_cc = p;
-    }
-    
-    if ( t < lower ) {
-        lower = t; 
-        lower_cc = p;
-    }
-}
-
-/// return true if *this is completely non-overlapping, or outside of i.
-bool Interval::outside(const Interval& i) const {
-    if ( this->lower > i.upper )
-        return true;
-    else if ( this->upper < i.lower )
-        return true;
-    else
-        return false;
-}
-
-/// return true if *this is contained within i
-bool Interval::inside(const Interval& i) const {
-    if ( (this->lower > i.lower) && (this->upper < i.upper) )
-        return true;
-    else
-        return false;
-}
-
-/// return true if lower==upper==0.0  
-bool Interval::empty() const {
-    if ( lower==0.0  && upper==0.0 )
-        return true;
-    else
-        return false;
-}
-
-
-std::string Interval::str() const {
-    std::ostringstream o;
-    o << "I ["<< lower <<" , " << upper << " ]";
-    return o.str();
-}
-
-/* ********************** Fiber ***************************************/
-/* ********************** Fiber ***************************************/
-/* ********************** Fiber ***************************************/
-
 
 Fiber::Fiber(const Point &p1in, const Point &p2in) {
     p1=p1in;
@@ -123,7 +37,6 @@ void Fiber::calcDir() {
     dir.normalize();
 }
 
-/// return true if some Interval in this Fiber contains i
 bool Fiber::contains(Interval& i) const {
     BOOST_FOREACH( Interval fi, ints) {
         if ( i.inside( fi ) )
@@ -132,7 +45,6 @@ bool Fiber::contains(Interval& i) const {
     return false;
 }
 
-/// return true if Fiber is completely missing Invterval i
 bool Fiber::missing(Interval& i) const {
     bool result = true;
     BOOST_FOREACH( Interval fi, ints) {
@@ -179,32 +91,17 @@ void Fiber::addInterval(Interval& i) {
     }
 }
 
-
-
-/// return t-value correspoinding to p
 double Fiber::tval(Point& p) const {
     // fiber is  f = p1 + t * (p2-p1)
     // t = (f-p1).dot(p2-p1) / (p2-p1).dot(p2-p1)
     return  (p-p1).dot(p2-p1) / (p2-p1).dot(p2-p1);
 }
 
-/// return a point on the fiber at given t-value
 Point Fiber::point(const double t) const {
     Point p = p1 + t*(p2-p1);
     return p;
 }
 
-/// return intervals as a list to python
-/*
-boost::python::list Fiber::getInts() const {
-    boost::python::list l;
-    BOOST_FOREACH( Interval i, ints) {
-        l.append( i );
-    }
-    return l;
-}*/
-
-/// print out all intervals
 void Fiber::printInts() const {
     int n=0;
     BOOST_FOREACH( Interval i, ints) {
@@ -213,7 +110,6 @@ void Fiber::printInts() const {
     }
 }
 
-/// string repr of Fiber
 std::ostream& operator<<(std::ostream &stream, const Fiber& f) {
   stream << " fiber dir=" << f.dir << " and " << f.ints.size() << " intervals "; 
   return stream;

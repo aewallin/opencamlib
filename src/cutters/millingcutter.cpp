@@ -21,17 +21,12 @@
 #include <boost/foreach.hpp>
 
 #include "millingcutter.h"
-
+#include "numeric.h"
 
 namespace ocl
 {
-    
 
 //********   MillingCutter ********************** */
-
-MillingCutter::MillingCutter() {   
-
-}
 
 double MillingCutter::getDiameter() const {
     return diameter;
@@ -50,8 +45,8 @@ MillingCutter* MillingCutter::offsetCutter(double d) const {
     return  NULL;
 }
 
-/// general purpose vertex-drop which delegates the this->height(r) to 
-/// the specific subclass of cutter 
+// general purpose vertex-drop which delegates the this->height(r) to 
+// the specific subclass of cutter 
 bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     BOOST_FOREACH( const Point& p, t.p) { // test each vertex of triangle
@@ -70,8 +65,8 @@ bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-/// general purpose facet-drop which calls xy_normal_length(), normal_length(), 
-/// and center_height() on the subclass
+// general purpose facet-drop which calls xy_normal_length(), normal_length(), 
+// and center_height() on the subclass
 bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
@@ -139,6 +134,8 @@ bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     return false; // we never get here (?)
 }
 
+// edge-drop function which calls the sub-class MillingCutter::singleEdgeDrop on each 
+// edge of the input Triangle t.
 bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     //return this->singleEdgeDrop(cl,t.p[0],t.p[1]) || this->singleEdgeDrop(cl,t.p[1],t.p[2]) || this->singleEdgeDrop(cl,t.p[2],t.p[0]);
     bool result = false;
@@ -159,7 +156,7 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-/// general purpose vertexPush, delegates to this->width(h) 
+// general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
     BOOST_FOREACH( const Point& p, t.p) {
@@ -184,7 +181,7 @@ bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) c
     return result;
 }
 
-/// general purpose facetPush
+// general purpose facetPush
 bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;
     Point normal; // facet surface normal 
@@ -283,10 +280,8 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     return result;
 }
 
-/// call vertex, facet, and edge drop methods
+// call vertex, facet, and edge drop methods on input Triangle t
 int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
-    /* template-method, or "self-delegation", pattern */
-    
     /* // alternative ordering of the tests:
     if (cl.below(t))
         vertexDrop(cl,t);
@@ -318,6 +313,7 @@ int MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
     return 0; 
 }
 
+// overlap test: does cutter at cl.x cl.y overlap in the xy-plane with triangle t
 bool MillingCutter::overlaps(Point &cl, const Triangle &t) const {
     if ( t.bb.maxpt.x < cl.x-radius )
         return false;

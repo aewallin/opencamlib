@@ -25,8 +25,6 @@
 #include <string>
 #include <vector>
 
-// #include <boost/python.hpp>
-
 #include "stlsurf.h"
 #include "fiber.h"
 #include "point.h"
@@ -45,7 +43,7 @@ class STLSurf;
 class MillingCutter {
     public:
         /// default constructor
-        MillingCutter();
+        MillingCutter() {};
         virtual ~MillingCutter() {};
         
         /// return the diameter of the cutter
@@ -70,8 +68,8 @@ class MillingCutter {
         /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
         virtual bool facetDrop(CLPoint &cl, const Triangle &t) const;
         
-        /// drop cutter at (cl.x, cl.y) against the three edges of Triangle t
-        /// needs to be defined by a subclass
+        /// drop cutter at (cl.x, cl.y) against the three edges of input Triangle t.
+        /// calls the sub-class MillingCutter::singleEdgeDrop on each edge
         virtual bool edgeDrop(CLPoint& cl, const Triangle &t) const;
         
         
