@@ -24,8 +24,6 @@
 
 #include "point.h"
 #include "ccpoint.h"
-// #include "numeric.h"
-#include "weave_typedef.h"
 #include "interval.h"
 
 namespace ocl

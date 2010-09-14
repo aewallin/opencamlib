@@ -60,7 +60,7 @@ class BatchPushCutter {
         void pushCutter2();
         void pushCutter3();
         
-        // DATA
+    // DATA
         /// how many low-level calls were made
         int nCalls;
         /// number of threads to use

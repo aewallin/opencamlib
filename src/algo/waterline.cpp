@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
-#include <boost/progress.hpp>
+#include <boost/foreach.hpp> 
+//#include <boost/progress.hpp> // todo: add progress
 
 #ifndef WIN32
     #include <omp.h>
@@ -42,6 +42,7 @@ namespace ocl
 Waterline::Waterline() {
     bpc = new BatchPushCutter();
 }
+
 Waterline::~Waterline() {
     delete bpc;
 }
@@ -50,13 +51,16 @@ void Waterline::setSTL(const STLSurf& s) {
     bpc->setSTL( s );
     surface = &s;
 }
+
 void Waterline::setCutter(const MillingCutter& c) {
     bpc->setCutter( &c );
     cutter = &c;
 }
+
 void Waterline::setTolerance(const double tol) {
     tolerance = tol;
 }
+
 void Waterline::setZ(const double z) {
     zh = z;
 }
@@ -108,6 +112,8 @@ void Waterline::init_fibers() {
     }
 }        
 
+// return a double-vector [ start , ... , end ] with N-elements
+// for generating fibers.
 std::vector<double> Waterline::generate_range( double start, double end, int N) const {
     std::vector<double> output;
     double d = (end-start)/ (double)N;
@@ -120,5 +126,4 @@ std::vector<double> Waterline::generate_range( double start, double end, int N) 
 }
 
 }// end namespace
-
 // end file waterline.cpp

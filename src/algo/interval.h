@@ -22,9 +22,7 @@
 
 #include <vector>
 
-//#include "point.h"
 #include "ccpoint.h"
-//#include "numeric.h"
 #include "weave_typedef.h"
 
 namespace ocl
@@ -63,10 +61,9 @@ class Interval {
         /// flag for use by Weave::build()
         bool in_weave; 
         /// intersections with other intervals are stored in this set of
-        /// VertexPairs of type std::set<VertexDescriptor, double>
+        /// VertexPairs of type std::pair<VertexDescriptor, double>
         std::set< VertexPair, VertexPairCompare > intersections; 
 };
-
 
 } // end namespace
 #endif

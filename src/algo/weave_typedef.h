@@ -20,7 +20,6 @@
 #ifndef WEAVE_TYPEDEF_H
 #define WEAVE_TYPEDEF_H
 
-
 #include <boost/graph/adjacency_list.hpp>
 
 #include "point.h"
@@ -80,5 +79,6 @@ typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;
 
 typedef std::vector< std::vector< EdgeDescriptor > > PlanarEmbedding;
 
-}
+} // end namespace
 #endif
+// end weave_typedef.h
