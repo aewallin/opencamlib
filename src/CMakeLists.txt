@@ -94,6 +94,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/numeric.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/kdtree.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/kdtree2.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/kdtree3.cpp
 )
 
 set( OCL_CUTSIM_SRC
