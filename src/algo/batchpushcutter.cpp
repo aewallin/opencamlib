@@ -173,7 +173,7 @@ void BatchPushCutter::pushCutter3() {
     unsigned int calls=0;
     double r = cutter->getRadius();
     double L = cutter->getLength();
-    #pragma omp parallel for shared( calls, fiberr) private(n,i,tris,bb,it,it_end)
+    #pragma omp parallel for schedule(dynamic) shared( calls, fiberr) private(n,i,tris,bb,it,it_end)
     for (n=0; n<Nmax; ++n) {
 #ifndef WIN32
         if ( n== 0 ) { // first iteration

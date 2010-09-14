@@ -29,9 +29,10 @@
 
 #include "point.h"
 #include "triangle.h"
-#include "kdtree.h"
+//#include "kdtree.h"
 #include "batchdropcutter.h"
-#include "kdtree2.h"
+//#include "kdtree2.h"
+#include "kdtree3.h"
 
 namespace ocl
 {
@@ -51,9 +52,14 @@ BatchDropCutter::BatchDropCutter() {
 void BatchDropCutter::setSTL(STLSurf &s) {
     std::cout << "bdc::setSTL()\n";
     surf = &s;
-    std::cout << "Building kd-tree... bucketSize=" << bucketSize << "..";
-    root = KDNode::build_kdtree( &(surf->tris), bucketSize );
-    root2 = KDNode2::build_kdtree( &(surf->tris), bucketSize );
+    std::cout << "Building kd-tree... bucketSize=" << bucketSize << "...\n";
+    //root = KDNode::build_kdtree( &(surf->tris), bucketSize );
+    //root2 = KDNode2::build_kdtree( &(surf->tris), bucketSize );
+    //root3 = new KDTree();
+    root3->setSTL(s);
+    root3->setBucketSize( bucketSize );
+    root3->setXYDimensions();
+    root3->build();
     std::cout << " done.\n";
 }
 
@@ -94,12 +100,14 @@ void BatchDropCutter::dropCutter2() {
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
-        KDNode::search_kdtree( triangles_under_cutter, cl, *cutter, root); // find triangles under cutter
+        triangles_under_cutter = root3->search_cutter_overlap( cutter , &cl);
+        //KDNode::search_kdtree( triangles_under_cutter, cl, *cutter, root); // find triangles under cutter
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             cutter->dropCutter(cl,t);
             ++dcCalls;
         }
     }
+    delete triangles_under_cutter;
     std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
     std::cout.flush();
     return;
@@ -110,17 +118,23 @@ void BatchDropCutter::dropCutter3() {
     std::cout << "dropCutterSTL3 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
     dcCalls = 0;
+    boost::progress_display show_progress( clpoints->size() );
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
-        KDNode::search_kdtree( triangles_under_cutter, cl, *cutter, root);// find triangles under cutter
+        triangles_under_cutter = root3->search_cutter_overlap( cutter , &cl);
+        //KDNode::search_kdtree( triangles_under_cutter, cl, *cutter, root);// find triangles under cutter
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             if (cutter->overlaps(cl,t)) {
-                cutter->dropCutter(cl,t);
-                ++dcCalls;
+                if ( cl.below(t) ) {
+                    cutter->dropCutter(cl,t);
+                    ++dcCalls;
+                }
             }
         }
+        ++show_progress;
     }
+    delete triangles_under_cutter;
     std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
     return;
 }
@@ -155,7 +169,8 @@ void BatchDropCutter::dropCutter4() {
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            KDNode::search_kdtree( tris, clref[n], cutref, root); // tris will contain overlapping triangles
+            tris = root3->search_cutter_overlap( &cutref, &clref[n] );
+            //KDNode::search_kdtree( tris, clref[n], cutref, root); // tris will contain overlapping triangles
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
@@ -205,20 +220,20 @@ void BatchDropCutter::dropCutter5() {
     int calls=0;
     long int ntris = 0;
     std::list<Triangle>* tris;
-    Bbox* bb;
+    //Bbox* bb;
     unsigned int n;
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
     MillingCutter& cutref = *cutter;
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
-    double r = cutref.getRadius();
+    //double r = cutref.getRadius();
 #ifndef WIN32
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( nloop, ntris, calls, clref, cutref) private(n,tris,bb,it)
+    #pragma omp parallel for schedule(dynamic) shared( nloop, ntris, calls, clref, cutref) private(n,tris,it) 
         for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
 #ifndef WIN32
             if ( n== 0 ) { // first iteration
@@ -228,27 +243,31 @@ void BatchDropCutter::dropCutter5() {
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            bb = new Bbox( clref[n].x-r, // build a bounding-box at the current CL
-                           clref[n].x+r, 
-                           clref[n].y-r, 
-                           clref[n].y+r,
-                           0,
-                           0); 
-            KDNode2::search_kdtree( tris, *bb, root2, 3); // tris will contain overlapping triangles
+            //bb = new Bbox( clref[n].x-r, // build a bounding-box at the current CL
+            //               clref[n].x+r, 
+            //               clref[n].y-r, 
+            //               clref[n].y+r,
+            //               0, // z-coords do not matter since we do not search in the z-direction
+            //               0); 
+            //tris = root3->search(*bb);
+            tris = root3->search_cutter_overlap( &cutref, &clref[n] );
+            // KDNode2::search_kdtree( tris, *bb, root2, 3); // tris will contain overlapping triangles
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
-                    cutref.dropCutter( clref[n],*it);
-                    ++calls;
+                    if (clref[n].below(*it)) {
+                        cutref.dropCutter( clref[n],*it);
+                        ++calls;
+                    }
                 }
             }
             ntris += tris->size();
             delete( tris );
-            delete( bb );
+            //delete( bb );
             ++show_progress;
         } // end OpenMP PARALLEL for
     dcCalls = calls;
-    std::cout << " " << dcCalls << " dropCutter() calls.\n";
+    std::cout << "\n " << dcCalls << " dropCutter() calls.\n";
     return;
 }
 

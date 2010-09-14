@@ -1,4 +1,4 @@
-/*  $Id: $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -29,6 +29,7 @@ namespace ocl
 {
     
 class Point;
+class CLPoint;
 class Triangle;
 class MillingCutter;
 
@@ -55,78 +56,76 @@ class Spread3 {
 ///
 /// A k-d tree is used for searching for triangles overlapping with the cutter.
 ///
-/// Using a kd-tree with drop-cutter this is mentioned in a paper by Yau et al. 
-/// http://dx.doi.org/10.1080/00207540410001671651
 class KDNode3 {
     public:
         /// Create a node which partitions(cuts) along dimension d, at 
         /// cut value cv, with child-nodes hi_c and lo_c.
         /// If this is a bucket-node containing triangles, 
         /// they are in the list tris
-        /// lev indicates the level of the node in the tree
-        KDNode3(int d, double cv, KDNode3 *up_c,
-                                  KDNode3 *hi_c, 
-                                  KDNode3 *lo_c, 
-                                  const std::list<Triangle> *tlist, 
-                                  int level);
-        /// string repr
-        std::string str() const;
-        /// string repr
-        friend std::ostream &operator<<(std::ostream &stream, const KDNode3 node);
-
+        /// depth indicates the depth of the node in the tree
+        KDNode3(int d, double cv, KDNode3 *parent,                        // parent node
+                                  KDNode3 *hi_c,                        // hi-child
+                                  KDNode3 *lo_c,                        // lo-child
+                                  const std::list<Triangle> *tlist,     // list of tris, if bucket
+                                  int depth);                           // depth of node
+    // DATA
         /// level of node in tree 
-        int level;
-        /// dimension of cut or partition.
+        int depth;
+        /// dimension of cut
         int dim;
-        /// Cut or partition value.
-        /// Child node hi should contain only triangles with a higher value than this.
+        /// Cut value.
+        /// Child node hi contains only triangles with a higher value than this.
         /// Child node lo contains triangles with lower values.
         double cutval;
-        
         /// parent-node
-        KDNode3 *up; 
+        KDNode3 *parent; 
         /// Child-node hi.
         KDNode3 *hi; 
         /// Child-node lo.
         KDNode3 *lo; 
-
-        /// A list of triangles, if this is a bucket-node
+        /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
         const std::list<Triangle> *tris;
-
-        /* static functions to build and search KD-trees) */
-        /// build a kd-tree from a list of triangles. return root of tree.
-        static KDNode3* build_kdtree(const std::list<Triangle> *tris, 
-                                     unsigned int bucketSize = 1,
-                                     int level = 0,
-                                     KDNode3 *parent=NULL);
-
-        /// calculate along which dimension kd-tree should cut
-        static Spread3* spread(const std::list<Triangle> *tris);
-
-        /// search KDTree, starting at KDNode root for triangles under the 
-        /// MillingCutter c positioned at Point cl.
-        /// The triangles found are pushed into the Triangle list tris.
-        static void search_kdtree( std::list<Triangle> *tris, 
-                                   const Bbox& bb, 
-                                   KDNode3 *root,
-                                   const unsigned int plane = 0);
-        
-        /// undocumented, related to selecting the search plane...
-        static bool plane_valid(const unsigned int dim,const unsigned int plane);
-        
-        /// find all triangles under node
-        static void getTriangles( std::list<Triangle> *tris, 
-                                              KDNode3 *root);
 
         /// do the triangles at KDNode root overlap (in the XY-plane) with the 
         /// MillingCutter c positioned at Point cl?
         static bool overlap(const KDNode3 *root,        // root of tree
                             const CLPoint& cl,          // cutter positioned here
                             const MillingCutter& c);    // cutter
+ 
+        /// string repr
+        std::string str() const;
+        /// string repr
+        friend std::ostream &operator<<(std::ostream &stream, const KDNode3 node);
+        
+};
 
-        /// counter used for cutting along the dims sequentially.
-        /// not used if cutting along max spread.
-        static int cutcount;        
+class KDTree {
+    public:
+        KDTree() {};
+        virtual ~KDTree() {};
+        void setSTL(STLSurf &s);
+        void setBucketSize(int b);
+        void setXYDimensions();
+        void build();
+        std::list<Triangle>* search( const Bbox& bb );
+        std::list<Triangle>* search_cutter_overlap( MillingCutter* c, CLPoint* cl );
+
+        /// string repr
+        std::string str() const;
+        
+    protected:
+        KDNode3* build_node(    std::list<Triangle> *tris,// triangles 
+                                int dep,                        // depth of node
+                                KDNode3 *parent);               // parent-node
+        Spread3* calc_spread(const std::list<Triangle> *tris);
+        void search_node(   std::list<Triangle> *tris, 
+                            const Bbox& bb, 
+                            KDNode3 *root);
+        unsigned int bucketSize;
+        STLSurf* surf;
+        KDNode3* root;
+        /// the dimensions in this kd-tree
+        std::vector<int> dimensions;
 };
 
 } // end namespace

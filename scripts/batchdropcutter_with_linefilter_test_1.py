@@ -22,7 +22,7 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     
     angle = math.pi/4
-    diameter=1.4321
+    diameter=0.77321
     length=5
     #cutter = ocl.BallCutter(diameter, length)
     #cutter = ocl.CylCutter(diameter, length)
@@ -59,11 +59,11 @@ if __name__ == "__main__":
     print "bdc has ",len(clpoints)," cl-points"
     
     t_before = time.time()    
-    bdc.dropCutter4()
+    bdc.dropCutter5()
     dc_calls = bdc.dcCalls
     t_after = time.time()
     calctime = t_after-t_before
-    print " BDC4 done in ", calctime," s", dc_calls," dc-calls" 
+    print " BDC done in ", calctime," s", dc_calls," dc-calls" 
     dropcutter_time = calctime
     clpoints = bdc.getCLPoints()
     

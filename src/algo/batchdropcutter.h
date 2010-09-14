@@ -36,6 +36,7 @@ class STLSurf;
 class KDNode;
 class KDNode2;
 class Triangle;
+class KDTree;
 
 ///
 /// BatchDropCutter takes a MillingCutter, an STLSurf, and a list of CLPoint's
@@ -77,6 +78,7 @@ class BatchDropCutter {
         KDNode *root;
         /// root of KDNode2 kd-tree
         KDNode2 *root2;
+        KDTree* root3;
         /// the STLSurf which we test against.
         STLSurf *surf;
         /// how many times DropCutter was called. Useful for optimization.
