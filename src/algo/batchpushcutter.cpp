@@ -21,8 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 
-
-#ifndef WIN32
+#ifndef WIN32  // Fixme, this should not be a check fow Windows, but a check for OpenMP
     #include <omp.h>
 #endif
 
@@ -227,10 +226,9 @@ void BatchPushCutter::pushCutter3() {
         ++show_progress;
     }
     this->nCalls = calls;
-    std::cout << "BatchPushCutter3 done." << std::endl;
+    std::cout << "\nBatchPushCutter3 done." << std::endl;
     return;
 }
 
 }// end namespace
-
 // end file batchpushcutter.cpp

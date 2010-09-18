@@ -50,9 +50,9 @@ class Waterline {
         /// Set the cutter
         void setCutter(const MillingCutter& c);
         /// Set the sampling-interval for fibers
-        void setTolerance(const double tol);
+        void setSampling(const double tol) {tolerance = tol;};
         /// Set the z-coordinate for the waterline we generate
-        void setZ(const double z);
+        void setZ(const double z) {zh = z;};
         /// run the algorithm
         void run();
         
@@ -67,7 +67,8 @@ class Waterline {
         /// the surface for this operation
         const STLSurf* surface;
         /// handle to BatchPushCutter that does the heavy lifting
-        BatchPushCutter* bpc;
+        BatchPushCutter* bpc_x;
+        BatchPushCutter* bpc_y;
         /// the z-height for this Waterline
         double zh;
         /// fiber sampling interval

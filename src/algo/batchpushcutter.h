@@ -52,6 +52,8 @@ class BatchPushCutter {
         void setCutter(const MillingCutter *cutter);
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n);
+        int  getThreads() const {return nthreads;};
+        
         /// append to list of Fibers to evaluate
         void appendFiber(Fiber& f);
         
@@ -63,8 +65,7 @@ class BatchPushCutter {
     // DATA
         /// how many low-level calls were made
         int nCalls;
-        /// number of threads to use
-        unsigned int nthreads;
+
         /// size of bucket-node in KD-tree
         unsigned int bucketSize;
         /// pointer to list of Fibers
@@ -76,6 +77,8 @@ class BatchPushCutter {
         const STLSurf *surf;
         /// root of the kd-tree
         KDNode2 *root;
+        /// number of threads to use
+        unsigned int nthreads;
 };
 
 } // end namespace

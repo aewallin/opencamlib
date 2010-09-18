@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
     print "bdc()"
-    bdc.bucketSize = 10
+    bdc.setBucketSize(2)
     print "bucketSize"
     bdc.setSTL(s)
     print "setSTL()"
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     
     t_before = time.time()    
     bdc.dropCutter5()
-    dc_calls = bdc.dcCalls
+    dc_calls = bdc.getCalls()
     t_after = time.time()
     calctime = t_after-t_before
     print " BDC done in ", calctime," s", dc_calls," dc-calls" 
@@ -118,8 +118,6 @@ if __name__ == "__main__":
     t2.SetText(stltext)
     t2.SetPos( (50, myscreen.height-200) )
     myscreen.addActor( t2)
-    
-
 
     myscreen.render()
     myscreen.iren.Start()

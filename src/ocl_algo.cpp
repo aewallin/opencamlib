@@ -51,11 +51,12 @@ void export_algo() {
         .def("setSTL", &BatchDropCutter_py::setSTL)
         .def("setCutter", &BatchDropCutter_py::setCutter)
         .def("setThreads", &BatchDropCutter_py::setThreads)
+        .def("getThreads", &BatchDropCutter_py::getThreads)
         .def("appendPoint", &BatchDropCutter_py::appendPoint)
         .def("getTrianglesUnderCutter", &BatchDropCutter_py::getTrianglesUnderCutter)
-        .def_readonly("dcCalls", &BatchDropCutter_py::dcCalls)
-        .def_readwrite("nthreads", &BatchDropCutter_py::nthreads)
-        .def_readwrite("bucketSize", &BatchDropCutter_py::bucketSize)
+        .def("getCalls", &BatchDropCutter_py::getCalls)
+        .def("getBucketSize", &BatchDropCutter_py::getBucketSize)
+        .def("setBucketSize", &BatchDropCutter_py::setBucketSize)
     ;
     bp::class_<BatchPushCutter>("BatchPushCutter_base")
     ;
@@ -71,7 +72,8 @@ void export_algo() {
         .def("getCLPoints", &BatchPushCutter_py::getCLPoints)
         .def("getFibers", &BatchPushCutter_py::getFibers)
         .def_readonly("nCalls", &BatchPushCutter_py::nCalls)
-        .def_readwrite("nthreads", &BatchPushCutter_py::nthreads)
+        .def("setThreads", &BatchPushCutter_py::setThreads)
+        .def("getThreads", &BatchPushCutter_py::getThreads)
         .def_readwrite("bucketSize", &BatchPushCutter_py::bucketSize)
     ;
     bp::class_<Interval>("Interval")
@@ -103,7 +105,7 @@ void export_algo() {
         .def("setCutter", &Waterline_py::setCutter)
         .def("setSTL", &Waterline_py::setSTL)
         .def("setZ", &Waterline_py::setZ)
-        .def("setTolerance", &Waterline_py::setTolerance)
+        .def("setSampling", &Waterline_py::setSampling)
         .def("run", &Waterline_py::run)
         .def("getLoops", &Waterline_py::py_getLoops)
     ;

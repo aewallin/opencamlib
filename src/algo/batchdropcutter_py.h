@@ -21,11 +21,11 @@
 #ifndef BDC_PY_H
 #define BDC_PY_H
 
-#include <boost/python.hpp> // for py
-#include <boost/foreach.hpp> // for py
+#include <boost/python.hpp> 
+#include <boost/foreach.hpp> 
 
 #include "batchdropcutter.h"
-#include "kdtree.h" // for py
+#include "kdtree3.h" 
 
 namespace ocl
 {
@@ -44,10 +44,10 @@ class BatchDropCutter_py : public BatchDropCutter {
         };
         /// return triangles under cutter to Python. Not for CAM-algorithms, 
         /// more for visualization and demonstration.
-        boost::python::list getTrianglesUnderCutter(CLPoint &cl, MillingCutter &cutter) {
+        boost::python::list getTrianglesUnderCutter(CLPoint& cl, MillingCutter& cutter) {
             boost::python::list trilist;
             std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-            KDNode::search_kdtree( triangles_under_cutter, cl, cutter, root);
+            triangles_under_cutter = root3->search_cutter_overlap( &cutter , &cl);
             BOOST_FOREACH(Triangle t, *triangles_under_cutter) {
                 trilist.append(t);
             }

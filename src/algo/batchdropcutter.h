@@ -25,7 +25,6 @@
 #include <string>
 #include <vector>
 
-#include "point.h"
 #include "clpoint.h"
 #include "millingcutter.h"
 
@@ -33,8 +32,6 @@ namespace ocl
 {
 
 class STLSurf;
-class KDNode;
-class KDNode2;
 class Triangle;
 class KDTree;
 
@@ -54,9 +51,13 @@ class BatchDropCutter {
         /// set the MillingCutter to use
         void setCutter(MillingCutter *cutter);
         /// set number of threads to use in OpenMP
-        void setThreads(int n);
+        void setThreads(int n) {nthreads = n;};
+        int  getThreads() const {return nthreads;};
         /// append to list of CL-points to evaluate
         void appendPoint(CLPoint& p);
+        int getBucketSize() const {return bucketSize;};
+        void setBucketSize(unsigned int s) {bucketSize = s;};
+        int getCalls() const {return dcCalls;};
         
         /// unoptimized drop-cutter,  tests against all triangles of surface
         void dropCutter1();
@@ -70,14 +71,12 @@ class BatchDropCutter {
         void dropCutter5();
         
     // DATA
+    protected:
         /// the MillingCutter used
         MillingCutter *cutter;
         /// pointer to list of CL-points on which to run drop-cutter.
         std::vector<CLPoint>* clpoints;
-        /// root of the kd-tree
-        KDNode *root;
-        /// root of KDNode2 kd-tree
-        KDNode2 *root2;
+        /// root of kd-tree
         KDTree* root3;
         /// the STLSurf which we test against.
         STLSurf *surf;

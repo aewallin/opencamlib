@@ -4,16 +4,6 @@ import time
 import vtk
 import datetime
 import math
-
-def generateRange(zmin,zmax,zNmax):
-    if zNmax>1:
-        dz = (float(zmax)-float(zmin))/(zNmax-1)
-    else:
-        dz = 0
-    zvals=[]
-    for n in xrange(0,zNmax):
-        zvals.append(zmin+n*dz)
-    return zvals
         
 if __name__ == "__main__":  
     print ocl.revision()
@@ -29,7 +19,7 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     zh=1.75145
-    cutter_diams = generateRange(1.4, 3, 1)
+    cutter_diams = [1.4]
     length = 5
     loops = []
     for diam in cutter_diams:
@@ -39,8 +29,12 @@ if __name__ == "__main__":
         wl.setSTL(s)
         wl.setCutter(cutter)
         wl.setZ(zh)
-        wl.setTolerance(0.04)
+        wl.setSampling(0.04)
+        t_before = time.time() 
         wl.run()
+        t_after = time.time()
+        calctime = t_after-t_before
+        print " Waterline done in ", calctime," s"
         cutter_loops = wl.getLoops()
         for l in cutter_loops:
             loops.append(l)
@@ -66,8 +60,8 @@ if __name__ == "__main__":
             n=n+1
     
     print "done."
-    myscreen.camera.SetPosition(0.5, 3, 2)
-    myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
+    myscreen.camera.SetPosition(15, 13, 7)
+    myscreen.camera.SetFocalPoint(5, 5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    

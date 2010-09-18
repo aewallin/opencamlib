@@ -40,37 +40,37 @@ namespace ocl
 //********   ********************** */
 
 Waterline::Waterline() {
-    bpc = new BatchPushCutter();
+    bpc_x = new BatchPushCutter();
+    bpc_y = new BatchPushCutter();
 }
 
 Waterline::~Waterline() {
-    delete bpc;
+    delete bpc_x;
+    delete bpc_y;
 }
 
 void Waterline::setSTL(const STLSurf& s) {
-    bpc->setSTL( s );
+    bpc_x->setSTL( s );
+    bpc_y->setSTL( s );
     surface = &s;
 }
 
 void Waterline::setCutter(const MillingCutter& c) {
-    bpc->setCutter( &c );
+    bpc_x->setCutter( &c );
+    bpc_y->setCutter( &c );
     cutter = &c;
-}
-
-void Waterline::setTolerance(const double tol) {
-    tolerance = tol;
-}
-
-void Waterline::setZ(const double z) {
-    zh = z;
 }
         
 void Waterline::run() {
     this->init_fibers();
-    bpc->pushCutter3(); // run the actual push-cutter
+    bpc_x->pushCutter3(); // run the actual push-cutter
+    bpc_y->pushCutter3();
     std::cout << "Weave..." << std::flush;
     Weave w;
-    BOOST_FOREACH( Fiber f, *(bpc->fibers) ) {
+    BOOST_FOREACH( Fiber f, *(bpc_x->fibers) ) {
+        w.addFiber(f);
+    }
+    BOOST_FOREACH( Fiber f, *(bpc_y->fibers) ) {
         w.addFiber(f);
     }
     std::cout << "build()..." << std::flush;
@@ -80,7 +80,7 @@ void Waterline::run() {
     std::cout << "traverse()..." << std::flush;
     std::vector< std::vector<Point> > subweave_loops;
     BOOST_FOREACH( Weave sw, subweaves ) {
-        sw.face_traverse();
+        sw.face_traverse(); // traverse to find loops
         subweave_loops = sw.getLoops();
         BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
             this->loops.push_back( loop );
@@ -102,17 +102,17 @@ void Waterline::init_fibers() {
         Point p1 = Point( minx, y, zh );
         Point p2 = Point( maxx, y, zh );
         Fiber f = Fiber( p1 , p2 );
-        bpc->appendFiber( f );
+        bpc_x->appendFiber( f );
     }
     BOOST_FOREACH( double x, xvals ) {
         Point p1 = Point( x, miny,  zh );
         Point p2 = Point( x, maxy,  zh );
         Fiber f = Fiber( p1 , p2 );
-        bpc->appendFiber( f );
+        bpc_y->appendFiber( f );
     }
 }        
 
-// return a double-vector [ start , ... , end ] with N-elements
+// return a double-vector [ start , ... , end ] with N elements
 // for generating fibers.
 std::vector<double> Waterline::generate_range( double start, double end, int N) const {
     std::vector<double> output;
