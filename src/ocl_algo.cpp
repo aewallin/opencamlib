@@ -126,11 +126,11 @@ void export_algo() {
     ;
     bp::class_<PathDropCutter>("PathDropCutter_base")
     ;
-    bp::class_<PathDropCutter_py>("PathDropCutter")
-        .def(bp::init<STLSurf*>())
+    bp::class_<PathDropCutter_py , bp::bases<PathDropCutter> >("PathDropCutter")
+        //.def(bp::init<STLSurf*>())
         //.def(bp::init<PathDropCutter>())
         .def("getCLPoints", &PathDropCutter_py::getCLPoints)
-        .def("run",static_cast< void (PathDropCutter_py::*)(void)>(&PathDropCutter_py::run))
+        //.def("run",static_cast< void (PathDropCutter_py::*)(void)>(&PathDropCutter_py::run))
         .def("setCutter", &PathDropCutter_py::setCutter)
         .def("setPath", &PathDropCutter_py::setPath)
         .def("getZ", &PathDropCutter_py::getZ)

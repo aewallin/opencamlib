@@ -32,7 +32,7 @@ namespace ocl
 class PathDropCutter_py : public PathDropCutter {
     public:
         PathDropCutter_py() : PathDropCutter() {};
-        PathDropCutter_py(const STLSurf *surf) : PathDropCutter(surf) {};
+        
         boost::python::list getCLPoints() {
             boost::python::list plist;
             BOOST_FOREACH(CLPoint p, clpoints) {

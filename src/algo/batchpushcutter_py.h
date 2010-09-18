@@ -24,7 +24,7 @@
 #include <boost/python.hpp>
 
 #include "batchpushcutter.h"
-#include "kdtree2.h" 
+#include "kdtree3.h" 
 
 namespace ocl
 {
@@ -54,12 +54,26 @@ class BatchPushCutter_py : public BatchPushCutter {
         };
         /// return triangles under cutter to Python. Not for CAM-algorithms, 
         /// more for visualization and demonstration.
-        boost::python::list getOverlapTriangles(Fiber& f, MillingCutter& cutter) {
+        boost::python::list getOverlapTriangles(Fiber& f) {
             boost::python::list trilist;
             std::list<Triangle> *overlap_triangles = new std::list<Triangle>();
-            int plane = 3; // XY-plane
-            Bbox bb; //FIXME
-            KDNode2::search_kdtree( overlap_triangles, bb,  root, plane);
+            //int plane = 3; // XY-plane
+            //Bbox bb; //FIXME
+            //KDNode2::search_kdtree( overlap_triangles, bb,  root, plane);
+            CLPoint cl;
+            if (x_direction) {
+                cl.x = 0;
+                cl.y = f.p1.y;
+                cl.z = f.p1.z;
+            } else if (y_direction) {
+                cl.x = f.p1.x;
+                cl.y = 0;
+                cl.z = f.p1.z;
+            } else {
+                assert(0);
+            }
+            overlap_triangles = root->search_cutter_overlap(cutter, &cl);
+            
             BOOST_FOREACH(Triangle t, *overlap_triangles) {
                 trilist.append(t);
             }

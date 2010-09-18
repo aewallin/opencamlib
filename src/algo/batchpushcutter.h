@@ -32,7 +32,8 @@ namespace ocl
 {
 
 class STLSurf;
-class KDNode2;
+//class KDNode2;
+class KDTree;
 class Triangle;
 class MillingCutter;
 
@@ -47,13 +48,14 @@ class BatchPushCutter {
         virtual ~BatchPushCutter();
         
         /// set the STL-surface and build kd-tree
-        void setSTL(const STLSurf &s);
+        void setSTL(const STLSurf& s);
         /// set the MillingCutter to use
         void setCutter(const MillingCutter *cutter);
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
-        void setThreads(unsigned int n);
+        void setThreads(unsigned int n) {nthreads = n;};
         int  getThreads() const {return nthreads;};
-        
+        void setXDirection() {x_direction=true;y_direction=false;};
+        void setYDirection() {x_direction=false;y_direction=true;};
         /// append to list of Fibers to evaluate
         void appendFiber(Fiber& f);
         
@@ -61,6 +63,7 @@ class BatchPushCutter {
         void pushCutter1();
         void pushCutter2();
         void pushCutter3();
+        
         
     // DATA
         /// how many low-level calls were made
@@ -72,13 +75,15 @@ class BatchPushCutter {
         std::vector<Fiber>* fibers;
     protected:
         /// the MillingCutter used
-        const MillingCutter *cutter;
+        const MillingCutter* cutter;
         /// the STLSurf which we test against.
-        const STLSurf *surf;
+        const STLSurf* surf;
         /// root of the kd-tree
-        KDNode2 *root;
+        KDTree* root;
         /// number of threads to use
         unsigned int nthreads;
+        bool x_direction;
+        bool y_direction;
 };
 
 } // end namespace

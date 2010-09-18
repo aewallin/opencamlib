@@ -86,12 +86,6 @@ class KDNode3 {
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
         const std::list<Triangle> *tris;
 
-        /// do the triangles at KDNode root overlap (in the XY-plane) with the 
-        /// MillingCutter c positioned at Point cl?
-        static bool overlap(const KDNode3 *root,        // root of tree
-                            const CLPoint& cl,          // cutter positioned here
-                            const MillingCutter& c);    // cutter
- 
         /// string repr
         std::string str() const;
         /// string repr
@@ -103,18 +97,20 @@ class KDTree {
     public:
         KDTree() {};
         virtual ~KDTree() {};
-        void setSTL(STLSurf &s);
+        void setSTL(const STLSurf &s);
         void setBucketSize(int b);
-        void setXYDimensions();
+        void setXYDimensions(); // for drop-cutter search in XY plane
+        void setYZDimensions(); // for X-fibers
+        void setXZDimensions(); // for Y-fibers
         void build();
         std::list<Triangle>* search( const Bbox& bb );
-        std::list<Triangle>* search_cutter_overlap( MillingCutter* c, CLPoint* cl );
+        std::list<Triangle>* search_cutter_overlap(const MillingCutter* c, CLPoint* cl );
 
         /// string repr
         std::string str() const;
         
     protected:
-        KDNode3* build_node(    std::list<Triangle> *tris,// triangles 
+        KDNode3* build_node(    const std::list<Triangle> *tris,// triangles 
                                 int dep,                        // depth of node
                                 KDNode3 *parent);               // parent-node
         Spread3* calc_spread(const std::list<Triangle> *tris);
@@ -122,7 +118,7 @@ class KDTree {
                             const Bbox& bb, 
                             KDNode3 *root);
         unsigned int bucketSize;
-        STLSurf* surf;
+        const STLSurf* surf;
         KDNode3* root;
         /// the dimensions in this kd-tree
         std::vector<int> dimensions;

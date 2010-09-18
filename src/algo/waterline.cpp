@@ -32,7 +32,7 @@
 
 #include "weave.h"
 #include "batchpushcutter.h"
-#include "kdtree2.h"
+//#include "kdtree2.h"
 
 namespace ocl
 {
@@ -50,12 +50,18 @@ Waterline::~Waterline() {
 }
 
 void Waterline::setSTL(const STLSurf& s) {
+    std::cout << " Waterline::setSTL()\n";
+    bpc_x->setXDirection();
+    bpc_y->setYDirection();
+    std::cout << " Waterline::setSTL() DIRECTIONS DONE\n";
     bpc_x->setSTL( s );
     bpc_y->setSTL( s );
     surface = &s;
+    std::cout << " Waterline::setSTL() DONE\n";
 }
 
 void Waterline::setCutter(const MillingCutter& c) {
+    std::cout << " Waterline::setCutter()\n";
     bpc_x->setCutter( &c );
     bpc_y->setCutter( &c );
     cutter = &c;
@@ -90,6 +96,7 @@ void Waterline::run() {
 }
 
 void Waterline::init_fibers() {
+    std::cout << " Waterline::init_fibers()\n";
     double minx = surface->bb.minpt.x - 2*cutter->getRadius();
     double maxx = surface->bb.maxpt.x + 2*cutter->getRadius();
     double miny = surface->bb.minpt.y - 2*cutter->getRadius();
@@ -110,6 +117,7 @@ void Waterline::init_fibers() {
         Fiber f = Fiber( p1 , p2 );
         bpc_y->appendFiber( f );
     }
+
 }        
 
 // return a double-vector [ start , ... , end ] with N elements

@@ -21,9 +21,9 @@
 #include <boost/foreach.hpp>
 
 #include "millingcutter.h"
-#include "point.h"
-#include "triangle.h"
-#include "kdtree.h"
+#include "clpoint.h"
+//#include "triangle.h"
+//#include "kdtree.h"
 #include "pathdropcutter.h"
 
 namespace ocl
@@ -34,17 +34,35 @@ namespace ocl
 PathDropCutter::PathDropCutter() {
     cutter = NULL;
     surf = NULL;
-    root = NULL;
+    // root = NULL;
     path = NULL;
     minimumZ = 0.0;
+    bdc = new BatchDropCutter(); // we delegate to BatchDropCutter, who does the heavy lifting
 }
 
+PathDropCutter::~PathDropCutter() {
+    delete bdc;
+}
+
+// we don't want many ways of doing the same thing. allways set the STLSurf using setSTL
+/*
 PathDropCutter::PathDropCutter(const STLSurf *s) {
     cutter = NULL;
     surf = s;
     root = KDNode::build_kdtree( &(surf->tris) );
     path = NULL;
     minimumZ = 0.0;
+}*/
+
+void PathDropCutter::setSTL(const STLSurf& s) {
+    //std::cout << " Waterline::setSTL()\n";
+    //bdc->setXYDirection();
+    //bpc_y->setYDirection();
+    //std::cout << " Waterline::setSTL() DIRECTIONS DONE\n";
+    bdc->setSTL( s );
+    //bpc_y->setSTL( s );
+    surf = &s;
+    //std::cout << " Waterline::setSTL() DONE\n";
 }
 
 void PathDropCutter::setCutter(const MillingCutter *c) {
@@ -61,10 +79,13 @@ void PathDropCutter::run() {
     /// \todo FIXME: can we replace with BOOST_FOREACH ?
     /// \todo FIXME: 0.1mm resolution is arbitrary, allow user to change/set this
     for(std::list<Span*>::const_iterator It = path->span_list.begin(); It != path->span_list.end(); It++)
-    {
+    {   // loop through the spans calling run() on each
         const Span* span = *It;
-        run(span);
+        this->run(span); // append points to bdc
     }
+    
+    bdc->run(); // run the actual drop-cutter on all points
+    clpoints = bdc->getCLPoints();
 }
 
 /// \todo these should be member of the class, so they can be set by the user
@@ -73,7 +94,7 @@ void PathDropCutter::run() {
 
 void PathDropCutter::run(const Span* span)
 {
-    std::list<CLPoint> point_list;
+    //std::list<CLPoint> point_list;
     
     unsigned int num_steps = (unsigned int)(span->length2d() / SPLIT_STEP + 1);
     for(unsigned int i = 0; i<=num_steps; i++)
@@ -81,24 +102,26 @@ void PathDropCutter::run(const Span* span)
         double fraction = (double)i / num_steps;
         
         Point ptmp = span->getPoint(fraction);
-        CLPoint p = CLPoint(ptmp.x, ptmp.y, ptmp.z);
-
+        CLPoint* p = new CLPoint(ptmp.x, ptmp.y, ptmp.z);
+        p->z = minimumZ;
+        bdc->appendPoint( *p );
+        
         // find triangles under cutter
-        std::list<Triangle> triangles_under_cutter;
-        KDNode::search_kdtree( &triangles_under_cutter, p, *cutter, root);
+        //std::list<Triangle> triangles_under_cutter;
+        //KDNode::search_kdtree( &triangles_under_cutter, p, *cutter, root);
     
         //CCPoint cc;
-        p.z = minimumZ;
+        
         // this should be implemented using the lower-level OpenMP-enabled batchdropcutter
-        BOOST_FOREACH( const Triangle& t, triangles_under_cutter) {
-            cutter->dropCutter(p,t);
-        }
-        point_list.push_back(p);
+        //BOOST_FOREACH( const Triangle& t, triangles_under_cutter) {
+        //    cutter->dropCutter(p,t);
+        //}
+        //point_list.push_back(p);
         //cc_point_list.push_back(cc);
     }
 
-    for(std::list<CLPoint>::iterator It = point_list.begin(); It != point_list.end(); It++)
-        clpoints.push_back(*It);
+    //for(std::list<CLPoint>::iterator It = point_list.begin(); It != point_list.end(); It++)
+    //    clpoints.push_back(*It);
     
 }
 

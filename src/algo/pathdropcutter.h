@@ -24,6 +24,8 @@
 #include <iostream>
 #include <string>
 #include <list>
+
+#include "batchdropcutter.h"
 #include "path.h"
 
 namespace ocl
@@ -40,32 +42,38 @@ class PathDropCutter {
     public:
         /// constructor
         PathDropCutter();
-        /// create a PathDropCutter operation with surface surf.
-        PathDropCutter(const STLSurf *surf); // consider replacing with setSTL method
+        virtual ~PathDropCutter();
+        // create a PathDropCutter operation with surface surf.
+        //PathDropCutter(const STLSurf *surf); // consider replacing with setSTL method
+        void setSTL(const STLSurf& s);
+            
         /// run drop-cutter on the whole Path
         void run();
-        /// run drop-cutter on Span
-        void run(const Span* span);
+
         /// set the cutter
-        void setCutter(const MillingCutter *cutter);
+        void setCutter(const MillingCutter* cutter);
         /// set the path
-        void setPath(const Path *path);
+        void setPath(const Path* path);
         void setZ(const double z) {minimumZ = z;};
         double getZ() const {return minimumZ;};
         
     protected:
+        /// run drop-cutter on Span
+        void run(const Span* span);
+        
         /// the path to follow
-        const Path *path;
+        const Path* path;
         /// the cutter used for this operation
-        const MillingCutter *cutter;
+        const MillingCutter* cutter;
         /// the surface for this operation
-        const STLSurf *surf;
-        /// root of a kd-tree that holds the triangles of the surface
-        KDNode *root;
+        const STLSurf* surf;
+        // /// root of a kd-tree that holds the triangles of the surface
+        // KDNode *root;
+        BatchDropCutter* bdc;
         /// the lowest z height, used when no triangles are touched
         double minimumZ;
         /// list of CL-points
-        std::list<CLPoint> clpoints;
+        std::vector<CLPoint> clpoints;
 };
 
 } // end namespace
