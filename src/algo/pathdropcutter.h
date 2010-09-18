@@ -43,32 +43,27 @@ class PathDropCutter {
         /// constructor
         PathDropCutter();
         virtual ~PathDropCutter();
-        // create a PathDropCutter operation with surface surf.
-        //PathDropCutter(const STLSurf *surf); // consider replacing with setSTL method
         void setSTL(const STLSurf& s);
-            
         /// run drop-cutter on the whole Path
         void run();
-
         /// set the cutter
         void setCutter(const MillingCutter* cutter);
         /// set the path
         void setPath(const Path* path);
         void setZ(const double z) {minimumZ = z;};
         double getZ() const {return minimumZ;};
+        void setSampling(double s) {sampling=s;};
         
     protected:
         /// run drop-cutter on Span
-        void run(const Span* span);
-        
+        void sample_span(const Span* span);
         /// the path to follow
         const Path* path;
         /// the cutter used for this operation
         const MillingCutter* cutter;
         /// the surface for this operation
         const STLSurf* surf;
-        // /// root of a kd-tree that holds the triangles of the surface
-        // KDNode *root;
+        double sampling;
         BatchDropCutter* bdc;
         /// the lowest z height, used when no triangles are touched
         double minimumZ;

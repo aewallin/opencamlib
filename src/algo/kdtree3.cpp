@@ -45,6 +45,7 @@ KDNode3::KDNode3(int d, double cv, KDNode3 *par, KDNode3 *hi_c, KDNode3 *lo_c,
 }
 
 /// returns all triangles under KDNode node in the tree
+/// might be useful for debugging
 /*
 void KDNode3::getTriangles( std::list<Triangle> *tris, KDNode3 *node) {
     if (node->tris != NULL) { 
@@ -66,10 +67,11 @@ void KDNode3::getTriangles( std::list<Triangle> *tris, KDNode3 *node) {
 
 //*********** KDTREE ***************************************************
 
-// KDTree
-void KDTree::setSTL(const STLSurf &s) {
+
+void KDTree::setSTL(const STLSurf& s) {
     std::cout << "KDTree::setSTL()\n";
     surf = &s;
+    std::cout << "KDTree::setSTL() DONE\n";
 }
 
 void KDTree::setBucketSize(int s) {
@@ -129,6 +131,7 @@ std::list<Triangle>* KDTree::search_cutter_overlap(const MillingCutter* c, CLPoi
              cl->y+ r,
              cl->z, 
              cl->z + c->getLength() );    
+    //std::cout << " KDTree::search_cutter_overlap() \n";
     return search( bb );
 }
 

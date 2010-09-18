@@ -6,6 +6,7 @@ import vtk
 
 if __name__ == "__main__":  
     print ocl.revision()
+    
     myscreen = camvtk.VTKScreen()    
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     print "STL surface read"
@@ -17,13 +18,20 @@ if __name__ == "__main__":
     print "STLSurf with ", s.size(), " triangles"
     
     # define a cutter
-    cutter = ocl.CylCutter(0.6)
+    cutter = ocl.CylCutter(0.6, 5)
     print cutter
     
-    pdf = ocl.PathDropCutterFinish(s)   # create a pdf-object for the surface s
-    pdf.setCutter(cutter)               # set the cutter
-    pdf.minimumZ = -1                   # set the minimum Z-coordinate, or "floor" for drop-cutter
-
+    print "creating PathDropCutter()"
+    pdc = ocl.PathDropCutter()   # create a pdc
+    print "set STL surface"
+    pdc.setSTL(s)
+    print "set cutter"
+    pdc.setCutter(cutter)               # set the cutter
+    print "set minimumZ"
+    pdc.minimumZ = -1                   # set the minimum Z-coordinate, or "floor" for drop-cutter
+    print "set the sampling interval"
+    pdc.setSampling(0.0123)
+    
     # some parameters for this "zigzig" pattern    
     ymin=0
     ymax=12
@@ -39,20 +47,23 @@ if __name__ == "__main__":
         l = ocl.Line(p1,p2)     # line-object
         path.append( l )        # add the line to the path
 
-    # set the path for pdf
-    pdf.setPath( path )
+    print " set the path for pdf "
+    pdc.setPath( path )
     
+    print " run the calculation "
     t_before = time.time()
-    pdf.run()                   # run drop-cutter on the path
+    pdc.run()                   # run drop-cutter on the path
     t_after = time.time()
     print "run took ", t_after-t_before," s"
     
-    clp = pdf.getCLPoints()     # get the cl-points from pdf
-    ccp = pdf.getCCPoints()     # get the cc-points from pdf
+    print "get the results "
+    clp = pdc.getCLPoints()     # get the cl-points from pdf
     
-    # render the CL-points
-    myscreen.addActor( camvtk.PointCloud(pointlist=clp, collist=ccp)  )
+    print " render the CL-points"
+    camvtk.drawCLPointCloud(myscreen, clp)
+    #myscreen.addActor( camvtk.PointCloud(pointlist=clp, collist=ccp)  )
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()
+    print " All done."
     myscreen.iren.Start()

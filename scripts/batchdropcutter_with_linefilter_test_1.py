@@ -59,7 +59,7 @@ if __name__ == "__main__":
     print "bdc has ",len(clpoints)," cl-points"
     
     t_before = time.time()    
-    bdc.dropCutter5()
+    bdc.run() # run the actual drop-cutter
     dc_calls = bdc.getCalls()
     t_after = time.time()
     calctime = t_after-t_before

@@ -35,6 +35,7 @@ namespace ocl
 ///
 class CLPoint : public Point {
     public:
+        /// CLPoint at (0,0,0)
         CLPoint();
         /// CLPoint at (x,y,z)
         CLPoint(double x, double y, double z);

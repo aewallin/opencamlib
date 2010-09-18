@@ -42,6 +42,7 @@ void export_algo() {
     bp::class_<BatchDropCutter>("BatchDropCutter_base")
     ;
     bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
+        .def("run", &BatchDropCutter_py::run)
         .def("dropCutter1", &BatchDropCutter_py::dropCutter1)
         .def("dropCutter2", &BatchDropCutter_py::dropCutter2)
         .def("dropCutter3", &BatchDropCutter_py::dropCutter3)
@@ -127,11 +128,11 @@ void export_algo() {
     bp::class_<PathDropCutter>("PathDropCutter_base")
     ;
     bp::class_<PathDropCutter_py , bp::bases<PathDropCutter> >("PathDropCutter")
-        //.def(bp::init<STLSurf*>())
-        //.def(bp::init<PathDropCutter>())
+        .def("run", &PathDropCutter_py::run)
         .def("getCLPoints", &PathDropCutter_py::getCLPoints)
-        //.def("run",static_cast< void (PathDropCutter_py::*)(void)>(&PathDropCutter_py::run))
         .def("setCutter", &PathDropCutter_py::setCutter)
+        .def("setSTL", &PathDropCutter_py::setSTL)
+        .def("setSampling", &PathDropCutter_py::setSampling)
         .def("setPath", &PathDropCutter_py::setPath)
         .def("getZ", &PathDropCutter_py::getZ)
         .def("setZ", &PathDropCutter_py::setZ)

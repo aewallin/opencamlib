@@ -32,7 +32,7 @@
 
 #include "weave.h"
 #include "batchpushcutter.h"
-//#include "kdtree2.h"
+
 
 namespace ocl
 {

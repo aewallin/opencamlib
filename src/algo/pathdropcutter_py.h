@@ -29,6 +29,7 @@
 namespace ocl
 {
 
+/// Python wrapper for PathDropCutter
 class PathDropCutter_py : public PathDropCutter {
     public:
         PathDropCutter_py() : PathDropCutter() {};

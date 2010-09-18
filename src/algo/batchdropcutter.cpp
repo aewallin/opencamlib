@@ -43,22 +43,24 @@ BatchDropCutter::BatchDropCutter() {
 #endif
     cutter = NULL;
     bucketSize = 1;
+    root3 = new KDTree();
 }
 
 void BatchDropCutter::setSTL(const STLSurf &s) {
-    //std::cout << "bdc::setSTL()\n";
+    std::cout << "bdc::setSTL()\n";
     surf = &s;
     //std::cout << "Building kd-tree... bucketSize=" << bucketSize << "...\n";
-
+    
+    root3->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     root3->setSTL(s);
     root3->setBucketSize( bucketSize );
-    root3->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
+    
     root3->build();
     
-    //std::cout << " done.\n";
+    std::cout << "bdc::setSTL() done.\n";
 }
 
-void BatchDropCutter::setCutter(MillingCutter *c) {
+void BatchDropCutter::setCutter(const MillingCutter* c) {
     cutter = c;
 }
 
@@ -140,7 +142,7 @@ void BatchDropCutter::dropCutter4() {
     unsigned int n;
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
-    MillingCutter& cutref = *cutter;
+    //const MillingCutter& cutref = *cutter;
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
 #ifndef WIN32
@@ -148,7 +150,7 @@ void BatchDropCutter::dropCutter4() {
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( nloop, ntris, calls, clref, cutref) private(n,tris,it)
+    #pragma omp parallel for shared( nloop, ntris, calls, clref) private(n,tris,it)
         for (n=0;n< Nmax ;n++) { // PARALLEL OpenMP loop!
 #ifndef WIN32
             if ( n== 0 ) { // first iteration
@@ -158,27 +160,27 @@ void BatchDropCutter::dropCutter4() {
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            tris = root3->search_cutter_overlap( &cutref, &clref[n] );
+            tris = root3->search_cutter_overlap( cutter, &clref[n] );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
-                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
+                if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it)) {
-                        cutref.vertexDrop( clref[n],*it);
+                        cutter->vertexDrop( clref[n],*it);
                         ++calls;
                     }
                 }
             }
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
-                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
+                if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it))
-                        cutref.facetDrop( clref[n],*it);
+                        cutter->facetDrop( clref[n],*it);
                     //++calls;
                 }
             }
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
-                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
+                if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it))
-                        cutref.edgeDrop( clref[n],*it);
+                        cutter->edgeDrop( clref[n],*it);
                     //++calls;
                 }
             }
@@ -205,7 +207,7 @@ void BatchDropCutter::dropCutter5() {
     unsigned int n;
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
-    MillingCutter& cutref = *cutter;
+    //const MillingCutter& cutref = *cutter;
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
 #ifndef WIN32
@@ -213,7 +215,7 @@ void BatchDropCutter::dropCutter5() {
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for schedule(dynamic) shared( nloop, ntris, calls, clref, cutref) private(n,tris,it) 
+    #pragma omp parallel for schedule(dynamic) shared( nloop, ntris, calls, clref) private(n,tris,it) 
         for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
 #ifndef WIN32
             if ( n== 0 ) { // first iteration
@@ -223,12 +225,13 @@ void BatchDropCutter::dropCutter5() {
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            tris = root3->search_cutter_overlap( &cutref, &clref[n] );
+            tris = root3->search_cutter_overlap( cutter, &clref[n] );
+            assert( tris );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
-                if ( cutref.overlaps(clref[n],*it) ) { // cutter overlap triangle? check
+                if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it)) {
-                        cutref.dropCutter( clref[n],*it);
+                        cutter->dropCutter( clref[n],*it);
                         ++calls;
                     }
                 }

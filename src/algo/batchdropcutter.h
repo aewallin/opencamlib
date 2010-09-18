@@ -49,7 +49,7 @@ class BatchDropCutter {
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(const STLSurf &s);
         /// set the MillingCutter to use
-        void setCutter(MillingCutter *cutter);
+        void setCutter(const MillingCutter* cutter);
         /// set number of threads to use in OpenMP
         void setThreads(int n) {nthreads = n;};
         int  getThreads() const {return nthreads;};
@@ -75,13 +75,13 @@ class BatchDropCutter {
     // DATA
     protected:
         /// the MillingCutter used
-        MillingCutter *cutter;
+        const MillingCutter* cutter;
         /// pointer to list of CL-points on which to run drop-cutter.
         std::vector<CLPoint>* clpoints;
         /// root of kd-tree
         KDTree* root3;
         /// the STLSurf which we test against.
-        const STLSurf *surf;
+        const STLSurf* surf;
         /// how many times DropCutter was called. Useful for optimization.
         int dcCalls;
         /// number of OpenMP threads to use
