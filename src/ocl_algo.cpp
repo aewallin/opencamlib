@@ -43,11 +43,6 @@ void export_algo() {
     ;
     bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
         .def("run", &BatchDropCutter_py::run)
-        .def("dropCutter1", &BatchDropCutter_py::dropCutter1)
-        .def("dropCutter2", &BatchDropCutter_py::dropCutter2)
-        .def("dropCutter3", &BatchDropCutter_py::dropCutter3)
-        .def("dropCutter4", &BatchDropCutter_py::dropCutter4)
-        .def("dropCutter5", &BatchDropCutter_py::dropCutter5)
         .def("getCLPoints", &BatchDropCutter_py::getCLPoints)
         .def("setSTL", &BatchDropCutter_py::setSTL)
         .def("setCutter", &BatchDropCutter_py::setCutter)

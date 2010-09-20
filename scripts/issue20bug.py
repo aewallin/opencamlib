@@ -11,11 +11,13 @@ if __name__ == "__main__":
     
     print ocl.revision()    
     # define a cutter
-    cutter = ocl.CylCutter(3)
-    #cutter = ocl.BallCutter(3)
-    #cutter = ocl.BullCutter(3,0.5)
+    length = 10
+    cutter = ocl.CylCutter(3, length)
+    #cutter = ocl.BallCutter(3, length)
+    #cutter = ocl.BullCutter(3,0.5, length)
 
-    pdf = ocl.PathDropCutter(s)   # create a pdf-object for the surface s
+    pdf = ocl.PathDropCutter()   # create a pdf-object for the surface s
+    pdf.setSTL(s)
     pdf.setCutter(cutter)               # set the cutter
     pdf.minimumZ = -1                   # set the minimum Z-coordinate, or
                                         # "floor" for drop-cutter
@@ -41,4 +43,5 @@ if __name__ == "__main__":
     su = camvtk.STLSurf(filename=None, triangleList=triangles )
     su.SetWireframe()
     myscreen.addActor(su)
+    myscreen.render()
     myscreen.iren.Start()

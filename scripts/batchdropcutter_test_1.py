@@ -46,8 +46,8 @@ if __name__ == "__main__":
         bdc1.appendPoint(p)
     
     t_before = time.time()    
-    print "threads=",bdc1.nthreads
-    bdc1.dropCutter4()
+    print "threads=",bdc1.getThreads()
+    bdc1.run()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"

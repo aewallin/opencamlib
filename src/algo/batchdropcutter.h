@@ -52,13 +52,23 @@ class BatchDropCutter {
         void setCutter(const MillingCutter* cutter);
         /// set number of threads to use in OpenMP
         void setThreads(int n) {nthreads = n;};
+        /// return number of OpenMP threads
         int  getThreads() const {return nthreads;};
         /// append to list of CL-points to evaluate
         void appendPoint(CLPoint& p);
+        /// return bucketSize
         int getBucketSize() const {return bucketSize;};
+        /// set the bucketSize used when building a KDTree
         void setBucketSize(unsigned int s) {bucketSize = s;};
+        /// return number of low-level calls made during run()
         int getCalls() const {return dcCalls;};
         
+        /// run drop-cutter on all clpoints
+        void run() {this->dropCutter5();};
+        std::vector<CLPoint> getCLPoints() {return *clpoints;};
+        
+    
+    protected:
         /// unoptimized drop-cutter,  tests against all triangles of surface
         void dropCutter1();
         /// better, kd-tree optimized version      
@@ -69,11 +79,7 @@ class BatchDropCutter {
         void dropCutter4();
         /// version 5 of the algorithm
         void dropCutter5();
-        void run() {this->dropCutter5();};
-        std::vector<CLPoint> getCLPoints() {return *clpoints;};
-        
     // DATA
-    protected:
         /// the MillingCutter used
         const MillingCutter* cutter;
         /// pointer to list of CL-points on which to run drop-cutter.

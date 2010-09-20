@@ -53,7 +53,7 @@ if __name__ == "__main__":
    
     # run the actual calculation
     t_before = time.time()    
-    bdc1.dropCutter4()
+    bdc1.run()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"    

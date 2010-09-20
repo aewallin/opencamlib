@@ -28,7 +28,7 @@ if __name__ == "__main__":
     print cutter
     
     minx=0
-    dx=0.21
+    dx=0.06
     maxx=9
     miny=0
     dy=1
@@ -46,7 +46,7 @@ if __name__ == "__main__":
         bdc1.appendPoint(p)
         
     t_before = time.time()    
-    bdc1.dropCutter4()
+    bdc1.run()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"    
