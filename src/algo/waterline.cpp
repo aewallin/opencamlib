@@ -69,8 +69,8 @@ void Waterline::setCutter(const MillingCutter& c) {
         
 void Waterline::run() {
     this->init_fibers();
-    bpc_x->pushCutter3(); // run the actual push-cutter
-    bpc_y->pushCutter3();
+    bpc_x->run(); // run the actual push-cutter
+    bpc_y->run();
     std::cout << "Weave..." << std::flush;
     Weave w;
     BOOST_FOREACH( Fiber f, *(bpc_x->fibers) ) {

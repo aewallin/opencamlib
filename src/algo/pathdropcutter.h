@@ -40,19 +40,23 @@ class KDNode;
 /// \brief path drop cutter finish Path generation
 class PathDropCutter {
     public:
-        /// constructor
+        /// construct an empty PathDropCutter object
         PathDropCutter();
         virtual ~PathDropCutter();
+        /// set the STLSurf surface for this operation
         void setSTL(const STLSurf& s);
+        /// set the MillingCutter for this operation
+        void setCutter(const MillingCutter* cutter);
+        /// set the Path to follow and sample
+        void setPath(const Path* path);
+        /// set the minimum z-value, or "floor" for drop-cutter
+        void setZ(const double z) {minimumZ = z;};
+        /// return Z
+        double getZ() const {return minimumZ;};
+        /// set the sampling-distance for the Path
+        void setSampling(double s) {sampling=s;};
         /// run drop-cutter on the whole Path
         void run();
-        /// set the cutter
-        void setCutter(const MillingCutter* cutter);
-        /// set the path
-        void setPath(const Path* path);
-        void setZ(const double z) {minimumZ = z;};
-        double getZ() const {return minimumZ;};
-        void setSampling(double s) {sampling=s;};
         
     protected:
         /// run drop-cutter on Span
@@ -63,9 +67,11 @@ class PathDropCutter {
         const MillingCutter* cutter;
         /// the surface for this operation
         const STLSurf* surf;
+        /// how closely to sample points from a Path, default is sampling=0.1
         double sampling;
+        /// the BatchDropCutter object that runs drop-cutter on the sampled poitns
         BatchDropCutter* bdc;
-        /// the lowest z height, used when no triangles are touched
+        /// the lowest z height, used when no triangles are touched, default is minimumZ = 0.0
         double minimumZ;
         /// list of CL-points
         std::vector<CLPoint> clpoints;

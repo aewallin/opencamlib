@@ -11,8 +11,8 @@ if __name__ == "__main__":
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
-    stl.SetWireframe()
-    #stl.SetSurface()
+    stl.SetWireframe() # render tux as wireframe
+    #stl.SetSurface() # render tux as surface
     stl.SetColor(camvtk.cyan)
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()

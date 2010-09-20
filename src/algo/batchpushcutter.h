@@ -59,21 +59,26 @@ class BatchPushCutter {
         /// append to list of Fibers to evaluate
         void appendFiber(Fiber& f);
         
+        int getBucketSize() const {return bucketSize;};
+        void setBucketSize(unsigned int s) {bucketSize = s;};
+        int getCalls() const {return nCalls;};
+        
         /// run push-cutter
+        void run() {this->pushCutter3();};
+
+        /// pointer to list of Fibers
+        std::vector<Fiber>* fibers;
+        
+    protected:
         void pushCutter1();
         void pushCutter2();
         void pushCutter3();
-        
-        
+    
     // DATA
         /// how many low-level calls were made
         int nCalls;
-
         /// size of bucket-node in KD-tree
         unsigned int bucketSize;
-        /// pointer to list of Fibers
-        std::vector<Fiber>* fibers;
-    protected:
         /// the MillingCutter used
         const MillingCutter* cutter;
         /// the STLSurf which we test against.

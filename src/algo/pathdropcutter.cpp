@@ -70,8 +70,7 @@ void PathDropCutter::sample_span(const Span* span)
 {
     assert( sampling > 0.0 );
     unsigned int num_steps = (unsigned int)(span->length2d() / sampling + 1);
-    for(unsigned int i = 0; i<=num_steps; i++)
-    {
+    for(unsigned int i = 0; i<=num_steps; i++) {
         double fraction = (double)i / num_steps;
         Point ptmp = span->getPoint(fraction);
         CLPoint* p = new CLPoint(ptmp.x, ptmp.y, ptmp.z);
