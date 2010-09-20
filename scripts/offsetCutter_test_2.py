@@ -11,7 +11,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
-            plist.append( ocl.Point(x,y,z) )
+            plist.append( ocl.CLPoint(x,y,z) )
     return plist
 
 def drawPoints(myscreen, clpoints, ccpoints):
@@ -37,12 +37,14 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     radius1=1
     angle = math.pi/4
-    cutter = ocl.ConeCutter(0.37, angle)
-    #cutter = ocl.BallCutter(0.532)
-    #cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BullCutter(0.7,0.1)
+    length=10
+    #cutter = ocl.ConeCutter(0.37, angle)
     
-    # these cutters do not have offsets yet
+    cutter = ocl.BallCutter(0.532, length)
+    #cutter = ocl.CylCutter(0.3, length)
+    #cutter = ocl.BullCutter(0.7,0.1, length)
+    
+    # these cutters do not have offsets yet (?)
     #cutter =  ocl.CylConeCutter(0.2,0.5,math.pi/9)
     #cutter = ocl.BallConeCutter(0.4,0.6,math.pi/9)
     #cutter = ocl.BullConeCutter(0.4,0.1,0.7,math.pi/6)
@@ -66,44 +68,34 @@ if __name__ == "__main__":
     ccpoints=[]
     cl2pts=[]
     for p in clpoints:
-        cl2pts.append(ocl.Point(p.x,p.y,p.z))
+        cl2pts.append(ocl.CLPoint(p.x,p.y,p.z))
         
     for (cl,cl2) in zip(clpoints,cl2pts):
-        cc = ocl.CCPoint()
-        cutter.vertexDrop(cl,cc,t)
-        #cutter.edgeDrop(cl,cc,t)
-        #cutter.facetDrop(cl,cc,t)
-        c2.vertexDrop(cl2,cc,t)
-        #cutter.dropCutter(cl,cc,t)        
-        ccpoints.append(cc)
-        #cl2pts.append(cl2)
+        
+        #cutter.vertexDrop(cl,t)
+        #cutter.edgeDrop(cl,t)
+        #cutter.facetDrop(cl,t)
+        #c2.vertexDrop(cl2,t)
+        cutter.dropCutter(cl,t)        
+        c2.dropCutter(cl2,t)
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
             print n/int(len(clpoints)/10), " ",
-              
-            
             
     print "done."
     
     print "rendering..."
     print " len(clpoints)=", len(clpoints)
-    print " len(ccpoints)=", len(ccpoints)
     print " len(ccl2pts)=", len(cl2pts)
-    
-    drawPoints(myscreen, clpoints, ccpoints)
+    print "rendering clpoints...",
+    camvtk.drawCLPointCloud(myscreen, clpoints)
+    print "done."
     cl2ptsofs=[]
     for p in cl2pts:
-        p = p + ocl.Point(0,0,offset)
+        p.z = p.z + offset 
         cl2ptsofs.append(p)
-        
-    pts=camvtk.PointCloud( pointlist=cl2ptsofs, collist=ccpoints)
-    pts.SetColor(camvtk.pink)
-    pts.SetOpacity(0.5)
-    pts.SetPoints()
-    myscreen.addActor(pts) 
-    
-    #drawPoints(myscreen, clpoints, ccpoints)
-    
+    print "rendering offset clpoints...",
+    camvtk.drawCLPointCloud(myscreen, cl2ptsofs)
     print "done."
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)

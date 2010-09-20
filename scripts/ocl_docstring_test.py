@@ -2,7 +2,7 @@ import ocl
 #help(ocl)
 
 #
-c=ocl.BallCutter()
+c=ocl.BallCutter(1,2)
 print c.__doc__
 print ocl.revision()
-help(ocl.BallCutter())
+help(ocl.BallCutter(4,5))
