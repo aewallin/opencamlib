@@ -94,7 +94,7 @@ if __name__ == "__main__":
     
     
     print "cutter= ", cutter
-    print "lengt=", cutter.length
+    print "lengt=", cutter.getLength()
     print "fiber..."
     range=2
     Nmax = 100

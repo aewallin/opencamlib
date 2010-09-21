@@ -41,9 +41,9 @@ if __name__ == "__main__":
     #radius1=1
     #angle = math.pi/4
     #cutter = ocl.ConeCutter(0.37, angle)
-    #cutter = ocl.BallCutter(0.532)
-    cutter = ocl.CylCutter(0.3)
-    cutter.length = 4.0
+    #cutter = ocl.BallCutter(0.532,5)
+    cutter = ocl.CylCutter(0.3,5)
+    
     #cutter = ocl.CylConeCutter(0.2,0.5,math.pi/9)
     #cutter = ocl.BallConeCutter(0.4,0.6,math.pi/9)
     #cutter = ocl.BullConeCutter(0.4,0.1,0.7,math.pi/6)

@@ -52,7 +52,7 @@ void export_cutters() {
         .def("offsetCutter", &MillingCutter::offsetCutter,  bp::return_value_policy<bp::manage_new_object>() )
         .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
         .add_property("radius", &MillingCutter::getRadius )
-        .add_property("length", &MillingCutter::getLength )
+        .def("getLength", &MillingCutter::getLength )
         .add_property("diameter", &MillingCutter::getDiameter )
     ; 
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")

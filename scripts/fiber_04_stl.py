@@ -81,9 +81,8 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
     
-    cutter = ocl.CylCutter(0.3)
-    cutter.length = 4.0
-    print "lengt=", cutter.length
+    cutter = ocl.CylCutter(0.3, 6)
+    print "lengt=", cutter.getLength()
     print "fiber..."
     range=30
     Nmax = 200
@@ -109,20 +108,14 @@ if __name__ == "__main__":
         xfiber(xvals,s,zh,myscreen)
     
     print "done."
-    
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
-    
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
-
     camvtk.drawOCLtext(myscreen)
-    
-    
     myscreen.render()    
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

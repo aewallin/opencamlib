@@ -70,6 +70,8 @@ void export_algo() {
         .def("getThreads", &BatchPushCutter_py::getThreads)
         .def("setBucketSize", &BatchPushCutter_py::setBucketSize)
         .def("getBucketSize", &BatchPushCutter_py::getBucketSize)
+        .def("setXDirection", &BatchPushCutter_py::setXDirection)
+        .def("setYDirection", &BatchPushCutter_py::setYDirection)
     ;
     bp::class_<Interval>("Interval")
         .def(bp::init<double, double>())
@@ -92,7 +94,7 @@ void export_algo() {
         .def("addInterval", &Fiber_py::addInterval)
         .def("point", &Fiber_py::point)
         .def("printInts", &Fiber_py::printInts)
-        .def("getInts", &Fiber_py::getInts)
+        
     ;
     bp::class_<Waterline>("Waterline_base")
     ;

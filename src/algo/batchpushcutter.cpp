@@ -61,8 +61,10 @@ void BatchPushCutter::setSTL(const STLSurf &s) {
         root->setYZDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     else if (y_direction)
         root->setXZDimensions();
-    else
+    else {
+        std::cout << " ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
         assert(0);
+    }
     std::cout << "BPC::setSTL() bucket and direction done\n";
     root->setSTL(s);
     std::cout << "BPC::setSTL() root->setSTK()";

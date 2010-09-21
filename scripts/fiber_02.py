@@ -43,9 +43,9 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
 
-    cutter = ocl.CylCutter(0.3)
-    cutter.length = 4.0
-    print "lengt=", cutter.length
+    cutter = ocl.CylCutter(0.3,5)
+    
+    print "lengt=", cutter.getLength()
     print "fiber..."
     range=6
     Nmax = 500
@@ -64,18 +64,10 @@ if __name__ == "__main__":
         f2 = ocl.Point(1.5,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        
-        #tris.reverse()
-        
         cutter.vertexPush(f,i,t)
         cutter.facetPush(f,i,t)
         cutter.edgePush(f,i,t)
         f.addInterval(i)
-        
-        
-        
-        #f.printInts()  
-    
         drawFiber(myscreen, f, camvtk.red)
     
     for x in xvals:
@@ -83,40 +75,21 @@ if __name__ == "__main__":
         f2 = ocl.Point(x,1.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        #tris=t.zslice(zh)
-        #tris.reverse()
-        #for t in tris:
         cutter.vertexPush(f,i,t)
         cutter.facetPush(f,i,t)
         cutter.edgePush(f,i,t)
         f.addInterval(i)
-        
-        
-        #cutter.vertexPush(f,i,t)
-        #cutter.facetPush(f,i,t)
-        #cutter.edgePush(f,i,t)
-        #f.addInterval(i)
-        #f.printInts()  
-    
         drawFiber(myscreen, f, camvtk.lblue)
             
-    
-    
     print "done."
-    
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
-    
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
-
     camvtk.drawOCLtext(myscreen)
-    
-    
     myscreen.render()    
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

@@ -28,10 +28,9 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     bounds = s.getBounds()
     print "STLSurf.Bounds()=", bounds
-    cutter = ocl.CylCutter(1.6)
-    #cutter = ocl.BallCutter(0.3)
+    cutter = ocl.CylCutter(1.6,5)
+    #cutter = ocl.BallCutter(0.3,5)
         
-    cutter.length = 4.0
     print cutter
     xmin=-1
     xmax=15
@@ -47,9 +46,14 @@ if __name__ == "__main__":
     zvals = generateRange(zmin,zmax,zNmax)
     print " calculating waterlines at ", len(zvals)," different z-heights"
     #print zvals
-    bpc = ocl.BatchPushCutter()
-    bpc.setSTL(s)
-    bpc.setCutter(cutter)
+    bpcx = ocl.BatchPushCutter()
+    bpcy = ocl.BatchPushCutter()
+    bpcx.setXDirection()
+    bpcy.setYDirection()
+    bpcx.setSTL(s)
+    bpcy.setSTL(s)
+    bpcx.setCutter(cutter)
+    bpcy.setCutter(cutter)
     # create fibers
     nfibers=0
     for zh in zvals:
@@ -57,25 +61,27 @@ if __name__ == "__main__":
             f1 = ocl.Point(xmin,y,zh) # start point of fiber
             f2 = ocl.Point(xmax,y,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
-            bpc.appendFiber(f)
+            bpcx.appendFiber(f)
             nfibers=nfibers+1
         for x in xvals:
             f1 = ocl.Point(x,ymin,zh) # start point of fiber
             f2 = ocl.Point(x,ymax,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
-            bpc.appendFiber(f)
+            bpcy.appendFiber(f)
             nfibers=nfibers+1
             
     # run
     t_before = time.time() 
-    bpc.pushCutter3()
+    bpcx.run()
+    bpcy.run()
     t_after = time.time()
     push_calctime = t_after-t_before
-    print " BPC done in ", push_calctime," s", bpc.nCalls," push-calls" 
-    print (push_calctime/bpc.nCalls)*1e6, " us/call"
+
 
     
-    clpoints = bpc.getCLPoints()
+    clpoints = bpcx.getCLPoints()
+    clp2=bpcy.getCLPoints()
+    clpoints+=clp2
     print "got ", len(clpoints), " CL-points"
     print "rendering raw CL-points."
     
@@ -85,7 +91,9 @@ if __name__ == "__main__":
     #     myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z),radius=0.02, color=camvtk.clColor( p.cc() ) ) )
     
     
-    fibers = bpc.getFibers()
+    xfibers = bpcx.getFibers()
+    yfibers = bpcy.getFibers()
+    fibers=xfibers+yfibers
     # sort fibers into different z-levels
     sorted_fibers=[]
     for zh in zvals:

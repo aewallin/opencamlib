@@ -23,14 +23,11 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BallCutter(0.3)
-        
-    cutter.length = 4.0
-    print "lengt=", cutter.length
+    cutter = ocl.CylCutter(0.3,6)
+    #cutter = ocl.BallCutter(0.3,6)
     print "fiber..."
     range=6
-    Nmax = 50
+    Nmax = 800
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     zmin = -0.1
@@ -38,29 +35,41 @@ if __name__ == "__main__":
     zNmax = 50
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    zvals.append(0.2)
-    #for n in xrange(0,zNmax):
-    #    zvals.append(zmin+n*dz)
+    #zvals.append(0.2)
+    for n in xrange(0,zNmax):
+        zvals.append(zmin+n*dz)
 
-    bpc = ocl.BatchPushCutter()
-    bpc.setSTL(s)
-    bpc.setCutter(cutter)
+    bpc_x = ocl.BatchPushCutter()
+    bpc_x.setXDirection()
+    bpc_x.setSTL(s)
+    bpc_x.setCutter(cutter)
+    
+     
+    bpc_y = ocl.BatchPushCutter()
+    bpc_y.setYDirection()
+    bpc_y.setSTL(s)
+    bpc_y.setCutter(cutter)
+    
+    
     # create fibers
     for zh in zvals:
         for y in yvals:
             f1 = ocl.Point(-0.5,y,zh) # start point of fiber
             f2 = ocl.Point(1.5,y,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
-            bpc.appendFiber(f)
+            bpc_x.appendFiber(f)
         for x in xvals:
             f1 = ocl.Point(x,-0.5,zh) # start point of fiber
             f2 = ocl.Point(x,1.5,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
-            bpc.appendFiber(f)
+            bpc_y.appendFiber(f)
             
     # run
-    bpc.pushCutter3()
-    clpoints = bpc.getCLPoints()
+    bpc_x.run()
+    bpc_y.run()
+    clpoints = bpc_x.getCLPoints()
+    clp2 = bpc_y.getCLPoints()
+    clpoints +=clp2
     print "rendering raw CL-points."
     
     # draw the CL-points

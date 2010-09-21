@@ -29,14 +29,14 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     bounds = s.getBounds()
     print "STLSurf.Bounds()=", bounds
-    cutter = ocl.CylCutter(0.3)
-    #cutter = ocl.BallCutter(0.3)
+    cutter = ocl.CylCutter(0.3,6)
+    #cutter = ocl.BallCutter(0.3,6)
         
     cutter.length = 4.0
     print cutter
     xmin=-1
     xmax=15
-    N=300
+    N=100
     ymin=-1
     ymax=15
     yvals = generateRange(ymin,ymax,N)
@@ -44,16 +44,18 @@ if __name__ == "__main__":
     #print xvals
     zmin = -0.1
     zmax = 2.75
-    zNmax = 10
+    zNmax = 7
     zvals = generateRange(zmin,zmax,zNmax)
     print " calculating waterlines at ", len(zvals)," different z-heights"
     #print zvals
-    bpc = ocl.BatchPushCutter()
-    #bpc2 = ocl.BatchPushCutter()
-    bpc.setSTL(s)
-    #bpc2.setSTL(s)
-    bpc.setCutter(cutter)
-    #bpc2.setCutter(cutter)
+    bpc_x = ocl.BatchPushCutter()
+    bpc_y = ocl.BatchPushCutter()
+    bpc_x.setXDirection()
+    bpc_y.setYDirection()
+    bpc_x.setSTL(s)
+    bpc_y.setSTL(s)
+    bpc_x.setCutter(cutter)
+    bpc_y.setCutter(cutter)
     # create fibers
     nfibers=0
     for zh in zvals:
@@ -61,15 +63,15 @@ if __name__ == "__main__":
             f1 = ocl.Point(xmin,y,zh) # start point of fiber
             f2 = ocl.Point(xmax,y,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
-            bpc.appendFiber(f)
-            #bpc2.appendFiber(f)
+            bpc_x.appendFiber(f)
+            
             nfibers=nfibers+1
         for x in xvals:
             f1 = ocl.Point(x,ymin,zh) # start point of fiber
             f2 = ocl.Point(x,ymax,zh)  # end point of fiber
             f =  ocl.Fiber( f1, f2)
-            bpc.appendFiber(f)
-            #bpc2.appendFiber(f)
+            bpc_y.appendFiber(f)
+            
             nfibers=nfibers+1
     # run
     #t_before = time.time() 
@@ -80,14 +82,16 @@ if __name__ == "__main__":
     #print (push_calctime/bpc2.nCalls)*1e6, " us/call"
 
     t_before = time.time() 
-    bpc.pushCutter3()
+    bpc_x.run()
+    bpc_y.run()
     t_after = time.time()
     push_calctime = t_after-t_before
-    print " BPC 3 done in ", push_calctime," s", bpc.nCalls," push-calls" 
-    print (push_calctime/bpc.nCalls)*1e6, " us/call"
+    print " BPC 3 done in ", push_calctime," s", bpc_x.getCalls()," push-calls" 
     
         
-    clpoints = bpc.getCLPoints()
+    clpoints = bpc_x.getCLPoints()
+    clp2 = bpc_y.getCLPoints()
+    clpoints+=clp2
     print "got ", len(clpoints), " CL-points"
     print "rendering raw CL-points."
     
@@ -96,12 +100,7 @@ if __name__ == "__main__":
     for p in clpoints:
          myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z),radius=0.02, color=camvtk.clColor( p.cc() ) ) )
     
-    t2 = camvtk.Text()
-    stltext = "%s\n%i triangles\n%i waterlines\n%i Fibers\n%i CL-points\n%i pushCutter() calls\n%0.1f seconds\n%0.3f us/call"  \
-               % ( str(cutter), s.size(), len(zvals), nfibers, len(clpoints), bpc.nCalls, push_calctime, 1e6* push_calctime/bpc.nCalls ) 
-    t2.SetText(stltext)
-    t2.SetPos( (50, myscreen.height-200) )
-    myscreen.addActor( t2)
+
     
     
     print "done."
