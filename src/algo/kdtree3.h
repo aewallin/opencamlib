@@ -93,6 +93,7 @@ class KDNode3 {
         
 };
 
+// template this on the object stored in the tree, could be triangles or spans
 class KDTree {
     public:
         KDTree() {};
@@ -118,7 +119,9 @@ class KDTree {
                             const Bbox& bb, 
                             KDNode3 *root);
         unsigned int bucketSize;
-        const STLSurf* surf;
+        
+        const STLSurf* surf; // needed as state? or only during build?
+        
         KDNode3* root;
         /// the dimensions in this kd-tree
         std::vector<int> dimensions;
