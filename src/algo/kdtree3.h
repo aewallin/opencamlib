@@ -56,6 +56,7 @@ class Spread3 {
 ///
 /// A k-d tree is used for searching for triangles overlapping with the cutter.
 ///
+template < class BBObj > 
 class KDNode3 {
     public:
         /// Create a node which partitions(cuts) along dimension d, at 
@@ -63,11 +64,22 @@ class KDNode3 {
         /// If this is a bucket-node containing triangles, 
         /// they are in the list tris
         /// depth indicates the depth of the node in the tree
-        KDNode3(int d, double cv, KDNode3 *parent,                        // parent node
-                                  KDNode3 *hi_c,                        // hi-child
-                                  KDNode3 *lo_c,                        // lo-child
-                                  const std::list<Triangle> *tlist,     // list of tris, if bucket
-                                  int depth);                           // depth of node
+        
+        //template < class BBObj>
+        KDNode3(int d, double cv, KDNode3<BBObj> *par,                        // parent node
+                                  KDNode3<BBObj> *hi_c,                        // hi-child
+                                  KDNode3<BBObj> *lo_c,                        // lo-child
+                                  const std::list< BBObj > *tlist,     // list of tris, if bucket
+                                  int dep)                           // depth of node
+                                  {
+            dim = d;
+            cutval = cv;
+            parent = par;
+            hi = hi_c;
+            lo = lo_c;
+            tris = tlist;
+            depth = dep;
+        }
     // DATA
         /// level of node in tree 
         int depth;
@@ -84,12 +96,17 @@ class KDNode3 {
         /// Child-node lo.
         KDNode3 *lo; 
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
-        const std::list<Triangle> *tris;
+        const std::list< BBObj > *tris;
 
         /// string repr
-        std::string str() const;
-        /// string repr
-        friend std::ostream &operator<<(std::ostream &stream, const KDNode3 node);
+        //template < class BBObj >
+        std::string str() const {
+            std::ostringstream o;
+            o << "KDNode d:" << dim << " cv:" << cutval; 
+            return o.str();
+        }
+        // string repr
+        //friend std::ostream &operator<<(std::ostream &stream, const KDNode3 node);
         
 };
 
@@ -111,18 +128,18 @@ class KDTree {
         std::string str() const;
         
     protected:
-        KDNode3* build_node(    const std::list<Triangle> *tris,// triangles 
+        KDNode3<Triangle>* build_node(    const std::list<Triangle> *tris,// triangles 
                                 int dep,                        // depth of node
-                                KDNode3 *parent);               // parent-node
+                                KDNode3<Triangle> *parent);               // parent-node
         Spread3* calc_spread(const std::list<Triangle> *tris);
         void search_node(   std::list<Triangle> *tris, 
                             const Bbox& bb, 
-                            KDNode3 *root);
+                            KDNode3<Triangle> *root);
         unsigned int bucketSize;
         
         const STLSurf* surf; // needed as state? or only during build?
         
-        KDNode3* root;
+        KDNode3<Triangle>* root;
         /// the dimensions in this kd-tree
         std::vector<int> dimensions;
 };

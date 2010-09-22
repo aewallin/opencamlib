@@ -29,11 +29,14 @@
 namespace ocl
 {
 
+template class KDNode3<Triangle>; 
+
 //********   KDNode ********************** */
 
-
-KDNode3::KDNode3(int d, double cv, KDNode3 *par, KDNode3 *hi_c, KDNode3 *lo_c,
-            const std::list<Triangle> *tlist, int dep) 
+/*
+template <class BBObj>
+KDNode3::KDNode3(int d, double cv, KDNode3<BBObj> *par, KDNode3<BBObj> *hi_c, KDNode3<BBObj> *lo_c,
+            const std::list<BBObj> *tlist, int dep) 
 {
     dim = d;
     cutval = cv;
@@ -42,7 +45,22 @@ KDNode3::KDNode3(int d, double cv, KDNode3 *par, KDNode3 *hi_c, KDNode3 *lo_c,
     lo = lo_c;
     tris = tlist;
     depth = dep;
-}
+}*/
+
+//********  string output ********************** */
+/*
+std::string KDNode3::str() const {
+    std::ostringstream o;
+    o << << "KDNode d:" << root.dim << " cv:" << root.cutval; 
+    return o.str();
+}*/
+
+/*
+std::ostream& operator<<(std::ostream &stream, const KDNode3 root) {
+    stream << "KDNode d:" << root.dim << " cv:" << root.cutval;    
+    return stream;
+}*/
+
 
 /// returns all triangles under KDNode node in the tree
 /// might be useful for debugging
@@ -117,7 +135,7 @@ void KDTree::build() {
 
 // return triangles which overlap with Bbox bb
 std::list<Triangle>* KDTree::search( const Bbox& bb ) {
-     assert( !dimensions.empty() );
+    assert( !dimensions.empty() );
     std::list<Triangle>* tris = new std::list<Triangle>();
     search_node( tris, bb, root );
     return tris;
@@ -137,7 +155,7 @@ std::list<Triangle>* KDTree::search_cutter_overlap(const MillingCutter* c, CLPoi
 
 void KDTree::search_node( std::list<Triangle>* tris,    // found triangles added to tris
                             const Bbox& bb,             // bbox for search
-                            KDNode3 *node)              // start search here and recurse into tree
+                            KDNode3<Triangle> *node)              // start search here and recurse into tree
 {
     if (node->tris != NULL) { // we found a bucket node, so add all triangles and return.
             BOOST_FOREACH( Triangle t, *(node->tris) ) {
@@ -166,9 +184,9 @@ void KDTree::search_node( std::list<Triangle>* tris,    // found triangles added
 } // end search_kdtree()
 
 // build the kd-tree 
-KDNode3* KDTree::build_node(    const std::list<Triangle> *tris,      // triangles 
+KDNode3<Triangle>* KDTree::build_node(    const std::list<Triangle> *tris,      // triangles 
                                 int dep,                        // depth of node
-                                KDNode3 *par)                   // parent-node
+                                KDNode3<Triangle> *par)                   // parent-node
 {
     if (tris->size() == 0 ) { //this is a fatal error.
         std::cout << "ERROR: KDTree::build_node() called with tris->size()==0 ! \n";
@@ -182,8 +200,8 @@ KDNode3* KDTree::build_node(    const std::list<Triangle> *tris,      // triangl
     // OR number of triangles is smaller than bucketSize 
     // then return a bucket/leaf node
     if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {
-        KDNode3 *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
-        bucket = new KDNode3(spr->d, 0.0 , par , NULL, NULL, tris, dep);
+        KDNode3<Triangle> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
+        bucket = new KDNode3<Triangle>(spr->d, 0.0 , par , NULL, NULL, tris, dep);
         return bucket; // this is the leaf/end of the recursion-tree
     }
     // build lists of triangles for hi and lo child nodes
@@ -204,7 +222,7 @@ KDNode3* KDTree::build_node(    const std::list<Triangle> *tris,      // triangl
         assert(0);
     }
     // cereate the current node  dim     value    parent  hi   lo   trilist  depth
-    KDNode3 *node = new KDNode3(spr->d, cutvalue, par, NULL,NULL,NULL, dep);
+    KDNode3<Triangle> *node = new KDNode3<Triangle>(spr->d, cutvalue, par, NULL,NULL,NULL, dep);
     // create the child-nodes through recursion
     //                    list    depth   parent
     node->hi = build_node(hilist, dep+1, node); // FIXME? KDTree has direct access to hi and lo (bad?)
@@ -285,17 +303,7 @@ bool Spread3::spread_compare(Spread3 *x, Spread3 *y) {
         return false;
 }
 
-//********  string output ********************** */
-std::string KDNode3::str() const {
-    std::ostringstream o;
-    o << *this;
-    return o.str();
-}
 
-std::ostream& operator<<(std::ostream &stream, const KDNode3 root) {
-    stream << "KDNode d:" << root.dim << " cv:" << root.cutval;    
-    return stream;
-}
 
 } // end namespace
 // end file kdtree3.cpp
