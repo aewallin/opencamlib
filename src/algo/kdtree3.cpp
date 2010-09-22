@@ -29,73 +29,7 @@
 namespace ocl
 {
 
-template class KDNode3<Triangle>; 
-
-//********   KDNode ********************** */
-
-/*
-template <class BBObj>
-KDNode3::KDNode3(int d, double cv, KDNode3<BBObj> *par, KDNode3<BBObj> *hi_c, KDNode3<BBObj> *lo_c,
-            const std::list<BBObj> *tlist, int dep) 
-{
-    dim = d;
-    cutval = cv;
-    parent = par;
-    hi = hi_c;
-    lo = lo_c;
-    tris = tlist;
-    depth = dep;
-}*/
-
-//********  string output ********************** */
-/*
-std::string KDNode3::str() const {
-    std::ostringstream o;
-    o << << "KDNode d:" << root.dim << " cv:" << root.cutval; 
-    return o.str();
-}*/
-
-/*
-std::ostream& operator<<(std::ostream &stream, const KDNode3 root) {
-    stream << "KDNode d:" << root.dim << " cv:" << root.cutval;    
-    return stream;
-}*/
-
-
-/// returns all triangles under KDNode node in the tree
-/// might be useful for debugging
-/*
-void KDNode3::getTriangles( std::list<Triangle> *tris, KDNode3 *node) {
-    if (node->tris != NULL) { 
-        // found a bucket node, add all triangles
-        BOOST_FOREACH(Triangle t, *(node->tris)) {
-            tris->push_back(t); 
-        }
-        return;
-    }
-    // not a bucket node, so search recursively high and low:
-    KDNode3::getTriangles(tris, node->hi);
-    KDNode3::getTriangles(tris, node->lo);
-    return;
-}*/
-
-
-
-
-
 //*********** KDTREE ***************************************************
-
-
-void KDTree::setSTL(const STLSurf& s) {
-    std::cout << "KDTree::setSTL()\n";
-    surf = &s;
-    std::cout << "KDTree::setSTL() DONE\n";
-}
-
-void KDTree::setBucketSize(int s) {
-    std::cout << "KDTree::setBucketSize()\n"; 
-    bucketSize = s;
-}
 
 
 
@@ -285,24 +219,6 @@ Spread3* KDTree::calc_spread(const std::list<Triangle> *tris) {
         return spreads[ 0 ]; // select the biggest spread and return
     } // end tris->size != 0
 } // end spread()
-
-
-//*********** Spread ****************
-
-Spread3::Spread3(int dim, double v, double s) {
-    d = dim;
-    val = v;
-    start = s;
-}
-
-// compare two spreads, this is required for sorting
-bool Spread3::spread_compare(Spread3 *x, Spread3 *y) {
-    if (x->val > y->val)
-        return true;
-    else
-        return false;
-}
-
 
 
 } // end namespace

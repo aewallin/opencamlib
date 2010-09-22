@@ -24,6 +24,7 @@
 #include <iostream>
 #include <list>
 #include "clpoint.h"
+#include "kdnode3.h"
 
 namespace ocl
 {
@@ -40,7 +41,11 @@ class MillingCutter;
 class Spread3 {
     public:
         /// constructor
-        Spread3(int dim, double v, double s);
+        Spread3(int dim, double v, double s) {
+            d = dim;
+            val = v;
+            start = s;
+        };
         /// dimension
         int d;
         /// spread-value
@@ -49,96 +54,43 @@ class Spread3 {
         double start;
         /// comparison of Spread objects. Used for finding the largest spread
         /// along which the next partition/cut is made.
-        static bool spread_compare(Spread3 *x, Spread3 *y);
+        static bool spread_compare(Spread3 *x, Spread3 *y) {
+            if (x->val > y->val)
+                return true;
+            else
+                return false;
+        };
 };
 
-/// \brief K-D tree node. http://en.wikipedia.org/wiki/Kd-tree
-///
-/// A k-d tree is used for searching for triangles overlapping with the cutter.
-///
-template < class BBObj > 
-class KDNode3 {
-    public:
-        /// Create a node which partitions(cuts) along dimension d, at 
-        /// cut value cv, with child-nodes hi_c and lo_c.
-        /// If this is a bucket-node containing triangles, 
-        /// they are in the list tris
-        /// depth indicates the depth of the node in the tree
-        
-        //template < class BBObj>
-        KDNode3(int d, double cv, KDNode3<BBObj> *par,                        // parent node
-                                  KDNode3<BBObj> *hi_c,                        // hi-child
-                                  KDNode3<BBObj> *lo_c,                        // lo-child
-                                  const std::list< BBObj > *tlist,     // list of tris, if bucket
-                                  int dep)                           // depth of node
-                                  {
-            dim = d;
-            cutval = cv;
-            parent = par;
-            hi = hi_c;
-            lo = lo_c;
-            tris = tlist;
-            depth = dep;
-        }
-    // DATA
-        /// level of node in tree 
-        int depth;
-        /// dimension of cut
-        int dim;
-        /// Cut value.
-        /// Child node hi contains only triangles with a higher value than this.
-        /// Child node lo contains triangles with lower values.
-        double cutval;
-        /// parent-node
-        KDNode3 *parent; 
-        /// Child-node hi.
-        KDNode3 *hi; 
-        /// Child-node lo.
-        KDNode3 *lo; 
-        /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
-        const std::list< BBObj > *tris;
-
-        /// string repr
-        //template < class BBObj >
-        std::string str() const {
-            std::ostringstream o;
-            o << "KDNode d:" << dim << " cv:" << cutval; 
-            return o.str();
-        }
-        // string repr
-        //friend std::ostream &operator<<(std::ostream &stream, const KDNode3 node);
-        
-};
 
 // template this on the object stored in the tree, could be triangles or spans
 class KDTree {
     public:
         KDTree() {};
         virtual ~KDTree() {};
-        void setSTL(const STLSurf &s);
-        void setBucketSize(int b);
+        void setSTL(const STLSurf &s){surf = &s;};
+        void setBucketSize(int b){bucketSize = b;};
         void setXYDimensions(); // for drop-cutter search in XY plane
         void setYZDimensions(); // for X-fibers
         void setXZDimensions(); // for Y-fibers
         void build();
         std::list<Triangle>* search( const Bbox& bb );
         std::list<Triangle>* search_cutter_overlap(const MillingCutter* c, CLPoint* cl );
-
         /// string repr
         std::string str() const;
         
     protected:
-        KDNode3<Triangle>* build_node(    const std::list<Triangle> *tris,// triangles 
-                                int dep,                        // depth of node
-                                KDNode3<Triangle> *parent);               // parent-node
+        KDNode3<Triangle>* build_node(    const std::list<Triangle> *tris,  // triangles 
+                                int dep,                                    // depth of node
+                                KDNode3<Triangle> *parent);                 // parent-node
+                                
         Spread3* calc_spread(const std::list<Triangle> *tris);
         void search_node(   std::list<Triangle> *tris, 
                             const Bbox& bb, 
                             KDNode3<Triangle> *root);
+    // DATA
         unsigned int bucketSize;
-        
         const STLSurf* surf; // needed as state? or only during build?
-        
         KDNode3<Triangle>* root;
         /// the dimensions in this kd-tree
         std::vector<int> dimensions;
