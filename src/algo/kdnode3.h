@@ -24,13 +24,9 @@
 #include <iostream>
 #include <list>
 
-
 namespace ocl
 {
     
-
-
-
 /// \brief K-D tree node. http://en.wikipedia.org/wiki/Kd-tree
 ///
 /// A k-d tree is used for searching for triangles overlapping with the cutter.

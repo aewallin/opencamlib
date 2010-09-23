@@ -23,7 +23,7 @@
 
 #include <iostream>
 #include <list>
-#include "clpoint.h"
+//#include "clpoint.h"
 #include "kdnode3.h"
 
 namespace ocl
@@ -67,12 +67,12 @@ class Spread3 {
 class KDTree {
     public:
         KDTree() {};
-        virtual ~KDTree() {};
-        void setSTL(const STLSurf &s){surf = &s;};
+        virtual ~KDTree() {delete root;};
         void setBucketSize(int b){bucketSize = b;};
         void setXYDimensions(); // for drop-cutter search in XY plane
         void setYZDimensions(); // for X-fibers
         void setXZDimensions(); // for Y-fibers
+        void setSTL(const STLSurf &s){surf = &s;};
         void build();
         std::list<Triangle>* search( const Bbox& bb );
         std::list<Triangle>* search_cutter_overlap(const MillingCutter* c, CLPoint* cl );
