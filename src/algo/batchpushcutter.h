@@ -27,13 +27,14 @@
 
 #include "point.h"
 #include "fiber.h"
+#include "kdtree3.h"
 
 namespace ocl
 {
 
 class STLSurf;
 //class KDNode2;
-class KDTree;
+//class KDTree;
 class Triangle;
 class MillingCutter;
 
@@ -84,7 +85,7 @@ class BatchPushCutter {
         /// the STLSurf which we test against.
         const STLSurf* surf;
         /// root of the kd-tree
-        KDTree* root;
+        KDTree<Triangle>* root;
         /// number of threads to use
         unsigned int nthreads;
         bool x_direction;

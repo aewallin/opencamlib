@@ -45,11 +45,12 @@ BatchPushCutter::BatchPushCutter() {
 #endif
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree();
+    root = new KDTree<Triangle>();
 }
 
 BatchPushCutter::~BatchPushCutter() {
     delete fibers;
+    delete root;
 }
 
 void BatchPushCutter::setSTL(const STLSurf &s) {

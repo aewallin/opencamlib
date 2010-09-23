@@ -43,7 +43,7 @@ BatchDropCutter::BatchDropCutter() {
 #endif
     cutter = NULL;
     bucketSize = 1;
-    root3 = new KDTree();
+    root = new KDTree<Triangle>();
 }
 
 void BatchDropCutter::setSTL(const STLSurf &s) {
@@ -51,11 +51,11 @@ void BatchDropCutter::setSTL(const STLSurf &s) {
     surf = &s;
     //std::cout << "Building kd-tree... bucketSize=" << bucketSize << "...\n";
     
-    root3->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
-    root3->setSTL(s);
-    root3->setBucketSize( bucketSize );
+    root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
+    root->setSTL(s);
+    root->setBucketSize( bucketSize );
     
-    root3->build();
+    root->build();
     
     std::cout << "bdc::setSTL() done.\n";
 }
@@ -93,7 +93,7 @@ void BatchDropCutter::dropCutter2() {
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
-        triangles_under_cutter = root3->search_cutter_overlap( cutter , &cl);
+        triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             cutter->dropCutter(cl,t);
             ++dcCalls;
@@ -114,7 +114,7 @@ void BatchDropCutter::dropCutter3() {
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
-        triangles_under_cutter = root3->search_cutter_overlap( cutter , &cl);
+        triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             if (cutter->overlaps(cl,t)) {
                 if ( cl.below(t) ) {
@@ -160,7 +160,7 @@ void BatchDropCutter::dropCutter4() {
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            tris = root3->search_cutter_overlap( cutter, &clref[n] );
+            tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
@@ -225,7 +225,7 @@ void BatchDropCutter::dropCutter5() {
 #endif
             nloop++;
             tris=new std::list<Triangle>();
-            tris = root3->search_cutter_overlap( cutter, &clref[n] );
+            tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  

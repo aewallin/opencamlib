@@ -47,7 +47,7 @@ class BatchDropCutter_py : public BatchDropCutter {
         boost::python::list getTrianglesUnderCutter(CLPoint& cl, MillingCutter& cutter) {
             boost::python::list trilist;
             std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
-            triangles_under_cutter = root3->search_cutter_overlap( &cutter , &cl);
+            triangles_under_cutter = root->search_cutter_overlap( &cutter , &cl);
             BOOST_FOREACH(Triangle t, *triangles_under_cutter) {
                 trilist.append(t);
             }

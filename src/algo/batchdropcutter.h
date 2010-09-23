@@ -27,13 +27,14 @@
 
 #include "clpoint.h"
 #include "millingcutter.h"
+#include "kdtree3.h"
 
 namespace ocl
 {
 
 class STLSurf;
 class Triangle;
-class KDTree;
+
 
 ///
 /// BatchDropCutter takes a MillingCutter, an STLSurf, and a list of CLPoint's
@@ -45,7 +46,7 @@ class KDTree;
 class BatchDropCutter {
     public:
         BatchDropCutter();
-        virtual ~BatchDropCutter() {};
+        virtual ~BatchDropCutter() {delete root;};
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(const STLSurf &s);
         /// set the MillingCutter to use
@@ -85,7 +86,7 @@ class BatchDropCutter {
         /// pointer to list of CL-points on which to run drop-cutter.
         std::vector<CLPoint>* clpoints;
         /// root of kd-tree
-        KDTree* root3;
+        KDTree<Triangle>* root;
         /// the STLSurf which we test against.
         const STLSurf* surf;
         /// how many times DropCutter was called. Useful for optimization.

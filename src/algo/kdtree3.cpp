@@ -32,49 +32,27 @@ namespace ocl
 //*********** KDTREE ***************************************************
 
 
+/*
+void KDTree::setXYDimensions() 
 
-void KDTree::setXYDimensions() {
-    std::cout << "KDTree::setXYDimensions()\n"; 
-    dimensions.clear();
-    dimensions.push_back(0); // x
-    dimensions.push_back(1); // x
-    dimensions.push_back(2); // y
-    dimensions.push_back(3); // y
-}
+void KDTree::setYZDimensions() 
 
-void KDTree::setYZDimensions() { // for X-fibers
-    std::cout << "KDTree::setYZDimensions()\n"; 
-    dimensions.clear();
-    dimensions.push_back(2); // y
-    dimensions.push_back(3); // y
-    dimensions.push_back(4); // z
-    dimensions.push_back(5); // z
-}
-
-void KDTree::setXZDimensions() { // for Y-fibers
-    std::cout << "KDTree::setXZDimensions()\n";
-    dimensions.clear();
-    dimensions.push_back(0); // x
-    dimensions.push_back(1); // x
-    dimensions.push_back(4); // z
-    dimensions.push_back(5); // z
-}
+void KDTree::setXZDimensions() 
 
 void KDTree::build() {
     //std::cout << "KDTree::build() tris.size()=" << surf->tris.size() 
     //          << " bucketSize=" << bucketSize << "\n";
     assert( !dimensions.empty() );
-    root = build_node( &surf->tris, 0, NULL ); // build the root node (and recursively everything below)
+    // build the root node (and recursively everything below)
 }
+*/
+
 
 // return triangles which overlap with Bbox bb
-std::list<Triangle>* KDTree::search( const Bbox& bb ) {
-    assert( !dimensions.empty() );
-    std::list<Triangle>* tris = new std::list<Triangle>();
-    search_node( tris, bb, root );
-    return tris;
-}
 
+// std::list<Triangle>* KDTree::search( const Bbox& bb ) 
+
+/*
 std::list<Triangle>* KDTree::search_cutter_overlap(const MillingCutter* c, CLPoint* cl ) {
     double r = c->getRadius();
     Bbox bb( cl->x- r, // build a bounding-box at the current CL
@@ -86,7 +64,10 @@ std::list<Triangle>* KDTree::search_cutter_overlap(const MillingCutter* c, CLPoi
     //std::cout << " KDTree::search_cutter_overlap() \n";
     return search( bb );
 }
+*/
 
+
+/*
 void KDTree::search_node( std::list<Triangle>* tris,    // found triangles added to tris
                             const Bbox& bb,             // bbox for search
                             KDNode3<Triangle> *node)              // start search here and recurse into tree
@@ -116,7 +97,10 @@ void KDTree::search_node( std::list<Triangle>* tris,    // found triangles added
     }
     return; // Done. We get here after all the recursive calls above.
 } // end search_kdtree()
+*/
 
+
+/*
 // build the kd-tree 
 KDNode3<Triangle>* KDTree::build_node(    const std::list<Triangle> *tris,      // triangles 
                                 int dep,                        // depth of node
@@ -163,7 +147,9 @@ KDNode3<Triangle>* KDTree::build_node(    const std::list<Triangle> *tris,      
     node->lo = build_node(lolist, dep+1, node);    
     return node; // return a new node
 }
+*/
 
+/*
 /// find the maximum 'extent' of Triangle list tris along dimension d
 Spread3* KDTree::calc_spread(const std::list<Triangle> *tris) {
     std::vector<double> maxval( 6 );
@@ -204,22 +190,23 @@ Spread3* KDTree::calc_spread(const std::list<Triangle> *tris) {
         }
         std::sort(spreads.begin(), spreads.end(), Spread3::spread_compare); // sort the list
         // priority-queue could also be used ??
-        /*
-        std::cout << "\n";
-        std::cout <<"spreads for " << tris->size() << " triangles:\n";
-        std::cout << " selecting " << (spreads[0])->d << " with s="<< (spreads[0])->val << "\n";
-        char c;
-        std::cin >> c;
-        */
+        
+        //std::cout << "\n";
+        //std::cout <<"spreads for " << tris->size() << " triangles:\n";
+        //std::cout << " selecting " << (spreads[0])->d << " with s="<< (spreads[0])->val << "\n";
+        //char c;
+        //std::cin >> c;
+        
         //cutcount++;
         //if (cutcount == 6)
         //    cutcount = 0;
-        // return spreads[ cutcount ]; // select each dim in turn
+        // return spreads[ cutcount ]; 
+        // select each dim in turn
         
         return spreads[ 0 ]; // select the biggest spread and return
     } // end tris->size != 0
 } // end spread()
-
+*/
 
 } // end namespace
 // end file kdtree3.cpp
