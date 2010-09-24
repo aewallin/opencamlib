@@ -49,14 +49,9 @@ BatchDropCutter::BatchDropCutter() {
 void BatchDropCutter::setSTL(const STLSurf &s) {
     std::cout << "bdc::setSTL()\n";
     surf = &s;
-    //std::cout << "Building kd-tree... bucketSize=" << bucketSize << "...\n";
-    
     root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
-    root->setSTL(s);
     root->setBucketSize( bucketSize );
-    
-    root->build();
-    
+    root->build(s.tris);
     std::cout << "bdc::setSTL() done.\n";
 }
 
@@ -142,7 +137,6 @@ void BatchDropCutter::dropCutter4() {
     unsigned int n;
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
-    //const MillingCutter& cutref = *cutter;
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
 #ifndef WIN32
@@ -184,12 +178,10 @@ void BatchDropCutter::dropCutter4() {
                     //++calls;
                 }
             }
-            
             ntris += tris->size();
             delete( tris );
             ++show_progress;
         } // end OpenMP PARALLEL for
-
     dcCalls = calls;
     std::cout << " " << dcCalls << " dropCutter() calls.\n";
     return;
@@ -207,7 +199,6 @@ void BatchDropCutter::dropCutter5() {
     unsigned int n;
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
-    //const MillingCutter& cutref = *cutter;
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
 #ifndef WIN32
@@ -246,5 +237,4 @@ void BatchDropCutter::dropCutter5() {
 }
 
 }// end namespace
-
 // end file batchdropcutter.cpp

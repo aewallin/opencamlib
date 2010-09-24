@@ -33,8 +33,6 @@ namespace ocl
 {
 
 class STLSurf;
-//class KDNode2;
-//class KDTree;
 class Triangle;
 class MillingCutter;
 
@@ -66,7 +64,6 @@ class BatchPushCutter {
         
         /// run push-cutter
         void run() {this->pushCutter3();};
-
         /// pointer to list of Fibers
         std::vector<Fiber>* fibers;
         

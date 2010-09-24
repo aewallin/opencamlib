@@ -82,10 +82,6 @@ class KDNode3 {
         KDNode3 *lo; 
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
         const std::list< BBObj > *tris;
-
-
-     
-        
 };
 
 

@@ -96,9 +96,9 @@ class KDTree {
             dimensions.push_back(5); // z
         }; // for Y-fibers
         
-        void setSTL(const STLSurf &s){surf = &s;};
-        
-        void build(){root = build_node( &surf->tris, 0, NULL ); };
+        void build(const std::list<BBObj>& list){
+            root = build_node( &list, 0, NULL ); 
+        };
         
         std::list<BBObj>* search( const Bbox& bb ){
             assert( !dimensions.empty() );
@@ -125,13 +125,9 @@ class KDTree {
                 assert(0);
                 return 0;
             }
-            // calculate spread in order to know how to cut
-            Spread3* spr = calc_spread(tris); // call to static method which returns new object
+            Spread3* spr = calc_spread(tris); // calculate spread in order to know how to cut
             double cutvalue = spr->start + spr->val/2; // cut in the middle
-            // if spr.val==0 (no need/possibility to subdivide anymore)
-            // OR number of triangles is smaller than bucketSize 
-            // then return a bucket/leaf node
-            if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {
+            if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {  // then return a bucket/leaf node
                 KDNode3<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
                 bucket = new KDNode3<BBObj>(spr->d, 0.0 , par , NULL, NULL, tris, dep);
                 return bucket; // this is the leaf/end of the recursion-tree
@@ -145,19 +141,15 @@ class KDTree {
                 else
                     lolist->push_back(t);
             } 
-            if (hilist->empty() ) {// an error ??
-                std::cout << "kdtree: hilist.size()==0!\n";
-                assert(0);
-            }
-            if (lolist->empty() ) {
-                std::cout << "kdtree: lolist.size()==0!\n";
+            if (hilist->empty() || lolist->empty()) {// an error ??
+                std::cout << "kdtree: hilist.size()==0! or lolist.size()==0! \n";
                 assert(0);
             }
             // cereate the current node  dim     value    parent  hi   lo   trilist  depth
             KDNode3<BBObj> *node = new KDNode3<BBObj>(spr->d, cutvalue, par, NULL,NULL,NULL, dep);
             // create the child-nodes through recursion
             //                    list    depth   parent
-            node->hi = build_node(hilist, dep+1, node); // FIXME? KDTree has direct access to hi and lo (bad?)
+            node->hi = build_node(hilist, dep+1, node); 
             node->lo = build_node(lolist, dep+1, node);    
             return node; // return a new node
         };                 
@@ -226,8 +218,9 @@ class KDTree {
             return; // Done. We get here after all the recursive calls above.
         } // end search_kdtree();
     // DATA
+        /// bucket size of tree
         unsigned int bucketSize;
-        const STLSurf* surf; // needed as state? or only during build?
+        /// pointer to root KDNode
         KDNode3<BBObj>* root;
         /// the dimensions in this kd-tree
         std::vector<int> dimensions;

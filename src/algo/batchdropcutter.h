@@ -66,6 +66,7 @@ class BatchDropCutter {
         
         /// run drop-cutter on all clpoints
         void run() {this->dropCutter5();};
+        /// return a vector of CLPoints, the result of this operation
         std::vector<CLPoint> getCLPoints() {return *clpoints;};
         
     
