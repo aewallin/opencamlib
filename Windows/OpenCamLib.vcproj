@@ -234,11 +234,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\kdtree.cpp"
+				RelativePath="..\src\algo\interval.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\kdtree2.cpp"
+				RelativePath="..\src\algo\kdtree3.cpp"
 				>
 			</File>
 			<File
@@ -380,11 +380,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\kdtree.h"
+				RelativePath="..\src\algo\interval.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\kdtree2.h"
+				RelativePath="..\src\algo\kdnode3.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\kdtree3.h"
 				>
 			</File>
 			<File
@@ -448,11 +452,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\revision.h"
+				RelativePath="..\src\revision.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\revision.h"
+				RelativePath=".\revision.h"
 				>
 			</File>
 			<File
@@ -472,11 +476,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\geo\triangle.h"
+				RelativePath="..\src\triangle.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\triangle.h"
+				RelativePath="..\src\geo\triangle.h"
 				>
 			</File>
 			<File
