@@ -35,18 +35,22 @@ this should create the ocl manual named "ocl-manual.pdf" in the src/doc director
 (generate this with 'tree -dL 2')
 
 .
-|-- debian              files for building a debian package
-|-- lib                 useful python libraries
-|-- scripts             python scripts that test or demonstrate use of ocl
-|-- src                 source root dir, python-bindings
-|   |-- algo            algorithms
-|   |-- attic           old source files and experimental unused code
-|   |-- cutsim          cutting simulation
-|   |-- cutters         cutter-classes
-|   |-- doc             documentation
-|   `-- geo             primitive geometry classes (point,triangle,stlsurf, etc.)
-|-- stl                 STL files for testing
-`-- Windows             Visual-studio project for building on windows
+|-- cpp_examples                c++ example use of opencamlib
+|   `-- point                   minimal example of ocl::Point
+|-- debian                      files for building a debian package
+|-- lib                         useful python libraries
+|-- scripts                     python scripts that test or demonstrate use of ocl
+|   |-- issues                  scripts that relate to issues on google-code
+|   `-- offset-ellipse          offset-ellipse examples
+|-- src                         source root dir, python-bindings        
+|   |-- algo                    algorithms
+|   |-- attic                   old source files and experimental unused code
+|   |-- cutsim                  cutting simulation
+|   |-- cutters                 cutter-classes
+|   |-- doc                     documentation
+|   `-- geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
+|-- stl                         STL files for testing
+`-- Windows                     Visual-studio project for building on windows
 
 
 3. Ubuntu 10.04LTS install and build
