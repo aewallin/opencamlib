@@ -101,6 +101,50 @@ set( OCL_CUTSIM_SRC
     ${OpenCamLib_SOURCE_DIR}/cutsim/octree.cpp
 )
 
+set( OCL_INCLUDE_FILES
+    ${OpenCamLib_SOURCE_DIR}/revision.h
+    
+    ${OpenCamLib_SOURCE_DIR}/geo/arc.h
+    ${OpenCamLib_SOURCE_DIR}/geo/bbox.h
+    ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.h
+    ${OpenCamLib_SOURCE_DIR}/geo/clpoint.h
+    ${OpenCamLib_SOURCE_DIR}/geo/line.h
+    ${OpenCamLib_SOURCE_DIR}/geo/path.h
+    ${OpenCamLib_SOURCE_DIR}/geo/stlreader.h
+    ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.h
+    ${OpenCamLib_SOURCE_DIR}/geo/triangle.h
+    ${OpenCamLib_SOURCE_DIR}/geo/point.h
+    
+    ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/compoundcutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/epos.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/oellipse.h
+    
+    ${OpenCamLib_SOURCE_DIR}/cutsim/mc_tables.h
+    ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.h
+    ${OpenCamLib_SOURCE_DIR}/cutsim/octree.h
+    ${OpenCamLib_SOURCE_DIR}/cutsim/volume.h
+    
+    ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.h
+    ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.h
+    ${OpenCamLib_SOURCE_DIR}/algo/brent_zero.h
+    ${OpenCamLib_SOURCE_DIR}/algo/clfilter.h
+    ${OpenCamLib_SOURCE_DIR}/algo/fiber.h
+    ${OpenCamLib_SOURCE_DIR}/algo/interval.h
+    ${OpenCamLib_SOURCE_DIR}/algo/kdnode3.h
+    ${OpenCamLib_SOURCE_DIR}/algo/kdtree3.h
+    ${OpenCamLib_SOURCE_DIR}/algo/lineclfilter.h
+    ${OpenCamLib_SOURCE_DIR}/algo/numeric.h
+    ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.h
+    ${OpenCamLib_SOURCE_DIR}/algo/waterline.h
+    ${OpenCamLib_SOURCE_DIR}/algo/weave.h
+    ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.h
+)
+
 # this branches into the dirs and compiles stuff there
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
@@ -136,14 +180,13 @@ set_target_properties(ocl PROPERTIES PREFIX "")
 # this is the C++ shared library
 add_library(
     libocl
+    # STATIC
     SHARED
     ${OCL_GEO_SRC}
     ${OCL_CUTTER_SRC}
     ${OCL_ALGO_SRC}
     ${OCL_CUTSIM_SRC}
 )
-# MESSAGE(STATUS "linking libocl.so with boost: " ${Boost_LIBRARIES})
-# target_link_libraries(libocl ${Boost_LIBRARIES})
 set_target_properties(libocl PROPERTIES PREFIX "") 
 
 #
@@ -157,9 +200,26 @@ execute_process(
 )
 MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
 
+# this installs the python library
 install(
     TARGETS ocl
     LIBRARY DESTINATION ${Python_site_packages}
+)
+
+# this installs the c++ library
+install(
+    TARGETS libocl
+    LIBRARY 
+    DESTINATION lib/opencamlib
+    ARCHIVE DESTINATION lib/opencamlib
+    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+)
+
+# this installs the c++ include headers
+install(
+    FILES ${OCL_INCLUDE_FILES}
+    DESTINATION include/opencamlib
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
 )
 
 install(
