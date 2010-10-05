@@ -238,10 +238,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\kdtree3.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\geo\line.cpp"
 				>
 			</File>
@@ -388,10 +384,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\kdtree3.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\geo\line.h"
 				>
 			</File>
@@ -452,11 +444,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\revision.h"
+				RelativePath=".\revision.h"
 				>
 			</File>
 			<File
-				RelativePath=".\revision.h"
+				RelativePath="..\src\revision.h"
 				>
 			</File>
 			<File
