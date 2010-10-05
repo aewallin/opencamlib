@@ -20,6 +20,9 @@
 #ifndef NUMERIC_H
 #define NUMERIC_H
 
+#include <string>
+
+
 namespace ocl
 {
     
@@ -71,6 +74,10 @@ bool two_by_two_solver( const double& a,
 /// line2 is   p3 + t * (p4-p3)
 bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
                                 const Point& p3, const Point& p4, double& t);
+
+/// return the revision string
+std::string revision();
+
 
 } // end namespace
 #endif

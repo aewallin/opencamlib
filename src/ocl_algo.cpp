@@ -27,7 +27,7 @@
 #include "weave_py.h"           // new-style wrapper
 #include "waterline_py.h"       // new-style wrapper
 #include "lineclfilter_py.h"    // new-style wrapper
-
+#include "numeric.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -39,6 +39,8 @@ namespace bp = boost::python;
 
 void export_algo() {
     bp::def("eps", eps); // machine epsilon, see numeric.cpp
+    bp::def("revision", revision); // returns OCL revision string to python
+    
     bp::class_<BatchDropCutter>("BatchDropCutter_base")
     ;
     bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
@@ -141,6 +143,6 @@ void export_algo() {
         .def("run",         &LineCLFilter_py::run)
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
-
+    
 }
 

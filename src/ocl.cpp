@@ -21,12 +21,9 @@
 #include <boost/python.hpp>
 #include <boost/python/docstring_options.hpp>
 
-#include "revision.h"
+// #include "revision.h"
 
-/// return the revision string
-std::string revision() {
-    return OCL_REV_STRING;
-}
+
 
 std::string ocl_docstring() {
     return "OpenCAMLib docstring";
@@ -45,7 +42,7 @@ BOOST_PYTHON_MODULE(ocl) {
     //doc_options.disable_all();
     //doc_options.disable_py_signatures();
 
-    bp::def("revision", revision); // returns OCL revision string to python
+    
 
     bp::def("__doc__", ocl_docstring);
 

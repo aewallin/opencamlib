@@ -23,7 +23,7 @@
 
 
 #include "oellipse.h"
-
+#include "revision.h"
 
 namespace ocl
 {
@@ -32,6 +32,9 @@ namespace ocl
 
 #define TOLERANCE 0.0000001
 
+std::string revision() {
+    return OCL_REV_STRING;
+}
 
 double sign(double x) {
     if (x<0.0)
