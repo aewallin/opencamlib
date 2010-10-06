@@ -71,7 +71,7 @@ bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal; // facet surface normal
     if ( isZero_tol( t.n->z ) )  {// vertical surface
-        return -1;  //can't drop against vertical surface
+        return false;  //can't drop against vertical surface
     } else if (t.n->z < 0) {  // normal is pointing down
         normal = -1 * (*t.n); // flip normal
     } else {
