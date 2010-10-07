@@ -5,7 +5,11 @@ import time
 import datetime
 import vtk
 import math
-
+"""
+This scripts draws a picture which enumerates the vertices, edges, and faces
+of an octree node, as used in the octree cutting simulation and
+marching-cubes.
+"""
 def main():  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()   
