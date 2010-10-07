@@ -195,11 +195,11 @@ def drawCylCutter(myscreen, c, p):
     myscreen.addActor(cyl) 
 
 def drawBallCutter(myscreen, c, p):
-    cyl = Cylinder(center=(p.x,p.y,p.z+c.radius), radius=c.radius,
-                            height=c.length,
+    cyl = Cylinder(center=(p.x,p.y,p.z+c.getRadius() ), radius=c.getRadius(),
+                            height=c.getLength(),
                             rotXYZ=(90,0,0), color=red)
     #cyl.SetWireframe()
-    sph = Sphere(center=(p.x,p.y,p.z+c.radius), radius=c.radius, color=red)
+    sph = Sphere(center=(p.x,p.y,p.z+c.getRadius()), radius=c.getRadius(), color=red)
     myscreen.addActor(cyl) 
     myscreen.addActor(sph)
     acts=[]

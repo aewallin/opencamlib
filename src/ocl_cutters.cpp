@@ -51,9 +51,9 @@ void export_cutters() {
         .def("edgePush", &MillingCutter::edgePush)
         .def("offsetCutter", &MillingCutter::offsetCutter,  bp::return_value_policy<bp::manage_new_object>() )
         .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
-        .add_property("radius", &MillingCutter::getRadius )
+        .def("getRadius", &MillingCutter::getRadius )
         .def("getLength", &MillingCutter::getLength )
-        .add_property("diameter", &MillingCutter::getDiameter )
+        .def("getDiameter", &MillingCutter::getDiameter )
     ; 
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double, double>()) 

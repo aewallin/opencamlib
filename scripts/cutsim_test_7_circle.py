@@ -24,17 +24,17 @@ def main():
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
     
-    cp= ocl.Point(0,0,-4)
+    cp= ocl.Point(0,0,-16)
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 9
-    root_scale = 4
+    max_depth = 7
+    root_scale = 16
     t = ocl.Octree(root_scale, max_depth, cp)
-    t.init(3)
+    t.init(4)
     n = 0 # the frame number
-    nmax=30
+    nmax=50
     theta=0
     dtheta=0.06
-    thetalift=-0.0
+    thetalift=-0.01
     s.center =  ocl.Point( 1.7*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
     while (n<=nmax):
         print "diff...",
@@ -60,13 +60,13 @@ def main():
             print "done."
             nodes = t.get_leaf_nodes()
             allpoints=[]
-            for no in nodes:
-                verts = no.vertices()
-                for v in verts:
-                    allpoints.append(v)
-            oct_points = camvtk.PointCloud( allpoints )
+            #for no in nodes:
+            #    verts = no.vertices()
+            #    for v in verts:
+            #        allpoints.append(v)
+            #oct_points = camvtk.PointCloud( allpoints )
             print " PointCloud()...",
-            myscreen.addActor( oct_points )
+            #myscreen.addActor( oct_points )
             print "done."
             print " render()...",
             myscreen.render()

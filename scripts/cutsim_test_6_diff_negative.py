@@ -55,9 +55,6 @@ def main():
         t_after = time.time() 
         build_time = t_after-t_before
         print "done in ", build_time," s"
-        
-        
-
         #infotext= "Octree + Marching-Cubes test\nmax octree-depth:%i \ntriangles: %i \nbuild() time: %f ms" % (max_depth, 
         #                                                  len(tris), build_time*1e3 )
         #octtext.SetText(infotext)
@@ -71,7 +68,7 @@ def main():
             print "done in ", mc_time," s"
             print " mc() got ", len(tris), " triangles"
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
-            #mc_surf.SetWireframe()
+            mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
             print " STLSurf()...",
             myscreen.addActor( mc_surf )

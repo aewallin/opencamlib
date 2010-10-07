@@ -25,7 +25,7 @@ def main(filename="frame/f.png"):
         
 
     
-    c = ocl.CylCutter(3) # cutter
+    c = ocl.CylCutter(3,10) # cutter
     c.length = 3
     print "cutter length=", c.length
     
