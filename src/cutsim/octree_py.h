@@ -61,7 +61,8 @@ class Octree_py : public Octree {
             std::vector<Triangle> s_triangles = side_triangles();
             boost::python::list tlist;
             BOOST_FOREACH( Triangle t, s_triangles ) {
-                tlist.append( t );
+                Triangle_py t2(t);
+                tlist.append( t2 );
             }
             return tlist;
         };

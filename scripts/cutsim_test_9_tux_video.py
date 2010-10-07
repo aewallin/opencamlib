@@ -36,17 +36,18 @@ def main():
     
     #angle = math.pi/4
     radius  = 0.4
-    cutter = ocl.BallCutter(2*radius)
-    #cutter = ocl.CylCutter(2*radius)
-    cutter.length = 6
+    length=5
+    cutter = ocl.BallCutter(2*radius, length)
+    #cutter = ocl.CylCutter(2*radius, length)
+    
     
     
     # generate CL-points
     minx=0
-    dx=0.1/5
+    dx=0.1/0.4
     maxx=9
     miny=0
-    dy=cutter.radius/1.5
+    dy=cutter.getRadius()/1.5
     maxy=12
     z=-1
     # this generates a list of CL-points in a grid
@@ -61,11 +62,10 @@ def main():
         bdc.appendPoint(p)
     
     t_before = time.time()    
-    bdc.dropCutter4()
-    dc_calls = bdc.dcCalls
+    bdc.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " BDC4 done in ", calctime," s", dc_calls," dc-calls" 
+    print " BDC4 done in ", calctime," s"
     dropcutter_time = calctime
     clpoints = bdc.getCLPoints()
     
@@ -78,8 +78,8 @@ def main():
     s = ocl.BallCutterVolume()
     #s = ocl.CylCutterVolume()
     #s.center = ocl.Point(-2.50,-0.6,0)
-    s.radius = cutter.radius
-    s.length = cutter.length
+    s.radius = cutter.getRadius()
+    s.length = cutter.getLength()
 
     # screenshot writer
     w2if = vtk.vtkWindowToImageFilter()
@@ -89,7 +89,7 @@ def main():
     
     cp= ocl.Point(5,5,-3) # center of octree
     #depths = [3, 4, 5, 6, 7, 8]
-    max_depth = 9
+    max_depth = 7
     root_scale = 7
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(5)
@@ -125,7 +125,7 @@ def main():
     #myscreen.iren.Start() 
     #exit()
     myscreen.removeActor( mc_surf )
-    renderinterleave=900
+    renderinterleave=len(clpoints)/100
     step_time = 0
     while (n<len(clpoints)):
         cl = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
