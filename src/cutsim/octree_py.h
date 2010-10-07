@@ -25,6 +25,8 @@
 #include <boost/foreach.hpp>
 
 #include "octree.h"
+#include "triangle_py.h"
+
 namespace ocl
 {
 
@@ -49,7 +51,8 @@ class Octree_py : public Octree {
             std::vector<Triangle> mc_triangles = mc();
             boost::python::list tlist;
             BOOST_FOREACH( Triangle t, mc_triangles ) {
-                tlist.append( t );
+                Triangle_py t2(t);
+                tlist.append( t2 );
             }
             return tlist;
         };

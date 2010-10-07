@@ -41,7 +41,7 @@ class Octree {
         virtual ~Octree();
         /// create an octree with a root node with scale=root_scale, maximum
         /// tree-depth of max_depth and centered at centerp.
-        Octree(double root_scale, unsigned int max_depth, Point& centerp);
+        Octree(double root_scale, unsigned int max_depth, Point& centerPoint);
         /// subtract vol from tree
         void diff_negative_root(const OCTVolume* vol);
         /// return the leaf-nodes

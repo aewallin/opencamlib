@@ -40,6 +40,7 @@ class Triangle_py : public Triangle {
                      const Point& p1,
                      const Point& p2) : Triangle(p0,p1,p2) {};
         Triangle_py( const Triangle_py& t) : Triangle(t) {};
+        Triangle_py( const Triangle& t) : Triangle(t) {};
                      
         /// string repr
         std::string str() const {
