@@ -330,3 +330,18 @@ IF (DOXYGEN_FOUND)
 
 ENDIF(DOXYGEN_FOUND)
 
+
+# find out the number of CPUs
+# from: http://www.kitware.com/blog/home/post/63
+if(NOT DEFINED PROCESSOR_COUNT)
+  # Unknown:
+  set(PROCESSOR_COUNT 0)
+  # Linux:
+  set(cpuinfo_file "/proc/cpuinfo")
+  if(EXISTS "${cpuinfo_file}")
+    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
+    list(LENGTH procs PROCESSOR_COUNT)
+  endif()
+  MESSAGE(STATUS "Number of processors on this system " ${PROCESSOR_COUNT} )
+endif()
+
