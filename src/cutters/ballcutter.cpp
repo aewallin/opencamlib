@@ -26,7 +26,6 @@
 namespace ocl
 {
 
-//********   CylCutter ********************** */
 BallCutter::BallCutter() {
     std::cout << " usage: BallCutter( double diameter, double length )\n";
     assert(0);
@@ -36,6 +35,7 @@ BallCutter::BallCutter(const double d, const double l) {
     assert( d>0.0 );
     diameter = d;
     radius = d/2.0;
+    assert( l>0.0 );
     length = l;
     normal_length = radius;
     xy_normal_length = 0.0;
@@ -60,14 +60,9 @@ MillingCutter* BallCutter::offsetCutter(const double d) const {
     return  new BallCutter(diameter+2*d, length+d) ;
 }
 
+// drop-cutter methods: vertex, facet, handled in base-class
 
-//********   drop-cutter methods ********************** */
-
-// vertex, facet, handled in base-class
-
-
-//********   edgeDrop *************************************************/
-
+// drop-cutter edgeDrop 
 bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result = false;
     //  assert( d >= 0.0 );  assert( d<= radius );
@@ -134,10 +129,9 @@ bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     return result;
 }
 
-//******************* PUSH-CUTTER **************************************
+// push-cutter: vertex and facet handled in base-class
 
-// vertex and facet handled in base-class
-
+// push-cutter edge-push
 bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
@@ -267,7 +261,6 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
     return result;
 }
 
-//******** string output **********************************************/
 std::string BallCutter::str() const {
     std::ostringstream o;
     o << *this; 

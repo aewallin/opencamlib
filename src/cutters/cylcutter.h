@@ -30,32 +30,22 @@
 namespace ocl
 {
 
-/* ********************************************************************
- *  CYLINDER    cylcutter.cpp
- * ********************************************************************/
 ///
 /// \brief Cylindrical MillingCutter (flat-endmill)
 ///
 /// defined by one parameter, the cutter diameter
 class CylCutter : public MillingCutter {
     public:
-        /// create CylCutter with diameter = 1.0
         CylCutter();
-        /// create CylCutter with diameter = d
+        /// create CylCutter with diameter d and length l
         explicit CylCutter(const double d, const double l);
 
         MillingCutter* offsetCutter(const double d) const;
-
-        // dropCutter methods
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
-        
-        // pushCutter methods
         bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
-        
-        /// text output
+
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
-        /// string repr
         std::string str() const;
     protected:
         double height(const double r) const;

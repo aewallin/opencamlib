@@ -26,20 +26,6 @@
 namespace ocl
 {
 
-//********   MillingCutter ********************** */
-
-double MillingCutter::getDiameter() const {
-    return diameter;
-}
-
-double MillingCutter::getRadius() const {
-    return radius;
-}
-
-double MillingCutter::getLength() const {
-    return length;
-}
-
 MillingCutter* MillingCutter::offsetCutter(double d) const {
     assert(0); // DON'T call me
     return  NULL;
@@ -281,7 +267,8 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
 }
 
 // call vertex, facet, and edge drop methods on input Triangle t
-int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
+bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
+    bool facet, vertex, edge;
     /* // alternative ordering of the tests:
     if (cl.below(t))
         vertexDrop(cl,t);
@@ -293,15 +280,16 @@ int MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     }*/
     
     if (cl.below(t)) {
-        if (!facetDrop(cl,t)) {
-            vertexDrop(cl,t);
+        facet = facetDrop(cl,t);
+        if (!facet) {
+            vertex = vertexDrop(cl,t);
             if ( cl.below(t) ) {
-                edgeDrop(cl,t);
+                edge = edgeDrop(cl,t);
             }
         }
     }
     
-    return 0; // void would be better, return value not used for anything(?)
+    return ( facet || vertex || edge ); 
 }
 
 // TESTING ONLY, don't use for real

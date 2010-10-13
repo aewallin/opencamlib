@@ -30,31 +30,22 @@
 namespace ocl
 {
 
-/* ********************************************************************
- *  TORUS       bullcutter.cpp
- * ********************************************************************/
 /// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
 ///
 /// defined by the cutter diameter and by the corner radius
 ///
 class BullCutter : public MillingCutter {
     public:
-        /// Create bull-cutter with default diameter and corner radius.
         BullCutter();
-        /// Create bull-cutter with diamter d and corner radius r.
-        BullCutter(const double d, const double r, const double l);
+        /// Create bull-cutter with diamter d, corner radius r, and length l.
+        BullCutter(const double diameter, const double radius, const double length);
         /// offset of Bull is Bull
-        MillingCutter* offsetCutter(const double d) const;
+        MillingCutter* offsetCutter(const double offset) const;
         
-        /// drop cutter against p1-p2 edge
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
-        
-        /// push cutter against t
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
-        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
-        /// string repr
         std::string str() const;
         
     protected:

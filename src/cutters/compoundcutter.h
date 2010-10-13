@@ -30,9 +30,6 @@
 namespace ocl
 {
 
-/* ********************************************************************
- *  CompoundCutter base class
- * ********************************************************************/
 /// \brief a CompoundCutter is composed one or more MillingCutters
 /// the cutters are stored in a vector *cutter* and their axial offsets
 /// from eachother in *zoffset*. The different cutters apply in different
@@ -43,23 +40,22 @@ class CompoundCutter : public MillingCutter {
         /// create an empty CompoundCutter
         CompoundCutter();
         /// add a MillingCutter to this CompoundCutter
-        /// the cutter is valid from the previous radius out to radius
+        /// the cutter is valid from the previous radius out to the given radius
         /// and its axial offset is given by zoffset
         void addCutter(MillingCutter& c, double radius, double zoff);
-        /// return true if cc_tmp is in the valid region of cutter n
+        
+        /// return true if cl.cc is within the radial range of cutter n
+        /// for cutter n the valid radial distance from cl is
+        /// between radiusvec[n-1] and radiusvec[n]
         bool ccValid(int n, CLPoint& cl) const;
         
-        // offsetCutter
         MillingCutter* offsetCutter(const double d) const;
         
-        // dropCutter methods
         bool vertexDrop(CLPoint &cl, const Triangle &t) const;
         bool facetDrop(CLPoint &cl, const Triangle &t) const;
         bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
-        // string output
         std::string str() const;
-        
     protected:        
         /// vector that holds the radiuses of the different cutters
         std::vector<double> radiusvec; // vector of radiuses
@@ -68,13 +64,6 @@ class CompoundCutter : public MillingCutter {
         /// vector of cutters in this CompoundCutter
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
 };
-
-
-
-
-/* ********************************************************************
- *  different cutter shapes
- * ********************************************************************/
 
 /// \brief a MillingCutter::CompoundCutter with a cylindrical/flat central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
@@ -105,6 +94,7 @@ class BullConeCutter : public CompoundCutter {
 
 /// \brief a MillingCutter::CompoundCutter with a conical central part with diam1/angle1 
 /// and a conical outer part with diam2/angle2
+/// we assume angle2 < angle1  and  diam2 > diam1.
 class ConeConeCutter : public CompoundCutter {
     public:
         ConeConeCutter() {}; // dummy, required(?) by python wrapper

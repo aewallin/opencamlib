@@ -30,9 +30,6 @@
 namespace ocl
 {
 
-/* ********************************************************************
- *  SPHERE      ballcutter.cpp
- * ********************************************************************/
 /// \brief Ball or Spherical MillingCutter (ball-nose endmill)
 ///
 class BallCutter : public MillingCutter {
@@ -49,14 +46,10 @@ class BallCutter : public MillingCutter {
         /// push BallCutter along Fiber f against Triangle t, and update Interval i accordingly.   
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
-        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
-        /// string repr
         std::string str() const;
     protected:
-        /// the height of the cutter at radius r
         double height(const double r) const;
-        /// the width/radius of the cutter at height h
         double width(const double h) const; 
 };
 

@@ -31,6 +31,7 @@ namespace ocl
 /// STLSurf python wrapper
 class STLSurf_py : public STLSurf {
     public:
+        /// default constructor
         STLSurf_py() : STLSurf() {};
         /// return list of all triangles to python
         boost::python::list getTriangles() const {
@@ -53,6 +54,7 @@ class STLSurf_py : public STLSurf {
             return bounds;
         };
         
+        /// string output
         std::string str() const {
             std::ostringstream o;
             o << *this;

@@ -39,9 +39,6 @@ void CompoundCutter::addCutter(MillingCutter& c, double r, double zoff) {
     zoffset.push_back(zoff);
 }
 
-/// return true if cl.cc is within the radial range of cutter n
-/// for cutter n the valid radial distance from cl is
-/// between radiusvec[n-1] and radiusvec[n]
 bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
     if (cl.cc->type == NONE)
         return false;
@@ -53,7 +50,6 @@ bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
     else
         lolimit = radiusvec[n-1] - 1E-6;
     hilimit = radiusvec[n]+1e-6; // FIXME: really ugly solution this one...
-    
     if (d<lolimit)
         return false;
     else if (d>hilimit)
@@ -61,8 +57,6 @@ bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
     else
         return true;
 }
-
-//********   drop-cutter methods ********************** */
 
 // delegate to the sub-cutters, and pick the right one.
 bool CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
@@ -110,7 +104,6 @@ bool CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-
 //********   edge **************************************************** */
 bool CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
@@ -152,16 +145,10 @@ std::string CompoundCutter::str() const {
 
 
 
-//********   actual compound-cutters **********************************/
-// 
-// only constructors required, drop-cutter calls handled by base-class
-//
-//*********************************************************************/
+//  actual compound-cutters  
+//  only constructors required, drop-cutter calls handled by base-class
 
-/// define a CylCone cutter which consists of a cylindrical(flat) middle part
-/// of diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2
-CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)
-{
+CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
     MillingCutter* c1 = new CylCutter(diam1, 1 );
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double cone_offset= - (diam1/2)/tan(angle);
@@ -169,10 +156,7 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle)
     addCutter( *c2, diam2/2.0, cone_offset );
 }
 
-/// define a BallCone cutter which consists of a spherical middle part
-/// with ball-diameter diam1, and an outer conical part with a slope angle, and maximum diameter diam2
-BallConeCutter::BallConeCutter(double diam1, double diam2, double angle)
-{
+BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
     MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero  FIXME: length
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double cone_offset = - ( (diam1/2.0)/sin(angle) - diam1/2.0);
@@ -181,11 +165,7 @@ BallConeCutter::BallConeCutter(double diam1, double diam2, double angle)
     addCutter( *c2, diam2/2.0, cone_offset );
 }
 
-/// define a BullCone cutter which consists of a toroidal middle part
-/// with diameter diam1 and corner radius radius1,
-/// and an outer conical part with a slope angle, and maximum diameter diam2
-BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, double angle)
-{
+BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, double angle) {
     MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero FIXME: length
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     double h1 = radius1*sin(angle); // the contact point is this much down from the toroid-ring
@@ -196,9 +176,6 @@ BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, doubl
     addCutter( *c2, diam2/2.0, cone_offset );
 }
 
-/// define a ConeCone cutter which consists of a conical middle part
-/// and a conical outer part. diam2 > diam1.
-/// we assume angle2 < angle1
 ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double angle2)
 {
     MillingCutter* c1 = new ConeCutter(diam1, angle1); // at offset zero
@@ -209,7 +186,6 @@ ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double
     addCutter( *c1, diam1/2.0, 0.0 );
     addCutter( *c2, diam2/2.0, cone_offset );
 }
-
 
 } // end namespace
 // end file compoundcutter.cpp

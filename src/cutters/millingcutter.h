@@ -47,11 +47,18 @@ class MillingCutter {
         virtual ~MillingCutter() {};
         
         /// return the diameter of the cutter
-        double getDiameter() const;
+        inline double getDiameter() const {
+            return diameter;
+        }
         /// return the radius of the cutter
-        double getRadius() const;
+        inline double getRadius() const {
+            return radius;  
+        }
+        
         /// return the length of the cutter
-        double getLength() const;
+        inline double getLength() const {
+            return length;
+        }
         
         /// return a MillingCutter which is larger than *this by d
         virtual MillingCutter* offsetCutter(const double d) const;
@@ -77,7 +84,7 @@ class MillingCutter {
         /// until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
         /// Follows the template-method, or "self-delegation" design pattern.
-        int dropCutter(CLPoint &cl, const Triangle &t) const;
+        bool dropCutter(CLPoint &cl, const Triangle &t) const;
 
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with a triangle in the STLSurf s
@@ -99,24 +106,32 @@ class MillingCutter {
     protected:
         /// drop cutter against edge p1-p2 at xy-distance d from cl
         virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {return false;};
+        
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.
         virtual double height(const double r) const {assert(0); return -1;};
+        
         /// return the width of the cutter at height h.
         /// should be redefined by a subclass.
         virtual double width(const double h) const {assert(0); return -1;};
+        
         /// xy_normal lenght that locates the cutter center relative to a
         /// cc-point on a facet.
         double xy_normal_length;
+        
         /// normal lenght that locates the cutter center relative to a
         /// cc-point on a facet.
         double normal_length;
+        
         /// height of cutter center along z-axis
         double center_height;
+        
         /// diameter of cutter
         double diameter;
+        
         /// radius of cutter
         double radius;
+        
         /// length of cutter
         double length;
 };

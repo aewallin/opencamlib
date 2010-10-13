@@ -27,7 +27,6 @@
 namespace ocl
 {
 
-//********   ConeCutter ***********************************************/
 ConeCutter::ConeCutter() {
     diameter = 1.0;
     angle = 45;
@@ -46,15 +45,13 @@ double ConeCutter::height(const double r) const {
     return r/tan(angle);
 }
 
-// double ConeCutter::radius(const double h) const
+// double ConeCutter::width(const double h) const
 
 // offset of cone is BallConeCutter
 // ?? Ball-Cone-Bull ??
 MillingCutter* ConeCutter::offsetCutter(const double d) const {
     return new BallConeCutter(2*d,  diameter+2*d, angle) ;
 }
-
-//********   drop-cutter methods **************************************/
 
 // we either hit the tip, when the slope of the plane is smaller than angle
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft
@@ -233,7 +230,6 @@ bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     return result;
 }
 
-//******** string output **********************************************/
 std::string ConeCutter::str() const {
     std::ostringstream o;
     o << *this;

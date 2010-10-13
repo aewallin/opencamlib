@@ -32,6 +32,8 @@ namespace ocl
 
 #define TOLERANCE 0.0000001
 
+
+
 std::string revision() {
     return OCL_REV_STRING;
 }

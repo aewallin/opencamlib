@@ -27,7 +27,6 @@
 namespace ocl
 {
 
-//********   CylCutter ********************** */
 BullCutter::BullCutter() {
     std::cout << " usage: BullCutter( double diameter, double corner_radius, double length ) \n";
     assert(0);
@@ -38,7 +37,9 @@ BullCutter::BullCutter(const double d, const double r, const double l) {
     diameter = d;
     radius = d/2.0;        // total cutter radius
     radius1 = d/2.0 - r;   // cylindrical middle part radius
+    assert( radius1 > 0.0 );
     radius2 = r;         // corner radius
+    assert( l > 0.0 );
     length = l;
     xy_normal_length = radius1;
     normal_length = radius2;
@@ -65,12 +66,9 @@ double BullCutter::width(const double h) const {
         return radius1 + sqrt( square(radius2) - square(radius2-h) );
 }
 
+// drop-cutter: vertex, facet, handled in base-class
 
-//********   drop-cutter methods ********************** */
-
-// vertex, facet, handled in base-class
-
-// Toroidal cutter edge-test
+// drop-cutter: Toroidal cutter edge-test
 bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result = false;
 
@@ -243,9 +241,8 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     return result;
 }
 
-//********  BullCutter push-cutter methods ****************************/
 
-// vertex and facet handled by base-class
+// push-cutter: vertex and facet handled by base-class
 
 bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
@@ -323,14 +320,10 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
     return result;
 }
 
-//*********************************************************************/
-
-/// offset of bull is bull
 MillingCutter* BullCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, radius2+d, length+d) ;
 }
 
-//********  BullCutter string output **********************************/
 std::string BullCutter::str() const {
     std::ostringstream o;
     o << *this;

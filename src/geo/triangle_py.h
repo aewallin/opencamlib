@@ -35,11 +35,15 @@ namespace ocl
 ///
 class Triangle_py : public Triangle {
     public:
+        /// default constructor
         Triangle_py() : Triangle() {};
+        /// construct from three points
         Triangle_py( const Point& p0, 
                      const Point& p1,
                      const Point& p2) : Triangle(p0,p1,p2) {};
+        /// copy constructor
         Triangle_py( const Triangle_py& t) : Triangle(t) {};
+        /// cast-down constructor
         Triangle_py( const Triangle& t) : Triangle(t) {};
                      
         /// string repr

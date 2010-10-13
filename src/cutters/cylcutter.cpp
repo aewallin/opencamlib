@@ -27,7 +27,6 @@
 namespace ocl
 {
 
-//********   CylCutter ************************************************/
 CylCutter::CylCutter() {
     std::cout << " usage: CylCutter( double diameter, double length ) \n";
     assert(0);
@@ -37,15 +36,15 @@ CylCutter::CylCutter(const double d, const double l) {
     assert( d > 0.0);
     diameter= d;
     radius= d/2.0;
+    assert( l > 0.0 );
     length = l;
     xy_normal_length = radius;
     normal_length = 0.0;
     center_height = 0.0;
 }
 
-// offset of CylCutter is BullCutter
 MillingCutter* CylCutter::offsetCutter(const double d) const {
-    return new BullCutter(diameter+2*d, d, length+d) ;
+    return new BullCutter(diameter+2*d, d, length+d) ; // offset of CylCutter is BullCutter
 }
 
 double CylCutter::height(const double r) const {
@@ -62,10 +61,8 @@ double CylCutter::width(const double h) const {
     return radius;
 }
 
-//********   drop-cutter methods **************************************/
-
-// vertexDrop is handled by the base-class
-// facetDrop is handled by the base-class
+// drop-cutter vertexDrop is handled by the base-class
+// drop-cutter facetDrop is handled by the base-class
 
 bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result=false;
@@ -177,8 +174,7 @@ bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, co
     return result;
 }
 
-
-//************** push cutter methods **********************************/
+// push cutter: facet handled in base-class
 
 // push cutter along Fiber against vertices of Triangle t
 // update Interval i 
@@ -215,8 +211,6 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
     }
     return result;
 }
-
-// facet handled in base-class
 
 bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
@@ -267,7 +261,6 @@ bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const 
     return result;
 }   
 
-//********  CylCutter string output ***********************************/
 std::string CylCutter::str() const {
     std::ostringstream o;
     o << *this;
