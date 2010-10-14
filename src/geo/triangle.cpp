@@ -73,6 +73,12 @@ void Triangle::calcNormal() {
     n = new Point(ntemp.x,ntemp.y,ntemp.z);
 }
 
+Point Triangle::upNormal() const {
+    if (this->n->z < 0)   // normal is pointing down
+        return  -1.0* (*this->n); // flip normal
+    else 
+        return *this->n;
+}
 
 bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
     if ( (zcut <= this->bb.minpt.z) || ((zcut >= this->bb.maxpt.z)) )

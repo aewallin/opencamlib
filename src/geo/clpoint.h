@@ -53,6 +53,10 @@ class CLPoint : public Point {
         /// if so, set cc = cc_tmp and return true
         bool liftZ_if_InsidePoints(double z, CCPoint& cc_tmp, const Point& p1,const Point& p2);
         
+        /// if cc in in Triangle facet, test if clpoint needs to be lifted
+        /// if so, set cc=cc_tmp and return true
+        bool liftZ_if_inFacet(double z, CCPoint& cc_tmp, const Triangle& t);
+        
         /// if zin > z, lift CLPoint and update cc-point, and return true 
         bool liftZ(double zin, CCPoint& ccp);
         

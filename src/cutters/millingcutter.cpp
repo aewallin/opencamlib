@@ -38,14 +38,8 @@ bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     BOOST_FOREACH( const Point& p, t.p) { // test each vertex of triangle
         double q = cl.xyDistance(p); // distance in XY-plane from cl to p
         if ( q <= radius ) { // p is inside the cutter
-            CCPoint* cc_tmp = new CCPoint(p);
-            if ( cl.liftZ(p.z - this->height(q)) ) { // we need to lift the cutter
-                cc_tmp->type = VERTEX;
-                cl.cc = cc_tmp;
-                result = true;
-            } else {
-                delete cc_tmp;
-            }
+            CCPoint cc_tmp(p, VERTEX);
+            result = result || cl.liftZ( p.z - this->height(q), cc_tmp );
         } 
     }
     return result;
@@ -55,69 +49,31 @@ bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
 // and center_height() on the subclass
 bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     // Drop cutter at (cl.x, cl.y) against facet of Triangle t
-    Point normal; // facet surface normal
-    if ( isZero_tol( t.n->z ) )  {// vertical surface
+    Point normal = t.upNormal(); // facet surface normal
+    if ( isZero_tol( normal.z ) )  // vertical surface
         return false;  //can't drop against vertical surface
-    } else if (t.n->z < 0) {  // normal is pointing down
-        normal = -1 * (*t.n); // flip normal
-    } else {
-        normal = *t.n;
-    }   
     assert( isPositive( normal.z ) );
     
-    // horizontal plane special case
-    if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { 
-        CCPoint* cc_tmp = new CCPoint(cl.x,cl.y,t.p[0].z);
-        if (cc_tmp->isInside(t)) { // assuming cc-point is on the axis of the cutter...       
-            if ( cl.liftZ(cc_tmp->z) ) {
-                cc_tmp->type = FACET;
-                cl.cc = cc_tmp;
-                return true;
-            } else {
-                delete cc_tmp;
-            }
-        } else { // not inside facet
-            delete cc_tmp;
-            return false;
-        }
-    } // end horizontal plane case.
-    
-    // define plane containing facet
-    // a*x + b*y + c*z + d = 0, so
-    // d = -a*x - b*y - c*z, where
-    // (a,b,c) = surface normal
-    double a = normal.x;
-    double b = normal.y;
-    double c = normal.z;
-    //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    double d = - normal.dot(t.p[0]);
-    normal.normalize(); // make length of normal == 1.0
-    Point xyNormal = normal;
-    xyNormal.z = 0;
-    xyNormal.xyNormalize();
-    
-    // define the radiusvector which points from the 
-    // cc-point to the cutter-center 
-    Point radiusvector = this->xy_normal_length*xyNormal + this->normal_length*normal;
-    // find the xy-coordinates of the cc-point
-    CCPoint* cc_tmp = new CCPoint();
-    *cc_tmp = cl - radiusvector; // NOTE xy-coords right, z-coord is not.
-    cc_tmp->z = (1.0/c)*(-d-a*cc_tmp->x-b*cc_tmp->y); // cc-point lies in the plane.
-    cc_tmp->type = FACET;
-    if (cc_tmp->isInside(t)) {   
-        // now find the z-coordinate of the cl-point
-        double tip_z = cc_tmp->z + radiusvector.z - this->center_height;
-        if ( cl.liftZ(tip_z) ) {
-            cl.cc = cc_tmp;
-            return true;
-        } else {
-            delete cc_tmp;
-        }
-    } else {
-        delete cc_tmp;
-        return false;
+    if ( ( isZero_tol(normal.x) ) && ( isZero_tol(normal.y) ) ) { // horizontal plane special case
+        CCPoint cc_tmp( cl.x, cl.y, t.p[0].z, FACET);
+        return cl.liftZ_if_inFacet(cc_tmp.z, cc_tmp, t);
+    } else { // general case
+        // define plane containing facet
+        // a*x + b*y + c*z + d = 0, so
+        // d = -a*x - b*y - c*z, where  (a,b,c) = surface normal
+        double d = - normal.dot(t.p[0]);
+        normal.normalize(); // make length of normal == 1.0
+        Point xyNormal = normal;
+        xyNormal.z = 0;
+        xyNormal.xyNormalize();
+        // define the radiusvector which points from the cc-point to the cutter-center 
+        Point radiusvector = this->xy_normal_length*xyNormal + this->normal_length*normal;
+        CCPoint cc_tmp = cl - radiusvector; // NOTE xy-coords right, z-coord is not.
+        cc_tmp.z = (1.0/normal.z)*(-d-normal.x*cc_tmp.x-normal.y*cc_tmp.y); // cc-point lies in the plane.
+        cc_tmp.type = FACET;
+        double tip_z = cc_tmp.z + radiusvector.z - this->center_height;
+        return cl.liftZ_if_inFacet(tip_z, cc_tmp, t);
     }
-    return false; // we never get here (?)
 }
 
 // edge-drop function which calls the sub-class MillingCutter::singleEdgeDrop on each 
@@ -155,8 +111,7 @@ bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) c
                 double ofs = sqrt( square( cwidth ) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
                 Point stop  = pq + ofs*f.dir;
-                CCPoint cc_tmp = CCPoint(p);
-                cc_tmp.type = VERTEX;
+                CCPoint cc_tmp( p, VERTEX );
                 i.updateUpper( f.tval(stop) , cc_tmp );
                 i.updateLower( f.tval(start) , cc_tmp );
                 result = true;                
@@ -169,15 +124,9 @@ bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) c
 // general purpose facetPush
 bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;
-    Point normal; // facet surface normal 
-    if ( t.n->zParallel() ) { // normal points in z-dir   
+    Point normal = t.upNormal(); // facet surface normal, pointing up 
+    if ( t.n->zParallel() ) // normal points in z-dir   
         return result; //can't push against horizontal plane, stop here.
-    }
-    else if (t.n->z < 0) {  // normal is pointing down
-        normal = -1* (*t.n); // flip normal
-    } else {
-        normal = *t.n;
-    } // now we know the normal points upwards
     normal.normalize();
     Point xy_normal = normal;
     xy_normal.z = 0;
@@ -260,7 +209,6 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
         assert(0);
     }
     
-    
     return result;
 }
 
@@ -292,10 +240,9 @@ bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
 
 // TESTING ONLY, don't use for real
 bool MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
-    /* template-method, or "self-delegation", pattern */
     bool result=false;
     BOOST_FOREACH( const Triangle& t, s.tris) {
-        if ( dropCutter(cl,t) )
+        if ( this->dropCutter(cl,t) )
             result = true;
     }
     return result; 

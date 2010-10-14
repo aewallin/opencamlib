@@ -57,84 +57,40 @@ MillingCutter* ConeCutter::offsetCutter(const double d) const {
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft
 bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
-    Point normal; // facet surface normal    
-    if ( isZero_tol( t.n->z ) )  {// vertical surface
+    Point normal = t.upNormal(); // facet surface normal    
+    if ( isZero_tol( normal.z ) )  // vertical surface
         return false;  //can't drop against vertical surface
-    } else if (t.n->z < 0) {  // normal is pointing down
-        normal = -1* (*t.n); // flip normal
-    } else {
-        normal = *t.n;
-    }   
     assert( isPositive( normal.z ) );
     
-    // horizontal plane special case
-    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) { 
-        // so any vertex is at the correct height
-        CCPoint* cc_tmp = new CCPoint();
-        cc_tmp->x = cl.x;
-        cc_tmp->y = cl.y;
-        cc_tmp->z = t.p[0].z;
-        cc_tmp->type=FACET_TIP;
-        if (cc_tmp->isInside(t)) { // cc-point is on the axis of the cutter       
-            if ( cl.liftZ(cc_tmp->z) ) {
-                cl.cc = cc_tmp;
-                return true;
-            } else {
-                delete cc_tmp;
-            }
-        } else { // not inside facet
-            delete cc_tmp;
-            return false;
-        }
-    } // end horizontal plane case.
-    
-    
-    // define plane containing facet
-    // a*x + b*y + c*z + d = 0, so
-    // d = -a*x - b*y - c*z, where
-    // (a,b,c) = surface normal
-    double a = normal.x;
-    double b = normal.y;
-    double c = normal.z;
-    double d = - normal.dot(t.p[0]); //double d = - a * t.p[0].x - b * t.p[0].y - c * t.p[0].z;
-    normal.xyNormalize(); // make length of normal == 1.0
-    
-    // cylindrical contact point case
-    // find the xy-coordinates of the cc-point
-    CCPoint* cyl_cc_tmp = new CCPoint();
-    *cyl_cc_tmp = cl - radius*normal;
-    cyl_cc_tmp->z = (1.0/c)*(-d-a*cyl_cc_tmp->x-b*cyl_cc_tmp->y);
-    double cyl_cl_z = cyl_cc_tmp->z - length; // tip positioned here
-    cyl_cc_tmp->type = FACET_CYL;
-    
-    // tip contact with facet
-    CCPoint* tip_cc_tmp = new CCPoint(cl.x,cl.y,0.0);
-    tip_cc_tmp->z = (1.0/c)*(-d-a*tip_cc_tmp->x-b*tip_cc_tmp->y);
-    double tip_cl_z = tip_cc_tmp->z;
-    tip_cc_tmp->type = FACET_TIP;
-          
-    if (tip_cc_tmp->isInside(t)) { // TIP case     
-        if ( cl.liftZ(tip_cl_z) ) {
-            cl.cc = tip_cc_tmp;
-            result = true;
-        } else {
-            delete tip_cc_tmp;
-        }
+    if ( (isZero_tol(normal.x)) && (isZero_tol(normal.y)) ) {  // horizontal plane special case
+        CCPoint cc_tmp( cl.x, cl.y, t.p[0].z, FACET_TIP );  // so any vertex is at the correct height
+        return cl.liftZ_if_inFacet(cc_tmp.z, cc_tmp, t);
     } else {
-        delete tip_cc_tmp;
+        // define plane containing facet
+        // a*x + b*y + c*z + d = 0, so
+        // d = -a*x - b*y - c*z, where  (a,b,c) = surface normal
+        double a = normal.x;
+        double b = normal.y;
+        double c = normal.z;
+        double d = - normal.dot(t.p[0]); 
+        normal.xyNormalize(); // make xy length of normal == 1.0
+        // cylindrical contact point case
+        // find the xy-coordinates of the cc-point
+        CCPoint cyl_cc_tmp =  cl - radius*normal;
+        cyl_cc_tmp.z = (1.0/c)*(-d-a*cyl_cc_tmp.x-b*cyl_cc_tmp.y);
+        double cyl_cl_z = cyl_cc_tmp.z - length; // tip positioned here
+        cyl_cc_tmp.type = FACET_CYL;
+        
+        // tip contact with facet
+        CCPoint tip_cc_tmp(cl.x,cl.y,0.0);
+        tip_cc_tmp.z = (1.0/c)*(-d-a*tip_cc_tmp.x-b*tip_cc_tmp.y);
+        double tip_cl_z = tip_cc_tmp.z;
+        tip_cc_tmp.type = FACET_TIP;
+              
+        result = result || cl.liftZ_if_inFacet( tip_cl_z, tip_cc_tmp, t);
+        result = result || cl.liftZ_if_inFacet( cyl_cl_z, cyl_cc_tmp, t);
+        return result; 
     }
-    
-    if (cyl_cc_tmp->isInside(t))  { // CYLINDER case
-        if ( cl.liftZ( cyl_cl_z) ) {
-            cl.cc = cyl_cc_tmp;
-            result = true; 
-        } else {
-            delete cyl_cc_tmp;
-        }
-    } else {
-        delete cyl_cc_tmp;
-    }
-    return result; 
 }
 
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
@@ -189,24 +145,20 @@ bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     }
     
     // now the cc-point can be found: (in the XY plane)
-    CCPoint cc_tmp;
-    cc_tmp = sc + ccu*v; 
+    CCPoint cc_tmp = sc + ccu*v; 
     cc_tmp.z_projectOntoEdge(p1,p2);
     cc_tmp.type = EDGE;
     
     // find the CL-height
     double cl_z;
-    if (fabs(m) <= fabs(mu) ) {
-        // 1) zc = zp - Lc + (R - sqrt(xp^2 + d^2)) / tan(beta2)
+    if (fabs(m) <= fabs(mu) ) {  // 1) zc = zp - Lc + (R - sqrt(xp^2 + d^2)) / tan(beta2)
         cl_z = cc_tmp.z - length + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
-    } else if ( fabs(m)>fabs(mu) ) {
-        // 2) zc = zp - Lc
+    } else if ( fabs(m)>fabs(mu) ) {  // 2) zc = zp - Lc
         cl_z = cc_tmp.z - length; // case where we hit the edge of the cone
     } else {
         assert(0);
     }
     
-    // test if cc-point is in edge
     return cl.liftZ_if_InsidePoints( cl_z, cc_tmp, p1, p2);
 }
 

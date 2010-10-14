@@ -73,6 +73,8 @@ bool CLPoint::liftZ(const double zin) {
 bool CLPoint::liftZ(double zin, CCPoint& ccp) {
     if (zin>z) {
         z=zin;
+        if (cc)
+            delete cc;
         cc=new CCPoint( ccp );
         return true;
     } else {
@@ -81,9 +83,14 @@ bool CLPoint::liftZ(double zin, CCPoint& ccp) {
 }
 
 bool CLPoint::liftZ_if_InsidePoints(double zin, CCPoint& cc_tmp, const Point& p1,const Point& p2) {
-    if ( cc_tmp.isInsidePoints(p1, p2) ) {
+    if ( cc_tmp.isInsidePoints(p1, p2) ) 
         return this->liftZ(zin, cc_tmp);
-    }
+    return false;
+}
+
+bool CLPoint::liftZ_if_inFacet(double zin, CCPoint& cc_tmp, const Triangle& t) {
+    if ( cc_tmp.isInside(t) ) 
+        return this->liftZ(zin, cc_tmp);
     return false;
 }
 

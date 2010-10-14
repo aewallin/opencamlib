@@ -74,8 +74,7 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
 
     if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
         if ( d<= radius1) {             // horizontal edge, contact with cylindrical part of cutter
-            CCPoint cc_tmp;
-            cc_tmp = cl.xyClosestPoint(p1,p2);
+            CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
             cc_tmp.z = p1.z;   
             cc_tmp.type = EDGE_HORIZ_CYL;    
             return cl.liftZ_if_InsidePoints( p1.z, cc_tmp, p1, p2);
@@ -86,8 +85,7 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             // h2 = sqrt( r2^2 - (q-r1)^2 )
             // h1 = r2 - h2
             // cutter_tip = p.z - h1
-            CCPoint cc_tmp;
-            cc_tmp = cl.xyClosestPoint(p1,p2);
+            CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
             cc_tmp.z = p1.z;   
             cc_tmp.type = EDGE_HORIZ_TOR;     
             double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
@@ -196,8 +194,7 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5 );                 
         // find real cc-point
         Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
-        CCPoint cc_tmp; // = new CCPoint();
-        cc_tmp = sc + cc_tmp_u.x*vxy; // locates in XY plane
+        CCPoint cc_tmp = sc + cc_tmp_u.x*vxy; // locates in XY plane
         cc_tmp.z_projectOntoEdge(p1,p2);
         
         if (ep_sign > 0) // sign matters only for cc.type

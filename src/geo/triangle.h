@@ -45,17 +45,15 @@ class Triangle {
         /// and the plane. These vertices are used by CylCutter::edgePush()
         bool zslice_verts(Point& p1,Point& p2, const double zcut) const;
         
-        
         /// Triangle string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
         
-       
-
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
         /// normal vector
         Point *n;    // surface normal
-
+        Point upNormal() const;
+        
         /// bounding-box 
         Bbox bb;
         // these values are set from the Bbox object: (consider removing!)

@@ -28,18 +28,28 @@ namespace ocl
 /* ********************************************** CCPoint *************/
 
 CCPoint::CCPoint() 
-    : Point() { // base-class constructor
+    : Point() { 
     type = NONE;
 }
 
 CCPoint::CCPoint(const Point& p) 
-    : Point( p ) { //call base-class constructor
+    : Point( p ) { 
     type = NONE;
 }
 
+CCPoint::CCPoint(const Point& p, CCType t) 
+    : Point( p ) { 
+    type = t;
+}
+
 CCPoint::CCPoint(double x, double y, double z) 
-    : Point( x,y,z ) { //call base-class constructor
+    : Point( x,y,z ) { 
     type = NONE;
+}
+
+CCPoint::CCPoint(double x, double y, double z, CCType t) 
+    : Point( x,y,z ) { 
+    type = t;
 }
 
 CCPoint& CCPoint::operator=(const Point &p) {

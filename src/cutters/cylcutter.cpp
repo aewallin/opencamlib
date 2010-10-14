@@ -138,9 +138,7 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
                 double ofs = sqrt( square(radius) - square(q) ); // distance along fiber 
                 Point start = pq - ofs*f.dir;
                 Point stop  = pq + ofs*f.dir;
-                CCPoint cc_tmp = CCPoint(p);
-                cc_tmp.type = VERTEX;
-                //std::cout << "updating with " << f.tval(stop) << " to " << f.tval(start) << "\n";
+                CCPoint cc_tmp( p, VERTEX);
                 i.updateUpper( f.tval(stop) , cc_tmp );
                 i.updateLower( f.tval(start) , cc_tmp );
                 result = true;                
