@@ -35,9 +35,9 @@ MillingCutter* MillingCutter::offsetCutter(double d) const {
 // the specific subclass of cutter 
 bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
-    BOOST_FOREACH( const Point& p, t.p) { // test each vertex of triangle
-        double q = cl.xyDistance(p); // distance in XY-plane from cl to p
-        if ( q <= radius ) { // p is inside the cutter
+    BOOST_FOREACH( const Point& p, t.p) {           // test each vertex of triangle
+        double q = cl.xyDistance(p);                // distance in XY-plane from cl to p
+        if ( q <= radius ) {                        // p is inside the cutter
             CCPoint cc_tmp(p, VERTEX);
             result = result || cl.liftZ( p.z - this->height(q), cc_tmp );
         } 
@@ -58,13 +58,11 @@ bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         CCPoint cc_tmp( cl.x, cl.y, t.p[0].z, FACET);
         return cl.liftZ_if_inFacet(cc_tmp.z, cc_tmp, t);
     } else { // general case
-        // define plane containing facet
-        // a*x + b*y + c*z + d = 0, so
+        // plane containing facet:  a*x + b*y + c*z + d = 0, so
         // d = -a*x - b*y - c*z, where  (a,b,c) = surface normal
         double d = - normal.dot(t.p[0]);
         normal.normalize(); // make length of normal == 1.0
-        Point xyNormal = normal;
-        xyNormal.z = 0;
+        Point xyNormal( normal.x, normal.y, 0.0);
         xyNormal.xyNormalize();
         // define the radiusvector which points from the cc-point to the cutter-center 
         Point radiusvector = this->xy_normal_length*xyNormal + this->normal_length*normal;
@@ -88,14 +86,19 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
         const Point p2 = t.p[end];
         if ( !isZero_tol( p1.x - p2.x) || !isZero_tol( p1.y - p2.y) ) {
             const double d = cl.xyDistanceToLine(p1,p2);
-            if (d<=radius) { // potential contact with edge
+            if (d<=radius)  // potential contact with edge
                 if ( this->singleEdgeDrop(cl,p1,p2,d) )
                     result=true;
-            }
         }
     }
     return result;
 }
+// "dual" edge-drop problems
+// cylinder: zero diam edge/ellipse, r-radius cylinder, find r-offset == cl  (ITO surface XY-slice is a circle)
+// sphere: zero diam cylinder. ellipse around edge, find offset == cl (ITO surface slice is ellipse) (?)
+// toroid: radius2 diam edge, radius1 cylinder, find radius1-offset-ellipse=cl (ITO surf slice is offset ellipse) (this is the offset-ellipse problem)
+// cone: ??? (how is this an ellipse??)
+
 
 // general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
