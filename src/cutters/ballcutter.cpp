@@ -64,8 +64,6 @@ MillingCutter* BallCutter::offsetCutter(const double d) const {
 
 // drop-cutter edgeDrop 
 bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
-    bool result = false;
-    //  assert( d >= 0.0 );  assert( d<= radius );
     // the plane of the line will slice the spherical cutter at
     // a distance d from the center of the cutter
     // here the radius of the circular section is s:
@@ -87,51 +85,23 @@ bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     if (normal.y < 0)  // flip normal so it points upward
         normal = -1*normal;
     
-    CCPoint* cc_tmp = new CCPoint(); // suggested cc-point
+    CCPoint cc_tmp;
+    cc_tmp.type = EDGE;
     double cl_z; // corresponding cl z-coord
     if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
-        *cc_tmp = sc;
-        // locate cc_tmp on the edge
-        // edge = p1 + t*(p2-p1)
-        //if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
-            // x = p1.x + t*(p2.x-p1.x)
-            // t = (x - p1.x) / (p2.x -p1.x)
-            // z = p1 + t*(p2-p1)
-        //    double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
-        //    cc_tmp->z = p1.z + t*(p2.z-p1.z);
-        //} else { // the y-coord is better for the above calculation
-        //    double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
-        //    cc_tmp->z = p1.z + t*(p2.z-p1.z); 
-        //}
-        cc_tmp->z_projectOntoEdge(p1,p2);
-        cl_z = cc_tmp->z + s - radius;
+        cc_tmp = sc;
+        cc_tmp.z_projectOntoEdge(p1,p2);
+        cl_z = cc_tmp.z + s - radius;
     } else { // this is the general case
         assert_msg( isPositive(normal.y), "ERROR: BallCutter::edgeDrop(), general case, normal.y<0 !!\n" ); 
         Point start2sc = sc - p1;
         double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
-        *cc_tmp = sc + cc_u*v; // located in the XY-plane
-        //double t;
-        
-        // now locate z-coord of cc_tmp on edge
-        cc_tmp->z_projectOntoEdge(p1,p2);
-        //if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-        //    t = (cc_tmp->x - p1.x) / (p2.x-p1.x); 
-        //} else {
-        //    t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
-        //}
-        //cc_tmp->z = p1.z + t*(p2.z-p1.z);
-        
-        cl_z = cc_tmp->z + s*normal.y - radius;
+        cc_tmp = sc + cc_u*v; // located in the XY-plane
+        cc_tmp.z_projectOntoEdge(p1,p2); // now locate z-coord of cc_tmp on edge
+        cl_z = cc_tmp.z + s*normal.y - radius;
     } // end non-horizontal case
     
-    if ( cc_tmp->isInsidePoints( p1, p2 ) ) { // test if suggested cc-point cc_tmp is in edge
-        if (cl.liftZ(cl_z)) {
-            cc_tmp->type = EDGE;
-            cl.cc = cc_tmp;
-            result = true;
-        }
-    }
-    return result;
+    return cl.liftZ_if_InsidePoints(cl_z, cc_tmp, p1, p2);
 }
 
 // push-cutter: vertex and facet handled in base-class

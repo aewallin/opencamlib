@@ -254,8 +254,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
             std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
-        i.updateUpper( tval  , cc );
-        i.updateLower( tval  , cc );
+        i.update( tval, cc );
         result = true;    
     } else {
         assert(0);

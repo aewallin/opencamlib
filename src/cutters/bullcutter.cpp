@@ -74,20 +74,11 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
 
     if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
         if ( d<= radius1) {             // horizontal edge, contact with cylindrical part of cutter
-            CCPoint* cc_tmp = new CCPoint();
-            *cc_tmp = cl.xyClosestPoint(p1,p2);
-            cc_tmp->z = p1.z;   
-            cc_tmp->type = EDGE_HORIZ_CYL;           
-            if ( cc_tmp->isInsidePoints( p1, p2 ) ) { // test if cc-point is in edge
-                if (cl.liftZ(p1.z)) {
-                    cl.cc = cc_tmp;
-                    result = true;
-                } else {
-                    delete cc_tmp;
-                }
-            } else {
-                delete cc_tmp;
-            }   
+            CCPoint cc_tmp;
+            cc_tmp = cl.xyClosestPoint(p1,p2);
+            cc_tmp.z = p1.z;   
+            cc_tmp.type = EDGE_HORIZ_CYL;    
+            return cl.liftZ_if_InsidePoints( p1.z, cc_tmp, p1, p2);
         } 
         else if (d <= diameter/2) { // we are in toroid part of cutter
             // horizontal edge, toroid region special case
@@ -95,21 +86,12 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             // h2 = sqrt( r2^2 - (q-r1)^2 )
             // h1 = r2 - h2
             // cutter_tip = p.z - h1
-            CCPoint* cc_tmp = new CCPoint();
-            *cc_tmp = cl.xyClosestPoint(p1,p2);
-            cc_tmp->z = p1.z;   
-            cc_tmp->type = EDGE_HORIZ_TOR;     
-            if ( cc_tmp->isInsidePoints( p1, p2 ) ) { 
-                double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
-                if ( cl.liftZ(p1.z - h1) ) {
-                    cl.cc = cc_tmp;                                 
-                    result = true;
-                } else {
-                    delete cc_tmp;
-                }
-            } else {
-                delete cc_tmp;
-            }
+            CCPoint cc_tmp;
+            cc_tmp = cl.xyClosestPoint(p1,p2);
+            cc_tmp.z = p1.z;   
+            cc_tmp.type = EDGE_HORIZ_TOR;     
+            double h1 = radius2 - sqrt( square(radius2) - square(d-radius1) );
+            return cl.liftZ_if_InsidePoints( p1.z - h1, cc_tmp, p1, p2);
         }
     } // end horizontal edge special cases
     else {
@@ -214,30 +196,18 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5 );                 
         // find real cc-point
         Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
-        CCPoint* cc_tmp = new CCPoint();
-        *cc_tmp = sc + cc_tmp_u.x*vxy; // locates in XY plane
-        double t;
-        if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-            t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now find the z-coord of cc_tmp
-        } else {
-            t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
-        }
-        cc_tmp->z = p1.z + t*(p2.z-p1.z);
+        CCPoint cc_tmp; // = new CCPoint();
+        cc_tmp = sc + cc_tmp_u.x*vxy; // locates in XY plane
+        cc_tmp.z_projectOntoEdge(p1,p2);
+        
         if (ep_sign > 0) // sign matters only for cc.type
-            cc_tmp->type = EDGE_POS;
+            cc_tmp.type = EDGE_POS;
         else
-            cc_tmp->type = EDGE_NEG;
-        if ( cc_tmp->isInsidePoints( p1, p2 ) ) {
-            if ( cl.liftZ(ecen.z-radius2) ) {
-                cl.cc = cc_tmp;
-                result = true;
-            } else {
-                delete cc_tmp;
-            }
-        } else {
-            delete cc_tmp;
-        }
+            cc_tmp.type = EDGE_NEG;
+        
+        return cl.liftZ_if_InsidePoints( ecen.z-radius2, cc_tmp, p1, p2);
     } // end general case
+    
     return result;
 }
 
@@ -285,13 +255,11 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
                         cc_tmp1.type = EDGE;
                         cc_tmp2.type = EDGE;
                         if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
-                            i.updateUpper( t_cl1  , cc_tmp1 );
-                            i.updateLower( t_cl1  , cc_tmp1 );
+                            i.update( t_cl1  , cc_tmp1 );
                             result = true;
                         }
                         if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= f.p1.z) ) {
-                            i.updateUpper( t_cl2  , cc_tmp2 );
-                            i.updateLower( t_cl2  , cc_tmp2 );
+                            i.update( t_cl2  , cc_tmp2 );
                             result = true;
                         }
                     }

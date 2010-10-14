@@ -61,8 +61,7 @@ bool CLPoint::below(const Triangle& t) const {
         return false;
 }
 
-bool CLPoint::liftZ(const double zin)
-{
+bool CLPoint::liftZ(const double zin) {
     if (zin>z) {
         z=zin;
         return true;
@@ -71,15 +70,21 @@ bool CLPoint::liftZ(const double zin)
     }
 }
 
-int CLPoint::liftZ(double zin, CCPoint& ccp)
-{
+bool CLPoint::liftZ(double zin, CCPoint& ccp) {
     if (zin>z) {
         z=zin;
-        cc=&ccp;
-        return 1;
+        cc=new CCPoint( ccp );
+        return true;
     } else {
-        return 0;
+        return false;
     }
+}
+
+bool CLPoint::liftZ_if_InsidePoints(double zin, CCPoint& cc_tmp, const Point& p1,const Point& p2) {
+    if ( cc_tmp.isInsidePoints(p1, p2) ) {
+        return this->liftZ(zin, cc_tmp);
+    }
+    return false;
 }
 
 CLPoint& CLPoint::operator=(const CLPoint &clp) {

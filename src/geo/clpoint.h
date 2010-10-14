@@ -48,10 +48,18 @@ class CLPoint : public Point {
         CCPoint* cc; 
         /// string repr
         std::string str() const;
+        
+        /// if cc is in the edge p1-p2, test if clpoint needs to be lifted to z
+        /// if so, set cc = cc_tmp and return true
+        bool liftZ_if_InsidePoints(double z, CCPoint& cc_tmp, const Point& p1,const Point& p2);
+        
         /// if zin > z, lift CLPoint and update cc-point, and return true 
-        int liftZ(double zin, CCPoint& ccp);
+        bool liftZ(double zin, CCPoint& ccp);
+        
         /// if zin > z, lift CLPoint and return true.
         bool liftZ(const double zin);
+        
+        
         /// return true if cl-point above triangle
         bool below(const Triangle& t) const;
         /// return the CCPoint (for python)
