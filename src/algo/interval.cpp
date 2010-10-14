@@ -38,6 +38,11 @@ Interval::Interval(const double l, const double u) {
     in_weave=false;
 }
 
+void Interval::update(const double t, CCPoint& p) {
+    this->updateUpper(t,p);
+    this->updateLower(t,p);
+}
+
 void Interval::updateUpper(const double t, CCPoint& p) {
     if (upper_cc.type == NONE) {
         upper = t;

@@ -40,6 +40,9 @@ class Interval {
         void updateUpper(const double t, CCPoint& p);
         /// update lower with t, and corresponding cc-point p
         void updateLower(const double t, CCPoint& p);
+        
+        void update(const double t, CCPoint& p);
+        
         /// return true if Interval i is outside *this
         bool outside(const Interval& i) const;
         /// return true if Interval i is inside *this

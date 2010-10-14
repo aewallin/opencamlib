@@ -26,7 +26,7 @@
 namespace ocl
 {
 
-class Triangle; // fwd declaration
+class Triangle; 
 
 ///
 /// \brief a point or vector in 3D space specified by its coordinates (x, y, z)
@@ -67,7 +67,10 @@ class Point {
 
         /// return perpendicular in the xy plane, rotated 90 degree to the left
         Point xyPerp() const;
-
+        
+        /// move *this along z-axis so it lies on p1-p2 line-segment 
+        void z_projectOntoEdge(const Point& p1, const Point& p2);
+        
         // rotate the vector around x0 y0
         /// rotate point in the xy-plane by angle theta
         /// inputs are cos(theta) and sin(theta)

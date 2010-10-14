@@ -79,7 +79,6 @@ class MillingCutter {
         /// calls the sub-class MillingCutter::singleEdgeDrop on each edge
         virtual bool edgeDrop(CLPoint& cl, const Triangle &t) const;
         
-        
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
@@ -91,7 +90,7 @@ class MillingCutter {
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
         /// NOTE: should not really be used for real work, demo/debug only
-        int dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
+        bool dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
         /// push the cutter along Fiber f into contact with the vertices of Triangle t, updating Interval i
         /// with the interfering interval.

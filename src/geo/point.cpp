@@ -136,9 +136,7 @@ Point Point::closestPoint(const Point &p1, const Point &p2) const
 {
     Point v = p2 - p1;
     assert( v.norm() > 0.0 );
-    // vector notation:
-    // u = (p3-p1) dot v / (v dot v)
-    double u = (*this - p1).dot(v) / v.dot(v);
+    double u = (*this - p1).dot(v) / v.dot(v);  // u = (p3-p1) dot v / (v dot v)
     return p1 + u*v;
 }
 
@@ -331,6 +329,19 @@ bool Point::yParallel() const  {
         return true;
     return false;
 }
+
+void Point::z_projectOntoEdge(const Point& p1, const Point& p2) {
+    // edge is p1+t*(p2-p1)
+    // now locate z-coord of *this on edge
+    double t;
+    if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
+        t = (this->x - p1.x) / (p2.x-p1.x); 
+    } else {
+        t = (this->y - p1.y) / (p2.y-p1.y);
+    }
+    this->z = p1.z + t*(p2.z-p1.z);
+}
+
 
 std::string Point::str() const {
         std::ostringstream o;

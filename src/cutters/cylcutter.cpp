@@ -47,6 +47,7 @@ MillingCutter* CylCutter::offsetCutter(const double d) const {
     return new BullCutter(diameter+2*d, d, length+d) ; // offset of CylCutter is BullCutter
 }
 
+// height of cutter at radius r
 double CylCutter::height(const double r) const {
     if ( r <= radius )
         return 0.0;

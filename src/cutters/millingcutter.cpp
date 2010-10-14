@@ -126,7 +126,6 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     //return this->singleEdgeDrop(cl,t.p[0],t.p[1]) || this->singleEdgeDrop(cl,t.p[1],t.p[2]) || this->singleEdgeDrop(cl,t.p[2],t.p[0]);
     bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
-        // 1) distance from point to line in xy plane
         int start=n;      // index of the start-point of the edge
         int end=(n+1)%3;  // index of the end-point of the edge
         const Point p1 = t.p[start];
@@ -293,12 +292,14 @@ bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
 }
 
 // TESTING ONLY, don't use for real
-int MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
+bool MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
     /* template-method, or "self-delegation", pattern */
+    bool result=false;
     BOOST_FOREACH( const Triangle& t, s.tris) {
-        dropCutter(cl,t);
+        if ( dropCutter(cl,t) )
+            result = true;
     }
-    return 0; 
+    return result; 
 }
 
 // overlap test: does cutter at cl.x cl.y overlap in the xy-plane with triangle t

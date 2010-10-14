@@ -68,7 +68,7 @@ bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     //  assert( d >= 0.0 );  assert( d<= radius );
     // the plane of the line will slice the spherical cutter at
     // a distance d from the center of the cutter
-    // here the radius of the circular section is
+    // here the radius of the circular section is s:
     double s = sqrt( square(radius) - square(d) );
     // the center-point of this circle, in the xy plane lies at
     Point sc = cl.xyClosestPoint( p1, p2 );   
@@ -93,29 +93,34 @@ bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
         *cc_tmp = sc;
         // locate cc_tmp on the edge
         // edge = p1 + t*(p2-p1)
-        if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
+        //if ( fabs(p2.x - p1.x) > fabs(p2.y - p1.y) ) { // use x-coord
             // x = p1.x + t*(p2.x-p1.x)
             // t = (x - p1.x) / (p2.x -p1.x)
             // z = p1 + t*(p2-p1)
-            double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
-            cc_tmp->z = p1.z + t*(p2.z-p1.z);
-        } else { // the y-coord is better for the above calculation
-            double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
-            cc_tmp->z = p1.z + t*(p2.z-p1.z); 
-        }
+        //    double t = (cc_tmp->x - p1.x) / (p2.x - p1.x);
+        //    cc_tmp->z = p1.z + t*(p2.z-p1.z);
+        //} else { // the y-coord is better for the above calculation
+        //    double t = (cc_tmp->y - p1.y) / (p2.y - p1.y);
+        //    cc_tmp->z = p1.z + t*(p2.z-p1.z); 
+        //}
+        cc_tmp->z_projectOntoEdge(p1,p2);
         cl_z = cc_tmp->z + s - radius;
     } else { // this is the general case
         assert_msg( isPositive(normal.y), "ERROR: BallCutter::edgeDrop(), general case, normal.y<0 !!\n" ); 
         Point start2sc = sc - p1;
         double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
         *cc_tmp = sc + cc_u*v; // located in the XY-plane
-        double t;
-        if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
-            t = (cc_tmp->x - p1.x) / (p2.x-p1.x); // now locate z-coord of cc_tmp on edge
-        } else {
-            t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
-        }
-        cc_tmp->z = p1.z + t*(p2.z-p1.z);
+        //double t;
+        
+        // now locate z-coord of cc_tmp on edge
+        cc_tmp->z_projectOntoEdge(p1,p2);
+        //if ( fabs(p2.x-p1.x) > fabs(p2.y-p1.y) ) {
+        //    t = (cc_tmp->x - p1.x) / (p2.x-p1.x); 
+        //} else {
+        //    t = (cc_tmp->y - p1.y) / (p2.y-p1.y);
+        //}
+        //cc_tmp->z = p1.z + t*(p2.z-p1.z);
+        
         cl_z = cc_tmp->z + s*normal.y - radius;
     } // end non-horizontal case
     
@@ -182,16 +187,15 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             cc_tmp.type = EDGE;
             double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
             if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
-                i.updateUpper( t1  , cc_tmp );
-                i.updateLower( t1  , cc_tmp );
+                i.update( t1  , cc_tmp );
+                //i.updateUpper( t1  , cc_tmp );
+                //i.updateLower( t1  , cc_tmp );
                 result = true;
             }
         } else if ( discr > 0.0 ) { // two roots
-            //std::cout << " GENERAL CASE!\n";
             t1 = (-b + sqrt( discr))/(2*a);
             t2 = (-b - sqrt( discr))/(2*a);
-            // now calculate the cl-points
-            Point cl1 = f.point(t1);
+            Point cl1 = f.point(t1);// now calculate the cl-points
             Point cl2 = f.point(t2);
             Point cl1_center = f.point(t1) + Point(0,0,radius);
             Point cl2_center = f.point(t2) + Point(0,0,radius);
@@ -205,59 +209,53 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             cc_tmp1.type = EDGE;
             cc_tmp2.type = EDGE;
             if ( cct1 > 0.0 && cct1 < 1.0 && ((cl1_center-cc_tmp1).z >=0) ) {
-                i.updateUpper( t1  , cc_tmp1 );
-                i.updateLower( t1  , cc_tmp1 );
+                i.update( t1  , cc_tmp1 );
                 result = true;
             }
             // edge: p1 + t*(p2-p1) = cc_tmp
             // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
             if ( cct2 > 0.0 && cct2 < 1.0 && ((cl2_center-cc_tmp2).z >=0) ) {
-                i.updateUpper( t2  , cc_tmp2 );
-                i.updateLower( t2  , cc_tmp2 );
+                i.update( t2  , cc_tmp2 );
                 result = true;
             }
         } else {
             // no solution to quadratic, i.e. no contact with the ball
-        }
-        
-            
-        // instead we test for contact with the cylindrical shaft
-        
-        // fiber is f.p1 + v*(f.p2-f.p1)
-        // line  is p1 + u*(p2-p1)
-        double u,v;
-        if ( xy_line_line_intersection(p1, p2, u, f.p1, f.p2, v ) ) { // find XY-intersection btw fiber and edge
-            Point q = p1 + u*(p2-p1); // intersection point, on edge
-            //Point q = f.p1 + v*(f.p2-f.p1); // q on fiber
-            // from q, go v_cc*xy_tangent, then r*xy_normal, and end up on fiber:
-            // q + v_cc*tangent + r*xy_normal = p1 + t_cl*(p2-p1)
-            Point xy_tang=p2-p1;
-            xy_tang.z=0;
-            xy_tang.xyNormalize();
-            Point xy_normal = xy_tang.xyPerp();
-            Point q1 = q  + radius*xy_normal;
-            Point q2 = q1 + (p2-p1);
-            double u_cc, t_cl;
-            if ( xy_line_line_intersection( q1 , q2, u_cc, f.p1, f.p2, t_cl ) ) {
-                double t_cl1 = t_cl;
-                double t_cl2 = v + (v-t_cl );
-                CCPoint cc_tmp1 = q + u_cc*(p2-p1);
-                CCPoint cc_tmp2 = q - u_cc*(p2-p1); 
-                cc_tmp1.type = EDGE_CYL;
-                cc_tmp2.type = EDGE_CYL;
-                if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= (f.p1.z+radius) ) ) {
-                    i.updateUpper( t_cl1  , cc_tmp1 );
-                    i.updateLower( t_cl1  , cc_tmp1 );
-                    result = true;
+            // instead we test for contact with the cylindrical shaft
+            // fiber is f.p1 + v*(f.p2-f.p1)
+            // line  is p1 + u*(p2-p1)
+            double u,v;
+            if ( xy_line_line_intersection(p1, p2, u, f.p1, f.p2, v ) ) { // find XY-intersection btw fiber and edge
+                Point q = p1 + u*(p2-p1); // intersection point, on edge
+                // Point q = f.p1 + v*(f.p2-f.p1); // q on fiber
+                // from q, go v_cc*xy_tangent, then r*xy_normal, and end up on fiber:
+                // q + v_cc*tangent + r*xy_normal = p1 + t_cl*(p2-p1)
+                Point xy_tang=p2-p1;
+                xy_tang.z=0;
+                xy_tang.xyNormalize();
+                Point xy_normal = xy_tang.xyPerp();
+                Point q1 = q  + radius*xy_normal;
+                Point q2 = q1 + (p2-p1);
+                double u_cc, t_cl;
+                if ( xy_line_line_intersection( q1 , q2, u_cc, f.p1, f.p2, t_cl ) ) {
+                    double t_cl1 = t_cl;
+                    double t_cl2 = v + (v-t_cl );
+                    CCPoint cc_tmp1 = q + u_cc*(p2-p1);
+                    CCPoint cc_tmp2 = q - u_cc*(p2-p1); 
+                    cc_tmp1.type = EDGE_CYL;
+                    cc_tmp2.type = EDGE_CYL;
+                    if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= (f.p1.z+radius) ) ) {
+                        i.update( t_cl1  , cc_tmp1 );
+                        result = true;
+                    }
+                    if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= (f.p1.z+radius) ) ) {
+                        i.update( t_cl2  , cc_tmp2 );
+                        result = true;
+                    }
                 }
-                if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= (f.p1.z+radius) ) ) {
-                    i.updateUpper( t_cl2  , cc_tmp2 );
-                    i.updateLower( t_cl2  , cc_tmp2 );
-                    result = true;
-                }
-            }
+            }// shaft contact case
         }
-    }
+
+    } // loop through all edges
     return result;
 }
 
