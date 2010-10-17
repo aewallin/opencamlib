@@ -82,13 +82,10 @@ CC_CLZ_Pair BullCutter::singleEdgeContact(const Point& u1, const Point& u2) cons
             double h1 = radius2 - sqrt( square(radius2) - square( u1.y - radius1) );
             return CC_CLZ_Pair( 0 , u1.z - h1);  
         }
-    } else {
-        // the general offset-ellipse case
-        //  short axis of ellipse = radius2
-        //  long axis of ellipse = radius2/sin(theta)       (theta is the slope of the line)
-        double b_axis = radius2;
-        double theta = atan( (u2.z - u1.z) / (u2.x-u1.x) ); 
-        double a_axis = fabs( radius2/sin(theta) );
+    } else { // the general offset-ellipse case
+        double b_axis = radius2;                            // short axis of ellipse = radius2
+        double theta = atan( (u2.z - u1.z) / (u2.x-u1.x) ); // theta is the slope of the line
+        double a_axis = fabs( radius2/sin(theta) );         // long axis of ellipse = radius2/sin(theta)       
         assert( a_axis > 0.0 );
         assert( b_axis > 0.0 );
         Point ellcenter(0,u1.y,0);
@@ -96,27 +93,15 @@ CC_CLZ_Pair BullCutter::singleEdgeContact(const Point& u1, const Point& u2) cons
         Point ucl(0,0,0); 
         int iters = e.solver_brent( ucl );
         assert( iters < 200 );
-        Point ecen1 = e.calcEcenter( u1, u2, 1);
-        Point ecen2 = e.calcEcenter( u1, u2, 2);
-        Point ecen;
-        Epos pos_hi;
-        if (ecen1.z >= ecen2.z) { // we want the higher center
-            ecen = ecen1;
-            pos_hi = e.epos1;
-        } else {
-            ecen = ecen2;
-            pos_hi = e.epos2;
-        } 
-        e.center = ecen; 
-        Point ell_ccp = e.ePoint(pos_hi);  // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
+        e.setEposHi(u1,u2); // this selects either epos1 or epos2 and sets it to epos_hi
+        Point ell_ccp = e.ePointHi();  // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
         if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-5 ) { // ell_ccp should be on the cylinder-circle   
             std::cout << " eccen=" << e.eccen << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
             std::cout << " ell_ccp.xyNorm() - radius1 =" << ell_ccp.xyNorm() - radius1 << "\n";
             assert(0);
         }
-        // find real cc-point
-        Point cc_tmp_u = ell_ccp.closestPoint(u1,u2);
-        return CC_CLZ_Pair( cc_tmp_u.x , ecen.z-radius2);
+        Point cc_tmp_u = ell_ccp.closestPoint(u1,u2); // find real cc-point
+        return CC_CLZ_Pair( cc_tmp_u.x , e.center.z-radius2);
     }
 }
 

@@ -60,19 +60,27 @@ class Ellipse {
         /// calculate ellipse center
         Point calcEcenter(const Point& up1, const Point& up2, int sln);
         
+        void setEposHi(const Point& u1, const Point& u2);
+        Point ePointHi() const;
+        
         /// the center point of the ellipse
         Point center;
         /// eccentricity = a/b
         double eccen;
         
-        /// first Epos solution found by solver()
-        Epos epos1;
-        /// second Epos solution found by solver()
-        Epos epos2;
+
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);        
         
     protected:
+        
+        /// first Epos solution found by solver()
+        Epos epos1;
+        /// second Epos solution found by solver()
+        Epos epos2;
+        /// the higher Epos solution
+        Epos epos_hi;
+    
         /// a-axis, in the X-direction
         double a;  
         /// b-axis, in the Y-direction

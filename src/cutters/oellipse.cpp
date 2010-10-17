@@ -195,7 +195,6 @@ int Ellipse::solver_brent (Point& p) {
     double dia_sln = brent_zero( a.diangle, b.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); 
     a.diangle = dia_sln;
     a.setD();
-    //std::cout << " found sln a.err(" << a.diangle<<")=" << this->error(a,p) << "\n";
     epos1 = a;
     if (!find_epos2( p )) {
         print_solutions(p);
@@ -256,8 +255,21 @@ Point Ellipse::calcEcenter(const Point& up1, const Point& up2, int sln) {
     
     return up1 + tparam*(up2-up1); // return a point on the line
 }
-    
+Point Ellipse::ePointHi() const {
+    return ePoint( epos_hi );
+}
 
+void Ellipse::setEposHi(const Point& u1, const Point& u2) {
+    Point ecen1 = calcEcenter( u1, u2, 1);
+    Point ecen2 = calcEcenter( u1, u2, 2);
+    if (ecen1.z >= ecen2.z) { // we want the higher center
+        epos_hi = epos1;
+        center = ecen1;
+    } else {
+        epos_hi = epos2;
+        center = ecen2;
+    } 
+}
 
 /// Ellipse string output
 std::ostream& operator<<(std::ostream &stream, const Ellipse& e) {

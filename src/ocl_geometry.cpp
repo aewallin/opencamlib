@@ -140,8 +140,8 @@ void export_geometry() {
         .def("normal", &Ellipse::normal)
         .def("tangent", &Ellipse::tangent)
         //.def("error", &Ellipse::error)
-        .def_readonly("epos1", &Ellipse::epos1)
-        .def_readonly("epos2", &Ellipse::epos2)
+        //.def_readonly("epos1", &Ellipse::epos1)
+        //.def_readonly("epos2", &Ellipse::epos2)
         .def_readonly("center", &Ellipse::center)
     ;
     bp::class_<Line>("Line")
