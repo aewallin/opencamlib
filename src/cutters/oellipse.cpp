@@ -240,7 +240,7 @@ double Ellipse::error_old(Epos& pos, Point& p) {
 /// given the two solutions epos1 and epos2
 /// and the line through up1 and up2
 /// locate the ellipse center correctly
-Point Ellipse::calcEcenter(Point& cl, Point& up1, Point& up2, int sln) {
+Point Ellipse::calcEcenter(const Point& up1, const Point& up2, int sln) {
     Epos pos;
     if (sln == 1)
         pos = epos1;

@@ -58,7 +58,7 @@ class Ellipse {
         virtual double error(const double dia);
         
         /// calculate ellipse center
-        Point calcEcenter(Point& cl, Point& up1, Point& up2, int sln);
+        Point calcEcenter(const Point& up1, const Point& up2, int sln);
         
         /// the center point of the ellipse
         Point center;
