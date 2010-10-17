@@ -93,12 +93,42 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     }
     return result;
 }
+
 // "dual" edge-drop problems
 // cylinder: zero diam edge/ellipse, r-radius cylinder, find r-offset == cl  (ITO surface XY-slice is a circle)
 // sphere: zero diam cylinder. ellipse around edge, find offset == cl (ITO surface slice is ellipse) (?)
 // toroid: radius2 diam edge, radius1 cylinder, find radius1-offset-ellipse=cl (ITO surf slice is offset ellipse) (this is the offset-ellipse problem)
 // cone: ??? (how is this an ellipse??)
+bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {    
+    Point v = p2 - p1; // vector along edge, from p1 -> p2
+    Point vxy( v.x, v.y, 0.0);
+    vxy.xyNormalize(); // normalized XY edge vector
+    // figure out u-coordinates of p1 and p2 (i.e. x-coord in the rotated system)
+    Point sc = cl.xyClosestPoint( p1, p2 );   
+    assert( ( (cl-sc).xyNorm() - d ) < 1E-6 );
+    // edge endpoints in the new coordinate system, in these coordinates, CL is at origo
+    Point up1( (p1-sc).dot(vxy) , d, p2.z); // d, distance to line, is the y-coord in the rotated system
+    Point up2( (p2-sc).dot(vxy) , d, p1.z);
+    //Point ucl( 0.0 , 0.0, cl.z );
+    // in the vertical plane of the line (du,dz) points in the direction of the line
+    double dz = p2.z - p1.z;        // dz = v.z ?
+    double du = up2.x - up1.x;           // du == v.xyNorm() ?  
+    Point edgeNormal(dz, -du, 0); // so (dz, -du) is a normal to the edge
+    edgeNormal.xyNormalize();
+    if (edgeNormal.y < 0)  // flip normal so it points upward
+        edgeNormal = -1*edgeNormal;
+        
+    CC_CLZ_Pair contact = this->singleEdgeContact( cl.z, up1, up2 );
+    //double cl_z=0;
+    //CCPoint cc_tmp;
+    return cl.liftZ_if_InsidePoints( contact.second , contact.first , p1, p2);
+    //return false;
+}
 
+CC_CLZ_Pair MillingCutter::singleEdgeContact(double clz, const Point& u1, const Point& u2) const {
+    CCPoint cc_tmp;
+    return CC_CLZ_Pair( cc_tmp, 0.0);
+}
 
 // general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {

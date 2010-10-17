@@ -37,6 +37,8 @@ namespace ocl
 class Triangle;
 class STLSurf;
 
+typedef std::pair< CCPoint, double > CC_CLZ_Pair;
+
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
 ///
@@ -47,18 +49,11 @@ class MillingCutter {
         virtual ~MillingCutter() {};
         
         /// return the diameter of the cutter
-        inline double getDiameter() const {
-            return diameter;
-        }
+        inline double getDiameter() const { return diameter; }
         /// return the radius of the cutter
-        inline double getRadius() const {
-            return radius;  
-        }
-        
+        inline double getRadius() const { return radius; }
         /// return the length of the cutter
-        inline double getLength() const {
-            return length;
-        }
+        inline double getLength() const { return length; }
         
         /// return a MillingCutter which is larger than *this by d
         virtual MillingCutter* offsetCutter(const double d) const;
@@ -104,15 +99,18 @@ class MillingCutter {
         
     protected:
         /// drop cutter against edge p1-p2 at xy-distance d from cl
-        virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {return false;};
+        virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
+        
+        
+        virtual CC_CLZ_Pair singleEdgeContact(double clz, const Point& u1, const Point& u2) const;
         
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.
-        virtual double height(const double r) const {assert(0); return -1;};
+        virtual double height(const double r) const {assert(0); return -1;}
         
         /// return the width of the cutter at height h.
         /// should be redefined by a subclass.
-        virtual double width(const double h) const {assert(0); return -1;};
+        virtual double width(const double h) const {assert(0); return -1;}
         
         /// xy_normal lenght that locates the cutter center relative to a
         /// cc-point on a facet.
