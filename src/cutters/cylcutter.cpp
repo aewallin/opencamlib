@@ -66,7 +66,6 @@ double CylCutter::width(const double h) const {
 // drop-cutter facetDrop is handled by the base-class
 
 CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
-    // CL is at (0,0,clz)
     // edge is u1-u2  along the X-axis and the ycoord is 0<d<radius 
     // u1 = (u1x, d, u1z)
     // u2 = (u2x, d, u2z)
@@ -93,54 +92,6 @@ CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const
     }
     return CC_CLZ_Pair( cc_u, cl_z);
 }
-
-/*
-bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
-    bool result=false;
-    // 2) calculate intersection points with cutter circle.
-    // points are on line and radius from cl.
-    // see http://mathworld.wolfram.com/Circle-LineIntersection.html
-    double x1 = p1.x - cl.x; // translate to cl=(0,0)
-    double y1 = p1.y - cl.y;
-    double x2 = p2.x - cl.x;
-    double y2 = p2.y - cl.y;
-    double dx = x2-x1;
-    double dy = y2-y1;
-    double dr_sq = dx*dx + dy*dy;
-    double dr = sqrt( dr_sq );
-    double D = x1*y2 - x2*y1;
-    double discr = square( radius ) * square(dr) - square(D);
-    if ( !isZero_tol(discr) && isNegative(discr) ) {
-        std::cout << "cutter.cpp ERROR: CylCutter::edgeTest discr= "<<discr<<" <0 !!\n";
-        assert(0);
-        return false;
-    } else if ( isZero_tol(discr) ) {// discr==0.0 means line is tangent to cutter circle
-        CCPoint cc_tmp;
-        cc_tmp.x =  D*dy / dr_sq + cl.x; // translate back to cl
-        cc_tmp.y = -D*dx / dr_sq + cl.y;
-        cc_tmp.z_projectOntoEdge(p1,p1);
-        cc_tmp.type = EDGE;
-        result = result || cl.liftZ_if_InsidePoints(cc_tmp.z, cc_tmp, p1, p2);
-    } else { // discr > 0, two intersection points
-        assert( discr > 0.0 );
-        CCPoint cc1;
-        CCPoint cc2;
-        double sqrt_discr = sqrt(discr);
-        cc1.x= ( D*dy + sign(dy)*dx*sqrt_discr) / dr_sq + cl.x; // remember to translate back to cl
-        cc1.y= (-D*dx + fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
-        cc1.z_projectOntoEdge(p1,p2);
-        cc1.type = EDGE;
-        
-        cc2.x= ( D*dy - sign(dy)*dx*sqrt_discr) / dr_sq + cl.x;
-        cc2.y= (-D*dx - fabs(dy)*sqrt_discr   ) / dr_sq + cl.y;
-        cc2.z_projectOntoEdge(p1,p2);
-        cc2.type = EDGE;
-        
-        result = result || cl.liftZ_if_InsidePoints(cc1.z, cc1, p1, p2);
-        result = result || cl.liftZ_if_InsidePoints(cc2.z, cc2, p1, p2);
-    } //end two intersection points case
-    return result;
-}*/
 
 // push cutter: facet handled in base-class
 
