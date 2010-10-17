@@ -71,7 +71,6 @@ double BullCutter::width(const double h) const {
 // drop-cutter: Toroidal cutter edge-test
 bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result = false;
-
     if ( isZero_tol( p1.z - p2.z ) ) {  // horizontal edge special case
         if ( d<= radius1) {             // horizontal edge, contact with cylindrical part of cutter
             CCPoint cc_tmp = cl.xyClosestPoint(p1,p2);
@@ -192,6 +191,7 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
             assert(0);
         }
         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5 );                 
+        
         // find real cc-point
         Point cc_tmp_u = ell_ccp.closestPoint(up1,up2);
         CCPoint cc_tmp = sc + cc_tmp_u.x*vxy; // locates in XY plane
@@ -208,6 +208,11 @@ bool BullCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     return result;
 }
 
+CC_CLZ_Pair BullCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
+    Point cc;
+    double cl_z;
+    return CC_CLZ_Pair( cc.x , cl_z);
+}
 
 // push-cutter: vertex and facet handled by base-class
 

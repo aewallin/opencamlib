@@ -60,61 +60,19 @@ MillingCutter* BallCutter::offsetCutter(const double d) const {
     return  new BallCutter(diameter+2*d, length+d) ;
 }
 
-// drop-cutter methods: vertex, facet, handled in base-class
+// drop-cutter methods: vertex and facet are handled in base-class
 
 // drop-cutter edgeDrop 
-/*
-bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
-    // the plane of the line will slice the spherical cutter at
-    // a distance d from the center of the cutter
-    // here the radius of the circular section is s:
-    double s = sqrt( square(radius) - square(d) );
-    // the center-point of this circle, in the xy plane lies at
-    Point sc = cl.xyClosestPoint( p1, p2 );   
-    Point v = p2 - p1;
-    v.z=0;
-    v.xyNormalize();
-    // move to a new coordinate system:
-    double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
-    double p1u = (p1-sc).dot(v);
-    // in the vertical plane of the line:
-    // (du,dz) points in the direction of the line
-    double dz = p2.z - p1.z;  
-    double du = p2u-p1u;             
-    Point normal = Point (dz, -du, 0); // so (dz, -du) is a normal to the line 
-    normal.xyNormalize();
-    if (normal.y < 0)  // flip normal so it points upward
-        normal = -1*normal;
-    
-    CCPoint cc_tmp;
-    cc_tmp.type = EDGE;
-    double cl_z; // corresponding cl z-coord
-    if ( isZero_tol(normal.y) ) { // this is the special case where the edge is horizontal
-        cc_tmp = sc;
-        cc_tmp.z_projectOntoEdge(p1,p2);
-        cl_z = cc_tmp.z + s - radius;
-    } else { // this is the general case
-        assert_msg( isPositive(normal.y), "ERROR: BallCutter::edgeDrop(), general case, normal.y<0 !!\n" ); 
-        Point start2sc = sc - p1;
-        double cc_u = - s * normal.x; // horiz dist of cc-point in plane-cordinates
-        cc_tmp = sc + cc_u*v; // located in the XY-plane
-        cc_tmp.z_projectOntoEdge(p1,p2); // now locate z-coord of cc_tmp on edge
-        cl_z = cc_tmp.z + s*normal.y - radius;
-    } // end non-horizontal case
-    
-    return cl.liftZ_if_InsidePoints(cl_z, cc_tmp, p1, p2);
-} */
-
 CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
     // the plane of the line will slice the spherical cutter at
-    // a distance d from the center of the cutter
+    // a distance d==u1.y==u2.y from the center of the cutter
     // here the radius of the circular section is s:
     double s = sqrt( square(radius) - square( u1.y ) );            
-    Point normal(u2.z - u1.z, -(u2.x - u1.x), 0); // so (dz, -du) is a normal to the line 
+    Point normal(u2.z - u1.z, -(u2.x - u1.x), 0); // (dz, -du) is a normal to the line 
     normal.xyNormalize();
     if (normal.y < 0)  // flip normal so it points upward
         normal = -1*normal;
-    Point cc( -s*normal.x, u1.y, 0);
+    Point cc( -s*normal.x, u1.y, 0); // from (0,u1.y,0) we go a distance -s in the normal direction
     cc.z_projectOntoEdge(u1,u2);
     double cl_z = cc.z + s*normal.y - radius;
     return CC_CLZ_Pair( cc.x , cl_z);

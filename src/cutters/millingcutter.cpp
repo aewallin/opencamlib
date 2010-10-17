@@ -117,7 +117,6 @@ bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2
 
 // dummy implementation, override in sub-class.
 CC_CLZ_Pair MillingCutter::singleEdgeContact( const Point& u1, const Point& u2) const {
-    // CCPoint cc_tmp;
     return CC_CLZ_Pair( 0.0, 0.0);
 }
 
