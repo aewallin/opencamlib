@@ -65,6 +65,36 @@ double CylCutter::width(const double h) const {
 // drop-cutter vertexDrop is handled by the base-class
 // drop-cutter facetDrop is handled by the base-class
 
+CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
+    // CL is at (0,0,clz)
+    // edge is u1-u2  along the X-axis and the ycoord is 0<d<radius 
+    // u1 = (u1x, d, u1z)
+    // u2 = (u2x, d, u2z)
+    assert( u1.y == u2.y);
+    assert( u1.y >= 0.0 );
+    assert( u1.y <= this->radius );
+    
+    // along the x-axis the cc-point is at x-coord s:
+    // in the xy-plane the cc-point is at:
+    double s = sqrt( square( radius ) - square( u1.y ) );
+    CCPoint cc1( s, u1.y, 0, EDGE);
+    CCPoint cc2( -s, u1.y, 0, EDGE);
+    cc1.z_projectOntoEdge(u1,u2);
+    cc2.z_projectOntoEdge(u1,u2);
+    // pick the higher one
+    double cc_u;
+    double cl_z;
+    if (cc1.z > cc2.z) {
+        cc_u = cc1.x;
+        cl_z = cc1.z;
+    } else {
+        cc_u = cc2.x;
+        cl_z = cc2.z;
+    }
+    return CC_CLZ_Pair( cc_u, cl_z);
+}
+
+/*
 bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     bool result=false;
     // 2) calculate intersection points with cutter circle.
@@ -110,7 +140,7 @@ bool CylCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, co
         result = result || cl.liftZ_if_InsidePoints(cc2.z, cc2, p1, p2);
     } //end two intersection points case
     return result;
-}
+}*/
 
 // push cutter: facet handled in base-class
 

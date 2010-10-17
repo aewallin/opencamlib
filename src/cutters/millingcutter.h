@@ -37,7 +37,7 @@ namespace ocl
 class Triangle;
 class STLSurf;
 
-typedef std::pair< CCPoint, double > CC_CLZ_Pair;
+typedef std::pair< double, double > CC_CLZ_Pair;
 
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
@@ -102,7 +102,7 @@ class MillingCutter {
         virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
         
         
-        virtual CC_CLZ_Pair singleEdgeContact(double clz, const Point& u1, const Point& u2) const;
+        virtual CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.

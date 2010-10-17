@@ -107,27 +107,29 @@ bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2
     Point sc = cl.xyClosestPoint( p1, p2 );   
     assert( ( (cl-sc).xyNorm() - d ) < 1E-6 );
     // edge endpoints in the new coordinate system, in these coordinates, CL is at origo
-    Point up1( (p1-sc).dot(vxy) , d, p2.z); // d, distance to line, is the y-coord in the rotated system
-    Point up2( (p2-sc).dot(vxy) , d, p1.z);
-    //Point ucl( 0.0 , 0.0, cl.z );
+    Point up1( (p1-sc).dot(vxy) , d, p1.z); // d, distance to line, is the y-coord in the rotated system
+    Point up2( (p2-sc).dot(vxy) , d, p2.z);
     // in the vertical plane of the line (du,dz) points in the direction of the line
+    /*
     double dz = p2.z - p1.z;        // dz = v.z ?
     double du = up2.x - up1.x;           // du == v.xyNorm() ?  
     Point edgeNormal(dz, -du, 0); // so (dz, -du) is a normal to the edge
     edgeNormal.xyNormalize();
     if (edgeNormal.y < 0)  // flip normal so it points upward
         edgeNormal = -1*edgeNormal;
-        
-    CC_CLZ_Pair contact = this->singleEdgeContact( cl.z, up1, up2 );
-    //double cl_z=0;
-    //CCPoint cc_tmp;
-    return cl.liftZ_if_InsidePoints( contact.second , contact.first , p1, p2);
-    //return false;
+    */
+    CC_CLZ_Pair contact = this->singleEdgeContact( up1, up2 );
+    // translate back into original coord-system
+    CCPoint cc_tmp( sc + contact.first * vxy, EDGE);
+    cc_tmp.z_projectOntoEdge(p1,p2);
+    return cl.liftZ_if_InsidePoints( contact.second , cc_tmp , p1, p2);
+
 }
 
-CC_CLZ_Pair MillingCutter::singleEdgeContact(double clz, const Point& u1, const Point& u2) const {
-    CCPoint cc_tmp;
-    return CC_CLZ_Pair( cc_tmp, 0.0);
+// dummy implementation, override in sub-class.
+CC_CLZ_Pair MillingCutter::singleEdgeContact( const Point& u1, const Point& u2) const {
+    // CCPoint cc_tmp;
+    return CC_CLZ_Pair( 0.0, 0.0);
 }
 
 // general purpose vertexPush, delegates to this->width(h) 
