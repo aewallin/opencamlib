@@ -42,7 +42,6 @@ class CylCutter : public MillingCutter {
 
         MillingCutter* offsetCutter(const double d) const;
         
-        //bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
         CC_CLZ_Pair  singleEdgeContact(const Point& u1, const Point& u2) const;
         
         bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;

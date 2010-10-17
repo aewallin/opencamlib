@@ -63,6 +63,7 @@ MillingCutter* BallCutter::offsetCutter(const double d) const {
 // drop-cutter methods: vertex, facet, handled in base-class
 
 // drop-cutter edgeDrop 
+/*
 bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
     // the plane of the line will slice the spherical cutter at
     // a distance d from the center of the cutter
@@ -102,7 +103,23 @@ bool BallCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, c
     } // end non-horizontal case
     
     return cl.liftZ_if_InsidePoints(cl_z, cc_tmp, p1, p2);
+} */
+
+CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
+    // the plane of the line will slice the spherical cutter at
+    // a distance d from the center of the cutter
+    // here the radius of the circular section is s:
+    double s = sqrt( square(radius) - square( u1.y ) );            
+    Point normal(u2.z - u1.z, -(u2.x - u1.x), 0); // so (dz, -du) is a normal to the line 
+    normal.xyNormalize();
+    if (normal.y < 0)  // flip normal so it points upward
+        normal = -1*normal;
+    Point cc( -s*normal.x, u1.y, 0);
+    cc.z_projectOntoEdge(u1,u2);
+    double cl_z = cc.z + s*normal.y - radius;
+    return CC_CLZ_Pair( cc.x , cl_z);
 }
+
 
 // push-cutter: vertex and facet handled in base-class
 

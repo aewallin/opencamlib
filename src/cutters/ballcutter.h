@@ -41,7 +41,8 @@ class BallCutter : public MillingCutter {
         MillingCutter* offsetCutter(const double d) const;
         
         /// drop BallCutter against an edge p1-p2 at xy-distance d from CLPoint cl
-        bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
+        //bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
+        CC_CLZ_Pair  singleEdgeContact(const Point& u1, const Point& u2) const;
         
         /// push BallCutter along Fiber f against Triangle t, and update Interval i accordingly.   
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;

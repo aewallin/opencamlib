@@ -76,8 +76,8 @@ CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const
     // along the x-axis the cc-point is at x-coord s:
     // in the xy-plane the cc-point is at:
     double s = sqrt( square( radius ) - square( u1.y ) );
-    CCPoint cc1( s, u1.y, 0, EDGE);
-    CCPoint cc2( -s, u1.y, 0, EDGE);
+    Point cc1(  s, u1.y, 0);
+    Point cc2( -s, u1.y, 0);
     cc1.z_projectOntoEdge(u1,u2);
     cc2.z_projectOntoEdge(u1,u2);
     // pick the higher one
