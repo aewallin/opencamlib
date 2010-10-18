@@ -129,52 +129,9 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
     return result;
 }
 
-bool CylCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
-    bool result = false;
-    for (int n=0;n<3;n++) { // loop through all three edges
-        int start=n;
-        int end=(n+1)%3;
-        Point p1 = t.p[start];
-        Point p2 = t.p[end];
-        // check that there is an edge in the xy-plane
-        // can't push against vertical edges ??
-        if ( !isZero_tol( p1.x - p2.x ) || !isZero_tol( p1.y - p2.y) ) {
-            // fiber is f.p1 + t*(f.p2-f.p1)
-            // line  is p1 + v*(p2-p1)
-            double tq, v;
-            if ( xy_line_line_intersection(p1, p2, v, f.p1, f.p2, tq ) ) {  // find XY-intersection btw fiber and edge
-                Point q = p1 + v*(p2-p1); // intersection point, on edge
-                // Point q = f.p1 + tq*(f.p2-f.p1);
-                // from q, go v-units along tangent, then r*normal, and end up on fiber:
-                // q + t*tangent + r*normal = p1 + t*(p2-p1)
-                double v_cc, t_cl;
-                Point xy_tang=p2-p1;
-                xy_tang.z=0;
-                xy_tang.xyNormalize();
-                Point xy_normal = xy_tang.xyPerp();
-                Point q1 = q+radius*xy_normal;
-                Point q2 = q1+(p2-p1);
-                if ( xy_line_line_intersection( q1 , q2, v_cc, f.p1, f.p2, t_cl ) ) {
-                    double t_cl1 = t_cl;
-                    double t_cl2 = tq + (tq-t_cl );
-                    CCPoint cc_tmp1 = q+v_cc*(p2-p1);
-                    CCPoint cc_tmp2 = q-v_cc*(p2-p1); 
-                    cc_tmp1.type = EDGE;
-                    cc_tmp2.type = EDGE;
-                    if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
-                        i.update( t_cl1  , cc_tmp1 );
-                        result = true;
-                    }
-                    if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= f.p1.z) ) {
-                        i.update( t_cl2  , cc_tmp2 );
-                        result = true;
-                    }
-                }
-            } // end if(fiber and edge intersect)
-        } // end if(vertical edge)
-    } // end loop through all edges
-    return result;
-}   
+bool CylCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    return this->shaftEdgePush(f,i,p1,p2); // there's nothing more to a cylcutter than the shaft...
+}
 
 std::string CylCutter::str() const {
     std::ostringstream o;

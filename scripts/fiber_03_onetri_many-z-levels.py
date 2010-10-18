@@ -72,9 +72,9 @@ if __name__ == "__main__":
     
     myscreen = camvtk.VTKScreen()
     
-    a = ocl.Point(0,1,0.1)
+    a = ocl.Point(0,1,0.2)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b = ocl.Point(1,0.5,0.21)    
+    b = ocl.Point(1,0.5,0.1)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
     c = ocl.Point(0.1,0.1,0.1)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     zmin = -0.10082
-    zmax = 0.3115
+    zmax = 0.2115
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]

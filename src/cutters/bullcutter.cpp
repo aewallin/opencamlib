@@ -107,6 +107,7 @@ CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) co
 
 // push-cutter: vertex and facet handled by base-class
 
+/*
 bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
     bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
@@ -179,7 +180,92 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
         }
     }
     return result;
+}*/
+
+bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result = false;
+    if ( isZero_tol( p2.z-p1.z ) )
+        return result;
+    assert( fabs(p2.z-p1.z) > 0.0 ); // guard against horiz edges
+    
+    const Point ufp1 = f.p1 + Point(0,0,radius2); // take a fiber which is raised up by radius
+    const Point ufp2 = f.p2 + Point(0,0,radius2);
+    
+    double tplane = (ufp1.z - p1.z ) / (p2.z-p1.z);
+    Point ell_center = p1+tplane*(p2-p1);
+    assert( isZero_tol( fabs(ell_center.z - ufp1.z) ) );
+    // find the dimensions of the ellipse
+    Point major_dir = p2-p1;
+    major_dir.z = 0;
+    major_dir.xyNormalize();
+    Point minor_dir = major_dir.xyPerp();
+    //Point minor_axis = radius2*minor_dir;
+    assert( (p2-p1).xyNorm() > 0.0 ); // avoid divide-by-zero
+    double theta = atan( (p2.z - p1.z) / (p2-p1).norm() ); 
+    double major_axis_length = fabs( radius2/sin(theta) );
+    //Point major_axis = major_axis_length*major_dir;
+    AlignedEllipse e = AlignedEllipse(ell_center, major_axis_length, radius2, radius1, major_dir, minor_dir );
+    // now we want the offset-ellipse point to lie on the fiber
+    // take the distance along major_axis as the error to be minimized??
+    return result;
 }
+
+bool BullCutter::horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result=false;
+    if ( isZero_tol( p2.z-p1.z ) ) { // this is the horizontal-edge special case
+        double h = p1.z - f.p1.z;
+        if ( h > 0.0 ) {
+            double eff_radius = this->width( h ); // the cutter acts as a cylinder with eff_radius 
+            // contact this cylinder/circle against edge in xy-plane
+            // fiber is f.p1 + qt*(f.p2-f.p1)
+            // line  is p1 + qv*(p2-p1)
+            double qt;
+            double qv;
+            if (xy_line_line_intersection( p1 , p2, qv, f.p1, f.p2, qt ) ) {
+                Point q = p1 + qv*(p2-p1); // the intersection point
+                // from q, go v-units along tangent, then eff_r*normal, and end up on fiber:
+                // q + ccv*tangent + r*normal = p1 + clt*(p2-p1)
+                double ccv, clt;
+                Point xy_tang=p2-p1;
+                xy_tang.z=0;
+                xy_tang.xyNormalize();
+                Point xy_normal = xy_tang.xyPerp();
+                Point q1 = q+eff_radius*xy_normal;
+                Point q2 = q1+(p2-p1);
+                if ( xy_line_line_intersection( q1 , q2, ccv, f.p1, f.p2, clt ) ) {
+                    double t_cl1 = clt;
+                    double t_cl2 = qt + (qt - clt );
+                    CCPoint cc_tmp1 = q+ccv*(p2-p1);
+                    CCPoint cc_tmp2 = q-ccv*(p2-p1); 
+                    cc_tmp1.type = EDGE;
+                    cc_tmp2.type = EDGE;
+                    if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= f.p1.z) ) {
+                        i.update( t_cl1  , cc_tmp1 );
+                        result = true;
+                    }
+                    if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= f.p1.z) ) {
+                        i.update( t_cl2  , cc_tmp2 );
+                        result = true;
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
+bool BullCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result = false;
+    if ( this->shaftEdgePush(f,i,p1,p2) )
+        result = true;
+    else if ( this->horizEdgePush(f,i,p1,p2) )
+        result = true;
+    else if ( this->generalEdgePush(f,i,p1,p2) )
+        result = true;
+        
+    return result;
+}
+
 
 MillingCutter* BullCutter::offsetCutter(double d) const {
     return new BullCutter(diameter+2*d, radius2+d, length+d) ;

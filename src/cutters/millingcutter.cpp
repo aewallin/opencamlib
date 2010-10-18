@@ -235,6 +235,60 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     return result;
 }
 
+bool MillingCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const {
+    bool result = false;
+    for (int n=0;n<3;n++) { // loop through all three edges
+        int start=n;
+        int end=(n+1)%3;
+        const Point p1 = t.p[start]; // edge is from p1 to p2
+        const Point p2 = t.p[end];
+        if (singleEdgePush(f,i,p1,p2))
+            result = true;
+        // why does this not work??  result = (result || singleEdgePush(f,i,p1,p2) );
+    } 
+    return result;
+}
+
+// this is used for the cylindrical shaft of Cyl, Ball, Bull, Cone
+bool MillingCutter::shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    // push cutter along Fiber f
+    // edge is p1-p2
+    // check for contact with cylindrical cutter shaft
+    double u,v;
+    bool result = false;
+    if ( xy_line_line_intersection(p1, p2, u, f.p1, f.p2, v ) ) { // find XY-intersection btw fiber and edge
+        Point q = p1 + u*(p2-p1); // intersection point, on edge
+        // Point q = f.p1 + v*(f.p2-f.p1); // q on fiber
+        // from q, go v_cc*xy_tangent, then r*xy_normal, and end up on fiber:
+        // q + v_cc*tangent + r*xy_normal = p1 + t_cl*(p2-p1)
+        Point xy_tang=p2-p1;
+        xy_tang.z=0;
+        xy_tang.xyNormalize();
+        Point xy_normal = xy_tang.xyPerp();
+        Point q1 = q  + radius*xy_normal;
+        Point q2 = q1 + (p2-p1);
+        double u_cc, t_cl;
+        if ( xy_line_line_intersection( q1 , q2, u_cc, f.p1, f.p2, t_cl ) ) {
+            double t_cl1 = t_cl;
+            double t_cl2 = v + (v-t_cl);
+            CCPoint cc_tmp1 = q + u_cc*(p2-p1);
+            CCPoint cc_tmp2 = q - u_cc*(p2-p1); 
+            cc_tmp1.type = EDGE_CYL;
+            cc_tmp2.type = EDGE_CYL;
+            if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= (f.p1.z+ this->center_height) ) ) {
+                i.update( t_cl1  , cc_tmp1 );
+                result = true;
+            }
+            if( cc_tmp2.isInsidePoints(p1,p2) && (cc_tmp2.z >= (f.p1.z+ this->center_height) ) ) {
+                i.update( t_cl2  , cc_tmp2 );
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
+
 // call vertex, facet, and edge drop methods on input Triangle t
 bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     bool facet, vertex, edge;

@@ -93,12 +93,19 @@ class MillingCutter {
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
-        virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;}
+        bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         /// return a string representation of the MillingCutter
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
         
     protected:
+        /// push cutter along fiber against a single edge p1-p2
+        virtual bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {return false;}
+        
+        /// push-cutter cylindrical shaft case
+        bool shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        
+        
         /// drop cutter against edge p1-p2 at xy-distance d from cl
         virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
