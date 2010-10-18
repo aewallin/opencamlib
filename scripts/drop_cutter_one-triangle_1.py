@@ -31,11 +31,11 @@ if __name__ == "__main__":
     t = ocl.Triangle(a,b,c)
     
     angle = math.pi/8
-    length = 5
+    length = 5.0
     #c1 = ocl.BullCutter(0.5,0.1, length)
     #c1 = ocl.CylCutter(0.5, length)
-    c1 = ocl.BallCutter(0.5, length)
-    #c1 = ocl.ConeCutter(0.5,angle, length)    
+    #c1 = ocl.BallCutter(0.5, length)
+    c1 = ocl.ConeCutter(0.5,angle, length)    
     cutter = c1
     #cutter = c1.offsetCutter(0.4)
     

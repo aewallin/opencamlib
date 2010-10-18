@@ -78,7 +78,6 @@ CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) cons
     return CC_CLZ_Pair( cc.x , cl_z);
 }
 
-
 // push-cutter: vertex and facet handled in base-class
 
 bool BallCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {

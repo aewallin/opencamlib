@@ -84,14 +84,14 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     
     angle = math.pi/4
-    diameter=0.6
+    diameter=0.3
     length=5
-    cutter = ocl.BallCutter(diameter, length)
+    #cutter = ocl.BallCutter(diameter, length)
     #cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, diameter/4, length)
     #cutter = ocl.ConeCutter(diameter, angle)
     #cutter = cutter.offsetCutter( 0.1 )
-    
+    cutter = ocl.ConeCutter(diameter, angle, length)
     
     print "cutter= ", cutter
     print "lengt=", cutter.getLength()
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = -0.10082
+    zmin = -0.50082
     zmax = 0.3115
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)

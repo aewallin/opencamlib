@@ -44,9 +44,11 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     diameter = 0.2
     length = 5
+    angle = math.pi/4
     #cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BallCutter(diameter, length)
-    cutter = ocl.BullCutter(diameter, diameter/5, length)
+    #cutter = ocl.BullCutter(diameter, diameter/5, length)
+    cutter = ocl.ConeCutter(diameter, angle)
     
     print "lengt=", cutter.getLength()
     print "fiber..."
