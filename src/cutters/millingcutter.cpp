@@ -275,14 +275,10 @@ bool MillingCutter::shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1,
             CCPoint cc_tmp2 = q - u_cc*(p2-p1); 
             cc_tmp1.type = EDGE_CYL;
             cc_tmp2.type = EDGE_CYL;
-            if( cc_tmp1.isInsidePoints(p1,p2) && (cc_tmp1.z >= (f.p1.z+ this->center_height) ) ) {
-                i.update( t_cl1  , cc_tmp1 );
+            if ( i.update_ifCCinEdgeAndTrue( t_cl1, cc_tmp1, p1, p2, (cc_tmp1.z > f.p1.z+ this->center_height)) )
                 result = true;
-            }
-            if( cc_tmp2.isInsidePoints(p1,p2) && (cc_tmp2.z >= (f.p1.z+ this->center_height) ) ) {
-                i.update( t_cl2  , cc_tmp2 );
+            if ( i.update_ifCCinEdgeAndTrue( t_cl2, cc_tmp2, p1, p2, (cc_tmp2.z > f.p1.z+ this->center_height)) )
                 result = true;
-            }
         }
     }
     return result;

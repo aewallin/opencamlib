@@ -114,54 +114,34 @@ bool BallCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, c
     // solve second order equation : a*t^2 + b*t + c = 0
     // t = (-b +/- sqrt( b^2 - 4ac ) )   / 2a
     double discr = b*b-4*a*c;
-    double t1;
-    double t2;
+    double t1, t2;
     if ( isZero_tol( discr ) ) { // tangent case
-        //std::cout << "TANGENT CASE!\n";
         t1= -b/(2*a); // only one root
-        Point cl1_center = f.point(t1) + Point(0,0,radius);
-        CCPoint cc_tmp = cl1_center.closestPoint(p1,p2);
-        cc_tmp.type = EDGE;
-        double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
-        if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
-            i.update( t1  , cc_tmp );
+        if ( calcCCandUpdateInterval( t1, p1, p2, f, i ) ) 
             result = true;
-        }
     } else if ( discr > 0.0 ) { // two roots
         t1 = (-b + sqrt( discr))/(2*a);
         t2 = (-b - sqrt( discr))/(2*a);
-        Point cl1_center = f.point(t1) + Point(0,0,radius);
-        Point cl2_center = f.point(t2) + Point(0,0,radius);
-        // cc-point is on p1-p2 line, closest to CL
-        CCPoint cc_tmp1 = cl1_center.closestPoint(p1,p2);
-        CCPoint cc_tmp2 = cl2_center.closestPoint(p1,p2);
-        // edge: p1 + t*(p2-p1) = cc_tmp
-        // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
-        double cct1 = (cc_tmp1-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
-        double cct2 = (cc_tmp2-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
-        cc_tmp1.type = EDGE;
-        cc_tmp2.type = EDGE;
-        if ( cct1 > 0.0 && cct1 < 1.0 && ((cl1_center-cc_tmp1).z >=0) ) {
-            i.update( t1  , cc_tmp1 );
+        if ( calcCCandUpdateInterval( t1, p1, p2, f, i ) ) 
             result = true;
-        }
-        // edge: p1 + t*(p2-p1) = cc_tmp
-        // so t = (cc_tmp-p1)dot(p2-p1) / (p2-p1).dot(p2-p1)
-        if ( cct2 > 0.0 && cct2 < 1.0 && ((cl2_center-cc_tmp2).z >=0) ) {
-            i.update( t2  , cc_tmp2 );
+        if ( calcCCandUpdateInterval( t2, p1, p2, f, i ) ) 
             result = true;
-        }
     } 
-    
-    // no solution to quadratic(?), i.e. no contact with the ball
-    // instead we test for contact with the cylindrical shaft
-    // fiber is f.p1 + v*(f.p2-f.p1)  and line  is p1 + u*(p2-p1)
+  
+
+    // test for contact with the cylindrical shaft
     if ( shaftEdgePush(f,i,p1,p2) )
         result = true;
         
     return result;
 }
-
+bool BallCutter::calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
+    Point cl_center = f.point(t) + Point(0,0,radius);
+    CCPoint cc_tmp = cl_center.closestPoint(p1,p2);
+    cc_tmp.type = EDGE;
+    return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, ((cl_center-cc_tmp).z >=0) );
+}
+    
 std::string BallCutter::str() const {
     std::ostringstream o;
     o << *this; 

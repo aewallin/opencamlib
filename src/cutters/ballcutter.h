@@ -46,7 +46,7 @@ class BallCutter : public MillingCutter {
         /// drop BallCutter against an edge u1-u2 
         CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
-        //bool shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const; 
+        bool calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
         double height(double r) const;
         double width(double h) const; 
 };

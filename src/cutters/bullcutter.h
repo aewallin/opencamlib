@@ -49,6 +49,7 @@ class BullCutter : public MillingCutter {
         bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         bool horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        bool calcCCandUpdateInterval( double t, double ccv, const Point& q, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
         CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         double height(double r) const;
         double width(double h) const; 

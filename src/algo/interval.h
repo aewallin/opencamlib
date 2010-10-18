@@ -42,6 +42,8 @@ class Interval {
         void updateLower(const double t, CCPoint& p);
         
         void update(const double t, CCPoint& p);
+        /// update interval with t_cl and cc_tmp if cc_tmp is in the p1-p2 edge and condition==true
+        bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);
         
         /// return true if Interval i is outside *this
         bool outside(const Interval& i) const;
