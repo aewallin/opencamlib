@@ -39,16 +39,19 @@ class ConeCutter : public MillingCutter {
         ConeCutter();
         /// create a ConeCutter with specified maximum diameter and cone-angle
         /// for a 90-degree cone specify the half-angle  angle= pi/4
-        ConeCutter(double d, double angle);
+        ConeCutter(double d, double angle, double l=10);
         
         MillingCutter* offsetCutter(double d) const;
         bool facetDrop(CLPoint &cl, const Triangle &t) const; // FIXME, handle in base-class?
-        bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
+        //bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
         std::string str() const;
         
     protected:
+        CC_CLZ_Pair singleEdgeContact( const Point& u1, const Point& u2) const;
+        bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        
         double height(double r) const;
         double width(double h) const;
         // TODO: width

@@ -70,7 +70,7 @@ void export_cutters() {
         .def("edgePush", &BullCutter::edgePush) // FIXME, put in base-class
     ;
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
-        .def(bp::init<double, double>())
+        .def(bp::init<double, double, double>())
     ;
     bp::class_<CylConeCutter, bp::bases<MillingCutter> >("CylConeCutter")
         .def(bp::init<double, double, double>())

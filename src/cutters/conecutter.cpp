@@ -28,16 +28,21 @@ namespace ocl
 {
 
 ConeCutter::ConeCutter() {
-    diameter = 1.0;
-    angle = 45;
-    length = radius/tan(angle);
+    assert(0);
 }
 
-ConeCutter::ConeCutter(double d, double a) {
+
+
+ConeCutter::ConeCutter(double d, double a, double l) {
     diameter = d;
     radius = d/2.0;
     angle = a;
-    length = radius/tan(angle);
+    length = radius/tan(angle) + l;
+    center_height = radius/tan(angle);
+    
+    xy_normal_length = radius;
+    normal_length = 0.0;
+        
 }
 
 double ConeCutter::height(double r) const {
@@ -46,7 +51,10 @@ double ConeCutter::height(double r) const {
 }
 
 double ConeCutter::width(double h) const {
-    return 0.3;
+    if (h< height(radius) )
+        return h*tan(angle);
+    else
+        return radius;
 }
 
 // offset of cone is BallConeCutter
@@ -97,39 +105,16 @@ bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
 // find point where hyperbola and line slopes match
-bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const {
-
-    // math/geometry from Yau et al. 2004 paper (Int. J. Prod. Res. vol42 no13)
-    // closest point to cl on line lies at
-    Point sc = cl.xyClosestPoint( p1, p2 );   
-    Point v = p2 - p1;
-    v.z=0;
-    v.xyNormalize();
-    double p2u = (p2-sc).dot(v); // u-coord of p2 in plane coordinates.
-    double p1u = (p1-sc).dot(v);
-    // in (u,v) coordinates 
-    // cl is at (0, 0)
-    // p1 is at (p1u,   d)
-    // p2 is at (p2u, d)
-    // closest point sc is at u=0
-    // edge rotated so it is at y=d 
-    // if R2 < d < R we contact the upper cone of the APT-tool
-    // intersection curve is
-    // z = ( sqrt( x^2 + d^2) / (R-R2) ) * L
-    // L = height of upper cone region
-    //
-    // the slope of this curve is 
-    // dz/dx = (L/(R-R2)) * x /(sqrt( x^2 + l^2 ))
-    // set this equal to the slope, m, of the line:
-    // m = (z2 - z1) / (x2 - x1)
-    double m = (p2.z-p1.z) / (p2u-p1u);
+CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) const {
+    double d = u1.y;
+    double m = (u2.z-u1.z) / (u2.x-u1.x); // slope
     // the outermost point on the cutter is at
     // xu = sqrt( R^2 - d^2 )
-    double xu = sqrt( square(radius) - square(d) ); 
+    double xu = sqrt( square(radius) - square(u1.y) ); 
     assert( xu <= radius );
     // here the slope has a maximum
     // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + d^2 ))
-    double mu = (length/radius ) * xu / sqrt( square(xu) + square(d) ) ;
+    double mu = (center_height/radius ) * xu / sqrt( square(xu) + square(d) ) ;
     // find contact point where slopes match.
     // there are two cases:
     // 1) if abs(m) <= abs(mu)  we contact the curve at
@@ -138,31 +123,29 @@ bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, d
     if (fabs(m) <= fabs(mu) ) { // 1) hyperbola case
         ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / 
                              (square(length) -square(radius)*square(m) ) );
-    } else if ( fabs(m)>fabs(mu) ) {
-        // 2) if abs(m) > abs(mu) there is contact with the circular edge
-        // xp = sign(m) * xu
+    } else if ( fabs(m)>fabs(mu) ) { // 2) if abs(m) > abs(mu) there is contact with the circular edge
         ccu = sign(m)*xu;
-    } else {
-        assert(0);
-    }
-    
-    // now the cc-point can be found: (in the XY plane)
-    CCPoint cc_tmp = sc + ccu*v; 
-    cc_tmp.z_projectOntoEdge(p1,p2);
-    cc_tmp.type = EDGE;
-    
-    // find the CL-height
+    } else { assert(0); }
+    Point cc_tmp( ccu, d, 0.0); // cc-point in the XY plane
+    cc_tmp.z_projectOntoEdge(u1,u2);
     double cl_z;
     if (fabs(m) <= fabs(mu) ) {  // 1) zc = zp - Lc + (R - sqrt(xp^2 + d^2)) / tan(beta2)
-        cl_z = cc_tmp.z - length + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
+        cl_z = cc_tmp.z - center_height + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
     } else if ( fabs(m)>fabs(mu) ) {  // 2) zc = zp - Lc
-        cl_z = cc_tmp.z - length; // case where we hit the edge of the cone
-    } else {
-        assert(0);
-    }
+        cl_z = cc_tmp.z - center_height; // case where we hit the edge of the cone
+    } else { assert(0); }
     
-    return cl.liftZ_if_InsidePoints( cl_z, cc_tmp, p1, p2);
+    return CC_CLZ_Pair( ccu , cl_z);
 }
+
+bool ConeCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result = false;
+    if ( this->shaftEdgePush(f,i,p1,p2) )
+        result = true;
+    // TODO: general edge-push here
+    return result;
+}
+
 
 std::string ConeCutter::str() const {
     std::ostringstream o;
