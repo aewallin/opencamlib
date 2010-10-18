@@ -56,7 +56,7 @@ if __name__ == "__main__":
     
     #cc = ocl.CCPoint()
     
-    zh = 0.10571567
+    zh = 0.0571567
     #tris=t.zslice(zh)
     #print tris
     #for t in tris:
