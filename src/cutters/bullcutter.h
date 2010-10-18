@@ -42,14 +42,13 @@ class BullCutter : public MillingCutter {
         /// offset of Bull is Bull
         MillingCutter* offsetCutter(double offset) const;
         
-        CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
-        
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
         std::string str() const;
         
     protected:
+        CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         double height(double r) const;
         double width(double h) const; 
         /// radius of cylindrical part of cutter

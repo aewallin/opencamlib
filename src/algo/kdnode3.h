@@ -39,19 +39,19 @@ class KDNode3 {
         /// If this is a bucket-node containing triangles, 
         /// they are in the list tris
         /// depth indicates the depth of the node in the tree
-        KDNode3(int d, double cv, KDNode3<BBObj> *par,                        // parent node
-                                  KDNode3<BBObj> *hi_c,                        // hi-child
-                                  KDNode3<BBObj> *lo_c,                        // lo-child
-                                  const std::list< BBObj > *tlist,     // list of tris, if bucket
-                                  int dep)                           // depth of node
+        KDNode3(int d, double cv, KDNode3<BBObj> *parentNode,                        // parent node
+                                  KDNode3<BBObj> *hi_child,                        // hi-child
+                                  KDNode3<BBObj> *lo_child,                        // lo-child
+                                  const std::list< BBObj >* tlist,     // list of tris, if bucket
+                                  int nodeDepth)                           // depth of node
                                   {
             dim = d;
             cutval = cv;
-            parent = par;
-            hi = hi_c;
-            lo = lo_c;
+            parent = parentNode;
+            hi = hi_child;
+            lo = lo_child;
             tris = tlist;
-            depth = dep;
+            depth = nodeDepth;
         }
         virtual ~KDNode3() {
             delete hi;
@@ -75,13 +75,13 @@ class KDNode3 {
         /// Child node lo contains triangles with lower values.
         double cutval;
         /// parent-node
-        KDNode3 *parent; 
+        KDNode3* parent; 
         /// Child-node hi.
-        KDNode3 *hi; 
+        KDNode3* hi; 
         /// Child-node lo.
-        KDNode3 *lo; 
+        KDNode3* lo; 
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
-        const std::list< BBObj > *tris;
+        const std::list< BBObj >* tris;
 };
 
 

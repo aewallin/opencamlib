@@ -42,8 +42,10 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
-
-    cutter = ocl.CylCutter(0.3,5)
+    diameter = 0.3
+    length = 5
+    #cutter = ocl.CylCutter(diameter, length)
+    cutter = ocl.BallCutter(diameter, length)
     
     print "lengt=", cutter.getLength()
     print "fiber..."
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     
     #cc = ocl.CCPoint()
-    zh = -0.1
+    
     zh = 0.10571567
     #tris=t.zslice(zh)
     #print tris

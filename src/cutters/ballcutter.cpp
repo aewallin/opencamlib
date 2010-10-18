@@ -94,7 +94,7 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
         const Point ufp2 = f.p2 + Point(0,0,radius);
         // and intersect it with a cylinder around the edge p1-p2
         //--------------------------------------------------------------------------
-        // Ray : P(t) = O + V * t   from point O, in direction V
+        // Ray : P(t) = O + t*V    from point O, in direction V
         // Cylinder [A, B, r]   from point A to point B, radius r
         // Point P on infinite cylinder if ((P - A) x (B - A))^2 = r^2 * (B - A)^2
         // expand : ((O - A) x (B - A) + t * (V x (B - A)))^2 = r^2 * (B - A)^2
@@ -133,8 +133,6 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
             double cct = (cc_tmp-p1).dot(p2-p1) / (p2-p1).dot(p2-p1) ;
             if ( cct > 0.0 && cct < 1.0 && ((cl1_center-cc_tmp).z >=0) ) {
                 i.update( t1  , cc_tmp );
-                //i.updateUpper( t1  , cc_tmp );
-                //i.updateLower( t1  , cc_tmp );
                 result = true;
             }
         } else if ( discr > 0.0 ) { // two roots
@@ -164,7 +162,9 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
                 result = true;
             }
         } else {
-            // no solution to quadratic, i.e. no contact with the ball
+        }
+            
+            // no solution to quadratic(?), i.e. no contact with the ball
             // instead we test for contact with the cylindrical shaft
             // fiber is f.p1 + v*(f.p2-f.p1)
             // line  is p1 + u*(p2-p1)
@@ -192,14 +192,13 @@ bool BallCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
                         i.update( t_cl1  , cc_tmp1 );
                         result = true;
                     }
-                    if( cc_tmp2.isInsidePoints( p1,p2 ) && (cc_tmp2.z >= (f.p1.z+radius) ) ) {
+                    if( cc_tmp2.isInsidePoints(p1,p2) && (cc_tmp2.z >= (f.p1.z+radius) ) ) {
                         i.update( t_cl2  , cc_tmp2 );
                         result = true;
                     }
                 }
             }// shaft contact case
-        }
-
+        
     } // loop through all edges
     return result;
 }

@@ -40,15 +40,14 @@ class BallCutter : public MillingCutter {
         /// offset of Ball is Ball
         MillingCutter* offsetCutter(double d) const;
         
-        /// drop BallCutter against an edge u1-u2 
-        CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
-        
         /// push BallCutter along Fiber f against Triangle t, and update Interval i accordingly.   
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         std::string str() const;
     protected:
+        /// drop BallCutter against an edge u1-u2 
+        CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         double height(double r) const;
         double width(double h) const; 
 };

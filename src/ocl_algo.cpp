@@ -96,7 +96,7 @@ void export_algo() {
         .def("addInterval", &Fiber_py::addInterval)
         .def("point", &Fiber_py::point)
         .def("printInts", &Fiber_py::printInts)
-        
+        .def("getInts", &Fiber_py::getInts)
     ;
     bp::class_<Waterline>("Waterline_base")
     ;

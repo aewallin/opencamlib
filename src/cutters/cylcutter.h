@@ -39,17 +39,13 @@ class CylCutter : public MillingCutter {
         CylCutter();
         /// create CylCutter with diameter d and length l
         explicit CylCutter(double d, double l);
-
         MillingCutter* offsetCutter(double d) const;
-        
-        CC_CLZ_Pair  singleEdgeContact(const Point& u1, const Point& u2) const;
-        
         bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
-        
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
         std::string str() const;
     protected:
+        CC_CLZ_Pair  singleEdgeContact(const Point& u1, const Point& u2) const;
         double height(double r) const;
         double width(double h) const; 
 };
