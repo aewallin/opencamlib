@@ -40,12 +40,10 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
+    length = 10
+    #cutter = ocl.CylCutter(0.3, length)
+    cutter = ocl.BallCutter(0.3, length)
     
-    #cutter = ocl.CylCutter(0.3)
-    cutter = ocl.BallCutter(0.3)
-        
-    cutter.length = 40.0
-    print "lengt=", cutter.length
     print "fiber..."
     range=4
     Nmax = 100

@@ -32,7 +32,7 @@ BullCutter::BullCutter() {
     assert(0);
 }
 
-BullCutter::BullCutter(const double d, const double r, const double l) {
+BullCutter::BullCutter(double d, double r, double l) {
     assert( d > 0.0 );
     diameter = d;
     radius = d/2.0;        // total cutter radius
@@ -47,11 +47,11 @@ BullCutter::BullCutter(const double d, const double r, const double l) {
 }
 
 // height of cutter at radius r
-double BullCutter::height(const double r) const {
+double BullCutter::height(double r) const {
     if ( r <= radius1 )
-        return 0.0;
+        return 0.0; // cylinder
     else if ( r <= radius )
-        return radius2 - sqrt( square(radius2) - square(r-radius1) );
+        return radius2 - sqrt( square(radius2) - square(r-radius1) ); // toroid
     else {
         assert(0);
         return -1;
@@ -59,17 +59,17 @@ double BullCutter::height(const double r) const {
 }
 
 // width of cutter at height h
-double BullCutter::width(const double h) const {
+double BullCutter::width(double h) const {
     if ( h >= radius2 )
         return radius; // cylindrical part
-    else // toroid
-        return radius1 + sqrt( square(radius2) - square(radius2-h) );
+    else 
+        return radius1 + sqrt( square(radius2) - square(radius2-h) ); // toroid
 }
 
 // drop-cutter: vertex and facet are handled in base-class
 
 // drop-cutter: Toroidal cutter edge-test
-CC_CLZ_Pair BullCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
+CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) const {
     if ( isZero_tol( u1.z - u2.z ) ) {  // horizontal edge special case
         if ( u1.y <= radius1) {             // horizontal edge, contact with cylindrical part of cutter 
             return CC_CLZ_Pair( 0 , u1.z);  
@@ -181,7 +181,7 @@ bool BullCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) const
     return result;
 }
 
-MillingCutter* BullCutter::offsetCutter(const double d) const {
+MillingCutter* BullCutter::offsetCutter(double d) const {
     return new BullCutter(diameter+2*d, radius2+d, length+d) ;
 }
 

@@ -38,9 +38,9 @@ class CylCutter : public MillingCutter {
     public:
         CylCutter();
         /// create CylCutter with diameter d and length l
-        explicit CylCutter(const double d, const double l);
+        explicit CylCutter(double d, double l);
 
-        MillingCutter* offsetCutter(const double d) const;
+        MillingCutter* offsetCutter(double d) const;
         
         CC_CLZ_Pair  singleEdgeContact(const Point& u1, const Point& u2) const;
         
@@ -50,8 +50,8 @@ class CylCutter : public MillingCutter {
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
         std::string str() const;
     protected:
-        double height(const double r) const;
-        double width(const double h) const; 
+        double height(double r) const;
+        double width(double h) const; 
 };
 
 } // end namespace

@@ -99,7 +99,7 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 // sphere: zero diam cylinder. ellipse around edge, find offset == cl (ITO surface slice is ellipse) (?)
 // toroid: radius2 diam edge, radius1 cylinder, find radius1-offset-ellipse=cl (ITO surf slice is offset ellipse) (this is the offset-ellipse problem)
 // cone: ??? (how is this an ellipse??)
-bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {    
+bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const {    
     Point v = p2 - p1; // vector along edge, from p1 -> p2
     Point vxy( v.x, v.y, 0.0);
     vxy.xyNormalize(); // normalized XY edge vector

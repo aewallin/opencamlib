@@ -32,7 +32,7 @@ CylCutter::CylCutter() {
     assert(0);
 }
 
-CylCutter::CylCutter(const double d, const double l) {
+CylCutter::CylCutter(double d, double l) {
     assert( d > 0.0);
     diameter= d;
     radius= d/2.0;
@@ -43,12 +43,12 @@ CylCutter::CylCutter(const double d, const double l) {
     center_height = 0.0;
 }
 
-MillingCutter* CylCutter::offsetCutter(const double d) const {
+MillingCutter* CylCutter::offsetCutter(double d) const {
     return new BullCutter(diameter+2*d, d, length+d) ; // offset of CylCutter is BullCutter
 }
 
 // height of cutter at radius r
-double CylCutter::height(const double r) const {
+double CylCutter::height(double r) const {
     if ( r <= radius )
         return 0.0;
     else {
@@ -58,7 +58,7 @@ double CylCutter::height(const double r) const {
 }
 
 // width of cutter at height h
-double CylCutter::width(const double h) const {
+double CylCutter::width(double h) const {
     return radius;
 }
 

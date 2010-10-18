@@ -45,8 +45,8 @@ typedef std::pair< double, double > CC_CLZ_Pair;
 class MillingCutter {
     public:
         /// default constructor
-        MillingCutter() {};
-        virtual ~MillingCutter() {};
+        MillingCutter() {}
+        virtual ~MillingCutter() {}
         
         /// return the diameter of the cutter
         inline double getDiameter() const { return diameter; }
@@ -56,7 +56,7 @@ class MillingCutter {
         inline double getLength() const { return length; }
         
         /// return a MillingCutter which is larger than *this by d
-        virtual MillingCutter* offsetCutter(const double d) const;
+        virtual MillingCutter* offsetCutter(double d) const;
         
         /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
         /// works in the xy-plane 
@@ -93,24 +93,26 @@ class MillingCutter {
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
-        virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;};
+        virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const {assert(0);return false;}
+        
         /// return a string representation of the MillingCutter
-        virtual std::string str() const {return "MillingCutter (all derived classes should override this)";};
+        virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
         
     protected:
         /// drop cutter against edge p1-p2 at xy-distance d from cl
-        virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const;
+        virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
-        
+        /// 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis 
+        /// returns x-coordinate of cc-point and cl.z
         virtual CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.
-        virtual double height(const double r) const {assert(0); return -1;}
+        virtual double height(double r) const {assert(0); return -1;}
         
         /// return the width of the cutter at height h.
         /// should be redefined by a subclass.
-        virtual double width(const double h) const {assert(0); return -1;}
+        virtual double width(double h) const {assert(0); return -1;}
         
         /// xy_normal lenght that locates the cutter center relative to a
         /// cc-point on a facet.

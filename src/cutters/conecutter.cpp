@@ -33,23 +33,25 @@ ConeCutter::ConeCutter() {
     length = radius/tan(angle);
 }
 
-ConeCutter::ConeCutter(const double d, const double a) {
+ConeCutter::ConeCutter(double d, double a) {
     diameter = d;
     radius = d/2.0;
     angle = a;
     length = radius/tan(angle);
 }
 
-double ConeCutter::height(const double r) const {
+double ConeCutter::height(double r) const {
     assert( tan(angle) > 0.0 ); // guard against division by zero
     return r/tan(angle);
 }
 
-// double ConeCutter::width(const double h) const
+double ConeCutter::width(double h) const {
+    return 0.3;
+}
 
 // offset of cone is BallConeCutter
 // ?? Ball-Cone-Bull ??
-MillingCutter* ConeCutter::offsetCutter(const double d) const {
+MillingCutter* ConeCutter::offsetCutter(double d) const {
     return new BallConeCutter(2*d,  diameter+2*d, angle) ;
 }
 
@@ -95,7 +97,7 @@ bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
 // find point where hyperbola and line slopes match
-bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, const double d) const {
+bool ConeCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const {
 
     // math/geometry from Yau et al. 2004 paper (Int. J. Prod. Res. vol42 no13)
     // closest point to cl on line lies at

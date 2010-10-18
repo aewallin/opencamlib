@@ -31,7 +31,7 @@ BallCutter::BallCutter() {
     assert(0);
 }
 
-BallCutter::BallCutter(const double d, const double l) {
+BallCutter::BallCutter(double d, double l) {
     assert( d>0.0 );
     diameter = d;
     radius = d/2.0;
@@ -43,12 +43,12 @@ BallCutter::BallCutter(const double d, const double l) {
 }
 
 // height of cutter at radius r
-double BallCutter::height(const double r) const {
+double BallCutter::height(double r) const {
     return radius - sqrt( square(radius) - square(r) );
 }
 
 // width of cutter at height h
-double BallCutter::width(const double h) const {
+double BallCutter::width(double h) const {
     if ( h >= radius )
         return radius;
     else 
@@ -56,7 +56,7 @@ double BallCutter::width(const double h) const {
 }
 
 // offset of ball is a bigger ball
-MillingCutter* BallCutter::offsetCutter(const double d) const {
+MillingCutter* BallCutter::offsetCutter(double d) const {
     return  new BallCutter(diameter+2*d, length+d) ;
 }
 

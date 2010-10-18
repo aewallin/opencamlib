@@ -36,9 +36,9 @@ class BallCutter : public MillingCutter {
     public:
         BallCutter();
         /// create a BallCutter with diameter d (radius d/2) and length l
-        explicit BallCutter(const double d, const double l);
+        explicit BallCutter(double d, double l);
         /// offset of Ball is Ball
-        MillingCutter* offsetCutter(const double d) const;
+        MillingCutter* offsetCutter(double d) const;
         
         /// drop BallCutter against an edge u1-u2 
         CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
@@ -49,8 +49,8 @@ class BallCutter : public MillingCutter {
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         std::string str() const;
     protected:
-        double height(const double r) const;
-        double width(const double h) const; 
+        double height(double r) const;
+        double width(double h) const; 
 };
 
 } // end namespace

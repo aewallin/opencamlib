@@ -38,9 +38,9 @@ class BullCutter : public MillingCutter {
     public:
         BullCutter();
         /// Create bull-cutter with diamter d, corner radius r, and length l.
-        BullCutter(const double diameter, const double radius, const double length);
+        BullCutter(double diameter, double radius, double length);
         /// offset of Bull is Bull
-        MillingCutter* offsetCutter(const double offset) const;
+        MillingCutter* offsetCutter(double offset) const;
         
         CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         
@@ -50,8 +50,8 @@ class BullCutter : public MillingCutter {
         std::string str() const;
         
     protected:
-        double height(const double r) const;
-        double width(const double h) const; 
+        double height(double r) const;
+        double width(double h) const; 
         /// radius of cylindrical part of cutter
         double radius1;
         /// tube radius of torus
