@@ -85,42 +85,6 @@ CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const
     return CC_CLZ_Pair( cc_u, cl_z);
 }
 
-// push cutter: facet handled in base-class
-
-// push cutter along Fiber against vertices of Triangle t
-// update Interval i 
-bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
-    bool result = false;
-    std::vector<Point> verts;
-    verts.push_back(t.p[0]);
-    verts.push_back(t.p[1]);
-    verts.push_back(t.p[2]);
-    // if the triangle is sliced, we have two more verts to test:
-    Point p1,p2;
-    if ( t.zslice_verts(p1, p2, f.p1.z) ) {
-        p1.z = p1.z + 1E-3; // dirty trick...
-        p2.z = p2.z + 1E-3; // ...which will not affect results, unless cutter.length < 1E-3
-        verts.push_back(p1);
-        verts.push_back(p2);
-    }
-    BOOST_FOREACH( const Point& p, verts) {
-        if ( (p.z >= f.p1.z) && (p.z <= (f.p1.z+getLength())) ) { // p.z is within cutter
-            Point pq = p.xyClosestPoint(f.p1, f.p2);
-            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
-            if ( q <= radius ) { // p is inside the cutter
-                double ofs = sqrt( square(radius) - square(q) ); // distance along fiber 
-                Point start = pq - ofs*f.dir;
-                Point stop  = pq + ofs*f.dir;
-                CCPoint cc_tmp( p, VERTEX);
-                i.updateUpper( f.tval(stop) , cc_tmp );
-                i.updateLower( f.tval(start) , cc_tmp );
-                result = true;                
-            }             
-        }
-    }
-    return result;
-}
-
 std::string CylCutter::str() const {
     std::ostringstream o;
     o << *this;

@@ -119,22 +119,40 @@ bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
     BOOST_FOREACH( const Point& p, t.p) {
-        if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+getLength()) ) ) { // p.z is within cutter
-            Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
-            double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
-            double h = p.z - f.p1.z;
-            assert( h>= 0.0);
-            double cwidth = this->width( h );
-            if ( q <= cwidth ) { // we are going to hit the vertex p
-                double ofs = sqrt( square( cwidth ) - square(q) ); // distance along fiber 
-                Point start = pq - ofs*f.dir;
-                Point stop  = pq + ofs*f.dir;
-                CCPoint cc_tmp( p, VERTEX );
-                i.updateUpper( f.tval(stop) , cc_tmp );
-                i.updateLower( f.tval(start) , cc_tmp );
-                result = true;                
-            }             
+        if (this->singleVertexPush(f,i,p) )
+            result = true;
+    }
+    if ( this->vertexPushTriangleSlice() ) {
+        Point p1, p2;
+        if ( t.zslice_verts(p1, p2, f.p1.z) ) {
+            p1.z = p1.z + 1E-3; // dirty trick...
+            p2.z = p2.z + 1E-3; // ...which will not affect results, unless cutter.length < 1E-3
+            if ( this->singleVertexPush(f,i,p1) )
+                result = true;
+            if (this->singleVertexPush(f,i,p2))
+                result = true;
         }
+    }
+    return result;
+}
+
+bool MillingCutter::singleVertexPush(const Fiber& f, Interval& i, const Point& p) const {
+    bool result = false;
+    if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+ this->getLength()) ) ) { // p.z is within cutter
+        Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
+        double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
+        double h = p.z - f.p1.z;
+        assert( h>= 0.0);
+        double cwidth = this->width( h );
+        if ( q <= cwidth ) { // we are going to hit the vertex p
+            double ofs = sqrt( square( cwidth ) - square(q) ); // distance along fiber 
+            Point start = pq - ofs*f.dir;
+            Point stop  = pq + ofs*f.dir;
+            CCPoint cc_tmp( p, VERTEX );
+            i.updateUpper( f.tval(stop) , cc_tmp );
+            i.updateLower( f.tval(start) , cc_tmp );
+            result = true;                
+        }             
     }
     return result;
 }

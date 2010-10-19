@@ -87,11 +87,11 @@ if __name__ == "__main__":
     diameter=0.3
     length=5
     #cutter = ocl.BallCutter(diameter, length)
-    #cutter = ocl.CylCutter(diameter, length)
+    cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, diameter/4, length)
-    #cutter = ocl.ConeCutter(diameter, angle)
+    #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
-    cutter = ocl.ConeCutter(diameter, angle, length)
+    
     
     print "cutter= ", cutter
     print "lengt=", cutter.getLength()
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = -0.50082
+    zmin = -0.2082
     zmax = 0.3115
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)

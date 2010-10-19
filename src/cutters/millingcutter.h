@@ -99,7 +99,10 @@ class MillingCutter {
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
         
     protected:
-
+        bool singleVertexPush(const Fiber& f, Interval& i, const Point& p) const;
+        /// this is normally false, but true for the CylCutter
+        virtual bool vertexPushTriangleSlice() const {return false;}
+        
         /// push cutter along fiber against a single edge p1-p2
         bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         /// push-cutter cylindrical shaft case
@@ -110,7 +113,7 @@ class MillingCutter {
         virtual bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {return false;}
         
         /// drop cutter against edge p1-p2 at xy-distance d from cl
-        virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
+        bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
         /// 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis 
         /// returns x-coordinate of cc-point and cl.z
