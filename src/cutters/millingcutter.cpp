@@ -115,11 +115,6 @@ bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2
     return cl.liftZ_if_InsidePoints( contact.second , cc_tmp , p1, p2);
 }
 
-// dummy implementation, override in sub-class.
-CC_CLZ_Pair MillingCutter::singleEdgeContact( const Point& u1, const Point& u2) const {
-    return CC_CLZ_Pair( 0.0, 0.0);
-}
-
 // general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
@@ -242,22 +237,34 @@ bool MillingCutter::edgePush(const Fiber& f, Interval& i,  const Triangle& t) co
         int end=(n+1)%3;
         const Point p1 = t.p[start]; // edge is from p1 to p2
         const Point p2 = t.p[end];
-        if (singleEdgePush(f,i,p1,p2))
+        if ( this->singleEdgePush(f,i,p1,p2))
             result = true;
-        // why does this not work??  result = (result || singleEdgePush(f,i,p1,p2) );
     } 
+    return result;
+}
+
+bool MillingCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result = false;
+    if ( this->horizEdgePush(f,i,p1,p2) )
+        result = true;
+    else {
+        if ( this->shaftEdgePush(f,i,p1,p2) )
+            result = true;
+
+        if ( this->generalEdgePush(f,i,p1,p2) )
+            result = true;
+    }
     return result;
 }
 
 // this is used for the cylindrical shaft of Cyl, Ball, Bull, Cone
 bool MillingCutter::shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
-    // push cutter along Fiber f
-    // edge is p1-p2
-    // check for contact with cylindrical cutter shaft
+    // push cutter along Fiber f in contact with edge p1-p2
+    // contact with cylindrical cutter shaft
     double u,v;
     bool result = false;
     if ( xy_line_line_intersection(p1, p2, u, f.p1, f.p2, v ) ) { // find XY-intersection btw fiber and edge
-        Point q = p1 + u*(p2-p1); // intersection point, on edge
+        Point q = p1 + u*(p2-p1); // edge/fiber intersection point, on edge
         // Point q = f.p1 + v*(f.p2-f.p1); // q on fiber
         // from q, go v_cc*xy_tangent, then r*xy_normal, and end up on fiber:
         // q + v_cc*tangent + r*xy_normal = p1 + t_cl*(p2-p1)
@@ -269,20 +276,55 @@ bool MillingCutter::shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1,
         Point q2 = q1 + (p2-p1);
         double u_cc, t_cl;
         if ( xy_line_line_intersection( q1 , q2, u_cc, f.p1, f.p2, t_cl ) ) {
-            double t_cl1 = t_cl;
+            double t_cl1 = t_cl;            // cc_tmp1 = q +/- u_cc*(p2-p1);
             double t_cl2 = v + (v-t_cl);
-            CCPoint cc_tmp1 = q + u_cc*(p2-p1);
-            CCPoint cc_tmp2 = q - u_cc*(p2-p1); 
-            cc_tmp1.type = EDGE_CYL;
-            cc_tmp2.type = EDGE_CYL;
-            if ( i.update_ifCCinEdgeAndTrue( t_cl1, cc_tmp1, p1, p2, (cc_tmp1.z > f.p1.z+ this->center_height)) )
+            if ( calcCCandUpdateInterval(t_cl1, u_cc, q, p1, p2, f, i, f.p1.z+ this->center_height) )
                 result = true;
-            if ( i.update_ifCCinEdgeAndTrue( t_cl2, cc_tmp2, p1, p2, (cc_tmp2.z > f.p1.z+ this->center_height)) )
+            if ( calcCCandUpdateInterval(t_cl2, -u_cc, q, p1, p2, f, i, f.p1.z+ this->center_height) )
                 result = true;
         }
     }
     return result;
 }
+
+// this is the horizontal edge case
+bool MillingCutter::horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result=false;
+    double h = p1.z - f.p1.z;
+    if ( isZero_tol( p2.z-p1.z ) && (h > 0.0) ) { // this is the horizontal-edge special case
+        double eff_radius = this->width( h ); // the cutter acts as a cylinder with eff_radius 
+        // contact this cylinder/circle against edge in xy-plane
+        double qt;      // fiber is f.p1 + qt*(f.p2-f.p1)
+        double qv;      // line  is p1 + qv*(p2-p1)
+        if (xy_line_line_intersection( p1 , p2, qv, f.p1, f.p2, qt ) ) {
+            Point q = p1 + qv*(p2-p1); // the intersection point
+            // from q, go v-units along tangent, then eff_r*normal, and end up on fiber:
+            // q + ccv*tangent + r*normal = p1 + clt*(p2-p1)
+            double ccv, clt;
+            Point xy_tang=p2-p1;
+            xy_tang.z=0;
+            xy_tang.xyNormalize();
+            Point xy_normal = xy_tang.xyPerp();
+            Point q1 = q+eff_radius*xy_normal;
+            Point q2 = q1+(p2-p1);
+            if ( xy_line_line_intersection( q1 , q2, ccv, f.p1, f.p2, clt ) ) {
+                double t_cl1 = clt;
+                double t_cl2 = qt + (qt - clt );
+                if ( calcCCandUpdateInterval(t_cl1, ccv, q, p1, p2, f, i, f.p1.z) )
+                    result = true;
+                if ( calcCCandUpdateInterval(t_cl2, -ccv, q, p1, p2, f, i, f.p1.z) )
+                    result = true;
+            }
+        }
+    }
+    return result;
+}
+
+bool MillingCutter::calcCCandUpdateInterval( double t, double u, const Point& q, const Point& p1, const Point& p2, const Fiber& f, Interval& i, double height) const {
+    CCPoint cc_tmp = q+u*(p2-p1);
+    cc_tmp.type = EDGE;
+    return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, (cc_tmp.z >= height)  );
+} 
 
 
 // call vertex, facet, and edge drop methods on input Triangle t

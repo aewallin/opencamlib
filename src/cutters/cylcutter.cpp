@@ -66,15 +66,7 @@ double CylCutter::width(double h) const {
 // drop-cutter facetDrop is handled by the base-class
 
 CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
-    // edge is u1-u2  along the X-axis and the ycoord is 0<d<radius 
-    // u1 = (u1x, d, u1z)
-    // u2 = (u2x, d, u2z)
-    assert( u1.y == u2.y);
-    assert( u1.y >= 0.0 );
-    assert( u1.y <= this->radius );
-    
     // along the x-axis the cc-point is at x-coord s:
-    // in the xy-plane the cc-point is at:
     double s = sqrt( square( radius ) - square( u1.y ) );
     Point cc1(  s, u1.y, 0);
     Point cc2( -s, u1.y, 0);
@@ -127,10 +119,6 @@ bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const
         }
     }
     return result;
-}
-
-bool CylCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
-    return this->shaftEdgePush(f,i,p1,p2); // there's nothing more to a cylcutter than the shaft...
 }
 
 std::string CylCutter::str() const {

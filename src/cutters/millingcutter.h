@@ -99,19 +99,23 @@ class MillingCutter {
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
         
     protected:
+
         /// push cutter along fiber against a single edge p1-p2
-        virtual bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {return false;}
-        
+        bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         /// push-cutter cylindrical shaft case
         bool shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
-        
+        /// push-cutter horizontal edge case
+        bool horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        bool calcCCandUpdateInterval( double t, double ccv, const Point& q, const Point& p1, const Point& p2, const Fiber& f, Interval& i, double height) const;
+        virtual bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {return false;}
         
         /// drop cutter against edge p1-p2 at xy-distance d from cl
         virtual bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
         /// 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis 
         /// returns x-coordinate of cc-point and cl.z
-        virtual CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
+        /// override in sub-class.
+        virtual CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const {return CC_CLZ_Pair( 0.0, 0.0);}
         
         /// return the height of the cutter at radius r.
         /// should be redefined by a subclass.

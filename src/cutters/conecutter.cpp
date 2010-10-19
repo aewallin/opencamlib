@@ -138,13 +138,8 @@ CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) con
     return CC_CLZ_Pair( ccu , cl_z);
 }
 
-bool ConeCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
-    bool result = false;
-    if ( this->shaftEdgePush(f,i,p1,p2) )
-        result = true;
-    // TODO: general edge-push here
-    return result;
-}
+
+
 
 
 std::string ConeCutter::str() const {

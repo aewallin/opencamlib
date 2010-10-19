@@ -80,7 +80,7 @@ CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) cons
 
 // push-cutter: vertex and facet handled in base-class
 
-bool BallCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     const Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
     const Point ufp2 = f.p2 + Point(0,0,radius);
@@ -126,12 +126,6 @@ bool BallCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, c
         if ( calcCCandUpdateInterval( t2, p1, p2, f, i ) ) 
             result = true;
     } 
-  
-
-    // test for contact with the cylindrical shaft
-    if ( shaftEdgePush(f,i,p1,p2) )
-        result = true;
-        
     return result;
 }
 bool BallCutter::calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {

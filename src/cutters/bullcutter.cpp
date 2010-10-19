@@ -107,17 +107,6 @@ CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) co
 
 // push-cutter: vertex and facet handled by base-class
 
-bool BullCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
-    bool result = false;
-    if ( this->shaftEdgePush(f,i,p1,p2) )
-        result = true;
-    else if ( this->horizEdgePush(f,i,p1,p2) )
-        result = true;
-    else if ( this->generalEdgePush(f,i,p1,p2) )
-        result = true;
-    return result;
-}
-
 bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     if ( isZero_tol( p2.z-p1.z ) )
@@ -149,43 +138,6 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     return result;
 }
 
-bool BullCutter::horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
-    bool result=false;
-    double h = p1.z - f.p1.z;
-    if ( isZero_tol( p2.z-p1.z ) && (h > 0.0) ) { // this is the horizontal-edge special case
-        double eff_radius = this->width( h ); // the cutter acts as a cylinder with eff_radius 
-        // contact this cylinder/circle against edge in xy-plane
-        double qt;      // fiber is f.p1 + qt*(f.p2-f.p1)
-        double qv;      // line  is p1 + qv*(p2-p1)
-        if (xy_line_line_intersection( p1 , p2, qv, f.p1, f.p2, qt ) ) {
-            Point q = p1 + qv*(p2-p1); // the intersection point
-            // from q, go v-units along tangent, then eff_r*normal, and end up on fiber:
-            // q + ccv*tangent + r*normal = p1 + clt*(p2-p1)
-            double ccv, clt;
-            Point xy_tang=p2-p1;
-            xy_tang.z=0;
-            xy_tang.xyNormalize();
-            Point xy_normal = xy_tang.xyPerp();
-            Point q1 = q+eff_radius*xy_normal;
-            Point q2 = q1+(p2-p1);
-            if ( xy_line_line_intersection( q1 , q2, ccv, f.p1, f.p2, clt ) ) {
-                double t_cl1 = clt;
-                double t_cl2 = qt + (qt - clt );
-                if ( calcCCandUpdateInterval(t_cl1, ccv, q, p1, p2, f, i) )
-                    result = true;
-                if ( calcCCandUpdateInterval(t_cl2, -ccv, q, p1, p2, f, i) )
-                    result = true;
-            }
-        }
-    }
-    return result;
-}
-
-bool BullCutter::calcCCandUpdateInterval( double t, double ccv, const Point& q, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
-    CCPoint cc_tmp1 = q+ccv*(p2-p1);
-    cc_tmp1.type = EDGE;
-    return i.update_ifCCinEdgeAndTrue( t, cc_tmp1, p1, p2, (cc_tmp1.z >= f.p1.z) );
-} 
 
 MillingCutter* BullCutter::offsetCutter(double d) const {
     return new BullCutter(diameter+2*d, radius2+d, length+d) ;

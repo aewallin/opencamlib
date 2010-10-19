@@ -43,18 +43,15 @@ class ConeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(double d) const;
         bool facetDrop(CLPoint &cl, const Triangle &t) const; // FIXME, handle in base-class?
-        //bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
         std::string str() const;
         
     protected:
         CC_CLZ_Pair singleEdgeContact( const Point& u1, const Point& u2) const;
-        bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
-        
+        // TODO: generalEdgePush
         double height(double r) const;
         double width(double h) const;
-        // TODO: width
         /// the half-angle of the cone, in radians
         double angle;
 };
