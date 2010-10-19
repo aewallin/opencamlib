@@ -122,7 +122,7 @@ bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) c
         if (this->singleVertexPush(f,i,p) )
             result = true;
     }
-    if ( this->vertexPushTriangleSlice() ) {
+    if ( this->vertexPushTriangleSlice() ) { // special case for CylCutter
         Point p1, p2;
         if ( t.zslice_verts(p1, p2, f.p1.z) ) {
             p1.z = p1.z + 1E-3; // dirty trick...

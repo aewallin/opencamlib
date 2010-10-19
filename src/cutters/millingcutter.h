@@ -65,15 +65,12 @@ class MillingCutter {
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// calls this->height(r) on the subclass of MillingCutter we are using.
         virtual bool vertexDrop(CLPoint &cl, const Triangle &t) const;
-        
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
         virtual bool facetDrop(CLPoint &cl, const Triangle &t) const;
-        
         /// drop cutter at (cl.x, cl.y) against the three edges of input Triangle t.
         /// calls the sub-class MillingCutter::singleEdgeDrop on each edge
         virtual bool edgeDrop(CLPoint& cl, const Triangle &t) const;
-        
         /// drop the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
@@ -93,7 +90,7 @@ class MillingCutter {
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
-        bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
+        virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
         /// return a string representation of the MillingCutter
         virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
@@ -101,7 +98,7 @@ class MillingCutter {
     protected:
         bool singleVertexPush(const Fiber& f, Interval& i, const Point& p) const;
         /// this is normally false, but true for the CylCutter
-        virtual bool vertexPushTriangleSlice() const {return false;}
+        virtual inline bool vertexPushTriangleSlice() const {return false;}
         
         /// push cutter along fiber against a single edge p1-p2
         bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;

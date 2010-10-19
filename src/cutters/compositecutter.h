@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMPOUND_CUTTER_H
-#define COMPOUND_CUTTER_H
+#ifndef COMPOSITE_CUTTER_H
+#define COMPOSITE_CUTTER_H
 
 #include <iostream>
 #include <string>
@@ -30,24 +30,21 @@
 namespace ocl
 {
 
-/// \brief a CompoundCutter is composed one or more MillingCutters
+/// \brief a CompositeCutter is composed one or more MillingCutters
 /// the cutters are stored in a vector *cutter* and their axial offsets
 /// from eachother in *zoffset*. The different cutters apply in different
 /// radial regions. cutter[0] from r=0 to r=radius[0] after that 
 /// cutter[1] from r=radius[0] to r=radius[1] and so on. 
-class CompoundCutter : public MillingCutter {
+class CompositeCutter : public MillingCutter {
     public:
-        /// create an empty CompoundCutter
-        CompoundCutter();
-        /// add a MillingCutter to this CompoundCutter
+        /// create an empty CompositeCutter
+        CompositeCutter();
+        /// add a MillingCutter to this CompositeCutter
         /// the cutter is valid from the previous radius out to the given radius
         /// and its axial offset is given by zoffset
         void addCutter(MillingCutter& c, double radius, double zoff);
         
-        /// return true if cl.cc is within the radial range of cutter n
-        /// for cutter n the valid radial distance from cl is
-        /// between radiusvec[n-1] and radiusvec[n]
-        bool ccValid(int n, CLPoint& cl) const;
+
         
         MillingCutter* offsetCutter(const double d) const;
         
@@ -56,46 +53,51 @@ class CompoundCutter : public MillingCutter {
         bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         std::string str() const;
-    protected:        
+    protected:   
+        /// return true if cl.cc is within the radial range of cutter n
+        /// for cutter n the valid radial distance from cl is
+        /// between radiusvec[n-1] and radiusvec[n]
+        bool ccValid(int n, CLPoint& cl) const;
+             
         /// vector that holds the radiuses of the different cutters
         std::vector<double> radiusvec; // vector of radiuses
         /// vector of the axial offsets 
         std::vector<double> zoffset; // vector of z-offset values for the cutters
-        /// vector of cutters in this CompoundCutter
+        /// vector of cutters in this CompositeCutter
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
 };
 
-/// \brief a MillingCutter::CompoundCutter with a cylindrical/flat central part of diameter diam1
+/// \brief a MillingCutter::CompositeCutter with a cylindrical/flat central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
-class CylConeCutter : public CompoundCutter {
+class CylConeCutter : public CompositeCutter {
     public:
         CylConeCutter() {}; // dummy, required(?) by python wrapper
         CylConeCutter(double diam1, double diam2, double angle);
 };
 
-/// \brief a MillingCutter::CompoundCutter with a spherical central part of diameter diam1
+/// \brief a MillingCutter::CompositeCutter with a spherical central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
 /// the cone is positioned so that the tangent of the cone matches the tangent of the sphere
-class BallConeCutter : public CompoundCutter {
+class BallConeCutter : public CompositeCutter {
     public:
         BallConeCutter() {}; // dummy, required(?) by python wrapper
         BallConeCutter(double diam1, double diam2, double angle);
 };
 
-/// \brief a MillingCutter::CompoundCutter with a toroidal central part of diameter diam1 
+/// \brief a MillingCutter::CompositeCutter with a toroidal central part of diameter diam1 
 /// and corner radius radius1
 /// The outer part is conical sloping at angle, with a max diameter diam2
 /// the cone is positioned so that the tangent of the cone matches the tangent of the torus
-class BullConeCutter : public CompoundCutter {
+class BullConeCutter : public CompositeCutter {
     public:
         BullConeCutter() {}; // dummy, required(?) by python wrapper
         BullConeCutter(double diam1, double radius1, double diam2, double angle);
 };
 
-/// \brief a MillingCutter::CompoundCutter with a conical central part with diam1/angle1 
+/// \brief a MillingCutter::CompositeCutter with a conical central part with diam1/angle1 
 /// and a conical outer part with diam2/angle2
 /// we assume angle2 < angle1  and  diam2 > diam1.
-class ConeConeCutter : public CompoundCutter {
+class ConeConeCutter : public CompositeCutter {
     public:
         ConeConeCutter() {}; // dummy, required(?) by python wrapper
         ConeConeCutter(double diam1, double angle1, double diam2, double angle2);

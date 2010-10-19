@@ -18,7 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "compoundcutter.h"
+#include "compositecutter.h"
 #include "numeric.h"
 #include "cylcutter.h"
 #include "ballcutter.h"
@@ -28,18 +28,18 @@
 namespace ocl
 {
 
-CompoundCutter::CompoundCutter() {
+CompositeCutter::CompositeCutter() {
     radiusvec = std::vector<double>();
     cutter = std::vector<MillingCutter*>();
 }
 
-void CompoundCutter::addCutter(MillingCutter& c, double r, double zoff) {
+void CompositeCutter::addCutter(MillingCutter& c, double r, double zoff) {
     radiusvec.push_back(r);
     cutter.push_back(&c);
     zoffset.push_back(zoff);
 }
 
-bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
+bool CompositeCutter::ccValid(int n, CLPoint& cl) const {
     if (cl.cc->type == NONE)
         return false;
     double d = cl.xyDistance(*cl.cc);
@@ -59,7 +59,7 @@ bool CompoundCutter::ccValid(int n, CLPoint& cl) const {
 }
 
 // delegate to the sub-cutters, and pick the right one.
-bool CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
+bool CompositeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
@@ -82,7 +82,7 @@ bool CompoundCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
 }
 
 //********   facet ********************** */
-bool CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
+bool CompositeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
@@ -105,7 +105,7 @@ bool CompoundCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 }
 
 //********   edge **************************************************** */
-bool CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
+bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
@@ -126,15 +126,15 @@ bool CompoundCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-MillingCutter* CompoundCutter::offsetCutter(const double d) const {
+MillingCutter* CompositeCutter::offsetCutter(const double d) const {
     std::cout << " ERROR: not implemented.\n";
     assert(0);
     return  new CylCutter(); //FIXME!
 }
 
-std::string CompoundCutter::str() const {
+std::string CompositeCutter::str() const {
     std::ostringstream o;
-    o << "CompoundCutter with "<< cutter.size() << " cutters:\n";
+    o << "CompositeCutter with "<< cutter.size() << " cutters:\n";
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         o << " " << n << ":" << cutter[n]->str() << "\n";
         o << "  radius="<< radiusvec[n] << "\n";
@@ -145,7 +145,7 @@ std::string CompoundCutter::str() const {
 
 
 
-//  actual compound-cutters  
+//  actual Composite-cutters  
 //  only constructors required, drop-cutter calls handled by base-class
 
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
@@ -188,4 +188,4 @@ ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double
 }
 
 } // end namespace
-// end file compoundcutter.cpp
+// end file compositecutter.cpp

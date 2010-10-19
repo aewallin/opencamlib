@@ -71,7 +71,7 @@ set(OCL_GEO_SRC
 set(OCL_CUTTER_SRC
     ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutters/compoundcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.cpp
@@ -117,7 +117,7 @@ set( OCL_INCLUDE_FILES
     
     ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/compoundcutter.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/epos.h
