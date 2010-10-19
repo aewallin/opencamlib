@@ -43,6 +43,8 @@ typedef std::pair< double, double > CC_CLZ_Pair;
 /// \brief MillingCutter is a base-class for all milling cutters
 ///
 class MillingCutter {
+    friend class CompositeCutter;
+
     public:
         /// default constructor
         MillingCutter() {}

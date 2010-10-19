@@ -39,7 +39,8 @@ bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
         double q = cl.xyDistance(p);                // distance in XY-plane from cl to p
         if ( q <= radius ) {                        // p is inside the cutter
             CCPoint cc_tmp(p, VERTEX);
-            result = result || cl.liftZ( p.z - this->height(q), cc_tmp );
+            if ( cl.liftZ( p.z - this->height(q), cc_tmp ) )
+                result = true;
         } 
     }
     return result;

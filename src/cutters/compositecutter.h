@@ -48,12 +48,18 @@ class CompositeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(const double d) const;
         
-        bool vertexDrop(CLPoint &cl, const Triangle &t) const;
         bool facetDrop(CLPoint &cl, const Triangle &t) const;
         bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         std::string str() const;
     protected:   
+    
+        bool validRadius(unsigned int n, double r) const;
+        double height(double r) const;
+        
+        double width(double h) const {return 0.0;}
+        
+        
         /// return true if cl.cc is within the radial range of cutter n
         /// for cutter n the valid radial distance from cl is
         /// between radiusvec[n-1] and radiusvec[n]

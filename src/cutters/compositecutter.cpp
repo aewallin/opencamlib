@@ -31,12 +31,18 @@ namespace ocl
 CompositeCutter::CompositeCutter() {
     radiusvec = std::vector<double>();
     cutter = std::vector<MillingCutter*>();
+    radius=0;
+    diameter=0;
 }
 
 void CompositeCutter::addCutter(MillingCutter& c, double r, double zoff) {
     radiusvec.push_back(r);
     cutter.push_back(&c);
     zoffset.push_back(zoff);
+    if (r>radius) {
+        radius = r;
+        diameter = 2*r;
+    }
 }
 
 bool CompositeCutter::ccValid(int n, CLPoint& cl) const {
@@ -58,27 +64,26 @@ bool CompositeCutter::ccValid(int n, CLPoint& cl) const {
         return true;
 }
 
-// delegate to the sub-cutters, and pick the right one.
-bool CompositeCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
-    bool result = false;
+double CompositeCutter::height(double r) const {
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
-        CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
-        CCPoint* cc_tmp; 
-        if ( cutter[n]->vertexDrop(cl_tmp,t) ) {  // if we hit a vertex with this cutter
-            assert( cl_tmp.cc != 0);
-            if ( ccValid(n,cl_tmp) ) { // and cc-point is valid
-                cc_tmp =  new CCPoint(*cl_tmp.cc);
-                if (cl.liftZ( cl_tmp.z-zoffset[n] )) { // and we need to lift the cutter
-                    cc_tmp->type = VERTEX;
-                    cl.cc = cc_tmp;
-                    result = true;
-                } else {
-                    delete cc_tmp;
-                }
-            } 
-        } 
+        if ( validRadius(n,r) )
+            return cutter[n]->height(r) + zoffset[n];
     }
-    return result;
+    assert(0);
+    return 0.0;
+}
+
+bool CompositeCutter::validRadius(unsigned int n, double r) const {
+    double lolimit, hilimit;
+    if (n==0)
+        lolimit = -1E-6;
+    else
+        lolimit = radiusvec[n-1] - 1E-6;
+    hilimit = radiusvec[n]+1e-6; // FIXME: really ugly solution this one...
+    if ( (lolimit<=r) )
+        if  (r<=hilimit)
+            return true;
+    return false;
 }
 
 //********   facet ********************** */
@@ -137,8 +142,8 @@ std::string CompositeCutter::str() const {
     o << "CompositeCutter with "<< cutter.size() << " cutters:\n";
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         o << " " << n << ":" << cutter[n]->str() << "\n";
-        o << "  radius="<< radiusvec[n] << "\n";
-        o << "  zoffset="<< zoffset[n] << "\n";
+        o << "  radius["<< n << "]="<< radiusvec[n] << "\n";
+        o << "  zoffset["<< n << "]="<< zoffset[n] << "\n";
     }
     return o.str();
 }
