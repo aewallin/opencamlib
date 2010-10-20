@@ -48,7 +48,7 @@ class Fiber {
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value
-        Point point(const double t) const;
+        Point point(double t) const;
         /// print the intervals
         void printInts() const;
         /// string repr

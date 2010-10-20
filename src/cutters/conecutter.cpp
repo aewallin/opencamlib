@@ -63,6 +63,7 @@ MillingCutter* ConeCutter::offsetCutter(double d) const {
     return new BallConeCutter(2*d,  diameter+2*d, angle) ;
 }
 
+// because this checks for contact with both the tip and the circular edge it is hard to move to the base-class
 // we either hit the tip, when the slope of the plane is smaller than angle
 // or when the slope is steep, the circular edge between the cone and the cylindrical shaft
 bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
@@ -112,18 +113,17 @@ CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) con
     // xu = sqrt( R^2 - d^2 )
     double xu = sqrt( square(radius) - square(u1.y) ); 
     assert( xu <= radius );
-    // here the slope has a maximum
-    // mu = (L/(R-R2)) * xu /(sqrt( xu^2 + d^2 ))
+    // max slope at xu is mu = (L/(R-R2)) * xu /(sqrt( xu^2 + d^2 ))
     double mu = (center_height/radius ) * xu / sqrt( square(xu) + square(d) ) ;
     // find contact point where slopes match.
     // there are two cases:
-    // 1) if abs(m) <= abs(mu)  we contact the curve at
-    // xp = sign(m) * sqrt( R^2 m^2 d^2 / (h^2 - R^2 m^2) )
+    // 1) if abs(m) <= abs(mu)  we contact the curve at xp = sign(m) * sqrt( R^2 m^2 d^2 / (h^2 - R^2 m^2) )
+    // 2) if abs(m) > abs(mu) there is contact with the circular edge at +/- xu
     double ccu;
-    if (fabs(m) <= fabs(mu) ) { // 1) hyperbola case
+    if (fabs(m) <= fabs(mu) ) { 
         ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / 
                              (square(length) -square(radius)*square(m) ) );
-    } else if ( fabs(m)>fabs(mu) ) { // 2) if abs(m) > abs(mu) there is contact with the circular edge
+    } else if ( fabs(m)>fabs(mu) ) { 
         ccu = sign(m)*xu;
     } else { assert(0); }
     Point cc_tmp( ccu, d, 0.0); // cc-point in the XY plane
@@ -134,11 +134,38 @@ CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) con
     } else if ( fabs(m)>fabs(mu) ) {  // 2) zc = zp - Lc
         cl_z = cc_tmp.z - center_height; // case where we hit the edge of the cone
     } else { assert(0); }
-    
     return CC_CLZ_Pair( ccu , cl_z);
 }
 
-
+bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result = false;
+    // Inverse-Tool-Offset approach: intersect the fiber with planes two sloping planes that contain the edge.
+    // fiber: f.p1 + t*(f.p2 - f.p1)
+    // plane: ( p - p1 ) dot n = 0       (p1 is in the plane, n is a normal)
+    // solve for t:  t= ( p1 - f.p1)dot(n) / (f.p2-f.p1)dot(n)
+    Point edge = p2 - p1;
+    Point edge_xy(edge.x,edge.y,0.0); // this has the correct direction in the xy-plane
+    edge_xy.xyNormalize(); // unit length
+    Point tang_xy = edge_xy.xyPerp(); // unit length edge-normal in xy
+    Point tangent( tang_xy.x, tang_xy.y, -cos(angle) ) ; // plane tangent?
+    assert( isZero_tol( tangent.dot(edge) ) );
+    Point n1 = edge.cross( tangent-p1 );
+    //Point n1( normal_xy.x, normal_xy.y, cos(angle) ); // flip up at angle 
+    double fiber_dot_n = (f.p2-f.p1).dot(n1);
+    if (!isZero_tol( fiber_dot_n ) ) {
+        double up = (p1-f.p1).dot(n1);
+        if ( !isZero_tol( up ) ) {
+            double t_cl = up / fiber_dot_n;
+            //bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);
+            //Point cl = f.point(t);
+            CCPoint cc = 0.5*(p1+p2); // DUMMY
+            cc.type = EDGE_POS;
+            if ( i.update_ifCCinEdgeAndTrue( t_cl , cc , p1 , p2 , (cc.z > f.p1.z) ) )
+                result = true;
+        } 
+    }
+    return result;
+}
 
 
 

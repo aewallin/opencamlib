@@ -30,8 +30,8 @@ if __name__ == "__main__":
     #cutter = ocl.BullCutter(1,0.2)
     
     #cutter = ocl.CylConeCutter(0.2,0.5,math.pi/9)
-    cutter =  ocl.BallConeCutter(0.4,0.6,math.pi/9)
-    #cutter = ocl.BullConeCutter(0.4,0.1,0.7,math.pi/6)
+    #cutter =  ocl.BallConeCutter(0.4,0.6,math.pi/9)
+    cutter = ocl.BullConeCutter(0.4,0.1,0.7,math.pi/6)
     #cutter = ocl.ConeConeCutter(0.4,math.pi/3,0.7,math.pi/6)
     #cutter = ocl.ConeCutter(0.4, math.pi/3)
     print cutter

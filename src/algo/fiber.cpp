@@ -97,7 +97,7 @@ double Fiber::tval(Point& p) const {
     return  (p-p1).dot(p2-p1) / (p2-p1).dot(p2-p1);
 }
 
-Point Fiber::point(const double t) const {
+Point Fiber::point(double t) const {
     Point p = p1 + t*(p2-p1);
     return p;
 }

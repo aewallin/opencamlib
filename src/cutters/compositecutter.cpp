@@ -65,12 +65,17 @@ bool CompositeCutter::ccValid(int n, CLPoint& cl) const {
 }
 
 double CompositeCutter::height(double r) const {
-    for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
+    unsigned int idx = radius_to_index(r);
+    return cutter[idx]->height(r) + zoffset[idx];
+}
+
+unsigned int CompositeCutter::radius_to_index(double r) const {
+    for (unsigned int n=0; n<cutter.size(); ++n) {
         if ( validRadius(n,r) )
-            return cutter[n]->height(r) + zoffset[n];
+            return n;
     }
     assert(0);
-    return 0.0;
+    return 0;
 }
 
 bool CompositeCutter::validRadius(unsigned int n, double r) const {
@@ -115,8 +120,8 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         CCPoint* cc_tmp;
-        if ( cutter[n]->edgeDrop(cl_tmp,t) ) { 
-            if ( ccValid(n,cl_tmp) ) { // cc-point is valid
+        if ( cutter[n]->edgeDrop(cl_tmp,t) ) { // drop sub-cutter against edge
+            if ( ccValid(n,cl_tmp) ) { // check if cc-point is valid
                 cc_tmp = new CCPoint(*cl_tmp.cc);
                 if (cl.liftZ( cl_tmp.z - zoffset[n] ) ) { // we need to lift the cutter
                     cc_tmp->type = EDGE;

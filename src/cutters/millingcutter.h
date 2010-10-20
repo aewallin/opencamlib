@@ -66,7 +66,7 @@ class MillingCutter {
         
         /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// calls this->height(r) on the subclass of MillingCutter we are using.
-        virtual bool vertexDrop(CLPoint &cl, const Triangle &t) const;
+        bool vertexDrop(CLPoint &cl, const Triangle &t) const;
         /// drop cutter at (cl.x, cl.y) against facet of Triangle t
         /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
         virtual bool facetDrop(CLPoint &cl, const Triangle &t) const;
@@ -112,11 +112,11 @@ class MillingCutter {
         virtual bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {return false;}
         
         /// drop cutter against edge p1-p2 at xy-distance d from cl
+        /// translates to cl=(0,0) and rotates edge to be alog x-axis for call to singleEdgeContact()
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         
         /// 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis 
         /// returns x-coordinate of cc-point and cl.z
-        /// override in sub-class.
         virtual CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const {return CC_CLZ_Pair( 0.0, 0.0);}
         
         /// return the height of the cutter at radius r.

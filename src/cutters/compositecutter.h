@@ -53,7 +53,7 @@ class CompositeCutter : public MillingCutter {
         
         std::string str() const;
     protected:   
-    
+        unsigned int radius_to_index(double r) const;
         bool validRadius(unsigned int n, double r) const;
         double height(double r) const;
         

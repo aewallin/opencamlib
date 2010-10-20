@@ -87,9 +87,9 @@ if __name__ == "__main__":
     diameter=0.3
     length=5
     #cutter = ocl.BallCutter(diameter, length)
-    cutter = ocl.CylCutter(diameter, length)
+    #cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, diameter/4, length)
-    #cutter = ocl.ConeCutter(diameter, angle, length)
+    cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
     
     

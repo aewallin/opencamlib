@@ -83,15 +83,12 @@ CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) cons
 bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     const Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
-    const Point ufp2 = f.p2 + Point(0,0,radius);
-    // and intersect it with a cylinder around the edge p1-p2
-    //--------------------------------------------------------------------------
+    const Point ufp2 = f.p2 + Point(0,0,radius); // and intersect it with a cylinder around the edge p1-p2
     // Ray : P(t) = O + t*V    from point O, in direction V
     // Cylinder [A, B, r]   from point A to point B, radius r
     // Point P on infinite cylinder if ((P - A) x (B - A))^2 = r^2 * (B - A)^2
     // expand : ((O - A) x (B - A) + t * (V x (B - A)))^2 = r^2 * (B - A)^2
-    // equation in the form (X + t * Y)^2 = d
-    // where : 
+    // equation in the form (X + t * Y)^2 = d , where: 
     //  X = (O - A) x (B - A)
     //  Y = V x (B - A)
     //  d = r^2 * (B - A)^2
@@ -101,21 +98,20 @@ bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     // a = (Y . Y)
     // b = 2 * (X . Y)
     // c = (X . X) - d
-    //--------------------------------------------------------------------------
-    Point ab = p2-p1; // axis of the cylinder
-    Point ao = (ufp1 - p1); // cyl start to ray start
-    Point ao_x_ab = ao.cross(ab); // cross product
-    Point v_x_ab  = (ufp2-ufp1).cross(ab); // cross product
-    double ab2 = ab.dot(ab); // dot product
-    double a = v_x_ab.dot(v_x_ab); // dot product
-    double b = 2 * ( v_x_ab.dot(ao_x_ab) ); // dot product
+    Point ab = p2-p1;                           // axis of the cylinder
+    Point ao = (ufp1 - p1);                     // cyl start to ray start
+    Point ao_x_ab = ao.cross(ab);               // cross product
+    Point v_x_ab  = (ufp2-ufp1).cross(ab);      // cross product
+    double ab2 = ab.dot(ab);                    // dot product
+    double a = v_x_ab.dot(v_x_ab);              // dot product
+    double b = 2 * ( v_x_ab.dot(ao_x_ab) );     // dot product
     double c = ao_x_ab.dot(ao_x_ab) - (radius*radius * ab2);
     // solve second order equation : a*t^2 + b*t + c = 0
     // t = (-b +/- sqrt( b^2 - 4ac ) )   / 2a
     double discr = b*b-4*a*c;
     double t1, t2;
-    if ( isZero_tol( discr ) ) { // tangent case
-        t1= -b/(2*a); // only one root
+    if ( isZero_tol( discr ) ) { // tangent case, only one root
+        t1= -b/(2*a); 
         if ( calcCCandUpdateInterval( t1, p1, p2, f, i ) ) 
             result = true;
     } else if ( discr > 0.0 ) { // two roots

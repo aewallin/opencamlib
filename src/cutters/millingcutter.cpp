@@ -78,7 +78,6 @@ bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 // edge-drop function which calls the sub-class MillingCutter::singleEdgeDrop on each 
 // edge of the input Triangle t.
 bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
-    //return this->singleEdgeDrop(cl,t.p[0],t.p[1]) || this->singleEdgeDrop(cl,t.p[1],t.p[2]) || this->singleEdgeDrop(cl,t.p[2],t.p[0]);
     bool result = false;
     for (int n=0;n<3;n++) { // loop through all three edges
         int start=n;      // index of the start-point of the edge
@@ -266,13 +265,12 @@ bool MillingCutter::singleEdgePush(const Fiber& f, Interval& i,  const Point& p1
     bool result = false;
     if ( this->horizEdgePush(f,i,p1,p2) )
         result = true;
-    else {
-        if ( this->shaftEdgePush(f,i,p1,p2) )
-            result = true;
+    if ( this->shaftEdgePush(f,i,p1,p2) )
+        result = true;
 
-        if ( this->generalEdgePush(f,i,p1,p2) )
-            result = true;
-    }
+    if ( this->generalEdgePush(f,i,p1,p2) )
+        result = true;
+    
     return result;
 }
 
