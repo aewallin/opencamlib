@@ -379,21 +379,22 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     return false;
 }
 
-double AlignedEllipse::error(double diangle) {
+double AlignedEllipse::error(double diangle) const {
     Epos tmp;
     tmp.diangle = diangle;
     tmp.setD();
-    Point p = oePoint(tmp);
+    Point p = this->oePoint(tmp);
     Point errorVec = target-p;
     return errorVec.dot(error_dir);
 }
 
 
 
-double Ellipse::error(const double diangle ) {
-    epos1.diangle = diangle;
-    epos1.setD();
-    Point p1 = oePoint(epos1);
+double Ellipse::error(double diangle ) const {
+    Epos tmp;
+    tmp.diangle = diangle; // ??? Really?
+    tmp.setD();
+    Point p1 = oePoint(tmp);
     return p1.y - target.y;
 }
 

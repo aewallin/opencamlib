@@ -55,7 +55,7 @@ class Ellipse {
         /// error function for the solver
         double error_old(Epos& position, const Point& p); // OLD??
         /// error function for solver
-        virtual double error(double dia);
+        virtual double error(double dia) const;
         /// calculate ellipse center
         Point calcEcenter(const Point& up1, const Point& up2, int sln);
         /// set epos_hi to either epos1 or epos2, depending on which
@@ -103,7 +103,7 @@ class AlignedEllipse : public Ellipse {
         Point normal(const Epos& position) const;
         Point ePoint(const Epos& position) const;
         Point oePoint(const Epos& pos) const;
-        double error(double dia);
+        double error(double dia) const;
         bool aligned_solver( const Fiber& f );
     private:
         /// direction of the major axis
