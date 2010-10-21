@@ -116,7 +116,7 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     // p1+t*(p2-p1) = ufp1.z   =>  
     double tplane = (ufp1.z - p1.z ) / (p2.z-p1.z); // intersect edge with plane at z = ufp1.z
     Point ell_center = p1+tplane*(p2-p1);       assert( isZero_tol( fabs(ell_center.z - ufp1.z) ) );
-    Point major_dir = p2-p1;                    
+    Point major_dir = (p2-p1);                    
     major_dir.z = 0;
     major_dir.xyNormalize();
     Point minor_dir = major_dir.xyPerp();
@@ -138,14 +138,14 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         double cl_t = f.tval(cl);
         double cl_t2 = f.tval(cl2);
         if ( f.p1.y == f.p2.y ) {
-            std::cout << " cl.y on fiber.y check \n";
             if ( !isZero_tol( fabs(cl.y - f.p1.y) ) )
                 std::cout << " cl.y =" << cl.y << "  fiber.y=" << f.p1.y << " \n";
+            if ( !isZero_tol( fabs(cl2.y - f.p1.y) ) )
+                std::cout << " cl2.y =" << cl2.y << "  fiber.y=" << f.p1.y << " \n";
             assert( isZero_tol( fabs(cl.y - f.p1.y) ) );
             assert( isZero_tol( fabs(cl2.y - f.p1.y) ) );
         } 
-            
-        // bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);
+        
         if ( i.update_ifCCinEdgeAndTrue( cl_t, cc, p1, p2, true ) )
             result = true;
         if ( i.update_ifCCinEdgeAndTrue( cl_t2, cc2, p1, p2, true ) )

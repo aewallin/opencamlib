@@ -138,7 +138,7 @@ void export_geometry() {
         .def("ePoint", &Ellipse::ePoint)
         .def("oePoint", &Ellipse::oePoint)
         .def("normal", &Ellipse::normal)
-        .def("tangent", &Ellipse::tangent)
+        //.def("tangent", &Ellipse::tangent)
         //.def("error", &Ellipse::error)
         //.def_readonly("epos1", &Ellipse::epos1)
         //.def_readonly("epos2", &Ellipse::epos2)

@@ -44,8 +44,7 @@ class Ellipse {
         virtual Point oePoint(const Epos& position) const;
         /// return a normalized normal vector of the ellipse at the given Epos
         virtual Point normal(const Epos& position) const;
-        /// return a normalized tangent vector to the ellipse at the given Epos
-        virtual Point tangent(const Epos& position) const;
+
         /// offset-ellipse Brent solver
         int solver_brent(const Point& p );
         /// print out the found solutions
@@ -99,7 +98,6 @@ class AlignedEllipse : public Ellipse {
         /// create an aligned ellipse
         AlignedEllipse(Point& centerin, double major_length, double minor_length, double offset, Point& majorDir, Point& minorDir);
         
-        Point tangent(const Epos& position) const;
         Point normal(const Epos& position) const;
         Point ePoint(const Epos& position) const;
         Point oePoint(const Epos& pos) const;

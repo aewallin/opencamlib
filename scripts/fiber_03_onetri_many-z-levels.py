@@ -40,10 +40,10 @@ def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):
             #myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=fibercolor) )
             myscreen.addActor( camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z),radius=0.005, color=camvtk.clColor( i.lower_cc) ) )
             myscreen.addActor( camvtk.Sphere(center=(ip2.x,ip2.y,ip2.z),radius=0.005, color=camvtk.clColor( i.upper_cc) ) )
-            cc1 = i.lower_cc
-            cc2 = i.upper_cc
-            myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.pink ) )
-            myscreen.addActor( camvtk.Sphere(center=(cc2.x,cc2.y,cc2.z),radius=0.005, color=camvtk.pink ) )
+            #cc1 = i.lower_cc
+            #cc2 = i.upper_cc
+            #myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.pink ) )
+            #myscreen.addActor( camvtk.Sphere(center=(cc2.x,cc2.y,cc2.z),radius=0.005, color=camvtk.pink ) )
 
 def yfiber(yvals,t,zh,myscreen):
     for y in yvals:
@@ -52,7 +52,7 @@ def yfiber(yvals,t,zh,myscreen):
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
         cutter.vertexPush(f,i,t)
-        #cutter.facetPush(f,i,t)
+        cutter.facetPush(f,i,t)
         cutter.edgePush(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.red)
@@ -63,8 +63,8 @@ def xfiber(xvals,t,zh,myscreen):
         f2 = ocl.Point(x,1.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        #cutter.vertexPush(f,i,t)
-        #cutter.facetPush(f,i,t)
+        cutter.vertexPush(f,i,t)
+        cutter.facetPush(f,i,t)
         cutter.edgePush(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.lblue)
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     #zvals.append(zh)
     for zh in zvals:
         yfiber(yvals,t,zh,myscreen)
-        #xfiber(xvals,t,zh,myscreen)
+        xfiber(xvals,t,zh,myscreen)
     
     print "done."
     

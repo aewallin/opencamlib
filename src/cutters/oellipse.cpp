@@ -73,7 +73,7 @@ Point Ellipse::oePoint2() const {
 Point Ellipse::ePoint(const Epos& pos) const {
     // (s, t) where:  s^2 + t^2 = 1
     // a and b are the orthogonal axes of the ellipse
-    // point of ellipse is:  center + a s + b t
+    // point of ellipse is:  center + a s + b t               s=cos(theta) t=sin(theta)
     // tangent at point is:  -a t + b s
     // normal at point is:    b s + a t 
     // point on offset-ellipse:  point on ellipse + offset*normal
@@ -105,24 +105,13 @@ Point Ellipse::normal(const Epos& pos) const {
 }    
 
 Point AlignedEllipse::normal(const Epos& pos) const { // normal at point is:    b s + a t 
-    Point n = pos.s*b*minor_dir + pos.t*a*major_dir; 
+    Point n = pos.s*b*major_dir + pos.t*a*minor_dir; 
     n.normalize();
     return n;
 }    
 
 
-Point Ellipse::tangent(const Epos& pos) const {
-    assert( pos.isValid() );
-    Point t = Point( -a*pos.t, b*pos.s, 0);
-    t.normalize();
-    return t;
-}   
 
-Point AlignedEllipse::tangent(const Epos& pos) const { // tangent at point is:  -a t + b s
-    Point t = -a*pos.t*major_dir + b*pos.s*minor_dir;
-    t.normalize();
-    return t;
-}  
      
 
 #define OE_ERROR_TOLERANCE 1e-10  /// \todo magic number tolerance
@@ -231,15 +220,10 @@ int Ellipse::solver_brent(const Point& p) {
 }
 
 
-    // point of ellipse is:  center + a s + b t
-    // tangent at point is:  -a t + b s
-    // normal at point is:    b s + a t 
+
 bool AlignedEllipse::aligned_solver( const Fiber& f ) {
-    //Point fiber_dir = f.p2-f.p1;
-    //fiber_dir.z=0;
-    //fiber_dir.xyNormalize();
     error_dir = f.dir.xyPerp(); // now calls to error(diangle) will give the right error
-    target = f.p1;
+    target = f.p1; // target is either x or y-coord of f.p1
     
     // bracket root
     Epos tmp,apos,bpos;
@@ -257,11 +241,6 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
         y_fiber = false;
         
     if (y_fiber) {
-        //std::cout << " y-fiber=  " << f.p1 << " to " << f.p2 << "\n";
-        //std::cout << "     center=  " << center  << "\n";
-        //std::cout << "     a=  " << a << " b= " <<  b << "\n";
-        //std::cout << " major=  " << major_dir << " minor= " <<  minor_dir << "\n";
-        //std::cout << " error_dir=  " << error_dir << "\n";
         double t1 = sqrt( square( b*minor_dir.y ) / ( square( a*major_dir.y ) + square( b*minor_dir.y ) ) );
         double s1 = sqrt(1.0-square(t1));
         bool found_positive=false;
@@ -276,8 +255,6 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
             found_negative = true;
             bpos = tmp;
         }
-            
-        //std::cout << " apos= " << apos << " oePoint= " << oePoint(apos) << " error= " <<  this->error(apos.diangle) << "\n";
         tmp.diangle = xyVectorToDiangle(s1,-t1);
         tmp.setD();
         if (error(tmp.diangle) > 0) {
@@ -310,39 +287,8 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
             found_negative = true;
             bpos = tmp;
         }
-        
-        //std::cout << " apos= " << apos << " oePoint= " << oePoint(apos) << " error= " <<  this->error(apos.diangle) << "\n";
-        //apos.diangle = xyVectorToDiangle(-s1,t1);
-        //apos.setD();
-        //if (error(apos.diangle) > 0)
-        //    found_positive = true;
-        //else if (error(apos.diangle) < 0)
-        //    found_negative = true;
-            
-        //std::cout << " apos= " << apos << " oePoint= " << oePoint(apos) << " error= " <<  this->error(apos.diangle) << "\n";
-        //apos.diangle = xyVectorToDiangle(-s1,-t1);
-        //apos.setD();
-        //if (error(apos.diangle) > 0)
-        //    found_positive = true;
-        //else if (error(apos.diangle) < 0)
-        //    found_negative = true;
-            
-        //std::cout << " apos= " << apos << " oePoint= " << oePoint(apos) << " error= " <<  this->error(apos.diangle) << "\n";
-        
-        //apos.diangle = xyVectorToDiangle(s2,t2);
-        //apos.setD();
-        //std::cout << " apos= " << apos << " oePoint= " << oePoint(apos) << "error= " <<  this->error(apos.diangle) << "\n";
-        
-        
-        
-        //bpos.diangle = xyVectorToDiangle(-s1,t1);
-        //bpos.setD();
-        //std::cout << " apos= " << apos << " oePoint= " << oePoint(apos) << " error= " <<  this->error(apos.diangle) << "\n";
-        //std::cout << " bpos= " << bpos << " oePoint= " << oePoint(bpos) << " error= " <<  this->error(bpos.diangle) << "\n";
         if (found_positive) {
             if (found_negative) {
-                //assert(0);
-                
                 assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.
                 double lolim, hilim;
                 if (apos.diangle > bpos.diangle ) {
@@ -352,30 +298,96 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
                     hilim = bpos.diangle;
                     lolim = apos.diangle;
                 }
-                //double hilim = bpos.diangle;
-                
                 double dia_sln = brent_zero( lolim, hilim , 3E-16, OE_ERROR_TOLERANCE, this );
                 double dia_sln2 = brent_zero( hilim-4.0, lolim , 3E-16, OE_ERROR_TOLERANCE, this );
-                std::cout << lolim << " < " << dia_sln << " < " << hilim << "\n"; 
-                std::cout << lolim << " < " << dia_sln2 << " < " << hilim << "\n"; 
-                assert( lolim < dia_sln ); assert( dia_sln < hilim ); 
+                // assert( lolim < dia_sln ); assert( dia_sln < hilim ); 
                 apos.diangle = dia_sln;
                 apos.setD();       assert( apos.isValid() );
                 epos1 = apos;
                 assert( isZero_tol( error(epos1.diangle) ) );
-                
                 bpos.diangle = dia_sln2;
                 bpos.setD();       assert( bpos.isValid() );
                 epos2 = bpos;
                 assert( isZero_tol( error(epos2.diangle) ) );
-                
                 return true;
-        
             }
         }
         
+    } else { // an x-fiber
+        assert( f.p1.x == f.p2.x );
+        double t1 = sqrt( square( b*minor_dir.x ) / ( square( a*major_dir.x ) + square( b*minor_dir.x ) ) );
+        double s1 = sqrt(1.0-square(t1));
+        bool found_positive=false;
+        bool found_negative=false;
+        
+        tmp.diangle = xyVectorToDiangle(s1,t1);
+        tmp.setD();
+        if (error(tmp.diangle) > 0) {
+            found_positive = true;
+            apos = tmp;
+        } else if (error(tmp.diangle) < 0) {
+            found_negative = true;
+            bpos = tmp;
+        }
+        tmp.diangle = xyVectorToDiangle(s1,-t1);
+        tmp.setD();
+        if (error(tmp.diangle) > 0) {
+            found_positive = true;
+            apos = tmp;
+        }
+        else if (error(tmp.diangle) < 0) {
+            found_negative = true;
+            bpos = tmp;
+        }
+        
+        tmp.diangle = xyVectorToDiangle(-s1,t1);
+        tmp.setD();
+        if (error(tmp.diangle) > 0) {
+            found_positive = true;
+            apos = tmp;
+        }
+        else if (error(tmp.diangle) < 0) {
+            found_negative = true;
+            bpos = tmp;
+        }
+        
+        tmp.diangle = xyVectorToDiangle(-s1,-t1);
+        tmp.setD();
+        if (error(tmp.diangle) > 0) {
+            found_positive = true;
+            apos = tmp;
+        }
+        else if (error(tmp.diangle) < 0) {
+            found_negative = true;
+            bpos = tmp;
+        }
+        if (found_positive) {
+            if (found_negative) {
+                assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.
+                double lolim, hilim;
+                if (apos.diangle > bpos.diangle ) {
+                    lolim = bpos.diangle;
+                    hilim = apos.diangle;
+                } else if (bpos.diangle > apos.diangle) {
+                    hilim = bpos.diangle;
+                    lolim = apos.diangle;
+                }
+                double dia_sln = brent_zero( lolim, hilim , 3E-16, OE_ERROR_TOLERANCE, this );
+                double dia_sln2 = brent_zero( hilim-4.0, lolim , 3E-16, OE_ERROR_TOLERANCE, this );
+                // assert( lolim < dia_sln ); assert( dia_sln < hilim ); 
+                apos.diangle = dia_sln;
+                apos.setD();       assert( apos.isValid() );
+                epos1 = apos;
+                assert( isZero_tol( error(epos1.diangle) ) );
+                bpos.diangle = dia_sln2;
+                bpos.setD();       assert( bpos.isValid() );
+                epos2 = bpos;
+                assert( isZero_tol( error(epos2.diangle) ) );
+                return true;
+            }
+        }
     }
-    // call brent_solver
+    
     return false;
 }
 
@@ -392,7 +404,7 @@ double AlignedEllipse::error(double diangle) const {
 
 double Ellipse::error(double diangle ) const {
     Epos tmp;
-    tmp.diangle = diangle; // ??? Really?
+    tmp.diangle = diangle; 
     tmp.setD();
     Point p1 = oePoint(tmp);
     return p1.y - target.y;

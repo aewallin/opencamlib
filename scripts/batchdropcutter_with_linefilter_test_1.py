@@ -28,7 +28,7 @@ if __name__ == "__main__":
     #cutter = ocl.CylCutter(diameter, length)
     cutter = ocl.BullCutter(diameter, 0.2, length)
     #cutter = ocl.ConeCutter(diameter, angle, length)
-    cutter = cutter.offsetCutter( 0.4 )
+    #cutter = cutter.offsetCutter( 0.4 )
     
     print cutter
     
