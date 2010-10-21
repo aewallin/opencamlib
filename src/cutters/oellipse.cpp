@@ -55,19 +55,19 @@ AlignedEllipse::AlignedEllipse(Point& centerin, double ain, double bin, double o
 }
 
 Point Ellipse::ePoint1() const {
-    return ePoint(epos1);
+    return this->ePoint(epos1);
 }
 
 Point Ellipse::ePoint2() const {
-    return ePoint(epos2);
+    return this->ePoint(epos2);
 }
 
 Point Ellipse::oePoint1() const {
-    return oePoint(epos1);
+    return this->oePoint(epos1);
 }
 
 Point Ellipse::oePoint2() const {
-    return oePoint(epos2);
+    return this->oePoint(epos2);
 }
 
 Point Ellipse::ePoint(const Epos& pos) const {
@@ -77,7 +77,7 @@ Point Ellipse::ePoint(const Epos& pos) const {
     // tangent at point is:  -a t + b s
     // normal at point is:    b s + a t 
     // point on offset-ellipse:  point on ellipse + offset*normal
-    Point p = Point(center);
+    Point p(center);
     p.x += a*pos.s;  // a is in X-direction
     p.y += b*pos.t;  // b is in Y-direction
     return p;
@@ -91,7 +91,11 @@ Point AlignedEllipse::ePoint(const Epos& pos) const {
 
 Point Ellipse::oePoint(const Epos& pos) const {
     return ePoint(pos) + offset * normal(pos); // offset-point  = ellipse-point + offset*normal 
-}    
+}  
+  
+Point AlignedEllipse::oePoint(const Epos& pos) const {
+    return ePoint(pos) + offset * normal(pos); // offset-point  = ellipse-point + offset*normal 
+}  
 
 Point Ellipse::normal(const Epos& pos) const {
     assert( pos.isValid() );

@@ -123,7 +123,7 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     double theta = atan( (p2.z - p1.z) / (p2-p1).xyNorm() ); 
     double major_length = fabs( radius2/sin(theta) ) ;
     double minor_length = radius2;                      //assert( major_length >= minor_length );
-    AlignedEllipse e = AlignedEllipse(ell_center, major_length, minor_length, radius1,  major_dir, minor_dir );
+    AlignedEllipse e(ell_center, major_length, minor_length, radius1,  major_dir, minor_dir );
     // now we want the offset-ellipse point to lie on the fiber
     Fiber fu(ufp1,ufp2);
     if ( e.aligned_solver( fu ) ) {
@@ -133,7 +133,7 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         CCPoint cc2 = pseudo_cc2.closestPoint(p1,p2);
         cc.type = EDGE_POS;
         cc2.type = EDGE_POS;
-        Point cl = e.oePoint1() - Point(0,0,center_height);         assert( isZero_tol( fabs(cl.z - f.p1.z)) );
+        Point cl = e.oePoint1() - Point(0,0,center_height);          assert( isZero_tol( fabs(cl.z - f.p1.z)) );
         Point cl2 = e.oePoint2() - Point(0,0,center_height);         assert( isZero_tol( fabs(cl2.z - f.p1.z)) );
         double cl_t = f.tval(cl);
         double cl_t2 = f.tval(cl2);

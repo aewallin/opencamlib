@@ -41,7 +41,7 @@ class Ellipse {
         /// return a point on the ellipse at given Epos
         virtual Point ePoint(const Epos& position) const;
         /// return a point on the offset-ellipse at given Epos
-        Point oePoint(const Epos& position) const;
+        virtual Point oePoint(const Epos& position) const;
         /// return a normalized normal vector of the ellipse at the given Epos
         virtual Point normal(const Epos& position) const;
         /// return a normalized tangent vector to the ellipse at the given Epos
@@ -102,7 +102,7 @@ class AlignedEllipse : public Ellipse {
         Point tangent(const Epos& position) const;
         Point normal(const Epos& position) const;
         Point ePoint(const Epos& position) const;
-        
+        Point oePoint(const Epos& pos) const;
         double error(double dia);
         bool aligned_solver( const Fiber& f );
     private:
