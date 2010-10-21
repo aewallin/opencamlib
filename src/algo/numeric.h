@@ -77,6 +77,9 @@ bool two_by_two_solver( const double& a,
 bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
                                 const Point& p3, const Point& p4, double& t);
 
+/// convert the direction (x,y) into a diangle
+double xyVectorToDiangle(double x, double y);
+
 /// return the revision string
 std::string revision();
 

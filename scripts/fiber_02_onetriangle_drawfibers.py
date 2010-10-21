@@ -47,11 +47,10 @@ if __name__ == "__main__":
     angle = math.pi/4
     #cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BallCutter(diameter, length)
-    #cutter = ocl.BullCutter(diameter, diameter/5, length)
-    cutter = ocl.ConeCutter(diameter, angle)
+    cutter = ocl.BullCutter(diameter, diameter/5, length)
+    #cutter = ocl.ConeCutter(diameter, angle, length)
     
-    print "lengt=", cutter.getLength()
-    print "fiber..."
+    print cutter
     range=6
     Nmax = 500
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]

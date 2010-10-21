@@ -75,11 +75,9 @@ CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) co
             return CC_CLZ_Pair( 0 , u1.z);  
         } else { //if (u1.y <= diameter/2) { 
             assert( (u1.y <= diameter/2) );
-            // horizontal edge, toroid region 
-            // (q-r1)^2 + h2^2 = r2^2
-            // h2 = sqrt( r2^2 - (q-r1)^2 )
+            // horizontal edge, toroid region (q-r1)^2 + h2^2 = r2^2  => h2 = sqrt( r2^2 - (q-r1)^2 )
             // h1 = r2 - h2   and  cutter_tip = p.z - h1   
-            double h1 = radius2 - sqrt( square(radius2) - square( u1.y - radius1) );
+            double h1 = radius2 - sqrt( square(radius2) - square( u1.y - radius1) ); // call height() instead??
             return CC_CLZ_Pair( 0 , u1.z - h1);  
         }
     } else { // the general offset-ellipse case
@@ -113,30 +111,49 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         return result;
     assert( fabs(p2.z-p1.z) > 0.0 ); // guard against horiz edges
     
-    const Point ufp1 = f.p1 + Point(0,0,radius2); // take a fiber which is raised up by radius
+    const Point ufp1 = f.p1 + Point(0,0,radius2); // take a fiber which is raised up by radius2
     const Point ufp2 = f.p2 + Point(0,0,radius2);
-    
-    double tplane = (ufp1.z - p1.z ) / (p2.z-p1.z);
-    Point ell_center = p1+tplane*(p2-p1);
-    assert( isZero_tol( fabs(ell_center.z - ufp1.z) ) );
-    // find the dimensions of the ellipse
-    Point major_dir = p2-p1;
+    // p1+t*(p2-p1) = ufp1.z   =>  
+    double tplane = (ufp1.z - p1.z ) / (p2.z-p1.z); // intersect edge with plane at z = ufp1.z
+    Point ell_center = p1+tplane*(p2-p1);       assert( isZero_tol( fabs(ell_center.z - ufp1.z) ) );
+    Point major_dir = p2-p1;                    
     major_dir.z = 0;
     major_dir.xyNormalize();
     Point minor_dir = major_dir.xyPerp();
-    //Point minor_axis = radius2*minor_dir;
-    assert( (p2-p1).xyNorm() > 0.0 ); // avoid divide-by-zero
-    double theta = atan( (p2.z - p1.z) / (p2-p1).norm() ); 
-    double major_axis_length = fabs( radius2/sin(theta) );
-    //Point major_axis = major_axis_length*major_dir;
-    AlignedEllipse e = AlignedEllipse(ell_center, major_axis_length, radius2, radius1, major_dir, minor_dir );
+    double theta = atan( (p2.z - p1.z) / (p2-p1).xyNorm() ); 
+    double major_length = fabs( radius2/sin(theta) ) ;
+    double minor_length = radius2;                      //assert( major_length >= minor_length );
+    AlignedEllipse e = AlignedEllipse(ell_center, major_length, minor_length, radius1,  major_dir, minor_dir );
     // now we want the offset-ellipse point to lie on the fiber
-    // take the distance along major_axis as the error to be minimized??
-    // FIXME TODO, not ready...
-    
-    
+    Fiber fu(ufp1,ufp2);
+    if ( e.aligned_solver( fu ) ) {
+        Point pseudo_cc = e.ePoint1(); // pseudo cc-point on ellipse and cylinder
+        Point pseudo_cc2 = e.ePoint2();
+        CCPoint cc = pseudo_cc.closestPoint(p1,p2);
+        CCPoint cc2 = pseudo_cc2.closestPoint(p1,p2);
+        cc.type = EDGE_POS;
+        cc2.type = EDGE_POS;
+        Point cl = e.oePoint1() - Point(0,0,center_height);         assert( isZero_tol( fabs(cl.z - f.p1.z)) );
+        Point cl2 = e.oePoint2() - Point(0,0,center_height);         assert( isZero_tol( fabs(cl2.z - f.p1.z)) );
+        double cl_t = f.tval(cl);
+        double cl_t2 = f.tval(cl2);
+        if ( f.p1.y == f.p2.y ) {
+            std::cout << " cl.y on fiber.y check \n";
+            if ( !isZero_tol( fabs(cl.y - f.p1.y) ) )
+                std::cout << " cl.y =" << cl.y << "  fiber.y=" << f.p1.y << " \n";
+            assert( isZero_tol( fabs(cl.y - f.p1.y) ) );
+            assert( isZero_tol( fabs(cl2.y - f.p1.y) ) );
+        } 
+            
+        // bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);
+        if ( i.update_ifCCinEdgeAndTrue( cl_t, cc, p1, p2, true ) )
+            result = true;
+        if ( i.update_ifCCinEdgeAndTrue( cl_t2, cc2, p1, p2, true ) )
+            result = true;
+    }
     return result;
 }
+
 
 
 MillingCutter* BullCutter::offsetCutter(double d) const {

@@ -38,6 +38,14 @@ std::string revision() {
     return OCL_REV_STRING;
 }
 
+double xyVectorToDiangle(double x, double y) {
+    if (y >= 0)
+        return (x >= 0 ? y/(x+y) : 1-x/(-x+y));
+    else
+        return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
+}
+
+
 double sign(double x) {
     if (x<0.0)
         return -1;

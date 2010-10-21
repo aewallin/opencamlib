@@ -27,7 +27,9 @@
 
 namespace ocl
 {
-    
+
+class Fiber;
+
 /// An Ellipse. 
 class Ellipse {
     public:
@@ -37,23 +39,23 @@ class Ellipse {
         Ellipse(Point& centerin, double a, double b, double offset);
         
         /// return a point on the ellipse at given Epos
-        Point ePoint(const Epos& position) const;
+        virtual Point ePoint(const Epos& position) const;
         /// return a point on the offset-ellipse at given Epos
         Point oePoint(const Epos& position) const;
         /// return a normalized normal vector of the ellipse at the given Epos
-        Point normal(const Epos& position) const;
+        virtual Point normal(const Epos& position) const;
         /// return a normalized tangent vector to the ellipse at the given Epos
-        Point tangent(const Epos& position) const;
+        virtual Point tangent(const Epos& position) const;
         /// offset-ellipse Brent solver
-        int solver_brent( Point& p );
+        int solver_brent(const Point& p );
         /// print out the found solutions
-        void print_solutions( Point& p);
+        void print_solutions(const Point& p);
         /// given one epos solution, find the other.
-        bool find_epos2(Point& p);
+        bool find_epos2(const Point& p);
         /// error function for the solver
-        double error_old(Epos& position, Point& p); // OLD??
+        double error_old(Epos& position, const Point& p); // OLD??
         /// error function for solver
-        virtual double error(const double dia);
+        virtual double error(double dia);
         /// calculate ellipse center
         Point calcEcenter(const Point& up1, const Point& up2, int sln);
         /// set epos_hi to either epos1 or epos2, depending on which
@@ -61,7 +63,10 @@ class Ellipse {
         void setEposHi(const Point& u1, const Point& u2);
         /// once epos_hi is set, return an ellipse-point at this position
         Point ePointHi() const;
-        
+        Point ePoint1() const;
+        Point ePoint2() const;
+        Point oePoint1() const;
+        Point oePoint2() const;
         /// the center point of the ellipse
         Point center;
         /// eccentricity = a/b
@@ -92,13 +97,20 @@ class AlignedEllipse : public Ellipse {
     public:
         AlignedEllipse(){}; 
         /// create an aligned ellipse
-        AlignedEllipse(Point& centerin, double a, double b, double offset, Point& major, Point& minor);
-        double error(const double dia);
+        AlignedEllipse(Point& centerin, double major_length, double minor_length, double offset, Point& majorDir, Point& minorDir);
+        
+        Point tangent(const Epos& position) const;
+        Point normal(const Epos& position) const;
+        Point ePoint(const Epos& position) const;
+        
+        double error(double dia);
+        bool aligned_solver( const Fiber& f );
     private:
         /// direction of the major axis
         Point major_dir;
         /// direction of the minor axis
         Point minor_dir;
+        Point error_dir;
 };
 
 } // end namespace

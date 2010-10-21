@@ -39,6 +39,7 @@ Epos::Epos() {
 void Epos::setD() {
     // set (s,t) to angle corresponding to diangle
     // see: http://www.freesteel.co.uk/wpblog/2009/06/encoding-2d-angles-without-trigonometry/
+    // see: http://www.anderswallin.net/2010/07/radians-vs-diamondangle/
     // return P2( (a < 2 ? 1-a : a-3),
     //           (a < 3 ? ((a > 1) ? 2-a : a) : a-4)
     double d = diangle;

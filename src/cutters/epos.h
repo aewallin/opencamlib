@@ -37,6 +37,7 @@ class Epos {
     public:
         /// create an epos
         Epos();
+        Epos(double sin, double tin){s=sin; t=tin;}
         
         /// set (s,t) pair to the position corresponding to diangle
         void setD();
