@@ -41,6 +41,7 @@ class Epos {
         
         /// set (s,t) pair to the position corresponding to diangle
         void setD();
+        void setDiangle(double dia);
         
         /// s-parameter in [-1, 1]
         double s;

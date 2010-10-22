@@ -206,7 +206,6 @@ void BatchDropCutter::dropCutter5() {
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    //MillingCutter mcutter = *cutter;
     #pragma omp parallel for schedule(dynamic) shared( nloop, ntris, calls, clref ) private(n,tris,it) 
         for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
 #ifndef WIN32

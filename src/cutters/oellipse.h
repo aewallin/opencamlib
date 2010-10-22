@@ -46,13 +46,13 @@ class Ellipse {
         virtual Point normal(const Epos& position) const;
 
         /// offset-ellipse Brent solver
-        int solver_brent(const Point& p );
+        int solver_brent();
         /// print out the found solutions
-        void print_solutions(const Point& p);
+        void print_solutions();
         /// given one epos solution, find the other.
-        bool find_epos2(const Point& p);
+        bool find_epos2();
         /// error function for the solver
-        double error_old(Epos& position, const Point& p); // OLD??
+        double error(Epos& position) const; 
         /// error function for solver
         virtual double error(double dia) const;
         /// calculate ellipse center
@@ -90,7 +90,6 @@ class Ellipse {
         Epos epos2;
         /// the higher Epos solution
         Epos epos_hi;
-        //Epos tmp_epos;
         /// a-axis, in the X-direction
         double a;  
         /// b-axis, in the Y-direction

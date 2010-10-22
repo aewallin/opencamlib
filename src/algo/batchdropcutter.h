@@ -67,10 +67,6 @@ class BatchDropCutter {
         void setThreads(int n) {nthreads = n;}
         /// return number of OpenMP threads
         int  getThreads() const {return nthreads;}
-        
-
-    
-    // public data??
         /// return a vector of CLPoints, the result of this operation
         std::vector<CLPoint> getCLPoints() {return *clpoints;};
         

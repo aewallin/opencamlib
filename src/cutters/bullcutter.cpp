@@ -44,8 +44,6 @@ BullCutter::BullCutter(double d, double r, double l) {
     xy_normal_length = radius1;
     normal_length = radius2;
     center_height = radius2;
-    //e = new Ellipse();
-    //e.setOffset(radius1);
 }
 
 // height of cutter at radius r
@@ -73,25 +71,14 @@ double BullCutter::width(double h) const {
 // drop-cutter: Toroidal cutter edge-test
 CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) const {
     if ( isZero_tol( u1.z - u2.z ) ) {  // horizontal edge special case
-        if ( u1.y <= radius1) {             // horizontal edge, contact with cylindrical part of cutter 
-            return CC_CLZ_Pair( 0 , u1.z);  
-        } else { //if (u1.y <= diameter/2) { 
-            assert( (u1.y <= diameter/2) );
-            // horizontal edge, toroid region (q-r1)^2 + h2^2 = r2^2  => h2 = sqrt( r2^2 - (q-r1)^2 )
-            // h1 = r2 - h2   and  cutter_tip = p.z - h1   
-            double h1 = radius2 - sqrt( square(radius2) - square( u1.y - radius1) ); // call height() instead??
-            return CC_CLZ_Pair( 0 , u1.z - h1);  
-        }
+        return CC_CLZ_Pair( 0 , u1.z - height(u1.y) );
     } else { // the general offset-ellipse case
         double b_axis = radius2;                            // short axis of ellipse = radius2
         double theta = atan( (u2.z - u1.z) / (u2.x-u1.x) ); // theta is the slope of the line
         double a_axis = fabs( radius2/sin(theta) );         // long axis of ellipse = radius2/sin(theta)       
-        assert( a_axis > 0.0 );
-        assert( b_axis > 0.0 );
         Point ellcenter(0,u1.y,0);
         Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
-        Point ucl(0,0,0); 
-        int iters = e.solver_brent( ucl );
+        int iters = e.solver_brent();
         assert( iters < 200 );
         e.setEposHi(u1,u2); // this selects either epos1 or epos2 and sets it to epos_hi
         Point ell_ccp = e.ePointHi();  // pseudo cc-point on the ellipse/cylinder, in the CL=origo system

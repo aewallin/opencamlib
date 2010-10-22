@@ -36,6 +36,11 @@ Epos::Epos() {
     setD();
 }
 
+void Epos::setDiangle(double dia) {
+    diangle = dia;
+    setD();
+}
+
 void Epos::setD() {
     // set (s,t) to angle corresponding to diangle
     // see: http://www.freesteel.co.uk/wpblog/2009/06/encoding-2d-angles-without-trigonometry/
@@ -47,11 +52,7 @@ void Epos::setD() {
         d -= 4.0;
     while ( d < 0.0)
         d+=4.0;
-    if (!( d >= 0.0 && d <= 4.0 ))
-        std::cout << "Epos::setD illegal d= "<< d << "\n";
-         
     assert( d >= 0.0 && d <= 4.0 ); // now we should be in [0,4]
-    // std::cout << "Epos::setD(): " << diangle << " mod 4 = " << d << "\n";
     Point p;
     if ( d < 2.0 ) // we are in the y>0 region
         p.x = 1-d; // in quadrant1 and quadrant2
