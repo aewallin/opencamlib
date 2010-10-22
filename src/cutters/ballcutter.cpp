@@ -127,7 +127,7 @@ bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
 bool BallCutter::calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
     Point cl_center = f.point(t) + Point(0,0,radius);
     CCPoint cc_tmp = cl_center.closestPoint(p1,p2);
-    cc_tmp.type = EDGE;
+    cc_tmp.type = EDGE_BALL;
     return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, ((cl_center-cc_tmp).z >=0) );
 }
     

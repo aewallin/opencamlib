@@ -47,6 +47,12 @@ def clColor(cc):
 
     elif cc.type == ocl.CCType.EDGE:
         col = blue
+    elif cc.type == ocl.CCType.EDGE_HORIZ:
+        col = orange
+    elif cc.type == ocl.CCType.EDGE_SHAFT:
+        col = mag
+    elif cc.type == ocl.CCType.EDGE_BALL:
+        col = lblue
     elif cc.type == ocl.CCType.EDGE_CYL:
         col = lblue
     elif cc.type == ocl.CCType.EDGE_POS:

@@ -38,9 +38,9 @@ def drawFiber_clpts(myscreen, f, clcolor):
             ip1 = f.point( i.lower )
             ip2 = f.point( i.upper )
             #myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=fibercolor) )
-            sphcolor = clcolor 
+            sphcolor = camvtk.clColor( i.lower_cc) 
             myscreen.addActor( camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z),radius=0.005, color=sphcolor ) )
-            sphcolor = clcolor 
+            sphcolor = camvtk.clColor( i.upper_cc)
             myscreen.addActor( camvtk.Sphere(center=(ip2.x,ip2.y,ip2.z),radius=0.005, color=sphcolor ) )
             #cc1 = i.lower_cc
             #cc2 = i.upper_cc
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     
-    a = ocl.Point(0,1,0.3)
+    a = ocl.Point(0,1,0.2)
     b = ocl.Point(1,0.5,0.0)    
     c = ocl.Point(0.1,0.1,0.0)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     cutter1 = ocl.BallCutter(diameter, length)
     cutter2 = ocl.CylCutter(diameter, length)
     cutter3 = ocl.BullCutter(diameter, diameter/4, length)
-    #cutter = ocl.ConeCutter(diameter, angle, length)
+    cutter4 = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
     
     
@@ -111,9 +111,9 @@ if __name__ == "__main__":
     Nmax = 50
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = 0.2082
-    zmax = 0.3115
-    zNmax = 2
+    zmin = -0.3
+    zmax = 0.25
+    zNmax = 10
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     for n in xrange(0,zNmax):
@@ -123,6 +123,7 @@ if __name__ == "__main__":
         oneCutterWaterline(myscreen, cutter1, zh, camvtk.yellow)
         oneCutterWaterline(myscreen, cutter2, zh, camvtk.cyan)
         oneCutterWaterline(myscreen, cutter3, zh, camvtk.mag)
+        oneCutterWaterline(myscreen, cutter4, zh, camvtk.mag)
         #yfiber(yvals,t,zh,myscreen)
         #xfiber(xvals,t,zh,myscreen)
     
