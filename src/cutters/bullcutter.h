@@ -26,9 +26,12 @@
 #include <vector>
 
 #include "millingcutter.h"
+#include "oellipse.h"
 
 namespace ocl
 {
+
+//class Ellipse;
 
 /// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
 ///
@@ -46,6 +49,7 @@ class BullCutter : public MillingCutter {
         std::string str() const;
         
     protected:
+        
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         double height(double r) const;

@@ -47,6 +47,9 @@ void Epos::setD() {
         d -= 4.0;
     while ( d < 0.0)
         d+=4.0;
+    if (!( d >= 0.0 && d <= 4.0 ))
+        std::cout << "Epos::setD illegal d= "<< d << "\n";
+         
     assert( d >= 0.0 && d <= 4.0 ); // now we should be in [0,4]
     // std::cout << "Epos::setD(): " << diangle << " mod 4 = " << d << "\n";
     Point p;
@@ -75,8 +78,11 @@ void Epos::setD() {
 bool Epos::isValid() const {
     if ( isZero_tol( square(s) + square(t) - 1.0 ) )
         return true;
-    else
+    else {
+        std::cout << " epos=" << *this << "\n";
+        std::cout << " square(s) + square(t) - 1.0 = " << square(s) + square(t) - 1.0 << " !!\n";
         return false;
+    }
 }
 
 Epos& Epos::operator=(const Epos &pos)  {

@@ -47,7 +47,7 @@ void PathDropCutter::setSTL(const STLSurf& s) {
     surf = &s;
 }
 
-void PathDropCutter::setCutter(const MillingCutter *c) {
+void PathDropCutter::setCutter(MillingCutter *c) {
     bdc->setCutter( c );
     cutter = c;
 }

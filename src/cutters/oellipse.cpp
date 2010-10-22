@@ -206,6 +206,7 @@ int Ellipse::solver_brent(const Point& p) {
     apos.setD();       assert( apos.isValid() );
     epos1 = apos;
     if (!find_epos2( p )) {
+        std::cout << "ellipse: "<< *this << "\n"; 
         print_solutions(p);
         assert(0);
     }
@@ -422,12 +423,15 @@ double Ellipse::error_old(Epos& pos, const Point& p) {
 /// given the two solutions epos1 and epos2 and the edge up1-up2
 /// locate the ellipse center correctly
 Point Ellipse::calcEcenter(const Point& up1, const Point& up2, int sln) {
-    Epos pos;
+    //Epos tmp_epos;
+    Point cle;
     if (sln == 1)
-        pos = epos1;
+        cle = oePoint1();
     else
-        pos = epos2;
-    Point cle = oePoint(pos);
+        cle = oePoint2();
+        
+    //    tmp_epos = epos2;
+    //Point cle = oePoint(tmp_epos);
     double xoffset = - cle.x;
     // x-coord on line is  x = up1.x + t*(up2.x-up1.x) = center.x+offset 
     double t = (center.x + xoffset - up1.x) / (up2.x - up1.x);

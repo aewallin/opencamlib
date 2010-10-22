@@ -46,7 +46,7 @@ class PathDropCutter {
         /// set the STLSurf surface for this operation
         void setSTL(const STLSurf& s);
         /// set the MillingCutter for this operation
-        void setCutter(const MillingCutter* cutter);
+        void setCutter(MillingCutter* cutter);
         /// set the Path to follow and sample
         void setPath(const Path* path);
         /// set the minimum z-value, or "floor" for drop-cutter
@@ -64,7 +64,7 @@ class PathDropCutter {
         /// the path to follow
         const Path* path;
         /// the cutter used for this operation
-        const MillingCutter* cutter;
+        MillingCutter* cutter;
         /// the surface for this operation
         const STLSurf* surf;
         /// how closely to sample points from a Path, default is sampling=0.1

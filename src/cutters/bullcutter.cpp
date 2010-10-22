@@ -44,6 +44,8 @@ BullCutter::BullCutter(double d, double r, double l) {
     xy_normal_length = radius1;
     normal_length = radius2;
     center_height = radius2;
+    //e = new Ellipse();
+    //e.setOffset(radius1);
 }
 
 // height of cutter at radius r

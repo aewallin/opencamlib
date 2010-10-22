@@ -46,6 +46,7 @@ if __name__ == "__main__":
     
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
+    #bdc.setThreads(1)
     print "bdc()"
     bdc.setBucketSize(2)
     print "bucketSize"

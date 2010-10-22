@@ -66,13 +66,22 @@ class Ellipse {
         Point ePoint2() const;
         Point oePoint1() const;
         Point oePoint2() const;
+
+        
+        /// string repr
+        friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);        
+        
+        void setA(double ain) {a=ain;}
+        void setB(double bin) {b=bin;}
+        void setCenter(Point& pin) {center=pin;}
+        void setOffset(double ofs) {offset=ofs;}
+        void setEccen() {eccen=a/b;}
+        
+        
         /// the center point of the ellipse
         Point center;
         /// eccentricity = a/b
         double eccen;
-        
-        /// string repr
-        friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);        
         
     protected:
         /// first Epos solution found by solver()
@@ -81,6 +90,7 @@ class Ellipse {
         Epos epos2;
         /// the higher Epos solution
         Epos epos_hi;
+        //Epos tmp_epos;
         /// a-axis, in the X-direction
         double a;  
         /// b-axis, in the Y-direction
