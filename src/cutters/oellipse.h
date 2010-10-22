@@ -76,10 +76,8 @@ class Ellipse {
         void setCenter(Point& pin) {center=pin;}
         void setOffset(double ofs) {offset=ofs;}
         void setEccen() {eccen=a/b;}
+        inline double getCenterZ() {return center.z;}
         
-        
-        /// the center point of the ellipse
-        Point center;
         /// eccentricity = a/b
         double eccen;
         
@@ -90,6 +88,9 @@ class Ellipse {
         Epos epos2;
         /// the higher Epos solution
         Epos epos_hi;
+        
+        /// the center point of the ellipse
+        Point center;
         /// a-axis, in the X-direction
         double a;  
         /// b-axis, in the Y-direction

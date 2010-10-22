@@ -191,7 +191,6 @@ int Ellipse::solver_brent() {
     }
     // root is now bracketed.
     assert( error(apos) * error(bpos) < 0.0  );
-    //target = p; // the target point
     double dia_sln = brent_zero( apos.diangle, bpos.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); 
     epos1.setDiangle( dia_sln );     assert( epos1.isValid() );
     find_epos2();
@@ -203,161 +202,76 @@ int Ellipse::solver_brent() {
 bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     error_dir = f.dir.xyPerp(); // now calls to error(diangle) will give the right error
     target = f.p1; // target is either x or y-coord of f.p1
-    
-    // bracket root
-    Epos tmp,apos,bpos;
     // find position(s) where ellipse tangent is parallel to fiber. Here error() will be minimized/maximized.
-    // tangent at point is:  -a t + b s
-    // or -a*major_dir*t + b*minor_dir*s 
+    // tangent at point is:  -a t + b s = -a*major_dir*t + b*minor_dir*s 
     // -at ma.y + bs mi.y = 0   for X-fiber
     // s = sqrt(1-t^2)
     //  -a*ma.y * t + b*mi.y* sqrt(1-t^2) = 0
-    // or t^2 = b^2 / (a^2 + b^2)
-    bool y_fiber;
+    //  =>  t^2 = b^2 / (a^2 + b^2)
+    double t1;
     if (f.p1.y == f.p2.y)
-        y_fiber = true;
+        t1 = sqrt( square( b*minor_dir.y ) / ( square( a*major_dir.y ) + square( b*minor_dir.y ) ) );
+    else if (f.p1.x == f.p2.x)
+        t1 = sqrt( square( b*minor_dir.x ) / ( square( a*major_dir.x ) + square( b*minor_dir.x ) ) );
     else
-        y_fiber = false;
-        
-    if (y_fiber) {
-        double t1 = sqrt( square( b*minor_dir.y ) / ( square( a*major_dir.y ) + square( b*minor_dir.y ) ) );
-        double s1 = sqrt(1.0-square(t1));
-        bool found_positive=false;
-        bool found_negative=false;
-        
-        tmp.diangle = xyVectorToDiangle(s1,t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        } else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        tmp.diangle = xyVectorToDiangle(s1,-t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        }
-        else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        
-        tmp.diangle = xyVectorToDiangle(-s1,t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        }
-        else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        
-        tmp.setDiangle( xyVectorToDiangle(-s1,-t1) );
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        }
-        else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        if (found_positive) {
-            if (found_negative) {
-                assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.
-                double lolim, hilim;
-                if (apos.diangle > bpos.diangle ) {
-                    lolim = bpos.diangle;
-                    hilim = apos.diangle;
-                } else if (bpos.diangle > apos.diangle) {
-                    hilim = bpos.diangle;
-                    lolim = apos.diangle;
-                }
-                double dia_sln = brent_zero( lolim, hilim , 3E-16, OE_ERROR_TOLERANCE, this );
-                double dia_sln2 = brent_zero( hilim-4.0, lolim , 3E-16, OE_ERROR_TOLERANCE, this );
-                epos1.setDiangle( dia_sln );         assert( epos1.isValid() );
-                assert( isZero_tol( error(epos1.diangle) ) );
-                epos2.setDiangle( dia_sln2 );        assert( epos2.isValid() );
-                assert( isZero_tol( error(epos2.diangle) ) );
-                return true;
+        assert(0);
+    // bracket root
+    Epos tmp,apos,bpos;
+    double s1 = sqrt(1.0-square(t1));
+    bool found_positive=false;
+    bool found_negative=false;
+    tmp.setDiangle( xyVectorToDiangle(s1,t1) );
+    if (error(tmp.diangle) > 0) {
+        found_positive = true;
+        apos = tmp;
+    } else if (error(tmp.diangle) < 0) {
+        found_negative = true;
+        bpos = tmp;
+    }
+    tmp.setDiangle( xyVectorToDiangle(s1,-t1) );
+    if (error(tmp.diangle) > 0) {
+        found_positive = true;
+        apos = tmp;
+    }
+    else if (error(tmp.diangle) < 0) {
+        found_negative = true;
+        bpos = tmp;
+    }    
+    tmp.setDiangle( xyVectorToDiangle(-s1,t1) );
+    if (error(tmp.diangle) > 0) {
+        found_positive = true;
+        apos = tmp;
+    }
+    else if (error(tmp.diangle) < 0) {
+        found_negative = true;
+        bpos = tmp;
+    }
+    tmp.setDiangle( xyVectorToDiangle(-s1,-t1) );
+    if (error(tmp.diangle) > 0) {
+        found_positive = true;
+        apos = tmp;
+    }
+    else if (error(tmp.diangle) < 0) {
+        found_negative = true;
+        bpos = tmp;
+    }
+    
+    if (found_positive) {
+        if (found_negative) {
+            assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.
+            double lolim, hilim;
+            if (apos.diangle > bpos.diangle ) {
+                lolim = bpos.diangle;
+                hilim = apos.diangle;
+            } else if (bpos.diangle > apos.diangle) {
+                hilim = bpos.diangle;
+                lolim = apos.diangle;
             }
-        }
-        
-    } else { // an x-fiber
-        assert( f.p1.x == f.p2.x );
-        double t1 = sqrt( square( b*minor_dir.x ) / ( square( a*major_dir.x ) + square( b*minor_dir.x ) ) );
-        double s1 = sqrt(1.0-square(t1));
-        bool found_positive=false;
-        bool found_negative=false;
-        
-        tmp.diangle = xyVectorToDiangle(s1,t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        } else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        tmp.diangle = xyVectorToDiangle(s1,-t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        }
-        else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        
-        tmp.diangle = xyVectorToDiangle(-s1,t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        }
-        else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        
-        tmp.diangle = xyVectorToDiangle(-s1,-t1);
-        tmp.setD();
-        if (error(tmp.diangle) > 0) {
-            found_positive = true;
-            apos = tmp;
-        }
-        else if (error(tmp.diangle) < 0) {
-            found_negative = true;
-            bpos = tmp;
-        }
-        if (found_positive) {
-            if (found_negative) {
-                assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.
-                double lolim, hilim;
-                if (apos.diangle > bpos.diangle ) {
-                    lolim = bpos.diangle;
-                    hilim = apos.diangle;
-                } else if (bpos.diangle > apos.diangle) {
-                    hilim = bpos.diangle;
-                    lolim = apos.diangle;
-                }
-                double dia_sln = brent_zero( lolim, hilim , 3E-16, OE_ERROR_TOLERANCE, this );
-                double dia_sln2 = brent_zero( hilim-4.0, lolim , 3E-16, OE_ERROR_TOLERANCE, this );
-                // assert( lolim < dia_sln ); assert( dia_sln < hilim ); 
-                apos.diangle = dia_sln;
-                apos.setD();       assert( apos.isValid() );
-                epos1 = apos;
-                assert( isZero_tol( error(epos1.diangle) ) );
-                bpos.diangle = dia_sln2;
-                bpos.setD();       assert( bpos.isValid() );
-                epos2 = bpos;
-                assert( isZero_tol( error(epos2.diangle) ) );
-                return true;
-            }
+            double dia_sln = brent_zero( lolim, hilim , 3E-16, OE_ERROR_TOLERANCE, this );
+            double dia_sln2 = brent_zero( hilim-4.0, lolim , 3E-16, OE_ERROR_TOLERANCE, this );
+            epos1.setDiangle( dia_sln );         assert( epos1.isValid() );         assert( isZero_tol( error(epos1.diangle) ) );
+            epos2.setDiangle( dia_sln2 );        assert( epos2.isValid() );         assert( isZero_tol( error(epos2.diangle) ) );
+            return true;
         }
     }
     

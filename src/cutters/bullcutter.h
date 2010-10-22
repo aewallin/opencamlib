@@ -31,8 +31,6 @@
 namespace ocl
 {
 
-//class Ellipse;
-
 /// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
 ///
 /// defined by the cutter diameter and by the corner radius

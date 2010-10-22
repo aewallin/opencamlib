@@ -81,14 +81,10 @@ CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) co
         int iters = e.solver_brent();
         assert( iters < 200 );
         e.setEposHi(u1,u2); // this selects either epos1 or epos2 and sets it to epos_hi
-        Point ell_ccp = e.ePointHi();  // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
-        if ( fabs( ell_ccp.xyNorm() - radius1 ) > 1E-5 ) { // ell_ccp should be on the cylinder-circle   
-            std::cout << " eccen=" << e.eccen << " ell_cpp=" << ell_ccp << "radius1="<< radius1 <<"\n";
-            std::cout << " ell_ccp.xyNorm() - radius1 =" << ell_ccp.xyNorm() - radius1 << "\n";
-            assert(0);
-        }
+        // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
+        Point ell_ccp = e.ePointHi();         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5); // ell_ccp should be on the cylinder-circle  
         Point cc_tmp_u = ell_ccp.closestPoint(u1,u2); // find real cc-point
-        return CC_CLZ_Pair( cc_tmp_u.x , e.center.z-radius2);
+        return CC_CLZ_Pair( cc_tmp_u.x , e.getCenterZ()-radius2);
     }
 }
 
@@ -99,42 +95,28 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     if ( isZero_tol( p2.z-p1.z ) )
         return result;
     assert( fabs(p2.z-p1.z) > 0.0 ); // guard against horiz edges
-    
-    const Point ufp1 = f.p1 + Point(0,0,radius2); // take a fiber which is raised up by radius2
-    const Point ufp2 = f.p2 + Point(0,0,radius2);
-    // p1+t*(p2-p1) = ufp1.z   =>  
-    double tplane = (ufp1.z - p1.z ) / (p2.z-p1.z); // intersect edge with plane at z = ufp1.z
-    Point ell_center = p1+tplane*(p2-p1);       assert( isZero_tol( fabs(ell_center.z - ufp1.z) ) );
+    // p1+t*(p2-p1) = f.p1.z+radius2   =>  
+    double tplane = (f.p1.z + radius2 - p1.z ) / (p2.z-p1.z); // intersect edge with plane at z = ufp1.z
+    Point ell_center = p1+tplane*(p2-p1);                               assert( isZero_tol( fabs(ell_center.z - (f.p1.z+radius2)) ) );
     Point major_dir = (p2-p1);                    
     major_dir.z = 0;
     major_dir.xyNormalize();
     Point minor_dir = major_dir.xyPerp();
     double theta = atan( (p2.z - p1.z) / (p2-p1).xyNorm() ); 
     double major_length = fabs( radius2/sin(theta) ) ;
-    double minor_length = radius2;                      //assert( major_length >= minor_length );
+    double minor_length = radius2;
     AlignedEllipse e(ell_center, major_length, minor_length, radius1,  major_dir, minor_dir );
-    // now we want the offset-ellipse point to lie on the fiber
-    Fiber fu(ufp1,ufp2);
-    if ( e.aligned_solver( fu ) ) {
-        Point pseudo_cc = e.ePoint1(); // pseudo cc-point on ellipse and cylinder
+    if ( e.aligned_solver( f ) ) { // now we want the offset-ellipse point to lie on the fiber
+        Point pseudo_cc  = e.ePoint1(); // pseudo cc-point on ellipse and cylinder
         Point pseudo_cc2 = e.ePoint2();
-        CCPoint cc = pseudo_cc.closestPoint(p1,p2);
+        CCPoint cc  = pseudo_cc.closestPoint(p1,p2);
         CCPoint cc2 = pseudo_cc2.closestPoint(p1,p2);
-        cc.type = EDGE_POS;
+        cc.type  = EDGE_POS;
         cc2.type = EDGE_POS;
-        Point cl = e.oePoint1() - Point(0,0,center_height);          assert( isZero_tol( fabs(cl.z - f.p1.z)) );
-        Point cl2 = e.oePoint2() - Point(0,0,center_height);         assert( isZero_tol( fabs(cl2.z - f.p1.z)) );
-        double cl_t = f.tval(cl);
+        Point cl  = e.oePoint1() - Point(0,0,center_height);            assert( isZero_tol( fabs(cl.z - f.p1.z)) );
+        Point cl2 = e.oePoint2() - Point(0,0,center_height);            assert( isZero_tol( fabs(cl2.z - f.p1.z)) );
+        double cl_t  = f.tval(cl);
         double cl_t2 = f.tval(cl2);
-        if ( f.p1.y == f.p2.y ) {
-            if ( !isZero_tol( fabs(cl.y - f.p1.y) ) )
-                std::cout << " cl.y =" << cl.y << "  fiber.y=" << f.p1.y << " \n";
-            if ( !isZero_tol( fabs(cl2.y - f.p1.y) ) )
-                std::cout << " cl2.y =" << cl2.y << "  fiber.y=" << f.p1.y << " \n";
-            assert( isZero_tol( fabs(cl.y - f.p1.y) ) );
-            assert( isZero_tol( fabs(cl2.y - f.p1.y) ) );
-        } 
-        
         if ( i.update_ifCCinEdgeAndTrue( cl_t, cc, p1, p2, true ) )
             result = true;
         if ( i.update_ifCCinEdgeAndTrue( cl_t2, cc2, p1, p2, true ) )

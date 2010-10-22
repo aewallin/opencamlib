@@ -142,7 +142,7 @@ void export_geometry() {
         //.def("error", &Ellipse::error)
         //.def_readonly("epos1", &Ellipse::epos1)
         //.def_readonly("epos2", &Ellipse::epos2)
-        .def_readonly("center", &Ellipse::center)
+        //.def_readonly("center", &Ellipse::center)
     ;
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())
