@@ -48,8 +48,7 @@ bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
 
 // general purpose facet-drop which calls xy_normal_length(), normal_length(), 
 // and center_height() on the subclass
-bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
-    // Drop cutter at (cl.x, cl.y) against facet of Triangle t
+bool MillingCutter::facetDrop(CLPoint &cl, const Triangle &t) const { // Drop cutter at (cl.x, cl.y) against facet of Triangle t
     Point normal = t.upNormal(); // facet surface normal
     if ( isZero_tol( normal.z ) )  // vertical surface
         return false;  //can't drop against vertical surface

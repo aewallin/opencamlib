@@ -31,18 +31,15 @@ ConeCutter::ConeCutter() {
     assert(0);
 }
 
-
-
 ConeCutter::ConeCutter(double d, double a, double l) {
     diameter = d;
     radius = d/2.0;
     angle = a;
     length = radius/tan(angle) + l;
-    center_height = radius/tan(angle);
     
+    center_height = radius/tan(angle);
     xy_normal_length = radius;
     normal_length = 0.0;
-        
 }
 
 double ConeCutter::height(double r) const {
@@ -51,7 +48,7 @@ double ConeCutter::height(double r) const {
 }
 
 double ConeCutter::width(double h) const {
-    if (h< height(radius) )
+    if (h< center_height )
         return h*tan(angle);
     else
         return radius;
@@ -108,21 +105,17 @@ bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 // find point where hyperbola and line slopes match
 CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) const {
     double d = u1.y;
-    double m = (u2.z-u1.z) / (u2.x-u1.x); // slope
-    // the outermost point on the cutter is at
-    // xu = sqrt( R^2 - d^2 )
-    double xu = sqrt( square(radius) - square(u1.y) ); 
-    assert( xu <= radius );
+    double m = (u2.z-u1.z) / (u2.x-u1.x); // slope of edge
+    // the outermost point on the cutter is at   xu = sqrt( R^2 - d^2 )
+    double xu = sqrt( square(radius) - square(u1.y) );                  assert( xu <= radius );
     // max slope at xu is mu = (L/(R-R2)) * xu /(sqrt( xu^2 + d^2 ))
     double mu = (center_height/radius ) * xu / sqrt( square(xu) + square(d) ) ;
-    // find contact point where slopes match.
-    // there are two cases:
+    // find contact point where slopes match, there are two cases:
     // 1) if abs(m) <= abs(mu)  we contact the curve at xp = sign(m) * sqrt( R^2 m^2 d^2 / (h^2 - R^2 m^2) )
     // 2) if abs(m) > abs(mu) there is contact with the circular edge at +/- xu
     double ccu;
     if (fabs(m) <= fabs(mu) ) { 
-        ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / 
-                             (square(length) -square(radius)*square(m) ) );
+        ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / (square(length) -square(radius)*square(m) ) );
     } else if ( fabs(m)>fabs(mu) ) { 
         ccu = sign(m)*xu;
     } else { assert(0); }
@@ -146,11 +139,15 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     Point edge = p2 - p1;
     Point edge_xy(edge.x,edge.y,0.0); // this has the correct direction in the xy-plane
     edge_xy.xyNormalize(); // unit length
-    Point tang_xy = edge_xy.xyPerp(); // unit length edge-normal in xy
-    Point tangent( tang_xy.x, tang_xy.y, -cos(angle) ) ; // plane tangent?
-    assert( isZero_tol( tangent.dot(edge) ) );
-    Point n1 = edge.cross( tangent-p1 );
-    //Point n1( normal_xy.x, normal_xy.y, cos(angle) ); // flip up at angle 
+    Point edge_xycomp = edge.cross( Point(0,0,1) );
+    edge_xycomp.xyNormalize();
+    edge_xycomp.z = cos(angle);
+    //Point tang_xy = edge_xy.xyPerp(); // unit length edge-normal in xy
+    //Point tangent( tang_xy.x, tang_xy.y, -cos(angle) ) ; // plane tangent?
+    //assert( isZero_tol( tangent.dot(edge) ) );
+    //Point n1 = edge.cross( tangent-p1 );
+    //Point n1( normal_xy.x, normal_xy.y, cos(angle) ); // flip up at angle
+    Point n1 = edge_xycomp; 
     double fiber_dot_n = (f.p2-f.p1).dot(n1);
     if (!isZero_tol( fiber_dot_n ) ) {
         double up = (p1-f.p1).dot(n1);
@@ -160,7 +157,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             //Point cl = f.point(t);
             CCPoint cc = 0.5*(p1+p2); // DUMMY
             cc.type = EDGE_POS;
-            if ( i.update_ifCCinEdgeAndTrue( t_cl , cc , p1 , p2 , (cc.z > f.p1.z) ) )
+            if ( i.update_ifCCinEdgeAndTrue( t_cl , cc , p1 , p2 , true ) )
                 result = true;
         } 
     }
