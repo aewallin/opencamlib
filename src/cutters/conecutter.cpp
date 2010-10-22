@@ -141,14 +141,21 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     edge_xy.xyNormalize(); // unit length
     Point edge_xycomp = edge.cross( Point(0,0,1) );
     edge_xycomp.xyNormalize();
-    edge_xycomp.z = cos(angle);
+    edge_xycomp.z = 1.0/tan(PI/2.0-angle);
     //Point tang_xy = edge_xy.xyPerp(); // unit length edge-normal in xy
     //Point tangent( tang_xy.x, tang_xy.y, -cos(angle) ) ; // plane tangent?
     //assert( isZero_tol( tangent.dot(edge) ) );
     //Point n1 = edge.cross( tangent-p1 );
     //Point n1( normal_xy.x, normal_xy.y, cos(angle) ); // flip up at angle
     Point n1 = edge_xycomp; 
-    double fiber_dot_n = (f.p2-f.p1).dot(n1);
+    //if (!isZero_tol( fabs(n1.norm()-1.0)) ) {
+    //    std::cout << "n1 norm=" << n1.norm() <<"\n";
+    //}
+    //assert( isZero_tol( fabs(n1.norm()-1.0)));
+    n1.normalize();
+    Point L = f.p2-f.p1;
+    L.normalize();
+    double fiber_dot_n = L.dot(n1);
     if (!isZero_tol( fiber_dot_n ) ) {
         double up = (p1-f.p1).dot(n1);
         if ( !isZero_tol( up ) ) {
