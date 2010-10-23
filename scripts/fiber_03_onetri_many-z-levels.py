@@ -107,27 +107,14 @@ if __name__ == "__main__":
     zvals=[]
     for n in xrange(0,zNmax):
         zvals.append(zmin+n*dz)
-    #zvals = [ float(n-float(zNmax)/2)/zNmax*range for n in xrange(0,zNmax+1)]
-    #print zvals
-    #exit()
-    #cc = ocl.CCPoint()
-    #zh = -0.1
-    #zh = -0.1571567
-    #zvals.append(zh)
     for zh in zvals:
         yfiber(yvals,t,zh,myscreen)
         xfiber(xvals,t,zh,myscreen)
-    
     print "done."
-    
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
-    
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
-
     camvtk.drawOCLtext(myscreen)
-    
-    
     myscreen.render()    
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)

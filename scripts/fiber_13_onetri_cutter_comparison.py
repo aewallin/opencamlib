@@ -123,7 +123,7 @@ if __name__ == "__main__":
         oneCutterWaterline(myscreen, cutter1, zh, camvtk.yellow)
         oneCutterWaterline(myscreen, cutter2, zh, camvtk.cyan)
         oneCutterWaterline(myscreen, cutter3, zh, camvtk.mag)
-        oneCutterWaterline(myscreen, cutter4, zh, camvtk.mag)
+        #oneCutterWaterline(myscreen, cutter4, zh, camvtk.mag)
         #yfiber(yvals,t,zh,myscreen)
         #xfiber(xvals,t,zh,myscreen)
     
