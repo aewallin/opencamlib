@@ -57,6 +57,9 @@ class Waterline {
         /// be called before a call to run()
         void run();
         
+        void setThreads(unsigned int n) {nthreads = n;};
+        int  getThreads() const {return nthreads;};
+        
     protected:
         /// initialization
         void init_fibers();
@@ -77,6 +80,7 @@ class Waterline {
         double tolerance;
         /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint!!
+        unsigned int nthreads;
 };
 
 

@@ -39,10 +39,16 @@ std::string revision() {
 }
 
 double xyVectorToDiangle(double x, double y) {
+    double diangle;
     if (y >= 0)
-        return (x >= 0 ? y/(x+y) : 1-x/(-x+y));
+        diangle = (x >= 0 ? y/(x+y) : 1-x/(-x+y));
     else
-        return (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
+        diangle = (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
+    if ( isnan(diangle) ) {
+        std::cout << "numeric::xyVectorToDiangle() error (x,y)= ("<< x << " , " << y  << " ) and diangle=" << diangle << "\n";
+        assert(0);
+    }
+    return diangle;
 }
 
 

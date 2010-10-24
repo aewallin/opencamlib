@@ -107,6 +107,8 @@ void export_algo() {
         .def("setSampling", &Waterline_py::setSampling)
         .def("run", &Waterline_py::run)
         .def("getLoops", &Waterline_py::py_getLoops)
+        .def("setThreads", &Waterline_py::setThreads)
+        .def("getThreads", &Waterline_py::getThreads)
     ;
     bp::class_<Weave>("Weave_base")
     ;

@@ -19,7 +19,6 @@
 */
 
 #include <boost/foreach.hpp> 
-//#include <boost/progress.hpp> // todo: add progress
 
 #ifndef WIN32
     #include <omp.h>
@@ -42,6 +41,10 @@ namespace ocl
 Waterline::Waterline() {
     bpc_x = new BatchPushCutter();
     bpc_y = new BatchPushCutter();
+#ifndef WIN32
+    nthreads = omp_get_num_procs(); 
+#endif
+
 }
 
 Waterline::~Waterline() {
@@ -50,27 +53,33 @@ Waterline::~Waterline() {
 }
 
 void Waterline::setSTL(const STLSurf& s) {
-    std::cout << " Waterline::setSTL()\n";
+    std::cout << " Waterline::setSTL()...";
     bpc_x->setXDirection();
     bpc_y->setYDirection();
-    std::cout << " Waterline::setSTL() DIRECTIONS DONE\n";
     bpc_x->setSTL( s );
     bpc_y->setSTL( s );
     surface = &s;
-    std::cout << " Waterline::setSTL() DONE\n";
+    std::cout << " DONE.\n";
 }
 
 void Waterline::setCutter(const MillingCutter& c) {
-    std::cout << " Waterline::setCutter()\n";
+    std::cout << " Waterline::setCutter()... ";
     bpc_x->setCutter( &c );
     bpc_y->setCutter( &c );
     cutter = &c;
+    std::cout << " DONE.\n";
 }
         
 void Waterline::run() {
-    this->init_fibers();
-    bpc_x->run(); // run the actual push-cutter
+    this->init_fibers(); // create fibers and push them to bpc_x and bpc_y
+    bpc_x->setThreads(nthreads);
+    bpc_y->setThreads(nthreads);
+    // run the actual push-cutter
+    std::cout << "Waterline bpc_x->run()\n";
+    bpc_x->run(); 
+    std::cout << "Waterline bpc_y->run()\n";
     bpc_y->run();
+    
     std::cout << "Weave..." << std::flush;
     Weave w;
     BOOST_FOREACH( Fiber f, *(bpc_x->fibers) ) {

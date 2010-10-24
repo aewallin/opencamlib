@@ -130,10 +130,10 @@ void export_geometry() {
     ;
     // Epos and the Ellipse are used for the toroidal tool edge-tests
     bp::class_<Epos>("Epos")
-        .def("setD", &Epos::setD)
+        //.def("setD", &Epos::setD)
         .def_readwrite("s", &Epos::s)
         .def_readwrite("t", &Epos::t)
-        .def_readwrite("d", &Epos::diangle)
+        //.def_readwrite("d", &Epos::diangle)
         .def("__str__", &Epos::str)
     ;
     bp::class_<Ellipse>("Ellipse")

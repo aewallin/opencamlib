@@ -33,10 +33,13 @@ namespace ocl
 
 //********   Epos ********************** */
 Epos::Epos() {
+    diangle = 0.0;
     setD();
 }
 
 void Epos::setDiangle(double dia) {
+    assert( !isnan(dia) );
+    //std::cout << " Epos::setDiangle( "<< dia << " ) \n";
     diangle = dia;
     setD();
 }
@@ -48,10 +51,14 @@ void Epos::setD() {
     // return P2( (a < 2 ? 1-a : a-3),
     //           (a < 3 ? ((a > 1) ? 2-a : a) : a-4)
     double d = diangle;
+    assert( !isnan(d) );
     while ( d > 4.0 ) // make d a diangle in [0,4]
         d -= 4.0;
     while ( d < 0.0)
         d+=4.0;
+    if ( !(d >= 0.0 && d <= 4.0 ) )
+        std::cout << "Epos::setD error d= " << d << "\n";
+        
     assert( d >= 0.0 && d <= 4.0 ); // now we should be in [0,4]
     Point p;
     if ( d < 2.0 ) // we are in the y>0 region

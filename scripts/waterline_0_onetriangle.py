@@ -21,7 +21,7 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     zheights=[0.15]  # the z-coordinates for the waterlines
-    cutter_diams = [0.6, 0.7] # run the thing for all these cutter diameters
+    cutter_diams = [0.6] # run the thing for all these cutter diameters
     length = 5
     loops = []
     cutter = ocl.CylCutter( 1 , 1 )   
@@ -29,11 +29,11 @@ if __name__ == "__main__":
     for zh in zheights:
         for diam in cutter_diams:
             
-            #cutter = ocl.CylCutter( diam , length )
+            cutter = ocl.CylCutter( diam , length )
             #cutter = ocl.BallCutter( diam , length )
-            cutter = ocl.BullCutter( diam , diam/5, length )
+            #cutter = ocl.BullCutter( diam , diam/5, length )
             wl = ocl.Waterline()
-            
+            wl.setThreads(1)
             wl.setSTL(s)
             wl.setCutter(cutter)
             wl.setZ(zh)

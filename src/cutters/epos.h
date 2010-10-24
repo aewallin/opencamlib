@@ -40,7 +40,7 @@ class Epos {
         Epos(double sin, double tin){s=sin; t=tin;}
         
         /// set (s,t) pair to the position corresponding to diangle
-        void setD();
+        
         void setDiangle(double dia);
         
         /// s-parameter in [-1, 1]
@@ -64,6 +64,8 @@ class Epos {
         /// return true if (s,t) is valid, i.e. lies on the unit circle
         /// checks s^2 + t^2 == 1  (to within tolerance) 
         bool isValid() const;
+    private:
+        void setD();
 };
     
 }// end namespace
