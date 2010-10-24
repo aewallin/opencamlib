@@ -150,7 +150,7 @@ void BatchPushCutter::pushCutter3() {
     std::list<Triangle>* tris;
     boost::progress_display show_progress( fibers->size() );
 #ifndef WIN32
-    omp_set_num_threads(nthreads);
+    //omp_set_num_threads(nthreads);
 #endif
     unsigned int Nmax = fibers->size(); // the number of fibers to process
     std::list<Triangle>::iterator it,it_end; // for looping over found trinagles
@@ -192,7 +192,8 @@ void BatchPushCutter::pushCutter3() {
         }
         delete( tris );
         ++show_progress;
-    }
+    } // OpenMP parallel region ends here
+    
     this->nCalls = calls;
     std::cout << "\nBatchPushCutter3 done." << std::endl;
     return;

@@ -74,11 +74,20 @@ void Waterline::run() {
     this->init_fibers(); // create fibers and push them to bpc_x and bpc_y
     bpc_x->setThreads(nthreads);
     bpc_y->setThreads(nthreads);
-    // run the actual push-cutter
-    std::cout << "Waterline bpc_x->run()\n";
-    bpc_x->run(); 
-    std::cout << "Waterline bpc_y->run()\n";
-    bpc_y->run();
+
+    // run the X-direction and Y-direction in parallel using OpenMP tasks
+    // see: http://wikis.sun.com/display/openmp/Using+the+Tasking+Feature
+    //omp_set_num_threads(nthreads);
+//    #pragma omp parallel 
+//    {
+//        #pragma omp sections 
+//        {
+//            #pragma omp section
+            { bpc_x->run(); }
+//            #pragma omp section
+            { bpc_y->run(); }
+//        }
+//    }
     
     std::cout << "Weave..." << std::flush;
     Weave w;

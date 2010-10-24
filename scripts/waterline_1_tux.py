@@ -25,11 +25,13 @@ if __name__ == "__main__":
     for diam in cutter_diams:
         #cutter = ocl.CylCutter( diam , length )
         cutter = ocl.BallCutter( diam , length )
+        #cutter = ocl.BullCutter( diam , diam/5, length )
         wl = ocl.Waterline()
         wl.setSTL(s)
         wl.setCutter(cutter)
         wl.setZ(zh)
         wl.setSampling(0.04)
+        wl.setThreads(5)
         t_before = time.time() 
         wl.run()
         t_after = time.time()
@@ -41,6 +43,7 @@ if __name__ == "__main__":
 
     print "All waterlines done. Got", len(loops)," loops in total."
     # draw the loops
+    nloop = 0
     for lop in loops:
         n = 0
         N = len(lop)
@@ -58,6 +61,8 @@ if __name__ == "__main__":
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
                 previous=p
             n=n+1
+        print "rendered loop ",nloop, " with ", len(lop), " points"
+        nloop = nloop+1
     
     print "done."
     myscreen.camera.SetPosition(15, 13, 7)
