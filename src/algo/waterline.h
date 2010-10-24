@@ -24,6 +24,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <omp.h>
 
 #include "point.h"
 #include "fiber.h"
@@ -68,6 +69,7 @@ class Waterline {
     // DATA
         /// the cutter for this operation
         const MillingCutter* cutter;
+
         /// the surface for this operation
         const STLSurf* surface;
         /// handle to BatchPushCutter that does the heavy lifting

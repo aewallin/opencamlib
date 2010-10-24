@@ -43,6 +43,9 @@ Waterline::Waterline() {
     bpc_y = new BatchPushCutter();
 #ifndef WIN32
     nthreads = omp_get_num_procs(); 
+    
+    //omp_set_dynamic(0);
+    omp_set_nested(1);
 #endif
 
 }
@@ -64,30 +67,34 @@ void Waterline::setSTL(const STLSurf& s) {
 
 void Waterline::setCutter(const MillingCutter& c) {
     std::cout << " Waterline::setCutter()... ";
-    bpc_x->setCutter( &c );
-    bpc_y->setCutter( &c );
     cutter = &c;
+    bpc_x->setCutter( cutter );
+    bpc_y->setCutter( cutter );
+    
+    
     std::cout << " DONE.\n";
 }
         
 void Waterline::run() {
     this->init_fibers(); // create fibers and push them to bpc_x and bpc_y
-    bpc_x->setThreads(nthreads);
-    bpc_y->setThreads(nthreads);
+    // bpc_x->setThreads(nthreads);
+    // bpc_y->setThreads(nthreads);
 
     // run the X-direction and Y-direction in parallel using OpenMP tasks
     // see: http://wikis.sun.com/display/openmp/Using+the+Tasking+Feature
-    //omp_set_num_threads(nthreads);
-//    #pragma omp parallel 
-//    {
-//        #pragma omp sections 
-//        {
-//            #pragma omp section
+    // see: http://docs.sun.com/source/819-0501/2_nested.html
+    //omp_set_num_threads(8);
+    //omp_set_nested(1);
+   // #pragma omp parallel 
+    //{
+    //    #pragma omp single nowait
+    //    {
+    //        #pragma omp task
             { bpc_x->run(); }
-//            #pragma omp section
+    //        #pragma omp task
             { bpc_y->run(); }
-//        }
-//    }
+    //    }
+    //}
     
     std::cout << "Weave..." << std::flush;
     Weave w;

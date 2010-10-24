@@ -147,25 +147,33 @@ void BatchPushCutter::pushCutter3() {
               " fibers and " << surf->tris.size() << " triangles." << std::endl;
     std::cout << " cutter = " << cutter->str() << "\n";
     nCalls = 0;
-    std::list<Triangle>* tris;
     boost::progress_display show_progress( fibers->size() );
 #ifndef WIN32
     //omp_set_num_threads(nthreads);
 #endif
-    unsigned int Nmax = fibers->size(); // the number of fibers to process
-    std::list<Triangle>::iterator it,it_end; // for looping over found trinagles
+    unsigned int Nmax = fibers->size();         // the number of fibers to process
+    std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
     Interval* i;
+    std::list<Triangle>* tris;
     std::vector<Fiber>& fiberr = *fibers;
     unsigned int n; // loop variable
     unsigned int calls=0;
-    #pragma omp parallel for schedule(dynamic) shared( calls, fiberr) private(n,i,tris,it,it_end)
+    //omp_set_nested(1);
+    #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)
+    //#pragma omp parallel for shared( calls, fiberr) private(n,i,tris,it,it_end)
     for (n=0; n<Nmax; ++n) {
 #ifndef WIN32
         if ( n== 0 ) { // first iteration
             if (omp_get_thread_num() == 0 ) 
                 std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
         }
-#endif
+#endif  
+        //std::string dirtxt;
+        //if ( x_direction ) 
+        //    dirtxt = " task X:";
+        //else
+        //    dirtxt = " task Y:";
+        //std::cout << dirtxt << " id ="<< omp_get_thread_num()<<" N="<<omp_get_num_threads() << "\n";
         tris = new std::list<Triangle>();
         CLPoint cl;
         if ( x_direction ) {
