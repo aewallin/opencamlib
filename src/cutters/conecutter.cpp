@@ -130,21 +130,7 @@ CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) con
 
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
-
-    // Inverse-Tool-Offset approach: intersect the fiber with planes two sloping planes that contain the edge.
-    // fiber: f.p1 + t*(f.p2 - f.p1)
-    // plane: ( p - p1 ) dot n = 0       (p1 is in the plane, n is a normal)
-    // solve for t:  t= ( p1 - f.p1)dot(n) / (f.p2-f.p1)dot(n)
-    Point edge = p2 - p1;
-    //Point edge_xy(edge.x,edge.y,0.0); // this has the correct direction in the xy-plane
-    //edge_xy.xyNormalize(); // unit length
-    Point edge_xycomp = edge.cross( Point(0,0,1) );
-    Point edge_perp = edge_xycomp.cross(edge);
-    edge_perp.normalize();
-    //edge_xycomp.xyNormalize();
-    //edge_xycomp.z = 1.0/tan(PI/2.0-angle);
-
-    double m = (p2.z-p1.z) / (p2.x-p1.x); // slope
+    double m = (p2.z-p1.z) / (p2-p1).xyNorm() ; // edge slope
     double tanangle = tan(angle);
     // general quadratic form:
     // Ax^2 + Bxy + Cy^2 + Dx + Ey + F =0
@@ -154,44 +140,43 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     // and quadratic z = Ax^2 + Bxy + Cy^2 
     // cone quadratic is (1/c^2)*(x^2+y^2) = (z-z0)^2     where c=r/h ratio of radius to height (opening angle) z0= height above z=0
     // sqrt(x^2 +y^2) = c z - c z0
+    // => z = z0 + (1/c)*sqrt(x^2+y^2)   CONE
+    //
+    // plane   D*x + E*y + G*z + F = 0, so
+    // F = -A*x - E*y - G*z, where  (A,E,G) = surface normal
+    // p1 and p2 are in plane, so is p1+f.dir
+    // normal = (p2-p1).cross(p1+f.dir)
+    Point planeNormal = (p2-p1).cross(p1+f.dir);
+    // now
+    // z = -(1/G)*(Dx + Ey + F)   PLANE
+    //
+    // set equal:  CONE = PLANE
+    //
+    //  z = z0 + (1/c)*sqrt(x^2+y^2) = -(1/G)*(Dx + Ey + F)   
+    // aĺfa = cD/G
+    // beta = cE/G
+    // lam  = cF/G + cz0
+    // quadratic:
+    // (1-alfa^2)x^2 + (1-beta^2)y^2 + 2*aflfa*beta -2*alfa*lam*x - 2*beta*lam*y - lam^2 = 0
+    // Ax^2 + Bxy + Cy^2 + Dx + Ey + F =0   (standard form)
+    // identify coefficients as:
+    // A = 1-alfa^2
+    // B = 2*alfa*beta
+    // C = 1-beta^2
+    // D = -2*alfa*lam
+    // E = -2*beta*lam
+    // F = -lam^2
+    // discriminant = B^2 - 4AC
+    // < 0 ellipse
+    // ==0 parabola
+    // > 0 hyperbola
+    
     if (fabs(m) > tanangle ) {
         // hyperbola case
     } else {
         // ellipse case
     }
-    //Point edge = p2 - p1;
-    //Point edge_xy(edge.x,edge.y,0.0); // this has the correct direction in the xy-plane
-    //edge_xy.xyNormalize(); // unit length
-    //Point edge_xycomp = edge.cross( Point(0,0,1) );
-    //edge_xycomp.xyNormalize();
-    //edge_xycomp.z = 1.0/tan(PI/2.0-angle);
 
-    //Point tang_xy = edge_xy.xyPerp(); // unit length edge-normal in xy
-    //Point tangent( tang_xy.x, tang_xy.y, -cos(angle) ) ; // plane tangent?
-    //assert( isZero_tol( tangent.dot(edge) ) );
-    //Point n1 = edge.cross( tangent-p1 );
-    //Point n1( normal_xy.x, normal_xy.y, cos(angle) ); // flip up at angle
-    //Point n1 = edge_xycomp; 
-    //if (!isZero_tol( fabs(n1.norm()-1.0)) ) {
-    //    std::cout << "n1 norm=" << n1.norm() <<"\n";
-    //}
-    //assert( isZero_tol( fabs(n1.norm()-1.0)));
-    //n1.normalize();
-    //Point L = f.p2-f.p1;
-    //L.normalize();
-    //double fiber_dot_n = L.dot(n1);
-    //if (!isZero_tol( fiber_dot_n ) ) {
-    //    double up = (p1-f.p1).dot(n1);
-    //    if ( !isZero_tol( up ) ) {
-    //        double t_cl = up / fiber_dot_n;
-            //bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);
-            //Point cl = f.point(t);
-    //        CCPoint cc = 0.5*(p1+p2); // DUMMY
-    //        cc.type = EDGE_POS;
-    //        if ( i.update_ifCCinEdgeAndTrue( t_cl , cc , p1 , p2 , true ) )
-    //            result = true;
-    //    } 
-    // }
     return result;
 }
 

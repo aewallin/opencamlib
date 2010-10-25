@@ -45,10 +45,10 @@ if __name__ == "__main__":
     diameter = 0.2
     length = 5
     angle = math.pi/4
-    #cutter = ocl.CylCutter(diameter, length)
+    cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BallCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, diameter/5, length)
-    cutter = ocl.ConeCutter(diameter, angle, length)
+    #cutter = ocl.ConeCutter(diameter, angle, length)
     
     print cutter
     range=6
