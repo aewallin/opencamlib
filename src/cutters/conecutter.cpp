@@ -132,6 +132,14 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     bool result = false;
     double m = (p2.z-p1.z) / (p2.x-p1.x); // slope
     double tanangle = tan(angle);
+    // general quadratic form:
+    // Ax^2 + Bxy + Cy^2 + Dx + Ey + F =0
+    // =>
+    // Ax^2 + Bxy + Cy^2 = -(Dx + Ey + F)
+    // or intersection btw plane z = -(Dx + Ey + F)
+    // and quadratic z = Ax^2 + Bxy + Cy^2 
+    // cone quadratic is (1/c^2)*(x^2+y^2) = (z-z0)^2     where c=r/h ratio of radius to height (opening angle) z0= height above z=0
+    // sqrt(x^2 +y^2) = c z - c z0
     if (fabs(m) > tanangle ) {
         // hyperbola case
     } else {
