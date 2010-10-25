@@ -20,7 +20,7 @@
 
 #include <boost/foreach.hpp> 
 
-#ifndef WIN32
+#ifdef _OPENMP
     #include <omp.h>
 #endif
 
@@ -41,9 +41,9 @@ namespace ocl
 Waterline::Waterline() {
     bpc_x = new BatchPushCutter();
     bpc_y = new BatchPushCutter();
-#ifndef WIN32
+    nthreads=1;
+#ifdef _OPENMP
     nthreads = omp_get_num_procs(); 
-    
     //omp_set_dynamic(0);
     omp_set_nested(1);
 #endif
@@ -85,7 +85,7 @@ void Waterline::run() {
     // see: http://docs.sun.com/source/819-0501/2_nested.html
     //omp_set_num_threads(8);
     //omp_set_nested(1);
-   // #pragma omp parallel 
+    // #pragma omp parallel 
     //{
     //    #pragma omp single nowait
     //    {

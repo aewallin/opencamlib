@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 
-#ifndef WIN32  // Fixme, this should not be a check fow Windows, but a check for OpenMP
+#ifdef _OPENMP  
     #include <omp.h>
 #endif
 
@@ -39,7 +39,8 @@ namespace ocl
 BatchPushCutter::BatchPushCutter() {
     fibers = new std::vector<Fiber>();
     nCalls = 0;
-#ifndef WIN32
+    nthreads = 1;
+#ifdef _OPENMP
     nthreads = omp_get_num_procs(); // figure out how many cores we have
 #endif
     cutter = NULL;
@@ -148,8 +149,9 @@ void BatchPushCutter::pushCutter3() {
     std::cout << " cutter = " << cutter->str() << "\n";
     nCalls = 0;
     boost::progress_display show_progress( fibers->size() );
-#ifndef WIN32
-    //omp_set_num_threads(nthreads);
+#ifdef _OPENMP
+    omp_set_num_threads(nthreads);
+    //omp_set_nested(1);
 #endif
     unsigned int Nmax = fibers->size();         // the number of fibers to process
     std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
@@ -158,22 +160,16 @@ void BatchPushCutter::pushCutter3() {
     std::vector<Fiber>& fiberr = *fibers;
     unsigned int n; // loop variable
     unsigned int calls=0;
-    //omp_set_nested(1);
+    
     #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)
     //#pragma omp parallel for shared( calls, fiberr) private(n,i,tris,it,it_end)
     for (n=0; n<Nmax; ++n) {
-#ifndef WIN32
+#ifdef _OPENMP
         if ( n== 0 ) { // first iteration
             if (omp_get_thread_num() == 0 ) 
                 std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
         }
 #endif  
-        //std::string dirtxt;
-        //if ( x_direction ) 
-        //    dirtxt = " task X:";
-        //else
-        //    dirtxt = " task Y:";
-        //std::cout << dirtxt << " id ="<< omp_get_thread_num()<<" N="<<omp_get_num_threads() << "\n";
         tris = new std::list<Triangle>();
         CLPoint cl;
         if ( x_direction ) {

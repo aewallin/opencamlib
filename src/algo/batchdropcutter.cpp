@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 
-#ifndef WIN32  // this should really not be a check for Windows, but a check for OpenMP
+#ifdef _OPENMP // this should really not be a check for Windows, but a check for OpenMP
     #include <omp.h>
 #endif
 
@@ -38,7 +38,7 @@ namespace ocl
 BatchDropCutter::BatchDropCutter() {
     clpoints = new std::vector<CLPoint>();
     dcCalls = 0;
-#ifndef WIN32
+#ifdef _OPENMP
     nthreads = omp_get_num_procs(); // figure out how many cores we have
 #endif
     cutter = NULL;
@@ -139,14 +139,14 @@ void BatchDropCutter::dropCutter4() {
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
-#ifndef WIN32
+#ifdef _OPENMP
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
     #pragma omp parallel for shared( nloop, ntris, calls, clref) private(n,tris,it)
         for (n=0;n< Nmax ;n++) { // PARALLEL OpenMP loop!
-#ifndef WIN32
+#ifdef _OPENMP
             if ( n== 0 ) { // first iteration
                 if (omp_get_thread_num() == 0 ) 
                     std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";// print out how many threads we are using
@@ -201,14 +201,14 @@ void BatchDropCutter::dropCutter5() {
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
     unsigned int ntriangles = surf->tris.size();
-#ifndef WIN32
+#ifdef _OPENMP
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
     #pragma omp parallel for schedule(dynamic) shared( nloop, ntris, calls, clref ) private(n,tris,it) 
         for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
-#ifndef WIN32
+#ifdef _OPENMP
             if ( n== 0 ) { // first iteration
                 if (omp_get_thread_num() == 0 ) 
                     std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";

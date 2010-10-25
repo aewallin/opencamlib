@@ -130,6 +130,20 @@ CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) con
 
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
+
+    // Inverse-Tool-Offset approach: intersect the fiber with planes two sloping planes that contain the edge.
+    // fiber: f.p1 + t*(f.p2 - f.p1)
+    // plane: ( p - p1 ) dot n = 0       (p1 is in the plane, n is a normal)
+    // solve for t:  t= ( p1 - f.p1)dot(n) / (f.p2-f.p1)dot(n)
+    Point edge = p2 - p1;
+    //Point edge_xy(edge.x,edge.y,0.0); // this has the correct direction in the xy-plane
+    //edge_xy.xyNormalize(); // unit length
+    Point edge_xycomp = edge.cross( Point(0,0,1) );
+    Point edge_perp = edge_xycomp.cross(edge);
+    edge_perp.normalize();
+    //edge_xycomp.xyNormalize();
+    //edge_xycomp.z = 1.0/tan(PI/2.0-angle);
+
     double m = (p2.z-p1.z) / (p2.x-p1.x); // slope
     double tanangle = tan(angle);
     // general quadratic form:
@@ -151,6 +165,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     //Point edge_xycomp = edge.cross( Point(0,0,1) );
     //edge_xycomp.xyNormalize();
     //edge_xycomp.z = 1.0/tan(PI/2.0-angle);
+
     //Point tang_xy = edge_xy.xyPerp(); // unit length edge-normal in xy
     //Point tangent( tang_xy.x, tang_xy.y, -cos(angle) ) ; // plane tangent?
     //assert( isZero_tol( tangent.dot(edge) ) );
