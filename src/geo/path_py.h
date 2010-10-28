@@ -36,6 +36,7 @@ namespace ocl
 class Path_py : public Path {
     public:
         Path_py() : Path () {};
+        /// copy constructor
         Path_py(const Path &p) : Path(p) {};
         
         /// return the span-list to python

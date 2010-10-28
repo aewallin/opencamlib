@@ -33,6 +33,7 @@ namespace ocl
 class Waterline_py : public Waterline {
     public:
         Waterline_py() : Waterline() {};
+        /// return loop as a list of lists to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;
             BOOST_FOREACH( std::vector<Point> loop, this->loops ) {

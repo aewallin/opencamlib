@@ -51,7 +51,8 @@ class Triangle {
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
         /// normal vector
-        Point *n;    // surface normal
+        Point *n;    
+        /// return normal vector with positive z-coordinate 
         Point upNormal() const;
         
         /// bounding-box 

@@ -40,7 +40,7 @@ class Interval {
         void updateUpper(const double t, CCPoint& p);
         /// update lower with t, and corresponding cc-point p
         void updateLower(const double t, CCPoint& p);
-        
+        /// call bot updateUpper() and updateLower() with the given (t,p) pair
         void update(const double t, CCPoint& p);
         /// update interval with t_cl and cc_tmp if cc_tmp is in the p1-p2 edge and condition==true
         bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);

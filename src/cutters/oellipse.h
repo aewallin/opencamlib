@@ -62,20 +62,29 @@ class Ellipse {
         void setEposHi(const Point& u1, const Point& u2);
         /// once epos_hi is set, return an ellipse-point at this position
         Point ePointHi() const;
+        /// ellipse-point at epos1
         Point ePoint1() const;
+        /// ellipse-point at epos2
         Point ePoint2() const;
+        /// offset-ellipse-point at epos1
         Point oePoint1() const;
+        /// offset-ellipse-point at epos2
         Point oePoint2() const;
 
         
         /// string repr
         friend std::ostream &operator<<(std::ostream &stream, const Ellipse& e);        
-        
+        /// set length of ellipse major axis
         void setA(double ain) {a=ain;}
+        /// set length of ellipse minor axis
         void setB(double bin) {b=bin;}
+        /// set the ellipse center
         void setCenter(Point& pin) {center=pin;}
+        /// set offset-ellipse offset distance
         void setOffset(double ofs) {offset=ofs;}
+        /// set/calculate the eccentricity
         void setEccen() {eccen=a/b;}
+        /// returns the z-coordinate of this->center
         inline double getCenterZ() {return center.z;}
         
         /// eccentricity = a/b
@@ -107,17 +116,22 @@ class AlignedEllipse : public Ellipse {
         AlignedEllipse(){}; 
         /// create an aligned ellipse
         AlignedEllipse(Point& centerin, double major_length, double minor_length, double offset, Point& majorDir, Point& minorDir);
-        
+        /// normal vector at given Epos
         Point normal(const Epos& position) const;
+        /// ellipse-point at given Epos
         Point ePoint(const Epos& position) const;
+        /// offset-ellipse point at given Epos
         Point oePoint(const Epos& pos) const;
+        /// error-function for the solver
         double error(double dia) const;
+        /// aligned offset-ellipse solver. callsn Numeric::brent_solver()
         bool aligned_solver( const Fiber& f );
     private:
         /// direction of the major axis
         Point major_dir;
         /// direction of the minor axis
         Point minor_dir;
+        /// the error-direction for error()
         Point error_dir;
 };
 

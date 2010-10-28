@@ -53,12 +53,13 @@ class CompositeCutter : public MillingCutter {
         
         std::string str() const;
     protected:   
+        /// convert input radius r to cutter index
         unsigned int radius_to_index(double r) const;
+        /// return true if radius=r belongs to cutter n
         bool validRadius(unsigned int n, double r) const;
+
         double height(double r) const;
-        
         double width(double h) const {return 0.0;}
-        
         
         /// return true if cl.cc is within the radial range of cutter n
         /// for cutter n the valid radial distance from cl is
@@ -78,6 +79,7 @@ class CompositeCutter : public MillingCutter {
 class CylConeCutter : public CompositeCutter {
     public:
         CylConeCutter() {}; // dummy, required(?) by python wrapper
+        /// create cylconecutter
         CylConeCutter(double diam1, double diam2, double angle);
 };
 
@@ -87,6 +89,7 @@ class CylConeCutter : public CompositeCutter {
 class BallConeCutter : public CompositeCutter {
     public:
         BallConeCutter() {}; // dummy, required(?) by python wrapper
+        /// create ballconecutter
         BallConeCutter(double diam1, double diam2, double angle);
 };
 
@@ -97,6 +100,7 @@ class BallConeCutter : public CompositeCutter {
 class BullConeCutter : public CompositeCutter {
     public:
         BullConeCutter() {}; // dummy, required(?) by python wrapper
+        /// create bullconecutter
         BullConeCutter(double diam1, double radius1, double diam2, double angle);
 };
 
@@ -106,6 +110,8 @@ class BullConeCutter : public CompositeCutter {
 class ConeConeCutter : public CompositeCutter {
     public:
         ConeConeCutter() {}; // dummy, required(?) by python wrapper
+        /// create cone-cone cutter with lower cone (diam1,angle1) and upper cone (diam2,angle2)
+        /// we assume angle2 < angle1  and  diam2 > diam1.
         ConeConeCutter(double diam1, double angle1, double diam2, double angle2);
 };
 

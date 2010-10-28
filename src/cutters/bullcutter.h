@@ -42,7 +42,7 @@ class BullCutter : public MillingCutter {
         BullCutter(double diameter, double radius, double length);
         /// offset of Bull is Bull
         MillingCutter* offsetCutter(double offset) const;
-        
+        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
         std::string str() const;
         

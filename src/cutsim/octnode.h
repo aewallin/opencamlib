@@ -51,6 +51,7 @@ class Octnode {
         std::vector<Triangle> mc_triangles();
         /// a list of side-triangles
         std::vector<Triangle> side_triangles();
+        /// return the crack-triangles
         std::vector<Triangle> crack_triangles(std::vector<Point>& vertices);
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);

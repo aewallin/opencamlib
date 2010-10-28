@@ -48,7 +48,9 @@ class CCPoint : public Point {
         CCPoint();
         /// create CCPoint at (x,y,z)
         CCPoint(double x,double y,double z);
+        /// create CCPoint at (x,y,z) with type t
         CCPoint(double x,double y,double z, CCType t);
+        /// create CCPoint at p with type t
         CCPoint(const Point& p, CCType t);
         /// create a CCPoint at Point p
         CCPoint(const Point& p); 

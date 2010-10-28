@@ -56,8 +56,9 @@ class Waterline {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
-        
+        /// set the number of OpenMP threads
         void setThreads(unsigned int n) {nthreads = n;};
+        /// return the number of OpenMP threads
         int  getThreads() const {return nthreads;};
         
     protected:
@@ -81,6 +82,7 @@ class Waterline {
         double tolerance;
         /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint!!
+        /// number of OpenMP threads
         unsigned int nthreads;
 };
 

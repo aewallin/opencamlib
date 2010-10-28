@@ -27,10 +27,11 @@
 
 namespace ocl
 {  
-    
+/// python wrapper for lineclfilter
 class LineCLFilter_py : public LineCLFilter {
     public:
         LineCLFilter_py() : LineCLFilter() {};
+        /// return a list of CL-points to python
         boost::python::list getCLPoints() {
             // return points to python
             boost::python::list plist;

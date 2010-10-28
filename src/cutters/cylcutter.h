@@ -40,7 +40,8 @@ class CylCutter : public MillingCutter {
         /// create CylCutter with diameter d and length l
         explicit CylCutter(double d, double l);
         MillingCutter* offsetCutter(double d) const;
-        friend std::ostream& operator<<(std::ostream &stream, CylCutter c);
+        /// string repr
+        friend std::ostream& operator<<(std::ostream &stream, CylCutter c);        
         std::string str() const;
     protected:
         inline bool vertexPushTriangleSlice() const {return true;}

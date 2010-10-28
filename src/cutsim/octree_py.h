@@ -30,9 +30,11 @@
 namespace ocl
 {
 
+/// python wrapper for Octree
 class Octree_py : public Octree {
     public:
         Octree_py() : Octree() {};
+        /// construct octree at centerp with given scale and max depth
         Octree_py(double root_scale, unsigned int max_depth, Point& centerp) 
             : Octree(root_scale, max_depth, centerp) {};
         // python interface

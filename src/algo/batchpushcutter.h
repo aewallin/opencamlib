@@ -52,15 +52,20 @@ class BatchPushCutter {
         void setCutter(const MillingCutter *cutter);
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n) {nthreads = n;};
-        int  getThreads() const {return nthreads;};
-        void setXDirection() {x_direction=true;y_direction=false;};
-        void setYDirection() {x_direction=false;y_direction=true;};
+        /// return number of OpenMP threads
+        int  getThreads() const {return nthreads;}
+        /// set this bpc to be x-direction
+        void setXDirection() {x_direction=true;y_direction=false;}
+        /// set this bpc to be Y-direction
+        void setYDirection() {x_direction=false;y_direction=true;}
         /// append to list of Fibers to evaluate
         void appendFiber(Fiber& f);
-        
-        int getBucketSize() const {return bucketSize;};
-        void setBucketSize(unsigned int s) {bucketSize = s;};
-        int getCalls() const {return nCalls;};
+        /// return the kd-tree bucket-size
+        int getBucketSize() const {return bucketSize;}
+        /// set the kd-tree bucket-size
+        void setBucketSize(unsigned int s) {bucketSize = s;}
+        /// return number of low-level calls
+        int getCalls() const {return nCalls;}
         
         /// run push-cutter
         void run() {this->pushCutter3();};
@@ -68,8 +73,11 @@ class BatchPushCutter {
         std::vector<Fiber>* fibers;
         
     protected:
+        /// 1st version of algorithm
         void pushCutter1();
+        /// 2nd version of algorithm
         void pushCutter2();
+        /// 3rd version of algorithm
         void pushCutter3();
     
     // DATA
@@ -85,7 +93,9 @@ class BatchPushCutter {
         KDTree<Triangle>* root;
         /// number of threads to use
         unsigned int nthreads;
+        /// true if this we have only x-direction fibers
         bool x_direction;
+        /// true if we have y-direction fibers
         bool y_direction;
 };
 

@@ -32,8 +32,9 @@ namespace ocl
 class Fiber_py : public Fiber {
     public:
         Fiber_py() : Fiber () {};
+        /// construct p1-p2 fiber
         Fiber_py(const Point &p1, const Point &p2) : Fiber(p1, p2) {};
-        
+        /// return a list of intervals to python
         boost::python::list getInts() const {
             boost::python::list l;
             BOOST_FOREACH( Interval i, ints) {

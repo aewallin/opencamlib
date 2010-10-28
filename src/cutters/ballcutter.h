@@ -39,13 +39,13 @@ class BallCutter : public MillingCutter {
         explicit BallCutter(double d, double l);
         /// offset of Ball is Ball
         MillingCutter* offsetCutter(double d) const;
-        
+        /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         std::string str() const;
     protected:
-        /// drop BallCutter against an edge u1-u2 
         CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        /// calculate CC-point and update Interval i
         bool calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
         double height(double r) const;
         double width(double h) const; 

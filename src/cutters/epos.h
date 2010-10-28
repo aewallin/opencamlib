@@ -37,10 +37,10 @@ class Epos {
     public:
         /// create an epos
         Epos();
+        /// create Epos at (s,t)
         Epos(double sin, double tin){s=sin; t=tin;}
         
         /// set (s,t) pair to the position corresponding to diangle
-        
         void setDiangle(double dia);
         
         /// s-parameter in [-1, 1]
@@ -65,6 +65,7 @@ class Epos {
         /// checks s^2 + t^2 == 1  (to within tolerance) 
         bool isValid() const;
     private:
+        /// set (s,t) pair to match diangle
         void setD();
 };
     

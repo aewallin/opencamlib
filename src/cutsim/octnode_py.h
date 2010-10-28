@@ -28,6 +28,7 @@
 namespace ocl
 {
 
+/// python wrapper for Octnode
 class Octnode_py : public Octnode {
     public:
         Octnode_py() : Octnode() {};

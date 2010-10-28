@@ -205,7 +205,7 @@
  * \f[
  * cc.z = (1/c)*(-d-a*cc.x-b*cc.y)
  * \f] 
- * The tool-tip z-coordinate is now given by \f$cl.z = cc.z + r*(\bar{n}\cdot\hat{z})  - r\f$
+ * The tool-tip z-coordinate is now given by \f$cl.z = cc.z + r*(n\cdot\hat{z})  - r \f$
  * 
  * 
  * \subsubsection torfacettest Toroidal cutter facet test

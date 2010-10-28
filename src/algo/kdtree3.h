@@ -64,13 +64,16 @@ class Spread3 {
         };
 };
 
-
+/// a kd-tree for storing triangles and fast searching for triangles
+/// that overlap the cutter
 template <class BBObj>
 class KDTree {
     public:
         KDTree() {};
         virtual ~KDTree() {delete root;};
+        /// set the bucket-size 
         void setBucketSize(int b){bucketSize = b;};
+        /// set the search dimension to the XY-plane
         void setXYDimensions(){
             std::cout << "KDTree::setXYDimensions()\n"; 
             dimensions.clear();
@@ -79,6 +82,7 @@ class KDTree {
             dimensions.push_back(2); // y
             dimensions.push_back(3); // y
         }; // for drop-cutter search in XY plane
+        /// set search-plane to YZ
         void setYZDimensions(){ // for X-fibers
             std::cout << "KDTree::setYZDimensions()\n"; 
             dimensions.clear();
@@ -87,6 +91,7 @@ class KDTree {
             dimensions.push_back(4); // z
             dimensions.push_back(5); // z
         }; // for X-fibers
+        /// set search plane to XZ
         void setXZDimensions(){ // for Y-fibers
             std::cout << "KDTree::setXZDimensions()\n";
             dimensions.clear();
@@ -95,18 +100,18 @@ class KDTree {
             dimensions.push_back(4); // z
             dimensions.push_back(5); // z
         }; // for Y-fibers
-        
+        /// build the kd-tree based on a list of input objects
         void build(const std::list<BBObj>& list){
             root = build_node( &list, 0, NULL ); 
         };
-        
+        /// search for overlap with input Bbox bb, return found objects
         std::list<BBObj>* search( const Bbox& bb ){
             assert( !dimensions.empty() );
             std::list<BBObj>* tris = new std::list<BBObj>();
             this->search_node( tris, bb, root );
             return tris;
         };
-        
+        /// search for overlap with a MillingCutter c positioned at cl, return found objects
         std::list<BBObj>* search_cutter_overlap(const MillingCutter* c, CLPoint* cl ){
             double r = c->getRadius();
             // build a bounding-box at the current CL
@@ -117,6 +122,7 @@ class KDTree {
         std::string str() const;
         
     protected:
+        /// build and return a KDNode3 containing list *tris at depth dep.
         KDNode3<BBObj>* build_node(     const std::list<BBObj> *tris,  // triangles 
                                         int dep,                       // depth of node
                                         KDNode3<BBObj> *par)   {
@@ -153,7 +159,7 @@ class KDTree {
             node->lo = build_node(lolist, dep+1, node);    
             return node; // return a new node
         };                 
-                                
+        /// calculate the spread of list *tris                        
         Spread3* calc_spread(const std::list<BBObj> *tris) {
             std::vector<double> maxval( 6 );
             std::vector<double> minval( 6 );
@@ -191,6 +197,8 @@ class KDTree {
         } // end spread();
         
         
+        /// search kd-tree starting at *node, looking for overlap with bb, and placing
+        /// found objects in *tris
         void search_node( std::list<BBObj> *tris, const Bbox& bb, KDNode3<BBObj> *node) {
             if (node->tris != NULL) { // we found a bucket node, so add all triangles and return.
                     BOOST_FOREACH( Triangle t, *(node->tris) ) {
