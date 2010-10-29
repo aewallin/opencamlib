@@ -146,6 +146,8 @@ void export_algo() {
         .def("setCutter", &AdaptivePathDropCutter_py::setCutter)
         .def("setSTL", &AdaptivePathDropCutter_py::setSTL)
         .def("setSampling", &AdaptivePathDropCutter_py::setSampling)
+        .def("setMinSampling", &AdaptivePathDropCutter_py::setMinSampling)
+        .def("setCosLimit", &AdaptivePathDropCutter_py::setCosLimit)
         .def("getSampling", &AdaptivePathDropCutter_py::getSampling)
         .def("setPath", &AdaptivePathDropCutter_py::setPath)
         .def("getZ", &AdaptivePathDropCutter_py::getZ)

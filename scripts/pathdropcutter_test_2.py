@@ -10,8 +10,8 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()    
     stl = camvtk.STLSurf("../stl/demo.stl")
     print "STL surface read"
-    myscreen.addActor(stl)
-    stl.SetWireframe()    
+    #myscreen.addActor(stl)
+    #stl.SetWireframe()    
     polydata = stl.src.GetOutput()
     s= ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
@@ -30,22 +30,23 @@ if __name__ == "__main__":
     pdc.minimumZ = -1                   # set the minimum Z-coordinate, or "floor" for drop-cutter
     apdc.minimumZ = -1 
     #print "set the sampling interval"
-    pdc.setSampling(0.1)
-    apdc.setSampling(0.8)
+    pdc.setSampling(0.08)
+    apdc.setSampling(0.08)
+    apdc.setMinSampling(0.0008)
     print " apdc sampling = ", apdc.getSampling()
     # some parameters for this "zigzig" pattern    
     ymin=0
     ymax=12
-    Ny=2  # number of lines in the y-direction
+    Ny=1  # number of lines in the y-direction
     dy = float(ymax-ymin)/Ny  # the y step-over
     
     path = ocl.Path()                   # create an empty path object 
     path2 = ocl.Path() 
     # add Line objects to the path in this loop
     for n in xrange(0,Ny):
-        y = ymin+n*dy
+        y = 6 #ymin+n*dy
         p1 = ocl.Point(0,y,0)   # start-point of line
-        p2 = ocl.Point(9,y,0)   # end-point of line
+        p2 = ocl.Point(10,y,0)   # end-point of line
         l = ocl.Line(p1,p2)     # line-object
         l2 = ocl.Line(p1,p2)
         path.append( l )        # add the line to the path
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     
     aclp_lifted=[]
     for p in aclp:
-        p2 = ocl.Point(p.x,p.y,p.z) + ocl.Point(0,0,0.4)
+        p2 = ocl.Point(p.x,p.y,p.z) + ocl.Point(0,0,0.5)
         aclp_lifted.append(p2)
         #aclp_lifted = p+ocl.CLPoint(0,0,0.1)
         
