@@ -59,6 +59,14 @@ class PathDropCutter {
         void run();
         
     protected:
+        void adaptive_sample(const Span* span, double start_t, double stop_t, double start_z, double stop_z);
+        /// drop-cutter height
+        double drop_cutter_height(const Span* span, double t);
+        /// flatness predicate for adaptive sampling
+        bool flat(double start_z, double mid_z, double stop_z);
+        
+        void adaptive_sampling_run();
+        void uniform_sampling_run();
         /// run drop-cutter on Span
         void sample_span(const Span* span);
         /// the path to follow

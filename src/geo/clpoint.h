@@ -43,6 +43,8 @@ class CLPoint : public Point {
         CLPoint(double x, double y, double z, CCPoint& ccp);
         /// copy constructor
         CLPoint(const CLPoint& cl);
+        /// cl-point at Point p
+        CLPoint(const Point& p);
         virtual ~CLPoint();
         /// Pointer to the corresponding CCPoint
         CCPoint* cc; 

@@ -50,6 +50,11 @@ CLPoint::CLPoint(const CLPoint& cl)
     cc = new CCPoint( *cl.cc );
 }
 
+CLPoint::CLPoint(const Point& p) 
+    : Point(p.x,p.y,p.z) {
+    cc = new CCPoint();
+}
+
 CLPoint::~CLPoint() {
    delete cc;
 }
