@@ -85,24 +85,25 @@ void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, d
     //std::cout << " stop=" << stop_cl << "\n";
     //std::cout << " pdc->run() done \n";
     //std::cout << " (stop_cl-start_cl).xyNorm() = " << (stop_cl-start_cl).xyNorm() << "\n";
-    char c;
+    //char c;
     if ( (stop_cl-start_cl).xyNorm() > sampling ) { // above minimum step-forward, need to sample more
         std::cout << " forward-step= " << (stop_cl-start_cl).xyNorm() << " subdividing.\n";
         //std::cin >> c;
         std::cout << " start - mid call() \n";
         adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
         std::cout << " mid - stop call() \n";
-        adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
+        //adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
     } else {
         std::cout << " adding point " << stop_cl << "...";
-        std::cout << " t=" << start_t << " sta=" << start_cl << "\n";
-        std::cout << " t=" << mid_t << " mid=" << mid_cl << "\n";
-        std::cout << " t=" << stop_t << " stop=" << stop_cl << "\n";
-    
-        std::cin >> c;
-        //CLPoint* p = new CLPoint(stop_cl);
-        clpoints.push_back(stop_cl); 
+        //clpoints.push_back(stop_cl); 
         std::cout << " done. \n";
+        //std::cout << " t=" << start_t << " sta=" << start_cl << "\n";
+        //std::cout << " t=" << mid_t << " mid=" << mid_cl << "\n";
+        //std::cout << " t=" << stop_t << " stop=" << stop_cl << "\n";
+    
+        //std::cin >> c;
+        //CLPoint* p = new CLPoint(stop_cl);
+        
     } 
     /*
     else if ( flat(start_cl,mid_cl,stop_cl) ) { // sufficient sampling, and flat, so store values:
@@ -114,6 +115,7 @@ void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, d
         adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
         adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
     }*/
+    return;
 }
 
 bool AdaptivePathDropCutter::flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl)  {

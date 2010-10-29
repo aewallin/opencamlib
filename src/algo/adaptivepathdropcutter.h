@@ -53,6 +53,7 @@ class AdaptivePathDropCutter : public PathDropCutter{
         void setCutter(MillingCutter* cutter);        
         /// run drop-cutter on the whole Path
         virtual void run();
+        void setMinSampling(double s) {min_sampling=s;}
         
     protected:
         void adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl);
@@ -60,7 +61,7 @@ class AdaptivePathDropCutter : public PathDropCutter{
         bool flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl);
         void adaptive_sampling_run();
         PointDropCutter* pdc;
-
+        double min_sampling;
 };
 
 /// Python wrapper for PathDropCutter

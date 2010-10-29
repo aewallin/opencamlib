@@ -99,7 +99,7 @@ class Path {
         std::list<Span*> span_list;
 
         // FIXME: this looks wrong
-        // should be only one append() that tkaes a Span
+        // should be only one append() that takes a Span
         /// append a Line to this path
         void append(const Line &l);
         /// append an Arc to this path

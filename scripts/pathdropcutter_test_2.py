@@ -31,7 +31,7 @@ if __name__ == "__main__":
     apdc.minimumZ = -1 
     #print "set the sampling interval"
     pdc.setSampling(0.1)
-    apdc.setSampling(0.1)
+    apdc.setSampling(0.8)
     print " apdc sampling = ", apdc.getSampling()
     # some parameters for this "zigzig" pattern    
     ymin=0
@@ -47,8 +47,9 @@ if __name__ == "__main__":
         p1 = ocl.Point(0,y,0)   # start-point of line
         p2 = ocl.Point(9,y,0)   # end-point of line
         l = ocl.Line(p1,p2)     # line-object
+        l2 = ocl.Line(p1,p2)
         path.append( l )        # add the line to the path
-        path2.append( l )
+        path2.append( l2 )
 
     print " set the path for pdf "
     pdc.setPath( path )
