@@ -16,9 +16,9 @@ def main():
     camvtk.drawOCLtext(myscreen)
     
     
-    #s = ocl.BallCutterVolume()
+    s = ocl.BallCutterVolume()
     #s = ocl.CylCutterVolume()
-    s = ocl.BullCutterVolume()
+    #s = ocl.BullCutterVolume()
     #s.center = ocl.Point(-2.50,-0.6,0)
     s.r1=0.3
     s.r2=0.1

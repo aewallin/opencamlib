@@ -61,44 +61,6 @@ void PathDropCutter::run() {
 
 }
 
-void PathDropCutter::adaptive_sampling_run() {
-    clpoints.clear();
-    BOOST_FOREACH( const Span* span, path->span_list ) {
-        adaptive_sample( span, 0.0, 1.0, 0.0, 0.0);
-    }
-}
-
-void PathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, double start_z, double stop_z) {
-    double mid_t = (stop_t-start_t)/2.0; // mid point sample
-    double mid_z = drop_cutter_height(span, mid_t);
-    if (0) { // below sampling-limit, need to sample more
-    
-    } else if ( flat(start_z,mid_z,stop_z) ) {
-        //line start_t, stop_t
-    } else {
-        // need to sample further
-        adaptive_sample( span, start_t, mid_t , start_z, mid_z  );
-        adaptive_sample( span, mid_t  , stop_t, mid_z  , stop_z );
-    }
-}
-
-bool PathDropCutter::flat(double start_z, double mid_z, double stop_z) {
-    double dz = fabs(mid_z-start_z)+fabs(mid_z-stop_z);
-    return (dz > 1e-3);
-}
-
-double PathDropCutter::drop_cutter_height(const Span* span, double t) {
-    // find triangles under cutter
-    // drop against each
-    // return height of point (or highest CL-point)
-    CLPoint* p = new CLPoint( span->getPoint(t) );
-    p->z = minimumZ;
-    bdc->appendPoint( *p );
-    bdc->run();
-    
-    return 0.0;
-}
-
 void PathDropCutter::uniform_sampling_run() {
     clpoints.clear();
     BOOST_FOREACH( const Span* span, path->span_list ) { // loop through the spans calling run() on each

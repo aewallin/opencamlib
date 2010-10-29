@@ -44,45 +44,41 @@ class PathDropCutter {
         PathDropCutter();
         virtual ~PathDropCutter();
         /// set the STLSurf surface for this operation
-        void setSTL(const STLSurf& s);
+        virtual void setSTL(const STLSurf& s);
         /// set the MillingCutter for this operation
-        void setCutter(MillingCutter* cutter);
+        virtual void setCutter(MillingCutter* cutter);
         /// set the Path to follow and sample
         void setPath(const Path* path);
         /// set the minimum z-value, or "floor" for drop-cutter
-        void setZ(const double z) {minimumZ = z;};
+        void setZ(const double z) {minimumZ = z;}
         /// return Z
-        double getZ() const {return minimumZ;};
+        double getZ() const {return minimumZ;}
         /// set the sampling-distance for the Path
-        void setSampling(double s) {sampling=s;};
+        void setSampling(double s) {sampling=s;}
+        double getSampling() {return sampling;}
         /// run drop-cutter on the whole Path
-        void run();
+        virtual void run();
         
     protected:
-        void adaptive_sample(const Span* span, double start_t, double stop_t, double start_z, double stop_z);
-        /// drop-cutter height
-        double drop_cutter_height(const Span* span, double t);
-        /// flatness predicate for adaptive sampling
-        bool flat(double start_z, double mid_z, double stop_z);
-        
-        void adaptive_sampling_run();
-        void uniform_sampling_run();
-        /// run drop-cutter on Span
-        void sample_span(const Span* span);
         /// the path to follow
         const Path* path;
         /// the cutter used for this operation
         MillingCutter* cutter;
         /// the surface for this operation
         const STLSurf* surf;
-        /// how closely to sample points from a Path, default is sampling=0.1
+        /// how closely to sample points from a Path, default is sampling=0.1 (aka step-forward)
         double sampling;
-        /// the BatchDropCutter object that runs drop-cutter on the sampled poitns
-        BatchDropCutter* bdc;
         /// the lowest z height, used when no triangles are touched, default is minimumZ = 0.0
         double minimumZ;
         /// list of CL-points
         std::vector<CLPoint> clpoints;
+    private:
+        /// the BatchDropCutter object that runs drop-cutter on the sampled poitns
+        BatchDropCutter* bdc;
+        /// the algorithm
+        void uniform_sampling_run();
+        /// sample the span unfirormly with tolerance sampling
+        void sample_span(const Span* span);
 };
 
 } // end namespace

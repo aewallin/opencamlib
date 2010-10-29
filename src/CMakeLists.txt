@@ -81,10 +81,12 @@ set(OCL_CUTTER_SRC
 
 set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/pointdropcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/lineclfilter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/adaptivepathdropcutter.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp

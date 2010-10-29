@@ -51,9 +51,9 @@ class Line {
         /// return the length of the line-segment in the xy-plane
         double length2d()const;
         /// return a Point on the Line at parameter value t [0,1]
-        Point getPoint(double t)const;
+        Point getPoint(double t) const;
         /// return the point on the Line which is closest to Point p.
-        Point Near(const Point& p)const;
+        Point Near(const Point& p) const;
 };
 
 } // end namespace

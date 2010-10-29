@@ -26,35 +26,30 @@
 namespace ocl
 {
 
-Line::Line(const Point &p1in, const Point &p2in)
-{
+Line::Line(const Point &p1in, const Point &p2in) {
     p1=p1in;
     p2=p2in;
 }
 
-Line::Line(const Line &l)
-{
+Line::Line(const Line &l) {
     p1=l.p1;
     p2=l.p2;
 }
 
-std::ostream& operator<<(std::ostream &stream, const Line& l)
-{
+std::ostream& operator<<(std::ostream &stream, const Line& l) {
   stream << "(" << l.p1 << ", " << l.p2 << ")";
   return stream;
 }
 
-double Line::length2d()const
-{
+double Line::length2d()const {
     return (p2 - p1).xyNorm();
 }
 
-Point Line::getPoint(double t)const
-{
+Point Line::getPoint(double t) const {
     return (p2 - p1) * t + p1;
 }
 
-Point Line::Near(const Point& p)const{
+Point Line::Near(const Point& p) const {
     // returns the near point from a line on the extended line
     Point v = p2 - p1;
     v.normalize();

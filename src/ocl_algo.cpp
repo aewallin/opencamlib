@@ -20,13 +20,14 @@
 
 #include <boost/python.hpp>
 
-#include "batchdropcutter_py.h" // new-style wrapper
-#include "batchpushcutter_py.h" // new-style wrapper 
-#include "pathdropcutter_py.h"  // new-style wrapper
-#include "fiber_py.h"           // new-style wrapper
-#include "weave_py.h"           // new-style wrapper
-#include "waterline_py.h"       // new-style wrapper
-#include "lineclfilter_py.h"    // new-style wrapper
+#include "batchdropcutter_py.h" 
+#include "batchpushcutter_py.h"  
+#include "pathdropcutter_py.h"  
+#include "adaptivepathdropcutter.h"  //FIX 
+#include "fiber_py.h"           
+#include "weave_py.h"           
+#include "waterline_py.h"       
+#include "lineclfilter_py.h"    
 #include "numeric.h"
 
 /*
@@ -136,6 +137,19 @@ void export_algo() {
         .def("setPath", &PathDropCutter_py::setPath)
         .def("getZ", &PathDropCutter_py::getZ)
         .def("setZ", &PathDropCutter_py::setZ)
+    ;
+    bp::class_<AdaptivePathDropCutter>("AdaptivePathDropCutter_base")
+    ;
+    bp::class_<AdaptivePathDropCutter_py , bp::bases<AdaptivePathDropCutter> >("AdaptivePathDropCutter")
+        .def("run", &AdaptivePathDropCutter_py::run)
+        .def("getCLPoints", &AdaptivePathDropCutter_py::getCLPoints)
+        .def("setCutter", &AdaptivePathDropCutter_py::setCutter)
+        .def("setSTL", &AdaptivePathDropCutter_py::setSTL)
+        .def("setSampling", &AdaptivePathDropCutter_py::setSampling)
+        .def("getSampling", &AdaptivePathDropCutter_py::getSampling)
+        .def("setPath", &AdaptivePathDropCutter_py::setPath)
+        .def("getZ", &AdaptivePathDropCutter_py::getZ)
+        .def("setZ", &AdaptivePathDropCutter_py::setZ)
     ;
     bp::class_<LineCLFilter>("LineCLFilter_base")
     ;
