@@ -57,7 +57,7 @@ binary-arch: install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs 
-	dh_installdocs
+	dh_installdocs --exclude=.svn
 	dh_installexamples
 #	dh_install
 #	dh_installmenu
