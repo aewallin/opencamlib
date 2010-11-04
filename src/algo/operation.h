@@ -47,7 +47,7 @@ class Operation {
         /// set the MillingCutter to use
         virtual void setCutter(const MillingCutter* c) {cutter = c;}
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
-        virtual void setThreads(unsigned int n) {nthreads = n;}
+        void setThreads(unsigned int n) {nthreads = n;}
         /// return number of OpenMP threads
         int  getThreads() const {return nthreads;}
         /// return the kd-tree bucket-size

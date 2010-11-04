@@ -61,7 +61,7 @@ void Waterline::setSTL(const STLSurf& s) {
     bpc_y->setYDirection();
     bpc_x->setSTL( s );
     bpc_y->setSTL( s );
-    surface = &s;
+    surf = &s;
     std::cout << " DONE.\n";
 }
 
@@ -122,10 +122,10 @@ void Waterline::run() {
 
 void Waterline::init_fibers() {
     std::cout << " Waterline::init_fibers()\n";
-    double minx = surface->bb.minpt.x - 2*cutter->getRadius();
-    double maxx = surface->bb.maxpt.x + 2*cutter->getRadius();
-    double miny = surface->bb.minpt.y - 2*cutter->getRadius();
-    double maxy = surface->bb.maxpt.y + 2*cutter->getRadius();
+    double minx = surf->bb.minpt.x - 2*cutter->getRadius();
+    double maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
+    double miny = surf->bb.minpt.y - 2*cutter->getRadius();
+    double maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
     int Nx = (int)( (maxx-minx)/tolerance );
     int Ny = (int)( (maxy-miny)/tolerance );
     std::vector<double> xvals = generate_range(minx,maxx,Nx);

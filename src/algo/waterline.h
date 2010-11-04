@@ -28,6 +28,7 @@
 #include "point.h"
 #include "fiber.h"
 #include "batchpushcutter.h"
+#include "operation.h"
 
 namespace ocl
 {
@@ -40,7 +41,7 @@ class MillingCutter;
 
 /// The Waterline object is used for generating waterline or z-slice toolpaths
 /// from an STL-model. Waterline calls BatchPushCutter to do most of the work.
-class Waterline {
+class Waterline : public Operation {
     public:
         /// create an empty Waterline object
         Waterline(); 
@@ -56,10 +57,7 @@ class Waterline {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
-        /// set the number of OpenMP threads
-        void setThreads(unsigned int n) {nthreads = n;};
-        /// return the number of OpenMP threads
-        int  getThreads() const {return nthreads;};
+
         
     protected:
         /// initialization
@@ -67,11 +65,6 @@ class Waterline {
         /// x and y-coordinates for fiber generation
         std::vector<double> generate_range( double start, double end, int N) const;
     // DATA
-        /// the cutter for this operation
-        const MillingCutter* cutter;
-
-        /// the surface for this operation
-        const STLSurf* surface;
         /// handle to BatchPushCutter that does the heavy lifting
         BatchPushCutter* bpc_x;
         /// handle to y-direction BatchPushCutter
@@ -82,8 +75,7 @@ class Waterline {
         double tolerance;
         /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint!!
-        /// number of OpenMP threads
-        unsigned int nthreads;
+
 };
 
 
