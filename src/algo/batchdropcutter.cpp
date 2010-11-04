@@ -37,7 +37,7 @@ namespace ocl
 
 BatchDropCutter::BatchDropCutter() {
     clpoints = new std::vector<CLPoint>();
-    dcCalls = 0;
+    nCalls = 0;
 #ifdef _OPENMP
     nthreads = omp_get_num_procs(); // figure out how many cores we have
 #endif
@@ -55,9 +55,7 @@ void BatchDropCutter::setSTL(const STLSurf &s) {
     std::cout << "bdc::setSTL() done.\n";
 }
 
-void BatchDropCutter::setCutter(MillingCutter* c) {
-    cutter = c;
-}
+
 
 void BatchDropCutter::appendPoint(CLPoint& p) {
     clpoints->push_back(p);
@@ -67,11 +65,11 @@ void BatchDropCutter::appendPoint(CLPoint& p) {
 void BatchDropCutter::dropCutter1() {
     std::cout << "dropCutterSTL1 " << clpoints->size() << 
               " cl-points and " << surf->tris.size() << " triangles...";
-    dcCalls = 0;
+    nCalls = 0;
     BOOST_FOREACH(CLPoint &cl, *clpoints) {
         BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
             cutter->dropCutter(cl,t);
-            ++dcCalls;
+            ++nCalls;
         }
     }
     std::cout << "done.\n";
@@ -84,18 +82,18 @@ void BatchDropCutter::dropCutter2() {
     std::cout << "dropCutterSTL2 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
     std::cout.flush();
-    dcCalls = 0;
+    nCalls = 0;
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             cutter->dropCutter(cl,t);
-            ++dcCalls;
+            ++nCalls;
         }
     }
     delete triangles_under_cutter;
-    std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
+    std::cout << "done. " << nCalls << " dropCutter() calls.\n";
     std::cout.flush();
     return;
 }
@@ -104,7 +102,7 @@ void BatchDropCutter::dropCutter2() {
 void BatchDropCutter::dropCutter3() {
     std::cout << "dropCutterSTL3 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
-    dcCalls = 0;
+    nCalls = 0;
     boost::progress_display show_progress( clpoints->size() );
     std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
@@ -114,14 +112,14 @@ void BatchDropCutter::dropCutter3() {
             if (cutter->overlaps(cl,t)) {
                 if ( cl.below(t) ) {
                     cutter->dropCutter(cl,t);
-                    ++dcCalls;
+                    ++nCalls;
                 }
             }
         }
         ++show_progress;
     }
     delete triangles_under_cutter;
-    std::cout << "done. " << dcCalls << " dropCutter() calls.\n";
+    std::cout << "done. " << nCalls << " dropCutter() calls.\n";
     return;
 }
 
@@ -130,7 +128,7 @@ void BatchDropCutter::dropCutter4() {
     std::cout << "dropCutterSTL4 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
     boost::progress_display show_progress( clpoints->size() );
-    dcCalls = 0;
+    nCalls = 0;
     int calls=0;
     long int ntris = 0;
     std::list<Triangle>* tris;
@@ -182,8 +180,8 @@ void BatchDropCutter::dropCutter4() {
             delete( tris );
             ++show_progress;
         } // end OpenMP PARALLEL for
-    dcCalls = calls;
-    std::cout << " " << dcCalls << " dropCutter() calls.\n";
+    nCalls = calls;
+    std::cout << " " << nCalls << " dropCutter() calls.\n";
     return;
 }
 
@@ -192,7 +190,7 @@ void BatchDropCutter::dropCutter5() {
     std::cout << "dropCutterSTL5 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
     boost::progress_display show_progress( clpoints->size() );
-    dcCalls = 0;
+    nCalls = 0;
     int calls=0;
     long int ntris = 0;
     std::list<Triangle>* tris;
@@ -231,8 +229,8 @@ void BatchDropCutter::dropCutter5() {
             delete( tris );
             ++show_progress;
         } // end OpenMP PARALLEL for
-    dcCalls = calls;
-    std::cout << "\n " << dcCalls << " dropCutter() calls.\n";
+    nCalls = calls;
+    std::cout << "\n " << nCalls << " dropCutter() calls.\n";
     return;
 }
 

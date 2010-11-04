@@ -88,35 +88,15 @@ void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, d
         adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
     } else if ( !flat(start_cl,mid_cl,stop_cl)   ) {
         if (fw_step > min_sampling) {
-            //std::cout << " non-flat recursion!!\n";
             // not a a flat segment, and we have not reached maximum sampling
             adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
             adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
         }
-        //return;
+        
     } 
-    //else {
-        //std::cout << " adding point " << stop_cl << "...";
-        clpoints.push_back(stop_cl); 
-        //std::cout << " done. \n";
-        //std::cout << " t=" << start_t << " sta=" << start_cl << "\n";
-        //std::cout << " t=" << mid_t << " mid=" << mid_cl << "\n";
-        //std::cout << " t=" << stop_t << " stop=" << stop_cl << "\n";
     
-        //std::cin >> c;
-        //CLPoint* p = new CLPoint(stop_cl);
-    //    return;
-    //} 
-    /*
-    else if ( flat(start_cl,mid_cl,stop_cl) ) { // sufficient sampling, and flat, so store values:
-        //clpoints.push_back(start_cl);
-        clpoints.push_back(stop_cl); // line start_t, stop_t
-    } else {
-        // sufficient sampling, but not flat enough.
-        // need to sample further.
-        adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
-        adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
-    }*/
+    // the last point (?)
+    clpoints.push_back(stop_cl); 
     return;
 }
 

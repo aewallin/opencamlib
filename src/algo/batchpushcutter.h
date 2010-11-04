@@ -28,6 +28,7 @@
 #include "point.h"
 #include "fiber.h"
 #include "kdtree3.h"
+#include "operation.h"
 
 namespace ocl
 {
@@ -41,34 +42,24 @@ class MillingCutter;
 /// and pushes the cutter along the fibers into contact with the surface.
 /// When this runs the Fibers will be updated with the correct interval data.
 /// This is then used to build a weave and extract a waterline.
-class BatchPushCutter {
+class BatchPushCutter : public Operation {
     public:
         BatchPushCutter();
         virtual ~BatchPushCutter();
         
         /// set the STL-surface and build kd-tree
         void setSTL(const STLSurf& s);
-        /// set the MillingCutter to use
-        void setCutter(const MillingCutter *cutter);
-        /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
-        void setThreads(unsigned int n) {nthreads = n;};
-        /// return number of OpenMP threads
-        int  getThreads() const {return nthreads;}
+
         /// set this bpc to be x-direction
         void setXDirection() {x_direction=true;y_direction=false;}
         /// set this bpc to be Y-direction
         void setYDirection() {x_direction=false;y_direction=true;}
         /// append to list of Fibers to evaluate
         void appendFiber(Fiber& f);
-        /// return the kd-tree bucket-size
-        int getBucketSize() const {return bucketSize;}
-        /// set the kd-tree bucket-size
-        void setBucketSize(unsigned int s) {bucketSize = s;}
-        /// return number of low-level calls
-        int getCalls() const {return nCalls;}
+
         
         /// run push-cutter
-        void run() {this->pushCutter3();};
+        void run() {this->pushCutter3();}
         /// pointer to list of Fibers
         std::vector<Fiber>* fibers;
         
@@ -81,18 +72,6 @@ class BatchPushCutter {
         void pushCutter3();
     
     // DATA
-        /// how many low-level calls were made
-        int nCalls;
-        /// size of bucket-node in KD-tree
-        unsigned int bucketSize;
-        /// the MillingCutter used
-        const MillingCutter* cutter;
-        /// the STLSurf which we test against.
-        const STLSurf* surf;
-        /// root of the kd-tree
-        KDTree<Triangle>* root;
-        /// number of threads to use
-        unsigned int nthreads;
         /// true if this we have only x-direction fibers
         bool x_direction;
         /// true if we have y-direction fibers

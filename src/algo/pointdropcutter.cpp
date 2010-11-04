@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
 
-#ifdef _OPENMP // this should really not be a check for Windows, but a check for OpenMP
+#ifdef _OPENMP 
     #include <omp.h>
 #endif
 
@@ -36,8 +36,7 @@ namespace ocl
 //********   ********************** */
 
 PointDropCutter::PointDropCutter() {
-    //clpoints = new std::vector<CLPoint>();
-    dcCalls = 0;
+    nCalls = 0;
 #ifdef _OPENMP
     nthreads = omp_get_num_procs(); // figure out how many cores we have
 #endif
@@ -55,34 +54,19 @@ void PointDropCutter::setSTL(const STLSurf &s) {
     std::cout << "pdc::setSTL() done.\n";
 }
 
-void PointDropCutter::setCutter(MillingCutter* c) {
-    cutter = c;
-}
-
-
 void PointDropCutter::run(CLPoint& clp) {
     pointDropCutter1(clp);
 }
 
 // use OpenMP to share work between threads
 void PointDropCutter::pointDropCutter1(CLPoint& clp) {
-    //std::cout << "dropCutterSTL5 " << clpoints->size() << 
-    //        " cl-points and " << surf->tris.size() << " triangles.\n";
-    //boost::progress_display show_progress( clpoints->size() );
-    dcCalls = 0;
+    nCalls = 0;
     int calls=0;
-    //long int ntris = 0;
     std::list<Triangle>* tris;
-    //unsigned int n;
-    //unsigned int Nmax = clpoints->size();
-    //std::vector<CLPoint>& clref = *clpoints; 
-    //int nloop=0;
-    //unsigned int ntriangles = surf->tris.size();
     tris=new std::list<Triangle>();
     tris = root->search_cutter_overlap( cutter, &clp );
     std::list<Triangle>::iterator it;
-    //assert( tris );
-    //assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
+
     for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
         if ( cutter->overlaps(clp,*it) ) { // cutter overlap triangle? check
             if (clp.below(*it)) {
@@ -91,10 +75,9 @@ void PointDropCutter::pointDropCutter1(CLPoint& clp) {
             }
         }
     }
-    //ntris += tris->size();
+    
     delete( tris );
-    dcCalls = calls;
-    //std::cout << "\n " << dcCalls << " dropCutter() calls.\n";
+    nCalls = calls;
     return;
 }
 

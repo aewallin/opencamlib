@@ -27,6 +27,7 @@
 
 #include "batchdropcutter.h"
 #include "path.h"
+#include "operation.h"
 
 namespace ocl
 {
@@ -38,7 +39,7 @@ class KDNode;
 
 ///
 /// \brief path drop cutter finish Path generation
-class PathDropCutter {
+class PathDropCutter : public Operation {
     public:
         /// construct an empty PathDropCutter object
         PathDropCutter();
@@ -63,9 +64,9 @@ class PathDropCutter {
         /// the path to follow
         const Path* path;
         /// the cutter used for this operation
-        MillingCutter* cutter;
+        //MillingCutter* cutter;
         /// the surface for this operation
-        const STLSurf* surf;
+        //const STLSurf* surf;
         /// how closely to sample points from a Path, default is sampling=0.1 (aka step-forward)
         double sampling;
         /// the lowest z height, used when no triangles are touched, default is minimumZ = 0.0

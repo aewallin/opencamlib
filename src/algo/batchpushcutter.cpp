@@ -70,10 +70,6 @@ void BatchPushCutter::setSTL(const STLSurf &s) {
     std::cout << " done.\n";
 }
 
-void BatchPushCutter::setCutter(const MillingCutter *c) {
-    cutter = c;
-}
-
 void BatchPushCutter::appendFiber(Fiber& f) {
     fibers->push_back(f);
 }
