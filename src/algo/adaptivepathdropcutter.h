@@ -51,16 +51,22 @@ class AdaptivePathDropCutter : public PathDropCutter{
     
         /// run drop-cutter on the whole Path
         virtual void run();
+        /// set the minimum sapling interval
         void setMinSampling(double s) {min_sampling=s;}
+        /// set the cosine limit for the flat() predicate
         void setCosLimit(double lim) {cosLimit=lim;}
         
     protected:
+        /// run adaptive sample on the given Span between t-values of start_t and stop_t
         void adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl);
         /// flatness predicate for adaptive sampling
         bool flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl);
+        /// run adaptive sampling
         void adaptive_sampling_run();
 
+        /// the smallest sampling interval used when adaptively subdividing
         double min_sampling;
+        /// the limit for dot-product used in flat()
         double cosLimit;
 };
 

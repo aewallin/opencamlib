@@ -36,16 +36,14 @@ namespace ocl
 class STLSurf;
 class Triangle;
 
-///
+/// run drop-cutter on an STL-surface at a single input CLPoint
 class PointDropCutter : public Operation {
     public:
         PointDropCutter();
         virtual ~PointDropCutter() {
             delete root;
         }
-        /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(const STLSurf &s);
-        /// run drop-cutter on given CLPoint
         void run(CLPoint& cl);
         void run() {
             std::cout << "ERROR: can't call run() on PointDropCutter()\n";
@@ -53,6 +51,7 @@ class PointDropCutter : public Operation {
         }
         
     protected:
+        /// first simple implementation of this operation
         void pointDropCutter1(CLPoint& clp);
 };
 

@@ -69,18 +69,21 @@ class Operation {
         /// return number of low-level calls
         int getCalls() const {return nCalls;}
         
+        /// set the sampling interval for this Operation and all sub-operations
         virtual void setSampling(double s) {sampling=s;}
+        /// return the sampling interval
         virtual double getSampling() {return sampling;}
         
         /// run the algorithm
         virtual void run() = 0;
+        /// run algorithm on a single input CLPoint
         virtual void run(CLPoint& cl) {assert(0);}
-        
+        /// return CL-points
         virtual std::vector<CLPoint> getCLPoints() {
             std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 
             return *clv;
         }
-        
+        /// add an input CLPoint to this Operation
         virtual void appendPoint(CLPoint& p) {}
         
     protected:
