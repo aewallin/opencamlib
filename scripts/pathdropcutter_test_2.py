@@ -75,14 +75,13 @@ if __name__ == "__main__":
     
     aclp_lifted=[]
     for p in aclp:
-        p2 = ocl.Point(p.x,p.y,p.z) + ocl.Point(0,0,1.0)
+        p2 = ocl.Point(p.x,p.y,p.z) + ocl.Point(0,0,1)
         aclp_lifted.append(p2)
-
         
     print " render the CL-points"
     camvtk.drawCLPointCloud(myscreen, clp)
     camvtk.drawCLPointCloud(myscreen, aclp_lifted)
-    
+    #myscreen.addActor( camvtk.PointCloud(pointlist=clp, collist=ccp)  )
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()

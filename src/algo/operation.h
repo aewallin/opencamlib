@@ -59,18 +59,33 @@ class Operation {
             }
         }
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
-        void setThreads(unsigned int n) {nthreads = n;}
+        void setThreads(unsigned int n) {
+            nthreads = n;
+            BOOST_FOREACH(Operation* op, subOp) {
+                op->setThreads(nthreads);
+            }
+        }
         /// return number of OpenMP threads
         int  getThreads() const {return nthreads;}
         /// return the kd-tree bucket-size
         int getBucketSize() const {return bucketSize;}
         /// set the kd-tree bucket-size
-        void setBucketSize(unsigned int s) {bucketSize = s;}
+        void setBucketSize(unsigned int s) {
+            bucketSize = s;
+            BOOST_FOREACH(Operation* op, subOp) {
+                op->setBucketSize(bucketSize);
+            }
+        }
         /// return number of low-level calls
         int getCalls() const {return nCalls;}
         
         /// set the sampling interval for this Operation and all sub-operations
-        virtual void setSampling(double s) {sampling=s;}
+        virtual void setSampling(double s) {
+            sampling=s;
+            BOOST_FOREACH(Operation* op, subOp) {
+                op->setSampling(sampling);
+            }
+        }
         /// return the sampling interval
         virtual double getSampling() {return sampling;}
         
