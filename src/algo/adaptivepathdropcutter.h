@@ -48,9 +48,7 @@ class AdaptivePathDropCutter : public PathDropCutter{
         /// construct an empty PathDropCutter object
         AdaptivePathDropCutter();
         virtual ~AdaptivePathDropCutter();
-        /// set the STLSurf surface for this operation
-        virtual void setSTL(const STLSurf& s);
-        void setCutter(MillingCutter* cutter);        
+    
         /// run drop-cutter on the whole Path
         virtual void run();
         void setMinSampling(double s) {min_sampling=s;}
@@ -61,7 +59,7 @@ class AdaptivePathDropCutter : public PathDropCutter{
         /// flatness predicate for adaptive sampling
         bool flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl);
         void adaptive_sampling_run();
-        PointDropCutter* pdc;
+
         double min_sampling;
         double cosLimit;
 };
@@ -71,7 +69,7 @@ class AdaptivePathDropCutter_py : public AdaptivePathDropCutter {
     public:
         AdaptivePathDropCutter_py() : AdaptivePathDropCutter() {};
         /// return a list of CL-points to python
-        boost::python::list getCLPoints() {
+        boost::python::list getCLPoints_py() {
             boost::python::list plist;
             BOOST_FOREACH(CLPoint p, clpoints) {
                 plist.append(p);

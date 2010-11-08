@@ -40,12 +40,24 @@ class MillingCutter;
 /// base-class for cam algorithms
 class Operation {
     public:
-        Operation() {}
+        Operation() {
+            
+        }
         virtual ~Operation() {}
         /// set the STL-surface and build kd-tree
-        virtual void setSTL(const STLSurf& s) {}
+        virtual void setSTL(const STLSurf& s) {
+            surf = &s;
+            BOOST_FOREACH(Operation* op, subOp) {
+                op->setSTL(s);
+            }
+        }
         /// set the MillingCutter to use
-        virtual void setCutter(const MillingCutter* c) {cutter = c;}
+        virtual void setCutter(const MillingCutter* c) {
+            cutter = c;
+            BOOST_FOREACH(Operation* op, subOp) {
+                op->setCutter(cutter);
+            }
+        }
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n) {nthreads = n;}
         /// return number of OpenMP threads
@@ -56,9 +68,24 @@ class Operation {
         void setBucketSize(unsigned int s) {bucketSize = s;}
         /// return number of low-level calls
         int getCalls() const {return nCalls;}
+        
+        virtual void setSampling(double s) {sampling=s;}
+        virtual double getSampling() {return sampling;}
+        
         /// run the algorithm
         virtual void run() = 0;
+        virtual void run(CLPoint& cl) {assert(0);}
+        
+        virtual std::vector<CLPoint> getCLPoints() {
+            std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 
+            return *clv;
+        }
+        
+        virtual void appendPoint(CLPoint& p) {}
+        
     protected:
+        /// sampling interval
+        double sampling;
         /// how many low-level calls were made
         int nCalls;
         /// size of bucket-node in KD-tree
@@ -71,6 +98,8 @@ class Operation {
         KDTree<Triangle>* root;
         /// number of threads to use
         unsigned int nthreads;
+        /// sub-operations, if any, of this operation
+        std::vector<Operation*> subOp;
 };
 
 } // end namespace

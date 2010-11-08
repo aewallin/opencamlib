@@ -44,38 +44,23 @@ class PathDropCutter : public Operation {
         /// construct an empty PathDropCutter object
         PathDropCutter();
         virtual ~PathDropCutter();
-        /// set the STLSurf surface for this operation
-        virtual void setSTL(const STLSurf& s);
-        /// set the MillingCutter for this operation
-        virtual void setCutter(MillingCutter* cutter);
         /// set the Path to follow and sample
         void setPath(const Path* path);
         /// set the minimum z-value, or "floor" for drop-cutter
         void setZ(const double z) {minimumZ = z;}
         /// return Z
         double getZ() const {return minimumZ;}
-        /// set the sampling-distance for the Path
-        void setSampling(double s) {sampling=s;}
-        double getSampling() {return sampling;}
         /// run drop-cutter on the whole Path
         virtual void run();
         
     protected:
         /// the path to follow
         const Path* path;
-        /// the cutter used for this operation
-        //MillingCutter* cutter;
-        /// the surface for this operation
-        //const STLSurf* surf;
-        /// how closely to sample points from a Path, default is sampling=0.1 (aka step-forward)
-        double sampling;
         /// the lowest z height, used when no triangles are touched, default is minimumZ = 0.0
         double minimumZ;
         /// list of CL-points
         std::vector<CLPoint> clpoints;
     private:
-        /// the BatchDropCutter object that runs drop-cutter on the sampled poitns
-        BatchDropCutter* bdc;
         /// the algorithm
         void uniform_sampling_run();
         /// sample the span unfirormly with tolerance sampling

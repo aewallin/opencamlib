@@ -34,22 +34,13 @@ PathDropCutter::PathDropCutter() {
     surf = NULL;
     path = NULL;
     minimumZ = 0.0;
-    bdc = new BatchDropCutter(); // we delegate to BatchDropCutter, who does the heavy lifting
+    subOp.clear();
+    subOp.push_back( new BatchDropCutter() );  // we delegate to BatchDropCutter, who does the heavy lifting
     sampling = 0.1;
 }
 
 PathDropCutter::~PathDropCutter() {
-    delete bdc;
-}
-
-void PathDropCutter::setSTL(const STLSurf& s) {
-    bdc->setSTL( s );
-    surf = &s;
-}
-
-void PathDropCutter::setCutter(MillingCutter *c) {
-    bdc->setCutter( c );
-    cutter = c;
+    delete subOp[0];
 }
 
 void PathDropCutter::setPath(const Path *p) {
@@ -66,8 +57,8 @@ void PathDropCutter::uniform_sampling_run() {
     BOOST_FOREACH( const Span* span, path->span_list ) { // loop through the spans calling run() on each
         this->sample_span(span); // append points to bdc
     }
-    bdc->run(); // run the actual drop-cutter on all points
-    clpoints = bdc->getCLPoints();
+    subOp[0]->run();
+    clpoints = subOp[0]->getCLPoints();
 }
 
 // this samples the Span and pushes the corresponding sampled points to bdc
@@ -80,7 +71,7 @@ void PathDropCutter::sample_span(const Span* span)
         Point ptmp = span->getPoint(fraction);
         CLPoint* p = new CLPoint(ptmp.x, ptmp.y, ptmp.z);
         p->z = minimumZ;
-        bdc->appendPoint( *p );
+        subOp[0]->appendPoint( *p );
     }    
 }
 

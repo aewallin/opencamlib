@@ -40,12 +40,17 @@ class Triangle;
 class PointDropCutter : public Operation {
     public:
         PointDropCutter();
-        virtual ~PointDropCutter() {delete root;}
+        virtual ~PointDropCutter() {
+            delete root;
+        }
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(const STLSurf &s);
-        /// run drop-cutter on all clpoints
+        /// run drop-cutter on given CLPoint
         void run(CLPoint& cl);
-        void run() {assert(0);}
+        void run() {
+            std::cout << "ERROR: can't call run() on PointDropCutter()\n";
+            assert(0);
+        }
         
     protected:
         void pointDropCutter1(CLPoint& clp);

@@ -51,7 +51,6 @@ void PointDropCutter::setSTL(const STLSurf &s) {
     root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     root->setBucketSize( bucketSize );
     root->build(s.tris);
-    std::cout << "pdc::setSTL() done.\n";
 }
 
 void PointDropCutter::run(CLPoint& clp) {
@@ -75,7 +74,6 @@ void PointDropCutter::pointDropCutter1(CLPoint& clp) {
             }
         }
     }
-    
     delete( tris );
     nCalls = calls;
     return;

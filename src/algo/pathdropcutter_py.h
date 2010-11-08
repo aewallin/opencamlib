@@ -34,7 +34,7 @@ class PathDropCutter_py : public PathDropCutter {
     public:
         PathDropCutter_py() : PathDropCutter() {};
         /// return a list of CL-points to python
-        boost::python::list getCLPoints() {
+        boost::python::list getCLPoints_py() {
             boost::python::list plist;
             BOOST_FOREACH(CLPoint p, clpoints) {
                 plist.append(p);

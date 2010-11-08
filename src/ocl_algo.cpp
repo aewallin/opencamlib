@@ -46,7 +46,7 @@ void export_algo() {
     ;
     bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
         .def("run", &BatchDropCutter_py::run)
-        .def("getCLPoints", &BatchDropCutter_py::getCLPoints)
+        .def("getCLPoints", &BatchDropCutter_py::getCLPoints_py)
         .def("setSTL", &BatchDropCutter_py::setSTL)
         .def("setCutter", &BatchDropCutter_py::setCutter)
         .def("setThreads", &BatchDropCutter_py::setThreads)
@@ -130,7 +130,7 @@ void export_algo() {
     ;
     bp::class_<PathDropCutter_py , bp::bases<PathDropCutter> >("PathDropCutter")
         .def("run", &PathDropCutter_py::run)
-        .def("getCLPoints", &PathDropCutter_py::getCLPoints)
+        .def("getCLPoints", &PathDropCutter_py::getCLPoints_py)
         .def("setCutter", &PathDropCutter_py::setCutter)
         .def("setSTL", &PathDropCutter_py::setSTL)
         .def("setSampling", &PathDropCutter_py::setSampling)
@@ -142,7 +142,7 @@ void export_algo() {
     ;
     bp::class_<AdaptivePathDropCutter_py , bp::bases<AdaptivePathDropCutter> >("AdaptivePathDropCutter")
         .def("run", &AdaptivePathDropCutter_py::run)
-        .def("getCLPoints", &AdaptivePathDropCutter_py::getCLPoints)
+        .def("getCLPoints", &AdaptivePathDropCutter_py::getCLPoints_py)
         .def("setCutter", &AdaptivePathDropCutter_py::setCutter)
         .def("setSTL", &AdaptivePathDropCutter_py::setSTL)
         .def("setSampling", &AdaptivePathDropCutter_py::setSampling)

@@ -35,24 +35,15 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
     surf = NULL;
     path = NULL;
     minimumZ = 0.0;
-    pdc = new PointDropCutter(); // we delegate to BatchDropCutter, who does the heavy lifting
+    subOp.clear();
+    subOp.push_back( new PointDropCutter() ); // we delegate to PointDropCutter, who does the heavy lifting
     sampling = 0.1;
     min_sampling = 0.01;
     cosLimit = 0.999;
 }
 
 AdaptivePathDropCutter::~AdaptivePathDropCutter() {
-    delete pdc;
-}
-
-void AdaptivePathDropCutter::setSTL(const STLSurf& s) {
-    pdc->setSTL( s );
-    surf = &s;
-}
-
-void AdaptivePathDropCutter::setCutter(MillingCutter *c) {
-    pdc->setCutter( c );
-    cutter = c;
+    delete subOp[0];
 }
 
 void AdaptivePathDropCutter::run() {
@@ -61,42 +52,34 @@ void AdaptivePathDropCutter::run() {
 
 void AdaptivePathDropCutter::adaptive_sampling_run() {
     clpoints.clear();
-    BOOST_FOREACH( const Span* span, path->span_list ) {
+    BOOST_FOREACH( const Span* span, path->span_list ) {  // this loop could run in parallel
         CLPoint start = span->getPoint(0.0);
         CLPoint stop = span->getPoint(1.0);
-        pdc->run(start);
-        pdc->run(stop);
+        subOp[0]->run(start);
+        subOp[0]->run(stop);
         clpoints.push_back(start);
-        //std::cout << " starting on new span.\n";
         adaptive_sample( span, 0.0, 1.0, start, stop);
-        //std::cout << " span done.\n";
     }
 }
 
 void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl) {
-    //std::cout << " (start, stop) = ( "<< start_t << " , " << stop_t << " )\n" << std::flush;
-    
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
+    assert( mid_t > start_t );  assert( mid_t < stop_t );
+    
     CLPoint mid_cl = span->getPoint(mid_t);
-    pdc->run( mid_cl );
-    assert( mid_t > start_t );
-    assert( mid_t < stop_t );
-
+    subOp[0]->run( mid_cl );
     double fw_step = (stop_cl-start_cl).xyNorm();
     if ( fw_step > sampling ) { // above minimum step-forward, need to sample more
         adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
         adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
     } else if ( !flat(start_cl,mid_cl,stop_cl)   ) {
-        if (fw_step > min_sampling) {
-            // not a a flat segment, and we have not reached maximum sampling
+        if (fw_step > min_sampling) { // not a a flat segment, and we have not reached maximum sampling
             adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
             adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
         }
-        
     } 
     
-    // the last point (?)
-    clpoints.push_back(stop_cl); 
+    clpoints.push_back(stop_cl); // finally add the last point (?)
     return;
 }
 
@@ -105,17 +88,9 @@ bool AdaptivePathDropCutter::flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& s
     CLPoint v2 = stop_cl-mid_cl;
     v1.normalize();
     v2.normalize();
-    //std::cout << "v1=" << v1 <<"\n";
-    //std::cout << "v2=" << v2 <<"\n";
     double dotprod = v1.dot(v2);
-    //std::cout << "v1 dot v2=" << dotprod << "\n";
-    //double dz = fabs(mid_z-start_z)+fabs(mid_z-stop_z);
-    //return (dz > 1e-3);
     return (dotprod>cosLimit);
 }
-
-
-
 
 } // end namespace
 

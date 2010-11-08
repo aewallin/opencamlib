@@ -35,7 +35,7 @@ class BatchDropCutter_py : public BatchDropCutter {
     public:
         BatchDropCutter_py() : BatchDropCutter() {};
         /// return CL-points to Python
-        boost::python::list getCLPoints() {
+        boost::python::list getCLPoints_py() {
             boost::python::list plist;
             BOOST_FOREACH(CLPoint p, *clpoints) {
                 plist.append(p);
