@@ -131,6 +131,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/cutsim/octree.h
     ${OpenCamLib_SOURCE_DIR}/cutsim/volume.h
     
+    ${OpenCamLib_SOURCE_DIR}/algo/operation.h
     ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/brent_zero.h

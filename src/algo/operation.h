@@ -40,10 +40,10 @@ class MillingCutter;
 /// base-class for cam algorithms
 class Operation {
     public:
-        Operation();
-        virtual ~Operation();
+        Operation() {}
+        virtual ~Operation() {}
         /// set the STL-surface and build kd-tree
-        virtual void setSTL(const STLSurf& s);
+        virtual void setSTL(const STLSurf& s) {}
         /// set the MillingCutter to use
         virtual void setCutter(const MillingCutter* c) {cutter = c;}
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
