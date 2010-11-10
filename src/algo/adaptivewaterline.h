@@ -25,11 +25,12 @@
 #include <string>
 #include <vector>
 
-//#include "point.h"
-//#include "fiber.h"
-//#include "batchpushcutter.h"
-//#include "operation.h"
+#include <boost/python.hpp>
+#include <boost/foreach.hpp>
+
+
 #include "waterline.h"
+#include "fiber_py.h"
 
 namespace ocl
 {
@@ -48,27 +49,20 @@ class AdaptiveWaterline : public Waterline {
         AdaptiveWaterline(); 
         virtual ~AdaptiveWaterline();
         void setMinSampling(double s) {min_sampling=s;}
-        /// Set the z-coordinate for the waterline we generate
-        //void setZ(const double z) {zh = z;};
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
         
     protected:
         void adaptive_sampling_run();
-        void adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
         bool flat( Fiber& start, Fiber& mid, Fiber& stop );
-        /// initialization
-        //void init_fibers();
-        /// x and y-coordinates for fiber generation
-        //std::vector<double> generate_range( double start, double end, int N) const;
-        
+        void weave_process();
+
     // DATA
-        /// the z-height for this Waterline
-        //double zh;
-        /// the results of this operation, a list of loops
-        //std::vector< std::vector<Point> >  loops; // change to CLPoint!!
         std::vector<Fiber> xfibers;
+        std::vector<Fiber> yfibers;
         double minx;
         double maxx;
         double miny;
@@ -76,7 +70,38 @@ class AdaptiveWaterline : public Waterline {
         double min_sampling;
 };
 
-
+class AdaptiveWaterline_py : public AdaptiveWaterline {
+    public:
+        AdaptiveWaterline_py() : AdaptiveWaterline() {};
+        /// return loop as a list of lists to python
+        boost::python::list py_getLoops() const {
+            boost::python::list loop_list;
+            BOOST_FOREACH( std::vector<Point> loop, this->loops ) {
+                boost::python::list point_list;
+                BOOST_FOREACH( Point p, loop ) {
+                    point_list.append( p );
+                }
+                loop_list.append(point_list);
+            }
+            return loop_list;
+        };
+        boost::python::list getXFibers() const {
+            boost::python::list flist;
+            BOOST_FOREACH( Fiber f, xfibers ) {
+                Fiber_py f2(f);
+                flist.append(f2);
+            }
+            return flist;
+        };
+        boost::python::list getYFibers() const {
+            boost::python::list flist;
+            BOOST_FOREACH( Fiber f, yfibers ) {
+                Fiber_py f2(f);
+                flist.append(f2);
+            }
+            return flist;
+        };
+};
 
 } // end namespace
 

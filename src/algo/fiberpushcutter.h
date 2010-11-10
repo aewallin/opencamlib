@@ -54,11 +54,11 @@ class FiberPushCutter : public Operation {
         void setYDirection() {x_direction=false;y_direction=true;}
         /// run() is an error.
         void run() {assert(0);}
-        void run(Fiber& f) {pushCutter1(f);}
+        void run(Fiber& f) {pushCutter2(f);}
         
     protected:
         void pushCutter1(Fiber& f);
-        //void pushCutter2(Fiber& f);
+        void pushCutter2(Fiber& f);
         
     // DATA
         /// true if this we have only x-direction fibers

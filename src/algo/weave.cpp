@@ -22,6 +22,7 @@
 #include <boost/graph/adjacency_list.hpp> 
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/planar_face_traversal.hpp>
+#include <boost/graph/boyer_myrvold_planar_test.hpp>
 
 #include "weave.h"
 #include "pft_visitor.h"
@@ -172,23 +173,29 @@ void Weave::face_traverse() {
     boost::graph_traits<WeaveGraph>::edges_size_type edge_count = 0;
     EdgeIterator ei, ei_end;
     for(boost::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei)
-        boost::put(e_index, *ei, edge_count++);
+        boost::put(e_index, *ei, edge_count++); // build an edge index
     
     // test for planarity and build embedding as side-effect
     PlanarEmbedding e(boost::num_vertices(g));
-    build_embedding(e);
+    build_embedding(e); // build a planar embedding
+    std::cout << " planar_embedding() done.\n";
+    //print_embedding(e);
+    std::cout << " graph has " << boost::num_vertices(g) << " vertices \n";
     
-    /*
+    
     if ( boost::boyer_myrvold_planarity_test( boost::boyer_myrvold_params::graph = g,
                                    boost::boyer_myrvold_params::embedding = &e[0]) )
         std::cout << "Input graph is planar" << std::endl;
-    else
+    else {
         std::cout << "Input graph is not planar" << std::endl;
-    */
+        assert(0);
+    }
     //print_embedding(e);
     
     //std::cout << std::endl << "Vertices on the faces: " << std::endl;
+    
     vertex_output_visitor v_vis(this, g);
+    std::cout << " calling planar_face_traversal() \n";
     boost::planar_face_traversal(g, &e[0], v_vis);
 }
 

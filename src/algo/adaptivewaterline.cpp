@@ -62,89 +62,130 @@ AdaptiveWaterline::~AdaptiveWaterline() {
 }
 
 void AdaptiveWaterline::run() {
+    adaptive_sampling_run();
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {
-    
     minx = surf->bb.minpt.x - 2*cutter->getRadius();
     maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
-
     miny = surf->bb.minpt.y - 2*cutter->getRadius();
     maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
-    
     Line* line = new Line( Point(minx,miny,zh) , Point(maxx,maxy,zh) );
     Span* linespan = new LineSpan(*line);
     
     xfibers.clear();
     Point xstart_p1 = Point( minx, linespan->getPoint(0.0).y,  zh );
     Point xstart_p2 = Point( maxx, linespan->getPoint(0.0).y,  zh );
-    
     Point xstop_p1 = Point( minx, linespan->getPoint(1.0).y,  zh );
     Point xstop_p2 = Point( maxx, linespan->getPoint(1.0).y,  zh );
+    Fiber xstart_f = Fiber( xstart_p1, xstart_p2 ) ;
+    Fiber xstop_f = Fiber( xstop_p1, xstop_p2 ); 
+    subOp[0]->run(xstart_f);
+    subOp[0]->run(xstop_f);
+    xfibers.push_back(xstart_f);
+    std::cout << " XFiber adaptive sample \n";
+    xfiber_adaptive_sample( linespan, 0.0, 1.0, xstart_f, xstop_f);
     
-    Fiber start_f = Fiber( xstart_p1, xstart_p2 ) ;
-    Fiber stop_f = Fiber( xstop_p1, xstop_p2 ); 
-    subOp[0]->run(start_f);
-    subOp[0]->run(stop_f);
-    xfibers.push_back(start_f);
-    adaptive_sample( linespan, 0.0, 1.0, start_f, stop_f);
+    yfibers.clear();
+    Point ystart_p1 = Point( linespan->getPoint(0.0).x, miny,  zh );
+    Point ystart_p2 = Point( linespan->getPoint(0.0).x, maxy,  zh );
+    Point ystop_p1 = Point( linespan->getPoint(1.0).x, miny,  zh );
+    Point ystop_p2 = Point( linespan->getPoint(1.0).x, maxy,  zh );
+    Fiber ystart_f = Fiber( ystart_p1, ystart_p2 ) ;
+    Fiber ystop_f = Fiber( ystop_p1, ystop_p2 ); 
+    subOp[1]->run(ystart_f);
+    subOp[1]->run(ystop_f);
+    yfibers.push_back(ystart_f);
+    std::cout << " YFiber adaptive sample \n";
+    yfiber_adaptive_sample( linespan, 0.0, 1.0, ystart_f, ystop_f);
     
+    weave_process();
     
 }
 
 
-void AdaptiveWaterline::adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
+void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
-    
+    //std::cout << "xfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
     Point mid_p1 = Point( minx, span->getPoint( mid_t ).y,  zh );
     Point mid_p2 = Point( maxx, span->getPoint( mid_t ).y,  zh );
-    //CLPoint mid_cl = span->getPoint(mid_t);
     Fiber mid_f = Fiber( mid_p1, mid_p2 );
     subOp[0]->run( mid_f );
     double fw_step = fabs( start_f.p1.y - stop_f.p1.y ) ;
     if ( fw_step > sampling ) { // above minimum step-forward, need to sample more
-        adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
-        adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
+        xfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
+        xfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
     } else if ( !flat(start_f,mid_f,stop_f)   ) {
         if (fw_step > min_sampling) { // not a a flat segment, and we have not reached maximum sampling
-            adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
-            adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
+            xfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
+            xfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
         }
     } 
-    xfibers.push_back(stop_f); // finally add the last fiber (?)
+    xfibers.push_back(stop_f); 
     return;
+}
+
+void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
+    const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
+    assert( mid_t > start_t );  assert( mid_t < stop_t );
+    //std::cout << "yfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
+    Point mid_p1 = Point( span->getPoint( mid_t ).x, miny,  zh );
+    Point mid_p2 = Point( span->getPoint( mid_t ).x, maxy, zh );
+    Fiber mid_f = Fiber( mid_p1, mid_p2 );
+    subOp[1]->run( mid_f );
+    double fw_step = fabs( start_f.p1.x - stop_f.p1.x ) ;
+    if ( fw_step > sampling ) { // above minimum step-forward, need to sample more
+        yfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
+        yfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
+    } else if ( !flat(start_f,mid_f,stop_f)   ) {
+        if (fw_step > min_sampling) { // not a a flat segment, and we have not reached maximum sampling
+            yfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
+            yfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
+        }
+    } 
+    yfibers.push_back(stop_f); 
 }
 
 bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) {
     return true;
 }
 
-/*
+
 void AdaptiveWaterline::weave_process() {
     std::cout << "Weave..." << std::flush;
     Weave w;
-    BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
+    std::cout << " adding " << xfibers.size() << " xfibers to weave \n";
+    BOOST_FOREACH( Fiber f, xfibers ) {
         w.addFiber(f);
     }
-    BOOST_FOREACH( Fiber f, *( subOp[1]->getFibers() ) ) {
+    std::cout << " adding " << yfibers.size() << " yfibers to weave \n";
+    BOOST_FOREACH( Fiber f, yfibers ) {
         w.addFiber(f);
     }
+    std::cout << w.str();
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
+    std::cout << w.str();
     std::cout << "split()..." << std::flush;
     std::vector<Weave> subweaves = w.split_components(); // split into components
     std::cout << "traverse()..." << std::flush;
     std::vector< std::vector<Point> > subweave_loops;
+    std::cout << " got " << subweaves.size() << " sub-weaves \n";
+    int m = 0;
     BOOST_FOREACH( Weave sw, subweaves ) {
+        std::cout << "Weave " << m << " : " << sw.str() << "\n";
+        m++;
+        std::cout << " face_traverse() \n";
         sw.face_traverse(); // traverse to find loops
+        std::cout << " getLoops() \n";
         subweave_loops = sw.getLoops();
         BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
             this->loops.push_back( loop );
         }
     }
     std::cout << "done.\n" << std::flush;
-} */     
+}      
 
 
 }// end namespace

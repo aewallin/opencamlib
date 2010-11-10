@@ -26,7 +26,8 @@
 #include "adaptivepathdropcutter.h"  //FIX 
 #include "fiber_py.h"           
 #include "weave_py.h"           
-#include "waterline_py.h"       
+#include "waterline_py.h"      
+#include "adaptivewaterline.h" // FIX, contains python 
 #include "lineclfilter_py.h"    
 #include "numeric.h"
 
@@ -110,6 +111,21 @@ void export_algo() {
         .def("getLoops", &Waterline_py::py_getLoops)
         .def("setThreads", &Waterline_py::setThreads)
         .def("getThreads", &Waterline_py::getThreads)
+    ;
+    bp::class_<AdaptiveWaterline>("AdaptiveWaterline_base")
+    ;
+    bp::class_<AdaptiveWaterline_py, bp::bases<AdaptiveWaterline> >("AdaptiveWaterline")
+        .def("setCutter", &AdaptiveWaterline_py::setCutter)
+        .def("setSTL", &AdaptiveWaterline_py::setSTL)
+        .def("setZ", &AdaptiveWaterline_py::setZ)
+        .def("setSampling", &AdaptiveWaterline_py::setSampling)
+        .def("setMinSampling", &AdaptiveWaterline_py::setMinSampling)
+        .def("run", &AdaptiveWaterline_py::run)
+        .def("getLoops", &AdaptiveWaterline_py::py_getLoops)
+        .def("setThreads", &AdaptiveWaterline_py::setThreads)
+        .def("getThreads", &AdaptiveWaterline_py::getThreads)
+        .def("getXFibers", &AdaptiveWaterline_py::getXFibers)
+        .def("getYFibers", &AdaptiveWaterline_py::getYFibers)
     ;
     bp::class_<Weave>("Weave_base")
     ;
