@@ -81,7 +81,7 @@ class BatchPushCutter_py : public BatchPushCutter {
             return trilist;
         };
         /// return list of Fibers to python
-        boost::python::list getFibers() const {
+        boost::python::list getFibers_py() const {
             boost::python::list flist;
             BOOST_FOREACH(Fiber f, *fibers) {
                 flist.append(f);

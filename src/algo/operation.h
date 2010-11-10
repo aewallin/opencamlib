@@ -100,6 +100,10 @@ class Operation {
         }
         /// add an input CLPoint to this Operation
         virtual void appendPoint(CLPoint& p) {}
+        virtual void setXDirection() {}
+        virtual void setYDirection() {}
+        virtual void appendFiber( Fiber& f ) {}
+        virtual std::vector<Fiber>* getFibers() const {return 0;}
         
     protected:
         /// sampling interval

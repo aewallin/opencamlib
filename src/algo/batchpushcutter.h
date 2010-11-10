@@ -60,8 +60,8 @@ class BatchPushCutter : public Operation {
         
         /// run push-cutter
         void run() {this->pushCutter3();}
-        /// pointer to list of Fibers
-        std::vector<Fiber>* fibers;
+        
+        std::vector<Fiber>* getFibers() const {return fibers;}
         
     protected:
         /// 1st version of algorithm
@@ -70,7 +70,10 @@ class BatchPushCutter : public Operation {
         void pushCutter2();
         /// 3rd version of algorithm
         void pushCutter3();
-    
+        
+        /// pointer to list of Fibers
+        std::vector<Fiber>* fibers;
+        
     // DATA
         /// true if this we have only x-direction fibers
         bool x_direction;

@@ -39,8 +39,11 @@ namespace ocl
 //********   ********************** */
 
 Waterline::Waterline() {
-    bpc_x = new BatchPushCutter();
-    bpc_y = new BatchPushCutter();
+    subOp.clear();
+    subOp.push_back( new BatchPushCutter() );
+    subOp.push_back( new BatchPushCutter() );
+    subOp[0]->setXDirection();
+    subOp[1]->setYDirection();
     nthreads=1;
 #ifdef _OPENMP
     nthreads = omp_get_num_procs(); 
@@ -51,30 +54,10 @@ Waterline::Waterline() {
 }
 
 Waterline::~Waterline() {
-    delete bpc_x;
-    delete bpc_y;
+    delete subOp[1];
+    delete subOp[0];
 }
 
-void Waterline::setSTL(const STLSurf& s) {
-    std::cout << " Waterline::setSTL()...";
-    bpc_x->setXDirection();
-    bpc_y->setYDirection();
-    bpc_x->setSTL( s );
-    bpc_y->setSTL( s );
-    surf = &s;
-    std::cout << " DONE.\n";
-}
-
-void Waterline::setCutter(const MillingCutter& c) {
-    std::cout << " Waterline::setCutter()... ";
-    cutter = &c;
-    bpc_x->setCutter( cutter );
-    bpc_y->setCutter( cutter );
-    
-    
-    std::cout << " DONE.\n";
-}
-        
 void Waterline::run() {
     this->init_fibers(); // create fibers and push them to bpc_x and bpc_y
     // bpc_x->setThreads(nthreads);
@@ -90,18 +73,18 @@ void Waterline::run() {
     //    #pragma omp single nowait
     //    {
     //        #pragma omp task
-            { bpc_x->run(); }
+            { subOp[0]->run(); }
     //        #pragma omp task
-            { bpc_y->run(); }
+            { subOp[1]->run(); }
     //    }
     //}
     
     std::cout << "Weave..." << std::flush;
     Weave w;
-    BOOST_FOREACH( Fiber f, *(bpc_x->fibers) ) {
+    BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
         w.addFiber(f);
     }
-    BOOST_FOREACH( Fiber f, *(bpc_y->fibers) ) {
+    BOOST_FOREACH( Fiber f, *( subOp[1]->getFibers() ) ) {
         w.addFiber(f);
     }
     std::cout << "build()..." << std::flush;
@@ -126,21 +109,21 @@ void Waterline::init_fibers() {
     double maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
     double miny = surf->bb.minpt.y - 2*cutter->getRadius();
     double maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
-    int Nx = (int)( (maxx-minx)/tolerance );
-    int Ny = (int)( (maxy-miny)/tolerance );
+    int Nx = (int)( (maxx-minx)/sampling );
+    int Ny = (int)( (maxy-miny)/sampling );
     std::vector<double> xvals = generate_range(minx,maxx,Nx);
     std::vector<double> yvals = generate_range(miny,maxy,Ny);
     BOOST_FOREACH( double y, yvals ) {
         Point p1 = Point( minx, y, zh );
         Point p2 = Point( maxx, y, zh );
         Fiber f = Fiber( p1 , p2 );
-        bpc_x->appendFiber( f );
+        subOp[0]->appendFiber( f );
     }
     BOOST_FOREACH( double x, xvals ) {
         Point p1 = Point( x, miny,  zh );
         Point p2 = Point( x, maxy,  zh );
         Fiber f = Fiber( p1 , p2 );
-        bpc_y->appendFiber( f );
+        subOp[1]->appendFiber( f );
     }
 
 }        

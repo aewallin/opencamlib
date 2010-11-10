@@ -46,36 +46,24 @@ class Waterline : public Operation {
         /// create an empty Waterline object
         Waterline(); 
         virtual ~Waterline();
-        /// Set the STL-surface to s
-        void setSTL(const STLSurf& s);
-        /// Set the cutter
-        void setCutter(const MillingCutter& c);
-        /// Set the sampling-interval for fibers
-        void setSampling(const double tol) {tolerance = tol;};
+        
         /// Set the z-coordinate for the waterline we generate
         void setZ(const double z) {zh = z;};
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
-
         
     protected:
         /// initialization
         void init_fibers();
         /// x and y-coordinates for fiber generation
         std::vector<double> generate_range( double start, double end, int N) const;
+        
     // DATA
-        /// handle to BatchPushCutter that does the heavy lifting
-        BatchPushCutter* bpc_x;
-        /// handle to y-direction BatchPushCutter
-        BatchPushCutter* bpc_y;
         /// the z-height for this Waterline
         double zh;
-        /// fiber sampling interval
-        double tolerance;
         /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint!!
-
 };
 
 

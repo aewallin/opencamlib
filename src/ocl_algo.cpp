@@ -67,7 +67,7 @@ void export_algo() {
         .def("appendFiber", &BatchPushCutter_py::appendFiber)
         .def("getOverlapTriangles", &BatchPushCutter_py::getOverlapTriangles)
         .def("getCLPoints", &BatchPushCutter_py::getCLPoints)
-        .def("getFibers", &BatchPushCutter_py::getFibers)
+        .def("getFibers", &BatchPushCutter_py::getFibers_py)
         .def("getCalls", &BatchPushCutter_py::getCalls)
         .def("setThreads", &BatchPushCutter_py::setThreads)
         .def("getThreads", &BatchPushCutter_py::getThreads)
