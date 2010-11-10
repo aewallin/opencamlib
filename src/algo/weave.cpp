@@ -34,6 +34,7 @@ Weave::Weave() {
     fibers.clear();
     xfibers.clear();
     yfibers.clear();
+    loops.clear();
 }
 
 void Weave::addFiber(Fiber& f) {

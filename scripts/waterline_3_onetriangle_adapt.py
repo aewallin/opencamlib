@@ -70,7 +70,7 @@ if __name__ == "__main__":
     wl.setSTL(s)
     wl.setCutter(cutter)
     wl.setZ(zh)
-    wl.setSampling(0.1)
+    wl.setSampling(0.2)
     t_before = time.time() 
     wl.run()
     t_after = time.time()
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     awl.setSTL(s)
     awl.setCutter(cutter)
     awl.setZ(zh)
-    awl.setSampling(0.02)
+    awl.setSampling(0.2)
     awl.setMinSampling(0.01)
     t_before = time.time() 
     awl.run()
@@ -101,8 +101,6 @@ if __name__ == "__main__":
     drawFibers(myscreen, xf, camvtk.red)
     drawFibers(myscreen, yf, camvtk.green)
     
-
-            
     #acutter_loops = awl.getLoops()
     acutter_loops = []
     for l in acutter_loops:
