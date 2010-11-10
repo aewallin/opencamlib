@@ -28,7 +28,7 @@
 
 namespace ocl
 {
-/// python wrapper for batchpushcutter
+/// \brief python wrapper for batchpushcutter
 class BatchPushCutter_py : public BatchPushCutter {
     public:
         BatchPushCutter_py() : BatchPushCutter() {}; 

@@ -83,6 +83,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/pointdropcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/lineclfilter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.cpp
@@ -91,6 +92,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/numeric.cpp
@@ -134,6 +136,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/operation.h
     ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.h
+    ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/brent_zero.h
     ${OpenCamLib_SOURCE_DIR}/algo/clfilter.h
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.h
@@ -144,6 +147,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/numeric.h
     ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.h
+    ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.h
     ${OpenCamLib_SOURCE_DIR}/algo/weave.h
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.h
 )

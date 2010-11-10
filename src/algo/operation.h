@@ -36,6 +36,7 @@ class STLSurf;
 class Triangle;
 class MillingCutter;
 
+/// \brief base-class for low-level cam algorithms
 ///
 /// base-class for cam algorithms
 class Operation {
@@ -93,6 +94,8 @@ class Operation {
         virtual void run() = 0;
         /// run algorithm on a single input CLPoint
         virtual void run(CLPoint& cl) {assert(0);}
+        virtual void run(Fiber& f) {assert(0);}
+        
         /// return CL-points
         virtual std::vector<CLPoint> getCLPoints() {
             std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 
@@ -100,9 +103,13 @@ class Operation {
         }
         /// add an input CLPoint to this Operation
         virtual void appendPoint(CLPoint& p) {}
+        /// used by batchpushcutter
         virtual void setXDirection() {}
+        /// used by batchpushcutter
         virtual void setYDirection() {}
+        /// add a fiber input to a push-cutter type operation
         virtual void appendFiber( Fiber& f ) {}
+        /// return the result of a push-cutter type operation
         virtual std::vector<Fiber>* getFibers() const {return 0;}
         
     protected:

@@ -74,7 +74,7 @@ class CompositeCutter : public MillingCutter {
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
 };
 
-/// \brief a MillingCutter::CompositeCutter with a cylindrical/flat central part of diameter diam1
+/// \brief CompositeCutter with a cylindrical/flat central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
 class CylConeCutter : public CompositeCutter {
     public:
@@ -83,7 +83,7 @@ class CylConeCutter : public CompositeCutter {
         CylConeCutter(double diam1, double diam2, double angle);
 };
 
-/// \brief a MillingCutter::CompositeCutter with a spherical central part of diameter diam1
+/// \brief CompositeCutter with a spherical central part of diameter diam1
 /// and a conical outer part sloping at angle, with a max diameter diam2
 /// the cone is positioned so that the tangent of the cone matches the tangent of the sphere
 class BallConeCutter : public CompositeCutter {
@@ -93,7 +93,7 @@ class BallConeCutter : public CompositeCutter {
         BallConeCutter(double diam1, double diam2, double angle);
 };
 
-/// \brief a MillingCutter::CompositeCutter with a toroidal central part of diameter diam1 
+/// \brief CompositeCutter with a toroidal central part of diameter diam1 
 /// and corner radius radius1
 /// The outer part is conical sloping at angle, with a max diameter diam2
 /// the cone is positioned so that the tangent of the cone matches the tangent of the torus
@@ -104,7 +104,7 @@ class BullConeCutter : public CompositeCutter {
         BullConeCutter(double diam1, double radius1, double diam2, double angle);
 };
 
-/// \brief a MillingCutter::CompositeCutter with a conical central part with diam1/angle1 
+/// \brief CompositeCutter with a conical central part with diam1/angle1 
 /// and a conical outer part with diam2/angle2
 /// we assume angle2 < angle1  and  diam2 > diam1.
 class ConeConeCutter : public CompositeCutter {

@@ -47,9 +47,6 @@ class CLFilter {
         /// run filter
         virtual void run() = 0;
         
-        /// return CL-points to Python
-        // virtual boost::python::list getCLPoints() = 0; //PYTHON
-        
         /// the list of CL-points to be processed
         std::list<CLPoint> clpoints;
         /// tolerance
