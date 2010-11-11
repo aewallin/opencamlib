@@ -35,9 +35,9 @@ if __name__ == "__main__":
     awl.setSTL(s)
     awl.setCutter(cutter)
     awl.setZ(zh)
-    sampling=0.3
+    sampling=0.1
     awl.setSampling(sampling)
-    #awl.setMinSampling(0.1)
+    awl.setMinSampling(0.0001)
     t_before = time.time() 
     awl.run()
     t_after = time.time()
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     w.build()
     print "done"
     print "face_traverse..."
-    #w.face_traverse()
+    w.face_traverse()
     print "done."
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()

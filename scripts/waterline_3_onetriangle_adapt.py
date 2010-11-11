@@ -99,13 +99,18 @@ if __name__ == "__main__":
     drawFibers(myscreen, xf, camvtk.red)
     drawFibers(myscreen, yf, camvtk.green)
     
-    #acutter_loops = awl.getLoops()
-    acutter_loops = []
+    acutter_loops = awl.getLoops()
+    #acutter_loops = []
     for l in acutter_loops:
-        aloops.append(l)
+        l2=[]
+        zofs = 0.0
+        for p in l:
+            p2 = p + ocl.Point(0,0,zofs)
+            l2.append(p2)
+        aloops.append(l2)
     
-    drawLoops(myscreen, loops, camvtk.yellow)
-    drawLoops(myscreen, aloops, camvtk.red)
+    #drawLoops(myscreen, loops, camvtk.yellow)
+    drawLoops(myscreen, aloops, camvtk.mag)
     
     print "done."
     myscreen.camera.SetPosition(2, 2, 2)

@@ -72,6 +72,7 @@ if __name__ == "__main__":
     print "get the results "
     clp = pdc.getCLPoints()     # get the cl-points from pdf
     aclp = apdc.getCLPoints()
+    print "got ", len(aclp) ," adaptive points"
     
     aclp_lifted=[]
     for p in aclp:

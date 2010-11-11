@@ -104,7 +104,7 @@ void AdaptiveWaterline::adaptive_sampling_run() {
     std::cout << " YFiber adaptive sample \n";
     yfiber_adaptive_sample( linespan, 0.0, 1.0, ystart_f, ystop_f);
     
-    //weave_process();
+    weave_process();
     
 }
 
@@ -126,9 +126,9 @@ void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t,
             xfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
             xfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
         }
+    } else {
+        xfibers.push_back(stop_f);
     } 
-    xfibers.push_back(stop_f); 
-    return;
 }
 
 void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
@@ -148,8 +148,9 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
             yfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
             yfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
         }
-    } 
-    yfibers.push_back(stop_f); 
+    } else {
+        yfibers.push_back(stop_f); 
+    }
 }
 
 bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) {

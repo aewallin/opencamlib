@@ -77,10 +77,9 @@ void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, d
             adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
             adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
         }
-    } 
-    
-    clpoints.push_back(stop_cl); // finally add the last point (?)
-    return;
+    } else {
+        clpoints.push_back(stop_cl); 
+    }
 }
 
 bool AdaptivePathDropCutter::flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl)  {
