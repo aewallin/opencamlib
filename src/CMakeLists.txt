@@ -75,7 +75,7 @@ set(OCL_CUTTER_SRC
     ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutters/oellipse.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.cpp
 )
 
@@ -126,7 +126,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.h
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/oellipse.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.h
     
     ${OpenCamLib_SOURCE_DIR}/cutsim/mc_tables.h
     ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.h

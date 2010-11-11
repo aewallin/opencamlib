@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OELLIPSE_H
-#define OELLIPSE_H
+#ifndef ELLIPSE_H
+#define ELLIPSE_H
 
 #include <list>
 #include "point.h"

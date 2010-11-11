@@ -22,7 +22,7 @@
 #include <cassert>
 
 
-#include "oellipse.h"
+#include "ellipse.h"
 #include "revision.h"
 
 namespace ocl

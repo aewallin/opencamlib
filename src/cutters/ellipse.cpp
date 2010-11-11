@@ -24,7 +24,7 @@
 #include <cassert>
 
 #include "point.h"
-#include "oellipse.h"
+#include "ellipse.h"
 #include "numeric.h"
 #include "brent_zero.h"
 #include "fiber.h"

@@ -22,7 +22,7 @@
 
 #include "bullcutter.h"
 #include "numeric.h"
-#include "oellipse.h"
+#include "ellipse.h"
 
 namespace ocl
 {
