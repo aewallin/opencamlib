@@ -45,6 +45,7 @@ class Waterline_py : public Waterline {
             }
             return loop_list;
         };
+        /// return a list of yfibers to python
         boost::python::list getXFibers() const {
             boost::python::list flist;
             std::vector<Fiber> xfibers = *( subOp[0]->getFibers() );
@@ -54,6 +55,7 @@ class Waterline_py : public Waterline {
             }
             return flist;
         };
+        /// return a list of yfibers to python
         boost::python::list getYFibers() const {
             boost::python::list flist;
             std::vector<Fiber> yfibers = *( subOp[1]->getFibers() );

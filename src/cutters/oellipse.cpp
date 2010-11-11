@@ -56,22 +56,22 @@ AlignedEllipse::AlignedEllipse(Point& centerin, double ain, double bin, double o
 }
 
 Point Ellipse::ePoint1() const {
-    return this->ePoint(epos1);
+    return this->ePoint(EllipsePosition1);
 }
 
 Point Ellipse::ePoint2() const {
-    return this->ePoint(epos2);
+    return this->ePoint(EllipsePosition2);
 }
 
 Point Ellipse::oePoint1() const {
-    return this->oePoint(epos1);
+    return this->oePoint(EllipsePosition1);
 }
 
 Point Ellipse::oePoint2() const {
-    return this->oePoint(epos2);
+    return this->oePoint(EllipsePosition2);
 }
 
-Point Ellipse::ePoint(const Epos& pos) const {
+Point Ellipse::ePoint(const EllipsePosition& pos) const {
     // (s, t) where:  s^2 + t^2 = 1
     // a and b are the orthogonal axes of the ellipse
     // point of ellipse is:  center + a s + b t               s=cos(theta) t=sin(theta)
@@ -84,28 +84,28 @@ Point Ellipse::ePoint(const Epos& pos) const {
     return p;
 }
 
-Point AlignedEllipse::ePoint(const Epos& pos) const {
+Point AlignedEllipse::ePoint(const EllipsePosition& pos) const {
     Point p = center + a*pos.s*major_dir + b*pos.t*minor_dir; // point of ellipse is:  center + a s + b t
     return p;
 }
 
 
-Point Ellipse::oePoint(const Epos& pos) const {
+Point Ellipse::oePoint(const EllipsePosition& pos) const {
     return ePoint(pos) + offset * normal(pos); // offset-point  = ellipse-point + offset*normal 
 }  
   
-Point AlignedEllipse::oePoint(const Epos& pos) const {
+Point AlignedEllipse::oePoint(const EllipsePosition& pos) const {
     return ePoint(pos) + offset * normal(pos); // offset-point  = ellipse-point + offset*normal 
 }  
 
-Point Ellipse::normal(const Epos& pos) const {
+Point Ellipse::normal(const EllipsePosition& pos) const {
     assert( pos.isValid() );
     Point n = Point( b*pos.s, a*pos.t, 0);
     n.normalize();
     return n;
 }    
 
-Point AlignedEllipse::normal(const Epos& pos) const { // normal at point is:    b s + a t 
+Point AlignedEllipse::normal(const EllipsePosition& pos) const { // normal at point is:    b s + a t 
     Point n = pos.s*b*major_dir + pos.t*a*minor_dir; 
     n.normalize();
     return n;
@@ -114,56 +114,56 @@ Point AlignedEllipse::normal(const Epos& pos) const { // normal at point is:    
 
 #define OE_ERROR_TOLERANCE 1e-10  /// \todo magic number tolerance
 // #define DEBUG_SOLVER
-bool Ellipse::find_epos2() { // a horrible horrible function... :(
-    assert( epos1.isValid() );
-    double err1 = fabs(this->error(this->epos1));
-    this->epos2.s =  this->epos1.s;  // plus
-    this->epos2.t = -this->epos1.t; // minus
-    if  ( fabs(this->error(this->epos2)) < err1+OE_ERROR_TOLERANCE)     {   
-        if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {
+bool Ellipse::find_EllipsePosition2() { // a horrible horrible function... :(
+    assert( EllipsePosition1.isValid() );
+    double err1 = fabs(this->error(this->EllipsePosition1));
+    this->EllipsePosition2.s =  this->EllipsePosition1.s;  // plus
+    this->EllipsePosition2.t = -this->EllipsePosition1.t; // minus
+    if  ( fabs(this->error(this->EllipsePosition2)) < err1+OE_ERROR_TOLERANCE)     {   
+        if ( (fabs(this->EllipsePosition2.s - this->EllipsePosition1.s) > 1E-8) || (fabs(this->EllipsePosition2.t - this->EllipsePosition1.t) > 1E-8) ) {
             #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2) << "\n";
+                std::cout << "2nd: (s, t)= " << this->EllipsePosition2 << " oePoint()= " << this->oePoint(this->EllipsePosition2) << " e=" << this->error(this->EllipsePosition2) << "\n";
             #endif
             return true;
         }
     }
     
-    this->epos2.s = -this->epos1.s;  
-    this->epos2.t =  this->epos1.t; 
-    if  ( fabs(this->error(this->epos2)) < err1+OE_ERROR_TOLERANCE)     { 
-        if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {  
+    this->EllipsePosition2.s = -this->EllipsePosition1.s;  
+    this->EllipsePosition2.t =  this->EllipsePosition1.t; 
+    if  ( fabs(this->error(this->EllipsePosition2)) < err1+OE_ERROR_TOLERANCE)     { 
+        if ( (fabs(this->EllipsePosition2.s - this->EllipsePosition1.s) > 1E-8) || (fabs(this->EllipsePosition2.t - this->EllipsePosition1.t) > 1E-8) ) {  
             #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2) << "\n";
+                std::cout << "2nd: (s, t)= " << this->EllipsePosition2 << " oePoint()= " << this->oePoint(this->EllipsePosition2) << " e=" << this->error(this->EllipsePosition2) << "\n";
             #endif
             return true;
         }   
     }
     
-    this->epos2.s = -this->epos1.s;  
-    this->epos2.t = -this->epos1.t; 
-    if  ( fabs(this->error(this->epos2)) < err1+OE_ERROR_TOLERANCE)     {  
-        if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
+    this->EllipsePosition2.s = -this->EllipsePosition1.s;  
+    this->EllipsePosition2.t = -this->EllipsePosition1.t; 
+    if  ( fabs(this->error(this->EllipsePosition2)) < err1+OE_ERROR_TOLERANCE)     {  
+        if ( (fabs(this->EllipsePosition2.s - this->EllipsePosition1.s) > 1E-8) || (fabs(this->EllipsePosition2.t - this->EllipsePosition1.t) > 1E-8) ) {   
             #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2) << "\n";
+                std::cout << "2nd: (s, t)= " << this->EllipsePosition2 << " oePoint()= " << this->oePoint(this->EllipsePosition2) << " e=" << this->error(this->EllipsePosition2) << "\n";
             #endif
             return true;
         }
     }
     
     // last desperate attempt is identical solutions
-    this->epos2.s = this->epos1.s;  
-    this->epos2.t = this->epos1.t; 
-    if  ( fabs(this->error(this->epos2)) < err1+OE_ERROR_TOLERANCE)     {  
+    this->EllipsePosition2.s = this->EllipsePosition1.s;  
+    this->EllipsePosition2.t = this->EllipsePosition1.t; 
+    if  ( fabs(this->error(this->EllipsePosition2)) < err1+OE_ERROR_TOLERANCE)     {  
         // DON'T require solutions to differ
-        // if ( (fabs(this->epos2.s - this->epos1.s) > 1E-8) || (fabs(this->epos2.t - this->epos1.t) > 1E-8) ) {   
+        // if ( (fabs(this->EllipsePosition2.s - this->EllipsePosition1.s) > 1E-8) || (fabs(this->EllipsePosition2.t - this->EllipsePosition1.t) > 1E-8) ) {   
             #ifdef DEBUG_SOLVER
-                std::cout << "2nd: (s, t)= " << this->epos2 << " oePoint()= " << this->oePoint(this->epos2) << " e=" << this->error(this->epos2) << "\n";
+                std::cout << "2nd: (s, t)= " << this->EllipsePosition2 << " oePoint()= " << this->oePoint(this->EllipsePosition2) << " e=" << this->error(this->EllipsePosition2) << "\n";
             #endif
-            //std::cout << " find_epos2() desperate-mode\n";
+            //std::cout << " find_EllipsePosition2() desperate-mode\n";
             return true;
         //}
     }
-    std::cout << "Ellipse::find_epos2 cannot find epos2! \n"; 
+    std::cout << "Ellipse::find_EllipsePosition2 cannot find EllipsePosition2! \n"; 
     std::cout << "ellipse= "<< *this << "\n"; 
     print_solutions();
     assert(0);
@@ -172,28 +172,28 @@ bool Ellipse::find_epos2() { // a horrible horrible function... :(
 }
 
 /// offfset-ellipse solver using Brent's method
-/// find the epos that makes the offset-ellipse point be at p
+/// find the EllipsePosition that makes the offset-ellipse point be at p
 /// this is a zero of Ellipse::error()
 /// returns number of iterations
 int Ellipse::solver_brent() {
     int iters = 1;
-    Epos apos, bpos; // Brent's method requires bracketing the root in [apos.diangle, bpos.diangle]
+    EllipsePosition apos, bpos; // Brent's method requires bracketing the root in [apos.diangle, bpos.diangle]
     apos.setDiangle( 0.0 );         assert( apos.isValid() );
     bpos.setDiangle( 3.0 );         assert( bpos.isValid() );
     if ( fabs( error(apos) ) < OE_ERROR_TOLERANCE ) {
-        epos1 = apos;
-        find_epos2();
+        EllipsePosition1 = apos;
+        find_EllipsePosition2();
         return iters;
     } else if ( fabs( error(bpos) ) < OE_ERROR_TOLERANCE ) {
-        epos1 = bpos;
-        find_epos2(); 
+        EllipsePosition1 = bpos;
+        find_EllipsePosition2(); 
         return iters;
     }
     // root is now bracketed.
     assert( error(apos) * error(bpos) < 0.0  );
     double dia_sln = brent_zero( apos.diangle, bpos.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); 
-    epos1.setDiangle( dia_sln );     assert( epos1.isValid() );
-    find_epos2();
+    EllipsePosition1.setDiangle( dia_sln );     assert( EllipsePosition1.isValid() );
+    find_EllipsePosition2();
     return iters;
 }
 
@@ -216,7 +216,7 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     else
         assert(0);
     // bracket root
-    Epos tmp,apos,bpos;
+    EllipsePosition tmp,apos,bpos;
     double s1 = sqrt(1.0-square(t1));
     bool found_positive=false;
     bool found_negative=false;
@@ -269,8 +269,8 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
             }
             double dia_sln = brent_zero( lolim, hilim , 3E-16, OE_ERROR_TOLERANCE, this );
             double dia_sln2 = brent_zero( hilim-4.0, lolim , 3E-16, OE_ERROR_TOLERANCE, this );
-            epos1.setDiangle( dia_sln );         assert( epos1.isValid() );         assert( isZero_tol( error(epos1.diangle) ) );
-            epos2.setDiangle( dia_sln2 );        assert( epos2.isValid() );         assert( isZero_tol( error(epos2.diangle) ) );
+            EllipsePosition1.setDiangle( dia_sln );         assert( EllipsePosition1.isValid() );         assert( isZero_tol( error(EllipsePosition1.diangle) ) );
+            EllipsePosition2.setDiangle( dia_sln2 );        assert( EllipsePosition2.isValid() );         assert( isZero_tol( error(EllipsePosition2.diangle) ) );
             return true;
         }
     }
@@ -279,7 +279,7 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
 }
 
 double AlignedEllipse::error(double diangle) const {
-    Epos tmp;
+    EllipsePosition tmp;
     tmp.setDiangle( diangle );
     Point p = this->oePoint(tmp);
     Point errorVec = target-p;
@@ -287,18 +287,18 @@ double AlignedEllipse::error(double diangle) const {
 }
 
 double Ellipse::error(double diangle ) const {
-    Epos tmp;
+    EllipsePosition tmp;
     tmp.setDiangle( diangle ); 
     return error(tmp);
 }
 
-double Ellipse::error(Epos& pos) const {
+double Ellipse::error(EllipsePosition& pos) const {
     Point p1 = oePoint(pos);
     return p1.y;
 }
 
 
-/// given the two solutions epos1 and epos2 and the edge up1-up2
+/// given the two solutions EllipsePosition1 and EllipsePosition2 and the edge up1-up2
 /// locate the ellipse center correctly
 Point Ellipse::calcEcenter(const Point& up1, const Point& up2, int sln) {
     Point cle;
@@ -313,24 +313,24 @@ Point Ellipse::calcEcenter(const Point& up1, const Point& up2, int sln) {
     return up1 + t*(up2-up1); // return a point on the line
 }
 Point Ellipse::ePointHi() const {
-    return ePoint( epos_hi );
+    return ePoint( EllipsePosition_hi );
 }
 
-void Ellipse::setEposHi(const Point& u1, const Point& u2) {
+void Ellipse::setEllipsePositionHi(const Point& u1, const Point& u2) {
     Point ecen1 = calcEcenter( u1, u2, 1);
     Point ecen2 = calcEcenter( u1, u2, 2);
     if (ecen1.z >= ecen2.z) { // we want the higher center
-        epos_hi = epos1;
+        EllipsePosition_hi = EllipsePosition1;
         center = ecen1;
     } else {
-        epos_hi = epos2;
+        EllipsePosition_hi = EllipsePosition2;
         center = ecen2;
     } 
 }
 
 void Ellipse::print_solutions() {
-    std::cout << "1st: (s, t)= " << epos1 << " oePoint()= " << oePoint(epos1) << " e=" << error(epos1) << "\n";
-    std::cout << "2nd: (s, t)= " << epos2 << " oePoint()= " << oePoint(epos2) << " e=" << error(epos2) << "\n";
+    std::cout << "1st: (s, t)= " << EllipsePosition1 << " oePoint()= " << oePoint(EllipsePosition1) << " e=" << error(EllipsePosition1) << "\n";
+    std::cout << "2nd: (s, t)= " << EllipsePosition2 << " oePoint()= " << oePoint(EllipsePosition2) << " e=" << error(EllipsePosition2) << "\n";
 }
 
 /// Ellipse string output

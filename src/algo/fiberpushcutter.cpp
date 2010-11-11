@@ -68,9 +68,6 @@ void FiberPushCutter::setSTL(const STLSurf &s) {
     std::cout << " done.\n";
 }
 
-
-/// very simple batch push-cutter
-/// each fiber is tested against all triangles of surface
 void FiberPushCutter::pushCutter1(Fiber& f) {
     nCalls = 0;
     BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s

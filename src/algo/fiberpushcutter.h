@@ -57,7 +57,9 @@ class FiberPushCutter : public Operation {
         void run(Fiber& f) {pushCutter2(f);}
         
     protected:
+        /// input fiber is tested against all triangles of surface
         void pushCutter1(Fiber& f);
+        /// use kd-tree search to find overlapping triangles
         void pushCutter2(Fiber& f);
         
     // DATA

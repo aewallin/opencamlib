@@ -34,6 +34,7 @@ class Fiber_py : public Fiber {
         Fiber_py() : Fiber () {};
         /// construct p1-p2 fiber
         Fiber_py(const Point &p1, const Point &p2) : Fiber(p1, p2) {};
+        /// copy constructor
         Fiber_py(const Fiber& f) : Fiber(f) {};
         /// return a list of intervals to python
         boost::python::list getInts() const {

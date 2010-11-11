@@ -51,8 +51,9 @@ class Fiber {
         Point point(double t) const;
         /// print the intervals
         void printInts() const;
-        
+        /// return true if the Fiber contains no intervals
         bool empty() const {return ints.empty();}
+        /// return number of intervals
         unsigned int size() const {return ints.size();}
         
         /// string repr

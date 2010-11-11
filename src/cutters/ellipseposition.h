@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef EPOS_H
-#define EPOS_H
+#ifndef ELLIPSEPOSITION_H
+#define ELLIPSEPOSITION_H
 
 #include <list>
 #include "point.h"
@@ -29,16 +29,16 @@ namespace ocl
     
 class Ellipse;
 ///
-/// \brief Epos defines a position in (s,t) coordinates on a unit-circle.
+/// \brief EllipsePosition defines a position in (s,t) coordinates on a unit-circle.
 /// The (s,t) pair is used to locate points on an ellipse.
 /// 
 /// s^2 + t^2 = 1 should be true at all times.
-class Epos {
+class EllipsePosition {
     public:
-        /// create an epos
-        Epos();
-        /// create Epos at (s,t)
-        Epos(double sin, double tin){s=sin; t=tin;}
+        /// create an EllipsePosition
+        EllipsePosition();
+        /// create EllipsePosition at (s,t)
+        EllipsePosition(double sin, double tin){s=sin; t=tin;}
         
         /// set (s,t) pair to the position corresponding to diangle
         void setDiangle(double dia);
@@ -53,13 +53,13 @@ class Epos {
         /// from the angle to an (s,t) pair using setD()
         double diangle;
         
-        /// set rhs Epos (s,t) values equal to lhs Epos
-        Epos &operator=(const Epos &pos);
+        /// set rhs EllipsePosition (s,t) values equal to lhs EllipsePosition
+        EllipsePosition &operator=(const EllipsePosition &pos);
         
         /// string repr
         std::string str() const;
         /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, Epos pos);
+        friend std::ostream& operator<<(std::ostream &stream, EllipsePosition pos);
         
         /// return true if (s,t) is valid, i.e. lies on the unit circle
         /// checks s^2 + t^2 == 1  (to within tolerance) 
@@ -71,4 +71,4 @@ class Epos {
     
 }// end namespace
 #endif
-// end file epos.h
+// end file EllipsePosition.h

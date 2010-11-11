@@ -25,26 +25,26 @@
 #include <cassert>
 
 #include "point.h"
-#include "epos.h"
+#include "ellipseposition.h"
 #include "oellipse.h"
 #include "numeric.h"
 namespace ocl
 {
 
-//********   Epos ********************** */
-Epos::Epos() {
+//********   EllipsePosition ********************** */
+EllipsePosition::EllipsePosition() {
     diangle = 0.0;
     setD();
 }
 
-void Epos::setDiangle(double dia) {
+void EllipsePosition::setDiangle(double dia) {
     assert( !isnan(dia) );
-    //std::cout << " Epos::setDiangle( "<< dia << " ) \n";
+    //std::cout << " EllipsePosition::setDiangle( "<< dia << " ) \n";
     diangle = dia;
     setD();
 }
 
-void Epos::setD() {
+void EllipsePosition::setD() {
     // set (s,t) to angle corresponding to diangle
     // see: http://www.freesteel.co.uk/wpblog/2009/06/encoding-2d-angles-without-trigonometry/
     // see: http://www.anderswallin.net/2010/07/radians-vs-diamondangle/
@@ -57,7 +57,7 @@ void Epos::setD() {
     while ( d < 0.0)
         d+=4.0;
     if ( !(d >= 0.0 && d <= 4.0 ) )
-        std::cout << "Epos::setD error d= " << d << "\n";
+        std::cout << "EllipsePosition::setD error d= " << d << "\n";
         
     assert( d >= 0.0 && d <= 4.0 ); // now we should be in [0,4]
     Point p;
@@ -83,34 +83,34 @@ void Epos::setD() {
 }
 
 // check that s and t values are OK
-bool Epos::isValid() const {
+bool EllipsePosition::isValid() const {
     if ( isZero_tol( square(s) + square(t) - 1.0 ) )
         return true;
     else {
-        std::cout << " epos=" << *this << "\n";
+        std::cout << " EllipsePosition=" << *this << "\n";
         std::cout << " square(s) + square(t) - 1.0 = " << square(s) + square(t) - 1.0 << " !!\n";
         return false;
     }
 }
 
-Epos& Epos::operator=(const Epos &pos)  {
+EllipsePosition& EllipsePosition::operator=(const EllipsePosition &pos)  {
     s = pos.s;
     t = pos.t;
     diangle = pos.diangle;
     return *this;
 }
 
-std::string Epos::str() const {
+std::string EllipsePosition::str() const {
     std::ostringstream o;
     o << *this;
     return o.str();
 }
 
-std::ostream& operator<<(std::ostream &stream, Epos pos) {
+std::ostream& operator<<(std::ostream &stream, EllipsePosition pos) {
     stream << "("<< pos.s <<" ," << pos.t << ")";
     return stream;
 }
 
 
 }//end namespace
-//end file epos.cpp
+//end file EllipsePosition.cpp

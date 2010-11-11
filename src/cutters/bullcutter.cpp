@@ -80,7 +80,7 @@ CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) co
         Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
         int iters = e.solver_brent();
         assert( iters < 200 );
-        e.setEposHi(u1,u2); // this selects either epos1 or epos2 and sets it to epos_hi
+        e.setEllipsePositionHi(u1,u2); // this selects either EllipsePosition1 or EllipsePosition2 and sets it to EllipsePosition_hi
         // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
         Point ell_ccp = e.ePointHi();         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5); // ell_ccp should be on the cylinder-circle  
         Point cc_tmp_u = ell_ccp.closestPoint(u1,u2); // find real cc-point

@@ -48,28 +48,42 @@ class AdaptiveWaterline : public Waterline {
         /// create an empty Waterline object
         AdaptiveWaterline(); 
         virtual ~AdaptiveWaterline();
+        /// set the minimum sampling interval
         void setMinSampling(double s) {min_sampling=s;}
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
         
     protected:
+        /// adaptive waterline algorithm
         void adaptive_sampling_run();
+        /// x-direction adaptive sampling
         void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        /// y-direction adaptive sampling
         void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        /// flatness predicate
         bool flat( Fiber& start, Fiber& mid, Fiber& stop );
+        /// build weave and do face_traverse to get loops
         void weave_process();
 
     // DATA
+        /// x-fibers for this operation
         std::vector<Fiber> xfibers;
+        /// y-fibers for this operation
         std::vector<Fiber> yfibers;
+        /// minimum x-coordinate
         double minx;
+        /// maximum x-coordinate
         double maxx;
+        /// minimum y-coordinate
         double miny;
+        /// maximum y-coordinate
         double maxy;
+        /// the minimum sampling interval when subdividing
         double min_sampling;
 };
 
+/// \brief python wrapper for AdaptiveWaterline
 class AdaptiveWaterline_py : public AdaptiveWaterline {
     public:
         AdaptiveWaterline_py() : AdaptiveWaterline() {};
@@ -85,6 +99,7 @@ class AdaptiveWaterline_py : public AdaptiveWaterline {
             }
             return loop_list;
         };
+        /// return a list of xfibers to python
         boost::python::list getXFibers() const {
             boost::python::list flist;
             BOOST_FOREACH( Fiber f, xfibers ) {
@@ -95,6 +110,7 @@ class AdaptiveWaterline_py : public AdaptiveWaterline {
             }
             return flist;
         };
+        /// return a list of yfibers to python
         boost::python::list getYFibers() const {
             boost::python::list flist;
             BOOST_FOREACH( Fiber f, yfibers ) {

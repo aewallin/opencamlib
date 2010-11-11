@@ -58,11 +58,10 @@ if __name__ == "__main__":
     diam = 0.31 # run the thing for all these cutter diameters
     length = 5
     loops = []
-    cutter = ocl.CylCutter( 1 , 1 )   
 
-    cutter = ocl.CylCutter( diam , length )
+    #cutter = ocl.CylCutter( diam , length )
     #cutter = ocl.BallCutter( diam , length )
-    #cutter = ocl.BullCutter( diam , diam/5, length )
+    cutter = ocl.BullCutter( diam , diam/5, length )
     wl = ocl.Waterline()
     #wl.setThreads(1)
     wl.setSTL(s)
@@ -83,8 +82,8 @@ if __name__ == "__main__":
     awl.setSTL(s)
     awl.setCutter(cutter)
     awl.setZ(zh)
-    awl.setSampling(0.2)
-    awl.setMinSampling(0.001)
+    awl.setSampling(0.05)
+    awl.setMinSampling(0.0001)
     t_before = time.time() 
     awl.run()
     

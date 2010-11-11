@@ -94,6 +94,7 @@ class Operation {
         virtual void run() = 0;
         /// run algorithm on a single input CLPoint
         virtual void run(CLPoint& cl) {assert(0);}
+        /// run push-cutter type algorithm on input Fiber
         virtual void run(Fiber& f) {assert(0);}
         
         /// return CL-points

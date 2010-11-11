@@ -76,7 +76,7 @@ set(OCL_CUTTER_SRC
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/cutters/oellipse.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutters/epos.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.cpp
 )
 
 set(OCL_ALGO_SRC
@@ -124,7 +124,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/epos.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.h
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/oellipse.h
     

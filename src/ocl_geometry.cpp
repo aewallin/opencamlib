@@ -26,6 +26,7 @@
 #include "triangle_py.h"        // new-style python wrapper-class
 #include "stlsurf_py.h"         // new-style wrapper
 #include "oellipse.h"           // no python
+#include "ellipseposition.h"
 #include "bbox.h"               // no python
 #include "path_py.h"            // new-style wrapper
 #include "stlreader.h"          // no python
@@ -129,12 +130,12 @@ void export_geometry() {
         .def_readonly("minpt", &Bbox::minpt)
     ;
     // Epos and the Ellipse are used for the toroidal tool edge-tests
-    bp::class_<Epos>("Epos")
+    bp::class_<EllipsePosition>("EllipsePosition")
         //.def("setD", &Epos::setD)
-        .def_readwrite("s", &Epos::s)
-        .def_readwrite("t", &Epos::t)
+        .def_readwrite("s", &EllipsePosition::s)
+        .def_readwrite("t", &EllipsePosition::t)
         //.def_readwrite("d", &Epos::diangle)
-        .def("__str__", &Epos::str)
+        .def("__str__", &EllipsePosition::str)
     ;
     bp::class_<Ellipse>("Ellipse")
         .def(bp::init<Point&, double, double, double>())
