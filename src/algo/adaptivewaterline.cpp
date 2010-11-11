@@ -18,6 +18,10 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
+#include <vector>
+
+
 #include <boost/foreach.hpp> 
 
 #ifdef _OPENMP
@@ -53,7 +57,8 @@ AdaptiveWaterline::AdaptiveWaterline() {
     //omp_set_dynamic(0);
     omp_set_nested(1);
 #endif
-
+    sampling = 1.0;
+    min_sampling = 0.1;
 }
 
 AdaptiveWaterline::~AdaptiveWaterline() {
@@ -148,13 +153,34 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
 }
 
 bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) {
-    return true;
+    if (start.size() != stop.size() )
+        return false;
+    else if (start.size() != mid.size() )
+        return false;
+    else if (mid.size() != stop.size() )
+        return false;
+    else
+        return true;
 }
 
+
+bool xFiber_compare (const Fiber& f1, const Fiber& f2) { 
+    return (f1.p1.x < f2.p1.x); 
+}
+
+bool yFiber_compare (const Fiber& f1, const Fiber& f2) { 
+    return (f1.p1.y < f2.p1.y); 
+}
 
 void AdaptiveWaterline::weave_process() {
     std::cout << "Weave..." << std::flush;
     Weave w;
+    
+    // sort fibers by increasing coordinate (?)
+    // void sort ( RandomAccessIterator first, RandomAccessIterator last, Compare comp );
+    // std::sort( xfibers.begin(), xfibers.end(), xFiber_compare);
+    // std::sort( yfibers.begin(), yfibers.end(), yFiber_compare);
+    
     std::cout << " adding " << xfibers.size() << " xfibers to weave \n";
     BOOST_FOREACH( Fiber f, xfibers ) {
         w.addFiber(f);
@@ -163,10 +189,10 @@ void AdaptiveWaterline::weave_process() {
     BOOST_FOREACH( Fiber f, yfibers ) {
         w.addFiber(f);
     }
-    std::cout << w.str();
+    //std::cout << w.str();
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
-    std::cout << w.str();
+    //std::cout << w.str();
     std::cout << "split()..." << std::flush;
     std::vector<Weave> subweaves = w.split_components(); // split into components
     std::cout << "traverse()..." << std::flush;

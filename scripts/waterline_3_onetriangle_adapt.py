@@ -46,7 +46,7 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(0,0,0)
+    c = ocl.Point(0,0,0.1)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
@@ -54,17 +54,15 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
-    zh=0.15  # the z-coordinates for the waterlines
-    diam = 0.6 # run the thing for all these cutter diameters
+    zh=0.23  # the z-coordinates for the waterlines
+    diam = 0.31 # run the thing for all these cutter diameters
     length = 5
     loops = []
     cutter = ocl.CylCutter( 1 , 1 )   
 
-
-            
-    #cutter = ocl.CylCutter( diam , length )
+    cutter = ocl.CylCutter( diam , length )
     #cutter = ocl.BallCutter( diam , length )
-    cutter = ocl.BullCutter( diam , diam/5, length )
+    #cutter = ocl.BullCutter( diam , diam/5, length )
     wl = ocl.Waterline()
     #wl.setThreads(1)
     wl.setSTL(s)
@@ -86,7 +84,7 @@ if __name__ == "__main__":
     awl.setCutter(cutter)
     awl.setZ(zh)
     awl.setSampling(0.2)
-    awl.setMinSampling(0.01)
+    awl.setMinSampling(0.001)
     t_before = time.time() 
     awl.run()
     

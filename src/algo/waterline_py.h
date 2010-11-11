@@ -45,6 +45,25 @@ class Waterline_py : public Waterline {
             }
             return loop_list;
         };
+        boost::python::list getXFibers() const {
+            boost::python::list flist;
+            std::vector<Fiber> xfibers = *( subOp[0]->getFibers() );
+            BOOST_FOREACH( Fiber f, xfibers ) {
+                Fiber_py f2(f);
+                flist.append(f2);
+            }
+            return flist;
+        };
+        boost::python::list getYFibers() const {
+            boost::python::list flist;
+            std::vector<Fiber> yfibers = *( subOp[1]->getFibers() );
+            BOOST_FOREACH( Fiber f, yfibers ) {
+                Fiber_py f2(f);
+                flist.append(f2);
+            }
+            return flist;
+        };
+        
 };
 
 } // end namespace

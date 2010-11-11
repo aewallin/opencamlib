@@ -21,53 +21,34 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    cutter = ocl.CylCutter(0.3, 5)
+    cutter = ocl.CylCutter(0.31, 5)
     #cutter = ocl.BallCutter(0.4, 5)
     #cutter = ocl.BullCutter(0.4, 0.1, 5)
     
     print "fiber..."
-    range=4
-    Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = -0.1
-    zmax = 0.5
-    zNmax = 5
-    dz = (zmax-zmin)/(zNmax-1)
-    zvals=[ 0.23]
-    #zvals.append(0.2)
-    #for n in xrange(0,zNmax):
-    #    zvals.append(zmin+n*dz)
 
-    bpc_x = ocl.BatchPushCutter()
-    bpc_y = ocl.BatchPushCutter()
-    bpc_x.setXDirection()
-    bpc_y.setYDirection()
-    bpc_x.setSTL(s)
-    bpc_y.setSTL(s)
-    bpc_x.setCutter(cutter)
-    bpc_y.setCutter(cutter)
-    # create fibers
-    for zh in zvals:
-        for y in yvals:
-            f1 = ocl.Point(-0.5,y,zh) # start point of fiber
-            f2 = ocl.Point(1.5,y,zh)  # end point of fiber
-            f =  ocl.Fiber( f1, f2)
-            bpc_x.appendFiber(f)
-        for x in xvals:
-            f1 = ocl.Point(x,-0.5,zh) # start point of fiber
-            f2 = ocl.Point(x,1.5,zh)  # end point of fiber
-            f =  ocl.Fiber( f1, f2)
-            bpc_y.appendFiber(f)
-            
-    # run
-    bpc_x.run()
-    bpc_y.run()
-    clpoints = bpc_x.getCLPoints()
-    clp2 = bpc_y.getCLPoints()
-    clpoints+=clp2
-    xfibers = bpc_x.getFibers()
-    yfibers = bpc_y.getFibers()
+    zh =  0.23
+    
+    aloops = []
+    awl = ocl.AdaptiveWaterline()
+    #awl = ocl.Waterline()
+    awl.setSTL(s)
+    awl.setCutter(cutter)
+    awl.setZ(zh)
+    sampling=0.3
+    awl.setSampling(sampling)
+    #awl.setMinSampling(0.1)
+    t_before = time.time() 
+    awl.run()
+    t_after = time.time()
+    calctime = t_after-t_before
+    print " AdaptiveWaterline done in ", calctime," s"
+    xfibers = awl.getXFibers()
+    #print " got ", len(xf)," x-fibers"
+    yfibers = awl.getYFibers()
+    #print " got ", len(yf)," y-fibers"
+    
+    
     fibers = xfibers+yfibers
     print " got ",len(xfibers)," xfibers"
     print " got ",len(yfibers)," yfibers"
@@ -81,7 +62,7 @@ if __name__ == "__main__":
     w.build()
     print "done"
     print "face_traverse..."
-    w.face_traverse()
+    #w.face_traverse()
     print "done."
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
@@ -110,12 +91,18 @@ if __name__ == "__main__":
     
     # draw edges of weave
     ne = 0
-    zoffset=0.1
-    dzoffset = 0.0005
+    zoffset=0.0
+ 
+    dzoffset =  0.001
+    dzoffset2 = 0.000
     for e in w_edges:
         p1 = e[0]
         p2 = e[1]
-        myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
+        df = p1-p2
+        if (df.norm() > 1.05*sampling ):
+            myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
+        else:
+            myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset2), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset2) ) )
         ne = ne+1
         
     print "done."

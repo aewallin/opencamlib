@@ -103,6 +103,8 @@ void Waterline::run() {
     std::cout << "done.\n" << std::flush;
 }
 
+
+
 void Waterline::init_fibers() {
     std::cout << " Waterline::init_fibers()\n";
     double minx = surf->bb.minpt.x - 2*cutter->getRadius();

@@ -111,6 +111,9 @@ void export_algo() {
         .def("getLoops", &Waterline_py::py_getLoops)
         .def("setThreads", &Waterline_py::setThreads)
         .def("getThreads", &Waterline_py::getThreads)
+        .def("getXFibers", &Waterline_py::getXFibers)
+        .def("getYFibers", &Waterline_py::getYFibers)
+        
     ;
     bp::class_<AdaptiveWaterline>("AdaptiveWaterline_base")
     ;

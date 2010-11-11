@@ -88,16 +88,20 @@ class AdaptiveWaterline_py : public AdaptiveWaterline {
         boost::python::list getXFibers() const {
             boost::python::list flist;
             BOOST_FOREACH( Fiber f, xfibers ) {
-                Fiber_py f2(f);
-                flist.append(f2);
+                if (!f.empty()) {
+                    Fiber_py f2(f);
+                    flist.append(f2);
+                }
             }
             return flist;
         };
         boost::python::list getYFibers() const {
             boost::python::list flist;
             BOOST_FOREACH( Fiber f, yfibers ) {
-                Fiber_py f2(f);
-                flist.append(f2);
+                if (!f.empty()){
+                    Fiber_py f2(f);
+                    flist.append(f2);
+                }
             }
             return flist;
         };

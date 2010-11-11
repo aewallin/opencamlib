@@ -51,6 +51,10 @@ class Fiber {
         Point point(double t) const;
         /// print the intervals
         void printInts() const;
+        
+        bool empty() const {return ints.empty();}
+        unsigned int size() const {return ints.size();}
+        
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Fiber &f);
         

@@ -45,12 +45,11 @@ void Weave::sort_fibers() {
     // sort fibers into X and Y fibers
     xfibers.clear();
     yfibers.clear();
-    
     BOOST_FOREACH( Fiber f, fibers ) {
-        if ( f.dir.xParallel() && !f.ints.empty() ) {
+        if ( f.dir.xParallel() && !f.empty() ) {
             xfibers.push_back(f);
         } 
-        if ( f.dir.yParallel() && !f.ints.empty() ) {
+        if ( f.dir.yParallel() && !f.empty() ) {
             yfibers.push_back(f);
         }
     }    
@@ -70,9 +69,9 @@ void Weave::print_embedding(PlanarEmbedding& e) {
     std::cout << " e has " << m << " rows\n";
     for (unsigned int i=0; i<m ; ++i ) {
         unsigned int N = e[i].size();
-        std::cout << i << " : ";
+        std::cout << i << " : "; // vertex index
         for (unsigned int j=0; j<N ; ++j) {
-            std::cout << (e[i])[j] << " " ;
+            std::cout << (e[i])[j] << " " ; // edges connecting to this vertex, in the right order
         }
         std::cout << "\n";
     }
@@ -80,28 +79,31 @@ void Weave::print_embedding(PlanarEmbedding& e) {
 
 
 void Weave::build_embedding(PlanarEmbedding& e) {
-    e = PlanarEmbedding(boost::num_vertices(g)); // one row for each vertex
+    e = PlanarEmbedding( boost::num_vertices(g) ); // one row for each vertex
     // each row has adjacent edges for this vertex, in the correct order
     VertexIterator it, it_end;
     for( boost::tie(it, it_end)=boost::vertices(g); it!=it_end ; ++it ) {
         int idx = boost::get( boost::vertex_index, g, *it);
-        Point v_pos = boost::get( boost::vertex_position, g, *it);
-        OutEdgeIterator eit, eit_end;
+        Point vertexPos = boost::get( boost::vertex_position, g, *it);
+        OutEdgeIterator edgeItr, eit_end;
         typedef std::pair< bool, EdgeDescriptor > BoolEdgePair;
         // edges can go in four directions: N, E, S, W
         std::vector< BoolEdgePair > ordered_edges(4, BoolEdgePair(false,  EdgeDescriptor() ) ); // store possible out-edges in a size=4 vector
-        for ( boost::tie(eit,eit_end)=boost::out_edges(*it,g); eit!=eit_end ; ++eit) { // look at each edge connecting to this vertex
-            VertexDescriptor adjacent = boost::target( *eit, g);
-            Point adj_pos = boost::get( boost::vertex_position, g, adjacent);
-            Point diff = v_pos-adj_pos;
+        for ( boost::tie(edgeItr,eit_end)=boost::out_edges(*it,g); edgeItr!=eit_end ; ++edgeItr) { // look at each edge connecting to this vertex
+            VertexDescriptor targetVertex = boost::target( *edgeItr, g);
+            VertexDescriptor source = boost::source( *edgeItr, g);
+            assert( *it == source );
+            
+            Point targetPos = boost::get( boost::vertex_position, g, targetVertex);
+            Point diff = vertexPos - targetPos;
             if (diff.y > 0) // in the N direction
-                ordered_edges[0] = BoolEdgePair(true, *eit); // naive
+                ordered_edges[0] = BoolEdgePair(true, *edgeItr); 
             else if (diff.x > 0) // in the E direction
-                ordered_edges[1] = BoolEdgePair(true, *eit); 
+                ordered_edges[1] = BoolEdgePair(true, *edgeItr); 
             else if (diff.y < 0) // in the S direction
-                ordered_edges[2] = BoolEdgePair(true, *eit); 
+                ordered_edges[2] = BoolEdgePair(true, *edgeItr); 
             else if (diff.x < 0) // in the W direction
-                ordered_edges[3] = BoolEdgePair(true, *eit); 
+                ordered_edges[3] = BoolEdgePair(true, *edgeItr); 
             else {
                 std::cout << " diff.x="<<diff.x<<" diff.y="<<diff.y<<"\n";
                 assert(0);
@@ -167,8 +169,7 @@ correct:
  */
 
 void Weave::face_traverse() {
-    // void planar_face_traversal(const Graph& g, PlanarEmbedding embedding, PlanarFaceVisitor& visitor, EdgeIndexMap em);
-    // std::cout << " face_traverse() \n";
+    
     // Initialize the interior edge index
     boost::property_map<WeaveGraph, boost::edge_index_t>::type e_index = boost::get(boost::edge_index, g);
     boost::graph_traits<WeaveGraph>::edges_size_type edge_count = 0;
@@ -179,24 +180,23 @@ void Weave::face_traverse() {
     // test for planarity and build embedding as side-effect
     PlanarEmbedding e(boost::num_vertices(g));
     build_embedding(e); // build a planar embedding
-    std::cout << " planar_embedding() done.\n";
+    //std::cout << " planar_embedding() done.\n";
     //print_embedding(e);
-    std::cout << " graph has " << boost::num_vertices(g) << " vertices \n";
+    //std::cout << " graph has " << boost::num_vertices(g) << " vertices \n";
     
-    
+    PlanarEmbedding e_tmp(boost::num_vertices(g));
     if ( boost::boyer_myrvold_planarity_test( boost::boyer_myrvold_params::graph = g,
-                                   boost::boyer_myrvold_params::embedding = &e[0]) )
+                                   boost::boyer_myrvold_params::embedding = &e_tmp[0]) ) // NOTE: This will build a new WRONG planar embedding of the graph!!
         std::cout << "Input graph is planar" << std::endl;
     else {
         std::cout << "Input graph is not planar" << std::endl;
         assert(0);
     }
     //print_embedding(e);
-    
     //std::cout << std::endl << "Vertices on the faces: " << std::endl;
-    
     vertex_output_visitor v_vis(this, g);
-    std::cout << " calling planar_face_traversal() \n";
+    //std::cout << " calling planar_face_traversal() \n";
+    // void planar_face_traversal(const Graph& g, PlanarEmbedding embedding, PlanarFaceVisitor& visitor, EdgeIndexMap em);
     boost::planar_face_traversal(g, &e[0], v_vis);
 }
 
@@ -212,76 +212,77 @@ void Weave::build() {
     // provide this "via" connection
     sort_fibers(); // fibers are sorted into xfibers and yfibers
     BOOST_FOREACH( Fiber& xf, xfibers) {
-        if ( !xf.ints.empty() ) {
-            BOOST_FOREACH( Interval& xi, xf.ints ) {
-                double xmin = xf.point(xi.lower).x;
-                double xmax = xf.point(xi.upper).x;
-                if (!xi.in_weave) { // add the interval end-points to the weave
-                    // 1) CL-points of X-fiber (check if already added)
-                    Point p = xf.point(xi.lower);
-                    add_vertex( p, CL , xi, p.x );
-                    p = xf.point(xi.upper);
-                    add_vertex( p, CL , xi, p.x );
-                    xi.in_weave = true;
-                }
-                BOOST_FOREACH( Fiber& yf, yfibers ) {
-                    if ( (xmin <= yf.p1.x) && ( yf.p1.x <= xmax ) ) {// potential intersection
-                        BOOST_FOREACH( Interval& yi, yf.ints ) {
-                            double ymin = yf.point(yi.lower).y;
-                            double ymax = yf.point(yi.upper).y;
-                            if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) { // actual intersection
-                                // X interval xi on fiber xf intersects with Y interval yi on fiber yf
-                                // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z)
-
-                                // 2) CL-points of Y-fiber (check if already added)
-                                if (!yi.in_weave) {
-                                    Point p = yf.point(yi.lower);
-                                    add_vertex( p, CL , yi, p.y );
-                                    p = yf.point(yi.upper);
-                                    add_vertex( p, CL , yi, p.y );
-                                    yi.in_weave = true;
-                                }
-                                // 3) intersection point (this is always new, no need to check for existence??)
-                                VertexDescriptor  v;
-                                v = boost::add_vertex(g);
-                                Point v_position = Point( yf.p1.x, xf.p1.y , xf.p1.z) ;
-                                boost::put( boost::vertex_position , g , v , v_position ); 
-                                boost::put( boost::vertex_type , g , v , INT ); // internal vertex
-                                xi.intersections.insert( VertexPair( v, v_position.x ) );
-                                yi.intersections.insert( VertexPair( v, v_position.y ) );
-                                
-                                // 4) add edges 
-                                // find the X-vertices above and below the new vertex v.
-                                VertexPair v_pair_x( v , v_position.x );
-                                VertexPairIterator x_tmp = xi.intersections.lower_bound( v_pair_x );
-                                assert(x_tmp != xi.intersections.end() );
-                                VertexPairIterator x_above = x_tmp;
-                                VertexPairIterator x_below = x_tmp;
-                                ++x_above;
-                                --x_below;
-                                // if x_above and x_below are already connected, we need to remove that edge.
-                                boost::remove_edge( x_above->first, x_below->first, g);
-                                boost::add_edge( x_above->first , v , g );
-                                boost::add_edge( x_below->first , v , g );
-                                
-                                // now do the same thing in the y-direction.
-                                VertexPair v_pair_y( v , v_position.y );
-                                VertexPairIterator y_tmp = yi.intersections.lower_bound( v_pair_y );
-                                assert(y_tmp != yi.intersections.end() );
-                                VertexPairIterator y_above = y_tmp;
-                                VertexPairIterator y_below = y_tmp;
-                                ++y_above;
-                                --y_below;
-                                // if y_above and y_below are already connected, we need to remove that edge.
-                                boost::remove_edge( y_above->first, y_below->first, g);
-                                boost::add_edge( y_above->first , v , g );
-                                boost::add_edge( y_below->first , v , g );
+        assert( !xf.empty() ); // sort_fibers() ensures no empty fibers remain
+        BOOST_FOREACH( Interval& xi, xf.ints ) {
+            double xmin = xf.point(xi.lower).x;
+            double xmax = xf.point(xi.upper).x;
+            assert( !xi.in_weave );
+            //if (!xi.in_weave) { 
+            // add the interval end-points to the weave
+            Point p = xf.point(xi.lower);
+            add_vertex( p, CL , xi, p.x ); // add_vertex( Point& position, VertexType t, Interval& i, double ipos)
+            p = xf.point(xi.upper);
+            add_vertex( p, CL , xi, p.x );
+            //xi.in_weave = true;
+            // }
+            BOOST_FOREACH( Fiber& yf, yfibers ) {
+                if ( (xmin <= yf.p1.x) && ( yf.p1.x <= xmax ) ) {// potential intersection
+                    BOOST_FOREACH( Interval& yi, yf.ints ) {
+                        double ymin = yf.point(yi.lower).y;
+                        double ymax = yf.point(yi.upper).y;
+                        if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) { // actual intersection
+                            // X interval xi on fiber xf intersects with Y interval yi on fiber yf
+                            // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z)
+                            if (!yi.in_weave) { // add y-interval endpoints to weave
+                                Point p = yf.point(yi.lower);
+                                add_vertex( p, CL , yi, p.y );
+                                p = yf.point(yi.upper);
+                                add_vertex( p, CL , yi, p.y );
+                                yi.in_weave = true;
                             }
-                        } // end y interval loop
-                    } // end if(potential intersection)
-                } // end y fiber loop
-            } // x interval loop
-        } // end if( x-interval empty)
+                            // 3) intersection point (this is always new, no need to check for existence??)
+                            VertexDescriptor  v;
+                            v = boost::add_vertex(g);
+                            Point v_position = Point( yf.p1.x, xf.p1.y , xf.p1.z) ;
+                            //add_vertex( v_position, INT, xi, v_position.x);
+                            //add_vertex( v_position, INT, yi, v_position.y);
+                            boost::put( boost::vertex_position , g , v , v_position ); 
+                            boost::put( boost::vertex_type , g , v , INT ); // internal vertex
+                            xi.intersections.insert( VertexPair( v, v_position.x ) );
+                            yi.intersections.insert( VertexPair( v, v_position.y ) );
+                            
+                            // 4) add edges 
+                            // find the X-vertices above and below the new vertex v.
+                            VertexPair v_pair_x( v , v_position.x );
+                            VertexPairIterator x_tmp = xi.intersections.lower_bound( v_pair_x );
+                            assert(x_tmp != xi.intersections.end() );
+                            VertexPairIterator x_above = x_tmp;
+                            VertexPairIterator x_below = x_tmp;
+                            ++x_above;
+                            --x_below;
+                            // if x_above and x_below are already connected, we need to remove that edge.
+                            boost::remove_edge( x_above->first, x_below->first, g);
+                            boost::add_edge( x_above->first , v , g );
+                            boost::add_edge( x_below->first , v , g );
+                            
+                            // now do the same thing in the y-direction.
+                            VertexPair v_pair_y( v , v_position.y );
+                            VertexPairIterator y_tmp = yi.intersections.lower_bound( v_pair_y );
+                            assert(y_tmp != yi.intersections.end() );
+                            VertexPairIterator y_above = y_tmp;
+                            VertexPairIterator y_below = y_tmp;
+                            ++y_above;
+                            --y_below;
+                            // if y_above and y_below are already connected, we need to remove that edge.
+                            boost::remove_edge( y_above->first, y_below->first, g);
+                            boost::add_edge( y_above->first , v , g );
+                            boost::add_edge( y_below->first , v , g );
+                        }
+                    } // end y interval loop
+                } // end if(potential intersection)
+            } // end y fiber loop
+        } // x interval loop
+       
     } // end X-fiber loop
      
 }
