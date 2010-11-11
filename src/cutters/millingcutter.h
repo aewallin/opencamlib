@@ -60,34 +60,34 @@ class MillingCutter {
         /// return a MillingCutter which is larger than *this by d
         virtual MillingCutter* offsetCutter(double d) const;
         
-        /// does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
+        /// \brief does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
         /// works in the xy-plane 
         bool overlaps(Point &cl, const Triangle &t) const;
         
-        /// drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
+        /// \brief drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// calls this->height(r) on the subclass of MillingCutter we are using.
         bool vertexDrop(CLPoint &cl, const Triangle &t) const;
-        /// drop cutter at (cl.x, cl.y) against facet of Triangle t
+        /// \brief drop cutter at (cl.x, cl.y) against facet of Triangle t
         /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
         virtual bool facetDrop(CLPoint &cl, const Triangle &t) const;
-        /// drop cutter at (cl.x, cl.y) against the three edges of input Triangle t.
+        /// \brief drop cutter at (cl.x, cl.y) against the three edges of input Triangle t.
         /// calls the sub-class MillingCutter::singleEdgeDrop on each edge
         virtual bool edgeDrop(CLPoint& cl, const Triangle &t) const;
-        /// drop the MillingCutter at Point cl down along the z-axis
-        /// until it makes contact with Triangle t.
+        /// \brief drop the MillingCutter at Point cl down along the z-axis until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
         /// Follows the template-method, or "self-delegation" design pattern.
         bool dropCutter(CLPoint &cl, const Triangle &t) const;
 
-        /// drop the MillingCutter at Point cl down along the z-axis
+        /// \brief call dropCutter on all Triangle's in STLSurf 
+        /// drops the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
         /// dropCutter() calls for each and every Triangle in s.
         /// NOTE: should not really be used for real work, demo/debug only
         bool dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
-        /// push the cutter along Fiber f into contact with the vertices of Triangle t, updating Interval i
-        /// with the interfering interval.
+        /// \brief push the cutter along Fiber f into contact with the vertices of Triangle t
+        /// updates Interval i with the interfering interval.
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
