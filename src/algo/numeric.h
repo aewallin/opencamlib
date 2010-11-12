@@ -55,6 +55,9 @@ bool isZero_tol(double x);
 /// but 1 == 1 + eps/2 
 double eps();
 
+double epsD(double x);
+float epsF(float x);
+
 /// assertion with error message
 void assert_msg( bool assertion, std::string message);
 

@@ -82,11 +82,27 @@ bool isZero_tol(double x) {
 
 /// return machine epsilon
 double eps() {
-  double r;
-  r = 1.0;
-  while ( 1.0 <  (1.0 + r) )
-    r = r / 2.0;
-  return ( 2.0 * r );
+    double r;
+    r = 1.0;
+    while ( 1.0 <  (1.0 + r) )
+        r = r / 2.0;
+    return ( 2.0 * r );
+}
+
+double epsD(double x) {
+    double r;
+    r = 1000.0;
+    while ( x <  (x + r) )
+        r = r / 2.0;
+    return ( 2.0 * r );
+}
+
+float epsF(float x) {
+    float r;
+    r = 1000.0;
+    while ( x <  (x + r) )
+        r = r / 2.0;
+    return ( 2.0 * r );
 }
 
 void assert_msg( bool assertion, std::string message) {

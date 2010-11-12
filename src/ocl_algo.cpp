@@ -41,6 +41,8 @@ namespace bp = boost::python;
 
 void export_algo() {
     bp::def("eps", eps); // machine epsilon, see numeric.cpp
+    bp::def("epsF", epsF);
+    bp::def("epsD", epsD);
     bp::def("revision", revision); // returns OCL revision string to python
     
     bp::class_<BatchDropCutter>("BatchDropCutter_base")
