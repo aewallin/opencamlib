@@ -89,6 +89,7 @@ class KDNode3 {
         KDNode3* lo; 
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
         std::list< BBObj >* tris;
+        /// flag to indicate leaf in the tree. Leafs or bucket-nodes contain triangles in the list tris.
         bool isLeaf;
 };
 
