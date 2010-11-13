@@ -21,9 +21,9 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
     
-    cutter = ocl.CylCutter(0.31, 5)
+    #cutter = ocl.CylCutter(0.31, 5)
     #cutter = ocl.BallCutter(0.4, 5)
-    #cutter = ocl.BullCutter(0.4, 0.1, 5)
+    cutter = ocl.BullCutter(0.4, 0.1, 5)
     
     print "fiber..."
 
