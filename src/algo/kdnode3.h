@@ -50,8 +50,15 @@ class KDNode3 {
             parent = parentNode;
             hi = hi_child;
             lo = lo_child;
-            tris = tlist;
+            tris = new std::list<BBObj>();
             depth = nodeDepth;
+            isLeaf = false;
+            if (tlist) {
+                isLeaf = true;
+                BOOST_FOREACH(BBObj bo, *tlist) {
+                    tris->push_back(bo);
+                }
+            }
         }
         virtual ~KDNode3() {
             delete hi;
@@ -81,7 +88,8 @@ class KDNode3 {
         /// Child-node lo.
         KDNode3* lo; 
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
-        const std::list< BBObj >* tris;
+        std::list< BBObj >* tris;
+        bool isLeaf;
 };
 
 

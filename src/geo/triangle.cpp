@@ -45,8 +45,17 @@ Triangle::Triangle(Point p1, Point p2, Point p3) {
     calcBB();
 }
 
+Triangle::Triangle(const Triangle &t) {
+    p[0]=t.p[0];
+    p[1]=t.p[1];
+    p[2]=t.p[2];
+    calcNormal();
+    calcBB();
+}
+ 
+
 Triangle::~Triangle() {
-    // delete n; // this causes segfault, for some reason??
+    
 }
 
 /// calculate bounding box values
@@ -70,14 +79,14 @@ void Triangle::calcNormal() {
     Point v2=p[0]-p[2];
     Point ntemp = v1.cross(v2);  // the normal is in the direction of the cross product between the edge vectors
     ntemp.normalize(); // FIXME this might fail if norm()==0
-    n = new Point(ntemp.x,ntemp.y,ntemp.z);
+    n = Point(ntemp.x,ntemp.y,ntemp.z);
 }
 
 Point Triangle::upNormal() const {
-    if (this->n->z < 0)   // normal is pointing down
-        return  -1.0* (*this->n); // flip normal
+    if (n.z < 0)   // normal is pointing down
+        return  -1.0* n; // flip normal
     else 
-        return *this->n;
+        return n;
 }
 
 bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
@@ -134,7 +143,7 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
 }
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t) {
-  stream <<  "T: " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << *(t.n) ;
+  stream <<  "T: " << t.p[0] << " " << t.p[1] << " " << t.p[2] <<  "n=" << t.n ;
   return stream;
 }
 

@@ -136,6 +136,7 @@ class KDTree {
             if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {  // then return a bucket/leaf node
                 KDNode3<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
                 bucket = new KDNode3<BBObj>(spr->d, 0.0 , par , NULL, NULL, tris, dep);
+                delete spr;
                 return bucket; // this is the leaf/end of the recursion-tree
             }
             // build lists of triangles for hi and lo child nodes
@@ -156,7 +157,14 @@ class KDTree {
             // create the child-nodes through recursion
             //                    list    depth   parent
             node->hi = build_node(hilist, dep+1, node); 
-            node->lo = build_node(lolist, dep+1, node);    
+            node->lo = build_node(lolist, dep+1, node); 
+            
+            lolist->clear();
+            hilist->clear();
+            delete spr;
+            delete lolist;
+            delete hilist;
+            
             return node; // return a new node
         };                 
         /// calculate the spread of list *tris                        
@@ -189,10 +197,14 @@ class KDTree {
                 } 
                 std::vector<Spread3*> spreads;// calculate the spread along each dimension
                 for (unsigned int m=0;m<dimensions.size();++m) {   // dim,  spread, start
-                    spreads.push_back( new Spread3(dimensions[m] , maxval[dimensions[m]]-minval[dimensions[m]], minval[dimensions[m]] ) );  
+                    spreads.push_back( new Spread3(dimensions[m] , 
+                                       maxval[dimensions[m]]-minval[dimensions[m]], 
+                                       minval[dimensions[m]] ) );  
                 }// priority-queue could also be used ??  
                 std::sort(spreads.begin(), spreads.end(), Spread3::spread_compare); // sort the list
-                return spreads[ 0 ]; // select the biggest spread and return
+                Spread3* s= new Spread3(*spreads[0]); // this is the one we want to return
+                while(!spreads.empty()) delete spreads.back(), spreads.pop_back(); // delete the others
+                return s; // select the biggest spread and return
             } // end tris->size != 0
         } // end spread();
         
@@ -200,10 +212,10 @@ class KDTree {
         /// search kd-tree starting at *node, looking for overlap with bb, and placing
         /// found objects in *tris
         void search_node( std::list<BBObj> *tris, const Bbox& bb, KDNode3<BBObj> *node) {
-            if (node->tris != NULL) { // we found a bucket node, so add all triangles and return.
-                    BOOST_FOREACH( Triangle t, *(node->tris) ) {
-                            tris->push_back(t); 
-                    } 
+            if (node->isLeaf ) { // we found a bucket node, so add all triangles and return.
+                BOOST_FOREACH( Triangle t, *(node->tris) ) {
+                        tris->push_back(t); 
+                } 
                 return; // end recursion
             } else if ( (node->dim % 2) == 0) { // cutting along a min-direction: 0, 2, 4
                 // not a bucket node, so recursevily seach hi/lo branches of KDNode

@@ -160,7 +160,7 @@ bool MillingCutter::singleVertexPush(const Fiber& f, Interval& i, const Point& p
 bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
     bool result = false;
     Point normal = t.upNormal(); // facet surface normal, pointing up 
-    if ( t.n->zParallel() ) // normal points in z-dir   
+    if ( normal.zParallel() ) // normal points in z-dir   
         return result; //can't push against horizontal plane, stop here.
     normal.normalize();
     Point xy_normal = normal;

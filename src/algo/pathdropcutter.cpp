@@ -72,6 +72,7 @@ void PathDropCutter::sample_span(const Span* span)
         CLPoint* p = new CLPoint(ptmp.x, ptmp.y, ptmp.z);
         p->z = minimumZ;
         subOp[0]->appendPoint( *p );
+        delete p;
     }    
 }
 

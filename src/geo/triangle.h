@@ -35,6 +35,9 @@ class Triangle {
     public:
         /// default constructor
         Triangle();
+        /// copy constructor
+        Triangle(const Triangle &t);
+        
         /// destructor
         virtual ~Triangle();
         /// Create a triangle with the vertices p1, p2, and p3.
@@ -51,7 +54,7 @@ class Triangle {
         /// the three vertex Points of the Triangle
         Point p[3]; // vertices
         /// normal vector
-        Point *n;    
+        Point n;    
         /// return normal vector with positive z-coordinate 
         Point upNormal() const;
         

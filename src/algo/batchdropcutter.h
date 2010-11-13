@@ -47,7 +47,7 @@ class Triangle;
 class BatchDropCutter : public Operation {
     public:
         BatchDropCutter();
-        virtual ~BatchDropCutter() {delete root;}
+        virtual ~BatchDropCutter();
         /// set the STL-surface and build kd-tree to enable optimized algorithm
         void setSTL(const STLSurf &s);
         /// append to list of CL-points to evaluate

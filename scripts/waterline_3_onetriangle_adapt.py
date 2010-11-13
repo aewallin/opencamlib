@@ -67,7 +67,7 @@ if __name__ == "__main__":
     wl.setSTL(s)
     wl.setCutter(cutter)
     wl.setZ(zh)
-    wl.setSampling(0.2)
+    wl.setSampling(0.05)
     t_before = time.time() 
     wl.run()
     t_after = time.time()
@@ -108,7 +108,7 @@ if __name__ == "__main__":
             l2.append(p2)
         aloops.append(l2)
     
-    #drawLoops(myscreen, loops, camvtk.yellow)
+    drawLoops(myscreen, loops, camvtk.yellow)
     drawLoops(myscreen, aloops, camvtk.mag)
     
     print "done."

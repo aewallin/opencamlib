@@ -46,6 +46,12 @@ BatchDropCutter::BatchDropCutter() {
     root = new KDTree<Triangle>();
 }
 
+BatchDropCutter::~BatchDropCutter() { 
+    clpoints->clear();
+    delete clpoints;
+    delete root;
+}
+ 
 void BatchDropCutter::setSTL(const STLSurf &s) {
     std::cout << "bdc::setSTL()\n";
     surf = &s;
@@ -151,7 +157,7 @@ void BatchDropCutter::dropCutter4() {
             }
 #endif
             nloop++;
-            tris=new std::list<Triangle>();
+            //tris=new std::list<Triangle>();
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
@@ -213,7 +219,7 @@ void BatchDropCutter::dropCutter5() {
             }
 #endif
             nloop++;
-            tris=new std::list<Triangle>();
+            //tris=new std::list<Triangle>();
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
