@@ -157,7 +157,6 @@ void BatchDropCutter::dropCutter4() {
             }
 #endif
             nloop++;
-            //tris=new std::list<Triangle>();
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
@@ -172,14 +171,12 @@ void BatchDropCutter::dropCutter4() {
                 if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it))
                         cutter->facetDrop( clref[n],*it);
-                    //++calls;
                 }
             }
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it))
                         cutter->edgeDrop( clref[n],*it);
-                    //++calls;
                 }
             }
             ntris += tris->size();
@@ -219,7 +216,6 @@ void BatchDropCutter::dropCutter5() {
             }
 #endif
             nloop++;
-            //tris=new std::list<Triangle>();
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris );
             assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 

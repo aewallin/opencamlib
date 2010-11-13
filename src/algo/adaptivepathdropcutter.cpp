@@ -65,18 +65,13 @@ void AdaptivePathDropCutter::adaptive_sampling_run() {
 void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
-    
     CLPoint mid_cl = span->getPoint(mid_t);
     subOp[0]->run( mid_cl );
     double fw_step = (stop_cl-start_cl).xyNorm();
-    if ( fw_step > sampling ) { // above minimum step-forward, need to sample more
+    if ( (fw_step > sampling) || // above minimum step-forward, need to sample more
+          ( (!flat(start_cl,mid_cl,stop_cl)) && (fw_step > min_sampling) ) ) { 
         adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
         adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
-    } else if ( !flat(start_cl,mid_cl,stop_cl)   ) {
-        if (fw_step > min_sampling) { // not a a flat segment, and we have not reached maximum sampling
-            adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
-            adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
-        }
     } else {
         clpoints.push_back(stop_cl); 
     }

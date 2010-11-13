@@ -177,11 +177,11 @@ void AdaptiveWaterline::weave_process() {
     std::cout << "Weave..." << std::flush;
     Weave w;
     
-    std::cout << " adding " << xfibers.size() << " xfibers to weave \n";
+    //std::cout << " adding " << xfibers.size() << " xfibers to weave \n";
     BOOST_FOREACH( Fiber f, xfibers ) {
         w.addFiber(f);
     }
-    std::cout << " adding " << yfibers.size() << " yfibers to weave \n";
+    //std::cout << " adding " << yfibers.size() << " yfibers to weave \n";
     BOOST_FOREACH( Fiber f, yfibers ) {
         w.addFiber(f);
     }
@@ -194,13 +194,13 @@ void AdaptiveWaterline::weave_process() {
     std::cout << "traverse()..." << std::flush;
     std::vector< std::vector<Point> > subweave_loops;
     std::cout << " got " << subweaves.size() << " sub-weaves \n";
-    int m = 0;
+    //int m = 0;
     BOOST_FOREACH( Weave sw, subweaves ) {
-        std::cout << "Weave " << m << " : " << sw.str() << "\n";
-        m++;
-        std::cout << " face_traverse() \n";
+        //std::cout << "Weave " << m << " : " << sw.str() << "\n";
+        //m++;
+        //std::cout << " face_traverse() \n";
         sw.face_traverse(); // traverse to find loops
-        std::cout << " getLoops() \n";
+        //std::cout << " getLoops() \n";
         subweave_loops = sw.getLoops();
         BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
             this->loops.push_back( loop );

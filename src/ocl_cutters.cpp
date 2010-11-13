@@ -47,8 +47,6 @@ void export_cutters() {
         .def("edgeDrop",   &MillingCutter::edgeDrop,   &MillingCutterWrap::default_edgeDrop )
         .def("dropCutter", &MillingCutter::dropCutter)
         .def("pushCutter", &MillingCutter::pushCutter)
-        //.def("facetPush", &MillingCutter::facetPush)
-        //.def("edgePush", &MillingCutter::edgePush)
         .def("offsetCutter", &MillingCutter::offsetCutter,  bp::return_value_policy<bp::manage_new_object>() )
         .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
         .def("getRadius", &MillingCutter::getRadius )
@@ -57,17 +55,14 @@ void export_cutters() {
     ; 
     bp::class_<CylCutter, bp::bases<MillingCutter> >("CylCutter")
         .def(bp::init<double, double>()) 
-        //.def("edgePush", &CylCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &CylCutter::dropCutterSTL)
     ;
     bp::class_<BallCutter, bp::bases<MillingCutter> >("BallCutter")
         .def(bp::init<double, double>())
-        //.def("edgePush", &BallCutter::edgePush) // FIXME, put in base-class
         .def("dropCutterSTL", &BallCutter::dropCutterSTL)
     ;
     bp::class_<BullCutter, bp::bases<MillingCutter> >("BullCutter")
         .def(bp::init<double, double, double>())
-        //.def("edgePush", &BullCutter::edgePush) // FIXME, put in base-class
     ;
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
         .def(bp::init<double, double, double>())
