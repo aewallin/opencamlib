@@ -50,6 +50,9 @@ class AdaptiveWaterline : public Waterline {
         virtual ~AdaptiveWaterline();
         /// set the minimum sampling interval
         void setMinSampling(double s) {min_sampling=s;}
+        /// set the cosine limit for the flat() predicate
+        void setCosLimit(double lim) {cosLimit=lim;}
+        
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
@@ -62,7 +65,8 @@ class AdaptiveWaterline : public Waterline {
         /// y-direction adaptive sampling
         void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
         /// flatness predicate
-        bool flat( Fiber& start, Fiber& mid, Fiber& stop );
+        bool flat( Fiber& start, Fiber& mid, Fiber& stop ) const;
+        bool flat(Point start_cl, Point mid_cl, Point stop_cl) const;
         /// build weave and do face_traverse to get loops
         void weave_process();
 
@@ -81,6 +85,7 @@ class AdaptiveWaterline : public Waterline {
         double maxy;
         /// the minimum sampling interval when subdividing
         double min_sampling;
+        double cosLimit;
 };
 
 /// \brief python wrapper for AdaptiveWaterline

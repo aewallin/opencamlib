@@ -59,6 +59,7 @@ AdaptiveWaterline::AdaptiveWaterline() {
 #endif
     sampling = 1.0;
     min_sampling = 0.1;
+    cosLimit = 0.999;
 }
 
 AdaptiveWaterline::~AdaptiveWaterline() {
@@ -153,54 +154,56 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
     }
 }
 
-bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) {
+bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
     if (start.size() != stop.size() )
         return false;
     else if (start.size() != mid.size() )
         return false;
     else if (mid.size() != stop.size() )
         return false;
-    else
+    else {
+        if (!start.empty() ) {
+            assert( start.size() == stop.size() && start.size() == mid.size() );
+            for (unsigned int n=0;n<start.size();++n) {
+                if ( (!flat( start.upperCLPoint(n) , mid.upperCLPoint(n) , stop.upperCLPoint(n) )) )
+                    return false;
+                else if (!flat( start.lowerCLPoint(n) , mid.lowerCLPoint(n) , stop.lowerCLPoint(n) )) 
+                    return false;
+            }
+        }
         return true;
+    } 
 }
 
 
-bool xFiber_compare (const Fiber& f1, const Fiber& f2) { 
-    return (f1.p1.x < f2.p1.x); 
-}
 
-bool yFiber_compare (const Fiber& f1, const Fiber& f2) { 
-    return (f1.p1.y < f2.p1.y); 
+bool AdaptiveWaterline::flat(Point start_cl, Point mid_cl, Point stop_cl)  const {
+    Point v1 = mid_cl-start_cl;
+    Point v2 = stop_cl-mid_cl;
+    v1.normalize();
+    v2.normalize();
+    double dotprod =  v1.dot(v2) ;
+    return (dotprod>cosLimit);
 }
 
 void AdaptiveWaterline::weave_process() {
     std::cout << "Weave..." << std::flush;
     Weave w;
-    
-    //std::cout << " adding " << xfibers.size() << " xfibers to weave \n";
     BOOST_FOREACH( Fiber f, xfibers ) {
         w.addFiber(f);
     }
-    //std::cout << " adding " << yfibers.size() << " yfibers to weave \n";
     BOOST_FOREACH( Fiber f, yfibers ) {
         w.addFiber(f);
     }
-    //std::cout << w.str();
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
-    //std::cout << w.str();
     std::cout << "split()..." << std::flush;
     std::vector<Weave> subweaves = w.split_components(); // split into components
     std::cout << "traverse()..." << std::flush;
     std::vector< std::vector<Point> > subweave_loops;
     std::cout << " got " << subweaves.size() << " sub-weaves \n";
-    //int m = 0;
     BOOST_FOREACH( Weave sw, subweaves ) {
-        //std::cout << "Weave " << m << " : " << sw.str() << "\n";
-        //m++;
-        //std::cout << " face_traverse() \n";
         sw.face_traverse(); // traverse to find loops
-        //std::cout << " getLoops() \n";
         subweave_loops = sw.getLoops();
         BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
             this->loops.push_back( loop );

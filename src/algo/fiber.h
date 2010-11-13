@@ -33,10 +33,10 @@ namespace ocl
 /// into contact with a triangle. A Weave is built from many X-fibers and Y-fibers
 class Fiber {
     public:
-        Fiber(){ };
+        Fiber() {ints.clear();}
         /// create a Fiber between points p1 and p2
         Fiber(const Point &p1, const Point &p2);
-        virtual ~Fiber() {};
+        virtual ~Fiber() {}
         /// add an interval to this Fiber
         void addInterval(Interval& i);
         /// return true if Fiber already has interval i in it
@@ -55,6 +55,13 @@ class Fiber {
         bool empty() const {return ints.empty();}
         /// return number of intervals
         unsigned int size() const {return ints.size();}
+        
+        Point upperCLPoint(unsigned int n) const {
+            return point(ints[n].upper);
+        }
+        Point lowerCLPoint(unsigned int n) const {
+            return point(ints[n].lower);
+        }
         
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Fiber &f);
