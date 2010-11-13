@@ -72,9 +72,7 @@ void FiberPushCutter::pushCutter1(Fiber& f) {
     nCalls = 0;
     BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
         Interval i;
-        cutter->vertexPush(f,i,t);
-        cutter->facetPush(f,i,t);
-        cutter->edgePush(f,i,t);
+        cutter->pushCutter(f,i,t);
         f.addInterval(i);
         ++nCalls;
     }
@@ -99,9 +97,7 @@ void FiberPushCutter::pushCutter2(Fiber& f) {
     it_end = tris->end();
     for ( it=tris->begin() ; it!=it_end ; ++it) {
             i = new Interval();
-            cutter->vertexPush(f,*i,*it);  
-            cutter->facetPush(f,*i,*it);  
-            cutter->edgePush(f,*i,*it);  
+            cutter->pushCutter(f,*i,*it);
             f.addInterval(*i); 
             ++nCalls;
     }

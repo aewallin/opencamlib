@@ -86,6 +86,14 @@ class MillingCutter {
         /// NOTE: should not really be used for real work, demo/debug only
         bool dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
+        /// push cutter against triangle using vertexPush, facetPush, and edgePush
+        bool pushCutter(const Fiber& f, Interval& i, const Triangle& t) const;
+        
+        /// return a string representation of the MillingCutter
+        virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
+        
+    protected:
+    
         /// \brief push the cutter along Fiber f into contact with the vertices of Triangle t
         /// updates Interval i with the interfering interval.
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
@@ -94,10 +102,7 @@ class MillingCutter {
         /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
-        /// return a string representation of the MillingCutter
-        virtual std::string str() const {return "MillingCutter (all derived classes should override this)";}
         
-    protected:
         /// push cutter against a single vertex p
         bool singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const;
         /// this is normally false, but true for the CylCutter

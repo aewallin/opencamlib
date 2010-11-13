@@ -177,11 +177,6 @@ void AdaptiveWaterline::weave_process() {
     std::cout << "Weave..." << std::flush;
     Weave w;
     
-    // sort fibers by increasing coordinate (?)
-    // void sort ( RandomAccessIterator first, RandomAccessIterator last, Compare comp );
-    // std::sort( xfibers.begin(), xfibers.end(), xFiber_compare);
-    // std::sort( yfibers.begin(), yfibers.end(), yFiber_compare);
-    
     std::cout << " adding " << xfibers.size() << " xfibers to weave \n";
     BOOST_FOREACH( Fiber f, xfibers ) {
         w.addFiber(f);

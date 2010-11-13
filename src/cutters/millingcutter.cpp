@@ -345,6 +345,13 @@ bool MillingCutter::calcCCandUpdateInterval( double t, double u, const Point& q,
     return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, (cc_tmp.z >= height)  );
 } 
 
+bool MillingCutter::pushCutter(const Fiber& f, Interval& i, const Triangle& t) const {
+    bool v = vertexPush(f,i,t);
+    bool fa = facetPush(f,i,t);
+    bool e = edgePush(f,i,t);
+    return v || fa || e;
+}
+
 
 // call vertex, facet, and edge drop methods on input Triangle t
 bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {

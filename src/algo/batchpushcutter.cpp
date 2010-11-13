@@ -84,9 +84,7 @@ void BatchPushCutter::pushCutter1() {
     BOOST_FOREACH(Fiber& f, *fibers) {
         BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
             Interval i;
-            cutter->vertexPush(f,i,t);
-            cutter->facetPush(f,i,t);
-            cutter->edgePush(f,i,t);
+            cutter->pushCutter(f,i,t);
             f.addInterval(i);
             ++nCalls;
         }
@@ -123,9 +121,7 @@ void BatchPushCutter::pushCutter2() {
         BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
             //if ( bb->overlaps( t.bb ) ) {
                 Interval i;
-                cutter->vertexPush(f,i,t);
-                cutter->facetPush(f,i,t);
-                cutter->edgePush(f,i,t);
+                cutter->pushCutter(f,i,t);
                 f.addInterval(i);
                 ++nCalls;
             //}
@@ -183,9 +179,7 @@ void BatchPushCutter::pushCutter3() {
             //if ( bb->overlaps( it->bb ) ) {
                 // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
                 i = new Interval();
-                cutter->vertexPush(fiberr[n],*i,*it);  
-                cutter->facetPush(fiberr[n],*i,*it);  
-                cutter->edgePush(fiberr[n],*i,*it);  
+                cutter->pushCutter(fiberr[n],*i,*it);  
                 fiberr[n].addInterval(*i); 
                 ++calls;
             //}
