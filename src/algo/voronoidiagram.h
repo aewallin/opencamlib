@@ -20,27 +20,24 @@
 #ifndef VODI_H
 #define VODI_H
 
+#include <vector>
+
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/python.hpp> 
+#include <boost/foreach.hpp> 
 
 #include "point.h"
 
-/*
-namespace boost {
-    enum vertex_position_t {vertex_position=20};
-    enum vertex_type_t {vertex_type=21};
-    //enum vertex_component_t {vertex_component=22};
-    BOOST_INSTALL_PROPERTY(vertex, position);
-    BOOST_INSTALL_PROPERTY(vertex, type);
-    //BOOST_INSTALL_PROPERTY(vertex, component);
-}*/
 
+// bundled BGL properties
 // see: http://www.boost.org/doc/libs/1_44_0/libs/graph/doc/bundles.html
 
 namespace ocl
 {
 
 /// vertex type: 
-enum VoronoiVertexType {OUT, IN, UNDECIDED};
+enum VoronoiVertexType {OUT, IN, UNDECIDED, FAR};
+enum VoronoiEdgeType {LINE, ARC};
 
 struct VoronoiVertexProps {
     Point position;
@@ -48,6 +45,7 @@ struct VoronoiVertexProps {
 };
 
 struct VoronoiEdgeProps {
+    VoronoiEdgeType type;
     double t;
 };
 
@@ -77,10 +75,20 @@ class VoronoiDiagram {
     public:
         VoronoiDiagram();
         virtual ~VoronoiDiagram();
-        void add_vertex( Point& position, VoronoiVertexType t);
+        void addVertexSite(Point p);
+        boost::python::list getVertexSites() const;
+        
+        boost::python::list getVertices() const;
+        boost::python::list getFarVertices() const;
+        boost::python::list getEdges() const;
         std::string str() const;
     private:
+        VoronoiVertex add_vertex( Point position, VoronoiVertexType t);
+        void init();
         VoronoiGraph g;
+        double far_radius;
+        std::vector<Point> vertexSites;
+        
 };
 
 } // end namespace

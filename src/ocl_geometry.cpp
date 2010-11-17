@@ -131,10 +131,9 @@ void export_geometry() {
     ;
     // Epos and the Ellipse are used for the toroidal tool edge-tests
     bp::class_<EllipsePosition>("EllipsePosition")
-        //.def("setD", &Epos::setD)
         .def_readwrite("s", &EllipsePosition::s)
         .def_readwrite("t", &EllipsePosition::t)
-        //.def_readwrite("d", &Epos::diangle)
+
         .def("__str__", &EllipsePosition::str)
     ;
     bp::class_<Ellipse>("Ellipse")
@@ -142,11 +141,6 @@ void export_geometry() {
         .def("ePoint", &Ellipse::ePoint)
         .def("oePoint", &Ellipse::oePoint)
         .def("normal", &Ellipse::normal)
-        //.def("tangent", &Ellipse::tangent)
-        //.def("error", &Ellipse::error)
-        //.def_readonly("epos1", &Ellipse::epos1)
-        //.def_readonly("epos2", &Ellipse::epos2)
-        //.def_readonly("center", &Ellipse::center)
     ;
     bp::class_<Line>("Line")
         .def(bp::init<Point,Point>())
