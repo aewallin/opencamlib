@@ -30,7 +30,10 @@
 namespace ocl
 {
     
-/// a visitor-object for the Boost Graph Library planar_face_traversal() algorithm.
+/// \brief a visitor-object for the Boost Graph Library planar_face_traversal() algorithm.
+/// the visitor starts recording vertices when a face with a CL-vertex is encountered
+/// and pushes the complete loop back to Weave when the face traversal is done. 
+/// Faces with non-CL-vertices are traversed but nothing is done/recorded.
 struct vertex_output_visitor : public boost::planar_face_traversal_visitor
 {
     /// create a visitor-object
@@ -42,8 +45,9 @@ struct vertex_output_visitor : public boost::planar_face_traversal_visitor
     } 
     
     /// called when we encouter a new vertex. if it is of CL-type we push it into the loop
-    void next_vertex(VertexDescriptor v) { 
-        if ( boost::get( boost::vertex_type, g_, v) == CL ) { // could instead check for vertex degree?
+    void next_vertex(WeaveVertex v) {
+        if ( g_[v].type == CL ) { 
+        //if ( boost::get( boost::vertex_type, g_, v) == CL ) { // could instead check for vertex degree?
             current_loop.push_back(v);
         }
     }
@@ -58,7 +62,7 @@ struct vertex_output_visitor : public boost::planar_face_traversal_visitor
     /// the corresponding weave-object which holds the graph
     Weave* w_;
     /// a list of CL-vertices in the current face
-    std::vector<VertexDescriptor> current_loop;
+    std::vector<WeaveVertex> current_loop;
 };
 
 } // end namespace

@@ -27,7 +27,7 @@ def drawLoops(myscreen, loops, loopcolor):
         print "rendered loop ",nloop, " with ", len(lop), " points"
         nloop = nloop+1
         
-        
+
 def drawFibers(myscreen, fibs, fibcolor):
     for f in fibs:
     #print f

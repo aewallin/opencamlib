@@ -41,7 +41,7 @@ class Weave {
         Weave();
         virtual ~Weave() {};
         /// add vertex to weave
-        void add_vertex( Point& position, VertexType t, Interval& i, double ipos);
+        void add_vertex( Point& position, WeaveVertexType t, Interval& i, double ipos);
         /// add Fiber f to the graph
         void addFiber(Fiber& f);
         /// sort list fibers into X and Y Fiber lists xfibers and yfibers
@@ -49,7 +49,7 @@ class Weave {
         /// from the list of fibers, build a graph
         void build();
         /// build a planar embedding of the graph
-        void build_embedding(PlanarEmbedding& e);
+        void build_embedding(WeavePlanarEmbedding& e);
         /// run planar_face_traversal to get the waterline points in correct order
         void face_traverse();
         /// split this Weave into it's disconnected components
@@ -62,7 +62,7 @@ class Weave {
         /// print out information about the graph
         void printGraph() const;
         /// print out the planar embedding
-        void print_embedding(PlanarEmbedding& e);
+        void print_embedding(WeavePlanarEmbedding& e);
         
     // DATA
         /// a list of all Fiber objects in this weave
@@ -71,10 +71,16 @@ class Weave {
         std::vector<Fiber> xfibers;
         /// the Y-fibers
         std::vector<Fiber> yfibers;
+        
         /// the weave-graph
         WeaveGraph g;
+
         /// output: list of loops in this weave
-        std::vector< std::vector<VertexDescriptor> > loops;
+        std::vector< std::vector<WeaveVertex> > loops;
+    protected:
+        /// run a planarity test on the graph
+        bool isPlanar() const;
+       
 };
 
 } // end namespace

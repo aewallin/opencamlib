@@ -48,8 +48,11 @@ class Weave_py : public Weave {
             VertexIterator it_begin, it_end, itr;
             boost::tie( it_begin, it_end ) = boost::vertices( g );
             for ( itr=it_begin ; itr != it_end ; ++itr ) {
-                if ( boost::get( boost::vertex_type, g, *itr ) == CL ) // a CL-point
-                    plist.append( boost::get( boost::vertex_position, g, *itr ) );
+                if ( g[*itr].type == CL )
+                    plist.append( g[*itr].position );
+                    
+                //if ( boost::get( boost::vertex_type, g, *itr ) == CL ) // a CL-point
+                //    plist.append( boost::get( boost::vertex_position, g, *itr ) );
             }
             return plist;
         };
@@ -59,8 +62,11 @@ class Weave_py : public Weave {
             VertexIterator it_begin, it_end, itr;
             boost::tie( it_begin, it_end ) = boost::vertices( g );
             for ( itr=it_begin ; itr != it_end ; ++itr ) {
-                if ( boost::get( boost::vertex_type, g, *itr ) == INT ) 
-                    plist.append( boost::get( boost::vertex_position, g, *itr ) );
+                if ( g[*itr].type == INT )
+                    plist.append( g[*itr].position );
+                    
+                //if ( boost::get( boost::vertex_type, g, *itr ) == INT ) 
+                //    plist.append( boost::get( boost::vertex_position, g, *itr ) );
             }
             return plist;
         };
@@ -73,10 +79,10 @@ class Weave_py : public Weave {
             for ( itr=it_begin ; itr != it_end ; ++itr ) { // loop through each edge
                 if ( ! boost::get( boost::edge_color, g, *itr ) ) {
                     boost::python::list point_list; // the endpoints of each edge
-                    VertexDescriptor v1 = boost::source( *itr, g  );
-                    VertexDescriptor v2 = boost::target( *itr, g  );
-                    Point p1 = boost::get( boost::vertex_position, g, v1 );
-                    Point p2 = boost::get( boost::vertex_position, g, v2 );
+                    WeaveVertex v1 = boost::source( *itr, g  );
+                    WeaveVertex v2 = boost::target( *itr, g  );
+                    Point p1 = g[v1].position; // boost::get( boost::vertex_position, g, v1 );
+                    Point p2 = g[v2].position; // boost::get( boost::vertex_position, g, v2 );
                     point_list.append(p1);
                     point_list.append(p2);
                     edge_list.append(point_list);
@@ -87,11 +93,11 @@ class Weave_py : public Weave {
         /// return loops to pyton
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;
-            BOOST_FOREACH( std::vector<VertexDescriptor> loop, loops ) {
+            BOOST_FOREACH( std::vector<WeaveVertex> loop, loops ) {
                 boost::python::list point_list;
-                BOOST_FOREACH( VertexDescriptor v, loop ) {
-                    Point p = boost::get( boost::vertex_position, g, v);
-                    point_list.append( p );
+                BOOST_FOREACH( WeaveVertex v, loop ) {
+                    //Point p = boost::get( boost::vertex_position, g, v);
+                    point_list.append( g[v].position );
                 }
                 loop_list.append(point_list);
             }

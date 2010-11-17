@@ -24,49 +24,63 @@
 
 #include "point.h"
 
-namespace boost {
-    enum vertex_position_t {vertex_position=20};
-    enum vertex_type_t {vertex_type=21};
-    enum vertex_component_t {vertex_component=22};
-    BOOST_INSTALL_PROPERTY(vertex, position);
-    BOOST_INSTALL_PROPERTY(vertex, type);
-    BOOST_INSTALL_PROPERTY(vertex, component);
-}
+// namespace boost {
+    //enum vertex_position_t {vertex_position=20};
+    //enum vertex_type_t {vertex_type=21};
+    //enum vertex_component_t {vertex_component=22};
+    //BOOST_INSTALL_PROPERTY(vertex, position);
+    //BOOST_INSTALL_PROPERTY(vertex, type);
+    //BOOST_INSTALL_PROPERTY(vertex, component);
+// }
 
 namespace ocl
 {
 
 /// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
-             
+enum WeaveVertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+
+struct WeaveVertexProps {
+    Point position;
+    WeaveVertexType type;
+    int index;
+    std::size_t component;
+};
+
+struct WeaveEdgeProps {
+    int index;
+};
+
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
                                    // vertex properties:
-                                   boost::property< boost::vertex_position_t , Point, // 3D position in space
+                                   WeaveVertexProps
+                                   /*boost::property< boost::vertex_position_t , Point, // 3D position in space
                                         boost::property< boost::vertex_color_t, boost::default_color_type  ,
-                                        boost::property< boost::vertex_type_t, VertexType  ,
+                                        boost::property< boost::vertex_type_t, WeaveVertexType  ,
                                         boost::property< boost::vertex_distance_t, std::size_t, 
-                                        boost::property<boost::vertex_component_t, std::size_t,
-                                        boost::property<boost::vertex_degree_t, int,
-                                        boost::property<boost::vertex_in_degree_t, int,
-                                        boost::property<boost::vertex_out_degree_t, int,
-                                        boost::property<boost::vertex_index_t, int > > > > > > > > >, 
+                                        boost::property< boost::vertex_component_t, std::size_t,
+                                        boost::property< boost::vertex_degree_t, int,
+                                        boost::property< boost::vertex_in_degree_t, int,
+                                        boost::property< boost::vertex_out_degree_t, int,
+                                        boost::property< boost::vertex_index_t, int > > > > > > > > >
+                                        */
+                                        , 
                                    // edge properties:
                                    boost::property< boost::edge_color_t, bool,
                                    boost::property< boost::edge_index_t, int > >
                                    > WeaveGraph; 
                     // graph_traits< G >::edge_parallel_category
                     // tags: disallow_parallel_edge_tag
-typedef boost::graph_traits< WeaveGraph >::vertex_descriptor VertexDescriptor;
+typedef boost::graph_traits< WeaveGraph >::vertex_descriptor WeaveVertex;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator VertexIterator;
-typedef boost::graph_traits< WeaveGraph >::edge_descriptor EdgeDescriptor;
+typedef boost::graph_traits< WeaveGraph >::edge_descriptor WeaveEdge;
 typedef boost::graph_traits< WeaveGraph >::edge_iterator EdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::out_edge_iterator OutEdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
 typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;
 
-typedef std::pair< VertexDescriptor, double > VertexPair;
+typedef std::pair< WeaveVertex, double > VertexPair;
 
 /// compare based on pair.second
 struct VertexPairCompare {
@@ -77,7 +91,7 @@ struct VertexPairCompare {
 
 typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;                               
 
-typedef std::vector< std::vector< EdgeDescriptor > > PlanarEmbedding;
+typedef std::vector< std::vector< WeaveEdge > > WeavePlanarEmbedding;
 
 } // end namespace
 #endif

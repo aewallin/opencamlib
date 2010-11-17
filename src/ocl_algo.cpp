@@ -30,6 +30,7 @@
 #include "adaptivewaterline.h" // FIX, contains python 
 #include "lineclfilter_py.h"    
 #include "numeric.h"
+#include "voronoidiagram.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -182,6 +183,9 @@ void export_algo() {
         .def("run",         &LineCLFilter_py::run)
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
-    
+    bp::class_<VoronoiDiagram >("VoronoiDiagram")
+        .def("add_vertex",  &VoronoiDiagram::add_vertex)
+        .def("__str__", &VoronoiDiagram::str)
+    ;
 }
 
