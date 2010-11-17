@@ -24,15 +24,6 @@
 
 #include "point.h"
 
-// namespace boost {
-    //enum vertex_position_t {vertex_position=20};
-    //enum vertex_type_t {vertex_type=21};
-    //enum vertex_component_t {vertex_component=22};
-    //BOOST_INSTALL_PROPERTY(vertex, position);
-    //BOOST_INSTALL_PROPERTY(vertex, type);
-    //BOOST_INSTALL_PROPERTY(vertex, component);
-// }
-
 namespace ocl
 {
 
@@ -53,19 +44,7 @@ struct WeaveEdgeProps {
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
                                    boost::undirectedS,  // an un directed  graph.
-                                   // vertex properties:
-                                   WeaveVertexProps
-                                   /*boost::property< boost::vertex_position_t , Point, // 3D position in space
-                                        boost::property< boost::vertex_color_t, boost::default_color_type  ,
-                                        boost::property< boost::vertex_type_t, WeaveVertexType  ,
-                                        boost::property< boost::vertex_distance_t, std::size_t, 
-                                        boost::property< boost::vertex_component_t, std::size_t,
-                                        boost::property< boost::vertex_degree_t, int,
-                                        boost::property< boost::vertex_in_degree_t, int,
-                                        boost::property< boost::vertex_out_degree_t, int,
-                                        boost::property< boost::vertex_index_t, int > > > > > > > > >
-                                        */
-                                        , 
+                                   WeaveVertexProps,   // vertex properties:
                                    // edge properties:
                                    boost::property< boost::edge_color_t, bool,
                                    boost::property< boost::edge_index_t, int > >

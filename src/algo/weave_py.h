@@ -50,9 +50,6 @@ class Weave_py : public Weave {
             for ( itr=it_begin ; itr != it_end ; ++itr ) {
                 if ( g[*itr].type == CL )
                     plist.append( g[*itr].position );
-                    
-                //if ( boost::get( boost::vertex_type, g, *itr ) == CL ) // a CL-point
-                //    plist.append( boost::get( boost::vertex_position, g, *itr ) );
             }
             return plist;
         };
@@ -64,9 +61,6 @@ class Weave_py : public Weave {
             for ( itr=it_begin ; itr != it_end ; ++itr ) {
                 if ( g[*itr].type == INT )
                     plist.append( g[*itr].position );
-                    
-                //if ( boost::get( boost::vertex_type, g, *itr ) == INT ) 
-                //    plist.append( boost::get( boost::vertex_position, g, *itr ) );
             }
             return plist;
         };
@@ -81,10 +75,8 @@ class Weave_py : public Weave {
                     boost::python::list point_list; // the endpoints of each edge
                     WeaveVertex v1 = boost::source( *itr, g  );
                     WeaveVertex v2 = boost::target( *itr, g  );
-                    Point p1 = g[v1].position; // boost::get( boost::vertex_position, g, v1 );
-                    Point p2 = g[v2].position; // boost::get( boost::vertex_position, g, v2 );
-                    point_list.append(p1);
-                    point_list.append(p2);
+                    point_list.append(g[v1].position);
+                    point_list.append(g[v2].position);
                     edge_list.append(point_list);
                 }
             }
@@ -96,7 +88,6 @@ class Weave_py : public Weave {
             BOOST_FOREACH( std::vector<WeaveVertex> loop, loops ) {
                 boost::python::list point_list;
                 BOOST_FOREACH( WeaveVertex v, loop ) {
-                    //Point p = boost::get( boost::vertex_position, g, v);
                     point_list.append( g[v].position );
                 }
                 loop_list.append(point_list);

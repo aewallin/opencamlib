@@ -57,9 +57,7 @@ void Weave::sort_fibers() {
 
 void Weave::add_vertex( Point& position, WeaveVertexType t, Interval& i, double ipos) {
     WeaveVertex  v = boost::add_vertex(g);
-    //boost::put( boost::vertex_position , g , v , position ); // 
     g[v].position = position;
-    //boost::put( boost::vertex_type , g , v , t );            // 
     g[v].type = t;
     i.intersections.insert( VertexPair( v, ipos) );
 }
@@ -84,9 +82,7 @@ void Weave::build_embedding(WeavePlanarEmbedding& e) {
     // each row has adjacent edges for this vertex, in the correct order
     VertexIterator it, it_end;
     for( boost::tie(it, it_end)=boost::vertices(g); it!=it_end ; ++it ) {
-        //int idx = boost::get( boost::vertex_index, g, *it); // 
         int vertexIndex = g[*it].index;
-        //Point vertexPos = boost::get( boost::vertex_position, g, *it); // 
         Point vertexPos = g[*it].position;
         OutEdgeIterator edgeItr, eit_end;
         typedef std::pair< bool, WeaveEdge > BoolEdgePair;
@@ -96,8 +92,6 @@ void Weave::build_embedding(WeavePlanarEmbedding& e) {
             WeaveVertex targetVertex = boost::target( *edgeItr, g);
             WeaveVertex source = boost::source( *edgeItr, g);
             assert( *it == source );
-            
-            //Point targetPos = boost::get( boost::vertex_position, g, targetVertex); // 
             Point targetPos = g[targetVertex].position;
             Point diff = vertexPos - targetPos;
             if (diff.y > 0) // in the N direction
@@ -145,21 +139,16 @@ void Weave::face_traverse() {
     VertexIterator vertexItr, vertexEnd;
     for(boost::tie(vertexItr, vertexEnd) = boost::vertices(g); vertexItr != vertexEnd; ++vertexItr)
         g[*vertexItr].index = vertex_count++;
-        
-        //boost::put(e_index, *ei, edge_count++); // build an edge index
     
     // build a planar embedding   
     assert( isPlanar() ); 
     WeavePlanarEmbedding embedding(boost::num_vertices(g));
     build_embedding(embedding); 
-        
-    std::cout << " edge index built \n";
     vertex_output_visitor vertex_visitor(this, g);
     // void planar_face_traversal(const Graph& g, PlanarEmbedding embedding, PlanarFaceVisitor& visitor, EdgeIndexMap em);
     boost::planar_face_traversal(g, &embedding[0], vertex_visitor);
 }
 
-/// this builds a BGL graph g by looking at xfibers and yfibers
 void Weave::build() {
     // 1) add CL-points of X-fiber (if not already in graph)
     // 2) add CL-points of Y-fiber (if not already in graph)
@@ -203,8 +192,6 @@ void Weave::build() {
                             Point v_position = Point( yf.p1.x, xf.p1.y , xf.p1.z) ;
                             g[v].position = v_position;
                             g[v].type = INT;
-                            //boost::put( boost::vertex_position , g , v , v_position ); 
-                            //boost::put( boost::vertex_type , g , v , INT ); // internal vertex
                             xi.intersections.insert( VertexPair( v, v_position.x ) );
                             yi.intersections.insert( VertexPair( v, v_position.y ) );
                             
@@ -244,47 +231,34 @@ void Weave::build() {
      
 }
 
-/// assuming that the graph is built,
-/// find out the number of components,
-/// and split and return a list of the the unconnected compontents
 std::vector<Weave> Weave::split_components() {
-    //typedef boost::property_map< WeaveGraph, int WeaveVertexProps::* >::type ComponentMap;
-    //ComponentMap comp_map = boost::get( &WeaveVertexProps::component , g);
-
     std::size_t N = boost::connected_components( g, boost::get( &WeaveVertexProps::component , g) );
-
-    WeaveGraph gcomp;
-    std::vector<Weave> outw;
+    WeaveGraph subgraph;
+    std::vector<Weave> output_weaves;
     for( unsigned int m=0;m<N;++m) {
-        gcomp = g; // copy everything into gcomp
+        subgraph = g; // copy everything 
         VertexIterator it, it_end;
-        boost::tie( it, it_end ) = boost::vertices( gcomp );
+        boost::tie( it, it_end ) = boost::vertices( subgraph );
         for(  ; it != it_end ; ++it ) {
-            //std::size_t v_comp = boost::get( boost::vertex_component, gcomp, *it); // get component number
-            std::size_t v_comp = gcomp[*it].component;
-            if ( v_comp != m ) {
-                boost::clear_vertex( *it , gcomp ); // this removes all edges
-                //boost::put( boost::vertex_type, gcomp, *it, INT); // mark INT, so we don't start at a false CL-point
-                gcomp[*it].type = INT;
+            if ( subgraph[*it].component != m ) { // remove vertex if not in component m
+                boost::clear_vertex( *it , subgraph ); // this removes all edges
+                subgraph[*it].type = INT;
             }
         }
         Weave* w = new Weave();
-        w->g = gcomp;
-        outw.push_back(*w);
+        w->g = subgraph;
+        output_weaves.push_back(*w);
     }
-    return outw;
+    return output_weaves;
 }
 
-/// print out information about the graph
 void Weave::printGraph() const {
     std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
     std::cout << " number of edges: " << boost::num_edges( g ) << "\n";
     VertexIterator it_begin, it_end, itr;
     boost::tie( it_begin, it_end ) = boost::vertices( g );
     int n=0, n_cl=0, n_internal=0;
-    
     for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        //if ( boost::get( boost::vertex_type, g, *itr ) == CL ) // 
         if ( g[*itr].type == CL )
             ++n_cl;
         else
@@ -296,15 +270,12 @@ void Weave::printGraph() const {
     std::cout << "    internal-nodes: " << n_internal << "\n";
 }
 
-/// return loops as vector of vector<Point>
 std::vector< std::vector<Point> > Weave::getLoops() const {
     std::vector< std::vector<Point> > loop_list;
     BOOST_FOREACH( std::vector<WeaveVertex> loop, loops ) {
         std::vector<Point> point_list;
         BOOST_FOREACH( WeaveVertex v, loop ) {
-            //Point p = boost::get( boost::vertex_position, g, v); // 
-            Point p = g[v].position;
-            point_list.push_back( p );
+            point_list.push_back( g[v].position );
         }
         loop_list.push_back(point_list);
     }

@@ -71,15 +71,13 @@ class Weave {
         std::vector<Fiber> xfibers;
         /// the Y-fibers
         std::vector<Fiber> yfibers;
-        
-        /// the weave-graph
-        WeaveGraph g;
-
         /// output: list of loops in this weave
         std::vector< std::vector<WeaveVertex> > loops;
     protected:
         /// run a planarity test on the graph
         bool isPlanar() const;
+        /// the weave-graph
+        WeaveGraph g;
        
 };
 
