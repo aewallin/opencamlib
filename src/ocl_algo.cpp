@@ -185,10 +185,13 @@ void export_algo() {
     ;
     bp::class_<VoronoiDiagram >("VoronoiDiagram")
         .def("addVertexSite",  &VoronoiDiagram::addVertexSite)
-        .def("getVertexSites",  &VoronoiDiagram::getVertexSites)
-        .def("getVertices",  &VoronoiDiagram::getVertices)
+        .def("getDelaunayVertices",  &VoronoiDiagram::getDelaunayVertices)
+        .def("getVoronoiVertices",  &VoronoiDiagram::getVoronoiVertices)
         .def("getFarVertices",  &VoronoiDiagram::getFarVertices)
-        .def("getEdges",  &VoronoiDiagram::getEdges)
+        .def("getFarRadius",  &VoronoiDiagram::getFarRadius)
+        .def("setFarRadius",  &VoronoiDiagram::setFarRadius)
+        .def("getVoronoiEdges",  &VoronoiDiagram::getVoronoiEdges)
+        .def("getDelaunayEdges",  &VoronoiDiagram::getDelaunayEdges)
         .def("__str__", &VoronoiDiagram::str)
     ;
     bp::enum_<VoronoiVertexType>("VoronoiVertexType")

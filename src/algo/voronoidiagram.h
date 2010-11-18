@@ -76,18 +76,26 @@ class VoronoiDiagram {
         VoronoiDiagram();
         virtual ~VoronoiDiagram();
         void addVertexSite(Point p);
-        boost::python::list getVertexSites() const;
+        boost::python::list getDelaunayVertices() const;
         
-        boost::python::list getVertices() const;
+        boost::python::list getVoronoiVertices() const;
         boost::python::list getFarVertices() const;
-        boost::python::list getEdges() const;
+        boost::python::list getVoronoiEdges() const;
+        boost::python::list getDelaunayEdges() const;
+        boost::python::list getEdges(VoronoiGraph g) const;
         std::string str() const;
+        double getFarRadius() const {return far_radius;}
+        void setFarRadius(double r) {far_radius = r;}
     private:
         VoronoiVertex add_vertex( Point position, VoronoiVertexType t);
         void init();
-        VoronoiGraph g;
+        /// the Voronoi diagram
+        VoronoiGraph vd;
+        /// the Delaunay diagram
+        VoronoiGraph dd;
+        /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
-        std::vector<Point> vertexSites;
+        //std::vector<Point> vertexSites;
         
 };
 
