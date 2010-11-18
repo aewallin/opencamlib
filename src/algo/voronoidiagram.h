@@ -21,6 +21,7 @@
 #define VODI_H
 
 #include <vector>
+#include <list>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/python.hpp> 
@@ -36,18 +37,15 @@ namespace ocl
 {
 
 /// vertex type: 
-enum VoronoiVertexType {OUT, IN, UNDECIDED, FAR};
+enum VoronoiVertexType {OUT, IN, UNDECIDED, INCIDENT, NONINCIDENT};
 enum VoronoiEdgeType {LINE, ARC};
 
-struct VoronoiVertexProps {
-    Point position;
-    VoronoiVertexType type;
-};
 
-struct VoronoiEdgeProps {
-    VoronoiEdgeType type;
-    double t;
-};
+
+
+// FWD declarations
+struct VoronoiVertexProps;
+struct VoronoiEdgeProps;
 
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
@@ -67,9 +65,28 @@ typedef boost::graph_traits< VoronoiGraph >::out_edge_iterator  VoronoiOutEdgeIt
 typedef boost::graph_traits< VoronoiGraph >::adjacency_iterator VoronoiAdjacencyItr;
 typedef boost::graph_traits< VoronoiGraph >::vertices_size_type VoronoiVertexSize;
 
-                               
+struct VoronoiVertexProps {
+    Point position;
+    VoronoiVertexType type;
+    std::list<VoronoiEdge> dual_face_edges; // duality vd_vertex <-> dd_face  and dd_vertex<->vd_face  
+};
+
+struct VoronoiEdgeProps {
+    VoronoiEdgeType type;
+    VoronoiEdge dual_edge; //  duality: vd_edge <-> dd_edge
+    double t;
+};
+
 
 typedef std::vector< std::vector< VoronoiEdge > > VoronoiPlanarEmbedding;
+
+/// \brief Voronoi diagram.
+///
+/// the dual of a voronoi diagram is the delaunay diagram
+// voronoi      delaunay
+//  face        vertex
+//  vertex      face
+//  edge        edge
 
 class VoronoiDiagram {
     public:
@@ -79,15 +96,26 @@ class VoronoiDiagram {
         boost::python::list getDelaunayVertices() const;
         
         boost::python::list getVoronoiVertices() const;
-        boost::python::list getFarVertices() const;
+
         boost::python::list getVoronoiEdges() const;
         boost::python::list getDelaunayEdges() const;
-        boost::python::list getEdges(VoronoiGraph g) const;
+        boost::python::list getEdges(const VoronoiGraph& g) const;
         std::string str() const;
         double getFarRadius() const {return far_radius;}
         void setFarRadius(double r) {far_radius = r;}
     private:
-        VoronoiVertex add_vertex( Point position, VoronoiVertexType t);
+        void assign_dual_edge(VoronoiEdge vd_e, VoronoiEdge dd_e);
+        VoronoiVertex add_vertex( Point position, VoronoiVertexType t, VoronoiGraph& g);
+        VoronoiEdge add_edge(VoronoiVertex v1, VoronoiVertex v2, VoronoiGraph& g);
+        void assign_dual_face_edge(VoronoiGraph& d, VoronoiVertex v, VoronoiEdge e);
+        
+        VoronoiVertex find_closest_Delaunay_vertex( Point& p );
+        
+        double detH(Point& pi, Point& pj, Point& pk, Point& pl);
+        double detH_J2(Point& pi, Point& pj, Point& pk);
+        double detH_J3(Point& pi, Point& pj, Point& pk);
+        double detH_J4(Point& pi, Point& pj, Point& pk);
+        
         void init();
         /// the Voronoi diagram
         VoronoiGraph vd;
@@ -95,8 +123,6 @@ class VoronoiDiagram {
         VoronoiGraph dd;
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
-        //std::vector<Point> vertexSites;
-        
 };
 
 } // end namespace

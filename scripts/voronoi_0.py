@@ -21,6 +21,7 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     
     vd = ocl.VoronoiDiagram()
+    
     p=ocl.Point(10,20)
     
     vd.addVertexSite( p )
@@ -30,17 +31,19 @@ if __name__ == "__main__":
     
     for v in vd.getDelaunayVertices():
         drawVertex(myscreen, v, camvtk.green, 2)
-    
-    for v in vd.getFarVertices():
-        drawVertex(myscreen, v, camvtk.pink, 3)
         
     for v in vd.getVoronoiVertices():
         drawVertex(myscreen, v, camvtk.red)
         
-    for e in vd.getVoronoiEdges():
+    vde = vd.getVoronoiEdges()
+    #print " got ",len(vde)," Voronoi edges"
+    for e in vde:
+        pass
         drawEdge(myscreen,e, camvtk.cyan)
     
-    for e in vd.getDelaunayEdges():
+    dle = vd.getDelaunayEdges()
+    #print " got ",len(dle)," Delaunay edges"
+    for e in dle:
         drawEdge(myscreen,e, camvtk.red)
         
     

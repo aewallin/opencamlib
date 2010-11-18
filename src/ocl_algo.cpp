@@ -187,7 +187,6 @@ void export_algo() {
         .def("addVertexSite",  &VoronoiDiagram::addVertexSite)
         .def("getDelaunayVertices",  &VoronoiDiagram::getDelaunayVertices)
         .def("getVoronoiVertices",  &VoronoiDiagram::getVoronoiVertices)
-        .def("getFarVertices",  &VoronoiDiagram::getFarVertices)
         .def("getFarRadius",  &VoronoiDiagram::getFarRadius)
         .def("setFarRadius",  &VoronoiDiagram::setFarRadius)
         .def("getVoronoiEdges",  &VoronoiDiagram::getVoronoiEdges)
@@ -198,6 +197,8 @@ void export_algo() {
         .value("OUT", OUT)   
         .value("IN", IN)
         .value("UNDECIDED", UNDECIDED)
+        .value("INCIDENT", INCIDENT)
+        .value("NONINCIDENT", NONINCIDENT)
     ;
 }
 
