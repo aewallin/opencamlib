@@ -65,10 +65,13 @@ typedef boost::graph_traits< VoronoiGraph >::out_edge_iterator  VoronoiOutEdgeIt
 typedef boost::graph_traits< VoronoiGraph >::adjacency_iterator VoronoiAdjacencyItr;
 typedef boost::graph_traits< VoronoiGraph >::vertices_size_type VoronoiVertexSize;
 
+typedef std::vector<VoronoiVertex> VertexVector;
+
 struct VoronoiVertexProps {
     Point position;
     VoronoiVertexType type;
-    std::list<VoronoiEdge> dual_face_edges; // duality vd_vertex <-> dd_face  and dd_vertex<->vd_face  
+    std::list<VoronoiEdge> dual_face_edges; // duality vd_vertex <-> dd_face  and dd_vertex<->vd_face 
+
 };
 
 struct VoronoiEdgeProps {
@@ -85,7 +88,7 @@ typedef std::vector< std::vector< VoronoiEdge > > VoronoiPlanarEmbedding;
 /// the dual of a voronoi diagram is the delaunay diagram
 // voronoi      delaunay
 //  face        vertex
-//  vertex      face
+//  vertex      face 
 //  edge        edge
 
 class VoronoiDiagram {
@@ -110,12 +113,15 @@ class VoronoiDiagram {
         void assign_dual_face_edge(VoronoiGraph& d, VoronoiVertex v, VoronoiEdge e);
         
         VoronoiVertex find_closest_Delaunay_vertex( Point& p );
+        VoronoiVertex find_seed_vd_vertex(VoronoiVertex dd_closest, VoronoiVertex dd_new);
+        VertexVector get_generator_vertices(VoronoiGraph& dual, VoronoiGraph& diag, VoronoiVertex v);
+        void augment_vertex_set(VertexVector& v0); 
         
         double detH(Point& pi, Point& pj, Point& pk, Point& pl);
         double detH_J2(Point& pi, Point& pj, Point& pk);
         double detH_J3(Point& pi, Point& pj, Point& pk);
         double detH_J4(Point& pi, Point& pj, Point& pk);
-        
+        Point newVoronoiVertex(Point& pi, Point& pj, Point& pk, Point& pl);
         void init();
         /// the Voronoi diagram
         VoronoiGraph vd;

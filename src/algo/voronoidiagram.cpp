@@ -18,6 +18,9 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <set>
+#include <stack>
+
 #include <boost/foreach.hpp>
 #include <boost/graph/adjacency_list.hpp> 
 #include <boost/graph/connected_components.hpp>
@@ -83,13 +86,19 @@ void VoronoiDiagram::init() {
     // dual of Delaunay vertices are Voronoi-faces
     assign_dual_face_edge( dd, d1, e1 ); 
     assign_dual_face_edge( dd, d1, e2 ); 
-    assign_dual_face_edge( dd, d1, arc_12 ); 
+    assign_dual_face_edge( dd, d1, arc_12 );
     assign_dual_face_edge( dd, d2, e1 ); 
     assign_dual_face_edge( dd, d2, e3 ); 
     assign_dual_face_edge( dd, d2, arc_31 );
     assign_dual_face_edge( dd, d3, e2 ); 
     assign_dual_face_edge( dd, d3, e3 ); 
     assign_dual_face_edge( dd, d3, arc_23 );
+    
+    // dual of Voronoi vertices are Delaunay-faces
+    assign_dual_face_edge( vd, center, dd12 );
+    assign_dual_face_edge( vd, center, dd23 );
+    assign_dual_face_edge( vd, center, dd31 );
+    
 }
 
 void VoronoiDiagram::assign_dual_face_edge(VoronoiGraph& d, VoronoiVertex v, VoronoiEdge e) {
@@ -113,6 +122,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     //   4.2 H<0 property
     
     // 1)
+    // B1.1
     VoronoiVertex dd_closest = find_closest_Delaunay_vertex( p );
     std::cout << " closest dd-vertex is "<<dd_closest<<" at " << dd[dd_closest].position << "\n";
     VoronoiVertex dd_new = add_vertex(p,NONINCIDENT,dd);
@@ -120,14 +130,107 @@ void VoronoiDiagram::addVertexSite(Point p) {
     
     // 2) evaluate H on the corresponding voronoi-face vertices
     std::cout << "voronoi face corresponding to dd-closest= "<<dd_closest<<" has edges:\n";
-    //std::cout << " dd[dd_closest].dual_face_edges.size() = " << dd[dd_closest].dual_face_edges.size() << "\n";
-    BOOST_FOREACH( VoronoiEdge e, dd[dd_closest].dual_face_edges ) {
-        std::cout << "voronoi edge: " << e << "\n";
-    }
+    
+    // B1.2
+    VoronoiVertex vd_seed = find_seed_vd_vertex(dd_closest, dd_new);
+    std::cout << " seed vertex is " << vd_seed << " at " << vd[vd_seed].position << "\n";
+    
+    // add seed to set V0
+    VertexVector v0;
+    v0.push_back(vd_seed);
+    vd[vd_seed].type = IN;
+    augment_vertex_set(v0);
+    
+    // generate new vertices on all edges connecting to V0
+    
+    // generate new edges that form a loop around the region
+    
+    // remove vertices V0 and edges
+}
 
+void VoronoiDiagram::augment_vertex_set(VertexVector& q) {
+    // RB2   voronoi-point q(a,b,c) is the seed
+    // add cycles Ca,Cb,Cc to the stack
+    VertexVector dd_cycles = get_generator_vertices( dd, vd, q[0] );
+    assert(dd_cycles.size()==3);
+    // B1.3
+    std::stack<VoronoiVertex> S;
+    BOOST_FOREACH(VoronoiVertex cycle, dd_cycles) {
+        dd[cycle].type = INCIDENT;
+        S.push(cycle);
+    }
+    while ( !S.empty() ) { 
+        // BOOST_FOREACH(VoronoiVertex cycle, dd_cycles) { //loop through each cycle
+        VoronoiVertex c_alfa = S.top();
+        S.pop();
+        dd[c_alfa].type = INCIDENT;
+        VertexVector cycle_verts = get_generator_vertices(vd, dd, c_alfa); // get vertices of this cycle
+        // B2.1  mark "out"  v in cycle_alfa if 
+        //  (T6) v is adjacent to an IN vertex in V-Vin
+        //  (T7) v is on an "incident" cycle other than cycle and is not adjacent to a vertex in Vin
+        
+        // B2.2 if subgraph (Vout,Eout) is disconnected, find minimal set V* of undecided vertices such that Vout U V* is connected
+        // and set v=OUT for all V*
+        
+        // B2.3 if there is no "OUT" vertex in V(cycle) find vertkex v "undecided" with maximal H and put v=OUT
+        
+        // B2.4 while UNDECIDED vertices remain:
+        //      B2.4.1 find an undecided vertex Qabc with maximal abs(H)
+        //      B2.4.2 if H >= 0, put v=OUT.   if Vout disconnected, find V* of "undecided" vertices to make it connected
+        //             and mark all V* OUT
+        //      B2.4.3 if H < 0 set v=IN for a,b,c
+        //         if c(j)=nonincident,  put c(j)=incident and add c(j) to the stack
+        //         if Vin disconnected,
+        //            (i) find subset C* to make it connected
+        //            (ii) mark all of V* IN
+        //            (iii) for nonincident cycles cj indcident on vertices in V*
+        //                 put cj="incident" and add to stack.
+        //
+            
+    }
+}
+
+VoronoiVertex VoronoiDiagram::find_seed_vd_vertex(VoronoiVertex dd_closest, VoronoiVertex dd_new) {
+    // evaluate H on all vertices along dd_closest:s dual facet edges and return
+    // the one with the lowest H
+    VertexVector q_verts = get_generator_vertices(vd, dd, dd_closest);
+    double minimumH = 1;
+    VoronoiVertex minimalVertex;
+    BOOST_FOREACH( VoronoiVertex q, q_verts) {
+        if ( vd[q].type != OUT ) {
+            // for voronoi vertex q, find the regions i j k that define it
+            VertexVector generators = get_generator_vertices(dd,vd,q);
+            std::cout << q << " at " << vd[q].position << " has "<< generators.size() << "generators \n";
+            assert( generators.size() == 3 );
+            double h = detH( dd[generators[0]].position, dd[generators[1]].position, dd[generators[2]].position, dd[dd_new].position);
+            std::cout << " h= " << h << "\n";
+            Point qnew = newVoronoiVertex(dd[generators[0]].position, dd[generators[1]].position, dd[generators[2]].position, dd[dd_new].position);
+            std::cout << " qnew= " << qnew << "\n";
+            if (h<minimumH) {
+                minimumH = h;
+                minimalVertex = q;
+            }
+        }
+        
+    }
+    return minimalVertex;
 }
 
 
+VertexVector VoronoiDiagram::get_generator_vertices(VoronoiGraph& dual, VoronoiGraph& diagram, VoronoiVertex v) {
+    std::set<VoronoiVertex> verts;
+    BOOST_FOREACH( VoronoiEdge e, diagram[v].dual_face_edges ) {
+        VoronoiVertex v1 = boost::source( e, dual  );
+        VoronoiVertex v2 = boost::target( e, dual  );
+        verts.insert(v1);
+        verts.insert(v2); 
+    }
+    VertexVector vv;
+    BOOST_FOREACH( VoronoiVertex v, verts) {
+        vv.push_back(v);
+    }
+    return vv;
+}
 
 VoronoiVertex VoronoiDiagram::find_closest_Delaunay_vertex( Point& p ) {
     VoronoiVertexItr it_end, itr;
@@ -155,13 +258,22 @@ double VoronoiDiagram::detH(Point& pi, Point& pj, Point& pk, Point& pl) {
     // choose pk so that among three angles pi-pj-pk the angle at pk is closest to pi/2
     // because abs( J4(ijk)/2 ) is the area of this triangle
     // compute H for points that are close to new generator pl
-    
 
     double J2 = detH_J2(pi,pj,pk);
     double J3 = detH_J3(pi,pj,pk);
     double J4 = detH_J4(pi,pj,pk);
-    
-    return J2+J3+J4;
+    double h = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y)) ;
+    if ( pj.isRight(pi,pk) )
+        return h;
+    else
+        return -h;
+}
+
+Point VoronoiDiagram::newVoronoiVertex(Point& pi, Point& pj, Point& pk, Point& pl) {
+    double w = detH_J4(pi,pj,pk);
+    double x = - detH_J2(pi,pj,pk)/w+pk.x;
+    double y = detH_J3(pi,pj,pk)/w+pk.y;
+    return Point(x,y);
 }
 
 double VoronoiDiagram::detH_J2(Point& pi, Point& pj, Point& pk) {
