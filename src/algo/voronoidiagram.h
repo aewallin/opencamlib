@@ -41,6 +41,16 @@ enum VoronoiVertexType {OUT, IN, UNDECIDED, INCIDENT, NONINCIDENT};
 enum VoronoiEdgeType {LINE, ARC};
 
 
+// p209 of Handbook of Computational geometry suggests DCEL data structure
+// doubly connected edge list
+//
+// each edge e stores:
+// - two endpoints of e
+// - edges cw or ccw next to e about its endpoints
+// - faces the the left and to the right
+
+// allows traversing edges incident on a vertex
+// allows traversin edges bounding a face
 
 
 // FWD declarations

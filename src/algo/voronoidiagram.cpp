@@ -141,8 +141,20 @@ void VoronoiDiagram::addVertexSite(Point p) {
     vd[vd_seed].type = IN;
     augment_vertex_set(v0);
     
-    // generate new vertices on all edges connecting to V0
-    
+    // generate new vertices on all edges in V0 connecting to OUT-vertices
+    BOOST_FOREACH( VoronoiVertex v, v0 ) {
+        assert( vd[v].type == IN );
+        VoronoiOutEdgeItr edgeItr, edgeItrEnd;
+        boost::tie( edgeItr, edgeItrEnd ) = boost::out_edges(v, vd);
+        for ( ; edgeItr != edgeItrEnd ; ++edgeItr ) {
+            VoronoiVertex adj_vertex = boost::target( *edgeItr, vd );
+            std::cout << " adj_vertex= " << adj_vertex << " type=" << vd[adj_vertex].type << " \n";
+            if ( vd[adj_vertex].type == OUT ) {
+                // *edgeItr connects IN <-> OUT
+            }
+        }
+
+    }
     // generate new edges that form a loop around the region
     
     // remove vertices V0 and edges
