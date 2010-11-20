@@ -58,10 +58,11 @@ VoronoiEdge VoronoiDiagram::add_edge(VoronoiVertex v1, VoronoiVertex v2, Voronoi
 }
 
 void VoronoiDiagram::init() {
+    double far_multiplier = 6;
     VoronoiVertex center = add_vertex( Point(0,0), UNDECIDED, vd );
-    VoronoiVertex v1     = add_vertex( Point(0, 3*far_radius), OUT, vd );
-    VoronoiVertex v2     = add_vertex( Point( cos(-PI/6)*3*far_radius, sin(-PI/6)*3*far_radius), OUT, vd );
-    VoronoiVertex v3     = add_vertex( Point( cos(-5*PI/6)*3*far_radius, sin(-5*PI/6)*3*far_radius), OUT, vd );
+    VoronoiVertex v1     = add_vertex( Point(0, far_multiplier*far_radius), OUT, vd );
+    VoronoiVertex v2     = add_vertex( Point( cos(-PI/6)*far_multiplier*far_radius, sin(-PI/6)*far_multiplier*far_radius), OUT, vd );
+    VoronoiVertex v3     = add_vertex( Point( cos(-5*PI/6)*far_multiplier*far_radius, sin(-5*PI/6)*far_multiplier*far_radius), OUT, vd );
     // the "peace" edges
     VoronoiEdge e1 = add_edge( center, v1 , vd );         
     VoronoiEdge e2 = add_edge( center, v2 , vd );
@@ -139,6 +140,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     VertexVector v0;
     v0.push_back(vd_seed);
     vd[vd_seed].type = IN;
+    // find the set V0
     augment_vertex_set(v0);
     
     // generate new vertices on all edges in V0 connecting to OUT-vertices
@@ -146,15 +148,44 @@ void VoronoiDiagram::addVertexSite(Point p) {
         assert( vd[v].type == IN );
         VoronoiOutEdgeItr edgeItr, edgeItrEnd;
         boost::tie( edgeItr, edgeItrEnd ) = boost::out_edges(v, vd);
+        std::vector<Point> q_positions;
+        std::vector<VoronoiEdge> q_edges;
         for ( ; edgeItr != edgeItrEnd ; ++edgeItr ) {
             VoronoiVertex adj_vertex = boost::target( *edgeItr, vd );
+            std::cout << " adj_vertex= " << adj_vertex << "\n";
             std::cout << " adj_vertex= " << adj_vertex << " type=" << vd[adj_vertex].type << " \n";
             if ( vd[adj_vertex].type == OUT ) {
-                // *edgeItr connects IN <-> OUT
+                // *edgeItr connects IN <-> OUT, so we should generate new voronoi-vertex on it
+                // the generators for this new voronoi-point will be the new dd-vertex we are adding dd_new
+                // and the dd-vertices corresponding to the left and right face of the vd-edge *edgeItr
+                VoronoiEdge dual_dd_edge = vd[*edgeItr].dual_edge;
+                VoronoiVertex generator1 = boost::source( dual_dd_edge, dd);
+                VoronoiVertex generator2 = boost::target( dual_dd_edge, dd);
+                Point q_pos = newVoronoiVertex( dd[generator1].position , dd[generator2].position, dd[dd_new].position);
+                q_edges.push_back(*edgeItr);
+                q_positions.push_back(q_pos);
+                // adding vertices here invalidates the iterator edgeItr, so we can't do it here...
+                //VoronoiVertex q_vertex = add_vertex( q_pos, UNDECIDED, vd );
+                //std::cout << " added vertex q_vertex <<  at  " << q_pos << " to vd. \n";
             }
+        }
+        
+        for( unsigned int m=0; m<q_positions.size(); ++m)  {
+            VoronoiVertex q_vertex = add_vertex( q_positions[m], UNDECIDED, vd );
+            std::cout << " added vertex "<< q_vertex << " on edge " << q_edges[m] <<" at  " << q_positions[m] << " to vd. \n";
+            VoronoiVertex target = boost::target( q_edges[m] , vd );
+            VoronoiVertex source = boost::source( q_edges[m] , vd );
+            boost::remove_edge( target, source, vd); // remove the old edge
+            // add new edge btw new vertex and "OUT" vertex
+            if ( vd[target].type == OUT )
+                boost::add_edge( q_vertex, target, vd );
+            if ( vd[source].type == OUT )
+                boost::add_edge( q_vertex, source, vd );
         }
 
     }
+    std::cout << " vd vertex generation done \n";
+    
     // generate new edges that form a loop around the region
     
     // remove vertices V0 and edges
@@ -216,7 +247,7 @@ VoronoiVertex VoronoiDiagram::find_seed_vd_vertex(VoronoiVertex dd_closest, Voro
             assert( generators.size() == 3 );
             double h = detH( dd[generators[0]].position, dd[generators[1]].position, dd[generators[2]].position, dd[dd_new].position);
             std::cout << " h= " << h << "\n";
-            Point qnew = newVoronoiVertex(dd[generators[0]].position, dd[generators[1]].position, dd[generators[2]].position, dd[dd_new].position);
+            Point qnew = newVoronoiVertex(dd[generators[0]].position, dd[generators[1]].position, dd[generators[2]].position);
             std::cout << " qnew= " << qnew << "\n";
             if (h<minimumH) {
                 minimumH = h;
@@ -241,6 +272,7 @@ VertexVector VoronoiDiagram::get_generator_vertices(VoronoiGraph& dual, VoronoiG
     BOOST_FOREACH( VoronoiVertex v, verts) {
         vv.push_back(v);
     }
+    assert( vv.size() == 3 );
     return vv;
 }
 
@@ -281,7 +313,7 @@ double VoronoiDiagram::detH(Point& pi, Point& pj, Point& pk, Point& pl) {
         return -h;
 }
 
-Point VoronoiDiagram::newVoronoiVertex(Point& pi, Point& pj, Point& pk, Point& pl) {
+Point VoronoiDiagram::newVoronoiVertex(Point& pi, Point& pj, Point& pk) {
     double w = detH_J4(pi,pj,pk);
     double x = - detH_J2(pi,pj,pk)/w+pk.x;
     double y = detH_J3(pi,pj,pk)/w+pk.y;

@@ -22,7 +22,7 @@ if __name__ == "__main__":
     
     vd = ocl.VoronoiDiagram()
     
-    p=ocl.Point(10,20)
+    p=ocl.Point(60,60)
     
     vd.addVertexSite( p )
     far = vd.getFarRadius()

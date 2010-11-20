@@ -131,7 +131,7 @@ class VoronoiDiagram {
         double detH_J2(Point& pi, Point& pj, Point& pk);
         double detH_J3(Point& pi, Point& pj, Point& pk);
         double detH_J4(Point& pi, Point& pj, Point& pk);
-        Point newVoronoiVertex(Point& pi, Point& pj, Point& pk, Point& pl);
+        Point newVoronoiVertex(Point& pi, Point& pj, Point& pk);
         void init();
         /// the Voronoi diagram
         VoronoiGraph vd;
