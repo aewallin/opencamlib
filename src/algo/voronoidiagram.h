@@ -61,7 +61,7 @@ namespace ocl
 {
 
 /// vertex type: 
-enum VoronoiVertexType {OUT, IN, UNDECIDED };
+enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 //enum VoronoiEdgeType {LINE, ARC}; // for future line/arc generators...
 
 
@@ -83,7 +83,7 @@ struct VoronoiFace;
 
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
-                                   boost::undirectedS,  // an un directed  graph.
+                                   boost::bidirectionalS,  // bidirectional graph.
                                    // vertex properties:
                                    VoronoiVertexProps, 
                                    // edge properties:
@@ -152,10 +152,9 @@ typedef unsigned int FaceIdx;
 
 
 struct VoronoiEdgeProps {
-    VoronoiEdge left_next; // next edge CCW on left face
-    VoronoiEdge right_next; // next edge CCW on right face
-    FaceIdx left_face;
-    FaceIdx right_face;
+    VoronoiEdge next; // next edge CCW on face
+    VoronoiEdge twin; // twin edge
+    FaceIdx face; // the face this edge belongs to
 };
 
 
@@ -181,7 +180,7 @@ struct FaceList {
         faces.push_back(f);
         return faces.size()-1;
     }
-    VoronoiFace operator[](const unsigned int m) {
+    VoronoiFace& operator[](const unsigned int m) {
         return faces[m];
     }
     unsigned int size() const {
@@ -224,17 +223,25 @@ class VoronoiDiagram {
         
         unsigned int find_closest_face(const Point& p );
         // VoronoiVertex find_seed_vd_vertex(VoronoiVertex dd_closest, VoronoiVertex dd_new);
+        
         VoronoiVertex find_seed_vertex(FaceIdx face_idx, const Point& p);
-        VoronoiVertex get_next_cw_vertex(VoronoiVertex current, VoronoiEdge e);
-        VoronoiEdge get_next_face_edge(FaceIdx f, VoronoiEdge e);
+        void augment_vertex_set(VertexVector& v0); 
+        void add_new_voronoi_vertices(VertexVector& v0, Point& p);
+        
+        //VoronoiVertex get_next_cw_vertex(VoronoiVertex current, VoronoiEdge e);
+        //VoronoiEdge get_next_face_edge(FaceIdx f, VoronoiEdge e);
+        VoronoiEdge find_previous_edge(VoronoiEdge e);
         
         VertexVector get_face_vertices(unsigned int face_idx);
         //VertexVector get_generator_vertices(VoronoiGraph& dual, VoronoiGraph& diag, VoronoiVertex v);
         FaceVector get_adjacent_faces( VoronoiVertex q );
-           
-        void augment_vertex_set(VertexVector& v0); 
+        FaceVector get_incident_faces();    
+        void split_face(FaceIdx f);
+        
         void insert_vertex_in_edge(VoronoiVertex v, VoronoiEdge e); 
-        void set_next_property(FaceIdx face_idx, VoronoiEdge e_old, VoronoiEdge e1, VoronoiEdge e2);
+        VertexVector traverse_v0_tree(VertexVector& v);
+        
+        // void set_next_property(FaceIdx face_idx, VoronoiEdge e_old, VoronoiEdge e1, VoronoiEdge e2);
         
         //double detH(Point& pi, Point& pj, Point& pk, Point& pl);
         //double detH_J2(Point& pi, Point& pj, Point& pk);

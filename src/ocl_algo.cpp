@@ -196,6 +196,7 @@ void export_algo() {
         .value("OUT", OUT)   
         .value("IN", IN)
         .value("UNDECIDED", UNDECIDED)
+        .value("UNDECIDED", NEW)
     ;
     bp::enum_<VoronoiFaceType>("VoronoiFaceType")
         .value("INCIDENT", INCIDENT)

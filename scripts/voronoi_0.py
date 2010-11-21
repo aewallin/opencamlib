@@ -36,7 +36,7 @@ if __name__ == "__main__":
         drawVertex(myscreen, v, camvtk.red, 5)
         
     vde = vd.getVoronoiEdges()
-    #print " got ",len(vde)," Voronoi edges"
+    print " got ",len(vde)," Voronoi edges"
     for e in vde:
         pass
         drawEdge(myscreen,e, camvtk.cyan)
@@ -45,9 +45,8 @@ if __name__ == "__main__":
     #print " got ",len(dle)," Delaunay edges"
     #for e in dle:
     #    drawEdge(myscreen,e, camvtk.red)
-        
     
-    myscreen.camera.SetPosition(0.01, 0, 200)
+    myscreen.camera.SetPosition(0.1, 0, 200)
     myscreen.camera.SetFocalPoint(0, 0, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
