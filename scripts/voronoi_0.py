@@ -29,11 +29,11 @@ if __name__ == "__main__":
     drawFarCircle(myscreen, far, camvtk.pink)
     drawFarCircle(myscreen, 3*far, camvtk.orange)
     
-    for v in vd.getDelaunayVertices():
+    for v in vd.getGenerators():
         drawVertex(myscreen, v, camvtk.green, 2)
         
     for v in vd.getVoronoiVertices():
-        drawVertex(myscreen, v, camvtk.red)
+        drawVertex(myscreen, v, camvtk.red, 5)
         
     vde = vd.getVoronoiEdges()
     #print " got ",len(vde)," Voronoi edges"
@@ -41,10 +41,10 @@ if __name__ == "__main__":
         pass
         drawEdge(myscreen,e, camvtk.cyan)
     
-    dle = vd.getDelaunayEdges()
+    #dle = vd.getDelaunayEdges()
     #print " got ",len(dle)," Delaunay edges"
-    for e in dle:
-        drawEdge(myscreen,e, camvtk.red)
+    #for e in dle:
+    #    drawEdge(myscreen,e, camvtk.red)
         
     
     myscreen.camera.SetPosition(0.01, 0, 200)
