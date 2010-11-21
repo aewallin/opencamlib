@@ -121,10 +121,20 @@ struct VoronoiVertexProps {
     void set_J(Point& pi, Point& pj, Point& pk) { // i-j-k should come in CCW order
         // point pk should have the largest angle
         // set the values of J2 J3 J4 and pk
+        Point pi_,pj_,pk_;
+        if ( pi.isRight(pj,pk) ) {
+            pi_ = pj;
+            pj_ = pi;
+            pk_ = pk;
+        } else {
+            pi_ = pi;
+            pj_ = pj;
+            pk_ = pk;
+        }
         this->pk = pk;
-        J2 = detH_J2( pi, pj, pk);
-        J3 = detH_J3( pi, pj, pk);
-        J4 = detH_J4( pi, pj, pk);
+        J2 = detH_J2( pi_, pj_, pk_);
+        J3 = detH_J3( pi_, pj_, pk_);
+        J4 = detH_J4( pi_, pj_, pk_);
     }
     double detH_J2(Point& pi, Point& pj, Point& pk) {
         // J2(ijk)
@@ -214,8 +224,8 @@ class VoronoiDiagram {
         boost::python::list getFarVoronoiVertices() const;
         
         boost::python::list getVoronoiEdges() const;
-        //boost::python::list getDelaunayEdges() const;
-        boost::python::list getEdges(const VoronoiGraph& g) const;
+        boost::python::list getEdgesGenerators() ;
+        
         std::string str() const;
         double getFarRadius() const {return far_radius;}
         void setFarRadius(double r) {far_radius = r;}

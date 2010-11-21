@@ -37,7 +37,7 @@ if __name__ == "__main__":
         drawVertex(myscreen, v, camvtk.green, 2)
         
     for v in vd.getVoronoiVertices():
-        drawVertex(myscreen, v, camvtk.red, 5)
+        drawVertex(myscreen, v, camvtk.red, 1)
     
     for v in vd.getFarVoronoiVertices():
         drawVertex(myscreen, v, camvtk.pink, 10)

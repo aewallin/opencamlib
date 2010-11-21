@@ -296,8 +296,8 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
     vd[twin_previous].next = e_twin;
     vd[e_twin].next = twin_next;
     
-    std::cout << "  created new edge "<< e_new << " next = "<< vd[e_new].next << "\n";
-    std::cout << "         twin edge "<< e_twin <<" next = "<< vd[e_twin].next << "\n";
+    std::cout << "  created new edge "<< e_new << " next = "<< vd[e_new].next << " for face "<< f << "\n";
+    std::cout << "         twin edge "<< e_twin <<" next = "<< vd[e_twin].next << " for face "<< newface << "\n";
 
 }
 
@@ -602,6 +602,32 @@ boost::python::list VoronoiDiagram::getFarVoronoiVertices() const {
     return plist;
 }
 
+// return edge and the generator corresponding to its face
+boost::python::list VoronoiDiagram::getEdgesGenerators()  {
+    boost::python::list edge_list;
+    VoronoiEdgeItr itr, it_end;
+    boost::tie( itr, it_end ) = boost::edges( vd );
+    for (  ; itr != it_end ; ++itr ) { // loop through each edge
+            boost::python::list point_list; // the endpoints of each edge
+            VoronoiVertex v1 = boost::source( *itr, vd  );
+            VoronoiVertex v2 = boost::target( *itr, vd  );
+            Point src = vd[v1].position;
+            Point tar = vd[v2].position;
+            // shorten the edge, for visualization
+            Point src_short = src + (10/((tar-src).norm())) * (tar-src);
+            Point tar_short = src + (1-10/((tar-src).norm())) * (tar-src);
+            point_list.append( src_short );
+            point_list.append( tar_short );
+            FaceIdx f = vd[*itr].face;
+            Point gen = faces[f].generator;
+            Point orig = gen.xyClosestPoint(src, tar);
+            Point dir = gen-orig;
+            dir.xyNormalize(); 
+            point_list.append( dir );
+            edge_list.append(point_list);
+    }
+    return edge_list;
+}
 
 boost::python::list VoronoiDiagram::getVoronoiEdges() const {
     boost::python::list edge_list;
