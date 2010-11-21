@@ -187,6 +187,7 @@ void export_algo() {
         .def("addVertexSite",  &VoronoiDiagram::addVertexSite)
         .def("getGenerators",  &VoronoiDiagram::getGenerators)
         .def("getVoronoiVertices",  &VoronoiDiagram::getVoronoiVertices)
+        .def("getFarVoronoiVertices",  &VoronoiDiagram::getFarVoronoiVertices)
         .def("getFarRadius",  &VoronoiDiagram::getFarRadius)
         .def("setFarRadius",  &VoronoiDiagram::setFarRadius)
         .def("getVoronoiEdges",  &VoronoiDiagram::getVoronoiEdges)

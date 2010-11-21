@@ -61,7 +61,7 @@ namespace ocl
 {
 
 /// vertex type: 
-enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
+enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW, FAR };
 //enum VoronoiEdgeType {LINE, ARC}; // for future line/arc generators...
 
 
@@ -180,6 +180,9 @@ struct FaceList {
         faces.push_back(f);
         return faces.size()-1;
     }
+    unsigned int add_face(Point gen, VoronoiFaceType t) { // for when we don't know the associated edge
+        return add_face( VoronoiEdge(), gen, t);
+    }
     VoronoiFace& operator[](const unsigned int m) {
         return faces[m];
     }
@@ -208,7 +211,8 @@ class VoronoiDiagram {
         boost::python::list getGenerators() ;
         
         boost::python::list getVoronoiVertices() const;
-
+        boost::python::list getFarVoronoiVertices() const;
+        
         boost::python::list getVoronoiEdges() const;
         //boost::python::list getDelaunayEdges() const;
         boost::python::list getEdges(const VoronoiGraph& g) const;
@@ -216,38 +220,32 @@ class VoronoiDiagram {
         double getFarRadius() const {return far_radius;}
         void setFarRadius(double r) {far_radius = r;}
     private:
-        //void assign_dual_edge(VoronoiEdge vd_e, VoronoiEdge dd_e);
+
         VoronoiVertex add_vertex( Point position, VoronoiVertexType t );
         VoronoiEdge add_edge(VoronoiVertex v1, VoronoiVertex v2);
-        //void assign_dual_face_edge(VoronoiGraph& d, VoronoiVertex v, VoronoiEdge e);
         
         unsigned int find_closest_face(const Point& p );
-        // VoronoiVertex find_seed_vd_vertex(VoronoiVertex dd_closest, VoronoiVertex dd_new);
-        
-        VoronoiVertex find_seed_vertex(FaceIdx face_idx, const Point& p);
-        void augment_vertex_set(VertexVector& v0); 
+
+        VertexVector find_seed_vertex(FaceIdx face_idx, const Point& p);
+        void augment_vertex_set(VertexVector& v0, Point& p); 
         void add_new_voronoi_vertices(VertexVector& v0, Point& p);
         
-        //VoronoiVertex get_next_cw_vertex(VoronoiVertex current, VoronoiEdge e);
-        //VoronoiEdge get_next_face_edge(FaceIdx f, VoronoiEdge e);
+
         VoronoiEdge find_previous_edge(VoronoiEdge e);
         
         VertexVector get_face_vertices(unsigned int face_idx);
-        //VertexVector get_generator_vertices(VoronoiGraph& dual, VoronoiGraph& diag, VoronoiVertex v);
+
         FaceVector get_adjacent_faces( VoronoiVertex q );
         FaceVector get_incident_faces();    
-        void split_face(FaceIdx f);
+        FaceIdx split_faces(Point& p);
+        void split_face(FaceIdx nf, FaceIdx f);
+        void remove_vertex_set(VertexVector& v0 , FaceIdx newface);
         
         void insert_vertex_in_edge(VoronoiVertex v, VoronoiEdge e); 
-        VertexVector traverse_v0_tree(VertexVector& v);
+        //VertexVector traverse_v0_tree(VertexVector& v);
         
-        // void set_next_property(FaceIdx face_idx, VoronoiEdge e_old, VoronoiEdge e1, VoronoiEdge e2);
+        void reset_labels();
         
-        //double detH(Point& pi, Point& pj, Point& pk, Point& pl);
-        //double detH_J2(Point& pi, Point& pj, Point& pk);
-        //double detH_J3(Point& pi, Point& pj, Point& pk);
-        //double detH_J4(Point& pi, Point& pj, Point& pk);
-        //Point newVoronoiVertex(Point& pi, Point& pj, Point& pk);
         void init();
         /// the Voronoi diagram
         VoronoiGraph vd;
@@ -256,6 +254,9 @@ class VoronoiDiagram {
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
         FaceList  faces;
+        VoronoiVertex v01;
+        VoronoiVertex v02;
+        VoronoiVertex v03;
 };
 
 } // end namespace
