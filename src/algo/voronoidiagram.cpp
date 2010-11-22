@@ -250,11 +250,11 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
     
     bool found = false;
     int iters = 0;
-    std::cout << " OUT=" << OUT<<"\n";
-    std::cout << " IN=" << IN<<"\n";
-    std::cout << " UNDECIDED=" << UNDECIDED<<"\n";
-    std::cout << " NEW=" << NEW<<"\n";
-    std::cout << "Looking for types " << currentType << " and " << nextType <<"\n";
+    //std::cout << " OUT=" << OUT<<"\n";
+    //std::cout << " IN=" << IN<<"\n";
+    //std::cout << " UNDECIDED=" << UNDECIDED<<"\n";
+    //std::cout << " NEW=" << NEW<<"\n";
+    //std::cout << "Looking for types " << currentType << " and " << nextType <<"\n";
     // v.type= "<< vd[current_vertex].type << "\n";
     while (!found) {
         VoronoiVertex current_vertex = boost::target( current_edge, vd );
@@ -271,8 +271,8 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
         iters++;
         assert( current_and_next_on_same_face( current_edge ) );
         
-        current_edge = vd[current_edge].next;
-        std::cout << current_edge<<" v.type= "<< vd[current_vertex].type << "\n";
+        current_edge = vd[current_edge].next;   
+        //std::cout << current_edge<<" v.type= "<< vd[current_vertex].type << "\n";
         //if ( vd[start_edge].next == current_edge ) {
         //    std::cout << start_edge << " == " << current_edge << " ERROR \n";
         //    std::cout << " loop!!";
@@ -282,7 +282,7 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
         //    std::cout << " new_source find WARNING: iters=" << iters << "\n";
         //    std::cout << " current_edge = " << current_edge << " next=" << vd[current_edge].next << "\n";
         //}
-        if ( iters > 18 )
+        if ( iters > 100 )
             assert(0);
         
         
@@ -512,10 +512,23 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
         VoronoiEdge start_edge = current_edge;
         bool done=false;
         while (!done) {
+            std::cout << current_edge << "\n";
             assert( faces[ vd[current_edge].face ].type == INCIDENT );
-            
+            assert( vd[current_edge].face == f );
+            // G( V, E, C) is the voronoi graph, C=cycles=faces
+            // v0 is the set of vertices to be removed E(v0) are all edges that connect two v0 vertices
+            // (T4) G( v0 , E(v0) ) is a tree
+            // (T5) for any face c such that (v0 intersect V(c)) != 0 then 
+            //       graph G(  v0 intersect V(c) , E( v0 int V(c) ) ) is connected
+            // E0, the cut edges, is set of edges from V0 to V-V0
             VoronoiVertex v = boost::target( current_edge , vd );
             if ( vd[v].type == UNDECIDED ) {
+                // B2.1  mark "out"  v in cycle_alfa if 
+                //  (T6) v is adjacent to an IN vertex in V-Vin(alfa)
+                //  (T7) v is on an "incident" cycle other than this cycle and is not adjacent to a vertex in Vin
+        
+                vd[v].type = OUT;
+                /*
                 if ( vd[v].detH( p ) < 0.0 ) {
                     std::cout << "     found IN vertex " << v << " on edge " << current_edge <<" face " << f <<"\n";
                     vd[v].type = IN;
@@ -530,16 +543,14 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                     }
                 } else {
                     vd[v].type = OUT;
-                }
+                }*/
             }
             current_edge = vd[current_edge].next;
             assert( current_and_next_on_same_face(current_edge) );
             if ( current_edge == start_edge )
                 done = true;
         }
-        // B2.1  mark "out"  v in cycle_alfa if 
-        //  (T6) v is adjacent to an IN vertex in V-Vin
-        //  (T7) v is on an "incident" cycle other than this cycle and is not adjacent to a vertex in Vin
+
         
         // B2.2 if subgraph (Vout,Eout) is disconnected, find minimal set V* of undecided vertices such that Vout U V* is connected
         // and set v=OUT for all V*

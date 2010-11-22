@@ -71,18 +71,18 @@ class VD:
         for e in self.edges:
             myscreen.removeActor(e)
         for e in vd.getEdgesGenerators():
-            ofset = 5
+            ofset = 0
             p1 = e[0] + ofset*e[2]
             p2 = e[1] + ofset*e[2]
             actor = camvtk.Line( p1=( p1.x,p1.y,p1.z), p2=(p2.x,p2.y,p2.z), color=self.edgeColor )
             myscreen.addActor(actor)
             self.edges.append(actor)
-            actor1 = camvtk.Sphere( center=(p1.x,p1.y,p1.z), radius=2, color=camvtk.pink )
-            actor2 = camvtk.Sphere( center=(p2.x,p2.y,p2.z), radius=2, color=camvtk.lgreen )
-            myscreen.addActor(actor1)
-            self.edges.append(actor1)
-            myscreen.addActor(actor2)
-            self.edges.append(actor2)
+            #actor1 = camvtk.Sphere( center=(p1.x,p1.y,p1.z), radius=2, color=camvtk.pink )
+            #actor2 = camvtk.Sphere( center=(p2.x,p2.y,p2.z), radius=2, color=camvtk.lgreen )
+            #myscreen.addActor(actor1)
+            #self.edges.append(actor1)
+            #myscreen.addActor(actor2)
+            #self.edges.append(actor2)
         myscreen.render() 
         
     def setAll(self, vd):
@@ -147,7 +147,7 @@ if __name__ == "__main__":
     #print " got ",len(dle)," Delaunay edges"
     #for e in dle:
     #    drawEdge(myscreen,e, camvtk.red)
-    print "All DONE."
+    print "PYTHON All DONE."
 
     #camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
