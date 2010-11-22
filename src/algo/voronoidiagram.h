@@ -61,7 +61,7 @@ namespace ocl
 {
 
 /// vertex type: 
-enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW, FAR };
+enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 //enum VoronoiEdgeType {LINE, ARC}; // for future line/arc generators...
 
 
@@ -82,7 +82,7 @@ struct VoronoiEdgeProps;
 struct VoronoiFace;
 
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
-                                   boost::vecS,     // vertex set stored in a std::vector
+                                   boost::vecS, //vecS,     // vertex set stored in a std::vector
                                    boost::bidirectionalS,  // bidirectional graph.
                                    // vertex properties:
                                    VoronoiVertexProps, 
@@ -240,7 +240,9 @@ class VoronoiDiagram {
         void augment_vertex_set(VertexVector& v0, Point& p); 
         void add_new_voronoi_vertices(VertexVector& v0, Point& p);
         
-
+        bool isDegreeThree();
+        bool current_and_next_on_same_face(VoronoiEdge current_edge); 
+        
         VoronoiEdge find_previous_edge(VoronoiEdge e);
         
         VertexVector get_face_vertices(unsigned int face_idx);

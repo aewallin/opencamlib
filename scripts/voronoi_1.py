@@ -113,18 +113,21 @@ if __name__ == "__main__":
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 2
+    Nmax = 10
     plist=[]
     for n in range(Nmax):
         x=-50+100*random.random()
         y=-50+100*random.random()
         plist.append( ocl.Point(x,y) )
     
+    n=1
     for p in plist:
         vod.setAll(vd)
         time.sleep(0.1)
+        print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
         vod.setAll(vd)
+        n=n+1
     
     #vod.setGenerators(vd)
     #time.sleep(1)
