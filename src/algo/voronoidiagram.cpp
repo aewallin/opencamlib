@@ -223,9 +223,9 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , FaceIdx newface) {
         boost::clear_vertex( v, vd);
         vd[v].type = OUT;
     }
-    //BOOST_FOREACH( VoronoiVertex v, v0 ) {
-    //    boost::remove_vertex( v, vd);
-    //}
+    BOOST_FOREACH( VoronoiVertex v, v0 ) {
+        boost::remove_vertex( v, vd);    //
+    }
     
 }
 
@@ -422,6 +422,8 @@ void VoronoiDiagram::insert_vertex_in_edge(VoronoiVertex v, VoronoiEdge e) {
     VoronoiVertex target = boost::target( e , vd );
     VoronoiVertex twin_source = boost::source( twin , vd );
     VoronoiVertex twin_target = boost::target( twin , vd );
+    if ( source != twin_target )
+        std::cout << " ERROR " << e << " source is " << source << " but " << twin << " target is " << twin_target << "\n"; 
     assert( source == twin_target );
     assert( target == twin_source );
     
@@ -527,24 +529,27 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                 //  (T6) v is adjacent to an IN vertex in V-Vin(alfa)
                 //  (T7) v is on an "incident" cycle other than this cycle and is not adjacent to a vertex in Vin
         
-                vd[v].type = OUT;
-                /*
+                
                 if ( vd[v].detH( p ) < 0.0 ) {
                     std::cout << "     found IN vertex " << v << " on edge " << current_edge <<" face " << f <<"\n";
                     vd[v].type = IN;
                     q.push_back(v);
-                    // also set the twin face to incident and push on the stack
-                    VoronoiEdge twin_edge = vd[current_edge].twin;
-                    FaceIdx twin_face = vd[twin_edge].face;
-                    if ( faces[twin_face].type != INCIDENT ) {
-                        faces[twin_face].type = INCIDENT;
-                        std::cout << "     setting twin face " << twin_face << " INCIDENT \n";
-                        S.push(twin_face);
+                    // also set the adjacent faces to incident
+                    FaceVector new_adjacent_faces = get_adjacent_faces( v );
+                    //VoronoiEdge twin_edge = vd[current_edge].twin;
+                    //FaceIdx twin_face = vd[twin_edge].face;
+                    BOOST_FOREACH( FaceIdx adj_face, new_adjacent_faces ) {
+                        if ( faces[adj_face].type != INCIDENT ) {
+                            faces[adj_face].type = INCIDENT;
+                            std::cout << "     setting twin face " << adj_face << " INCIDENT \n";
+                            S.push(adj_face);
+                        }
                     }
                 } else {
                     vd[v].type = OUT;
-                }*/
+                }
             }
+            
             current_edge = vd[current_edge].next;
             assert( current_and_next_on_same_face(current_edge) );
             if ( current_edge == start_edge )
@@ -692,8 +697,9 @@ boost::python::list VoronoiDiagram::getEdgesGenerators()  {
             Point src = vd[v1].position;
             Point tar = vd[v2].position;
             // shorten the edge, for visualization
-            Point src_short = src + (10/((tar-src).norm())) * (tar-src);
-            Point tar_short = src + (1-10/((tar-src).norm())) * (tar-src);
+            double cut_amount = 0.0;
+            Point src_short = src + (cut_amount/((tar-src).norm())) * (tar-src);
+            Point tar_short = src + (1-cut_amount/((tar-src).norm())) * (tar-src);
             point_list.append( src_short );
             point_list.append( tar_short );
             FaceIdx f = vd[*itr].face;

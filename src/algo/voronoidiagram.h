@@ -82,7 +82,7 @@ struct VoronoiEdgeProps;
 struct VoronoiFace;
 
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
-                                   boost::vecS, //vecS,     // vertex set stored in a std::vector
+                                   boost::listS, //vecS,     // vertex set stored in a std::vector
                                    boost::bidirectionalS,  // bidirectional graph.
                                    // vertex properties:
                                    VoronoiVertexProps, 

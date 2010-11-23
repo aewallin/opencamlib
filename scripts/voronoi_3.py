@@ -42,14 +42,29 @@ class VD:
         self.generatorColor = camvtk.green
         self.vertexColor = camvtk.red
         self.edgeColor = camvtk.cyan
+        self.vdtext  = camvtk.Text()
+        self.vdtext.SetPos( (50, myscreen.height-50) )
+        self.Ngen = 0
+        self.vdtext_text = ""
+        self.setVDText()
+        
+        myscreen.addActor(self.vdtext)
+        
+    def setVDText(self):
+        self.Ngen = len( self.generators )-3
+        self.vdtext_text = "VD with " + str(self.Ngen) + " generators."
+        self.vdtext.SetText( self.vdtext_text )
         
     def setGenerators(self, vd):
         for g in self.generators:
             myscreen.removeActor(g)
+
+        self.generators = []
         for p in vd.getGenerators():
-            gactor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.5, color=self.generatorColor )
+            gactor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.2, color=self.generatorColor )
             self.generators.append(gactor)
             myscreen.addActor( gactor )
+        self.setVDText()
         myscreen.render() 
     
     def setFar(self, vd):
@@ -61,8 +76,10 @@ class VD:
     def setVertices(self, vd):
         for p in self.verts:
             myscreen.removeActor(p)
+            #p.Delete()
+        self.verts = []
         for p in vd.getVoronoiVertices():
-            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.5, color=self.vertexColor )
+            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.2, color=self.vertexColor )
             self.generators.append(actor)
             myscreen.addActor( actor )
         myscreen.render() 
@@ -70,6 +87,8 @@ class VD:
     def setEdges(self, vd):
         for e in self.edges:
             myscreen.removeActor(e)
+            #e.Delete()
+        self.edges = []
         for e in vd.getEdgesGenerators():
             ofset = 0
             p1 = e[0] + ofset*e[2]
@@ -100,6 +119,15 @@ if __name__ == "__main__":
     myscreen.camera.SetPosition(0.1, 0, 300) # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(0, 0, 0)
     myscreen.camera.SetClippingRange(-20,5000)
+    camvtk.drawOCLtext(myscreen)
+    
+    w2if = vtk.vtkWindowToImageFilter()
+    w2if.SetInput(myscreen.renWin)
+    lwr = vtk.vtkPNGWriter()
+    lwr.SetInput( w2if.GetOutput() )
+    #w2if.Modified()
+    #lwr.SetFileName("tux1.png")
+    
     
     myscreen.render()
     random.seed(42)
@@ -113,7 +141,7 @@ if __name__ == "__main__":
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 400
+    Nmax = 500
     plist=[]
     for n in range(Nmax):
         x=-50+100*random.random()
@@ -123,10 +151,14 @@ if __name__ == "__main__":
     n=1
     for p in plist:
         #vod.setAll(vd)
-        #time.sleep(0.1)
+        time.sleep(0.033)
         print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
-        #vod.setAll(vd)
+        vod.setAll(vd)
+        w2if.Modified() 
+        lwr.SetFileName("frames/vd500_"+ ('%05d' % n)+".png")
+        lwr.Write()
+        
         n=n+1
     vod.setAll(vd)
     #vod.setGenerators(vd)
@@ -150,6 +182,6 @@ if __name__ == "__main__":
     print "PYTHON All DONE."
 
     #camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
-    camvtk.drawOCLtext(myscreen)
+    
     myscreen.render()    
     myscreen.iren.Start()

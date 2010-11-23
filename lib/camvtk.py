@@ -253,7 +253,9 @@ class VTKScreen():
     
     def removeActor(self, actor):
         """ remove an actor"""
+        #actor.Delete()
         self.ren.RemoveActor(actor)
+        
 
     def render(self):
         """ render scene"""
@@ -280,7 +282,10 @@ class CamvtkActor(vtk.vtkActor):
     def __init__(self):
         """ do nothing"""
         pass
-        
+    
+    def Delete(self):
+        self.Delete()
+    
     def SetColor(self, color):
         """ set color of actor"""
         self.GetProperty().SetColor(color)
