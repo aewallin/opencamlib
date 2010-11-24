@@ -33,9 +33,10 @@ def drawDiagram( myscreen, vd ):
         drawEdge(myscreen,e, camvtk.cyan)
 
 class VD:
-    def __init__(self, myscreen):
+    def __init__(self, myscreen, vd):
         self.myscreen = myscreen
-        self.generators = []
+        self.gen_pts=[ocl.Point(0,0,0)]
+        self.generators = camvtk.PointCloud(pointlist=self.gen_pts)
         self.verts=[]
         self.far=[]
         self.edges =[]
@@ -46,25 +47,32 @@ class VD:
         self.vdtext.SetPos( (50, myscreen.height-50) )
         self.Ngen = 0
         self.vdtext_text = ""
-        self.setVDText()
+        self.setVDText(vd)
         
         myscreen.addActor(self.vdtext)
         
-    def setVDText(self):
-        self.Ngen = len( self.generators )-3
+    def setVDText(self, vd):
+        self.Ngen = len( vd.getGenerators() )-3
         self.vdtext_text = "VD with " + str(self.Ngen) + " generators."
         self.vdtext.SetText( self.vdtext_text )
         
     def setGenerators(self, vd):
-        for g in self.generators:
-            myscreen.removeActor(g)
-
-        self.generators = []
+        if len(self.gen_pts)>0:
+            myscreen.removeActor( self.generators ) 
+        #self.generators=[]
+        self.gen_pts = []
         for p in vd.getGenerators():
-            gactor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.05, color=self.generatorColor )
-            self.generators.append(gactor)
-            myscreen.addActor( gactor )
-        self.setVDText()
+            self.gen_pts.append(p)
+        self.generators= camvtk.PointCloud(pointlist=self.gen_pts) 
+        self.generators.SetPoints()
+        myscreen.addActor(self.generators)
+    
+        #self.generators = []
+        #for p in vd.getGenerators():
+        #    gactor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.05, color=self.generatorColor )
+        #    self.generators.append(gactor)
+        #    myscreen.addActor( gactor )
+        self.setVDText(vd)
         myscreen.render() 
     
     def setFar(self, vd):
@@ -85,17 +93,44 @@ class VD:
         myscreen.render() 
         
     def setEdges(self, vd):
-        for e in self.edges:
-            myscreen.removeActor(e)
-            #e.Delete()
         self.edges = []
-        for e in vd.getEdgesGenerators():
-            ofset = 0
-            p1 = e[0] + ofset*e[2]
-            p2 = e[1] + ofset*e[2]
-            actor = camvtk.Line( p1=( p1.x,p1.y,p1.z), p2=(p2.x,p2.y,p2.z), color=self.edgeColor )
-            myscreen.addActor(actor)
-            self.edges.append(actor)
+        self.edges = vd.getEdgesGenerators()
+        self.epts = vtk.vtkPoints()
+        nid = 0
+        lines=vtk.vtkCellArray()
+        for e in self.edges:
+            p1 = e[0]
+            p2 = e[1] 
+            self.epts.InsertNextPoint( p1.x, p1.y, p1.z)
+            self.epts.InsertNextPoint( p2.x, p2.y, p2.z)
+            line = vtk.vtkLine()
+            line.GetPointIds().SetId(0,nid)
+            line.GetPointIds().SetId(1,nid+1)
+            nid = nid+2
+            lines.InsertNextCell(line)
+        
+        linePolyData = vtk.vtkPolyData()
+        linePolyData.SetPoints(self.epts)
+        linePolyData.SetLines(lines)
+        
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInput(linePolyData)
+        
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor( camvtk.cyan )
+        myscreen.addActor( actor )
+        
+            #myscreen.removeActor(e)
+            #e.Delete()
+        #self.edges = []
+        #for e in vd.getEdgesGenerators():
+        #    ofset = 0
+        #    p1 = e[0] + ofset*e[2]
+        #    p2 = e[1] + ofset*e[2]
+        #    actor = camvtk.Line( p1=( p1.x,p1.y,p1.z), p2=(p2.x,p2.y,p2.z), color=self.edgeColor )
+        #    myscreen.addActor(actor)
+        #    self.edges.append(actor)
             #actor1 = camvtk.Sphere( center=(p1.x,p1.y,p1.z), radius=2, color=camvtk.pink )
             #actor2 = camvtk.Sphere( center=(p2.x,p2.y,p2.z), radius=2, color=camvtk.lgreen )
             #myscreen.addActor(actor1)
@@ -134,14 +169,14 @@ if __name__ == "__main__":
     
     vd = ocl.VoronoiDiagram()
     
-    vod = VD(myscreen)
+    vod = VD(myscreen,vd)
     #vod.setAll(vd)
     drawFarCircle(myscreen, vd.getFarRadius(), camvtk.orange)
     #plist=[ocl.Point(61,61)  ]
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 600
+    Nmax = 100000
     plist=[]
     for n in range(Nmax):
         x=-50+100*random.random()

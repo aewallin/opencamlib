@@ -241,7 +241,9 @@ class VoronoiDiagram {
         void add_new_voronoi_vertices(VertexVector& v0, Point& p);
         
         bool isDegreeThree();
+        bool isValid();
         bool current_and_next_on_same_face(VoronoiEdge current_edge); 
+        bool face_count_equals_generator_count();
         
         VoronoiEdge find_previous_edge(VoronoiEdge e);
         
@@ -269,6 +271,9 @@ class VoronoiDiagram {
         VoronoiVertex v01;
         VoronoiVertex v02;
         VoronoiVertex v03;
+        int gen_count;
+        std::vector<FaceIdx> incident_faces;
+        std::vector<VoronoiVertex> in_vertices;
 };
 
 } // end namespace

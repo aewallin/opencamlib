@@ -35,7 +35,10 @@ namespace ocl
 
 VoronoiDiagram::VoronoiDiagram() {
     far_radius = 100;
+    gen_count=3;
     init();
+    in_vertices.clear();
+    incident_faces.clear();
 }
 
 VoronoiDiagram::~VoronoiDiagram() {
@@ -54,6 +57,39 @@ VoronoiEdge VoronoiDiagram::add_edge(VoronoiVertex v1, VoronoiVertex v2) {
     bool b;
     boost::tie( e , b ) = boost::add_edge( v1, v2, vd);
     return e;
+}
+
+bool VoronoiDiagram::isValid() {
+    if (!isDegreeThree() )
+        return false;
+    if (!face_count_equals_generator_count())
+        return false;
+        
+    return true;
+}
+
+bool VoronoiDiagram::isDegreeThree() {
+    VoronoiVertexItr it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( vd );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        if ( boost::degree( *itr, vd ) != 6 ) {
+            if ( (*itr != v01) && (*itr!=v02) && (*itr!=v03) )
+                return false;
+        }
+    }
+    return true;
+}
+
+bool VoronoiDiagram::face_count_equals_generator_count() {
+    int vertex_count = boost::num_vertices(vd);
+    int face_count = (vertex_count- 4)/2 + 3;
+    if (face_count != gen_count) {
+        std::cout << " num_vertices = " << vertex_count << "\n";
+        std::cout << " gen_count = " << gen_count << "\n";
+        std::cout << " face_count = " << face_count << "\n";
+        assert(0);
+    }
+    return ( face_count == gen_count );
 }
 
 void VoronoiDiagram::init() {
@@ -122,11 +158,14 @@ void VoronoiDiagram::init() {
     
     vd[e6].twin = e7;
     vd[e7].twin = e6;
+    
+    assert( isValid() );
 }
 
 
 
 void VoronoiDiagram::addVertexSite(Point p) {
+    gen_count++;
     // 1) find the dd-vertex closest to p
     // 2) find the vd-face corresponding to p
     // 3) amont the vd-vertices in the found face, find the one with the smallest H
@@ -151,6 +190,8 @@ void VoronoiDiagram::addVertexSite(Point p) {
     remove_vertex_set(v0, newface);
     // reset IN/OUT/UNDECIDED for verts, and INCIDENT/NONINCIDENT for faces
     reset_labels();
+    
+    //assert( isValid() );
 }
 
 FaceIdx VoronoiDiagram::split_faces(Point& p) {
@@ -164,26 +205,37 @@ FaceIdx VoronoiDiagram::split_faces(Point& p) {
 }
 
 void VoronoiDiagram::reset_labels() {
-    VoronoiVertexItr it, it_end;
-    boost::tie( it, it_end ) = boost::vertices( vd );
-    for ( ; it !=it_end ; ++it ) {
-        if ( vd[*it].type != UNDECIDED ) {
-            vd[*it].type = UNDECIDED;
+    //VoronoiVertexItr it, it_end;
+    //boost::tie( it, it_end ) = boost::vertices( vd );
+    //for ( ; it !=it_end ; ++it ) {
+    //    if ( vd[*it].type != UNDECIDED ) {
+    //        vd[*it].type = UNDECIDED;
+    //    }
+    //}
+    
+    // 22.7s with code above, 8.2 s with optimization below:
+    BOOST_FOREACH( VoronoiVertex v, in_vertices ) {
+        if ( vd[v].type != UNDECIDED ) {
+            vd[v].type = UNDECIDED;
         }
     }
+    in_vertices.clear();
+    
     // the outer vertices are special:
     vd[v01].type = OUT;
     vd[v02].type = OUT;
     vd[v03].type = OUT;
-    
-    for ( FaceIdx m=0; m<faces.size() ; ++m ) {
-        faces[m].type = NONINCIDENT;
+    FaceVector incident = get_incident_faces();
+    //for ( FaceIdx m=0; m<faces.size() ; ++m ) {
+    //    if (faces[m].type == INCIDENT)
+    BOOST_FOREACH(FaceIdx m, incident ) {
+            faces[m].type = NONINCIDENT;
     }
-
+    incident_faces.clear();
 }
 
 void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , FaceIdx newface) {
-    std::cout << " remove_vertex_set () for new face "<< newface << "\n";
+    //std::cout << " remove_vertex_set () for new face "<< newface << "\n";
     
     VoronoiEdge current_edge = faces[newface].edge;
     VoronoiVertex current_target; 
@@ -205,7 +257,7 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , FaceIdx newface) {
                     // this is the edge we want to take
                     vd[current_edge].next = *it;
                     assert( vd[current_edge].face ==  vd[ vd[current_edge].next ].face );
-                    std::cout << " setting next for " << current_edge << " to " << vd[current_edge].next <<"\n";
+                    //std::cout << " setting next for " << current_edge << " to " << vd[current_edge].next <<"\n";
                 }
             }
         }
@@ -231,14 +283,14 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , FaceIdx newface) {
 
 // split the face f
 void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
-    std::cout << "split_face() on face = " << f << "\n";
+    //std::cout << "split_face() on face = " << f << "\n";
     VoronoiVertex new_source; // this is found as OUT-NEW-IN
     VoronoiVertex new_target; // this is found as IN-NEW-OUT
     // the new vertex on face f connects new_source -> new_target
     
     VoronoiEdge current_edge = faces[f].edge;
     VoronoiEdge start_edge = current_edge;
-    std::cout << " starting at edge " << current_edge << " on face " <<  vd[current_edge].face <<" next= "<< vd[current_edge].next << "\n";
+    //std::cout << " starting at edge " << current_edge << " on face " <<  vd[current_edge].face <<" next= "<< vd[current_edge].next << "\n";
     assert( f == vd[current_edge].face );
     
     VoronoiVertexType currentType = OUT;
@@ -249,7 +301,7 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
     VoronoiEdge twin_previous;
     
     bool found = false;
-    int iters = 0;
+    //int iters = 0;
     //std::cout << " OUT=" << OUT<<"\n";
     //std::cout << " IN=" << IN<<"\n";
     //std::cout << " UNDECIDED=" << UNDECIDED<<"\n";
@@ -268,7 +320,7 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
                 found = true;
             }
         }
-        iters++;
+        //iters++;
         assert( current_and_next_on_same_face( current_edge ) );
         
         current_edge = vd[current_edge].next;   
@@ -282,8 +334,8 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
         //    std::cout << " new_source find WARNING: iters=" << iters << "\n";
         //    std::cout << " current_edge = " << current_edge << " next=" << vd[current_edge].next << "\n";
         //}
-        if ( iters > 100 )
-            assert(0);
+        //if ( iters > 100 )
+        //    assert(0);
         
         
         
@@ -293,7 +345,7 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
     currentType = IN;
     nextType = NEW;
     current_edge = faces[f].edge;
-    iters = 0;
+    //iters = 0;
     while (!found) {
         // std::cout << "current_edge = " << current_edge << "\n";
         VoronoiVertex current_vertex = boost::target( current_edge, vd );
@@ -308,7 +360,8 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
             }
         }
         current_edge = vd[current_edge].next;
-        iters++;
+        //iters++;
+        /*
         if ( iters > 10 ) {
             std::cout << " new_target find WARNING: iters=" << iters << "\n";
             std::cout << " current_edge = " << current_edge << " next=" << vd[current_edge].next << "\n";
@@ -316,6 +369,8 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
         }
         if ( iters > 15 )
             assert(0);
+            */
+            
     }
     //std::cout << " found NEW target vertex " << new_target << "\n";
     
@@ -338,23 +393,25 @@ void VoronoiDiagram::split_face(FaceIdx newface, FaceIdx f) {
     // make sure faces are ok
     faces[f].edge = e_new;
     
-    std::cout << "  created new edge "<< e_new << " next = "<< vd[e_new].next << " for face "<< f << "\n";
-    std::cout << "         twin edge "<< e_twin <<" next = "<< vd[e_twin].next << " for face "<< newface << "\n";
+    //std::cout << "  created new edge "<< e_new << " next = "<< vd[e_new].next << " for face "<< f << "\n";
+    //std::cout << "         twin edge "<< e_twin <<" next = "<< vd[e_twin].next << " for face "<< newface << "\n";
     //assert( isDegreeThree() );
 }
 
 FaceVector VoronoiDiagram::get_incident_faces() {
-    FaceVector output;
-    for (FaceIdx m=0;m<faces.size(); ++m) {
-        if ( faces[m].type == INCIDENT )
-            output.push_back(m);
-    }
-    return output;
+    //FaceVector output;
+    //for (FaceIdx m=0;m<faces.size(); ++m) {
+    //    if ( faces[m].type == INCIDENT )
+    //        output.push_back(m);
+    //}
+    //return output;
+    // 25.26s with above code, 22.67 s with optimization:
+    return incident_faces;
 }
 
 void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     // generate new vertices on all edges in V0 connecting to OUT-vertices
-    std::cout << "add_new_voronoi_vertices() \n";
+    //std::cout << "add_new_voronoi_vertices() \n";
     assert( !v0.empty() );
     std::vector<VoronoiEdge> q_edges; // new vertices generated on these edges
     BOOST_FOREACH( VoronoiVertex v, v0 ) {
@@ -373,6 +430,8 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     for( unsigned int m=0; m<q_edges.size(); ++m)  {  // create new vertices on edges q_edges[]
         VoronoiVertex q = boost::add_vertex( vd ) ;
         vd[q].type = NEW;
+        in_vertices.push_back(q);
+        
         FaceIdx face = vd[q_edges[m]].face;
         VoronoiEdge twin = vd[q_edges[m]].twin;
         FaceIdx twin_face = vd[twin].face;
@@ -380,7 +439,7 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
         Point generator2 = faces[twin_face].generator;
         vd[q].set_J( generator1, generator2, p); // ordering of generators shoud be CCW !?
         vd[q].set_position();
-        std::cout << " added vertex "<< q << " on edge " << q_edges[m] <<" at  " << vd[q].position << " to vd. \n";
+        //std::cout << " added vertex "<< q << " on edge " << q_edges[m] <<" at  " << vd[q].position << " to vd. \n";
         
         if ( faces[face].type != INCIDENT ) {
             std::cout << "ERROR new vertex " << q << " on edge " << q_edges[m] << " on face " << face << "\n";
@@ -401,13 +460,13 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     }
         
     
-    std::cout << "vd vertex generation done \n";
+    //std::cout << "vd vertex generation done \n";
 }
 
 
 
 void VoronoiDiagram::insert_vertex_in_edge(VoronoiVertex v, VoronoiEdge e) {
-    std::cout << " inserting vertex " << v << " in edge " << e << "\n";
+    //std::cout << " inserting vertex " << v << " in edge " << e << "\n";
     
     // the vertex v is in the middle of edge e
     //                      face
@@ -454,8 +513,8 @@ void VoronoiDiagram::insert_vertex_in_edge(VoronoiVertex v, VoronoiEdge e) {
     vd[te2].twin = e1;
     vd[e2].twin = te1;
     vd[te1].twin = e2;
-    std::cout << "  " << e << " split into " << e1 << " and " << e2 << "\n";
-    std::cout << "  " << twin << " split into " << te1 << " and " << te2 << "\n";
+    //std::cout << "  " << e << " split into " << e1 << " and " << e2 << "\n";
+    //std::cout << "  " << twin << " split into " << te1 << " and " << te2 << "\n";
     
     // update the faces
     faces[face].edge = e1;
@@ -494,27 +553,30 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
     // RB2   voronoi-point q[0] = q( a, b, c ) is the seed
     // add faces Ca,Cb,Cc to the stack
     FaceVector adjacent_faces = get_adjacent_faces( q[0] );
+    in_vertices.push_back( q[0] );
+    
     assert( adjacent_faces.size()==3 ); // in a degree three graph every vertex has three adjacent faces
     
     std::stack<FaceIdx> S; // B1.3  we push all the adjacent faces onto the stack, and label them INCIDENT
-    std::cout << "   seed vertex " << q[0] << " has adjacent faces: ";
+    //std::cout << "   seed vertex " << q[0] << " has adjacent faces: ";
     BOOST_FOREACH(FaceIdx f, adjacent_faces) {
         faces[f].type = INCIDENT;
-        std::cout << " " << f << " ";
+        incident_faces.push_back(f);
+        //std::cout << " " << f << " ";
         //std::cout << " faces[f].type = " << faces[f].type  << "  \n";
         S.push(f);
     }
-    std::cout << "\n";
+    //std::cout << "\n";
     
     while ( !S.empty() ) { 
         FaceIdx f = S.top();
         S.pop();
-        std::cout << "    augmenting from face = " << f << "\n";
+        //std::cout << "    augmenting from face = " << f << "\n";
         VoronoiEdge current_edge = faces[f].edge;
         VoronoiEdge start_edge = current_edge;
         bool done=false;
         while (!done) {
-            std::cout << current_edge << "\n";
+            //std::cout << current_edge << "\n";
             assert( faces[ vd[current_edge].face ].type == INCIDENT );
             assert( vd[current_edge].face == f );
             // G( V, E, C) is the voronoi graph, C=cycles=faces
@@ -528,12 +590,13 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                 // B2.1  mark "out"  v in cycle_alfa if 
                 //  (T6) v is adjacent to an IN vertex in V-Vin(alfa)
                 //  (T7) v is on an "incident" cycle other than this cycle and is not adjacent to a vertex in Vin
-        
+                in_vertices.push_back( v );
                 
                 if ( vd[v].detH( p ) < 0.0 ) {
-                    std::cout << "     found IN vertex " << v << " on edge " << current_edge <<" face " << f <<"\n";
+                    //std::cout << "     found IN vertex " << v << " on edge " << current_edge <<" face " << f <<"\n";
                     vd[v].type = IN;
                     q.push_back(v);
+                    
                     // also set the adjacent faces to incident
                     FaceVector new_adjacent_faces = get_adjacent_faces( v );
                     //VoronoiEdge twin_edge = vd[current_edge].twin;
@@ -541,12 +604,14 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                     BOOST_FOREACH( FaceIdx adj_face, new_adjacent_faces ) {
                         if ( faces[adj_face].type != INCIDENT ) {
                             faces[adj_face].type = INCIDENT;
-                            std::cout << "     setting twin face " << adj_face << " INCIDENT \n";
+                            incident_faces.push_back(adj_face);
+                            //std::cout << "     setting twin face " << adj_face << " INCIDENT \n";
                             S.push(adj_face);
                         }
                     }
                 } else {
                     vd[v].type = OUT;
+                    //in_vertices.push_back( v );
                 }
             }
             
@@ -621,9 +686,8 @@ VertexVector VoronoiDiagram::get_face_vertices(FaceIdx face_idx) {
     return verts;
 }
 
-
+// find the face whose generator is closest to p
 unsigned int VoronoiDiagram::find_closest_face(const Point& p ) {
-    std::cout << "find_closest_face() \n";
     FaceIdx closest_face;
     double closest_distance = 3*far_radius;
     double d;
@@ -635,7 +699,7 @@ unsigned int VoronoiDiagram::find_closest_face(const Point& p ) {
         }
     }
     
-    std::cout << "   face " << closest_face << " is closest, distance to generator = " << closest_distance << "\n";
+    //std::cout << "   face " << closest_face << " is closest, distance to generator = " << closest_distance << "\n";
     assert( closest_distance < 3*far_radius ) ;
     return closest_face;
 }
@@ -649,17 +713,7 @@ boost::python::list VoronoiDiagram::getGenerators()  {
     return plist;
 }
 
-bool VoronoiDiagram::isDegreeThree() {
-    VoronoiVertexItr it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( vd );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        if ( boost::degree( *itr, vd ) != 6 ) {
-            if ( (*itr != v01) && (*itr!=v02) && (*itr!=v03) )
-                return false;
-        }
-    }
-    return true;
-}
+
 
 boost::python::list VoronoiDiagram::getVoronoiVertices() const {
     boost::python::list plist;
@@ -697,17 +751,17 @@ boost::python::list VoronoiDiagram::getEdgesGenerators()  {
             Point src = vd[v1].position;
             Point tar = vd[v2].position;
             // shorten the edge, for visualization
-            double cut_amount = 0.0;
-            Point src_short = src + (cut_amount/((tar-src).norm())) * (tar-src);
-            Point tar_short = src + (1-cut_amount/((tar-src).norm())) * (tar-src);
-            point_list.append( src_short );
-            point_list.append( tar_short );
-            FaceIdx f = vd[*itr].face;
-            Point gen = faces[f].generator;
-            Point orig = gen.xyClosestPoint(src, tar);
-            Point dir = gen-orig;
-            dir.xyNormalize(); 
-            point_list.append( dir );
+            //double cut_amount = 0.0;
+            //Point src_short = src + (cut_amount/((tar-src).norm())) * (tar-src);
+            //Point tar_short = src + (1-cut_amount/((tar-src).norm())) * (tar-src);
+            point_list.append( src );
+            point_list.append( tar );
+            //FaceIdx f = vd[*itr].face;
+            //Point gen = faces[f].generator;
+            //Point orig = gen.xyClosestPoint(src, tar);
+            //Point dir = gen-orig;
+            //dir.xyNormalize(); 
+            //point_list.append( dir );
             edge_list.append(point_list);
     }
     return edge_list;
