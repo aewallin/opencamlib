@@ -33,8 +33,8 @@
 namespace ocl
 {
 
-VoronoiDiagram::VoronoiDiagram() {
-    far_radius = 100;
+VoronoiDiagram::VoronoiDiagram(double far) {
+    far_radius = far;
     gen_count=3;
     init();
     in_vertices.clear();
@@ -64,7 +64,6 @@ bool VoronoiDiagram::isValid() {
         return false;
     if (!face_count_equals_generator_count())
         return false;
-        
     return true;
 }
 
@@ -175,7 +174,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     
     // 1)
     // B1.1  find the face corresponding to the closest generator
-    FaceIdx closest_face = find_closest_face( p );
+    FaceIdx closest_face = faces.find_closest_face( p );
     // B1.2 find seed vertex by evaluating H on the vertices of the found face
     //VoronoiVertex vd_seed = find_seed_vertex(closest_face, p);
     VertexVector v0 = find_seed_vertex(closest_face, p);
@@ -687,6 +686,7 @@ VertexVector VoronoiDiagram::get_face_vertices(FaceIdx face_idx) {
 }
 
 // find the face whose generator is closest to p
+/*
 unsigned int VoronoiDiagram::find_closest_face(const Point& p ) {
     FaceIdx closest_face;
     double closest_distance = 3*far_radius;
@@ -702,7 +702,7 @@ unsigned int VoronoiDiagram::find_closest_face(const Point& p ) {
     //std::cout << "   face " << closest_face << " is closest, distance to generator = " << closest_distance << "\n";
     assert( closest_distance < 3*far_radius ) ;
     return closest_face;
-}
+}*/
 
 
 boost::python::list VoronoiDiagram::getGenerators()  {

@@ -199,6 +199,23 @@ struct FaceList {
     unsigned int size() const {
         return faces.size();
     }
+    
+    FaceIdx find_closest_face(const Point& p) {
+        FaceIdx closest_face;
+        double closest_distance = 1e12; // a big number...
+        double d;
+        for (FaceIdx  m=0;m<faces.size();++m) {
+            d = ( faces[m].generator - p).norm();
+            if (d<closest_distance ) {
+                closest_distance=d;
+                closest_face=m;
+            }
+        }
+        return closest_face;
+    }
+    
+
+    
     std::vector<VoronoiFace> faces;
 };
 
@@ -215,7 +232,8 @@ typedef std::vector< std::vector< VoronoiEdge > > VoronoiPlanarEmbedding;
 
 class VoronoiDiagram {
     public:
-        VoronoiDiagram();
+        VoronoiDiagram() {}
+        VoronoiDiagram(double far);
         virtual ~VoronoiDiagram();
         void addVertexSite(Point p);
         boost::python::list getGenerators() ;
@@ -228,13 +246,13 @@ class VoronoiDiagram {
         
         std::string str() const;
         double getFarRadius() const {return far_radius;}
-        void setFarRadius(double r) {far_radius = r;}
+        //void setFarRadius(double r) {far_radius = r;}
     private:
 
         VoronoiVertex add_vertex( Point position, VoronoiVertexType t );
         VoronoiEdge add_edge(VoronoiVertex v1, VoronoiVertex v2);
         
-        unsigned int find_closest_face(const Point& p );
+        //unsigned int find_closest_face(const Point& p );
 
         VertexVector find_seed_vertex(FaceIdx face_idx, const Point& p);
         void augment_vertex_set(VertexVector& v0, Point& p); 

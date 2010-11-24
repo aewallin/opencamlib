@@ -91,8 +91,8 @@ class VD:
         self.edges = []
         for e in vd.getEdgesGenerators():
             ofset = 0
-            p1 = e[0] + ofset*e[2]
-            p2 = e[1] + ofset*e[2]
+            p1 = e[0]  
+            p2 = e[1] 
             actor = camvtk.Line( p1=( p1.x,p1.y,p1.z), p2=(p2.x,p2.y,p2.z), color=self.edgeColor )
             myscreen.addActor(actor)
             self.edges.append(actor)
