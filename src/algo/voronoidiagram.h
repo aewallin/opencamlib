@@ -217,7 +217,6 @@ struct FaceList {
         GridIndex col = get_grid_index( gen.y );
         FaceVector* bucket = (*grid)[row][col];
         bucket->push_back(idx);
-        
         return idx;
     }
     GridIndex get_grid_index( double x ) {
@@ -255,7 +254,12 @@ struct FaceList {
         return closest_face;
     }
     
-
+    // grid search
+    // - find the closest grid-cell
+    // - move in a spiral outward to find the first point
+    // - when the first point is found we need only search grid cells within a radius = distance-to-point
+    // - find the cells within a radius = distance-to-point
+    // -- in these cells, search all points and find the closest one
     
     std::vector<VoronoiFace> faces;
     double far_radius;
