@@ -20,7 +20,7 @@ if __name__ == "__main__":
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
     
-    vd = ocl.VoronoiDiagram()
+    vd = ocl.VoronoiDiagram(100)
     
     #p=ocl.Point(60,60)
     vd.addVertexSite( ocl.Point(61,61) )

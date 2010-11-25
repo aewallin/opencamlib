@@ -27,6 +27,9 @@
 #include <boost/python.hpp> 
 #include <boost/foreach.hpp> 
 
+#include <boost/multi_array.hpp> // for bucketing in FaceList
+
+
 #include "point.h"
 #include "numeric.h"
 
@@ -182,15 +185,53 @@ struct VoronoiFace {
 };
 
 struct FaceList {
+    typedef boost::multi_array<FaceVector* , 2> Grid;
+    typedef Grid::index GridIndex;
+
+
+
     FaceList() {
+        //assert(0);
+        far_radius = 1;
+        nbins = 100;
         faces.clear();
     }
-    unsigned int add_face(VoronoiEdge e, Point gen, VoronoiFaceType t) {
+    FaceList(double far, unsigned int n_bins) {
+        far_radius = 3*far;
+        nbins = n_bins;
+        faces.clear();
+        grid = new Grid( boost::extents[n_bins][n_bins] );
+        for ( GridIndex m=0 ; m<nbins ; ++m ) {
+            for ( GridIndex n=0 ; n<nbins ; ++n ) {
+                (*grid)[m][n] = new FaceVector();
+            }
+        }
+    }
+    
+    FaceIdx add_face(VoronoiEdge e, Point gen, VoronoiFaceType t) {
         VoronoiFace f(e, gen, t);
         faces.push_back(f);
-        return faces.size()-1;
+        FaceIdx idx = faces.size()-1;
+        // insert into correct bin here
+        GridIndex row = get_grid_index( gen.x );
+        GridIndex col = get_grid_index( gen.y );
+        FaceVector* bucket = (*grid)[row][col];
+        bucket->push_back(idx);
+        
+        return idx;
     }
-    unsigned int add_face(Point gen, VoronoiFaceType t) { // for when we don't know the associated edge
+    GridIndex get_grid_index( double x ) {
+        GridIndex idx;
+        double binwidth = 2*far_radius/nbins;
+        idx = (int)( floor( (x+far_radius)/binwidth ) );
+        if ( !(idx >= 0) )
+            std::cout << "ERROR  x = " << x << " idx = " << idx << " nbins=" << nbins << " binwidth=" << binwidth << " \n";
+            
+        assert( idx >= 0 );
+        assert( idx <= nbins );
+        return idx;
+    }
+    FaceIdx add_face(Point gen, VoronoiFaceType t) { // for when we don't know the associated edge
         return add_face( VoronoiEdge(), gen, t);
     }
     VoronoiFace& operator[](const unsigned int m) {
@@ -202,7 +243,7 @@ struct FaceList {
     
     FaceIdx find_closest_face(const Point& p) {
         FaceIdx closest_face;
-        double closest_distance = 1e12; // a big number...
+        double closest_distance = 3*far_radius; // a big number...
         double d;
         for (FaceIdx  m=0;m<faces.size();++m) {
             d = ( faces[m].generator - p).norm();
@@ -217,6 +258,10 @@ struct FaceList {
 
     
     std::vector<VoronoiFace> faces;
+    double far_radius;
+    GridIndex nbins;
+    Grid* grid;
+    
 };
 
 

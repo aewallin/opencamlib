@@ -35,6 +35,7 @@ namespace ocl
 
 VoronoiDiagram::VoronoiDiagram(double far) {
     far_radius = far;
+    faces = FaceList(far_radius, 100);
     gen_count=3;
     init();
     in_vertices.clear();
