@@ -167,7 +167,7 @@ if __name__ == "__main__":
     myscreen.render()
     random.seed(42)
     far = 1.0
-    vd = ocl.VoronoiDiagram(far)
+    vd = ocl.VoronoiDiagram(far,1200)
     
     vod = VD(myscreen,vd)
     #vod.setAll(vd)
@@ -176,7 +176,8 @@ if __name__ == "__main__":
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 3000
+    Nmax = 10000
+    # Nmax = 500
     plist=[]
     for n in range(Nmax):
         x=-far/2+far*random.random()

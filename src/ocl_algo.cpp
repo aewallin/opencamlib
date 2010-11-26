@@ -184,6 +184,7 @@ void export_algo() {
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
     bp::class_<VoronoiDiagram >("VoronoiDiagram")
+        .def(bp::init<double, unsigned int>())
         .def(bp::init<double>())
         .def("addVertexSite",  &VoronoiDiagram::addVertexSite)
         .def("getGenerators",  &VoronoiDiagram::getGenerators)
@@ -191,7 +192,6 @@ void export_algo() {
         .def("getVoronoiVertices",  &VoronoiDiagram::getVoronoiVertices)
         .def("getFarVoronoiVertices",  &VoronoiDiagram::getFarVoronoiVertices)
         .def("getFarRadius",  &VoronoiDiagram::getFarRadius)
-        //.def("setFarRadius",  &VoronoiDiagram::setFarRadius)
         .def("getVoronoiEdges",  &VoronoiDiagram::getVoronoiEdges)
         .def("__str__", &VoronoiDiagram::str)
     ;

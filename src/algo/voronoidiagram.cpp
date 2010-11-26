@@ -33,9 +33,18 @@
 namespace ocl
 {
 
+VoronoiDiagram::VoronoiDiagram(double far, unsigned int n_bins) {
+    far_radius = far;
+    faces = FaceList(far_radius, n_bins);
+    gen_count=3;
+    init();
+    in_vertices.clear();
+    incident_faces.clear();
+}
+
 VoronoiDiagram::VoronoiDiagram(double far) {
     far_radius = far;
-    faces = FaceList(far_radius, 100);
+    faces = FaceList(far_radius, 10);
     gen_count=3;
     init();
     in_vertices.clear();
@@ -176,7 +185,14 @@ void VoronoiDiagram::addVertexSite(Point p) {
     
     // 1)
     // B1.1  find the face corresponding to the closest generator
-    FaceIdx closest_face = faces.find_closest_face( p );
+
+    //FaceIdx closest_face = faces.find_closest_face( p );
+    
+    
+    FaceIdx closest_face = faces.grid_find_closest_face( p );
+    //std::cout << " closest_face2 = " << closest_face2 << " \n";
+    //assert( closest_face == closest_face2 );
+    
     // B1.2 find seed vertex by evaluating H on the vertices of the found face
     //VoronoiVertex vd_seed = find_seed_vertex(closest_face, p);
     VertexVector v0 = find_seed_vertex(closest_face, p);
@@ -664,6 +680,12 @@ VertexVector VoronoiDiagram::find_seed_vertex(FaceIdx face_idx, const Point& p) 
                 minimalVertex = q;
             }
         }
+    }
+    if (!(minimumH < 0) ) {
+        std::cout << " ERROR: searching for seed when inserting " << p  << "  \n";
+        std::cout << " ERROR: closest face is  " << face_idx  << " with generator " << faces[face_idx].generator << " \n";
+        std::cout << " ERROR: minimal vd-vertex " << vd[minimalVertex].position << " has \n";
+        std::cout << " ERROR: detH = " << minimumH << " ! \n";
     }
     assert( minimumH < 0 );
     VertexVector output;

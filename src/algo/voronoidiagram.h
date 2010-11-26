@@ -191,15 +191,16 @@ struct FaceList {
 
 
     FaceList() {
-        //assert(0);
         far_radius = 1;
         nbins = 100;
+        binwidth = 2*far_radius/nbins;
         faces.clear();
     }
     FaceList(double far, unsigned int n_bins) {
-        far_radius = 3*far;
+        far_radius = 3.1*far;
         nbins = n_bins;
         faces.clear();
+        binwidth = 2*far_radius/nbins;
         grid = new Grid( boost::extents[n_bins][n_bins] );
         for ( GridIndex m=0 ; m<nbins ; ++m ) {
             for ( GridIndex n=0 ; n<nbins ; ++n ) {
@@ -208,7 +209,10 @@ struct FaceList {
         }
     }
     
-    FaceIdx add_face(VoronoiEdge e, Point gen, VoronoiFaceType t) {
+    FaceIdx add_face(Point gen, VoronoiFaceType t) { // for when we don't know the associated edge
+        return add_face( VoronoiEdge(), gen, t);
+    }
+    FaceIdx add_face(VoronoiEdge e, Point& gen, VoronoiFaceType t) {
         VoronoiFace f(e, gen, t);
         faces.push_back(f);
         FaceIdx idx = faces.size()-1;
@@ -217,22 +221,15 @@ struct FaceList {
         GridIndex col = get_grid_index( gen.y );
         FaceVector* bucket = (*grid)[row][col];
         bucket->push_back(idx);
+        //std::cout << " generator " << gen << " face= "<< idx << " inserted in ( " << row << " , " << col << " )\n";
         return idx;
     }
     GridIndex get_grid_index( double x ) {
         GridIndex idx;
-        double binwidth = 2*far_radius/nbins;
-        idx = (int)( floor( (x+far_radius)/binwidth ) );
-        if ( !(idx >= 0) )
-            std::cout << "ERROR  x = " << x << " idx = " << idx << " nbins=" << nbins << " binwidth=" << binwidth << " \n";
-            
-        assert( idx >= 0 );
-        assert( idx <= nbins );
+        idx = (int)( floor( (x+far_radius)/binwidth ) );                assert( idx >= 0 );     assert( idx <= nbins );
         return idx;
     }
-    FaceIdx add_face(Point gen, VoronoiFaceType t) { // for when we don't know the associated edge
-        return add_face( VoronoiEdge(), gen, t);
-    }
+
     VoronoiFace& operator[](const unsigned int m) {
         return faces[m];
     }
@@ -240,6 +237,7 @@ struct FaceList {
         return faces.size();
     }
     
+    // 26.11: 10k generators in 6.55 seconds
     FaceIdx find_closest_face(const Point& p) {
         FaceIdx closest_face;
         double closest_distance = 3*far_radius; // a big number...
@@ -251,9 +249,108 @@ struct FaceList {
                 closest_face=m;
             }
         }
+        //std::cout << " closest_face = " << closest_face << "  gen = "<< faces[closest_face].generator << " closest_distance = " << closest_distance << " \n";
         return closest_face;
     }
     
+    FaceIdx grid_find_closest_face(const Point& p) {
+        //std::cout << " grid_find_closest_face( "<< p << " ) \n";
+        FaceIdx closest_face;
+        std::set<FaceIdx> fset;
+        GridIndex row = get_grid_index( p.x );
+        GridIndex col = get_grid_index( p.y );
+        //std::cout << "closest cell is ( " << row << " , " << col << " ) \n" ;
+        insert_faces_from_bucket( fset, row, col ); // the closest bucket
+        unsigned int dist = 0;
+        do {
+            dist++;
+            insert_faces_from_neighbors( fset, row, col , dist );
+            //assert( dist < nbins );
+        } while (fset.empty());
+        //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
+        unsigned int max_dist = (int)( ceil( sqrt(2)*dist ) ); // expand up to this radius, to be sure to find the closest point
+        for (unsigned int d = dist; d<=max_dist;d++)
+            insert_faces_from_neighbors( fset, row, col , d );
+        //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
+        
+        //std::cout << " searching faces: \n";
+        //BOOST_FOREACH( FaceIdx f, fset ) {
+        //    std::cout << " " << f << " f.gen = " << faces[f].generator << "\n" ;
+        //}
+        closest_face = find_closest_in_set( fset , p ); // among the faces found, find the closest one
+        //std::cout << " closest_face = " << closest_face << " closest_distance = " << closest_distance << " \n";
+        return closest_face;
+    }
+    FaceIdx find_closest_in_set( std::set<FaceIdx>& set, const Point&p ) {
+        FaceIdx closest_face;
+        double closest_distance = 3*far_radius; // a big number...
+        double d;
+        BOOST_FOREACH( FaceIdx f, set ) {
+            d = ( faces[f].generator - p).norm();
+            if (d<closest_distance ) {
+                closest_distance=d;
+                closest_face=f;
+            }
+        }
+        //std::cout << " closest_face = " << closest_face << " closest_distance = " << closest_distance << " \n";
+        return closest_face;
+    }
+    
+    void insert_faces_from_neighbors( std::set<FaceIdx>& set, GridIndex row, GridIndex col , unsigned int dist ) {
+        // insert faces from neighbors of (row,col) at distance dist
+        
+        GridIndex min_row;
+        GridIndex max_row;
+        GridIndex min_col;
+        GridIndex max_col;
+        // N
+        if ( row >= dist ) 
+            min_row = row-dist;
+        else
+            min_row = 0;
+            
+        // S
+        if ( row <= nbins-dist-1 )
+            max_row = row+dist;
+        else
+            max_row = nbins-1;
+            
+        // E
+        if ( col <= nbins-dist-1 )
+            max_col = col+dist;
+        else
+            max_col = nbins-1;
+        
+        // W
+        if ( col >= dist ) 
+            min_col = col-dist;
+        else
+            min_col = 0;
+        
+        //std::cout << " dist = "<< dist << " min_row= " << min_row << " max_row= " << max_row << " \n";
+        //std::cout << " dist = "<< dist << " min_col= " << min_col << " max_col= " << max_col << "  \n";
+            
+        
+        for (GridIndex c = min_col; c<=max_col; c++) {
+            insert_faces_from_bucket( set, min_row , c );
+            insert_faces_from_bucket( set, max_row , c );
+            //std::cout << " dist = "<< dist << " adding from cell ( " << min_row << " , " << c << " ) \n";
+            //std::cout << " dist = "<< dist << " adding from cell ( " << max_row << " , " << c << " ) \n";
+        }
+        
+        for (GridIndex r = min_row; r<=max_row; r++) {
+            insert_faces_from_bucket( set, r, min_col );
+            insert_faces_from_bucket( set, r, max_col );
+            //std::cout << " dist = "<< dist << " adding from cell ( " << r << " , " << min_col << " ) \n";
+            //std::cout << " dist = "<< dist << " adding from cell ( " << r << " , " << max_col << " ) \n";
+        }
+    }
+    void insert_faces_from_bucket( std::set<FaceIdx>& set, GridIndex row, GridIndex col ) {
+        FaceVector* bucket = (*grid)[row][col];
+        BOOST_FOREACH( FaceIdx f, *bucket ) {
+            set.insert(f);
+        }
+    }
     // grid search
     // - find the closest grid-cell
     // - move in a spiral outward to find the first point
@@ -263,6 +360,7 @@ struct FaceList {
     
     std::vector<VoronoiFace> faces;
     double far_radius;
+    double binwidth;
     GridIndex nbins;
     Grid* grid;
     
@@ -283,7 +381,10 @@ class VoronoiDiagram {
     public:
         VoronoiDiagram() {}
         VoronoiDiagram(double far);
+        VoronoiDiagram(double far, unsigned int n_bins);
+        
         virtual ~VoronoiDiagram();
+        
         void addVertexSite(Point p);
         boost::python::list getGenerators() ;
         
