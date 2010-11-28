@@ -261,15 +261,15 @@ struct FaceList {
         GridIndex col = get_grid_index( p.y );
         //std::cout << "closest cell is ( " << row << " , " << col << " ) \n" ;
         insert_faces_from_bucket( fset, row, col ); // the closest bucket
-        unsigned int dist = 0;
+        GridIndex dist = 0;
         do {
             dist++;
             insert_faces_from_neighbors( fset, row, col , dist );
             //assert( dist < nbins );
         } while (fset.empty());
         //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
-        unsigned int max_dist = (int)( ceil( sqrt(2)*dist ) ); // expand up to this radius, to be sure to find the closest point
-        for (unsigned int d = dist; d<=max_dist;d++)
+        GridIndex max_dist = (int)( ceil( sqrt(2)*dist ) ); // expand up to this radius, to be sure to find the closest point
+        for (GridIndex d = dist; d<=max_dist;d++)
             insert_faces_from_neighbors( fset, row, col , d );
         //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
         
@@ -296,7 +296,7 @@ struct FaceList {
         return closest_face;
     }
     
-    void insert_faces_from_neighbors( std::set<FaceIdx>& set, GridIndex row, GridIndex col , unsigned int dist ) {
+    void insert_faces_from_neighbors( std::set<FaceIdx>& set, GridIndex row, GridIndex col , GridIndex dist ) {
         // insert faces from neighbors of (row,col) at distance dist
         
         GridIndex min_row;
