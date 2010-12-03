@@ -73,14 +73,14 @@ class MillingCutterWrap : public MillingCutter, public boost::python::wrapper<Mi
         };
         
         // offset cutter
-        MillingCutter* offsetCutter(const double d) const
+        MillingCutter* offsetCutter(double d) const
         {
             if ( boost::python::override ovr_offsetCutter = this->get_override("offsetCutter") )
                 return ovr_offsetCutter(d);
             return MillingCutter::offsetCutter(d);
         };   
         /// python-wrapper boilerplate...
-        MillingCutter* default_offsetCutter(const double d) const {
+        MillingCutter* default_offsetCutter(double d) const {
             return this->MillingCutter::offsetCutter(d);
         };
         

@@ -268,7 +268,7 @@ struct FaceList {
             //assert( dist < nbins );
         } while (fset.empty());
         //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
-        GridIndex max_dist = (int)( ceil( sqrt(2)*dist ) ); // expand up to this radius, to be sure to find the closest point
+        GridIndex max_dist = (int)( ceil( sqrt((double)2)*dist ) ); // expand up to this radius, to be sure to find the closest point
         for (GridIndex d = dist; d<=max_dist;d++)
             insert_faces_from_neighbors( fset, row, col , d );
         //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";

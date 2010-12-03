@@ -46,7 +46,7 @@ class CompositeCutter : public MillingCutter {
         
 
         
-        MillingCutter* offsetCutter(const double d) const;
+        MillingCutter* offsetCutter(double d) const;
         
         bool facetDrop(CLPoint &cl, const Triangle &t) const;
         bool edgeDrop(CLPoint &cl, const Triangle &t) const;

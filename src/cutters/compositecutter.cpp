@@ -136,7 +136,7 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-MillingCutter* CompositeCutter::offsetCutter(const double d) const {
+MillingCutter* CompositeCutter::offsetCutter(double d) const {
     std::cout << " ERROR: not implemented.\n";
     assert(0);
     return  new CylCutter(); //FIXME!

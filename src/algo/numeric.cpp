@@ -44,7 +44,7 @@ double xyVectorToDiangle(double x, double y) {
         diangle = (x >= 0 ? y/(x+y) : 1-x/(-x+y));
     else
         diangle = (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
-    if ( isnan(diangle) ) {
+    if ( isnan(diangle) ) { // error C3861: 'isnan': identifier not found
         std::cout << "numeric::xyVectorToDiangle() error (x,y)= ("<< x << " , " << y  << " ) and diangle=" << diangle << "\n";
         assert(0);
     }
@@ -101,8 +101,8 @@ float epsF(float x) {
     float r;
     r = 1000.0;
     while ( x <  (x + r) )
-        r = r / 2.0;
-    return ( 2.0 * r );
+        r = r / (float)2.0;
+    return ( (float)2.0 * r );
 }
 
 void assert_msg( bool assertion, std::string message) {

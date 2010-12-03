@@ -26,6 +26,7 @@
 namespace ocl
 {
 
+
 MillingCutter* MillingCutter::offsetCutter(double d) const {
     assert(0); // DON'T call me
     return  NULL;
