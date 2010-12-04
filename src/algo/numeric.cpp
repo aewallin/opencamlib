@@ -25,6 +25,10 @@
 #include "ellipse.h"
 #include "revision.h"
 
+#ifdef WIN32
+bool isnan(double x){return false;}
+#endif
+
 namespace ocl
 {
 

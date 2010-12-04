@@ -99,7 +99,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="c:\python26\python.exe ..\src\get_revision.py"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -117,8 +117,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;&quot;$(PYTHON_INCLUDE)&quot;;../src/algo;../src/cutsim;../src/cutters;../src/geo"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPENCAMLIB_EXPORTS;__BOOST_PYTHON_NO_LIB__;BOOST_PYTHON_STATIC_LIB=1;BOOST_LIB_DIAGNOSTIC;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;&quot;$(PYTHON_INCLUDE)&quot;;../src/algo;../src/cutsim;../src/cutters;../src/geo;./"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPENCAMLIB_EXPORTS;__BOOST_PYTHON_NO_LIB__;BOOST_PYTHON_STATIC_LIB=1;BOOST_LIB_DIAGNOSTIC;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -178,6 +178,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\src\algo\adaptivepathdropcutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\adaptivewaterline.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\geo\arc.cpp"
 				>
 			</File>
@@ -210,7 +218,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\cutters\compoundcutter.cpp"
+				RelativePath="..\src\cutters\compositecutter.cpp"
 				>
 			</File>
 			<File
@@ -226,11 +234,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\cutters\epos.cpp"
+				RelativePath="..\src\cutters\ellipse.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\ellipseposition.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\algo\fiber.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\fiberpushcutter.cpp"
 				>
 			</File>
 			<File
@@ -282,10 +298,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\cutters\oellipse.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\OpenCamLib.cpp"
 				>
 			</File>
@@ -299,6 +311,10 @@
 			</File>
 			<File
 				RelativePath="..\src\geo\point.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\pointdropcutter.cpp"
 				>
 			</File>
 			<File
@@ -322,6 +338,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\algo\voronoidiagram.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\algo\waterline.cpp"
 				>
 			</File>
@@ -335,6 +355,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\src\algo\adaptivepathdropcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\adaptivewaterline.h"
+				>
+			</File>
 			<File
 				RelativePath="..\src\geo\arc.h"
 				>
@@ -368,11 +396,27 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\cutters\compositecutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\ellipse.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\cutters\ellipseposition.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\cutters\epos.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\algo\fiber.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\fiberpushcutter.h"
 				>
 			</File>
 			<File
@@ -424,10 +468,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\cutters\oellipse.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\geo\path.h"
 				>
 			</File>
@@ -441,6 +481,10 @@
 			</File>
 			<File
 				RelativePath="..\src\geo\point.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\pointdropcutter.h"
 				>
 			</File>
 			<File
@@ -477,6 +521,10 @@
 			</File>
 			<File
 				RelativePath="..\src\cutsim\volume.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\voronoidiagram.h"
 				>
 			</File>
 			<File
