@@ -193,7 +193,12 @@ void FaceList::insert_faces_from_bucket( std::set<HEFace>& set, GridIndex row, G
         set.insert(f);
     }
 }
-       
+
+
+HalfEdgeDiagram::HalfEdgeDiagram(double far, unsigned int n_bins) {
+    faces = FaceList(far, n_bins);
+}
+        
 HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2) {
     HEEdge e;
     bool b;
@@ -215,7 +220,7 @@ HEFace HalfEdgeDiagram::add_face(HEEdge e, Point gen, VoronoiFaceType t) {
 HEFace HalfEdgeDiagram::add_face(Point gen, VoronoiFaceType t) {
     return faces.add_face(HEEdge(),gen,t);
 }
-HEFace HalfEdgeDiagram::grid_find_closest_face(const Point& p){
+HEFace HalfEdgeDiagram::find_closest_face(const Point& p){
     return faces.grid_find_closest_face(p);
 }
 void HalfEdgeDiagram::set_face_type(HEFace f, VoronoiFaceType t) {
@@ -230,16 +235,16 @@ VoronoiFaceType HalfEdgeDiagram::face_type(HEFace f) {
 HEEdge HalfEdgeDiagram::face_edge(HEFace f) {
     return faces[f].edge;
 }
-Point HalfEdgeDiagram::face_generator(HEFace f) {
+Point& HalfEdgeDiagram::face_generator(HEFace f) {
     return faces[f].generator;
 }
 void HalfEdgeDiagram::set_face_edge(HEFace f, HEEdge e) {
     faces[f].edge= e;
 }
-HEVertex HalfEdgeDiagram::target(HEEdge e) {
+HEVertex HalfEdgeDiagram::target(HEEdge e) const {
     return boost::target( e, *this);
 }
-HEVertex HalfEdgeDiagram::source(HEEdge e) {
+HEVertex HalfEdgeDiagram::source(HEEdge e) const {
     return boost::source( e, *this);
 }
 HEEdge HalfEdgeDiagram::find_previous_edge(HEEdge e) {
@@ -338,5 +343,5 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
 
 
 } // end namespace
-
+// end file halfedgediagram.cpp
 
