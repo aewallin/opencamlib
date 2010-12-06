@@ -185,7 +185,7 @@ void export_algo() {
     ;
     bp::class_<VoronoiDiagram >("VoronoiDiagram")
         .def(bp::init<double, unsigned int>())
-        .def(bp::init<double>())
+        //.def(bp::init<double>())
         .def("addVertexSite",  &VoronoiDiagram::addVertexSite)
         .def("getGenerators",  &VoronoiDiagram::getGenerators)
         .def("getEdgesGenerators",  &VoronoiDiagram::getEdgesGenerators)

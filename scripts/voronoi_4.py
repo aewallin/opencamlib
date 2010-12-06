@@ -166,7 +166,7 @@ if __name__ == "__main__":
     
     myscreen.render()
     random.seed(42)
-    far = 1.0
+    far = 12.0
     vd = ocl.VoronoiDiagram(far,1200)
     
     vod = VD(myscreen,vd)
