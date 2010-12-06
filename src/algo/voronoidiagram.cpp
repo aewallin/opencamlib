@@ -23,9 +23,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/graph/adjacency_list.hpp> 
-#include <boost/graph/connected_components.hpp>
-#include <boost/graph/planar_face_traversal.hpp>
-#include <boost/graph/boyer_myrvold_planar_test.hpp>
+
 
 #include "voronoidiagram.h"
 #include "numeric.h"
@@ -69,6 +67,7 @@ VoronoiEdge VoronoiDiagram::add_edge(VoronoiVertex v1, VoronoiVertex v2) {
     return e;
 }
 
+// sanity check
 bool VoronoiDiagram::isValid() {
     if (!isDegreeThree() )
         return false;
@@ -78,6 +77,7 @@ bool VoronoiDiagram::isValid() {
 }
 
 bool VoronoiDiagram::isDegreeThree() {
+    // the outermost init() vertices have special degree, all others == 6
     VoronoiVertexItr it_begin, it_end, itr;
     boost::tie( it_begin, it_end ) = boost::vertices( vd );
     for ( itr=it_begin ; itr != it_end ; ++itr ) {
@@ -116,13 +116,11 @@ void VoronoiDiagram::init() {
     Point gen1 = Point( 0,-gen_mutliplier*far_radius);
     // set props for center vd-point
     vd[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
-    
-    // Point outer = Point(0,0,1e9); // the outer face at infinity
-    
+        
     // add face 1: v0-v1-v2
-    VoronoiEdge e1 = add_edge( v0, v01 );   
+    VoronoiEdge e1 = add_edge( v0, v01  );   
     VoronoiEdge e2 = add_edge( v01, v02 );
-    VoronoiEdge e3 = add_edge( v02, v0 ); // face, twin, next
+    VoronoiEdge e3 = add_edge( v02, v0  ); 
     FaceIdx f1 =  faces.add_face(e2, gen3, NONINCIDENT);
     vd[e1].face = f1;
     vd[e2].face = f1;
@@ -132,9 +130,9 @@ void VoronoiDiagram::init() {
     vd[e3].next = e1;
     
     // add face 2: v0-v2-v3
-    VoronoiEdge e4 = add_edge( v0, v02 );   
+    VoronoiEdge e4 = add_edge( v0, v02  );   
     VoronoiEdge e5 = add_edge( v02, v03 );
-    VoronoiEdge e6 = add_edge( v03, v0 ); // face, twin, next
+    VoronoiEdge e6 = add_edge( v03, v0  ); 
     FaceIdx f2 =  faces.add_face(e5, gen1, NONINCIDENT);
     vd[e4].face = f2;
     vd[e5].face = f2;
@@ -144,9 +142,9 @@ void VoronoiDiagram::init() {
     vd[e6].next = e4;
     
     // add face 3: v0-v3-v1 
-    VoronoiEdge e7 = add_edge( v0, v03 );   
+    VoronoiEdge e7 = add_edge( v0, v03  );   
     VoronoiEdge e8 = add_edge( v03, v01 );
-    VoronoiEdge e9 = add_edge( v01, v0 ); // face, twin, next
+    VoronoiEdge e9 = add_edge( v01, v0  ); 
     FaceIdx f3 =  faces.add_face(e8, gen2, NONINCIDENT);
     vd[e7].face = f3;
     vd[e8].face = f3;
@@ -158,14 +156,11 @@ void VoronoiDiagram::init() {
     // twin edges
     vd[e1].twin = e9;
     vd[e9].twin = e1;
-    
-    vd[e2].twin = VoronoiEdge();
+    vd[e2].twin = VoronoiEdge(); // the outermost edges have invalid twins
     vd[e5].twin = VoronoiEdge();
     vd[e8].twin = VoronoiEdge();
-    
     vd[e3].twin = e4;
     vd[e4].twin = e3;
-    
     vd[e6].twin = e7;
     vd[e7].twin = e6;
     
@@ -222,15 +217,6 @@ FaceIdx VoronoiDiagram::split_faces(Point& p) {
 }
 
 void VoronoiDiagram::reset_labels() {
-    //VoronoiVertexItr it, it_end;
-    //boost::tie( it, it_end ) = boost::vertices( vd );
-    //for ( ; it !=it_end ; ++it ) {
-    //    if ( vd[*it].type != UNDECIDED ) {
-    //        vd[*it].type = UNDECIDED;
-    //    }
-    //}
-    
-    // 22.7s with code above, 8.2 s with optimization below:
     BOOST_FOREACH( VoronoiVertex v, in_vertices ) {
         if ( vd[v].type != UNDECIDED ) {
             vd[v].type = UNDECIDED;
@@ -243,8 +229,6 @@ void VoronoiDiagram::reset_labels() {
     vd[v02].type = OUT;
     vd[v03].type = OUT;
     FaceVector incident = get_incident_faces();
-    //for ( FaceIdx m=0; m<faces.size() ; ++m ) {
-    //    if (faces[m].type == INCIDENT)
     BOOST_FOREACH(FaceIdx m, incident ) {
             faces[m].type = NONINCIDENT;
     }
@@ -708,26 +692,6 @@ VertexVector VoronoiDiagram::get_face_vertices(FaceIdx face_idx) {
     } while ( current != startedge );
     return verts;
 }
-
-// find the face whose generator is closest to p
-/*
-unsigned int VoronoiDiagram::find_closest_face(const Point& p ) {
-    FaceIdx closest_face;
-    double closest_distance = 3*far_radius;
-    double d;
-    for (FaceIdx  m=0;m<faces.size();++m) {
-        d = ( faces[m].generator - p).norm();
-        if (d<closest_distance ) {
-            closest_distance=d;
-            closest_face=m;
-        }
-    }
-    
-    //std::cout << "   face " << closest_face << " is closest, distance to generator = " << closest_distance << "\n";
-    assert( closest_distance < 3*far_radius ) ;
-    return closest_face;
-}*/
-
 
 boost::python::list VoronoiDiagram::getGenerators()  {
     boost::python::list plist;

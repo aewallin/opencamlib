@@ -67,33 +67,19 @@ namespace ocl
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 //enum VoronoiEdgeType {LINE, ARC}; // for future line/arc generators...
 
-
-// p209 of Handbook of Computational geometry suggests DCEL data structure
-// doubly connected edge list
-//
-// each edge e stores:
-// - two endpoints of e
-// - edges cw or ccw next to e about its endpoints
-// - faces the the left and to the right
-
-// allows traversing edges incident on a vertex
-// allows traversin edges bounding a face
-
 // FWD declarations
 struct VoronoiVertexProps;
 struct VoronoiEdgeProps;
 struct VoronoiFace;
 
-typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
-                                   boost::listS, //vecS,     // vertex set stored in a std::vector
-                                   boost::bidirectionalS,  // bidirectional graph.
+typedef boost::adjacency_list<     boost::listS,            // out-edges stored in a std::list
+                                   boost::listS,            // vertex set stored here
+                                   boost::bidirectionalS,   // bidirectional graph.
                                    // vertex properties:
                                    VoronoiVertexProps, 
                                    // edge properties:
                                    VoronoiEdgeProps
                                    > VoronoiGraph; 
-                    // graph_traits< G >::edge_parallel_category
-                    // tags: disallow_parallel_edge_tag
 typedef boost::graph_traits< VoronoiGraph >::vertex_descriptor  VoronoiVertex;
 typedef boost::graph_traits< VoronoiGraph >::vertex_iterator    VoronoiVertexItr;
 typedef boost::graph_traits< VoronoiGraph >::edge_descriptor    VoronoiEdge;
@@ -107,23 +93,24 @@ typedef std::vector<VoronoiVertex> VertexVector;
 struct VoronoiVertexProps {
     Point position;
     VoronoiVertexType type;
-    // std::list<VoronoiEdge> dual_face_edges; // duality vd_vertex <-> dd_face  and dd_vertex<->vd_face 
     Point pk;
     double J2;
     double J3;
     double J4;
+    /// based on previously calculated J2, J3, and J4, set the position of the vertex
     void set_position() {
         double w = J4;
         double x = - J2/w+pk.x;
         double y = J3/w+pk.y;
         position =  Point(x,y);
     }
+    /// based on precalculated J2, J3, J4, calculate the H determinant for Point pl
     double detH(const Point& pl) {
         return J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
     }
-    void set_J(Point& pi, Point& pj, Point& pk) { // i-j-k should come in CCW order
-        // point pk should have the largest angle
-        // set the values of J2 J3 J4 and pk
+    /// calculate and set the J2, J3, J4 determinants
+    void set_J(Point& pi, Point& pj, Point& pk) { 
+        // 1) i-j-k should come in CCW order
         Point pi_,pj_,pk_;
         if ( pi.isRight(pj,pk) ) {
             pi_ = pj;
@@ -134,23 +121,28 @@ struct VoronoiVertexProps {
             pj_ = pj;
             pk_ = pk;
         }
-        this->pk = pk;
+        // 2) point pk should have the largest angle
+        this->pk = pk_;
+        
         J2 = detH_J2( pi_, pj_, pk_);
         J3 = detH_J3( pi_, pj_, pk_);
         J4 = detH_J4( pi_, pj_, pk_);
     }
+    // the J2 determinant
     double detH_J2(Point& pi, Point& pj, Point& pk) {
         // J2(ijk)
         //   yi-yk   [(xi-xk)^2+(yi-yk)^2]/2
         //   yj-yk   [(xj-xk)^2+(yj-yk)^2]/2
         return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
     }
+    // the J3 determinant
     double detH_J3(Point& pi, Point& pj, Point& pk) {
         // J3(ijk)
         //   xi-xk   ((xi-xk)^2+(yi-yk)^2)/2
         //   xj-xk   ((xj-xk)^2+(yj-yk)^2)/2
         return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
     }
+    /// the J4 determinant
     double detH_J4(Point& pi, Point& pj, Point& pk) {
         // J4(ijk) =
         //    xi-xk  yi-yk 
@@ -164,31 +156,38 @@ typedef std::vector<unsigned int> FaceVector;
 typedef unsigned int FaceIdx;
 
 
+/// properties of a half-edge in the voronoi diagram
 struct VoronoiEdgeProps {
-    VoronoiEdge next; // next edge CCW on face
-    VoronoiEdge twin; // twin edge
-    FaceIdx face; // the face this edge belongs to
+    /// next edge CCW on face
+    VoronoiEdge next; 
+    /// the twin edge
+    VoronoiEdge twin;
+    /// the face this edge belongs to 
+    FaceIdx face; 
 };
 
 
 enum VoronoiFaceType {INCIDENT, NONINCIDENT};
 
+/// voronoi diagram face
 struct VoronoiFace {
     VoronoiFace( VoronoiEdge e , Point gen, VoronoiFaceType t) {
         edge = e;
         generator = gen;
         type = t;
     }
+    /// one of the half-edges that bound this face
     VoronoiEdge edge;
+    /// the vertex generator for this face
     Point generator;
+    /// the type of this face
     VoronoiFaceType type;
 };
 
+/// a VoronoiFace list which is updated when we build the voronoi diagram
 struct FaceList {
     typedef boost::multi_array<FaceVector* , 2> Grid;
     typedef Grid::index GridIndex;
-
-
 
     FaceList() {
         far_radius = 1;
@@ -221,12 +220,14 @@ struct FaceList {
         GridIndex col = get_grid_index( gen.y );
         FaceVector* bucket = (*grid)[row][col];
         bucket->push_back(idx);
-        //std::cout << " generator " << gen << " face= "<< idx << " inserted in ( " << row << " , " << col << " )\n";
+        
         return idx;
     }
     GridIndex get_grid_index( double x ) {
         GridIndex idx;
-        idx = (int)( floor( (x+far_radius)/binwidth ) );                assert( idx >= 0 );     assert( idx <= nbins );
+        idx = (int)( floor( (x+far_radius)/binwidth ) );                
+            assert( idx >= 0 );     
+            assert( idx <= nbins );
         return idx;
     }
 
@@ -237,7 +238,7 @@ struct FaceList {
         return faces.size();
     }
     
-    // 26.11: 10k generators in 6.55 seconds
+    /// simple implementation to find the closest face to the new generator p
     FaceIdx find_closest_face(const Point& p) {
         FaceIdx closest_face;
         double closest_distance = 3*far_radius; // a big number...
@@ -249,10 +250,10 @@ struct FaceList {
                 closest_face=m;
             }
         }
-        //std::cout << " closest_face = " << closest_face << "  gen = "<< faces[closest_face].generator << " closest_distance = " << closest_distance << " \n";
         return closest_face;
     }
     
+    /// grid-based search for the closest face to generator p
     FaceIdx grid_find_closest_face(const Point& p) {
         //std::cout << " grid_find_closest_face( "<< p << " ) \n";
         FaceIdx closest_face;
@@ -271,16 +272,11 @@ struct FaceList {
         GridIndex max_dist = (int)( ceil( sqrt((double)2)*dist ) ); // expand up to this radius, to be sure to find the closest point
         for (GridIndex d = dist; d<=max_dist;d++)
             insert_faces_from_neighbors( fset, row, col , d );
-        //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
-        
-        //std::cout << " searching faces: \n";
-        //BOOST_FOREACH( FaceIdx f, fset ) {
-        //    std::cout << " " << f << " f.gen = " << faces[f].generator << "\n" ;
-        //}
+
         closest_face = find_closest_in_set( fset , p ); // among the faces found, find the closest one
-        //std::cout << " closest_face = " << closest_face << " closest_distance = " << closest_distance << " \n";
         return closest_face;
     }
+    /// go through the FaceIdx set and return the one closest to p
     FaceIdx find_closest_in_set( std::set<FaceIdx>& set, const Point&p ) {
         FaceIdx closest_face;
         double closest_distance = 3*far_radius; // a big number...
@@ -292,7 +288,6 @@ struct FaceList {
                 closest_face=f;
             }
         }
-        //std::cout << " closest_face = " << closest_face << " closest_distance = " << closest_distance << " \n";
         return closest_face;
     }
     
@@ -367,15 +362,14 @@ struct FaceList {
 };
 
 
-typedef std::vector< std::vector< VoronoiEdge > > VoronoiPlanarEmbedding;
+// typedef std::vector< std::vector< VoronoiEdge > > VoronoiPlanarEmbedding;
 
 /// \brief Voronoi diagram.
 ///
-/// the dual of a voronoi diagram is the delaunay diagram
-// voronoi      delaunay
-//  face        vertex
-//  vertex      face 
-//  edge        edge
+/// the dual of a voronoi diagram is the delaunay diagram(triangulation).
+///  voronoi-faces are dual to delaunay-vertices.
+///  vornoi-vertices are dual to delaunay-faces 
+///  voronoi-edges are dual to delaunay-edges
 
 class VoronoiDiagram {
     public:
@@ -402,37 +396,43 @@ class VoronoiDiagram {
         VoronoiVertex add_vertex( Point position, VoronoiVertexType t );
         VoronoiEdge add_edge(VoronoiVertex v1, VoronoiVertex v2);
         
-        //unsigned int find_closest_face(const Point& p );
-
-        VertexVector find_seed_vertex(FaceIdx face_idx, const Point& p);
-        void augment_vertex_set(VertexVector& v0, Point& p); 
-        void add_new_voronoi_vertices(VertexVector& v0, Point& p);
         
+        /// among the vertices belonging to f, find the one with the lowest detH value
+        VertexVector find_seed_vertex(FaceIdx f, const Point& p);
+        void augment_vertex_set(VertexVector& v, Point& p); 
+        void add_new_voronoi_vertices(VertexVector& v, Point& p);
+        
+        /// return true if graph of degree three, i.e. every vertex has three edges
+        /// or six half-edges
         bool isDegreeThree();
         bool isValid();
-        bool current_and_next_on_same_face(VoronoiEdge current_edge); 
+        /// check that e and e.next belong to the same face
+        bool current_and_next_on_same_face(VoronoiEdge e); 
+        /// check that the number of faces equals the number of vertex generators
         bool face_count_equals_generator_count();
         
         VoronoiEdge find_previous_edge(VoronoiEdge e);
         
-        VertexVector get_face_vertices(unsigned int face_idx);
-
-        FaceVector get_adjacent_faces( VoronoiVertex q );
-        FaceVector get_incident_faces();    
+        /// return all vertices that belong to face f
+        VertexVector get_face_vertices(FaceIdx f);
+        /// return all faces that are adjacent to vertex v
+        FaceVector get_adjacent_faces(VoronoiVertex v);
+        /// return all faces that have been marked INCIDENT
+        FaceVector get_incident_faces();
         FaceIdx split_faces(Point& p);
         void split_face(FaceIdx nf, FaceIdx f);
         void remove_vertex_set(VertexVector& v0 , FaceIdx newface);
         
         void insert_vertex_in_edge(VoronoiVertex v, VoronoiEdge e); 
-        //VertexVector traverse_v0_tree(VertexVector& v);
         
+        /// set all vertices to UNDECIDED and all faces to NONINCIDENT
         void reset_labels();
         
+        /// initialize the diagram with three generators
         void init();
         /// the Voronoi diagram
         VoronoiGraph vd;
-        /// the Delaunay diagram
-        //VoronoiGraph dd;
+
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
         FaceList  faces;

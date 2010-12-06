@@ -176,8 +176,7 @@ if __name__ == "__main__":
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 10000
-    # Nmax = 500
+    Nmax = 10000 # 8s for 10k 
     plist=[]
     for n in range(Nmax):
         x=-far/2+far*random.random()
