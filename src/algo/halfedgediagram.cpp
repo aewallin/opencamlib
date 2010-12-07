@@ -66,6 +66,11 @@ double VertexProps::detH_J4(Point& pi, Point& pj, Point& pk) {
     return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
 }
 
+
+
+
+
+
 FaceList::FaceList() {
     far_radius = 1;
     nbins = 100;
@@ -84,19 +89,20 @@ FaceList::FaceList(double far, unsigned int n_bins) {
         }
     }
 }
-    
-HEFace FaceList::add_face(HEEdge e, Point& gen, VoronoiFaceType t) {
-    FaceProps f(e, gen, t);
-    faces.push_back(f);
+
+HEFace FaceList::add_face(FaceProps f_prop) {
+    faces.push_back(f_prop);
     HEFace idx = faces.size()-1;
     // insert into correct bin here
-    GridIndex row = get_grid_index( gen.x );
-    GridIndex col = get_grid_index( gen.y );
+    GridIndex row = get_grid_index( f_prop.generator.x );
+    GridIndex col = get_grid_index( f_prop.generator.y );
     FaceVector* bucket = (*grid)[row][col];
     bucket->push_back(idx);
-    
     return idx;
-}
+} 
+
+
+
 GridIndex FaceList::get_grid_index( double x ) {
     GridIndex idx;
     idx = (int)( floor( (x+far_radius)/binwidth ) );                
@@ -127,13 +133,13 @@ HEFace FaceList::find_closest_face(const Point& p) {
     return closest_face;
 }
     
-    /// grid-based search for the closest face to generator p
-    // grid search algorithm:
-    // - find the closest grid-cell
-    // - move in a spiral outward to find the first point
-    // - when the first point is found we need only search grid cells within a radius = distance-to-found-point
-    // - find the cells within a radius = distance-to-found-point
-    // -- in these cells, search all points and find the closest one
+/// grid-based search for the closest face to generator p
+// grid search algorithm:
+// - find the closest grid-cell
+// - move in a spiral outward to find the first point
+// - when the first point is found we need only search grid cells within a radius = distance-to-found-point
+// - find the cells within a radius = distance-to-found-point
+// -- in these cells, search all points and find the closest one
 HEFace FaceList::grid_find_closest_face(const Point& p) {
     //std::cout << " grid_find_closest_face( "<< p << " ) \n";
     HEFace closest_face;
@@ -194,31 +200,37 @@ void FaceList::insert_faces_from_bucket( std::set<HEFace>& set, GridIndex row, G
     }
 }
 
+/* ****************** HalfEdgeDiagram ******************************** */
+
+
 
 HalfEdgeDiagram::HalfEdgeDiagram(double far, unsigned int n_bins) {
     faces = FaceList(far, n_bins);
 }
-        
+
 HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2) {
     HEEdge e;
     bool b;
     boost::tie( e , b ) = boost::add_edge( v1, v2, *this);
     return e;
 }
+
+HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2, EdgeProps prop) {
+    HEEdge e;
+    bool b;
+    boost::tie( e , b ) = boost::add_edge( v1, v2, prop, *this);
+    return e;
+}
+
 HEVertex HalfEdgeDiagram::add_vertex() {
     return boost::add_vertex( *this );
 }
-HEVertex HalfEdgeDiagram::add_vertex( Point pos, VoronoiVertexType t) {
-    HEVertex v = boost::add_vertex( *this );
-    (*this)[v].position = pos;
-    (*this)[v].type = t;
+HEVertex HalfEdgeDiagram::add_vertex( VertexProps v_prop ) {
+    HEVertex v = boost::add_vertex( v_prop, *this );
     return v;
 }
-HEFace HalfEdgeDiagram::add_face(HEEdge e, Point gen, VoronoiFaceType t) {
-    return faces.add_face(e,gen,t);
-}
-HEFace HalfEdgeDiagram::add_face(Point gen, VoronoiFaceType t) {
-    return faces.add_face(HEEdge(),gen,t);
+HEFace HalfEdgeDiagram::add_face( FaceProps f_prop ) {
+    return faces.add_face( f_prop );
 }
 HEFace HalfEdgeDiagram::find_closest_face(const Point& p){
     return faces.grid_find_closest_face(p);
@@ -226,7 +238,7 @@ HEFace HalfEdgeDiagram::find_closest_face(const Point& p){
 void HalfEdgeDiagram::set_face_type(HEFace f, VoronoiFaceType t) {
     faces[f].type = t;
 }
-HEFace HalfEdgeDiagram::face_size() {
+HEFace HalfEdgeDiagram::num_faces() const {
     return faces.size();
 }
 VoronoiFaceType HalfEdgeDiagram::face_type(HEFace f) {
@@ -247,7 +259,7 @@ HEVertex HalfEdgeDiagram::target(HEEdge e) const {
 HEVertex HalfEdgeDiagram::source(HEEdge e) const {
     return boost::source( e, *this);
 }
-HEEdge HalfEdgeDiagram::find_previous_edge(HEEdge e) {
+HEEdge HalfEdgeDiagram::previous_edge(HEEdge e) {
     HEEdge previous = (*this)[e].next;
     while ( (*this)[previous].next != e ) {
         previous = (*this)[previous].next;
@@ -306,11 +318,11 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
     
     HEFace face = (*this)[e].face;
     HEFace twin_face = (*this)[twin].face;
-    HEEdge previous = find_previous_edge(e);
-    HEEdge twin_previous = find_previous_edge(twin);
+    HEEdge previous = previous_edge(e);
+    HEEdge twin_previous = previous_edge(twin);
     
-    HEEdge e1 = add_edge( source, v );
-    HEEdge e2 = add_edge( v, target );
+    HEEdge e1 = add_edge( source, v  );
+    HEEdge e2 = add_edge( v, target  );
     
     // preserve the left/right face link
     (*this)[e1].face = face;
@@ -319,8 +331,8 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
     (*this)[e2].next = (*this)[e].next;
     (*this)[previous].next = e1;
     
-    HEEdge te1 = add_edge( twin_source, v );
-    HEEdge te2 = add_edge( v, twin_target );
+    HEEdge te1 = add_edge( twin_source, v  );
+    HEEdge te2 = add_edge( v, twin_target  );
     (*this)[te1].face = twin_face;
     (*this)[te1].next = te2;
     (*this)[te2].face = twin_face;

@@ -22,8 +22,6 @@
 #include <stack>
 
 #include <boost/foreach.hpp>
-#include <boost/graph/adjacency_list.hpp> 
-
 
 #include "voronoidiagram.h"
 #include "numeric.h"
@@ -40,13 +38,10 @@ VoronoiDiagram::VoronoiDiagram(double far, unsigned int n_bins) {
 
 
 
-VoronoiDiagram::~VoronoiDiagram() {
-    //
-}
+VoronoiDiagram::~VoronoiDiagram() { }
 
 
 // sanity check
-
 bool VoronoiDiagram::isValid() {
     if (!isDegreeThree() )
         return false;
@@ -58,11 +53,12 @@ bool VoronoiDiagram::isValid() {
 
 bool VoronoiDiagram::isDegreeThree() {
     // the outermost init() vertices have special degree, all others == 6
-    HEVertexItr it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( hed );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        if ( boost::degree( *itr, hed ) != 6 ) {
-            if ( (*itr != v01) && (*itr!=v02) && (*itr!=v03) )
+    //HEVertexItr it_begin, it_end, itr;
+    //boost::tie( it_begin, it_end ) = boost::vertices( hed );
+    //for ( itr=it_begin ; itr != it_end ; ++itr ) {
+    BOOST_FOREACH(HEVertex v, hed.vertices() ) {
+        if ( hed.degree( v ) != 6 ) {
+            if ( (v != v01) && (v != v02) && (v != v03) )
                 return false;
         }
     }
@@ -71,7 +67,7 @@ bool VoronoiDiagram::isDegreeThree() {
 
 
 bool VoronoiDiagram::face_count_equals_generator_count() {
-    int vertex_count = boost::num_vertices(hed);
+    int vertex_count = hed.num_vertices();
     int face_count = (vertex_count- 4)/2 + 3;
     if (face_count != gen_count) {
         std::cout << " num_vertices = " << vertex_count << "\n";
@@ -86,10 +82,10 @@ void VoronoiDiagram::init() {
     double far_multiplier = 6;
     // add vertices
     HEVertex v0;
-    v0  = hed.add_vertex( Point(0,0), UNDECIDED);
-    v01 = hed.add_vertex( Point(0, far_multiplier*far_radius), OUT );
-    v02 = hed.add_vertex( Point( cos(-5*PI/6)*far_multiplier*far_radius, sin(-5*PI/6)*far_multiplier*far_radius), OUT );
-    v03 = hed.add_vertex( Point( cos(-PI/6)*far_multiplier*far_radius, sin(-PI/6)*far_multiplier*far_radius), OUT );
+    v0  = hed.add_vertex( VertexProps(Point(0,0), UNDECIDED) );
+    v01 = hed.add_vertex( VertexProps(Point(0, far_multiplier*far_radius), OUT) );
+    v02 = hed.add_vertex( VertexProps(Point( cos(-5*PI/6)*far_multiplier*far_radius, sin(-5*PI/6)*far_multiplier*far_radius), OUT) );
+    v03 = hed.add_vertex( VertexProps(Point( cos(-PI/6)*far_multiplier*far_radius, sin(-PI/6)*far_multiplier*far_radius), OUT) );
 
     // the locations of the initial generators:
     double gen_mutliplier = 3;
@@ -102,7 +98,7 @@ void VoronoiDiagram::init() {
     HEEdge e1 = hed.add_edge( v0, v01  );   
     HEEdge e2 = hed.add_edge( v01, v02 );
     HEEdge e3 = hed.add_edge( v02, v0  ); 
-    HEFace f1 =  hed.add_face(e2, gen3, NONINCIDENT);
+    HEFace f1 =  hed.add_face( FaceProps(e2, gen3, NONINCIDENT) );
     hed[e1].face = f1;
     hed[e2].face = f1;
     hed[e3].face = f1;
@@ -114,7 +110,7 @@ void VoronoiDiagram::init() {
     HEEdge e4 = hed.add_edge( v0, v02  );   
     HEEdge e5 = hed.add_edge( v02, v03 );
     HEEdge e6 = hed.add_edge( v03, v0  ); 
-    HEFace f2 =  hed.add_face(e5, gen1, NONINCIDENT);
+    HEFace f2 =  hed.add_face( FaceProps(e5, gen1, NONINCIDENT) );
     hed[e4].face = f2;
     hed[e5].face = f2;
     hed[e6].face = f2;
@@ -126,7 +122,7 @@ void VoronoiDiagram::init() {
     HEEdge e7 = hed.add_edge( v0, v03  );   
     HEEdge e8 = hed.add_edge( v03, v01 );
     HEEdge e9 = hed.add_edge( v01, v0  ); 
-    HEFace f3 =  hed.add_face(e8, gen2, NONINCIDENT);
+    HEFace f3 =  hed.add_face( FaceProps(e8, gen2, NONINCIDENT) );
     hed[e7].face = f3;
     hed[e8].face = f3;
     hed[e9].face = f3;
@@ -180,7 +176,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
 
 HEFace VoronoiDiagram::split_faces(Point& p) {
     // create new face and pass to split_face() 
-    HEFace newface =  hed.add_face( p, NONINCIDENT);
+    HEFace newface =  hed.add_face( FaceProps( HEEdge(), p, NONINCIDENT ) );
     BOOST_FOREACH( HEFace f, incident_faces ) {
         split_face(newface, f);
     }
@@ -198,9 +194,8 @@ void VoronoiDiagram::reset_labels() {
     hed[v01].type = OUT;
     hed[v02].type = OUT;
     hed[v03].type = OUT;
-    //FaceVector incident = get_incident_faces();
     BOOST_FOREACH(HEFace m, incident_faces ) {
-            hed.set_face_type(m, NONINCIDENT);
+        hed.set_face_type(m, NONINCIDENT);
     }
     incident_faces.clear();
 }
@@ -213,16 +208,13 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
     while (!done) {// this repairs the next-pointers for newface that are broken.
         current_target = hed.target(  current_edge ); // an edge on the new face
         HEVertex current_source = hed.source( current_edge );
-        HEOutEdgeItr it, it_end;
-        boost::tie( it, it_end ) = boost::out_edges( current_target, hed);
-        for ( ; it != it_end ; ++it ) {
-            HEVertex out_target = hed.target( *it);
+        BOOST_FOREACH( HEEdge edge, hed.out_edges( current_target ) ) {
+            HEVertex out_target = hed.target( edge );
             if ( hed[out_target].type == NEW ) {
                 if ( out_target != current_source ) { 
                     // this is the edge we want to take
-                    hed[current_edge].next = *it;
+                    hed[current_edge].next = edge;
                     assert( hed[current_edge].face ==  hed[ hed[current_edge].next ].face );
-                    //std::cout << " setting next for " << current_edge << " to " << vd[current_edge].next <<"\n";
                 }
             }
         }
@@ -235,18 +227,13 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
     // it should now be safe to delete v0
     // remove vertices V0 and edges
     BOOST_FOREACH( HEVertex v, v0 ) {
-        boost::clear_vertex( v, hed);
-        hed[v].type = OUT;
+        hed.clear_vertex( v );
+        hed.remove_vertex( v );  
     }
-    BOOST_FOREACH( HEVertex v, v0 ) {
-        boost::remove_vertex( v, hed);    
-    }
-    
 }
 
 // split the face f
 void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
-    //std::cout << "split_face() on face = " << f << "\n";
     HEVertex new_source; // this is found as OUT-NEW-IN
     HEVertex new_target; // this is found as IN-NEW-OUT
     // the new vertex on face f connects new_source -> new_target
@@ -295,13 +282,11 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
         }
         current_edge = hed[current_edge].next;
     }
-    
     // now connect new_previous -> new_source -> new_target -> new_next
     HEEdge e_new = hed.add_edge( new_source, new_target ); // face,next,twin
     hed[new_previous].next = e_new;
     hed[e_new].next = new_next;
     hed[e_new].face = f;
-    
     
     // the twin edge that bounds the new face
     HEEdge e_twin = hed.add_edge( new_target, new_source );
@@ -320,15 +305,11 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     // generate new vertices on all edges in V0 connecting to OUT-vertices
     assert( !v0.empty() );
     std::vector<HEEdge> q_edges; // new vertices generated on these edges
-    BOOST_FOREACH( HEVertex v, v0 ) {
-        assert( hed[v].type == IN ); // all verts in v0 are IN
-        HEOutEdgeItr edgeItr, edgeItrEnd;
-        boost::tie( edgeItr, edgeItrEnd ) = boost::out_edges(v, hed);
-        // among the out-edges of v, find the one that is OUT
-        for ( ; edgeItr != edgeItrEnd ; ++edgeItr ) {
-            HEVertex adj_vertex = hed.target( *edgeItr );
+    BOOST_FOREACH( HEVertex v, v0 ) {                                   assert( hed[v].type == IN ); // all verts in v0 are IN
+        BOOST_FOREACH( HEEdge edge, hed.out_edges( v ) ) {
+            HEVertex adj_vertex = hed.target( edge );
             if ( hed[adj_vertex].type == OUT ) 
-                q_edges.push_back(*edgeItr);// adding vertices here invalidates the iterator edgeItr, so we can't do it here...
+                q_edges.push_back(edge);
         }
     }
     assert( !q_edges.empty() );
@@ -358,11 +339,8 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
     std::stack<HEFace> S; // B1.3  we push all the adjacent faces onto the stack, and label them INCIDENT
     //std::cout << "   seed vertex " << q[0] << " has adjacent faces: ";
     BOOST_FOREACH(HEFace f, adjacent_faces) {
-        //faces[f].type = INCIDENT;
         hed.set_face_type(f, INCIDENT);
         incident_faces.push_back(f);
-        //std::cout << " " << f << " ";
-        //std::cout << " faces[f].type = " << faces[f].type  << "  \n";
         S.push(f);
     }
     //std::cout << "\n";
@@ -475,7 +453,7 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
 
 boost::python::list VoronoiDiagram::getGenerators()  {
     boost::python::list plist;
-    for ( HEFace m=0;m<hed.face_size();++m ) {
+    for ( HEFace m=0;m<hed.num_faces();++m ) {
         plist.append( hed.face_generator(m) );
     }
     return plist;
@@ -483,11 +461,12 @@ boost::python::list VoronoiDiagram::getGenerators()  {
 
 boost::python::list VoronoiDiagram::getVoronoiVertices() const {
     boost::python::list plist;
-    HEVertexItr it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( hed );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        if ( boost::degree( *itr, hed ) == 6 ) {
-            plist.append( hed[*itr].position );
+    //HEVertexItr it_begin, it_end, itr;
+    //boost::tie( it_begin, it_end ) = boost::vertices( hed );
+    //for ( itr=it_begin ; itr != it_end ; ++itr ) {
+    BOOST_FOREACH( HEVertex v, hed.vertices() ) {
+        if ( hed.degree( v ) == 6 ) {
+            plist.append( hed[v].position );
         }
     }
     return plist;
@@ -495,11 +474,9 @@ boost::python::list VoronoiDiagram::getVoronoiVertices() const {
 
 boost::python::list VoronoiDiagram::getFarVoronoiVertices() const {
     boost::python::list plist;
-    HEVertexItr it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( hed );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        if ( boost::degree( *itr, hed ) == 4 ) {
-            plist.append( hed[*itr].position );
+    BOOST_FOREACH( HEVertex v, hed.vertices() ) {
+        if ( hed.degree( v ) == 4 ) {
+            plist.append( hed[v].position );
         }
     }
     return plist;
@@ -508,12 +485,10 @@ boost::python::list VoronoiDiagram::getFarVoronoiVertices() const {
 // return edge and the generator corresponding to its face
 boost::python::list VoronoiDiagram::getEdgesGenerators()  {
     boost::python::list edge_list;
-    HEEdgeItr itr, it_end;
-    boost::tie( itr, it_end ) = boost::edges( hed );
-    for (  ; itr != it_end ; ++itr ) { // loop through each edge
+    BOOST_FOREACH( HEEdge edge, hed.edges() ) {
             boost::python::list point_list; // the endpoints of each edge
-            HEVertex v1 = hed.source( *itr );
-            HEVertex v2 = hed.target( *itr );
+            HEVertex v1 = hed.source( edge );
+            HEVertex v2 = hed.target( edge );
             Point src = hed[v1].position;
             Point tar = hed[v2].position;
             // shorten the edge, for visualization
@@ -535,12 +510,10 @@ boost::python::list VoronoiDiagram::getEdgesGenerators()  {
 
 boost::python::list VoronoiDiagram::getVoronoiEdges() const {
     boost::python::list edge_list;
-    HEEdgeItr itr, it_end;
-    boost::tie( itr, it_end ) = boost::edges( hed );
-    for (  ; itr != it_end ; ++itr ) { // loop through each edge
+    BOOST_FOREACH( HEEdge edge, hed.edges() ) { // loop through each edge
             boost::python::list point_list; // the endpoints of each edge
-            HEVertex v1 = hed.source( *itr );
-            HEVertex v2 = hed.target( *itr );
+            HEVertex v1 = hed.source( edge );
+            HEVertex v2 = hed.target( edge );
             point_list.append( hed[v1].position );
             point_list.append( hed[v2].position );
             edge_list.append(point_list);
@@ -550,7 +523,7 @@ boost::python::list VoronoiDiagram::getVoronoiEdges() const {
 
 std::string VoronoiDiagram::str() const {
     std::ostringstream o;
-    o << "VoronoiDiagram (nVerts="<< boost::num_vertices( hed ) << " , nEdges="<< boost::num_edges( hed ) <<"\n";
+    o << "VoronoiDiagram (nVerts="<< hed.num_vertices() << " , nEdges="<< hed.num_edges() <<"\n";
     return o.str();
 }
 

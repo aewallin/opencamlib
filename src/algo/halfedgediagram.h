@@ -67,6 +67,8 @@ namespace ocl
 struct VertexProps; // FWD declarations
 struct EdgeProps;
 struct FaceProps;
+typedef unsigned int HEFace; 
+
 typedef boost::adjacency_list< boost::listS,            // out-edges stored in a std::list
                            boost::listS,            // vertex set stored here
                            boost::bidirectionalS,   // bidirectional graph.
@@ -81,13 +83,19 @@ typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
 typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
 typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
 typedef std::vector<HEVertex> VertexVector;
-typedef unsigned int HEFace;   
 typedef std::vector<HEFace> FaceVector;
+typedef std::vector<HEEdge> EdgeVector;  
+
 typedef boost::multi_array<FaceVector* , 2> Grid;
 typedef Grid::index GridIndex;
 
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 struct VertexProps {
+    VertexProps() {}
+    VertexProps( Point p, VoronoiVertexType t) {
+        position=p;
+        type=t;
+    }
     Point position;
     VoronoiVertexType type;
     Point pk;
@@ -104,6 +112,12 @@ struct VertexProps {
     double detH_J4(Point& pi, Point& pj, Point& pk);
 };
 struct EdgeProps {
+    EdgeProps() {}
+    EdgeProps(HEEdge n, HEEdge t, HEFace f){
+        next = n;
+        twin = t;
+        face = f;
+    }
     HEEdge next; 
     HEEdge twin;
     HEFace face; 
@@ -126,7 +140,7 @@ class FaceList {
     public:
         FaceList();
         FaceList(double far, unsigned int n_bins);
-        HEFace add_face(HEEdge e, Point& gen, VoronoiFaceType t);
+        HEFace add_face(FaceProps props);
         FaceProps& operator[](const unsigned int m);
         unsigned int size() const;    
         HEFace find_closest_face(const Point& p);
@@ -147,7 +161,7 @@ class FaceList {
 };
 
 
-//template <class VertexProps, class EdgeProps>
+//template <class VertexProps, class EdgeProps, class FaceProps, class HEVertex, class >
 class HalfEdgeDiagram : public HEGraph {
     public:
         HalfEdgeDiagram() {}
@@ -155,29 +169,74 @@ class HalfEdgeDiagram : public HEGraph {
         virtual ~HalfEdgeDiagram() {}
         
         HEVertex add_vertex();
-        HEVertex add_vertex( Point pos, VoronoiVertexType t);
+        HEVertex add_vertex(VertexProps prop);
+        HEEdge add_edge(HEVertex v1, HEVertex v2);
+        HEEdge add_edge(HEVertex v1, HEVertex v2, EdgeProps prop);
+        HEFace add_face(FaceProps prop);
+        
         HEVertex target(HEEdge e) const;
         HEVertex source(HEEdge e) const;
-        HEFace add_face(HEEdge e, Point gen, VoronoiFaceType t);
-        HEFace add_face(Point gen, VoronoiFaceType t);
+        
+        EdgeVector out_edges( HEVertex v ) {
+            EdgeVector ev;
+            HEOutEdgeItr it, it_end;
+            boost::tie( it, it_end ) = boost::out_edges( v, *this );
+            for ( ; it != it_end ; ++it ) {
+                ev.push_back(*it);
+            }
+            return ev;
+        }
+        
+        EdgeVector edges() const {
+            EdgeVector ev;
+            HEEdgeItr it, it_end;
+            boost::tie( it, it_end ) = boost::edges( *this );
+            for ( ; it != it_end ; ++it ) {
+                ev.push_back(*it);
+            }
+            return ev;
+        }
+        VertexVector vertices() const {
+            VertexVector vv;
+            HEVertexItr it_begin, it_end, itr;
+            boost::tie( it_begin, it_end ) = boost::vertices( *this );
+            for ( itr=it_begin ; itr != it_end ; ++itr ) {
+                vv.push_back( *itr );
+            }
+            return vv;
+        }
+        unsigned int degree(HEVertex v) const {
+            return boost::degree( v, *this);
+        }
+        void clear_vertex(HEVertex v) {
+            boost::clear_vertex( v, *this );
+        }
+        void remove_vertex(HEVertex v) {
+            boost::remove_vertex( v , *this );
+        }
+        unsigned int num_vertices() const { return boost::num_vertices( *this ); }
+        unsigned int num_edges() const { return boost::num_edges( *this ); }
+        unsigned int num_faces() const;
+        
+    // specific to voronoi-diagram:
         HEFace find_closest_face(const Point& p);
-        void set_face_type(HEFace f, VoronoiFaceType t);
-        HEFace face_size();
-        VoronoiFaceType face_type(HEFace f);
-        HEEdge add_edge(HEVertex v1, HEVertex v2);
-        HEEdge face_edge(HEFace f);
-        Point& face_generator(HEFace f);
-        void set_face_edge(HEFace f, HEEdge e);
+    
+    // general half-edge methods:
         VertexVector get_face_vertices(HEFace face_idx);
         FaceVector get_adjacent_faces( HEVertex q );
         void insert_vertex_in_edge(HEVertex v, HEEdge e);
+
         
-        bool current_and_next_on_same_face(HEEdge current_edge) {
-            return ( (*this)[current_edge].face == (*this)[ (*this)[current_edge].next ].face );
-        }
+    
+    // face properties
+        void set_face_type(HEFace f, VoronoiFaceType t);
+        void set_face_edge(HEFace f, HEEdge e);
+        VoronoiFaceType face_type(HEFace f);
+        HEEdge          face_edge(HEFace f);
+        Point&          face_generator(HEFace f);
 
     private:
-        HEEdge find_previous_edge(HEEdge e);
+        HEEdge previous_edge(HEEdge e);
         FaceList  faces;
 };
 

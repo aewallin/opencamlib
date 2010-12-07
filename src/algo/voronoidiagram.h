@@ -23,11 +23,11 @@
 #include <vector>
 #include <list>
 
-#include <boost/graph/adjacency_list.hpp>
+
 #include <boost/python.hpp> 
 #include <boost/foreach.hpp> 
 
-#include <boost/multi_array.hpp> // for bucketing in FaceList
+// #include <boost/multi_array.hpp> // for bucketing in FaceList
 
 
 #include "point.h"
