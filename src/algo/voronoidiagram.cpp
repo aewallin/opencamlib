@@ -30,15 +30,13 @@ namespace ocl
 {
 
 VoronoiDiagram::VoronoiDiagram(double far, unsigned int n_bins) {
-    hed = HalfEdgeDiagram(far, n_bins);
+    //hed = HalfEdgeDiagram(far, n_bins);
+    fgrid = FaceGrid(far, n_bins);
     far_radius=far;
     gen_count=3;
     init();
 }
 
-
-
-VoronoiDiagram::~VoronoiDiagram() { }
 
 
 // sanity check
@@ -49,7 +47,6 @@ bool VoronoiDiagram::isValid() {
         return false;
     return true;
 }
-
 
 bool VoronoiDiagram::isDegreeThree() {
     // the outermost init() vertices have special degree, all others == 6
@@ -96,6 +93,7 @@ void VoronoiDiagram::init() {
     HEEdge e2 = hed.add_edge( v01, v02 );
     HEEdge e3 = hed.add_edge( v02, v0  ); 
     HEFace f1 =  hed.add_face( FaceProps(e2, gen3, NONINCIDENT) );
+    fgrid.add_face( hed[f1] );
     hed[e1].face = f1;
     hed[e2].face = f1;
     hed[e3].face = f1;
@@ -108,6 +106,7 @@ void VoronoiDiagram::init() {
     HEEdge e5 = hed.add_edge( v02, v03 );
     HEEdge e6 = hed.add_edge( v03, v0  ); 
     HEFace f2 =  hed.add_face( FaceProps(e5, gen1, NONINCIDENT) );
+    fgrid.add_face( hed[f2] );
     hed[e4].face = f2;
     hed[e5].face = f2;
     hed[e6].face = f2;
@@ -120,6 +119,7 @@ void VoronoiDiagram::init() {
     HEEdge e8 = hed.add_edge( v03, v01 );
     HEEdge e9 = hed.add_edge( v01, v0  ); 
     HEFace f3 =  hed.add_face( FaceProps(e8, gen2, NONINCIDENT) );
+    fgrid.add_face( hed[f3] );
     hed[e7].face = f3;
     hed[e8].face = f3;
     hed[e9].face = f3;
@@ -154,10 +154,10 @@ void VoronoiDiagram::addVertexSite(Point p) {
     // 5) delete to-be-deleted vertices and edges
     
     // 1) find the face corresponding to the closest generator
-    HEFace closest_face = hed.find_closest_face( p );
+    HEFace closest_face = fgrid.grid_find_closest_face( p );
     // B1.2 find seed vertex by evaluating H on the vertices of the found face
     VertexVector v0 = find_seed_vertex(closest_face, p);
-    // expand from seed t0 find the set V0
+    // expand from seed v0[0] find the set V0
     augment_vertex_set(v0, p);
     // add new vertices on all edges that connect v0 IN edges to OUT edges
     add_new_voronoi_vertices(v0, p);
@@ -172,8 +172,8 @@ void VoronoiDiagram::addVertexSite(Point p) {
 }
 
 HEFace VoronoiDiagram::split_faces(Point& p) {
-    // create new face and pass to split_face() 
     HEFace newface =  hed.add_face( FaceProps( HEEdge(), p, NONINCIDENT ) );
+    fgrid.add_face( hed[newface] );
     BOOST_FOREACH( HEFace f, incident_faces ) {
         split_face(newface, f);
     }
@@ -191,9 +191,7 @@ void VoronoiDiagram::reset_labels() {
     hed[v01].type = OUT;
     hed[v02].type = OUT;
     hed[v03].type = OUT;
-    BOOST_FOREACH(HEFace f, incident_faces ) {
-        hed[f].type = NONINCIDENT; 
-    }
+    BOOST_FOREACH(HEFace f, incident_faces ) { hed[f].type = NONINCIDENT; }
     incident_faces.clear();
 }
 
@@ -217,10 +215,8 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
         }
         if ( hed[current_edge].next == start_edge )
             done = true;
-       
         current_edge = hed[current_edge].next; // jump to the next edge
     }
-    
     // it should now be safe to delete v0
     BOOST_FOREACH( HEVertex v, v0 ) { hed.delete_vertex(v); }
 }
@@ -257,7 +253,7 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     found = false;
     currentType = IN;
     nextType = NEW;
-    current_edge = hed[f].edge; //(f);
+    current_edge = hed[f].edge; 
     while (!found) {
         HEVertex current_vertex = hed.target( current_edge );
         HEEdge next_edge = hed[current_edge].next;
@@ -294,7 +290,7 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
 void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     // generate new vertices on all edges in V0 connecting to OUT-vertices
     assert( !v0.empty() );
-    std::vector<HEEdge> q_edges; // new vertices generated on these edges
+    EdgeVector q_edges; // new vertices generated on these edges
     BOOST_FOREACH( HEVertex v, v0 ) {                                   assert( hed[v].type == IN ); // all verts in v0 are IN
         BOOST_FOREACH( HEEdge edge, hed.out_edges( v ) ) {
             HEVertex adj_vertex = hed.target( edge );
@@ -379,9 +375,7 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                     //in_vertices.push_back( v );
                 }
             }
-            
             current_edge = hed[current_edge].next;
-            //assert( current_and_next_on_same_face(current_edge) );
             if ( current_edge == start_edge )
                 done = true;
         }
@@ -407,12 +401,9 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
     }
 }
 
-
+// evaluate H on all face vertices and return
+// vertex with the lowest H
 VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
-    // evaluate H on all vertices along facet edges and return
-    // vertex with the lowest H
-    
-    // find vertices that bound face_idx 
     VertexVector q_verts = hed.face_vertices(face_idx);                 assert( q_verts.size() >= 3 );
     double minimumH = 1; // safe, because we expect the min H to be negative...
     HEVertex minimalVertex;

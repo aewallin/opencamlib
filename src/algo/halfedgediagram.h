@@ -20,7 +20,6 @@
 #ifndef HEDI_H
 #define HEDI_H
 
-
 #include <vector>
 #include <list>
 
@@ -28,15 +27,12 @@
 #include <boost/python.hpp> 
 #include <boost/foreach.hpp> 
 
-#include <boost/multi_array.hpp> // for bucketing in FaceList
-
 
 #include "point.h"
 #include "numeric.h"
 namespace ocl
 {
     
-
 // bundled BGL properties
 // see: http://www.boost.org/doc/libs/1_44_0/libs/graph/doc/bundles.html
 
@@ -86,8 +82,7 @@ typedef std::vector<HEVertex> VertexVector;
 typedef std::vector<HEFace> FaceVector;
 typedef std::vector<HEEdge> EdgeVector;  
 
-typedef boost::multi_array<FaceVector* , 2> Grid;
-typedef Grid::index GridIndex;
+
 
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 struct VertexProps {
@@ -131,43 +126,19 @@ struct FaceProps {
         generator = gen;
         type = t;
     }
+    bool operator<(const FaceProps& f) const {return (this->idx<f.idx);}
+    //bool operator==(const FaceProps& f) const {return (this->idx == f.idx); }
+
+    HEFace idx;
     HEEdge edge;
     Point generator;
     VoronoiFaceType type;
 };
  
-/// a VoronoiFace list which is updated when we build the voronoi diagram
-class FaceList {
-    public:
-        FaceList();
-        FaceList(double far, unsigned int n_bins);
-        HEFace add_face(FaceProps props);
-        FaceProps& operator[](const unsigned int m);
-        const FaceProps& operator[](const unsigned int m) const;
-        unsigned int size() const;    
-        HEFace find_closest_face(const Point& p);
-        HEFace grid_find_closest_face(const Point& p);
-
-    private:     
-        GridIndex get_grid_index( double x );
-        HEFace find_closest_in_set( std::set<HEFace>& set, const Point&p );
-        void insert_faces_from_neighbors( std::set<HEFace>& set, GridIndex row, GridIndex col , GridIndex dist );
-        void insert_faces_from_bucket( std::set<HEFace>& set, GridIndex row, GridIndex col );
-    // DATA
-        std::vector<FaceProps> faces;
-        double far_radius;
-        double binwidth;
-        GridIndex nbins;
-        Grid* grid;
-    
-};
-
-
 //template <class VertexProps, class EdgeProps, class FaceProps, class HEVertex, class >
 class HalfEdgeDiagram : public HEGraph {
     public:
         HalfEdgeDiagram() {}
-        HalfEdgeDiagram(double far, unsigned int n_bins);
         virtual ~HalfEdgeDiagram() {}
     
     // add vertex,edge,face to diagram
@@ -183,7 +154,8 @@ class HalfEdgeDiagram : public HEGraph {
         HEVertex target(HEEdge e) const { return boost::target( e, *this); }
         HEVertex source(HEEdge e) const { return boost::source( e, *this); }
         VertexVector vertices() const;
-        VertexVector face_vertices(HEFace f);
+        VertexVector adjacent_vertices(HEVertex v) const;
+        VertexVector face_vertices(HEFace f) const;
         unsigned int degree(HEVertex v) const { return boost::degree( v, *this); }
         unsigned int num_vertices() const { return boost::num_vertices( *this ); }
         
@@ -195,7 +167,6 @@ class HalfEdgeDiagram : public HEGraph {
         
     // access faces
         FaceVector adjacent_faces( HEVertex q );
-        HEFace find_closest_face(const Point& p); // specific to voronoi-diagram
         unsigned int num_faces() const { return faces.size(); }
         
     // Directly access vertex,edge,face properties
@@ -209,7 +180,7 @@ class HalfEdgeDiagram : public HEGraph {
     private:
         void clear_vertex(HEVertex v) { boost::clear_vertex( v, *this ); }
         void remove_vertex(HEVertex v) { boost::remove_vertex( v , *this ); }
-        FaceList  faces;
+        std::vector<FaceProps> faces;
 };
 
 } // end namespace

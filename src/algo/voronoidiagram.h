@@ -29,6 +29,7 @@
 #include "point.h"
 #include "numeric.h"
 #include "halfedgediagram.h"
+#include "facegrid.h"
 
 namespace ocl
 {
@@ -44,7 +45,7 @@ class VoronoiDiagram {
         VoronoiDiagram() {}
         VoronoiDiagram(double far, unsigned int n_bins);
         
-        virtual ~VoronoiDiagram();
+        virtual ~VoronoiDiagram() {}
         
         void addVertexSite(Point p);
         
@@ -73,6 +74,8 @@ class VoronoiDiagram {
         bool isValid();
         bool isDegreeThree();
         bool face_count_equals_generator_count();
+        
+
     // DATA
         HalfEdgeDiagram hed;
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
@@ -83,6 +86,8 @@ class VoronoiDiagram {
         int gen_count;
         FaceVector incident_faces;
         VertexVector in_vertices;
+    // for grid-search
+        FaceGrid fgrid;
 };
 
 

@@ -67,151 +67,10 @@ double VertexProps::detH_J4(Point& pi, Point& pj, Point& pk) {
 }
 
 
-/* ****************** FaceList ******************************** */
 
-
-
-FaceList::FaceList() {
-    far_radius = 1;
-    nbins = 100;
-    binwidth = 2*far_radius/nbins;
-    faces.clear();
-}
-FaceList::FaceList(double far, unsigned int n_bins) {
-    far_radius = 3.1*far;
-    nbins = n_bins;
-    faces.clear();
-    binwidth = 2*far_radius/nbins;
-    grid = new Grid( boost::extents[n_bins][n_bins] );
-    for ( GridIndex m=0 ; m<nbins ; ++m ) {
-        for ( GridIndex n=0 ; n<nbins ; ++n ) {
-            (*grid)[m][n] = new FaceVector();
-        }
-    }
-}
-
-HEFace FaceList::add_face(FaceProps f_prop) {
-    faces.push_back(f_prop);
-    HEFace idx = faces.size()-1;
-    // insert into correct bin here
-    GridIndex row = get_grid_index( f_prop.generator.x );
-    GridIndex col = get_grid_index( f_prop.generator.y );
-    FaceVector* bucket = (*grid)[row][col];
-    bucket->push_back(idx);
-    return idx;
-} 
-
-
-
-GridIndex FaceList::get_grid_index( double x ) {
-    GridIndex idx;
-    idx = (int)( floor( (x+far_radius)/binwidth ) );                
-        assert( idx >= 0 );     
-        assert( idx <= nbins );
-    return idx;
-}
-
-FaceProps& FaceList::operator[](const unsigned int m) {
-    return faces[m];
-}
-
-const FaceProps& FaceList::operator[](const unsigned int m) const {
-    return faces[m];
-}
-
-unsigned int FaceList::size() const {
-    return faces.size();
-}
-    
-/// simple implementation to find the closest face to the new generator p
-HEFace FaceList::find_closest_face(const Point& p) {
-    HEFace closest_face;
-    double closest_distance = 3*far_radius; // a big number...
-    double d;
-    for (HEFace  m=0;m<faces.size();++m) {
-        d = ( faces[m].generator - p).norm();
-        if (d<closest_distance ) {
-            closest_distance=d;
-            closest_face=m;
-        }
-    }
-    return closest_face;
-}
-    
-/// grid-based search for the closest face to generator p
-// grid search algorithm:
-// - find the closest grid-cell
-// - move in a spiral outward to find the first point
-// - when the first point is found we need only search grid cells within a radius = distance-to-found-point
-// - find the cells within a radius = distance-to-found-point
-// -- in these cells, search all points and find the closest one
-HEFace FaceList::grid_find_closest_face(const Point& p) {
-    //std::cout << " grid_find_closest_face( "<< p << " ) \n";
-    HEFace closest_face;
-    std::set<HEFace> fset;
-    GridIndex row = get_grid_index( p.x );
-    GridIndex col = get_grid_index( p.y );
-    //std::cout << "closest cell is ( " << row << " , " << col << " ) \n" ;
-    insert_faces_from_bucket( fset, row, col ); // the closest bucket
-    GridIndex dist = 0;
-    do {
-        dist++;
-        insert_faces_from_neighbors( fset, row, col , dist );
-        //assert( dist < nbins );
-    } while (fset.empty());
-    //std::cout << " fset.size() = " << fset.size() << "  at dist= " << dist << "\n";
-    GridIndex max_dist = (int)( ceil( sqrt((double)2)*dist ) ); // expand up to this radius, to be sure to find the closest point
-    for (GridIndex d = dist; d<=max_dist;d++)
-        insert_faces_from_neighbors( fset, row, col , d );
-
-    closest_face = find_closest_in_set( fset , p ); // among the faces found, find the closest one
-    return closest_face;
-}
-/// go through the HEFace set and return the one closest to p
-HEFace FaceList::find_closest_in_set( std::set<HEFace>& set, const Point&p ) {
-    HEFace closest_face;
-    double closest_distance = 3*far_radius; // a big number...
-    double d;
-    BOOST_FOREACH( HEFace f, set ) {
-        d = ( faces[f].generator - p).norm();
-        if (d<closest_distance ) {
-            closest_distance=d;
-            closest_face=f;
-        }
-    }
-    return closest_face;
-}
-    
-void FaceList::insert_faces_from_neighbors( std::set<HEFace>& set, GridIndex row, GridIndex col , GridIndex dist ) {
-    // insert faces from neighbors of (row,col) at distance dist
-    GridIndex min_row = (row >= dist ? row-dist : 0); // N
-    GridIndex max_row = (row <= nbins-dist-1 ? row+dist : nbins-1); // S
-    GridIndex max_col = (col <= nbins-dist-1 ? col+dist : nbins-1); // E
-    GridIndex min_col = (col >= dist  ? col-dist : 0); // W
-    for (GridIndex c = min_col; c<=max_col; c++) {
-        insert_faces_from_bucket( set, min_row , c );
-        insert_faces_from_bucket( set, max_row , c );
-    }
-    for (GridIndex r = min_row; r<=max_row; r++) {
-        insert_faces_from_bucket( set, r, min_col );
-        insert_faces_from_bucket( set, r, max_col );
-    }
-}
-    
-void FaceList::insert_faces_from_bucket( std::set<HEFace>& set, GridIndex row, GridIndex col ) {
-    FaceVector* bucket = (*grid)[row][col];
-    BOOST_FOREACH( HEFace f, *bucket ) {
-        set.insert(f);
-    }
-}
 
 /* ****************** HalfEdgeDiagram ******************************** */
 
-
-
-HalfEdgeDiagram::HalfEdgeDiagram(double far, unsigned int n_bins) {
-    faces = FaceList(far, n_bins);
-}
 
 HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2) {
     HEEdge e;
@@ -228,11 +87,23 @@ HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2, EdgeProps prop) {
 }
 
 HEFace HalfEdgeDiagram::add_face( FaceProps f_prop ) {
-    return faces.add_face( f_prop );
+    // return faces.add_face( f_prop );
+    faces.push_back(f_prop);
+    HEFace index = faces.size()-1;
+    faces[index].idx = index;
+    return index;
+    // insert into correct bin here
+    //GridIndex row = get_grid_index( f_prop.generator.x );
+    //GridIndex col = get_grid_index( f_prop.generator.y );
+    //FaceVector* bucket = (*grid)[row][col];
+    //bucket->push_back(idx);
+    //return idx;
+    
 }
+/*
 HEFace HalfEdgeDiagram::find_closest_face(const Point& p){
     return faces.grid_find_closest_face(p);
-}
+}*/
 
 
 EdgeVector HalfEdgeDiagram::edges() const {
@@ -274,8 +145,16 @@ HEEdge HalfEdgeDiagram::previous_edge(HEEdge e) {
     return previous;
 }
 
+VertexVector HalfEdgeDiagram::adjacent_vertices(HEVertex v) const {
+    VertexVector vv;
+    BOOST_FOREACH( HEEdge edge, this->out_edges( v ) ) {
+        vv.push_back( this->target( edge ) );
+    }
+    return vv;
+}
+
 // traverse face and return all vertices found
-VertexVector HalfEdgeDiagram::face_vertices(HEFace face_idx) {
+VertexVector HalfEdgeDiagram::face_vertices(HEFace face_idx) const {
     VertexVector verts;
     HEEdge startedge = faces[face_idx].edge; // the edge where we start
     HEVertex start_target = boost::target( startedge, *this); 
