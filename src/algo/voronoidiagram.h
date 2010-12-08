@@ -23,18 +23,12 @@
 #include <vector>
 #include <list>
 
-
 #include <boost/python.hpp> 
 #include <boost/foreach.hpp> 
-
-// #include <boost/multi_array.hpp> // for bucketing in FaceList
-
 
 #include "point.h"
 #include "numeric.h"
 #include "halfedgediagram.h"
-
-
 
 namespace ocl
 {
@@ -45,7 +39,6 @@ namespace ocl
 ///  voronoi-faces are dual to delaunay-vertices.
 ///  vornoi-vertices are dual to delaunay-faces 
 ///  voronoi-edges are dual to delaunay-edges
-
 class VoronoiDiagram {
     public:
         VoronoiDiagram() {}
@@ -70,7 +63,7 @@ class VoronoiDiagram {
         void augment_vertex_set(VertexVector& v, Point& p); 
         void add_new_voronoi_vertices(VertexVector& v, Point& p);
         HEFace split_faces(Point& p);
-        void split_face(HEFace nf, HEFace f);
+        void split_face(HEFace new_f, HEFace f);
         void remove_vertex_set(VertexVector& v0 , HEFace newface);
         /// set all vertices to UNDECIDED and all faces to NONINCIDENT
         void reset_labels();
@@ -89,7 +82,7 @@ class VoronoiDiagram {
         HEVertex v03;
         int gen_count;
         FaceVector incident_faces;
-        std::vector<HEVertex> in_vertices;
+        VertexVector in_vertices;
 };
 
 

@@ -67,7 +67,7 @@ double VertexProps::detH_J4(Point& pi, Point& pj, Point& pk) {
 }
 
 
-
+/* ****************** FaceList ******************************** */
 
 
 
@@ -114,6 +114,11 @@ GridIndex FaceList::get_grid_index( double x ) {
 FaceProps& FaceList::operator[](const unsigned int m) {
     return faces[m];
 }
+
+const FaceProps& FaceList::operator[](const unsigned int m) const {
+    return faces[m];
+}
+
 unsigned int FaceList::size() const {
     return faces.size();
 }
@@ -222,43 +227,45 @@ HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2, EdgeProps prop) {
     return e;
 }
 
-HEVertex HalfEdgeDiagram::add_vertex() {
-    return boost::add_vertex( *this );
-}
-HEVertex HalfEdgeDiagram::add_vertex( VertexProps v_prop ) {
-    HEVertex v = boost::add_vertex( v_prop, *this );
-    return v;
-}
 HEFace HalfEdgeDiagram::add_face( FaceProps f_prop ) {
     return faces.add_face( f_prop );
 }
 HEFace HalfEdgeDiagram::find_closest_face(const Point& p){
     return faces.grid_find_closest_face(p);
 }
-void HalfEdgeDiagram::set_face_type(HEFace f, VoronoiFaceType t) {
-    faces[f].type = t;
+
+
+EdgeVector HalfEdgeDiagram::edges() const {
+    EdgeVector ev;
+    HEEdgeItr it, it_end;
+    boost::tie( it, it_end ) = boost::edges( *this );
+    for ( ; it != it_end ; ++it ) {
+        ev.push_back(*it);
+    }
+    return ev;
 }
-HEFace HalfEdgeDiagram::num_faces() const {
-    return faces.size();
+        
+EdgeVector HalfEdgeDiagram::out_edges( HEVertex v ) const {
+    EdgeVector ev;
+    HEOutEdgeItr it, it_end;
+    boost::tie( it, it_end ) = boost::out_edges( v, *this );
+    for ( ; it != it_end ; ++it ) {
+        ev.push_back(*it);
+    }
+    return ev;
 }
-VoronoiFaceType HalfEdgeDiagram::face_type(HEFace f) {
-    return faces[f].type;
+
+
+VertexVector HalfEdgeDiagram::vertices() const {
+    VertexVector vv;
+    HEVertexItr it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( *this );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        vv.push_back( *itr );
+    }
+    return vv;
 }
-HEEdge HalfEdgeDiagram::face_edge(HEFace f) {
-    return faces[f].edge;
-}
-Point& HalfEdgeDiagram::face_generator(HEFace f) {
-    return faces[f].generator;
-}
-void HalfEdgeDiagram::set_face_edge(HEFace f, HEEdge e) {
-    faces[f].edge= e;
-}
-HEVertex HalfEdgeDiagram::target(HEEdge e) const {
-    return boost::target( e, *this);
-}
-HEVertex HalfEdgeDiagram::source(HEEdge e) const {
-    return boost::source( e, *this);
-}
+
 HEEdge HalfEdgeDiagram::previous_edge(HEEdge e) {
     HEEdge previous = (*this)[e].next;
     while ( (*this)[previous].next != e ) {
@@ -268,7 +275,7 @@ HEEdge HalfEdgeDiagram::previous_edge(HEEdge e) {
 }
 
 // traverse face and return all vertices found
-VertexVector HalfEdgeDiagram::get_face_vertices(HEFace face_idx) {
+VertexVector HalfEdgeDiagram::face_vertices(HEFace face_idx) {
     VertexVector verts;
     HEEdge startedge = faces[face_idx].edge; // the edge where we start
     HEVertex start_target = boost::target( startedge, *this); 
@@ -281,7 +288,7 @@ VertexVector HalfEdgeDiagram::get_face_vertices(HEFace face_idx) {
     } while ( current != startedge );
     return verts;
 }
-FaceVector HalfEdgeDiagram::get_adjacent_faces( HEVertex q ) {
+FaceVector HalfEdgeDiagram::adjacent_faces( HEVertex q ) {
     // given the vertex q, find the three adjacent faces
     std::set<HEFace> face_set;
     HEOutEdgeItr itr, itr_end;
@@ -345,8 +352,8 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
     (*this)[te1].twin = e2;
     
     // update the faces
-    faces[face].edge = e1;
-    faces[twin_face].edge = te1;
+    (*this)[face].edge = e1;
+    (*this)[twin_face].edge = te1;
     
     // finally, remove the old edge
     boost::remove_edge( e   , (*this));

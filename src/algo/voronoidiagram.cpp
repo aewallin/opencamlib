@@ -53,9 +53,6 @@ bool VoronoiDiagram::isValid() {
 
 bool VoronoiDiagram::isDegreeThree() {
     // the outermost init() vertices have special degree, all others == 6
-    //HEVertexItr it_begin, it_end, itr;
-    //boost::tie( it_begin, it_end ) = boost::vertices( hed );
-    //for ( itr=it_begin ; itr != it_end ; ++itr ) {
     BOOST_FOREACH(HEVertex v, hed.vertices() ) {
         if ( hed.degree( v ) != 6 ) {
             if ( (v != v01) && (v != v02) && (v != v03) )
@@ -194,14 +191,14 @@ void VoronoiDiagram::reset_labels() {
     hed[v01].type = OUT;
     hed[v02].type = OUT;
     hed[v03].type = OUT;
-    BOOST_FOREACH(HEFace m, incident_faces ) {
-        hed.set_face_type(m, NONINCIDENT);
+    BOOST_FOREACH(HEFace f, incident_faces ) {
+        hed[f].type = NONINCIDENT; 
     }
     incident_faces.clear();
 }
 
 void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
-    HEEdge current_edge = hed.face_edge(newface);
+    HEEdge current_edge = hed[newface].edge; 
     HEVertex current_target; 
     HEEdge start_edge = current_edge;
     bool done = false;
@@ -225,11 +222,7 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
     }
     
     // it should now be safe to delete v0
-    // remove vertices V0 and edges
-    BOOST_FOREACH( HEVertex v, v0 ) {
-        hed.clear_vertex( v );
-        hed.remove_vertex( v );  
-    }
+    BOOST_FOREACH( HEVertex v, v0 ) { hed.delete_vertex(v); }
 }
 
 // split the face f
@@ -237,10 +230,7 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     HEVertex new_source; // this is found as OUT-NEW-IN
     HEVertex new_target; // this is found as IN-NEW-OUT
     // the new vertex on face f connects new_source -> new_target
-    
-    HEEdge current_edge = hed.face_edge(f);
-        assert( f == hed[current_edge].face );
-        
+    HEEdge current_edge = hed[f].edge;                             assert( f == hed[current_edge].face );
     HEEdge start_edge = current_edge;
     VoronoiVertexType currentType = OUT;
     VoronoiVertexType nextType  = NEW;
@@ -267,7 +257,7 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     found = false;
     currentType = IN;
     nextType = NEW;
-    current_edge = hed.face_edge(f);
+    current_edge = hed[f].edge; //(f);
     while (!found) {
         HEVertex current_vertex = hed.target( current_edge );
         HEEdge next_edge = hed[current_edge].next;
@@ -293,10 +283,10 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     hed[e_twin].twin = e_new;
     hed[e_new].twin = e_twin;
     hed[e_twin].face = newface;
-    hed.set_face_edge(newface, e_twin);
+    hed[newface].edge = e_twin; 
     hed[twin_previous].next = e_twin;
     hed[e_twin].next = twin_next;
-    hed.set_face_edge(f,  e_new);  
+    hed[f].edge = e_new; 
     
     //assert( isDegreeThree() );
 }
@@ -318,11 +308,10 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
         HEVertex q = hed.add_vertex();
         hed[q].type = NEW;
         in_vertices.push_back(q);
-        
-        HEFace face = hed[q_edges[m]].face;     assert(  hed.face_type(face)  == INCIDENT);
+        HEFace face = hed[q_edges[m]].face;     assert(  hed[face].type == INCIDENT);
         HEEdge twin = hed[q_edges[m]].twin;
-        HEFace twin_face = hed[twin].face;      assert( hed.face_type(twin_face) == INCIDENT);
-        hed[q].set_J( hed.face_generator(face) , hed.face_generator(twin_face) , p); 
+        HEFace twin_face = hed[twin].face;      assert( hed[twin_face].type == INCIDENT);
+        hed[q].set_J( hed[face].generator  , hed[twin_face].generator  , p); 
         hed[q].set_position();
         hed.insert_vertex_in_edge( q, q_edges[m] );
     }
@@ -331,7 +320,7 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
 void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
     // RB2   voronoi-point q[0] = q( a, b, c ) is the seed
     // add faces Ca,Cb,Cc to the stack
-    FaceVector adjacent_faces = hed.get_adjacent_faces( q[0] );
+    FaceVector adjacent_faces = hed.adjacent_faces( q[0] );
     in_vertices.push_back( q[0] );
     
     assert( adjacent_faces.size()==3 ); // in a degree three graph every vertex has three adjacent faces
@@ -339,7 +328,7 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
     std::stack<HEFace> S; // B1.3  we push all the adjacent faces onto the stack, and label them INCIDENT
     //std::cout << "   seed vertex " << q[0] << " has adjacent faces: ";
     BOOST_FOREACH(HEFace f, adjacent_faces) {
-        hed.set_face_type(f, INCIDENT);
+        hed[f].type = INCIDENT; // .set_face_type(f, INCIDENT);
         incident_faces.push_back(f);
         S.push(f);
     }
@@ -349,7 +338,7 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
         HEFace f = S.top();
         S.pop();
         //std::cout << "    augmenting from face = " << f << "\n";
-        HEEdge current_edge = hed.face_edge(f); //faces[f].edge;
+        HEEdge current_edge = hed[f].edge; 
         HEEdge start_edge = current_edge;
         bool done=false;
         while (!done) {
@@ -377,12 +366,11 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                     q.push_back(v);
                     
                     // also set the adjacent faces to incident
-                    FaceVector new_adjacent_faces = hed.get_adjacent_faces( v );
+                    FaceVector new_adjacent_faces = hed.adjacent_faces( v );
                     BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
-                        if ( hed.face_type(adj_face) != INCIDENT ) {
-                            hed.set_face_type(adj_face, INCIDENT);
+                        if ( hed[adj_face].type  != INCIDENT ) {
+                            hed[adj_face].type = INCIDENT; 
                             incident_faces.push_back(adj_face);
-                            //std::cout << "     setting twin face " << adj_face << " INCIDENT \n";
                             S.push(adj_face);
                         }
                     }
@@ -425,7 +413,7 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
     // vertex with the lowest H
     
     // find vertices that bound face_idx 
-    VertexVector q_verts = hed.get_face_vertices(face_idx);                 assert( q_verts.size() >= 3 );
+    VertexVector q_verts = hed.face_vertices(face_idx);                 assert( q_verts.size() >= 3 );
     double minimumH = 1; // safe, because we expect the min H to be negative...
     HEVertex minimalVertex;
     double h;
@@ -440,7 +428,7 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
     }
     if (!(minimumH < 0) ) {
         std::cout << " ERROR: searching for seed when inserting " << p  << "  \n";
-        std::cout << " ERROR: closest face is  " << face_idx  << " with generator " << hed.face_generator(face_idx) << " \n";
+        std::cout << " ERROR: closest face is  " << face_idx  << " with generator " << hed[face_idx].generator  << " \n";
         std::cout << " ERROR: minimal vd-vertex " << hed[minimalVertex].position << " has \n";
         std::cout << " ERROR: detH = " << minimumH << " ! \n";
     }
@@ -453,17 +441,14 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
 
 boost::python::list VoronoiDiagram::getGenerators()  {
     boost::python::list plist;
-    for ( HEFace m=0;m<hed.num_faces();++m ) {
-        plist.append( hed.face_generator(m) );
+    for ( HEFace f=0;f<hed.num_faces();++f ) {
+        plist.append( hed[f].generator  );
     }
     return plist;
 }
 
 boost::python::list VoronoiDiagram::getVoronoiVertices() const {
     boost::python::list plist;
-    //HEVertexItr it_begin, it_end, itr;
-    //boost::tie( it_begin, it_end ) = boost::vertices( hed );
-    //for ( itr=it_begin ; itr != it_end ; ++itr ) {
     BOOST_FOREACH( HEVertex v, hed.vertices() ) {
         if ( hed.degree( v ) == 6 ) {
             plist.append( hed[v].position );
