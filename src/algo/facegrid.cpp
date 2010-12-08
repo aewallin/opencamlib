@@ -32,6 +32,16 @@ FaceGrid::FaceGrid() {
     nbins = 100;
     binwidth = 2*far_radius/nbins;
 }
+
+FaceGrid::~FaceGrid() {
+    for ( GridIndex m=0 ; m<nbins ; ++m ) {
+        for ( GridIndex n=0 ; n<nbins ; ++n ) {
+            delete (*grid)[m][n];
+        }
+    }
+    delete grid;
+}
+
 FaceGrid::FaceGrid(double far, unsigned int n_bins) {
     far_radius = 3.1*far;
     nbins = n_bins;

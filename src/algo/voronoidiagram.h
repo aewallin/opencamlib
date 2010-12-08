@@ -27,7 +27,6 @@
 #include <boost/foreach.hpp> 
 
 #include "point.h"
-#include "numeric.h"
 #include "halfedgediagram.h"
 #include "facegrid.h"
 
@@ -78,6 +77,7 @@ class VoronoiDiagram {
 
     // DATA
         HalfEdgeDiagram hed;
+        FaceGrid fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
         HEVertex v01;
@@ -86,8 +86,6 @@ class VoronoiDiagram {
         int gen_count;
         FaceVector incident_faces;
         VertexVector in_vertices;
-    // for grid-search
-        FaceGrid fgrid;
 };
 
 

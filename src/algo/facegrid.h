@@ -25,7 +25,6 @@
 
 #include "halfedgediagram.h"
 
-
 namespace ocl
 {
 
@@ -34,11 +33,15 @@ typedef boost::multi_array< FacePropVector* , 2> Grid;
 typedef Grid::index GridIndex;
 
 
-/// a VoronoiFace list which is updated when we build the voronoi diagram
+/// this class is used to quickly find the nearest neighbor among the 
+/// existing generators when adding a new generator to a VoronoiDiagram
+/// the neighbor-search algorithm is a grid-search
 class FaceGrid {
     public:
         FaceGrid();
         FaceGrid(double far, unsigned int n_bins);
+        virtual ~FaceGrid();
+        
         void add_face(FaceProps props);
         HEFace find_closest_face(const Point& p);
         HEFace grid_find_closest_face(const Point& p);

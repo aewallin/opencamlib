@@ -127,7 +127,6 @@ struct FaceProps {
         type = t;
     }
     bool operator<(const FaceProps& f) const {return (this->idx<f.idx);}
-    //bool operator==(const FaceProps& f) const {return (this->idx == f.idx); }
 
     HEFace idx;
     HEEdge edge;
@@ -138,7 +137,7 @@ struct FaceProps {
 //template <class VertexProps, class EdgeProps, class FaceProps, class HEVertex, class >
 class HalfEdgeDiagram : public HEGraph {
     public:
-        HalfEdgeDiagram() {}
+        HalfEdgeDiagram(); 
         virtual ~HalfEdgeDiagram() {}
     
     // add vertex,edge,face to diagram

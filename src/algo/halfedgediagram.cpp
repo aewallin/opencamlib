@@ -70,6 +70,9 @@ double VertexProps::detH_J4(Point& pi, Point& pj, Point& pk) {
 
 
 /* ****************** HalfEdgeDiagram ******************************** */
+HalfEdgeDiagram::HalfEdgeDiagram() {
+    // do nothing.
+}
 
 
 HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2) {
@@ -87,24 +90,11 @@ HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2, EdgeProps prop) {
 }
 
 HEFace HalfEdgeDiagram::add_face( FaceProps f_prop ) {
-    // return faces.add_face( f_prop );
     faces.push_back(f_prop);
     HEFace index = faces.size()-1;
     faces[index].idx = index;
-    return index;
-    // insert into correct bin here
-    //GridIndex row = get_grid_index( f_prop.generator.x );
-    //GridIndex col = get_grid_index( f_prop.generator.y );
-    //FaceVector* bucket = (*grid)[row][col];
-    //bucket->push_back(idx);
-    //return idx;
-    
+    return index;    
 }
-/*
-HEFace HalfEdgeDiagram::find_closest_face(const Point& p){
-    return faces.grid_find_closest_face(p);
-}*/
-
 
 EdgeVector HalfEdgeDiagram::edges() const {
     EdgeVector ev;
