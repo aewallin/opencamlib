@@ -61,7 +61,7 @@ double Octree::leaf_scale() const {
     return (2.0*root_scale) / pow(2.0, (int)max_depth );
 }
         
-/// subdivide the Octree n-times
+/// subdivide the Octree n times
 void Octree::init(const unsigned int n) {
     for (unsigned int m=0;m<n;++m) {
         std::vector<Octnode*> nodelist;
@@ -95,7 +95,7 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
-/// run marching cubes on the whole octree, returning the surface triangles
+// run marching cubes on the whole octree, returning the surface triangles
 std::vector<Triangle> Octree::mc() {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(this->root, leaf_nodes);
@@ -110,7 +110,7 @@ std::vector<Triangle> Octree::mc() {
     return mc_triangles;
 }
 
-/// generate side_triangles
+// generate side_triangles
 std::vector<Triangle> Octree::side_triangles() {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(this->root, leaf_nodes);
@@ -125,10 +125,12 @@ std::vector<Triangle> Octree::side_triangles() {
     return s_triangles;
 }
 
+// subtract vol from the root
 void Octree::diff_negative_root(const OCTVolume* vol) {
     diff_negative( this->root, vol);
 }
 
+// subtract vol from the Octnode curremt
 void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
     current->evaluate( vol ); // this sets the inside/outside flags
     if ( current->childcount == 0) { // process only leaf-nodes
@@ -173,7 +175,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
 
 }
 
-/// string repr
+// string repr
 std::string Octree::str() const {
     std::ostringstream o;
     o << " Octree:\n";

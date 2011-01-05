@@ -80,13 +80,23 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     }
     scale = nodescale;
     depth = nodedepth;
-    setvertices();
+    
+    for ( int n=0;n<8;++n) {
+        vertex[n] = new Point(*center + scale*direction[n] ) ;
+        f[n] = 1e6;
+        //surface[n]=false;
+    }
+    bb.clear();
+    bb.addPoint( *vertex[2] ); // vertex[2] has the minimum x,y,z coordinates
+    bb.addPoint( *vertex[4] ); // vertex[4] has the max x,y,z
+    
+    
     mc_tris_valid = false;
     evaluated = false;
     childcount = 0;
 }
 
-
+// call delete on children, vertices, and center
 Octnode::~Octnode() {
     for(int n=0;n<8;++n) {
         if (child[n]) {
@@ -104,20 +114,10 @@ Octnode::~Octnode() {
     }
 }
 
-void Octnode::print_surfaces() {
-    for (int n=0;n<6;++n)
-        std::cout << surface[n];
-    std::cout << "\n";
-}
 
 void Octnode::set_surfaces() {
     assert( parent );
     surface = parent->surface; // copy surface flags from parent
-    // switch(parent index)
-    //std::cout << "set_surfaces() on idx="<<idx<< " before= ";
-    
-    //print_surfaces();
-    
     switch ( this->idx ) {
         case 0:
             surface[0]=false;
@@ -166,15 +166,13 @@ void Octnode::set_surfaces() {
     //print_surfaces();
 }
 
-/// create 8 children of this node
+// create the 8 children of this node
 void Octnode::subdivide() {
     if (this->childcount==0) {
         for( int n=0;n<8;++n ) {
-                                        // parent,  idx,              scale,   depth
-            this->child[n] = new Octnode( this, n , scale/2.0 , depth+1 );
+            this->child[n] = new Octnode( this, n , scale/2.0 , depth+1 ); // parent,  idx, scale,   depth
             ++childcount;
             // inherit the surface property here
-            
             // optimization: inherit one f[n] from the corner?
         }
     } else {
@@ -183,6 +181,7 @@ void Octnode::subdivide() {
     }
 }
 
+// evaluate vol->dist() at all the vertices and store in f[]
 void Octnode::evaluate(const OCTVolume* vol) {
     //assert( childcount==0 );
     outside = true;
@@ -206,7 +205,7 @@ void Octnode::evaluate(const OCTVolume* vol) {
     evaluated = true;
 }
 
-/// interpolate f-value between vertices idx1 and idx2
+// interpolate f-value between vertices idx1 and idx2
 Point Octnode::interpolate(int idx1, int idx2) {
     // p = p1 - v1 (p2-p1)/(v2-v1)
     assert( !isZero_tol( f[idx2]-f[idx1]  ) );
@@ -214,7 +213,7 @@ Point Octnode::interpolate(int idx1, int idx2) {
                                     (1.0/(f[idx2]-f[idx1]));
 }
 
-/// use marching-cubes and return a list of triangles for this node
+// use marching-cubes and return a list of triangles for this node
 std::vector<Triangle> Octnode::mc_triangles() {
     assert( this->childcount == 0 ); // don't call this on non-leafs!
     //assert( !this->inside ); // there should be no inside nodes in the tree!
@@ -303,6 +302,9 @@ std::vector<Triangle> Octnode::mc_triangles() {
     return tris;
 }
 
+// marching-cubes doesn't produce triangles between an original unmodified octree
+// and a cut region. these extra triangles should cover the cracks that result.
+// TODO: only seems to work for the top-surface of the XY-plane right now.
 std::vector<Triangle> Octnode::crack_triangles(std::vector<Point>& vertices) {
     assert( childcount == 0); // don't call this on non-leafs!
     std::vector<Triangle> tris;
@@ -396,6 +398,7 @@ std::vector<Triangle> Octnode::crack_triangles(std::vector<Point>& vertices) {
     return tris;
 }
 
+// these are the side-triangles of an un-cut octree (e.g. initial stock shape)
 std::vector<Triangle> Octnode::side_triangles() {
     assert( this->childcount == 0 ); // this is a leaf-node
     std::vector<Triangle> tris;
@@ -433,30 +436,27 @@ std::vector<Triangle> Octnode::side_triangles() {
     return tris;
 }
 
-/// return centerpoint of child with index n
+// return centerpoint of child with index n
 Point* Octnode::childcenter(int n) {
     return  new Point(*center + (0.5*scale * direction[n]));
 }
 
-/// set the vertex positions and f[n]=0
-void Octnode::setvertices() {
-    for ( int n=0;n<8;++n) {
-        vertex[n] = new Point(*center + scale*direction[n] ) ;
-        f[n] = 1e6;
-        //surface[n]=false;
-    }
-    bb.clear();
-    bb.addPoint( *vertex[2] );
-    bb.addPoint( *vertex[4] );
+
+// print out the boolean array of surface-flags
+void Octnode::print_surfaces() {
+    for (int n=0;n<6;++n)
+        std::cout << surface[n];
+    std::cout << "\n";
 }
 
-/// string repr
+
+// string repr
 std::ostream& operator<<(std::ostream &stream, const Octnode &n) {
     stream << " Octnode: N=";     
     return stream;
 }
 
-/// string repr
+// string repr
 std::string Octnode::str() const {
     std::ostringstream o;
     o << *this;
