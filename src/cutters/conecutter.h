@@ -40,15 +40,16 @@ class ConeCutter : public MillingCutter {
         /// create a ConeCutter with specified maximum diameter and cone-angle
         /// for a 90-degree cone specify the half-angle  angle= pi/4
         ConeCutter(double d, double angle, double l=10);
-        
+        /// offset of ConeCutter is BallConeCutter (should be Ball-Cone-Bull??)
         MillingCutter* offsetCutter(double d) const;
+        /// Cone facet-drop is special, since we can make contact with either the tip or the circular rim
         bool facetDrop(CLPoint &cl, const Triangle &t) const; 
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, ConeCutter c);
         std::string str() const;
         
     protected:
-        CC_CLZ_Pair singleEdgeContact( const Point& u1, const Point& u2) const;
+        CC_CLZ_Pair singleEdgeDropCanonical( const Point& u1, const Point& u2) const;
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         double height(double r) const;
         double width(double h) const;

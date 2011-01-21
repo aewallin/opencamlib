@@ -47,13 +47,9 @@ double ConeCutter::height(double r) const {
 }
 
 double ConeCutter::width(double h) const {
-    if (h< center_height )
-        return h*tan(angle);
-    else
-        return radius;
+    return (h<center_height) ? h*tan(angle) : radius ;
 }
 
-// offset of cone is BallConeCutter
 // ?? Ball-Cone-Bull ??
 MillingCutter* ConeCutter::offsetCutter(double d) const {
     return new BallConeCutter(2*d,  diameter+2*d, angle) ;
@@ -101,33 +97,35 @@ bool ConeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
 
 // cone sliced with vertical plane results in a hyperbola as the intersection curve
 // find point where hyperbola and line slopes match
-CC_CLZ_Pair ConeCutter::singleEdgeContact( const Point& u1, const Point& u2) const {
+CC_CLZ_Pair ConeCutter::singleEdgeDropCanonical( const Point& u1, const Point& u2) const {
     double d = u1.y;
     double m = (u2.z-u1.z) / (u2.x-u1.x); // slope of edge
     // the outermost point on the cutter is at   xu = sqrt( R^2 - d^2 )
     double xu = sqrt( square(radius) - square(u1.y) );                  assert( xu <= radius );
     // max slope at xu is mu = (L/(R-R2)) * xu /(sqrt( xu^2 + d^2 ))
     double mu = (center_height/radius ) * xu / sqrt( square(xu) + square(d) ) ;
+    bool hyperbola_case = (fabs(m) <= fabs(mu));
     // find contact point where slopes match, there are two cases:
     // 1) if abs(m) <= abs(mu)  we contact the curve at xp = sign(m) * sqrt( R^2 m^2 d^2 / (h^2 - R^2 m^2) )
     // 2) if abs(m) > abs(mu) there is contact with the circular edge at +/- xu
     double ccu;
-    if (fabs(m) <= fabs(mu) ) { 
+    if ( hyperbola_case ) { 
         ccu = sign(m) * sqrt( square(radius)*square(m)*square(d) / (square(length) -square(radius)*square(m) ) );
-    } else if ( fabs(m)>fabs(mu) ) { 
+    } else { 
         ccu = sign(m)*xu;
-    } else { assert(0); }
+    } 
     Point cc_tmp( ccu, d, 0.0); // cc-point in the XY plane
     cc_tmp.z_projectOntoEdge(u1,u2);
     double cl_z;
-    if (fabs(m) <= fabs(mu) ) {  // 1) zc = zp - Lc + (R - sqrt(xp^2 + d^2)) / tan(beta2)
+    if ( hyperbola_case ) {  // 1) zc = zp - Lc + (R - sqrt(xp^2 + d^2)) / tan(beta2)
         cl_z = cc_tmp.z - center_height + (radius-sqrt(square(ccu) + square(d)))/ tan(angle);
-    } else if ( fabs(m)>fabs(mu) ) {  // 2) zc = zp - Lc
+    } else {  // 2) zc = zp - Lc
         cl_z = cc_tmp.z - center_height; // case where we hit the edge of the cone
-    } else { assert(0); }
+    } 
     return CC_CLZ_Pair( ccu , cl_z);
 }
 
+// cone is pushed along Fiber f into contact with edge p1-p2
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     double m = (p2.z-p1.z) / (p2-p1).xyNorm() ; // edge slope
@@ -138,8 +136,10 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     // Ax^2 + Bxy + Cy^2 = -(Dx + Ey + F)
     // or intersection btw plane z = -(Dx + Ey + F)
     // and quadratic z = Ax^2 + Bxy + Cy^2 
-    // cone quadratic is (1/c^2)*(x^2+y^2) = (z-z0)^2     where c=r/h ratio of radius to height (opening angle) z0= height above z=0
-    // sqrt(x^2 +y^2) = c z - c z0
+    
+    // cone quadratic is (1/c^2)*(x^2+y^2) = (z-z0)^2     
+    //          where c=r/h ratio of radius to height (opening angle), and z0= height above z=0
+    // sqrt(x^2 +y^2) = c ( z -  z0 ) 
     // => z = z0 + (1/c)*sqrt(x^2+y^2)   CONE
     //
     // plane   D*x + E*y + G*z + F = 0, so

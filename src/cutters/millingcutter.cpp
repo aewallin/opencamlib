@@ -109,7 +109,7 @@ bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2
     // edge endpoints in the new coordinate system, in these coordinates, CL is at origo
     Point up1( (p1-sc).dot(vxy) , d, p1.z); // d, distance to line, is the y-coord in the rotated system
     Point up2( (p2-sc).dot(vxy) , d, p2.z);
-    CC_CLZ_Pair contact = this->singleEdgeContact( up1, up2 ); // the subclass handles this
+    CC_CLZ_Pair contact = this->singleEdgeDropCanonical( up1, up2 ); // the subclass handles this
     CCPoint cc_tmp( sc + contact.first * vxy, EDGE); // translate back into original coord-system
     cc_tmp.z_projectOntoEdge(p1,p2);
     return cl.liftZ_if_InsidePoints( contact.second , cc_tmp , p1, p2);

@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "millingcutter.h"
+#include "numeric.h"
 
 namespace ocl
 {
@@ -38,17 +39,17 @@ class BallCutter : public MillingCutter {
         /// create a BallCutter with diameter d (radius d/2) and length l
         explicit BallCutter(double d, double l);
         /// offset of Ball is Ball
-        MillingCutter* offsetCutter(double d) const;
+        MillingCutter* offsetCutter(double d) const {return  new BallCutter(diameter+2*d, length+d);}
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
         std::string str() const;
     protected:
-        CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
+        CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         /// calculate CC-point and update Interval i
         bool calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
-        double height(double r) const;
-        double width(double h) const; 
+        double height(double r) const {return radius - sqrt( square(radius) - square(r) );}
+        double width(double h) const {return ( h >= radius ) ? radius : sqrt( square(radius) - square(radius-h) ); }
 };
 
 } // end namespace

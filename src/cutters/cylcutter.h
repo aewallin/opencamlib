@@ -26,6 +26,7 @@
 #include <vector>
 
 #include "millingcutter.h"
+#include "bullcutter.h"
 
 namespace ocl
 {
@@ -39,15 +40,16 @@ class CylCutter : public MillingCutter {
         CylCutter();
         /// create CylCutter with diameter d and length l
         explicit CylCutter(double d, double l);
-        MillingCutter* offsetCutter(double d) const;
+        /// offset of Cylinder is BullCutter
+        MillingCutter* offsetCutter(double d) const {return new BullCutter(diameter+2*d, d, length+d);}
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);        
         std::string str() const;
     protected:
         inline bool vertexPushTriangleSlice() const {return true;}
-        CC_CLZ_Pair singleEdgeContact(const Point& u1, const Point& u2) const;
-        double height(double r) const;
-        double width(double h) const; 
+        CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
+        double height(double r) const {return ( r <= radius ) ? 0.0 : -1.0;}
+        double width(double h) const {return radius;} 
 };
 
 } // end namespace

@@ -33,39 +33,18 @@ CylCutter::CylCutter() {
 }
 
 CylCutter::CylCutter(double d, double l) {
-    assert( d > 0.0);
-    diameter= d;
+    diameter= d;                    assert( d > 0.0);
     radius= d/2.0;
-    assert( l > 0.0 );
-    length = l;
+    length = l;                     assert( l > 0.0 );
     xy_normal_length = radius;
     normal_length = 0.0;
     center_height = 0.0;
 }
 
-MillingCutter* CylCutter::offsetCutter(double d) const {
-    return new BullCutter(diameter+2*d, d, length+d) ; // offset of CylCutter is BullCutter
-}
-
-// height of cutter at radius r
-double CylCutter::height(double r) const {
-    if ( r <= radius )
-        return 0.0;
-    else {
-        assert(0);
-        return -1;
-    }
-}
-
-// width of cutter at height h
-double CylCutter::width(double h) const {
-    return radius;
-}
-
 // drop-cutter vertexDrop is handled by the base-class
 // drop-cutter facetDrop is handled by the base-class
 
-CC_CLZ_Pair CylCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
+CC_CLZ_Pair CylCutter::singleEdgeDropCanonical(const Point& u1, const Point& u2) const {
     // along the x-axis the cc-point is at x-coord s:
     double s = sqrt( square( radius ) - square( u1.y ) );
     Point cc1(  s, u1.y, 0);

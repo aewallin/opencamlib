@@ -33,17 +33,18 @@ BullCutter::BullCutter() {
 }
 
 BullCutter::BullCutter(double d, double r, double l) {
-    assert( d > 0.0 );
-    diameter = d;
+    diameter = d;               assert( d > 0.0 );
     radius = d/2.0;        // total cutter radius
     radius1 = d/2.0 - r;   // cylindrical middle part radius
-    assert( radius1 > 0.0 );
-    radius2 = r;         // corner radius
-    assert( l > 0.0 );
-    length = l;
+    radius2 = r;                assert( radius1 > 0.0 ); // corner radius
+    length = l;                 assert( l > 0.0 );
     xy_normal_length = radius1;
     normal_length = radius2;
     center_height = radius2;
+}
+
+MillingCutter* BullCutter::offsetCutter(double d) const {
+    return new BullCutter(diameter+2*d, radius2+d, length+d) ;
 }
 
 // height of cutter at radius r
@@ -60,16 +61,13 @@ double BullCutter::height(double r) const {
 
 // width of cutter at height h
 double BullCutter::width(double h) const {
-    if ( h >= radius2 )
-        return radius; // cylindrical part
-    else 
-        return radius1 + sqrt( square(radius2) - square(radius2-h) ); // toroid
+    return ( h >= radius2 ) ? radius : radius1 + sqrt(square(radius2)-square(radius2-h)) ;
 }
 
 // drop-cutter: vertex and facet are handled in base-class
 
 // drop-cutter: Toroidal cutter edge-test
-CC_CLZ_Pair BullCutter::singleEdgeContact( const Point& u1, const Point& u2 ) const {
+CC_CLZ_Pair BullCutter::singleEdgeDropCanonical( const Point& u1, const Point& u2 ) const {
     if ( isZero_tol( u1.z - u2.z ) ) {  // horizontal edge special case
         return CC_CLZ_Pair( 0 , u1.z - height(u1.y) );
     } else { // the general offset-ellipse case
@@ -123,12 +121,6 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             result = true;
     }
     return result;
-}
-
-
-
-MillingCutter* BullCutter::offsetCutter(double d) const {
-    return new BullCutter(diameter+2*d, radius2+d, length+d) ;
 }
 
 std::string BullCutter::str() const {

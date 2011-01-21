@@ -32,38 +32,18 @@ BallCutter::BallCutter() {
 }
 
 BallCutter::BallCutter(double d, double l) {
-    assert( d>0.0 );
-    diameter = d;
+    diameter = d;               assert( diameter>0.0 );
     radius = d/2.0;
-    assert( l>0.0 );
-    length = l;
+    length = l;                 assert( length>0.0 );
     normal_length = radius;
     xy_normal_length = 0.0;
     center_height = radius;
 }
 
-// height of cutter at radius r
-double BallCutter::height(double r) const {
-    return radius - sqrt( square(radius) - square(r) );
-}
-
-// width of cutter at height h
-double BallCutter::width(double h) const {
-    if ( h >= radius )
-        return radius;
-    else 
-        return sqrt( square(radius) - square(radius-h) );
-}
-
-// offset of ball is a bigger ball
-MillingCutter* BallCutter::offsetCutter(double d) const {
-    return  new BallCutter(diameter+2*d, length+d) ;
-}
-
 // drop-cutter methods: vertex and facet are handled in base-class
 
 // drop-cutter edgeDrop 
-CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) const {
+CC_CLZ_Pair BallCutter::singleEdgeDropCanonical(const Point& u1, const Point& u2) const {
     // the plane of the line will slice the spherical cutter at
     // a distance d==u1.y==u2.y from the center of the cutter
     // here the radius of the circular section is s:
@@ -79,7 +59,6 @@ CC_CLZ_Pair BallCutter::singleEdgeContact(const Point& u1, const Point& u2) cons
 }
 
 // push-cutter: vertex and facet handled in base-class
-
 bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     const Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
@@ -124,6 +103,7 @@ bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     } 
     return result;
 }
+
 bool BallCutter::calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
     Point cl_center = f.point(t) + Point(0,0,radius);
     CCPoint cc_tmp = cl_center.closestPoint(p1,p2);
