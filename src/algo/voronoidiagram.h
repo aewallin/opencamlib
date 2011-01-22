@@ -23,7 +23,7 @@
 #include <vector>
 #include <list>
 
-#include <boost/python.hpp> 
+#include <boost/python.hpp>  // TODO: lots of python wrapping here...
 #include <boost/foreach.hpp> 
 
 #include "point.h"

@@ -23,14 +23,14 @@
 #include "batchdropcutter_py.h" 
 #include "batchpushcutter_py.h"  
 #include "pathdropcutter_py.h"  
-#include "adaptivepathdropcutter.h"  //FIX 
+#include "adaptivepathdropcutter_py.h"  
 #include "fiber_py.h"           
 #include "weave_py.h"           
 #include "waterline_py.h"      
 #include "adaptivewaterline_py.h"  
 #include "lineclfilter_py.h"    
 #include "numeric.h"
-#include "voronoidiagram.h"
+#include "voronoidiagram.h"  // FIX
 
 /*
  *  Python wrapping of octree and related classes

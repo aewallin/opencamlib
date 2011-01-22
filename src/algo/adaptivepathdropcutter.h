@@ -21,12 +21,11 @@
 #ifndef ADAPTIVEPATHDROPCUTTER_H
 #define ADAPTIVEPATHDROPCUTTER_H
 
-#include <boost/python.hpp>
-#include <boost/foreach.hpp>
-
 #include <iostream>
 #include <string>
 #include <list>
+
+#include <boost/foreach.hpp>
 
 #include "pathdropcutter.h"
 #include "pointdropcutter.h"
@@ -63,25 +62,11 @@ class AdaptivePathDropCutter : public PathDropCutter{
         bool flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl);
         /// run adaptive sampling
         void adaptive_sampling_run();
-
+    // DATA
         /// the smallest sampling interval used when adaptively subdividing
         double min_sampling;
         /// the limit for dot-product used in flat()
         double cosLimit;
-};
-
-/// Python wrapper for PathDropCutter
-class AdaptivePathDropCutter_py : public AdaptivePathDropCutter {
-    public:
-        AdaptivePathDropCutter_py() : AdaptivePathDropCutter() {};
-        /// return a list of CL-points to python
-        boost::python::list getCLPoints_py() {
-            boost::python::list plist;
-            BOOST_FOREACH(CLPoint p, clpoints) {
-                plist.append(p);
-            }
-            return plist;
-        };
 };
 
 } // end namespace
