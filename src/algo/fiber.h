@@ -56,9 +56,11 @@ class Fiber {
         /// return number of intervals
         unsigned int size() const {return ints.size();}
         
+        /// return the upper cl-point of interval n
         Point upperCLPoint(unsigned int n) const {
             return point(ints[n].upper);
         }
+        /// return the lower cl-point of interval n
         Point lowerCLPoint(unsigned int n) const {
             return point(ints[n].lower);
         }

@@ -71,7 +71,6 @@ class Point {
         /// move *this along z-axis so it lies on p1-p2 line-segment 
         void z_projectOntoEdge(const Point& p1, const Point& p2);
         
-        // rotate the vector around x0 y0
         /// rotate point in the xy-plane by angle theta
         /// inputs are cos(theta) and sin(theta)
         void xyRotate(double cosa, double sina);

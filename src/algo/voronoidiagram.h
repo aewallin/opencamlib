@@ -42,49 +42,72 @@ namespace ocl
 class VoronoiDiagram {
     public:
         VoronoiDiagram() {}
+        /// create diagram with given far-radius and number of bins
         VoronoiDiagram(double far, unsigned int n_bins);
         
         virtual ~VoronoiDiagram() {}
         
+        /// add a vertex generator at given position
         void addVertexSite(Point p);
         
+        /// return list of generators to python
         boost::python::list getGenerators() ;
+        /// return list of vd vertices to python
         boost::python::list getVoronoiVertices() const;
+        /// return list of the three special far-vertices to python
         boost::python::list getFarVoronoiVertices() const;
+        /// return list of vd-edges to python
         boost::python::list getVoronoiEdges() const;
+        /// return edges and generators to python
         boost::python::list getEdgesGenerators() ;
+        /// string repr
         std::string str() const;
-        
+        /// return the far radius
         double getFarRadius() const {return far_radius;}
         
     private:
         /// among the vertices belonging to f, find the one with the lowest detH value
         VertexVector find_seed_vertex(HEFace f, const Point& p);
-        void augment_vertex_set(VertexVector& v, Point& p); 
+        /// starting with set v, expand it maximally
+        void augment_vertex_set(VertexVector& v, Point& p);
+        /// add the new vertices  
         void add_new_voronoi_vertices(VertexVector& v, Point& p);
+        /// split faces when adding new generator p
         HEFace split_faces(Point& p);
+        /// split the face
         void split_face(HEFace new_f, HEFace f);
+        /// remove vertices in the set
         void remove_vertex_set(VertexVector& v0 , HEFace newface);
         /// set all vertices to UNDECIDED and all faces to NONINCIDENT
         void reset_labels();
         /// initialize the diagram with three generators
         void init();
-        
+        /// sanity-check for the diagram
         bool isValid();
+        /// sanity-check. the diagram should be of degree three (at least with point generators)
         bool isDegreeThree();
+        /// sanity-check.
         bool face_count_equals_generator_count();
         
 
     // DATA
+        /// the half-edge diagram of the vd
         HalfEdgeDiagram hed;
+        /// a grid which allows fast nearest-neighbor search
         FaceGrid fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
+        /// special initial vertex
         HEVertex v01;
+        /// special initial vertex
         HEVertex v02;
+        /// special initial vertex
         HEVertex v03;
+        /// the number of generators
         int gen_count;
+        /// temporary variable for incident faces
         FaceVector incident_faces;
+        /// temporary variable for in-vertices
         VertexVector in_vertices;
 };
 

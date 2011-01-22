@@ -64,10 +64,11 @@ class AdaptiveWaterline : public Waterline {
         void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
         /// y-direction adaptive sampling
         void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
-        /// flatness predicate
+        /// flatness predicate for fibers. Checks Fiber.size() and then calls flat() on cl-points
         bool flat( Fiber& start, Fiber& mid, Fiber& stop ) const;
+        /// flatness predicate for cl-points. checks for angle metween start-mid-stop
         bool flat(Point start_cl, Point mid_cl, Point stop_cl) const;
-        /// build weave and do face_traverse to get loops
+        /// build weave and run face_traverse to get loops
         void weave_process();
 
     // DATA
@@ -85,6 +86,7 @@ class AdaptiveWaterline : public Waterline {
         double maxy;
         /// the minimum sampling interval when subdividing
         double min_sampling;
+        /// the cosine limit value for cl-point flat(). In the constructor, cosLimit = 0.999 by default.
         double cosLimit;
 };
 

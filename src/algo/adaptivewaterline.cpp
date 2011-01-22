@@ -155,16 +155,18 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
 }
 
 bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
-    if (start.size() != stop.size() )
+    if ( start.size() != stop.size() ) // start, mid, and stop need to have same size()
         return false;
-    else if (start.size() != mid.size() )
+    else if ( start.size() != mid.size() )
         return false;
-    else if (mid.size() != stop.size() )
+    else if ( mid.size() != stop.size() )
         return false;
     else {
-        if (!start.empty() ) {
+        if (!start.empty() ) { // all now have same size
             assert( start.size() == stop.size() && start.size() == mid.size() );
             for (unsigned int n=0;n<start.size();++n) {
+                // now check for angles between cl-points (NOTE: cl-points might not belong to same loop?)
+                // however, errors here only lead to dense sampling which is harmless (but slow)
                 if ( (!flat( start.upperCLPoint(n) , mid.upperCLPoint(n) , stop.upperCLPoint(n) )) )
                     return false;
                 else if (!flat( start.lowerCLPoint(n) , mid.lowerCLPoint(n) , stop.lowerCLPoint(n) )) 
@@ -176,7 +178,6 @@ bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
 }
 
 
-
 bool AdaptiveWaterline::flat(Point start_cl, Point mid_cl, Point stop_cl)  const {
     Point v1 = mid_cl-start_cl;
     Point v2 = stop_cl-mid_cl;
@@ -186,6 +187,7 @@ bool AdaptiveWaterline::flat(Point start_cl, Point mid_cl, Point stop_cl)  const
     return (dotprod>cosLimit);
 }
 
+// create weave from fibers, split into components, traverse to find toolpath loops
 void AdaptiveWaterline::weave_process() {
     std::cout << "Weave..." << std::flush;
     Weave w;

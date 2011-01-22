@@ -83,7 +83,7 @@ HEFace FaceGrid::find_closest_face(const Point& p) {
     return closest_face;
 }
     
-/// grid-based search for the closest face to generator p
+// grid-based search for the closest face to generator p
 // grid search algorithm:
 // - find the closest grid-cell
 // - move in a spiral outward to find the first point
@@ -114,7 +114,7 @@ HEFace FaceGrid::grid_find_closest_face(const Point& p) {
 }
 
 
-/// go through the HEFace set and return the one closest to p
+// go through the HEFace set and return the one closest to p
 HEFace FaceGrid::find_closest_in_set( std::set<FaceProps>& set, const Point& p ) {
     HEFace closest_face;
     double closest_distance = 3*far_radius; // a big number...

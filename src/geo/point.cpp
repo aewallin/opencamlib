@@ -344,9 +344,9 @@ void Point::z_projectOntoEdge(const Point& p1, const Point& p2) {
 
 
 std::string Point::str() const {
-        std::ostringstream o;
-        o << *this;
-        return o.str();
+    std::ostringstream o;
+    o << *this;
+    return o.str();
 }
 
 std::ostream& operator<<(std::ostream &stream, const Point& p) {

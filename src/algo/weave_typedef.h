@@ -30,14 +30,21 @@ namespace ocl
 /// vertex type: CL-point, internal point, adjacent point
 enum WeaveVertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
 
+/// properties of a vertex in the weave
 struct WeaveVertexProps {
+    /// the position of the vertex
     Point position;
+    /// the type of the vertex
     WeaveVertexType type;
-    int index;
-    std::size_t component;
+    /// index?
+    int index; // USED??
+    /// the weave-component to which this vertex belongs. 
+    std::size_t component; // USED??
 };
 
+/// properties of an edge in the weave
 struct WeaveEdgeProps {
+    /// index? used?
     int index;
 };
 
