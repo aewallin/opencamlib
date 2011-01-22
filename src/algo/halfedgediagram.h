@@ -24,9 +24,7 @@
 #include <list>
 
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/python.hpp> 
 #include <boost/foreach.hpp> 
-
 
 #include "point.h"
 #include "numeric.h"
@@ -60,7 +58,7 @@ namespace ocl
 // special "infinite face", face on "outside" of boundary
 // may or may not store edge pointer
     
-struct VertexProps; // FWD declarations
+struct VertexProps; 
 struct EdgeProps;
 struct FaceProps;
 typedef unsigned int HEFace; 

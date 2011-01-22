@@ -27,7 +27,7 @@
 #include "fiber_py.h"           
 #include "weave_py.h"           
 #include "waterline_py.h"      
-#include "adaptivewaterline.h" // FIX, contains python 
+#include "adaptivewaterline_py.h"  
 #include "lineclfilter_py.h"    
 #include "numeric.h"
 #include "voronoidiagram.h"

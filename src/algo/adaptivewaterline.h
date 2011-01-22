@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -25,12 +25,10 @@
 #include <string>
 #include <vector>
 
-#include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
-
 #include "waterline.h"
-#include "fiber_py.h"
+#include "fiber.h"
 
 namespace ocl
 {
@@ -88,46 +86,6 @@ class AdaptiveWaterline : public Waterline {
         double min_sampling;
         /// the cosine limit value for cl-point flat(). In the constructor, cosLimit = 0.999 by default.
         double cosLimit;
-};
-
-/// \brief python wrapper for AdaptiveWaterline
-class AdaptiveWaterline_py : public AdaptiveWaterline {
-    public:
-        AdaptiveWaterline_py() : AdaptiveWaterline() {};
-        /// return loop as a list of lists to python
-        boost::python::list py_getLoops() const {
-            boost::python::list loop_list;
-            BOOST_FOREACH( std::vector<Point> loop, this->loops ) {
-                boost::python::list point_list;
-                BOOST_FOREACH( Point p, loop ) {
-                    point_list.append( p );
-                }
-                loop_list.append(point_list);
-            }
-            return loop_list;
-        };
-        /// return a list of xfibers to python
-        boost::python::list getXFibers() const {
-            boost::python::list flist;
-            BOOST_FOREACH( Fiber f, xfibers ) {
-                if (!f.empty()) {
-                    Fiber_py f2(f);
-                    flist.append(f2);
-                }
-            }
-            return flist;
-        };
-        /// return a list of yfibers to python
-        boost::python::list getYFibers() const {
-            boost::python::list flist;
-            BOOST_FOREACH( Fiber f, yfibers ) {
-                if (!f.empty()){
-                    Fiber_py f2(f);
-                    flist.append(f2);
-                }
-            }
-            return flist;
-        };
 };
 
 } // end namespace

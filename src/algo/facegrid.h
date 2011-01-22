@@ -65,7 +65,8 @@ class FaceGrid {
         double binwidth;
         /// the number of bins in the X and Y direction
         GridIndex nbins;
-        /// pointer to the grid
+        /// a 2D grid where each cell contains a 
+        /// pointer to a vector of FaceProps, corresponding to the faces in the cell
         Grid* grid;
 };
 
