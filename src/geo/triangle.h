@@ -39,7 +39,7 @@ class Triangle {
         Triangle(const Triangle &t);
         
         /// destructor
-        virtual ~Triangle();
+        virtual ~Triangle() {}
         /// Create a triangle with the vertices p1, p2, and p3.
         Triangle(Point p1, Point p2, Point p3);   
         
@@ -57,22 +57,9 @@ class Triangle {
         Point n;    
         /// return normal vector with positive z-coordinate 
         Point upNormal() const;
-        
         /// bounding-box 
         Bbox bb;
-        // these values are set from the Bbox object: (consider removing!)
-        /// max x-coord
-        double maxx;
-        /// max y-coord
-        double maxy;
-        /// min x-coord
-        double minx;
-        /// min y-coord
-        double miny;
-        /// min z-coord
-        double minz;
-        /// max z-coord
-        double maxz;
+
 
         
     protected:

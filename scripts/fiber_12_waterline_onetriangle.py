@@ -23,7 +23,7 @@ def loop_waterline(zh, cutter,s):
         f2 = ocl.Point(x,+range,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         bpc.appendFiber(f)
-    bpc.pushCutter3()
+    bpc.run()
     clpoints = bpc.getCLPoints()
     fibers = bpc.getFibers()
     w = ocl.Weave()

@@ -52,6 +52,9 @@ this should create the ocl manual named "ocl-manual.pdf" in the src/doc director
 |-- stl                         STL files for testing
 `-- Windows                     Visual-studio project for building on windows
 
+the Id svn keyword is set like this:
+svn propset svn:keywords 'Id' filename.cpp 
+
 
 3. Ubuntu 10.04LTS install and build
 - install 64-bit Ubuntu 10.04LTS

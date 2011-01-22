@@ -54,23 +54,11 @@ Triangle::Triangle(const Triangle &t) {
 }
  
 
-Triangle::~Triangle() {
-    
-}
+
 
 /// calculate bounding box values
 void Triangle::calcBB() {
     bb.addTriangle( *this );
-    
-    // consider re-writing this behavior: (?)
-    minx=bb.minpt.x;
-    maxx=bb.maxpt.x;
-    
-    miny=bb.minpt.y;
-    maxy=bb.maxpt.y;
-    
-    minz=bb.minpt.z;
-    maxz=bb.maxpt.z;
 }
 
 /// calculate, normalize, and set the Triangle normal
@@ -83,10 +71,7 @@ void Triangle::calcNormal() {
 }
 
 Point Triangle::upNormal() const {
-    if (n.z < 0)   // normal is pointing down
-        return  -1.0* n; // flip normal
-    else 
-        return n;
+    return (n.z < 0) ? -1.0* n : n; 
 }
 
 bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {

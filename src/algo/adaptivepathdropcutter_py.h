@@ -44,4 +44,4 @@ class AdaptivePathDropCutter_py : public AdaptivePathDropCutter {
 
 } // end namespace
 #endif
-// end file adaptivepathdropcutter.h
+// end file adaptivepathdropcutter_py.h
