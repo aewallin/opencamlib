@@ -39,31 +39,29 @@ class EllipsePosition {
         EllipsePosition();
         /// create EllipsePosition at (s,t)
         EllipsePosition(double sin, double tin){s=sin; t=tin;}
-        
         /// set (s,t) pair to the position corresponding to diangle
         void setDiangle(double dia);
-        
-        /// s-parameter in [-1, 1]
-        double s;
-        /// t-parameter in [-1, 1]
-        double t;
-        
-        /// diamond angle parameter in [0,4] (modulo 4)
-        /// this models an angle [0,2pi] and maps 
-        /// from the angle to an (s,t) pair using setD()
-        double diangle;
-        
         /// set rhs EllipsePosition (s,t) values equal to lhs EllipsePosition
         EllipsePosition &operator=(const EllipsePosition &pos);
+        /// return true if (s,t) is valid, i.e. lies on the unit circle
+        /// checks s^2 + t^2 == 1  (to within tolerance) 
+        bool isValid() const;
         
         /// string repr
         std::string str() const;
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, EllipsePosition pos);
+    
+    // DATA
+        /// s-parameter in [-1, 1]
+        double s;
+        /// t-parameter in [-1, 1]
+        double t;
+        /// diamond angle parameter in [0,4] (modulo 4)
+        /// this models an angle [0,2pi] and maps 
+        /// from the angle to an (s,t) pair using setD()
+        double diangle;
         
-        /// return true if (s,t) is valid, i.e. lies on the unit circle
-        /// checks s^2 + t^2 == 1  (to within tolerance) 
-        bool isValid() const;
     private:
         /// set (s,t) pair to match diangle
         void setD();

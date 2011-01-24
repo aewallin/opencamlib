@@ -39,7 +39,6 @@ EllipsePosition::EllipsePosition() {
 
 void EllipsePosition::setDiangle(double dia) {
     assert( !isnan(dia) );
-    //std::cout << " EllipsePosition::setDiangle( "<< dia << " ) \n";
     diangle = dia;
     setD();
 }
@@ -56,24 +55,11 @@ void EllipsePosition::setD() {
         d -= 4.0;
     while ( d < 0.0)
         d+=4.0;
-    if ( !(d >= 0.0 && d <= 4.0 ) )
-        std::cout << "EllipsePosition::setD error d= " << d << "\n";
         
     assert( d >= 0.0 && d <= 4.0 ); // now we should be in [0,4]
-    Point p;
-    if ( d < 2.0 ) // we are in the y>0 region
-        p.x = 1-d; // in quadrant1 and quadrant2
-    else
-        p.x = d-3; // in q3 and q4
-        
-    if ( d < 3.0 ) {
-        if ( d > 1.0 ) 
-            p.y = 2-d; // d=[1,3] in q2 and q3
-        else
-            p.y = d;  // d=[0,1] in q1
-    } else {
-        p.y = d - 4; // d=[3,4] in q4
-    }
+    Point p( (d < 2 ? 1-d : d-3) ,
+             (d < 3 ? ((d > 1) ? 2-d : d) : d-4) );
+
     // now we have a vector pointing in the right direction
     // but it is not normalized
     p.normalize();
@@ -111,6 +97,5 @@ std::ostream& operator<<(std::ostream &stream, EllipsePosition pos) {
     return stream;
 }
 
-
 }//end namespace
-//end file EllipsePosition.cpp
+//end file ellipseposition.cpp

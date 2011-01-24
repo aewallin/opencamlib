@@ -301,12 +301,7 @@ double Ellipse::error(EllipsePosition& pos) const {
 /// given the two solutions EllipsePosition1 and EllipsePosition2 and the edge up1-up2
 /// locate the ellipse center correctly
 Point Ellipse::calcEcenter(const Point& up1, const Point& up2, int sln) {
-    Point cle;
-    if (sln == 1)
-        cle = oePoint1();
-    else
-        cle = oePoint2();
-
+    Point cle = ( sln == 1 ? oePoint1() : oePoint2() );
     double xoffset = - cle.x;
     // x-coord on line is  x = up1.x + t*(up2.x-up1.x) = center.x+offset 
     double t = (center.x + xoffset - up1.x) / (up2.x - up1.x);

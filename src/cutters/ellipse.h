@@ -34,7 +34,7 @@ class Fiber;
 class Ellipse {
     public:
         /// dummy constructor
-        Ellipse(){}; 
+        Ellipse(){}
         /// create an Ellipse with centerpoint center, X-axis a, Y-axis b, and offset distance offset.
         Ellipse(Point& centerin, double a, double b, double offset);
         
@@ -113,9 +113,10 @@ class Ellipse {
 /// an aligned ellipse, used by the edgePush function of BullCutter
 class AlignedEllipse : public Ellipse {
     public:
-        AlignedEllipse(){}; 
+        AlignedEllipse(){}
         /// create an aligned ellipse
-        AlignedEllipse(Point& centerin, double major_length, double minor_length, double offset, Point& majorDir, Point& minorDir);
+        AlignedEllipse(Point& centerin, double major_length, double minor_length, 
+                       double offset, Point& majorDir, Point& minorDir);
         /// normal vector at given EllipsePosition
         Point normal(const EllipsePosition& position) const;
         /// ellipse-point at given EllipsePosition

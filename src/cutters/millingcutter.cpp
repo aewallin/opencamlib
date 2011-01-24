@@ -26,14 +26,12 @@
 namespace ocl
 {
 
-
 MillingCutter* MillingCutter::offsetCutter(double d) const {
     assert(0); // DON'T call me
     return  NULL;
 }
 
-// general purpose vertex-drop which delegates the this->height(r) to 
-// the specific subclass of cutter 
+// general purpose vertex-drop which delegates to this->height(r) of subclass 
 bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     BOOST_FOREACH( const Point& p, t.p) {           // test each vertex of triangle

@@ -22,7 +22,7 @@
 #include <boost/python.hpp>
 
 #include "millingcutter.h"
-#include "millingcutter_wrap.h"
+#include "millingcutter_py.h"
 #include "cylcutter.h"
 #include "ballcutter.h"
 #include "bullcutter.h"
@@ -41,14 +41,14 @@ void export_cutters() {
 // documentation here:
 // http://www.boost.org/doc/libs/1_43_0/libs/python/doc/tutorial/doc/html/python/exposing.html#python.inheritance
 
-    bp::class_<MillingCutterWrap , boost::noncopyable>("MillingCutter")
-        .def("vertexDrop", &MillingCutter::vertexDrop, &MillingCutterWrap::default_vertexDrop )
-        .def("facetDrop",  &MillingCutter::facetDrop,  &MillingCutterWrap::default_facetDrop )
-        .def("edgeDrop",   &MillingCutter::edgeDrop,   &MillingCutterWrap::default_edgeDrop )
+    bp::class_<MillingCutter_py , boost::noncopyable>("MillingCutter")
+        .def("vertexDrop", &MillingCutter::vertexDrop, &MillingCutter_py::default_vertexDrop )
+        .def("facetDrop",  &MillingCutter::facetDrop,  &MillingCutter_py::default_facetDrop )
+        .def("edgeDrop",   &MillingCutter::edgeDrop,   &MillingCutter_py::default_edgeDrop )
         .def("dropCutter", &MillingCutter::dropCutter)
         .def("pushCutter", &MillingCutter::pushCutter)
         .def("offsetCutter", &MillingCutter::offsetCutter,  bp::return_value_policy<bp::manage_new_object>() )
-        .def("__str__",    &MillingCutter::str, &MillingCutterWrap::default_str )
+        .def("__str__",    &MillingCutter::str, &MillingCutter_py::default_str )
         .def("getRadius", &MillingCutter::getRadius )
         .def("getLength", &MillingCutter::getLength )
         .def("getDiameter", &MillingCutter::getDiameter )
