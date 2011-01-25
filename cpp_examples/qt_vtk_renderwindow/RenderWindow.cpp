@@ -17,7 +17,7 @@ int main(int argc, char** argv)
   QApplication app(argc, argv);
  
   QVTKWidget widget;
-  widget.resize(256,256);
+  widget.resize(512,256);
  
   //setup sphere
   vtkSmartPointer<vtkSphereSource> sphereSource = 
