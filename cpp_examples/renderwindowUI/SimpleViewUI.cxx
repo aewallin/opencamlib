@@ -14,7 +14,7 @@ SimpleView::SimpleView() {
     this->ui = new Ui_SimpleView;
     this->ui->setupUi(this);
  
-      // sphere
+    // sphere
     vtkSmartPointer<vtkConeSource> sphereSource = vtkSmartPointer<vtkConeSource>::New();
     sphereSource->Update();
     vtkSmartPointer<vtkPolyDataMapper> sphereMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
