@@ -22,7 +22,7 @@ def main():
     s.r2=0.1
     s.radius = 0.4
     s.length = 2
-    startpoint = ocl.Point(0.46,1.0,0.4)
+    startpoint = ocl.Point(0.46,0.2,0.4)
     s.setPos( startpoint )
     
     cp= ocl.Point(0,0,0) # center of octree
