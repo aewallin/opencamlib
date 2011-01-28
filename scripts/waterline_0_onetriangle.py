@@ -37,7 +37,7 @@ if __name__ == "__main__":
             wl.setSTL(s)
             wl.setCutter(cutter)
             wl.setZ(zh)
-            wl.setSampling(0.01)
+            wl.setSampling(0.1)
             t_before = time.time() 
             wl.run()
             t_after = time.time()

@@ -31,6 +31,7 @@
 #include "lineclfilter_py.h"    
 #include "numeric.h"
 #include "voronoidiagram.h"  // FIX
+#include "zigzag.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -45,7 +46,15 @@ void export_algo() {
     bp::def("epsF", epsF);
     bp::def("epsD", epsD);
     bp::def("revision", revision); // returns OCL revision string to python
-    
+    bp::class_<ZigZag>("ZigZag")
+        .def("run", &ZigZag::run)
+        .def("setDirection", &ZigZag::setDirection)
+        .def("setOrigin", &ZigZag::setOrigin)
+        .def("setStepOver", &ZigZag::setStepOver)
+        .def("addPoint", &ZigZag::addPoint)
+        .def("getOutput", &ZigZag::getOutput)
+        .def("__str__", &ZigZag::str)
+    ;
     bp::class_<BatchDropCutter>("BatchDropCutter_base")
     ;
     bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")

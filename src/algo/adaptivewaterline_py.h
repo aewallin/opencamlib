@@ -30,7 +30,7 @@ namespace ocl
 /// \brief python wrapper for AdaptiveWaterline
 class AdaptiveWaterline_py : public AdaptiveWaterline {
     public:
-        AdaptiveWaterline_py() : AdaptiveWaterline() {};
+        AdaptiveWaterline_py() : AdaptiveWaterline() {}
         /// return loop as a list of lists to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;
@@ -42,7 +42,7 @@ class AdaptiveWaterline_py : public AdaptiveWaterline {
                 loop_list.append(point_list);
             }
             return loop_list;
-        };
+        }
         /// return a list of xfibers to python
         boost::python::list getXFibers() const {
             boost::python::list flist;
@@ -53,7 +53,7 @@ class AdaptiveWaterline_py : public AdaptiveWaterline {
                 }
             }
             return flist;
-        };
+        }
         /// return a list of yfibers to python
         boost::python::list getYFibers() const {
             boost::python::list flist;
@@ -64,7 +64,7 @@ class AdaptiveWaterline_py : public AdaptiveWaterline {
                 }
             }
             return flist;
-        };
+        }
 };
 
 } // end namespace
