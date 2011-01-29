@@ -431,6 +431,45 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
     return output;
 }
 
+//  voronoi-faces are dual to delaunay-vertices.
+//  vornoi-vertices are dual to delaunay-faces 
+//  voronoi-edges are dual to delaunay-edges(connect two faces)
+HalfEdgeDiagram* VoronoiDiagram::getDelaunayTriangulation()  {
+    HalfEdgeDiagram* dt = new HalfEdgeDiagram();
+    // loop through faces and add vertices/generators
+    typedef std::pair<HEFace, HEVertex> FaVePair;
+    typedef std::map<HEFace, HEVertex> FaVeMap;
+    FaVeMap map;
+    //VertexVector verts;
+    for ( HEFace f=0;f<hed.num_faces();++f ) {
+        HEVertex v = dt->add_vertex( VertexProps( hed[f].generator , OUT)  );
+        //verts.push_back(v); 
+        map.insert( FaVePair(f,v) );
+    }
+    
+    // loop through voronoi-edges and add delaunay-edges
+    FaVeMap::iterator itr;
+    BOOST_FOREACH( HEEdge edge, hed.edges() ) {
+            HEFace face = hed[edge].face;
+            //std::cout << " vd faces: " << face << " \n";
+            HEEdge twin_edge = hed[edge].twin;
+            if (twin_edge != HEEdge() ) {
+                HEFace twin_face = hed[twin_edge].face;
+                std::cout << " vd faces: " << face << " , " << twin_face << std::endl;
+                
+                itr = map.find(face);
+                HEVertex v1 = itr->second;
+                itr = map.find(twin_face);
+                HEVertex v2 = itr->second;
+                std::cout << " dt edge " << v1 << " , " << v2 << std::endl;
+                
+                dt->add_edge( v1, v2 );
+            }
+    }
+    
+    return dt;
+}
+
 boost::python::list VoronoiDiagram::getGenerators()  {
     boost::python::list plist;
     for ( HEFace f=0;f<hed.num_faces();++f ) {
@@ -468,6 +507,31 @@ boost::python::list VoronoiDiagram::getEdgesGenerators()  {
             HEVertex v2 = hed.target( edge );
             Point src = hed[v1].position;
             Point tar = hed[v2].position;
+            // shorten the edge, for visualization
+            //double cut_amount = 0.0;
+            //Point src_short = src + (cut_amount/((tar-src).norm())) * (tar-src);
+            //Point tar_short = src + (1-cut_amount/((tar-src).norm())) * (tar-src);
+            point_list.append( src );
+            point_list.append( tar );
+            //FaceIdx f = vd[*itr].face;
+            //Point gen = faces[f].generator;
+            //Point orig = gen.xyClosestPoint(src, tar);
+            //Point dir = gen-orig;
+            //dir.xyNormalize(); 
+            //point_list.append( dir );
+            edge_list.append(point_list);
+    }
+    return edge_list;
+}
+
+boost::python::list VoronoiDiagram::getDelaunayEdges()  {
+    boost::python::list edge_list;
+    BOOST_FOREACH( HEEdge edge, dt->edges() ) {
+            boost::python::list point_list; // the endpoints of each edge
+            HEVertex v1 = dt->source( edge );
+            HEVertex v2 = dt->target( edge );
+            Point src = (*dt)[v1].position;
+            Point tar = (*dt)[v2].position;
             // shorten the edge, for visualization
             //double cut_amount = 0.0;
             //Point src_short = src + (cut_amount/((tar-src).norm())) * (tar-src);

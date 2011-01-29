@@ -48,6 +48,14 @@ class VoronoiDiagram {
         /// add a vertex generator at given position
         void addVertexSite(Point p);
         
+        /// return the dual graph
+        HalfEdgeDiagram* getDelaunayTriangulation();
+        void setDelaunayTriangulation() {
+            //if (dt)
+            //    delete dt;
+            dt = getDelaunayTriangulation();
+        }
+        boost::python::list getDelaunayEdges();
         /// return list of generators to python
         boost::python::list getGenerators() ;
         /// return list of vd vertices to python
@@ -57,7 +65,7 @@ class VoronoiDiagram {
         /// return list of vd-edges to python
         boost::python::list getVoronoiEdges() const;
         /// return edges and generators to python
-        boost::python::list getEdgesGenerators() ;
+        boost::python::list getEdgesGenerators();
         /// string repr
         std::string str() const;
         /// return the far radius
@@ -91,6 +99,7 @@ class VoronoiDiagram {
     // DATA
         /// the half-edge diagram of the vd
         HalfEdgeDiagram hed;
+        HalfEdgeDiagram* dt;
         /// a grid which allows fast nearest-neighbor search
         FaceGrid* fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
