@@ -50,15 +50,22 @@ FaceGrid::FaceGrid(double far, unsigned int n_bins) {
     for ( GridIndex m=0 ; m<nbins ; ++m ) {
         for ( GridIndex n=0 ; n<nbins ; ++n ) {
             (*grid)[m][n] = new FacePropVector();
+            FacePropVector* bucket = (*grid)[m][n];
+            bucket->clear();
+            //(*grid)[m][n].clear();
         }
     }
+    std::cout << " FaceGrid() done.\n";
 }
 
 void FaceGrid::add_face(FaceProps f_prop) {
+    std::cout << " FaceGrid::add_face\n";
     // insert into correct bin here
     GridIndex row = get_grid_index( f_prop.generator.x );
     GridIndex col = get_grid_index( f_prop.generator.y );
+    std::cout << " get buccket row="<< row << " col="<<col<<"\n";
     FacePropVector* bucket = (*grid)[row][col];
+    std::cout << " add face to buccket \n";
     bucket->push_back( f_prop );
 } 
 
@@ -67,6 +74,7 @@ GridIndex FaceGrid::get_grid_index( double x ) {
     idx = (int)( floor( (x+far_radius)/binwidth ) );                
         assert( idx >= 0 );     
         assert( idx <= nbins );
+    std::cout << " get_grid_index output = "<< idx << std::endl;
     return idx;
 }
 

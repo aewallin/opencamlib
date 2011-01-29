@@ -32,6 +32,7 @@ namespace ocl
 VoronoiDiagram::VoronoiDiagram(double far, unsigned int n_bins) {
     //hed = HalfEdgeDiagram(far, n_bins);
     fgrid = FaceGrid(far, n_bins);
+    std::cout << "VD: FaceGrid( " << far << " , " << n_bins << " ) "<< std::endl;
     far_radius=far;
     gen_count=3;
     init();
@@ -72,7 +73,9 @@ bool VoronoiDiagram::face_count_equals_generator_count() {
     return ( face_count == gen_count );
 }
 
+// add one vertex at origo and three vertices at 'infinity' and their associated edges
 void VoronoiDiagram::init() {
+    std::cout << "VD init() \n";
     double far_multiplier = 6;
     // add vertices
     HEVertex v0;
@@ -89,9 +92,9 @@ void VoronoiDiagram::init() {
     hed[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
         
     // add face 1: v0-v1-v2
-    HEEdge e1 = hed.add_edge( v0, v01  );   
-    HEEdge e2 = hed.add_edge( v01, v02 );
-    HEEdge e3 = hed.add_edge( v02, v0  ); 
+    HEEdge e1 =  hed.add_edge( v0, v01  );   
+    HEEdge e2 =  hed.add_edge( v01, v02 );
+    HEEdge e3 =  hed.add_edge( v02, v0  ); 
     HEFace f1 =  hed.add_face( FaceProps(e2, gen3, NONINCIDENT) );
     fgrid.add_face( hed[f1] );
     hed[e1].face = f1;
@@ -139,6 +142,7 @@ void VoronoiDiagram::init() {
     hed[e7].twin = e6;
     
     assert( isValid() );
+    std::cout << " VD init() done.\n";
 }
 
 
@@ -152,7 +156,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     //   3.2 H<0 property
     // 4) generate new cycle/face around new vertices
     // 5) delete to-be-deleted vertices and edges
-    
+    std::cout << " VD: adding vertex site " << p << std::endl;
     // 1) find the face corresponding to the closest generator
     HEFace closest_face = fgrid.grid_find_closest_face( p );
     // B1.2 find seed vertex by evaluating H on the vertices of the found face

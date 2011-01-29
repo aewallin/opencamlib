@@ -132,7 +132,7 @@ if __name__ == "__main__":
     myscreen.render()
     random.seed(42)
     
-    vd = ocl.VoronoiDiagram(100)
+    vd = ocl.VoronoiDiagram(400,10)
     
     vod = VD(myscreen)
     #vod.setAll(vd)

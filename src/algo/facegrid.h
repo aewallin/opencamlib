@@ -28,9 +28,9 @@
 namespace ocl
 {
 
-typedef std::vector<FaceProps> FacePropVector;
+typedef std::vector<FaceProps>                   FacePropVector;
 typedef boost::multi_array< FacePropVector* , 2> Grid;
-typedef Grid::index GridIndex;
+typedef Grid::index                              GridIndex;
 
 
 /// this class is used to quickly find the nearest neighbor among the 
