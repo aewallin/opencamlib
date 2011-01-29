@@ -30,14 +30,11 @@ namespace ocl
 {
 
 VoronoiDiagram::VoronoiDiagram(double far, unsigned int n_bins) {
-    //hed = HalfEdgeDiagram(far, n_bins);
-    fgrid = FaceGrid(far, n_bins);
-    std::cout << "VD: FaceGrid( " << far << " , " << n_bins << " ) "<< std::endl;
+    fgrid = new FaceGrid(far, n_bins);
     far_radius=far;
     gen_count=3;
     init();
 }
-
 
 
 // sanity check
@@ -75,7 +72,7 @@ bool VoronoiDiagram::face_count_equals_generator_count() {
 
 // add one vertex at origo and three vertices at 'infinity' and their associated edges
 void VoronoiDiagram::init() {
-    std::cout << "VD init() \n";
+    //std::cout << "VD init() \n";
     double far_multiplier = 6;
     // add vertices
     HEVertex v0;
@@ -96,7 +93,7 @@ void VoronoiDiagram::init() {
     HEEdge e2 =  hed.add_edge( v01, v02 );
     HEEdge e3 =  hed.add_edge( v02, v0  ); 
     HEFace f1 =  hed.add_face( FaceProps(e2, gen3, NONINCIDENT) );
-    fgrid.add_face( hed[f1] );
+    fgrid->add_face( hed[f1] );
     hed[e1].face = f1;
     hed[e2].face = f1;
     hed[e3].face = f1;
@@ -109,7 +106,7 @@ void VoronoiDiagram::init() {
     HEEdge e5 = hed.add_edge( v02, v03 );
     HEEdge e6 = hed.add_edge( v03, v0  ); 
     HEFace f2 =  hed.add_face( FaceProps(e5, gen1, NONINCIDENT) );
-    fgrid.add_face( hed[f2] );
+    fgrid->add_face( hed[f2] );
     hed[e4].face = f2;
     hed[e5].face = f2;
     hed[e6].face = f2;
@@ -122,7 +119,7 @@ void VoronoiDiagram::init() {
     HEEdge e8 = hed.add_edge( v03, v01 );
     HEEdge e9 = hed.add_edge( v01, v0  ); 
     HEFace f3 =  hed.add_face( FaceProps(e8, gen2, NONINCIDENT) );
-    fgrid.add_face( hed[f3] );
+    fgrid->add_face( hed[f3] );
     hed[e7].face = f3;
     hed[e8].face = f3;
     hed[e9].face = f3;
@@ -142,7 +139,7 @@ void VoronoiDiagram::init() {
     hed[e7].twin = e6;
     
     assert( isValid() );
-    std::cout << " VD init() done.\n";
+    //std::cout << " VD init() done.\n";
 }
 
 
@@ -156,9 +153,9 @@ void VoronoiDiagram::addVertexSite(Point p) {
     //   3.2 H<0 property
     // 4) generate new cycle/face around new vertices
     // 5) delete to-be-deleted vertices and edges
-    std::cout << " VD: adding vertex site " << p << std::endl;
+    //std::cout << " VD: adding vertex site " << p << std::endl;
     // 1) find the face corresponding to the closest generator
-    HEFace closest_face = fgrid.grid_find_closest_face( p );
+    HEFace closest_face = fgrid->grid_find_closest_face( p );
     // B1.2 find seed vertex by evaluating H on the vertices of the found face
     VertexVector v0 = find_seed_vertex(closest_face, p);
     // expand from seed v0[0] find the set V0
@@ -177,7 +174,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
 
 HEFace VoronoiDiagram::split_faces(Point& p) {
     HEFace newface =  hed.add_face( FaceProps( HEEdge(), p, NONINCIDENT ) );
-    fgrid.add_face( hed[newface] );
+    fgrid->add_face( hed[newface] );
     BOOST_FOREACH( HEFace f, incident_faces ) {
         split_face(newface, f);
     }

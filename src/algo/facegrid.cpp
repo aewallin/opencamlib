@@ -28,9 +28,11 @@ namespace ocl
 /* ****************** FaceList ******************************** */
 
 FaceGrid::FaceGrid() {
+    //std::cout << " FaceGrid() constructor.\n";
     far_radius = 1;
     nbins = 100;
     binwidth = 2*far_radius/nbins;
+    assert(0); // DO NOT use. There are problems because operator= is not defined...
 }
 
 FaceGrid::~FaceGrid() {
@@ -43,6 +45,7 @@ FaceGrid::~FaceGrid() {
 }
 
 FaceGrid::FaceGrid(double far, unsigned int n_bins) {
+    //std::cout << " FaceGrid(far, n_bins)\n";
     far_radius = 3.1*far;
     nbins = n_bins;
     binwidth = 2*far_radius/nbins;
@@ -55,26 +58,26 @@ FaceGrid::FaceGrid(double far, unsigned int n_bins) {
             //(*grid)[m][n].clear();
         }
     }
-    std::cout << " FaceGrid() done.\n";
+    //std::cout << " FaceGrid(far, n_bins) done.\n";
 }
 
 void FaceGrid::add_face(FaceProps f_prop) {
-    std::cout << " FaceGrid::add_face\n";
+    //std::cout << " FaceGrid::add_face\n";
     // insert into correct bin here
     GridIndex row = get_grid_index( f_prop.generator.x );
     GridIndex col = get_grid_index( f_prop.generator.y );
-    std::cout << " get buccket row="<< row << " col="<<col<<"\n";
+    //std::cout << " get buccket row="<< row << " col="<<col<<"\n";
     FacePropVector* bucket = (*grid)[row][col];
-    std::cout << " add face to buccket \n";
+    //std::cout << " add face to buccket \n";
     bucket->push_back( f_prop );
 } 
 
 GridIndex FaceGrid::get_grid_index( double x ) {
     GridIndex idx;
     idx = (int)( floor( (x+far_radius)/binwidth ) );                
-        assert( idx >= 0 );     
-        assert( idx <= nbins );
-    std::cout << " get_grid_index output = "<< idx << std::endl;
+    assert( idx >= 0 );     
+    assert( idx <= nbins );
+    //std::cout << " get_grid_index output = "<< idx << std::endl;
     return idx;
 }
 

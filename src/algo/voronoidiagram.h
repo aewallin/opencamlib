@@ -44,9 +44,7 @@ class VoronoiDiagram {
         VoronoiDiagram() {}
         /// create diagram with given far-radius and number of bins
         VoronoiDiagram(double far, unsigned int n_bins);
-        
-        virtual ~VoronoiDiagram() {}
-        
+        virtual ~VoronoiDiagram() {delete fgrid;}
         /// add a vertex generator at given position
         void addVertexSite(Point p);
         
@@ -94,7 +92,7 @@ class VoronoiDiagram {
         /// the half-edge diagram of the vd
         HalfEdgeDiagram hed;
         /// a grid which allows fast nearest-neighbor search
-        FaceGrid fgrid; // for grid-search
+        FaceGrid* fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
         /// special initial vertex
