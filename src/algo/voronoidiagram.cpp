@@ -455,13 +455,13 @@ HalfEdgeDiagram* VoronoiDiagram::getDelaunayTriangulation()  {
             HEEdge twin_edge = hed[edge].twin;
             if (twin_edge != HEEdge() ) {
                 HEFace twin_face = hed[twin_edge].face;
-                std::cout << " vd faces: " << face << " , " << twin_face << std::endl;
+                //std::cout << " vd faces: " << face << " , " << twin_face << std::endl;
                 
                 itr = map.find(face);
                 HEVertex v1 = itr->second;
                 itr = map.find(twin_face);
                 HEVertex v2 = itr->second;
-                std::cout << " dt edge " << v1 << " , " << v2 << std::endl;
+                //std::cout << " dt edge " << v1 << " , " << v2 << std::endl;
                 
                 dt->add_edge( v1, v2 );
             }

@@ -568,7 +568,10 @@ class Text(vtk.vtkTextActor):
     def SetText(self, text):
         """ set text to be displayed """
         self.SetInput(text)
-
+        
+    def SetSize(self, size):
+        self.properties.SetFontSize(size)
+        
 class Text3D(vtk.vtkFollower):
     """ 3D text rendered in the scene"""
     def __init__(self, color=(1,1,1), center=(0,0,0), text="hello", scale=1, camera=[]):

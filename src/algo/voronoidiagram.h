@@ -51,8 +51,8 @@ class VoronoiDiagram {
         /// return the dual graph
         HalfEdgeDiagram* getDelaunayTriangulation();
         void setDelaunayTriangulation() {
-            //if (dt)
-            //    delete dt;
+            if (dt)
+                delete dt;
             dt = getDelaunayTriangulation();
         }
         boost::python::list getDelaunayEdges();
