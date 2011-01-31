@@ -51,8 +51,8 @@ class VoronoiDiagram {
         /// return the dual graph
         HalfEdgeDiagram* getDelaunayTriangulation();
         void setDelaunayTriangulation() {
-            if (dt)
-                delete dt;
+            //if (dt != NULL)
+            //    delete dt;
             dt = getDelaunayTriangulation();
         }
         boost::python::list getDelaunayEdges();
@@ -99,6 +99,7 @@ class VoronoiDiagram {
     // DATA
         /// the half-edge diagram of the vd
         HalfEdgeDiagram hed;
+        /// delaunay triangulation, i.e. the dual graph of the VD
         HalfEdgeDiagram* dt;
         /// a grid which allows fast nearest-neighbor search
         FaceGrid* fgrid; // for grid-search
@@ -110,6 +111,11 @@ class VoronoiDiagram {
         HEVertex v02;
         /// special initial vertex
         HEVertex v03;
+        
+        // initial generators
+        Point gen1;
+        Point gen2;
+        Point gen3;
         /// the number of generators
         int gen_count;
         /// temporary variable for incident faces

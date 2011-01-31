@@ -41,9 +41,7 @@ class MillingCutter;
 /// base-class for cam algorithms
 class Operation {
     public:
-        Operation() {
-            
-        }
+        Operation() {}
         virtual ~Operation() {}
         /// set the STL-surface and build kd-tree
         virtual void setSTL(const STLSurf& s) {

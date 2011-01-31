@@ -5,6 +5,7 @@ import vtk
 import datetime
 import math
 import random
+import gc
 
 def drawVertex(myscreen, p, vertexColor, rad=1):
     myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=rad, color=vertexColor ) )
@@ -56,7 +57,7 @@ class VD:
             self.Ngen = len( self.generators )-3
         else:
             self.Ngen = 0
-        self.vdtext_text = "Voronoi Diagram + Delaunay Triangulation, " + str(self.Ngen) + " generators."
+        self.vdtext_text = "Delaunay Triangulation, " + str(self.Ngen) + " generators."
         self.vdtext.SetText( self.vdtext_text )
         self.vdtext.SetSize(32)
         
@@ -65,8 +66,9 @@ class VD:
             myscreen.removeActor(g)
 
         self.generators = []
+        #gc.collect()
         for p in vd.getGenerators():
-            gactor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=1, color=self.generatorColor )
+            gactor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.5, color=self.generatorColor )
             self.generators.append(gactor)
             myscreen.addActor( gactor )
         self.setVDText()
@@ -83,8 +85,9 @@ class VD:
             myscreen.removeActor(p)
             #p.Delete()
         self.verts = []
+        #gc.collect()
         for p in vd.getVoronoiVertices():
-            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.8, color=self.vertexColor )
+            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.08, color=self.vertexColor )
             self.generators.append(actor)
             myscreen.addActor( actor )
         myscreen.render() 
@@ -94,6 +97,7 @@ class VD:
             myscreen.removeActor(e)
             #e.Delete()
         self.edges = []
+        #gc.collect()
         for e in vd.getEdgesGenerators():
             ofset = 0
             p1 = e[0]  
@@ -112,6 +116,9 @@ class VD:
     def setDT(self,vd):
         for e in self.DTedges:
             myscreen.removeActor(e)
+        self.DTedges = []
+        #gc.collect()
+        #print "dt-edges: ",vd.getDelaunayEdges()
         for e in vd.getDelaunayEdges():
             p1 = e[0]  
             p2 = e[1] 
@@ -169,7 +176,7 @@ if __name__ == "__main__":
     """
     
     # REGULAR GRID
-    rows = 10
+    rows = 20
     for n in range(rows):
         for m in range(rows):
             x=-50+(100/rows)*n
@@ -197,12 +204,12 @@ if __name__ == "__main__":
         #time.sleep(0.033)
         print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
-        
-        vd.setDelaunayTriangulation()
-        vod.setAll(vd)
-        #w2if.Modified() 
-        #lwr.SetFileName("frames/vd_dt_ofs_100_"+ ('%05d' % n)+".png")
-        #lwr.Write()
+        if n%1 == 0:
+            vd.setDelaunayTriangulation()
+            vod.setAll(vd)
+        w2if.Modified() 
+        lwr.SetFileName("frames/vd_dt_20_"+ ('%05d' % n)+".png")
+        lwr.Write()
         n=n+1
     t_after = time.time()
     calctime = t_after-t_before

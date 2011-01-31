@@ -83,9 +83,9 @@ void VoronoiDiagram::init() {
 
     // the locations of the initial generators:
     double gen_mutliplier = 3;
-    Point gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
-    Point gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
-    Point gen1 = Point( 0,-gen_mutliplier*far_radius);
+    gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
+    gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
+    gen1 = Point( 0,-gen_mutliplier*far_radius);
     hed[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
         
     // add face 1: v0-v1-v2
@@ -143,8 +143,9 @@ void VoronoiDiagram::init() {
 }
 
 
-
+// comments relate to Sugihara-Iri paper
 void VoronoiDiagram::addVertexSite(Point p) {
+    //std::cout << "VD: addVertexSite()\n";
     gen_count++;
     // 1) find the generator-vertex/face closest to p
     // 2) amont the vd-vertices in the found face, find the one with the smallest H
@@ -170,6 +171,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     reset_labels();
     
     //assert( isValid() );
+    //std::cout << "VD: addVertexSite() done.\n";
 }
 
 HEFace VoronoiDiagram::split_faces(Point& p) {
@@ -435,6 +437,7 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
 //  vornoi-vertices are dual to delaunay-faces 
 //  voronoi-edges are dual to delaunay-edges(connect two faces)
 HalfEdgeDiagram* VoronoiDiagram::getDelaunayTriangulation()  {
+    //std::cout << "VD: getDelaunayTriangulation()()\n";
     HalfEdgeDiagram* dt = new HalfEdgeDiagram();
     // loop through faces and add vertices/generators
     typedef std::pair<HEFace, HEVertex> FaVePair;
@@ -442,9 +445,12 @@ HalfEdgeDiagram* VoronoiDiagram::getDelaunayTriangulation()  {
     FaVeMap map;
     //VertexVector verts;
     for ( HEFace f=0;f<hed.num_faces();++f ) {
-        HEVertex v = dt->add_vertex( VertexProps( hed[f].generator , OUT)  );
-        //verts.push_back(v); 
-        map.insert( FaVePair(f,v) );
+        Point pos = hed[f].generator;
+        if ( pos != gen1 && pos != gen2 && pos != gen3) { // don't add the special init()-generators
+            HEVertex v = dt->add_vertex( VertexProps( pos , OUT)  );
+            //verts.push_back(v); 
+            map.insert( FaVePair(f,v) );
+        }
     }
     
     // loop through voronoi-edges and add delaunay-edges
@@ -458,15 +464,19 @@ HalfEdgeDiagram* VoronoiDiagram::getDelaunayTriangulation()  {
                 //std::cout << " vd faces: " << face << " , " << twin_face << std::endl;
                 
                 itr = map.find(face);
-                HEVertex v1 = itr->second;
-                itr = map.find(twin_face);
-                HEVertex v2 = itr->second;
-                //std::cout << " dt edge " << v1 << " , " << v2 << std::endl;
-                
-                dt->add_edge( v1, v2 );
+                if (itr != map.end() ) {
+                    HEVertex v1 = itr->second;
+                    itr = map.find(twin_face);
+                    if (itr != map.end() ) {
+                        HEVertex v2 = itr->second;
+                        //std::cout << " dt edge " << v1 << " , " << v2 << std::endl;
+                        
+                        dt->add_edge( v1, v2 );
+                    }
+                }
             }
     }
-    
+    //std::cout << "VD: getDelaunayTriangulation() done.\n";
     return dt;
 }
 

@@ -208,8 +208,9 @@ if __name__ == "__main__":
     for e in dte:
         p1 = e[0]
         p2 = e[1]
-        drawEdge(myscreen, e, camvtk.red)
         #print "edge (",p1," , ",p2," )"
+        drawEdge(myscreen, e, camvtk.red)
+        
         
     vod.setAll(vd)
     #vod.setGenerators(vd)
