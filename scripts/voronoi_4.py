@@ -151,7 +151,7 @@ def addVertexSlow(myscreen, vd, vod, p):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.1, 0, 3) # 1200 for far view, 300 for circle view
+    myscreen.camera.SetPosition(0.00001, 0, 0.001) # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(0, 0, 0)
     myscreen.camera.SetClippingRange(-20,20)
     camvtk.drawOCLtext(myscreen)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     
     myscreen.render()
     random.seed(42)
-    far = 12.0
+    far = 0.00010
     vd = ocl.VoronoiDiagram(far,1200)
     
     vod = VD(myscreen,vd)
