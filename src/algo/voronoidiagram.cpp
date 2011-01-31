@@ -198,20 +198,23 @@ void VoronoiDiagram::reset_labels() {
     incident_faces.clear();
 }
 
+// remove vertices in the set v0
 void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
     HEEdge current_edge = hed[newface].edge; 
-    HEVertex current_target; 
+    //HEVertex current_target; 
     HEEdge start_edge = current_edge;
+    
+    // this repairs the next-pointers for newface that are broken.
     bool done = false;
-    while (!done) {// this repairs the next-pointers for newface that are broken.
-        current_target = hed.target(  current_edge ); // an edge on the new face
+    while (!done) {
+        HEVertex current_target = hed.target( current_edge ); // an edge on the new face
         HEVertex current_source = hed.source( current_edge );
-        BOOST_FOREACH( HEEdge edge, hed.out_edges( current_target ) ) {
+        BOOST_FOREACH( HEEdge edge, hed.out_edges( current_target ) ) { // loop through potential "next" candidates
             HEVertex out_target = hed.target( edge );
-            if ( hed[out_target].type == NEW ) {
-                if ( out_target != current_source ) { 
-                    // this is the edge we want to take
-                    hed[current_edge].next = edge;
+            if ( hed[out_target].type == NEW ) { // the next vertex along the face should be "NEW"
+                if ( out_target != current_source ) { // but not where we came from
+                    hed[current_edge].next = edge; // this is the edge we want to take
+                    // current and next should belong on the same face
                     assert( hed[current_edge].face ==  hed[ hed[current_edge].next ].face );
                 }
             }
@@ -316,35 +319,38 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     }
 }
 
+// for visualizing the vertex set to be removed
+boost::python::list getVertexSet() {
+    boost::python::list plist;
+    return plist;
+}
+
+
 void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
+    assert(q.size()==1);
     // RB2   voronoi-point q[0] = q( a, b, c ) is the seed
-    // add faces Ca,Cb,Cc to the stack
+    // add adjacent faces Ca,Cb,Cc to the stack
     FaceVector adjacent_faces = hed.adjacent_faces( q[0] );
-    in_vertices.push_back( q[0] );
-    
     assert( adjacent_faces.size()==3 ); // in a degree three graph every vertex has three adjacent faces
     
+    in_vertices.push_back( q[0] );
+    
     std::stack<HEFace> S; // B1.3  we push all the adjacent faces onto the stack, and label them INCIDENT
-    //std::cout << "   seed vertex " << q[0] << " has adjacent faces: ";
     BOOST_FOREACH(HEFace f, adjacent_faces) {
-        hed[f].type = INCIDENT; // .set_face_type(f, INCIDENT);
+        hed[f].type = INCIDENT; 
         incident_faces.push_back(f);
         S.push(f);
     }
-    //std::cout << "\n";
     
-    while ( !S.empty() ) { 
+    while ( !S.empty() ) { // examine all incident faces until done.
         HEFace f = S.top();
         S.pop();
-        //std::cout << "    augmenting from face = " << f << "\n";
         HEEdge current_edge = hed[f].edge; 
         HEEdge start_edge = current_edge;
         bool done=false;
         while (!done) {
-            //std::cout << current_edge << "\n";
-            
-            //assert( faces[ vd[current_edge].face ].type == INCIDENT );
-            //assert( vd[current_edge].face == f );
+            assert( hed[ hed[current_edge].face ].type == INCIDENT );
+            assert( hed[current_edge].face == f );
             
             // G( V, E, C) is the voronoi graph, C=cycles=faces
             // v0 is the set of vertices to be removed E(v0) are all edges that connect two v0 vertices
@@ -360,12 +366,10 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                 in_vertices.push_back( v );
                 
                 if ( hed[v].detH( p ) < 0.0 ) {
-                    //std::cout << "     found IN vertex " << v << " on edge " << current_edge <<" face " << f <<"\n";
                     hed[v].type = IN;
                     q.push_back(v);
                     
-                    // also set the adjacent faces to incident
-                    FaceVector new_adjacent_faces = hed.adjacent_faces( v );
+                    FaceVector new_adjacent_faces = hed.adjacent_faces( v ); // also set the adjacent faces to incident
                     BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
                         if ( hed[adj_face].type  != INCIDENT ) {
                             hed[adj_face].type = INCIDENT; 
@@ -378,8 +382,9 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
                     //in_vertices.push_back( v );
                 }
             }
-            current_edge = hed[current_edge].next;
-            if ( current_edge == start_edge )
+            current_edge = hed[current_edge].next; // jump to the next edge on this face
+            
+            if ( current_edge == start_edge ) // when we are back where we started, stop.
                 done = true;
         }
 

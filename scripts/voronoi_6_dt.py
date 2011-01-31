@@ -105,12 +105,6 @@ class VD:
             actor = camvtk.Line( p1=( p1.x,p1.y,p1.z), p2=(p2.x,p2.y,p2.z), color=self.edgeColor )
             myscreen.addActor(actor)
             self.edges.append(actor)
-            #actor1 = camvtk.Sphere( center=(p1.x,p1.y,p1.z), radius=2, color=camvtk.pink )
-            #actor2 = camvtk.Sphere( center=(p2.x,p2.y,p2.z), radius=2, color=camvtk.lgreen )
-            #myscreen.addActor(actor1)
-            #self.edges.append(actor1)
-            #myscreen.addActor(actor2)
-            #self.edges.append(actor2)
         myscreen.render() 
         
     def setDT(self,vd):

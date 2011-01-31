@@ -55,6 +55,21 @@ class VoronoiDiagram {
             //    delete dt;
             dt = getDelaunayTriangulation();
         }
+        
+        // for visualizing the closest face
+        Point getClosestFaceGenerator( const Point p ) {
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            return hed[closest_face].generator;
+        }
+        // for visualizing seed-vertex
+        Point getSeedVertex( const Point p ) {
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            VertexVector v0 = find_seed_vertex(closest_face, p);
+            HEVertex v = v0[0];
+            return hed[v].position;
+        }
+        boost::python::list getVertexSet();
+        
         boost::python::list getDelaunayEdges();
         /// return list of generators to python
         boost::python::list getGenerators() ;
