@@ -214,7 +214,12 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
             if ( hed[out_target].type == NEW ) { // the next vertex along the face should be "NEW"
                 if ( out_target != current_source ) { // but not where we came from
                     hed[current_edge].next = edge; // this is the edge we want to take
+                    
                     // current and next should belong on the same face
+                    if (hed[current_edge].face !=  hed[ hed[current_edge].next ].face) {
+                        std::cout << " VD remove_vertex_set() error.\n";
+                        std::cout << "current.face = " << hed[current_edge].face << " IS NOT next_face = " << hed[ hed[current_edge].next ].face << std::endl;
+                    }
                     assert( hed[current_edge].face ==  hed[ hed[current_edge].next ].face );
                 }
             }
@@ -355,8 +360,9 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
             // G( V, E, C) is the voronoi graph, C=cycles=faces
             // v0 is the set of vertices to be removed E(v0) are all edges that connect two v0 vertices
             // (T4) G( v0 , E(v0) ) is a tree
-            // (T5) for any face c such that (v0 intersect V(c)) != 0 then 
+            // (T5) for any face/cycle c such that (v0 intersect V(c)) != 0 then 
             //       graph G(  v0 intersect V(c) , E( v0 int V(c) ) ) is connected
+            //     NOTE: this means a face cannot be split in two
             // E0, the cut edges, is set of edges from V0 to V-V0
             HEVertex v = hed.target( current_edge );
             if ( hed[v].type == UNDECIDED ) {
@@ -389,7 +395,7 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
         }
 
         
-        // B2.2 if subgraph (Vout,Eout) is disconnected, find minimal set V* of undecided vertices such that Vout U V* is connected
+        // B2.2 if subgraph (Vout,Eout) is disconnected, find minimal set V* of undecided vertices such that (Vout U V*) is connected
         // and set v=OUT for all V*
         
         // B2.3 if there is no "OUT" vertex in V(cycle) find vertkex v "undecided" with maximal H and put v=OUT
@@ -405,7 +411,7 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
         //            (ii) mark all of V* IN
         //            (iii) for nonincident cycles cj indcident on vertices in V*
         //                 put cj="incident" and add to stack.
-        //
+        
     }
 }
 

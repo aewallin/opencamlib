@@ -83,7 +83,7 @@ class VD:
         self.verts = []
         for p in vd.getVoronoiVertices():
             p=self.scale*p
-            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.00005, color=self.vertexColor )
+            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.000005, color=self.vertexColor )
             self.verts.append(actor)
             myscreen.addActor( actor )
         myscreen.render() 
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 192
+    Nmax = 171
     # far = 0.000010 crashes at n=192
     plist=[]
     for n in range(Nmax):
@@ -182,8 +182,8 @@ if __name__ == "__main__":
     #exit()
     n=1
     t_before = time.time() 
-    delay = 0 # 0.533
-    ren = [170,171,190,191]
+    delay = 4 # 0.533
+    ren = [170,171]
     for p in plist:
         if n in ren:
             vod.setAll(vd)
