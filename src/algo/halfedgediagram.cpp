@@ -183,7 +183,7 @@ FaceVector HalfEdgeDiagram::adjacent_faces( HEVertex q ) {
     for ( ; itr!=itr_end ; ++itr ) {
         face_set.insert( (*this)[*itr].face );
     }
-    assert( face_set.size() == 3); // degree of q is three, so has three faces
+    //assert( face_set.size() == 3); // degree of q is three, so has three faces
     FaceVector fv;
     BOOST_FOREACH(HEFace m, face_set) {
         fv.push_back(m);

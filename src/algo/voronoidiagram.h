@@ -91,6 +91,15 @@ class VoronoiDiagram {
         VertexVector find_seed_vertex(HEFace f, const Point& p);
         /// starting with set v, expand it maximally
         void augment_vertex_set(VertexVector& v, Point& p);
+        /// better implementation from Sugihara-Iri
+        void augment_vertex_set_RB(VertexVector& q, Point& p);
+        
+        bool adjacentInVertexNotInFace( HEVertex w, HEFace f );
+        bool adjacentInVertexInFace( HEVertex w, HEFace f );
+        bool onOtherIncidentFace( HEVertex v, HEFace f );
+        bool noOutVertexInFace( HEFace f );
+        VertexVector removeVertex( VertexVector verts, HEVertex v );
+        
         /// add the new vertices  
         void add_new_voronoi_vertices(VertexVector& v, Point& p);
         /// split faces when adding new generator p

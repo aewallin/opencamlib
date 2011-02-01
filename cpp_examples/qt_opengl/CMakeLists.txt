@@ -7,12 +7,8 @@ FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
 INCLUDE(${QT_USE_FILE})
  MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
 
-
-
 set (MOC_HEADERS nehewidget.h)
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
-
-
 
 add_library(nehewidget SHARED nehewidget.cpp ${MOC_OUTFILES})
 

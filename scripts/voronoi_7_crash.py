@@ -142,7 +142,7 @@ def addVertexSlow(myscreen, vd, vod, p):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.000000001, 0, 0.0131) # 1200 for far view, 300 for circle view
+    myscreen.camera.SetPosition(0.000000001, 0, 0.131) # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(-3.96968e-04, -1.94809e-03, 0)
     # (-1.71738e-03, 3.64353e-03, 0)
     #172 (-1.71738e-06, 3.64353e-06, 0)
@@ -182,8 +182,8 @@ if __name__ == "__main__":
     #exit()
     n=1
     t_before = time.time() 
-    delay = 4 # 0.533
-    ren = [170,171]
+    delay = 0 # 0.533
+    ren = [1,2,3,4,170,171]
     for p in plist:
         if n in ren:
             vod.setAll(vd)
