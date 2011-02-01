@@ -160,8 +160,12 @@ void VoronoiDiagram::addVertexSite(Point p) {
     // B1.2 find seed vertex by evaluating H on the vertices of the found face
     VertexVector v0 = find_seed_vertex(closest_face, p);
     // expand from seed v0[0] find the set V0
+    
+    
     //augment_vertex_set(v0, p);
     augment_vertex_set_RB(v0, p);
+    
+    
     // add new vertices on all edges that connect v0 IN edges to OUT edges
     add_new_voronoi_vertices(v0, p);
     // generate new edges that form a loop around the region to be deleted
@@ -530,36 +534,8 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
                     }
                     // check if IN-graph is disconnected. repair with UNDECIDED vertices
                 }
-                
             } // end UNDECIDED processing
         }
-        /*
-            if ( hed[v].type == UNDECIDED ) {
-                in_vertices.push_back( v );
-                if ( hed[v].detH( p ) < 0.0 ) {
-                    hed[v].type = IN;
-                    q.push_back(v);
-                    
-                    FaceVector new_adjacent_faces = hed.adjacent_faces( v ); // also set the adjacent faces to incident
-                    BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
-                        if ( hed[adj_face].type  != INCIDENT ) {
-                            hed[adj_face].type = INCIDENT; 
-                            incident_faces.push_back(adj_face);
-                            S.push(adj_face);
-                        }
-                    }
-                } else {
-                    hed[v].type = OUT;
-                }
-            }
-        */
-            
-            //current_edge = hed[current_edge].next; // jump to the next edge on this face
-            
-            //if ( current_edge == start_edge ) {// when we are back where we started, stop.
-            //    done = true;
-                // check that we are done with the current face and OK here.
-            //}
         
         // we should now be done with face f
         // IN vertices should be connected
@@ -666,13 +642,14 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
 // evaluate H on all face vertices and return
 // vertex with the lowest H
 VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
-    VertexVector q_verts = hed.face_vertices(face_idx);                 assert( q_verts.size() >= 3 );
+    VertexVector face_verts = hed.face_vertices(face_idx);                 assert( face_verts.size() >= 3 );
     double minimumH = 1; // safe, because we expect the min H to be negative...
     HEVertex minimalVertex;
     double h;
-    BOOST_FOREACH( HEVertex q, q_verts) {
+    BOOST_FOREACH( HEVertex q, face_verts) {
         if ( hed[q].type != OUT ) {
             h = hed[q].detH( p ); 
+            std::cout << "  detH = " << h << " ! \n";
             if (h<minimumH) { // find minimum H value among q_verts
                 minimumH = h;
                 minimalVertex = q;
@@ -680,10 +657,12 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
         }
     }
     if (!(minimumH < 0) ) {
+        std::cout << " VD find_seed_vertex() \n";
         std::cout << " ERROR: searching for seed when inserting " << p  << "  \n";
         std::cout << " ERROR: closest face is  " << face_idx  << " with generator " << hed[face_idx].generator  << " \n";
-        std::cout << " ERROR: minimal vd-vertex " << hed[minimalVertex].position << " has \n";
         std::cout << " ERROR: detH = " << minimumH << " ! \n";
+        std::cout << " ERROR: minimal vd-vertex " << hed[minimalVertex].position << " has \n";
+        
     }
     assert( minimumH < 0 );
     hed[minimalVertex].type = IN;

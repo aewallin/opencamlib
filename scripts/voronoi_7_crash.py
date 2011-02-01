@@ -197,7 +197,7 @@ if __name__ == "__main__":
             myscreen.addActor(gen_actor)
             myscreen.render()
             time.sleep(delay)
-            
+        
         #CLOSEST FACE
         print "PYTHON: adding generator: ",n," at ",p
         clp = scale*vd.getClosestFaceGenerator(p)

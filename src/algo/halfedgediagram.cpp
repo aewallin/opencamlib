@@ -36,18 +36,19 @@ double VertexProps::detH(const Point& pl) {
     return J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
 }
 
-void VertexProps::set_J(Point& pi, Point& pj, Point& pk) { 
+void VertexProps::set_J(Point& pi, Point& pj, Point& pkin) { 
     // 1) i-j-k should come in CCW order
     Point pi_,pj_,pk_;
-    if ( pi.isRight(pj,pk) ) {
+    if ( pi.isRight(pj,pkin) ) {
         pi_ = pj;
         pj_ = pi;
-        pk_ = pk;
+        pk_ = pkin;
     } else {
         pi_ = pi;
         pj_ = pj;
-        pk_ = pk;
+        pk_ = pkin;
     }
+    assert( !pi_.isRight(pj_,pk_) );
     // 2) point pk should have the largest angle 
     // largest angle is opposite longest side.
     double longest_side = (pi_ - pj_).xyNorm();
@@ -65,6 +66,7 @@ void VertexProps::set_J(Point& pi, Point& pj, Point& pk) {
         pj_ = pi_;
         pi_ = tmp;
     }
+    assert( !pi_.isRight(pj_,pk_) );
     this->pk = pk_;
     J2 = detH_J2( pi_, pj_, pk_);
     J3 = detH_J3( pi_, pj_, pk_);
