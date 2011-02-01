@@ -172,6 +172,7 @@ VertexVector HalfEdgeDiagram::face_vertices(HEFace face_idx) const {
     HEEdge current = (*this)[startedge].next;
     do {
         HEVertex current_target = boost::target( current, *this); 
+        assert( current_target != start_target );
         verts.push_back(current_target);
         current = (*this)[current].next;
     } while ( current != startedge );

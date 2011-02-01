@@ -158,7 +158,10 @@ void VoronoiDiagram::addVertexSite(Point p) {
     // 1) find the face corresponding to the closest generator
     HEFace closest_face = fgrid->grid_find_closest_face( p );
     // B1.2 find seed vertex by evaluating H on the vertices of the found face
-    VertexVector v0 = find_seed_vertex(closest_face, p);
+    HEVertex v_seed = find_seed_vertex(closest_face, p);
+    hed[v_seed].type = IN;
+    VertexVector v0;
+    v0.push_back(v_seed); 
     // expand from seed v0[0] find the set V0
     
     
@@ -411,7 +414,8 @@ VertexVector VoronoiDiagram::removeVertex( VertexVector verts, HEVertex v ) {
 // http://dx.doi.org/10.1142/S0218195994000124
 void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
     std::cout << "augment_vertex_set_RB()\n";
-    assert(q.size()==1); // RB2   voronoi-point q[0] = q( a, b, c ) is the seed
+    assert( q.size()==1 ); // RB2   voronoi-point q[0] = q( a, b, c ) is the seed
+    assert( hed[ q[0] ].type == IN ); 
     FaceVector adjacent_faces = hed.adjacent_faces( q[0] );
     assert( adjacent_faces.size()==3 ); // degree three diagram
     in_vertices.push_back( q[0] );
@@ -440,11 +444,13 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
                 if ( adjacentInVertexNotInFace( v, f ) ) {
                     std::cout << " B2.1 T6 OUT " << hed[v].position << "\n";
                     hed[v].type = OUT;
+                    in_vertices.push_back( v );
                 } else if ( onOtherIncidentFace( v, f ) ) {
                     //  (T7) v is on an "incident" cycle other than this cycle and is not adjacent to a vertex in Vin(alfa)
                     if ( !adjacentInVertexInFace( v, f) ) {
                         std::cout << " B2.1 T7 OUT " << hed[v].position << "\n";
                         hed[v].type = OUT;
+                        in_vertices.push_back( v );
                     }
                 }
             }
@@ -470,6 +476,7 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
             std::cout << " max H vertex is " << hed[maximal_v].position << "with detH= " << maxH << std::endl;
             // mark OUT
             hed[maximal_v].type = OUT;
+            in_vertices.push_back( maximal_v );
         }
         // now we have at least one OUT-vertex, and if we have many they are connected.
         
@@ -516,11 +523,13 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
                 // now max_v is the one with highest abs(H)
                 if ( det_v >= 0.0 ) {
                     hed[max_v].type = OUT;
+                    in_vertices.push_back( max_v );
                     std::cout << "OUT vertex found.\n";
                     // check if OUT-graph is disconnected. repair with UNDECIDED vertices
                 } else {
                     assert( det_v < 0.0 );
                     hed[max_v].type = IN;
+                    in_vertices.push_back( max_v );
                     std::cout << "IN vertex found.\n";
                     in_vertices.push_back( max_v );
                     q.push_back(max_v);
@@ -641,8 +650,9 @@ void VoronoiDiagram::augment_vertex_set(VertexVector& q, Point& p) {
 
 // evaluate H on all face vertices and return
 // vertex with the lowest H
-VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
-    VertexVector face_verts = hed.face_vertices(face_idx);                 assert( face_verts.size() >= 3 );
+HEVertex VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
+    VertexVector face_verts = hed.face_vertices(face_idx);                 
+    assert( face_verts.size() >= 3 ); 
     double minimumH = 1; // safe, because we expect the min H to be negative...
     HEVertex minimalVertex;
     double h;
@@ -665,10 +675,7 @@ VertexVector VoronoiDiagram::find_seed_vertex(HEFace face_idx, const Point& p) {
         
     }
     assert( minimumH < 0 );
-    hed[minimalVertex].type = IN;
-    VertexVector output;
-    output.push_back(minimalVertex);
-    return output;
+    return minimalVertex;
 }
 
 //  voronoi-faces are dual to delaunay-vertices.

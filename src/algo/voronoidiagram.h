@@ -64,9 +64,8 @@ class VoronoiDiagram {
         // for visualizing seed-vertex
         Point getSeedVertex( const Point p ) {
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            VertexVector v0 = find_seed_vertex(closest_face, p);
-            HEVertex v = v0[0];
-            return hed[v].position;
+            HEVertex v = find_seed_vertex(closest_face, p);
+            return hed[ v ].position;
         }
         boost::python::list getVertexSet();
         
@@ -87,8 +86,8 @@ class VoronoiDiagram {
         double getFarRadius() const {return far_radius;}
         
     private:
-        /// among the vertices belonging to f, find the one with the lowest detH value
-        VertexVector find_seed_vertex(HEFace f, const Point& p);
+        /// among the vertices of f, find the one with the lowest detH value
+        HEVertex find_seed_vertex(HEFace f, const Point& p);
         /// starting with set v, expand it maximally
         void augment_vertex_set(VertexVector& v, Point& p);
         /// better implementation from Sugihara-Iri
@@ -144,7 +143,8 @@ class VoronoiDiagram {
         int gen_count;
         /// temporary variable for incident faces
         FaceVector incident_faces;
-        /// temporary variable for in-vertices
+        /// temporary variable for in-vertices, out-vertices that need to be reset
+        /// after each generator has been inserted
         VertexVector in_vertices;
 };
 
