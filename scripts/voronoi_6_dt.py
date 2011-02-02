@@ -170,7 +170,7 @@ if __name__ == "__main__":
     """
     
     # REGULAR GRID
-    rows = 20
+    rows = 10
     for n in range(rows):
         for m in range(rows):
             x=-50+(100/rows)*n

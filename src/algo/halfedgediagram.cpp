@@ -94,7 +94,6 @@ HalfEdgeDiagram::HalfEdgeDiagram() {
     // do nothing.
 }
 
-
 HEEdge HalfEdgeDiagram::add_edge(HEVertex v1, HEVertex v2) {
     HEEdge e;
     bool b;
@@ -135,7 +134,6 @@ EdgeVector HalfEdgeDiagram::out_edges( HEVertex v ) const {
     }
     return ev;
 }
-
 
 VertexVector HalfEdgeDiagram::vertices() const {
     VertexVector vv;

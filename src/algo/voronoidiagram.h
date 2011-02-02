@@ -89,7 +89,7 @@ class VoronoiDiagram {
         /// among the vertices of f, find the one with the lowest detH value
         HEVertex find_seed_vertex(HEFace f, const Point& p);
         /// starting with set v, expand it maximally
-        void augment_vertex_set(VertexVector& v, Point& p);
+        void augment_vertex_set_B(VertexVector& v, Point& p);
         /// better implementation from Sugihara-Iri
         void augment_vertex_set_RB(VertexVector& q, Point& p);
         
@@ -100,6 +100,8 @@ class VoronoiDiagram {
         VertexVector removeVertex( VertexVector verts, HEVertex v );
         void printFaceVertexTypes(HEFace f);
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
+        bool  noUndecidedInFace( HEFace f );
+        VertexVector findRepairVerts(HEFace f, VoronoiVertexType Vtype);
         /// add the new vertices  
         void add_new_voronoi_vertices(VertexVector& v, Point& p);
         /// split faces when adding new generator p

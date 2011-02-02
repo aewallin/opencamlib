@@ -183,7 +183,7 @@ if __name__ == "__main__":
     n=1
     t_before = time.time() 
     delay = 0 # 0.533
-    ren = [1,2,3,4,170,171,189,190,191,192]
+    ren = [192]
     for p in plist:
         if n in ren:
             vod.setAll(vd)
