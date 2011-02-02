@@ -98,7 +98,8 @@ class VoronoiDiagram {
         bool onOtherIncidentFace( HEVertex v, HEFace f );
         bool noOutVertexInFace( HEFace f );
         VertexVector removeVertex( VertexVector verts, HEVertex v );
-        
+        void printFaceVertexTypes(HEFace f);
+        bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         /// add the new vertices  
         void add_new_voronoi_vertices(VertexVector& v, Point& p);
         /// split faces when adding new generator p

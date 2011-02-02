@@ -205,6 +205,12 @@ class HalfEdgeDiagram : public HEGraph {
         HEEdge previous_edge(HEEdge e);
         /// return number of edges in graph
         unsigned int num_edges() const { return boost::num_edges( *this ); }
+        /// return true if v1-v2 edge exists
+        bool edge( HEVertex v1, HEVertex v2 ) {
+            typedef std::pair<HEEdge, bool> EdgeBool;
+            EdgeBool result = boost::edge(v1, v2, *this );
+            return result.second;
+        }
         
     // access faces
         /// return adjacent faces to the given vertex

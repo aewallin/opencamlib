@@ -227,6 +227,8 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
                     if (hed[current_edge].face !=  hed[ hed[current_edge].next ].face) {
                         std::cout << " VD remove_vertex_set() error.\n";
                         std::cout << "current.face = " << hed[current_edge].face << " IS NOT next_face = " << hed[ hed[current_edge].next ].face << std::endl;
+                        printFaceVertexTypes(hed[current_edge].face);
+                        printFaceVertexTypes(hed[ hed[current_edge].next ].face);
                     }
                     assert( hed[current_edge].face ==  hed[ hed[current_edge].next ].face );
                 }
@@ -430,6 +432,7 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
     while ( !S.empty() ) { // B2 process stack.
         HEFace f = S.top();
         std::cout << "Augment from face= " << f << std::endl;
+        printFaceVertexTypes(f);
         S.pop();
         VertexVector tmp_verts = hed.face_vertices(f);
         // remove q[0]
@@ -548,17 +551,57 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
         
         // we should now be done with face f
         // IN vertices should be connected
+        assert( faceVerticesConnected(  f, IN ) );
         // OUT vertices should be connected
+        assert( faceVerticesConnected(  f, OUT ) );
         // no UNDECIDED vertices should remain
-        std::cout << " Face " << f << " processed:\n";
-        BOOST_FOREACH( HEVertex v, face_verts ) {
-            std::cout << hed[v].type << " ";
-        }
-        std::cout << "\n";
-        
+        std::cout << "Face: " << f << " augment Done: ";
+        printFaceVertexTypes(f);
     } // end stack while-loop
     std::cout << "augment_vertex_set_RB() DONE.\n";
 
+}
+
+// check that the vertices TYPE are connected
+bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) {
+    VertexVector face_verts = hed.face_vertices(f);
+    VertexVector type_verts;
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        if ( hed[v].type == Vtype )
+            type_verts.push_back(v);
+    }
+    if (type_verts.empty())
+        return true;
+    else if (type_verts.size()==1)
+        return true;
+    
+    std::cout << type_verts.size() << " verts of type " << Vtype << " to check\n";
+    printFaceVertexTypes(f);
+    // check that type_verts are connected
+    // each vertex should connect to another vertex in type_verts
+    BOOST_FOREACH( HEVertex v, type_verts) {
+        assert( hed[v].type == Vtype );
+        bool found=false;
+        BOOST_FOREACH( HEVertex w, type_verts ) {
+            // v should connect to some w, but not itse
+            if ( w != v ) {
+                if ( hed.edge( v , w) ||  hed.edge( w , v) ) // v is connected to w
+                    found = true;
+            }
+        }
+        if (!found)
+            return false;
+    }
+    return true;
+}
+
+void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
+    std::cout << " Face " << f << ": ";
+    VertexVector face_verts = hed.face_vertices(f);
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        std::cout << hed[v].type << " ";
+    }
+    std::cout << "\n";
 }
 
 // simple algorithm for finding vertex set
