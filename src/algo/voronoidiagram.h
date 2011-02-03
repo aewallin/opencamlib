@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <list>
+#include <stack>
 
 #include <boost/python.hpp>  // TODO: lots of python wrapping here...
 #include <boost/foreach.hpp> 
@@ -47,7 +48,7 @@ class VoronoiDiagram {
         virtual ~VoronoiDiagram() {delete fgrid;}
         /// add a vertex generator at given position
         void addVertexSite(Point p);
-        
+        void addVertexSiteRB(Point p);
         /// return the dual graph
         HalfEdgeDiagram* getDelaunayTriangulation();
         void setDelaunayTriangulation() {
@@ -99,9 +100,13 @@ class VoronoiDiagram {
         bool noOutVertexInFace( HEFace f );
         VertexVector removeVertex( VertexVector verts, HEVertex v );
         void printFaceVertexTypes(HEFace f);
+        void printVertices(VertexVector& q);
+        
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         bool  noUndecidedInFace( HEFace f );
         VertexVector findRepairVerts(HEFace f, VoronoiVertexType Vtype);
+        void markAdjecentFacesIncident(std::stack<HEFace>& S, HEVertex v);
+        bool allIn(VertexVector& q);
         /// add the new vertices  
         void add_new_voronoi_vertices(VertexVector& v, Point& p);
         /// split faces when adding new generator p

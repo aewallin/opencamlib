@@ -124,7 +124,7 @@ class VD:
     def setAll(self, vd):
         #self.setVertices(vd)
         self.setGenerators(vd)
-        #self.setEdges(vd)
+        self.setEdges(vd)
         self.setDT(vd)
 
 def addVertexSlow(myscreen, vd, vod, p):        
@@ -192,22 +192,24 @@ if __name__ == "__main__":
     
     n=1
     t_before = time.time() 
+    sleep_time = 1
     for p in plist:
-        #if n>1:
-        #    vod.setAll(vd)
-        #time.sleep(0.033)
+        
         print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
+        #vd.addVertexSiteRB( p )
         if n%1 == 0:
             vd.setDelaunayTriangulation()
             vod.setAll(vd)
-        w2if.Modified() 
-        lwr.SetFileName("frames/vd_dt_20_"+ ('%05d' % n)+".png")
-        lwr.Write()
+            time.sleep(sleep_time)
+        #w2if.Modified() 
+        #lwr.SetFileName("frames/vd_dt_20_"+ ('%05d' % n)+".png")
+        #lwr.Write()
         n=n+1
     t_after = time.time()
     calctime = t_after-t_before
     #print " VD done in ", calctime," s, ", calctime/Nmax," s per generator"
+    vd.setDelaunayTriangulation()
     vod.setAll(vd)
     print "PYTHON All DONE."
     

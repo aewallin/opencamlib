@@ -86,11 +86,17 @@ enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 
 /// vertex properties of a vertex in the voronoi diagram
 struct VertexProps {
-    VertexProps() {}
+    VertexProps() {
+        index = count;
+        count++;
+    }
     /// construct vertex at position p with type t
     VertexProps( Point p, VoronoiVertexType t) {
         position=p;
         type=t;
+        index = count;
+        count++;
+        
     }
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
     void set_position();
@@ -109,6 +115,9 @@ struct VertexProps {
     Point position;
     /// vertex type
     VoronoiVertexType type;
+    /// index of vertex
+    int index;
+    static int count;
     /// the reference point for J-calculations
     Point pk;
     /// J2 determinant

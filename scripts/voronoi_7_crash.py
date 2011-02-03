@@ -169,7 +169,7 @@ if __name__ == "__main__":
     #plist.append(ocl.Point(-20,-20))
     #plist.append(ocl.Point(0,0)) 
     
-    Nmax = 195
+    Nmax = 300
     # far = 0.000010 crashes at n=192
     plist=[]
     for n in range(Nmax):
@@ -183,7 +183,7 @@ if __name__ == "__main__":
     n=1
     t_before = time.time() 
     delay = 0 # 0.533
-    ren = [192]
+    ren = [192,299]
     for p in plist:
         if n in ren:
             vod.setAll(vd)

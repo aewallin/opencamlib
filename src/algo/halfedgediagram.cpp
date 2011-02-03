@@ -24,6 +24,7 @@
 namespace ocl
 {
 
+int VertexProps::count = 0;
 
 void VertexProps::set_position() {
     double w = J4;
