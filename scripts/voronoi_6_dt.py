@@ -133,9 +133,9 @@ def addVertexSlow(myscreen, vd, vod, p):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.1, 0, 300) # 1200 for far view, 300 for circle view
+    myscreen.camera.SetPosition(0.01, 0,  300 ) # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(0, 0, 0)
-    myscreen.camera.SetClippingRange(-20,5000)
+    myscreen.camera.SetClippingRange(-100,350)
     camvtk.drawOCLtext(myscreen)
     
     w2if = vtk.vtkWindowToImageFilter()
@@ -160,17 +160,20 @@ if __name__ == "__main__":
     
     plist=[]
     
-    """
+    
     #RANDOM points
-    Nmax = 100
+    Nmax = 1000
     for n in range(Nmax):
         x=-50+100*random.random()
         y=-50+100*random.random()
         plist.append( ocl.Point(x,y) )
-    """
+        
+        
+    
     
     # REGULAR GRID
-    rows = 10
+    """
+    rows = 30
     for n in range(rows):
         for m in range(rows):
             x=-50+(100/rows)*n
@@ -187,18 +190,38 @@ if __name__ == "__main__":
             y = xt*math.sin(alfa)+yt*math.cos(alfa)
             
             plist.append( ocl.Point(x,y) )
+        
+    random.shuffle(plist)
+    """
+    
+    # POINTS ON A CIRCLE
+    """
+    npts = 32
+    dalfa= 2*math.pi/npts
+    alfa=0
+    for n in range(npts):
+        
+        x=0+(70)*math.cos(alfa)
+        y=0+(70)*math.sin(alfa)
+        alfa = alfa+dalfa
+        plist.append( ocl.Point(x,y) )
             
     random.shuffle(plist)
+    """
+
+    
     
     n=1
     t_before = time.time() 
-    sleep_time = 1
+    sleep_time = 0.0
+    render_interval = 100
+    #vd.addVertexSite( ocl.Point(0,0,0) )
     for p in plist:
         
         print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
         #vd.addVertexSiteRB( p )
-        if n%1 == 0:
+        if n%render_interval == 0:
             vd.setDelaunayTriangulation()
             vod.setAll(vd)
             time.sleep(sleep_time)
