@@ -133,9 +133,9 @@ def addVertexSlow(myscreen, vd, vod, p):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.01, 0,  300 ) # 1200 for far view, 300 for circle view
+    myscreen.camera.SetPosition(0.01, 0,  1500 ) # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(0, 0, 0)
-    myscreen.camera.SetClippingRange(-100,350)
+    myscreen.camera.SetClippingRange(-100,1800)
     camvtk.drawOCLtext(myscreen)
     
     w2if = vtk.vtkWindowToImageFilter()
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     myscreen.render()
     random.seed(42)
     
-    vd = ocl.VoronoiDiagram(100,100)
+    vd = ocl.VoronoiDiagram(150,100)
     
     vod = VD(myscreen)
     #vod.setAll(vd)
@@ -199,13 +199,26 @@ if __name__ == "__main__":
     #"""
     npts = 400
     dalfa= 2*math.pi/npts
+    dgamma= 10*2*math.pi/npts
     alfa=0
+    gamma=0
+    ofs=10
     for n in range(npts):
         
-        x=0+(70)*math.cos(alfa)
-        y=0+(70)*math.sin(alfa)
+        x=0+(60+ofs*math.cos(gamma))*math.cos(alfa)
+        y=0+(100+ofs*math.sin(gamma))*math.sin(alfa)
         alfa = alfa+dalfa
+        gamma = gamma+dgamma
+        # rotation
+        beta = 1
+        xt=x
+        yt=y
+        x = xt*math.cos(beta)-yt*math.sin(beta)
+        y = xt*math.sin(beta)+yt*math.cos(beta)
+            
+        
         plist.append( ocl.Point(x,y) )
+        
             
     random.shuffle(plist)
     #"""

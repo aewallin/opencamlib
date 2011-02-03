@@ -86,7 +86,6 @@ void VoronoiDiagram::init() {
     gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
     gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
     gen1 = Point( 0,-gen_mutliplier*far_radius);
-    std::cout << " init() set_J on central point \n";
     hed[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
         
     // add face 1: v0-v1-v2
@@ -161,6 +160,8 @@ void VoronoiDiagram::addVertexSiteRB(Point p) {
 // comments relate to Sugihara-Iri paper
 // this is roughly "algorithm A" from the paper, page 15/50
 void VoronoiDiagram::addVertexSite(Point p) {
+    assert( p.xyNorm() < far_radius );
+    
     //std::cout << "VD: addVertexSite()\n";
     gen_count++;
     HEFace closest_face = fgrid->grid_find_closest_face( p );
@@ -382,12 +383,8 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
         
         
         // sanity check on new vertex
-        Point pos = hed[q].position;
-        if (pos.xyNorm() > 7*far_radius) {
-            std::cout << "add_new_voronoi_vertices() WARNING \n";
-            std::cout << " pos.xyNorm() = " << pos.xyNorm() << " far_radius= " << far_radius <<"\n";
-        }
-        //assert( pos.xyNorm() < 7*far_radius);
+        // Point pos = hed[q].position;
+        assert( hed[q].position.xyNorm() < 6.1*far_radius); // see init() for placement of the three initial vertices
         
     }
 }
