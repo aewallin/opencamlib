@@ -86,6 +86,7 @@ void VoronoiDiagram::init() {
     gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
     gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
     gen1 = Point( 0,-gen_mutliplier*far_radius);
+    std::cout << " init() set_J on central point \n";
     hed[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
         
     // add face 1: v0-v1-v2
@@ -337,30 +338,39 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
         Point trgP = hed[trg].position;
         Point srcP = hed[src].position;
         if (( trgP - srcP ).xyNorm() <= 0 ) {
+            /*
             std::cout << "add_new_voronoi_vertices() WARNING ( trgP - srcP ).xyNorm()= " << ( trgP - srcP ).xyNorm() << "\n";
             std::cout << " src = " << srcP << "\n";
             std::cout << " trg= " << trgP << "\n";
+            */
             hed[q].position = srcP;
         } else {
-        
-            assert( ( trgP - srcP ).xyNorm() > 0 );
-            double t = ( hed[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+            assert( ( trgP - srcP ).xyNorm() > 0.0 );
+            assert( ( trgP - srcP ).dot( trgP - srcP ) > 0.0 );
+            
+            double t = ((hed[q].position - srcP).dot( trgP - srcP )) / ( trgP - srcP ).dot( trgP - srcP ) ;
             bool warn = false;
-            if (t < 0.0)
+            if (t < 0.0) {
                 warn = true;
-            else if (t> 1.0)
+                t=0.0;
+            } else if (t> 1.0) {
                 warn = true;
+                t=1.0;
+            }
             if ( warn ) {
+                /*
                 std::cout << "add_new_voronoi_vertices() WARNING positioning vertex outside edge! t= " << t << "\n";
                 std::cout << " src = " << srcP << "\n";
                 std::cout << " trg= " << trgP << "\n";
                 std::cout << " new= " << hed[q].position << "\n";
-                
+                std::cout << " ( trgP - srcP ).dot( trgP - srcP )= " << ( trgP - srcP ).dot( trgP - srcP ) << "\n";
+                std::cout << " hed[q].position - srcP).dot( trgP - srcP )= " << (hed[q].position - srcP).dot( trgP - srcP ) << "\n";
+                */
                 // CORRECT the position....
-                t = 0.5;
+                //t = 0.5;
                 hed[q].position = srcP + t*( trgP-srcP);
                 t = ( hed[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
-                std::cout << "add_new_voronoi_vertices() CORRECTED t= " << t << "\n";
+                //std::cout << "add_new_voronoi_vertices() CORRECTED t= " << t << "\n";
                 assert( t >= 0.0 );
                 assert( t <= 1.0 );
             }
@@ -729,8 +739,11 @@ VertexVector VoronoiDiagram::findRepairVerts(HEFace f, VoronoiVertexType Vtype) 
     }
     
     // among the repair sets, find the minimal one
-    if (repair_sets.empty())
+    if (repair_sets.empty()) {
+        std::cout << "findRepairVerts(): Vtype-U found, but cannot repair:\n";
+        printFaceVertexTypes(f);
         assert(0);
+    }
     
     std::size_t min_idx = 0;
     std::size_t min_size = repair_sets[min_idx].size();
@@ -904,7 +917,7 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
         std::cout << " ERROR: searching for seed when inserting " << p  << "  \n";
         std::cout << " ERROR: closest face is  " << f << " with generator " << hed[f].generator  << " \n";
         std::cout << " ERROR: detH = " << minimumH << " ! \n";
-        std::cout << " ERROR: minimal vd-vertex " << hed[minimalVertex].position << " has \n";
+        std::cout << " ERROR: minimal vd-vertex " << hed[minimalVertex].position << " has deth= " << hed[minimalVertex].detH( p ) << "\n";
         
     }
     //assert( minimumH < 0 );

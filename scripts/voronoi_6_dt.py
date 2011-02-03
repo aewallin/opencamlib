@@ -197,7 +197,7 @@ if __name__ == "__main__":
     
     # POINTS ON A CIRCLE
     #"""
-    npts = 1000
+    npts = 400
     dalfa= 2*math.pi/npts
     alfa=0
     for n in range(npts):

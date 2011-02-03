@@ -191,8 +191,8 @@ def drawDiag(far, framenr):
 if __name__ == "__main__":  
     print ocl.revision()
 
-    maxf = 0.1
-    minf = 0.0000001
+    maxf = 0.00001
+    minf = 0.00000001
     lmaxf = math.log(maxf)
     lminf = math.log(minf)
     Nframes = 10

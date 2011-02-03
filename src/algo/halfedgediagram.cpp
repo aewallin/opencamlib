@@ -52,26 +52,33 @@ void VertexProps::set_J(Point& pi, Point& pj, Point& pkin) {
     assert( !pi_.isRight(pj_,pk_) );
     // 2) point pk should have the largest angle 
     // largest angle is opposite longest side.
+    Point pi__,pj__,pk__;
+    pi__ = pi_;                          
+    pj__ = pj_;                          
+    pk__ = pk_;
     double longest_side = (pi_ - pj_).xyNorm();
-    if ( longest_side < (pj_ - pk_).xyNorm() ) {
-        longest_side = (pj_ - pk_).xyNorm();
-        Point tmp = pk_;
-        pk_ = pi_;
-        pi_ = pj_;
-        pj_ = tmp;
+    if (  (pj_ - pk_).xyNorm() > longest_side ) {
+        longest_side = (pj_ - pk_).xyNorm(); //j-k is longest, so i should be new k
+        pk__ = pi_;                         // old  i-j-k 
+        pi__ = pj_;                         // new  k-i-j
+        pj__ = pk_;
     }
-    if ( longest_side < (pi_ - pk_).xyNorm() ) {
-        longest_side = (pi_ - pk_).xyNorm();
-        Point tmp = pk_;
-        pk_ = pj_;
-        pj_ = pi_;
-        pi_ = tmp;
+    if ( (pi_ - pk_).xyNorm() > longest_side ) { // i-k is longest, so j should be new k                    
+        pk__ = pj_;                          // old  i-j-k
+        pj__ = pi_;                          // new  j-k-i
+        pi__ = pk_;
     }
-    assert( !pi_.isRight(pj_,pk_) );
-    this->pk = pk_;
-    J2 = detH_J2( pi_, pj_, pk_);
-    J3 = detH_J3( pi_, pj_, pk_);
-    J4 = detH_J4( pi_, pj_, pk_);
+    
+    assert( !pi__.isRight(pj__,pk__) );
+    assert( (pi__ - pj__).xyNorm() >=  (pj__ - pk__).xyNorm() );
+    assert( (pi__ - pj__).xyNorm() >=  (pk__ - pi__).xyNorm() );
+    
+    this->pk = pk__;
+    J2 = detH_J2( pi__, pj__, pk__);
+    J3 = detH_J3( pi__, pj__, pk__);
+    J4 = detH_J4( pi__, pj__, pk__);
+
+    //assert( J4 > 0.0 );
 
 }
 /// the J2 determinant
@@ -210,7 +217,8 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
     HEVertex twin_target = boost::target( twin , *this );
     if ( source != twin_target )
         std::cout << " ERROR " << e << " source is " << source << " but " << twin << " target is " << twin_target << "\n"; 
-    assert( source == twin_target );    assert( target == twin_source );
+    assert( source == twin_target );    
+    assert( target == twin_source );
     
     HEFace face = (*this)[e].face;
     HEFace twin_face = (*this)[twin].face;
