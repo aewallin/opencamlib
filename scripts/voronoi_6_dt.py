@@ -123,7 +123,7 @@ class VD:
         
     def setAll(self, vd):
         #self.setVertices(vd)
-        self.setGenerators(vd)
+        #self.setGenerators(vd)
         self.setEdges(vd)
         self.setDT(vd)
 
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     myscreen.render()
     random.seed(42)
     
-    vd = ocl.VoronoiDiagram(400,10)
+    vd = ocl.VoronoiDiagram(100,100)
     
     vod = VD(myscreen)
     #vod.setAll(vd)
@@ -162,18 +162,19 @@ if __name__ == "__main__":
     
     
     #RANDOM points
+    """
     Nmax = 1000
     for n in range(Nmax):
         x=-50+100*random.random()
         y=-50+100*random.random()
         plist.append( ocl.Point(x,y) )
-        
+    """
         
     
     
     # REGULAR GRID
     """
-    rows = 30
+    rows = 40
     for n in range(rows):
         for m in range(rows):
             x=-50+(100/rows)*n
@@ -195,8 +196,8 @@ if __name__ == "__main__":
     """
     
     # POINTS ON A CIRCLE
-    """
-    npts = 32
+    #"""
+    npts = 1000
     dalfa= 2*math.pi/npts
     alfa=0
     for n in range(npts):
@@ -207,13 +208,13 @@ if __name__ == "__main__":
         plist.append( ocl.Point(x,y) )
             
     random.shuffle(plist)
-    """
+    #"""
 
     
     
     n=1
     t_before = time.time() 
-    sleep_time = 0.0
+    sleep_time = 0.03
     render_interval = 100
     #vd.addVertexSite( ocl.Point(0,0,0) )
     for p in plist:

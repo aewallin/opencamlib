@@ -330,11 +330,54 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
         HEFace twin_face = hed[twin].face;      assert( hed[twin_face].type == INCIDENT);
         hed[q].set_J( hed[face].generator  , hed[twin_face].generator  , p); 
         hed[q].set_position();
+        
+        // check new vertex position, should lie between endpoints of q_edges[m]
+        HEVertex trg = hed.target(q_edges[m]);
+        HEVertex src = hed.source(q_edges[m]);
+        Point trgP = hed[trg].position;
+        Point srcP = hed[src].position;
+        if (( trgP - srcP ).xyNorm() <= 0 ) {
+            std::cout << "add_new_voronoi_vertices() WARNING ( trgP - srcP ).xyNorm()= " << ( trgP - srcP ).xyNorm() << "\n";
+            std::cout << " src = " << srcP << "\n";
+            std::cout << " trg= " << trgP << "\n";
+            hed[q].position = srcP;
+        } else {
+        
+            assert( ( trgP - srcP ).xyNorm() > 0 );
+            double t = ( hed[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+            bool warn = false;
+            if (t < 0.0)
+                warn = true;
+            else if (t> 1.0)
+                warn = true;
+            if ( warn ) {
+                std::cout << "add_new_voronoi_vertices() WARNING positioning vertex outside edge! t= " << t << "\n";
+                std::cout << " src = " << srcP << "\n";
+                std::cout << " trg= " << trgP << "\n";
+                std::cout << " new= " << hed[q].position << "\n";
+                
+                // CORRECT the position....
+                t = 0.5;
+                hed[q].position = srcP + t*( trgP-srcP);
+                t = ( hed[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+                std::cout << "add_new_voronoi_vertices() CORRECTED t= " << t << "\n";
+                assert( t >= 0.0 );
+                assert( t <= 1.0 );
+            }
+        }
+
+        
         hed.insert_vertex_in_edge( q, q_edges[m] );
+        
+        
         
         // sanity check on new vertex
         Point pos = hed[q].position;
-        assert( pos.xyNorm() < 4*far_radius);
+        if (pos.xyNorm() > 7*far_radius) {
+            std::cout << "add_new_voronoi_vertices() WARNING \n";
+            std::cout << " pos.xyNorm() = " << pos.xyNorm() << " far_radius= " << far_radius <<"\n";
+        }
+        //assert( pos.xyNorm() < 7*far_radius);
         
     }
 }
@@ -662,6 +705,7 @@ VertexVector VoronoiDiagram::findRepairVerts(HEFace f, VoronoiVertexType Vtype) 
     
     if (startEdges.empty()) {
         std::cout << "findRepairVerts(): can't find Vtype-U start edge!\n";
+        printFaceVertexTypes(f);
         assert(0); // repair is not possible if we don't have a startEdge
     }
     std::vector<VertexVector> repair_sets;
@@ -749,30 +793,7 @@ bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) 
     else 
         return true;
     
-    /*
-    BOOST_FOREACH( HEVertex v, type_verts) {
-        assert( hed[v].type == Vtype );
-        bool found=false;
-        BOOST_FOREACH( HEVertex w, type_verts ) {
-            assert( hed[w].type == Vtype );
-            // v should connect to some w, but not itself
-            if ( w != v ) {
-                if ( hed.edge( v , w) ) 
-                    found = true;
-                else if ( hed.edge( w , v) ) // v is connected to w)
-                    found = true;
-            }
-        }
-        if (!found) {
-            std::cout << "faceVerticesConnected() WARNING\n";
-            std::cout << "faceVerticesConnected() " << type_verts.size() << " verts of type " << Vtype << " are NOT connected: \n";
-            printFaceVertexTypes(f);
-            return false;
-        }
-    } 
 
-    return true;
-    */
 }
 
 void VoronoiDiagram::printFaceVertexTypes(HEFace f) {

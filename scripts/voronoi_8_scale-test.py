@@ -5,6 +5,7 @@ import vtk
 import datetime
 import math
 import random
+import numpy as np
 
 def drawVertex(myscreen, p, vertexColor, rad=1):
     myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=rad, color=vertexColor ) )
@@ -47,46 +48,48 @@ class VD:
         self.vdtext.SetPos( (50, myscreen.height-50) )
         self.Ngen = 0
         self.vdtext_text = ""
-        self.setVDText(vd)
         self.scale=scale
+        self.setVDText(vd)
+        
         
         myscreen.addActor(self.vdtext)
         
     def setVDText(self, vd):
         self.Ngen = len( vd.getGenerators() )-3
-        self.vdtext_text = "VD with " + str(self.Ngen) + " generators."
+        self.vdtext_text = "VD with " + str(self.Ngen) + " generators. SCALE= " + str(vd.getFarRadius())
         self.vdtext.SetText( self.vdtext_text )
+        self.vdtext.SetSize(32)
         
     def setGenerators(self, vd):
         if len(self.gen_pts)>0:
-            myscreen.removeActor( self.generators ) 
+            self.myscreen.removeActor( self.generators ) 
         #self.generators=[]
         self.gen_pts = []
         for p in vd.getGenerators():
             self.gen_pts.append(self.scale*p)
         self.generators= camvtk.PointCloud(pointlist=self.gen_pts) 
         self.generators.SetPoints()
-        myscreen.addActor(self.generators)
+        self.myscreen.addActor(self.generators)
         self.setVDText(vd)
-        myscreen.render() 
+        self.myscreen.render() 
     
     def setFar(self, vd):
         for p in vd.getFarVoronoiVertices():
             p=self.scale*p
-            myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=4, color=camvtk.pink ) )
-        myscreen.render() 
+            self.myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=4, color=camvtk.pink ) )
+        self.myscreen.render() 
             
             
     def setVertices(self, vd):
         for p in self.verts:
-            myscreen.removeActor(p)
+            self.myscreen.removeActor(p)
         self.verts = []
         for p in vd.getVoronoiVertices():
             p=self.scale*p
             actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.000005, color=self.vertexColor )
             self.verts.append(actor)
-            myscreen.addActor( actor )
-        myscreen.render() 
+            self.myscreen.addActor( actor )
+        self.myscreen.render() 
         
     def setEdgesPolydata(self, vd):
         self.edges = []
@@ -115,8 +118,8 @@ class VD:
         self.edge_actor = vtk.vtkActor()
         self.edge_actor.SetMapper(mapper)
         self.edge_actor.GetProperty().SetColor( camvtk.cyan )
-        myscreen.addActor( self.edge_actor )
-        myscreen.render() 
+        self.myscreen.addActor( self.edge_actor )
+        self.myscreen.render() 
     
     def setEdges(self, vd):
         for e in self.edges:
@@ -126,9 +129,9 @@ class VD:
             p1 = self.scale*e[0]  
             p2 = self.scale*e[1] 
             actor = camvtk.Line( p1=( p1.x,p1.y,p1.z), p2=(p2.x,p2.y,p2.z), color=self.edgeColor )
-            myscreen.addActor(actor)
+            self.myscreen.addActor(actor)
             self.edges.append(actor)
-        myscreen.render() 
+        self.myscreen.render() 
         
     def setAll(self, vd):
         self.setGenerators(vd)
@@ -138,135 +141,72 @@ class VD:
 
 def addVertexSlow(myscreen, vd, vod, p):        
     pass
-    
-if __name__ == "__main__":  
-    print ocl.revision()
+
+def drawDiag(far, framenr):
     myscreen = camvtk.VTKScreen()
-    # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(0, 0, 0)
-    # (-1.71738e-03, 3.64353e-03, 0)
-    #172 (-1.71738e-06, 3.64353e-06, 0)
-    
     camvtk.drawOCLtext(myscreen)
-    
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-    #w2if.Modified()
-    #lwr.SetFileName("tux1.png")
-    
-    camPos = 0.3
-    myscreen.camera.SetPosition(camPos/1000, 0, camPos) 
-    myscreen.camera.SetClippingRange(-2*camPos,2*camPos)
     scale=1000
-    myscreen.render()
-    random.seed(42)
-    far = 0.0001
+    #far = 0.00001
     vd = ocl.VoronoiDiagram(far,1200)
-    
+    camPos = 0.2* (far/0.0001)
+    myscreen.camera.SetPosition(camPos/10000, 0, camPos) 
+    myscreen.camera.SetClippingRange(-2*camPos,2*camPos)
+    random.seed(42)
     vod = VD(myscreen,vd,scale)
-    #vod.setAll(vd)
     drawFarCircle(myscreen, scale*vd.getFarRadius(), camvtk.orange)
-    #plist=[ocl.Point(61,61)  ]
-    #plist.append(ocl.Point(-20,-20))
-    #plist.append(ocl.Point(0,0)) 
-    
     Nmax = 300
-    # far = 0.000010 crashes at n=192
     plist=[]
     for n in range(Nmax):
         x=-far/2+far*random.random()
         y=-far/2+far*random.random()
         plist.append( ocl.Point(x,y) )
-    
-
-    #print plist[169]
-    #exit()
     n=1
-    t_before = time.time() 
-    delay = 0 # 0.533
-    ren = [300]
+    #ren = [300]
     for p in plist:
-        if n in ren:
-            vod.setAll(vd)
-            myscreen.render()
-            time.sleep(delay)
-        
-        #GENERATOR
-        """
-        gp=scale*p
-        gen_actor = camvtk.Sphere( center=(gp.x,gp.y,gp.z), radius=0.0001, color=camvtk.yellow )
-        if n in ren:
-            myscreen.addActor(gen_actor)
-            myscreen.render()
-            time.sleep(delay)
-        """
-        
-        #CLOSEST FACE
-        """
         print "PYTHON: adding generator: ",n," at ",p
-        clp = scale*vd.getClosestFaceGenerator(p)
-        print " closest generator is ", clp
-        cl_actor = camvtk.Sphere( center=(clp.x,clp.y,clp.z), radius=0.0001, color=camvtk.green )
-        if n in ren:
-            myscreen.addActor(cl_actor)
-            myscreen.render()
-            time.sleep(delay)
-        """
-            
-        #SEED
-        """
-        sv = scale*vd.getSeedVertex(p)
-        print " seed vertex is ",sv
-        seed_actor = camvtk.Sphere( center=(sv.x,sv.y,sv.z), radius=0.0001, color=camvtk.pink )
-        if n in ren:
-            myscreen.addActor(seed_actor)
-            myscreen.render()
-            time.sleep(delay)
-        """
-        #if n != 192:
+        #if n in ren:
         vd.addVertexSite( p )
-
-        
-        #w2if.Modified() 
-        #lwr.SetFileName("frames/vd500_"+ ('%05d' % n)+".png")
-        #lwr.Write()
         n=n+1
-        """
-        if n in ren:
-            myscreen.removeActor(cl_actor)
-            myscreen.removeActor(gen_actor)
-            myscreen.removeActor(seed_actor)
-        """
         
-    t_after = time.time()
-    calctime = t_after-t_before
-    print " VD done in ", calctime," s, ", calctime/Nmax," s per generator"
+    vod.setAll(vd)
+    myscreen.render()
+            
+    w2if.Modified() 
+    lwr.SetFileName("frames/vd_scale_"+ ('%05d' % framenr)+".png")
+    lwr.Write()
         
-        
-    #vod.setAll(vd)
-    #vod.setGenerators(vd)
-    #time.sleep(1)
-    #vod.setVertices(vd)
-    #vod.setEdges(vd)
-
-    #vd.addVertexSite( ocl.Point(0,-20) )
-    #vod.setGenerators(vd)
-    #time.sleep(1)
-    #vod.setVertices(vd)
-    #vod.setEdges(vd)
-    
-    #vd.addVertexSite( ocl.Point(20,20) )
-    #drawDiagram( myscreen, vd )
-    
-    #dle = vd.getDelaunayEdges()
-    #print " got ",len(dle)," Delaunay edges"
-    #for e in dle:
-    #    drawEdge(myscreen,e, camvtk.red)
     print "PYTHON All DONE."
 
-    #camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
+
     
     myscreen.render()    
-    myscreen.iren.Start()
+    #myscreen.iren.Start()
+
+
+if __name__ == "__main__":  
+    print ocl.revision()
+
+    maxf = 0.1
+    minf = 0.0000001
+    lmaxf = math.log(maxf)
+    lminf = math.log(minf)
+    Nframes = 10
+    lrange = np.arange(lmaxf,lminf, -(lmaxf-lminf)/Nframes)
+    print lrange
+    fars = []
+    for l in lrange:
+        f = math.exp(l)
+        fars.append(f)
+    print fars
+    #exit()
+    #farvals = [0.1 , 0.01]
+    n=1
+    for f in fars:
+        drawDiag(f,n)
+        n=n+1
+    
