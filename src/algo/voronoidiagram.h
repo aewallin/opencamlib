@@ -97,10 +97,12 @@ class VoronoiDiagram {
         bool adjacentInVertexNotInFace( HEVertex w, HEFace f );
         bool adjacentInVertexInFace( HEVertex w, HEFace f );
         bool onOtherIncidentFace( HEVertex v, HEFace f );
-        bool noOutVertexInFace( HEFace f );
-        VertexVector removeVertex( VertexVector verts, HEVertex v );
+        //bool noOutVertexInFace( HEFace f );
+        //VertexVector removeVertex( VertexVector verts, HEVertex v );
         void printFaceVertexTypes(HEFace f);
         void printVertices(VertexVector& q);
+        int outVertexCount(HEFace f);
+        bool allIncidentFacesOK();
         
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         bool  noUndecidedInFace( HEFace f );

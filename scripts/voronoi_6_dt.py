@@ -123,7 +123,7 @@ class VD:
         
     def setAll(self, vd):
         #self.setVertices(vd)
-        #self.setGenerators(vd)
+        self.setGenerators(vd)
         self.setEdges(vd)
         self.setDT(vd)
 
@@ -133,9 +133,9 @@ def addVertexSlow(myscreen, vd, vod, p):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.01, 0,  1500 ) # 1200 for far view, 300 for circle view
+    myscreen.camera.SetPosition(0.01, 0,  3000 ) # 1200 for far view, 300 for circle view
     myscreen.camera.SetFocalPoint(0, 0, 0)
-    myscreen.camera.SetClippingRange(-100,1800)
+    myscreen.camera.SetClippingRange(-100,3000)
     camvtk.drawOCLtext(myscreen)
     
     w2if = vtk.vtkWindowToImageFilter()
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     myscreen.render()
     random.seed(42)
     
-    vd = ocl.VoronoiDiagram(150,100)
+    vd = ocl.VoronoiDiagram(130,10)
     
     vod = VD(myscreen)
     #vod.setAll(vd)
@@ -162,29 +162,47 @@ if __name__ == "__main__":
     
     
     #RANDOM points
-    """
-    Nmax = 1000
+    
+    Nmax = 100
+    rpos=[-50,-50]
     for n in range(Nmax):
-        x=-50+100*random.random()
-        y=-50+100*random.random()
+        x=rpos[0]+60*random.random()
+        y=rpos[1]+60*random.random()
         plist.append( ocl.Point(x,y) )
-    """
-        
+    
+    
+    # SQUARE
+    Nmax = 10
+    rpos=[50,-50]
+    side=30
+    pts=[ ocl.Point(rpos[0]-side,rpos[1]-side) , 
+          ocl.Point(rpos[0]-side,rpos[1]+side) ,
+          ocl.Point(rpos[0]+side,rpos[1]+side) , 
+          ocl.Point(rpos[0]+side,rpos[1]-side)]
+    for n in range(Nmax):
+        t=float(n)/float(Nmax)
+        for m in [ [0,1], [1,2] , [2,3] , [3,0] ]:
+            
+            p = t*pts[ m[0] ] + (1-t)*pts[ m[1] ]
+            print t," : ",n,"edge",m,"point= ",p
+            plist.append( p )
+        #x=rpos[0]-rpos[0]/2+40*random.random()
+        #y=rpos[1]-rpos[1]/2+40*random.random()
+        #
+    #exit()
     
     
     # REGULAR GRID
-    """
-    rows = 40
+    
+    rows = 10
+    gpos=[-50,50]
     for n in range(rows):
         for m in range(rows):
-            x=-50+(100/rows)*n
-            ofs = 0
-            #if n%2==0:
-            #    ofs = (100/rows)*0.5
-            y=-50+(100/rows)*m+ofs
+            x=gpos[0]-gpos[0]/2+(60/rows)*n
+            y=gpos[1]-gpos[1]/2+(60/rows)*m
             
             # rotation
-            alfa = 1
+            alfa = 0
             xt=x
             yt=y
             x = xt*math.cos(alfa)-yt*math.sin(alfa)
@@ -193,24 +211,22 @@ if __name__ == "__main__":
             plist.append( ocl.Point(x,y) )
         
     random.shuffle(plist)
-    """
-    
+        
     # POINTS ON A CIRCLE
     #"""
-    npts = 400
+    cpos=[50,50]
+    npts = 300
     dalfa= 2*math.pi/npts
     dgamma= 10*2*math.pi/npts
     alfa=0
-    gamma=0
     ofs=10
     for n in range(npts):
         
-        x=0+(60+ofs*math.cos(gamma))*math.cos(alfa)
-        y=0+(100+ofs*math.sin(gamma))*math.sin(alfa)
+        x=cpos[0]+(20)*math.cos(alfa)
+        y=cpos[1]+(40)*math.sin(alfa)
         alfa = alfa+dalfa
-        gamma = gamma+dgamma
         # rotation
-        beta = 1
+        beta = 0
         xt=x
         yt=y
         x = xt*math.cos(beta)-yt*math.sin(beta)
@@ -227,11 +243,13 @@ if __name__ == "__main__":
     
     n=1
     t_before = time.time() 
-    sleep_time = 0.03
+    sleep_time = 0
     render_interval = 100
     #vd.addVertexSite( ocl.Point(0,0,0) )
     for p in plist:
-        
+        #vod.setAll(vd)
+        #myscreen.render()
+        #time.sleep(sleep_time)
         print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
         #vd.addVertexSiteRB( p )

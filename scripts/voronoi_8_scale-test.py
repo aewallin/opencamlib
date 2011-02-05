@@ -177,7 +177,7 @@ def drawDiag(far, framenr):
     myscreen.render()
             
     w2if.Modified() 
-    lwr.SetFileName("frames/vd_scale_"+ ('%05d' % framenr)+".png")
+    lwr.SetFileName("frames/vd_scale_sat_"+ ('%05d' % framenr)+".png")
     lwr.Write()
         
     print "PYTHON All DONE."
