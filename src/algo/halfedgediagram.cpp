@@ -205,8 +205,8 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
     // the vertex v is in the middle of edge e
     //                    face
     //                    e1   e2
-    // previous-> source  -> v -> target
-    //            tw_targ <- v <- tw_sour <- tw_previous
+    // previous-> source  -> v -> target -> next
+    //            tw_trg  <- v <- tw_src <- tw_previous
     //                    te2  te1
     //                    twin_face
     
@@ -215,40 +215,45 @@ void HalfEdgeDiagram::insert_vertex_in_edge(HEVertex v, HEEdge e) {
     HEVertex target = boost::target( e , *this );
     HEVertex twin_source = boost::source( twin , *this );
     HEVertex twin_target = boost::target( twin , *this );
-    if ( source != twin_target )
-        std::cout << " ERROR " << e << " source is " << source << " but " << twin << " target is " << twin_target << "\n"; 
     assert( source == twin_target );    
     assert( target == twin_source );
     
     HEFace face = (*this)[e].face;
     HEFace twin_face = (*this)[twin].face;
     HEEdge previous = previous_edge(e);
+    assert( (*this)[previous].face == (*this)[e].face );
     HEEdge twin_previous = previous_edge(twin);
+    assert( (*this)[twin_previous].face == (*this)[twin].face );
     
     HEEdge e1 = add_edge( source, v  );
     HEEdge e2 = add_edge( v, target  );
     
     // preserve the left/right face link
     (*this)[e1].face = face;
-    (*this)[e1].next = e2;
     (*this)[e2].face = face;
-    (*this)[e2].next = (*this)[e].next;
+    // next-pointers
     (*this)[previous].next = e1;
+    (*this)[e1].next = e2;
+    (*this)[e2].next = (*this)[e].next;
+    
     
     HEEdge te1 = add_edge( twin_source, v  );
     HEEdge te2 = add_edge( v, twin_target  );
+    
     (*this)[te1].face = twin_face;
-    (*this)[te1].next = te2;
     (*this)[te2].face = twin_face;
-    (*this)[te2].next = (*this)[twin].next;
+    
     (*this)[twin_previous].next = te1;
+    (*this)[te1].next = te2;
+    (*this)[te2].next = (*this)[twin].next;
+    
     // TWINNING (note indices 'cross', see ASCII art above)
     (*this)[e1].twin = te2;
     (*this)[te2].twin = e1;
     (*this)[e2].twin = te1;
     (*this)[te1].twin = e2;
     
-    // update the faces
+    // update the faces (required here?)
     (*this)[face].edge = e1;
     (*this)[twin_face].edge = te1;
     

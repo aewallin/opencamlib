@@ -207,6 +207,7 @@ void export_algo() {
         .def("getDelaunayEdges",  &VoronoiDiagram::getDelaunayEdges)
         .def("getClosestFaceGenerator",  &VoronoiDiagram::getClosestFaceGenerator)
         .def("getSeedVertex",  &VoronoiDiagram::getSeedVertex)
+        .def("getDeleteSet",  &VoronoiDiagram::getDeleteSet)
         .def("__str__", &VoronoiDiagram::str)
     ;
     bp::enum_<VoronoiVertexType>("VoronoiVertexType")

@@ -32,6 +32,8 @@ def drawDiagram( myscreen, vd ):
     for e in vde:
         drawEdge(myscreen,e, camvtk.cyan)
 
+
+
 class VD:
     def __init__(self, myscreen, vd, scale=1):
         self.myscreen = myscreen
@@ -138,6 +140,17 @@ class VD:
 
 def addVertexSlow(myscreen, vd, vod, p):        
     pass
+
+def writeDot(vd, filename="test.dot"):
+    f = open(filename, "w")
+    edges = vd.getEdgesGenerators();
+    f.write("digraph G {\n")
+    for e in edges:
+        #1 -> 11;
+        estr = str(e[2]) + " -> " + str(e[3]) + ";\n"
+        f.write(estr)
+    f.write("}\n")
+    f.close()
     
 if __name__ == "__main__":  
     print ocl.revision()
@@ -185,8 +198,8 @@ if __name__ == "__main__":
     delay = 1.5 # 0.533
     delay = 0.0 # 0.533
     ren = [1,2,3,4,5,59,60,61,62]
-    ren = [16,17]
-    ren = range(0,Nmax)
+    ren = [5,6]
+    #ren = range(0,Nmax)
     for p in plist:
         if n in ren:
             vod.setAll(vd)
@@ -258,6 +271,7 @@ if __name__ == "__main__":
             vod.setAll(vd)
             myscreen.render()
             time.sleep(delay)
+            writeDot(vd, "dot/gv_"+ ('%05d' % n)+".dot")
         
         """
         if n in ren:

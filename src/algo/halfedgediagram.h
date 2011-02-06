@@ -31,8 +31,7 @@
 namespace ocl
 {
     
-// bundled BGL properties
-// see: http://www.boost.org/doc/libs/1_44_0/libs/graph/doc/bundles.html
+// bundled BGL properties, see: http://www.boost.org/doc/libs/1_44_0/libs/graph/doc/bundles.html
 
 // dcel notes from http://www.holmes3d.net/graphics/dcel/
 
@@ -80,7 +79,7 @@ typedef std::vector<HEVertex> VertexVector;
 typedef std::vector<HEFace> FaceVector;
 typedef std::vector<HEEdge> EdgeVector;  
 
-
+typedef std::vector< std::vector< HEEdge > > HEPlanarEmbedding;
 
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 
@@ -187,7 +186,10 @@ class HalfEdgeDiagram : public HEGraph {
         /// add a face with given properties
         HEFace   add_face(FaceProps prop);
         /// delete a vertex
-        void delete_vertex(HEVertex v) { clear_vertex(v);remove_vertex(v); }
+        void delete_vertex(HEVertex v) { 
+            clear_vertex(v);
+            remove_vertex(v); 
+        }
         
     // access vertices    
         /// return the target vertex of the given edge
@@ -210,6 +212,17 @@ class HalfEdgeDiagram : public HEGraph {
         EdgeVector out_edges( HEVertex v ) const;
         /// return all edges
         EdgeVector edges() const;
+        /// return edges of face f
+        EdgeVector face_edges(HEFace f) {
+            HEEdge start_edge = (*this)[f].edge;
+            HEEdge current_edge = start_edge;
+            EdgeVector out;
+            do {
+                out.push_back(current_edge);
+                current_edge = (*this)[current_edge].next;
+            } while( current_edge != start_edge );
+            return out;
+        }
         /// return the previous edge. traverses all edges in face until previous found.
         HEEdge previous_edge(HEEdge e);
         /// return number of edges in graph
@@ -238,7 +251,17 @@ class HalfEdgeDiagram : public HEGraph {
     // general half-edge methods:
         /// inserts given vertex and its twin into edge e
         void insert_vertex_in_edge(HEVertex v, HEEdge e);
-
+        
+        bool checkFaces() {
+            BOOST_FOREACH(FaceProps f, faces) {
+                BOOST_FOREACH( HEEdge e, face_edges(f.idx)) {
+                    if ( (*this)[e].face != f.idx )
+                        return false;
+                }
+            }
+            return true;
+        }
+        
     private:
         /// clear given vertex. this removes all edges connecting to the vertex.
         void clear_vertex(HEVertex v) { boost::clear_vertex( v, *this ); }

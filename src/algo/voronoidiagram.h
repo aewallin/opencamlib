@@ -27,6 +27,7 @@
 #include <boost/python.hpp>  // TODO: lots of python wrapping here...
 #include <boost/foreach.hpp> 
 
+
 #include "point.h"
 #include "halfedgediagram.h"
 #include "facegrid.h"
@@ -68,8 +69,30 @@ class VoronoiDiagram {
             HEVertex v = find_seed_vertex(closest_face, p);
             return hed[ v ].position;
         }
-        boost::python::list getVertexSet();
+        // for visualizing the delete-set
+        boost::python::list getDeleteSet( Point p ) { // no const here(?)
+            boost::python::list out;
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            HEVertex v_seed = find_seed_vertex(closest_face, p);
+            hed[v_seed].type = IN;
+            VertexVector v0;
+            v0.push_back(v_seed); 
+            augment_vertex_set_B(v0, p);
+            BOOST_FOREACH( HEVertex v, v0) {
+                boost::python::list vert;
+                vert.append( hed[ v ].position );
+                vert.append( hed[ v ].type );
+                out.append( vert );
+            }
+            //HEFace closest_face = fgrid->grid_find_closest_face( p );
+            //HEVertex v = find_seed_vertex(closest_face, p);
+            reset_labels();
+            
+            return out;
+            
+        }
         
+        boost::python::list getVertexSet();
         boost::python::list getDelaunayEdges();
         /// return list of generators to python
         boost::python::list getGenerators() ;
@@ -97,12 +120,13 @@ class VoronoiDiagram {
         bool adjacentInVertexNotInFace( HEVertex w, HEFace f );
         bool adjacentInVertexInFace( HEVertex w, HEFace f );
         bool onOtherIncidentFace( HEVertex v, HEFace f );
-        //bool noOutVertexInFace( HEFace f );
-        //VertexVector removeVertex( VertexVector verts, HEVertex v );
+
         void printFaceVertexTypes(HEFace f);
         void printVertices(VertexVector& q);
         int outVertexCount(HEFace f);
         bool allIncidentFacesOK();
+        
+
         
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         bool  noUndecidedInFace( HEFace f );
