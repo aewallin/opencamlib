@@ -136,8 +136,7 @@ class VD:
         self.setVertices(vd)
         self.setEdges(vd)
 
-def addVertexSlow(myscreen, vd, vod, p):        
-    pass
+
     
 if __name__ == "__main__":  
     print ocl.revision()
@@ -157,8 +156,9 @@ if __name__ == "__main__":
     myscreen.render()
     random.seed(42)
     far = 0.000002
+    # far = 0.000002 generator 52 face_count crash
+    # far = 0.000010 crashes at n=192
     
-    #camPos = 0.3
     camPos = 0.4* (far/0.0001)
     myscreen.camera.SetPosition(camPos/1000, 0, camPos) 
     myscreen.camera.SetClippingRange(-2*camPos,2*camPos)
@@ -170,7 +170,7 @@ if __name__ == "__main__":
     drawFarCircle(myscreen, scale*vd.getFarRadius(), camvtk.orange)
     
     Nmax = 65
-    # far = 0.000010 crashes at n=192
+    
     plist=[]
     for n in range(Nmax):
         x=-far/2+far*random.random()

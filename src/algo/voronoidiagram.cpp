@@ -59,13 +59,18 @@ bool VoronoiDiagram::isDegreeThree() {
 
 
 bool VoronoiDiagram::face_count_equals_generator_count() {
+    // Euler formula for planar graphs
+    // v - e + f = 2
+    // in a half-edge diagram all edges occur twice, so:
+    // f = 2-v+e
     int vertex_count = hed.num_vertices();
-    int face_count = (vertex_count- 4)/2 + 3;
+    int face_count = (vertex_count- 4)/2 + 3; // degree three graph
+    //int face_count = hed.num_faces();
     if (face_count != gen_count) {
+        std::cout << " face_count_equals_generator_count() ERROR:\n";
         std::cout << " num_vertices = " << vertex_count << "\n";
         std::cout << " gen_count = " << gen_count << "\n";
         std::cout << " face_count = " << face_count << "\n";
-        assert(0);
     }
     return ( face_count == gen_count );
 }
@@ -181,6 +186,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     reset_labels();
     //std::cout << "VD: addVertexSite() done.\n";
     assert( hed.checkFaces() );
+    assert( isValid() );
 }
 
 HEFace VoronoiDiagram::split_faces(Point& p) {
@@ -411,11 +417,12 @@ boost::python::list getVertexSet() {
 
 // return true if w is adjacent to an IN-vertex not in f.
 bool VoronoiDiagram::adjacentInVertexNotInFace( HEVertex w, HEFace f ) {
-    assert( hed[w].type == UNDECIDED );
+    //assert( hed[w].type == UNDECIDED );
     VertexVector adj_verts = hed.adjacent_vertices(w);
     VertexVector face_verts = hed.face_vertices(f);
     BOOST_FOREACH( HEVertex v, adj_verts ) {
         if ( hed[v].type == IN ) { // v is an adjacent IN vertex
+            assert( w != v );
             // check if v belongs to f
             bool in_face = false;
             BOOST_FOREACH( HEVertex face_vert, face_verts ) {
@@ -432,28 +439,36 @@ bool VoronoiDiagram::adjacentInVertexNotInFace( HEVertex w, HEFace f ) {
 
 // return true if w is adjacent to an IN vertex in f
 bool VoronoiDiagram::adjacentInVertexInFace( HEVertex w, HEFace f ) {
-    assert( hed[w].type == UNDECIDED );
+    //assert( hed[w].type == UNDECIDED );
     
     VertexVector adj_verts = hed.adjacent_vertices(w);
     VertexVector face_verts = hed.face_vertices(f);
     BOOST_FOREACH( HEVertex v, adj_verts ) {
-        if ( hed[v].type == IN ) { // adjacent IN vertex
+        if ( hed[v].type == IN  ) { // adjacent IN vertex
             BOOST_FOREACH( HEVertex face_vert, face_verts ) {
                 if ( face_vert == v ) {
                     return true; // IN vertex in f
                 }
             }
         }
+        /*
+        if (hed[v].type == UNDECIDED){
+            BOOST_FOREACH( HEVertex face_vert, face_verts ) {
+                if ( face_vert == v ) {
+                    return true; // IN vertex in f
+                }
+            }
+        }*/
     }
     return false;
 }
 
 // return true if v is on an INCIDENT face which is not f
 bool VoronoiDiagram::onOtherIncidentFace( HEVertex v , HEFace f) {
-    assert( hed[v].type == UNDECIDED );
+    //assert( hed[v].type == UNDECIDED );
     assert( hed[f].type == INCIDENT );
     FaceVector adjacent_faces = hed.adjacent_faces( v );
-    assert( adjacent_faces.size()==3 );
+    //assert( adjacent_faces.size()==3 );
     BOOST_FOREACH( HEFace fa, adjacent_faces ) {
         if ( hed[fa].type == INCIDENT ) {
             if ( fa != f ) {
@@ -509,35 +524,43 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
     in_vertices.push_back( q[0] );
     while ( !S.empty() ) { // B2 process stack.
         HEFace f = S.top();
-        //std::cout << " Augment from ";
-        //printFaceVertexTypes(f);
+        std::cout << " Augment from ";
+        printFaceVertexTypes(f);
         S.pop();
         VertexVector face_verts = hed.face_vertices(f);
         
+        // (T4) tree
+        // (T5) for each face, in-vertices connected
         BOOST_FOREACH( HEVertex v, face_verts ) { // go through all vertices in face and run B2.1 
             // B2.1  mark "out"  v in cycle_alfa if 
-            
             if ( hed[v].type == UNDECIDED ) {
-                if ( adjacentInVertexNotInFace( v, f ) ) { //  (T6) v is adjacent to an IN vertex in V-Vin(alfa)
-                    //std::cout << " B2.1 T6 OUT " << hed[v].position << "\n";
+                if ( adjacentInVertexNotInFace( v, f ) ) { 
+                    //  (T6) v is adjacent to an IN vertex in V-Vin(alfa)
+                    std::cout << hed[v].index << " B2.1 T6 OUT \n";
                     hed[v].type = OUT;
                     in_vertices.push_back( v );
-                    assert( allIn(q) );
                 } else if ( onOtherIncidentFace( v, f ) ) {
                     //  (T7) v is on an "incident" cycle other than this cycle and is not adjacent to a vertex in Vin(alfa)
                     if ( !adjacentInVertexInFace( v, f ) ) {
-                        //std::cout << " B2.1 T7 OUT " << hed[v].position << "\n";
+                        std::cout << hed[v].index << " B2.1 T7 OUT ";
+                            FaceVector adjacent_faces = hed.adjacent_faces( v );
+                            assert( adjacent_faces.size()==3 );
+                            BOOST_FOREACH( HEFace fa, adjacent_faces ) {
+                                if ( hed[fa].type == INCIDENT ) {
+                                    if ( fa != f ) {
+                                        std::cout << " INC-face: " << fa << "\n";
+                                    }
+                                }
+                            }
+    
                         hed[v].type = OUT;
                         in_vertices.push_back( v );
                     }
                 }
             }
         }
-        //std::cout << "OUT-decisions done: ";
-        //printFaceVertexTypes(f);
         
         // B2.2 if OUT-graph is disconnected, find minimal set that makes it connected and mark OUT
-        // check if OUT-graph is disconnected. repair with UNDECIDED vertices
         if ( outVertexCount(f) > 0 ) {
             while( !faceVerticesConnected(  f, OUT ) ) {
                 //std::cout << "OUT-vertices: UNCONNECTED OUT Face: ";
@@ -546,6 +569,7 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
                 BOOST_FOREACH( HEVertex r, repair_verts ) {
                     assert( hed[r].type == UNDECIDED );
                     hed[r].type = OUT;
+                    std::cout << hed[r].index << " B2.2 OUT-repair \n";
                     in_vertices.push_back( r );
                 }
             }
@@ -577,6 +601,7 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
             }
             //std::cout << " max H vertex is " << hed[maximal_v].position << "with detH= " << maxH << std::endl;
             hed[maximal_v].type = OUT; // mark OUT
+            std::cout << hed[maximal_v].index << " B2.3 maxH OUT \n";
             in_vertices.push_back( maximal_v );
         }
         assert( !q.empty() );
@@ -631,6 +656,7 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
                 assert( allIn(q) );
                 if ( max_h >= 0.0 ) {
                     hed[max_v].type = OUT;
+                    std::cout << hed[max_v].index << " B2.4.1 H>0 OUT \n";
                     in_vertices.push_back( max_v );
                     //std::cout << "OUT vertex found.\n";
                     // check if OUT-graph is disconnected. repair with UNDECIDED vertices
@@ -642,6 +668,7 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
                         BOOST_FOREACH( HEVertex r, repair_verts ) {
                             assert( hed[r].type == UNDECIDED );
                             hed[r].type = OUT;
+                            std::cout << hed[r].index << " B2.4.1 OUT-repair \n";
                             in_vertices.push_back( r );
                         }
                         //std::cout << "OUTRepair done: ";
@@ -653,8 +680,8 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
                     assert( allIn(q) );
                 } else {
                     assert( max_h < 0.0 );
-                    //std::cout << "IN vertex " << hed[max_v].index << " found.\n";
                     hed[max_v].type = IN;
+                    std::cout << hed[max_v].index << " B2.4.2 H<0 IN \n";
                     in_vertices.push_back( max_v );
                     q.push_back(max_v);
                     markAdjecentFacesIncident(S, max_v);
@@ -667,6 +694,7 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
                         BOOST_FOREACH( HEVertex r, repair_verts ) {
                             assert( hed[r].type == UNDECIDED );
                             hed[r].type = IN;
+                            std::cout << hed[r].index << " B2.4.2 IN-repair \n";
                             in_vertices.push_back( r );
                             q.push_back( r );
                             markAdjecentFacesIncident(S, r);
