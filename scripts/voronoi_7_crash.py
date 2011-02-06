@@ -162,7 +162,7 @@ if __name__ == "__main__":
     scale=1000
     myscreen.render()
     random.seed(42)
-    far = 0.000001
+    far = 0.000002
     vd = ocl.VoronoiDiagram(far,1200)
     
     vod = VD(myscreen,vd,scale)
@@ -205,7 +205,7 @@ if __name__ == "__main__":
         
         #CLOSEST FACE
         """
-        print "PYTHON: adding generator: ",n," at ",p
+        
         clp = scale*vd.getClosestFaceGenerator(p)
         print " closest generator is ", clp
         cl_actor = camvtk.Sphere( center=(clp.x,clp.y,clp.z), radius=0.0001, color=camvtk.green )
@@ -226,6 +226,7 @@ if __name__ == "__main__":
             time.sleep(delay)
         """
         #if n != 192:
+        print "PYTHON: adding generator: ",n," at ",p
         vd.addVertexSite( p )
 
         

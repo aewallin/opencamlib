@@ -528,7 +528,7 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
                 }
             }
         }
-        std::cout << "OUT-decisions done ";
+        std::cout << "OUT-decisions done: ";
         printFaceVertexTypes(f);
         
         // B2.2 if OUT-graph is disconnected, find minimal set that makes it connected and mark OUT
