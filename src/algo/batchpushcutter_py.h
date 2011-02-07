@@ -31,7 +31,7 @@ namespace ocl
 /// \brief python wrapper for batchpushcutter
 class BatchPushCutter_py : public BatchPushCutter {
     public:
-        BatchPushCutter_py() : BatchPushCutter() {}; 
+        BatchPushCutter_py() : BatchPushCutter() {}
         /// return CL-points to Python
         boost::python::list getCLPoints() const {
             boost::python::list plist;

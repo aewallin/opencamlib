@@ -30,7 +30,7 @@
 #include "adaptivewaterline_py.h"  
 #include "lineclfilter_py.h"    
 #include "numeric.h"
-#include "voronoidiagram.h"  // FIX
+#include "voronoidiagram_py.h"  
 #include "zigzag.h"
 
 /*
@@ -192,22 +192,23 @@ void export_algo() {
         .def("run",         &LineCLFilter_py::run)
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
-    bp::class_<VoronoiDiagram >("VoronoiDiagram")
+    bp::class_<VoronoiDiagram >("VoronoiDiagram_base")
+    ;
+    bp::class_< VoronoiDiagram_py, bp::bases<VoronoiDiagram> >("VoronoiDiagram")
         .def(bp::init<double, unsigned int>())
-        //.def(bp::init<double>())
-        .def("addVertexSite",  &VoronoiDiagram::addVertexSite)
-        .def("getGenerators",  &VoronoiDiagram::getGenerators)
-        .def("getEdgesGenerators",  &VoronoiDiagram::getEdgesGenerators)
-        .def("getVoronoiVertices",  &VoronoiDiagram::getVoronoiVertices)
-        .def("getFarVoronoiVertices",  &VoronoiDiagram::getFarVoronoiVertices)
-        .def("getFarRadius",  &VoronoiDiagram::getFarRadius)
-        .def("getVoronoiEdges",  &VoronoiDiagram::getVoronoiEdges)
-        .def("setDelaunayTriangulation",  &VoronoiDiagram::setDelaunayTriangulation)
-        .def("getDelaunayEdges",  &VoronoiDiagram::getDelaunayEdges)
-        .def("getClosestFaceGenerator",  &VoronoiDiagram::getClosestFaceGenerator)
-        .def("getSeedVertex",  &VoronoiDiagram::getSeedVertex)
-        .def("getDeleteSet",  &VoronoiDiagram::getDeleteSet)
-        .def("__str__", &VoronoiDiagram::str)
+        .def("addVertexSite",  &VoronoiDiagram_py::addVertexSite)
+        .def("getGenerators",  &VoronoiDiagram_py::getGenerators)
+        .def("getEdgesGenerators",  &VoronoiDiagram_py::getEdgesGenerators)
+        .def("getVoronoiVertices",  &VoronoiDiagram_py::getVoronoiVertices)
+        .def("getFarVoronoiVertices",  &VoronoiDiagram_py::getFarVoronoiVertices)
+        .def("getFarRadius",  &VoronoiDiagram_py::getFarRadius)
+        .def("getVoronoiEdges",  &VoronoiDiagram_py::getVoronoiEdges)
+        .def("setDelaunayTriangulation",  &VoronoiDiagram_py::setDelaunayTriangulation)
+        .def("getDelaunayEdges",  &VoronoiDiagram_py::getDelaunayEdges)
+        .def("getClosestFaceGenerator",  &VoronoiDiagram_py::getClosestFaceGenerator)
+        .def("getSeedVertex",  &VoronoiDiagram_py::getSeedVertex)
+        .def("getDeleteSet",  &VoronoiDiagram_py::getDeleteSet)
+        .def("__str__", &VoronoiDiagram_py::str)
     ;
     bp::enum_<VoronoiVertexType>("VoronoiVertexType")
         .value("OUT", OUT)   

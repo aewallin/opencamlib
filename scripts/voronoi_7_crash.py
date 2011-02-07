@@ -75,8 +75,7 @@ class VD:
             p=self.scale*p
             myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=4, color=camvtk.pink ) )
         myscreen.render() 
-            
-            
+    
     def setVertices(self, vd):
         for p in self.verts:
             myscreen.removeActor(p)
