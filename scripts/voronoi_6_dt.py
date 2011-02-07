@@ -172,7 +172,7 @@ if __name__ == "__main__":
     
     
     # SQUARE
-    Nmax = 10
+    Nmax = 100
     rpos=[50,-50]
     side=30
     pts=[ ocl.Point(rpos[0]-side,rpos[1]-side) , 
@@ -244,7 +244,7 @@ if __name__ == "__main__":
     n=1
     t_before = time.time() 
     sleep_time = 0
-    render_interval = 100
+    render_interval = 500
     #vd.addVertexSite( ocl.Point(0,0,0) )
     for p in plist:
         #vod.setAll(vd)
