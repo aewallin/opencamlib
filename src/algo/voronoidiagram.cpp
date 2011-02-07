@@ -20,6 +20,7 @@
 
 #include <set>
 //#include <stack>
+#include <queue>
 
 #include <boost/foreach.hpp>
 
@@ -148,19 +149,7 @@ void VoronoiDiagram::init() {
 }
 
 
-void VoronoiDiagram::addVertexSiteRB(Point p) {
-    gen_count++;
-    HEFace closest_face = fgrid->grid_find_closest_face( p );
-    HEVertex v_seed = find_seed_vertex(closest_face, p);
-    hed[v_seed].type = IN;
-    VertexVector v0;
-    v0.push_back(v_seed); 
-    augment_vertex_set_RB(v0, p); // assumes exact H calculation
-    add_new_voronoi_vertices(v0, p);
-    HEFace newface = split_faces(p);
-    remove_vertex_set(v0, newface);
-    reset_labels();
-}
+
 
 // comments relate to Sugihara-Iri paper
 // this is roughly "algorithm A" from the paper, page 15/50
@@ -175,7 +164,12 @@ void VoronoiDiagram::addVertexSite(Point p) {
     hed[v_seed].type = IN;
     VertexVector v0;
     v0.push_back(v_seed); 
-    augment_vertex_set_B(v0, p); // robust
+    
+// THREE choices for algorithm here:
+    //augment_vertex_set_B(v0, p); // robust(?) traverses each face
+    augment_vertex_set_M(v0, p); // build tree by breadth-first search
+    //augment_vertex_set_RB(v0, p); // naive, assumes exact H calculation
+    
     // add new vertices on all edges that connect v0 IN edges to OUT edges
     add_new_voronoi_vertices(v0, p);
     // generate new edges that form a loop around the region to be deleted
@@ -229,13 +223,26 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
                     hed[current_edge].next = edge; // this is the edge we want to take
                     
                     // current and next should belong on the same face
-                    /*
+                    
                     if (hed[current_edge].face !=  hed[ hed[current_edge].next ].face) {
                         std::cout << " VD remove_vertex_set() ERROR.\n";
                         std::cout << "current.face = " << hed[current_edge].face << " IS NOT next_face = " << hed[ hed[current_edge].next ].face << std::endl;
+                        HEVertex c_trg = hed.target( current_edge );
+                        HEVertex c_src = hed.source( current_edge );
+                        HEVertex n_trg = hed.target( hed[current_edge].next );
+                        HEVertex n_src = hed.source( hed[current_edge].next );
+                        
+                        std::cout << "current_edge = " << hed[c_src].index << " - " << hed[c_trg].index << "\n";
+                        std::cout << "next_edge = " << hed[n_src].index << " - " << hed[n_trg].index << "\n";
+                        
                         printFaceVertexTypes(hed[current_edge].face);
                         printFaceVertexTypes(hed[ hed[current_edge].next ].face);
-                    }*/
+                        
+                        std::cout << " printing all incident faces for debug: \n";
+                        BOOST_FOREACH( HEFace f, incident_faces ) {
+                            printFaceVertexTypes( f );
+                        } 
+                    }
                     assert( hed[current_edge].face ==  hed[ hed[current_edge].next ].face );
                 }
             }
@@ -893,6 +900,136 @@ void VoronoiDiagram::printVertices(VertexVector& q) {
     }
     std::cout << std::endl;
 }
+
+// from the "one million" paper, growing the tree by breadth-first search
+void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, Point& p) {
+    assert(v0.size()==1);
+    std::queue<HEVertex> Q;
+    in_vertices.push_back( v0[0] );
+    markAdjecentFacesIncident( v0[0]);
+    assert( Q.empty() );
+    VertexVector adj_verts = hed.adjacent_vertices(v0[0]);
+    BOOST_FOREACH( HEVertex adjv, adj_verts ) {
+        if ( hed[adjv].type == UNDECIDED ) {
+            Q.push(adjv); // push adjacent undecided verts for testing.
+        }
+    }
+    
+    while( !Q.empty() ) {
+        HEVertex v = Q.front();
+        assert( hed[v].type == UNDECIDED );
+        
+        // add to v0 if detH<0 and passes tests. otherwise OUT
+        double h = hed[v].detH( p );
+        if ( h < 0.0 ) {
+            // try to mark IN
+            // (C4) v should not be adjacent to two or more IN vertices
+            VertexVector adj_v = hed.adjacent_vertices(v);
+            int in_count=0;
+            BOOST_FOREACH( HEVertex w, adj_v) {
+                if ( hed[w].type == IN )
+                    in_count++;
+            }
+            
+            if ( in_count >= 2 ) {
+                hed[v].type = OUT;
+                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
+                in_vertices.push_back( v );
+            } else {
+                // (C5) for an incident face containing v:
+                //      v is adjacent to an IN vertex on this face
+                FaceVector adj_faces = hed.adjacent_faces(v);
+                assert( adj_faces.size() == 3 );
+                FaceVector inc_faces;
+                BOOST_FOREACH( HEFace f, adj_faces ) {
+                    if ( hed[f].type == INCIDENT )
+                        inc_faces.push_back( f );
+                }
+                assert( !inc_faces.empty() );
+                bool all_found = true;
+                BOOST_FOREACH( HEFace f, inc_faces ) {
+                    // check each face f
+                    // v should be adjacent to an IN vertex on the face
+                    VertexVector face_verts = hed.face_vertices(f);
+                    bool face_found=false;
+                    BOOST_FOREACH( HEVertex w, face_verts ) {
+                        if ( w != v ) {
+                            if ( hed[w].type == IN ) {
+                                if ( hed.edge(w,v) || hed.edge(v,w) ) {
+                                    face_found = true;
+                                }
+                            }
+                        }
+                    }
+                    if (!face_found) {
+                        all_found=false;
+                    }
+                }
+                if (all_found) {
+                    hed[v].type = IN;
+                    //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
+                    in_vertices.push_back( v );
+                    v0.push_back(v);
+                    markAdjecentFacesIncident(v);
+                    VertexVector adj_verts = hed.adjacent_vertices(v);
+                    BOOST_FOREACH( HEVertex w, adj_verts ) {
+                        if ( hed[w].type == UNDECIDED ) {
+                            if ( not_in_queue(w,Q) ) {
+                                //std::cout << " pushing " << hed[w].index << " of type " << hed[w].type << "\n";
+                                Q.push(w); // push adjacent undecided verts for testing.
+                            }
+                        }
+                    }
+                } else {
+                    assert( hed[v].type == UNDECIDED );
+                    hed[v].type = OUT;
+                    //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " NOT_FOUND (h<0)\n";
+                    in_vertices.push_back( v );
+                }
+            }
+        } else {
+            assert( h >= 0.0 );
+            assert( hed[v].type == UNDECIDED );
+            // mark OUT
+            hed[v].type = OUT;
+            //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
+            in_vertices.push_back( v );
+        }
+
+        
+        Q.pop(); // delete from queue
+    }
+    
+    BOOST_FOREACH( HEFace f, incident_faces ) {
+        if ( !faceVerticesConnected( f, IN ) ) {
+            std::cout << " augment_vertex_set_M() ERROR, IN-vertices not connected.\n";
+            std::cout << " printing all incident faces for debug: \n";
+            BOOST_FOREACH( HEFace f, incident_faces ) {
+                printFaceVertexTypes( f );
+            } 
+        }
+    }
+    
+    BOOST_FOREACH( HEFace f, incident_faces ) {
+        assert( faceVerticesConnected( f, IN ) );
+    }
+    
+    //std::cout << " augment_M done:\n";
+    //printVertices(v0);
+}
+
+bool VoronoiDiagram::not_in_queue(HEVertex w, std::queue<HEVertex> Q) {
+
+    while( !Q.empty() ) {
+        HEVertex v = Q.front();
+        Q.pop();
+        if ( w == v )
+            return false;
+    }
+    
+    return true;
+}
+
 // simple algorithm for finding vertex set
 // relies on the correct computation of detH (this will fail due to floating point error - sooner or later)
 // roughly "Algorithm RB" from Sugihara& Iri 1994, page 18
@@ -944,6 +1081,17 @@ void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
     
 }
 
+void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
+    FaceVector new_adjacent_faces = hed.adjacent_faces( v ); // also set the adjacent faces to incident
+    assert( new_adjacent_faces.size()==3 );
+    BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
+        if ( hed[adj_face].type  != INCIDENT ) {
+            hed[adj_face].type = INCIDENT; 
+            incident_faces.push_back(adj_face);
+        }
+    }
+}
+
 void VoronoiDiagram::markAdjecentFacesIncident(std::stack<HEFace>& S, HEVertex v) {
     FaceVector new_adjacent_faces = hed.adjacent_faces( v ); // also set the adjacent faces to incident
     assert( new_adjacent_faces.size()==3 );
@@ -982,12 +1130,10 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
     }
     
     if (!(minimumH < 0) ) {
-        std::cout << " VD find_seed_vertex() \n";
-        std::cout << " ERROR: searching for seed when inserting " << p  << "  \n";
-        std::cout << " ERROR: closest face is  " << f << " with generator " << hed[f].generator  << " \n";
-        std::cout << " ERROR: detH = " << minimumH << " ! \n";
-        std::cout << " ERROR: minimal vd-vertex " << hed[minimalVertex].position << " has deth= " << hed[minimalVertex].detH( p ) << "\n";
-        
+        std::cout << " VD find_seed_vertex() WARNING\n";
+        std::cout << " WARNING: searching for seed when inserting " << p  << "  \n";
+        std::cout << " WARNING: closest face is  " << f << " with generator " << hed[f].generator  << " \n";
+        std::cout << " WARNING: minimal vd-vertex " << hed[minimalVertex].index << " has deth= " << hed[minimalVertex].detH( p ) << "\n";
     }
     //assert( minimumH < 0 );
     return minimalVertex;

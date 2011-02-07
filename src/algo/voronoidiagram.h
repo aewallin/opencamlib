@@ -23,6 +23,7 @@
 #include <vector>
 #include <list>
 #include <stack>
+#include <queue>
 
 #include <boost/python.hpp>  // TODO: lots of python wrapping here...
 #include <boost/foreach.hpp> 
@@ -49,7 +50,6 @@ class VoronoiDiagram {
         virtual ~VoronoiDiagram() {delete fgrid;}
         /// add a vertex generator at given position
         void addVertexSite(Point p);
-        void addVertexSiteRB(Point p);
         /// return the dual graph
         HalfEdgeDiagram* getDelaunayTriangulation();
         void setDelaunayTriangulation() {
@@ -116,6 +116,7 @@ class VoronoiDiagram {
         void augment_vertex_set_B(VertexVector& v, Point& p);
         /// better implementation from Sugihara-Iri
         void augment_vertex_set_RB(VertexVector& q, Point& p);
+        void augment_vertex_set_M(VertexVector& q, Point& p);
         
         bool adjacentInVertexNotInFace( HEVertex w, HEFace f );
         bool adjacentInVertexInFace( HEVertex w, HEFace f );
@@ -126,12 +127,13 @@ class VoronoiDiagram {
         int outVertexCount(HEFace f);
         bool allIncidentFacesOK();
         
-
+        bool not_in_queue(HEVertex w, std::queue<HEVertex> Q);
         
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         bool  noUndecidedInFace( HEFace f );
         VertexVector findRepairVerts(HEFace f, VoronoiVertexType Vtype);
         void markAdjecentFacesIncident(std::stack<HEFace>& S, HEVertex v);
+        void markAdjecentFacesIncident(HEVertex v);
         bool allIn(VertexVector& q);
         /// add the new vertices  
         void add_new_voronoi_vertices(VertexVector& v, Point& p);

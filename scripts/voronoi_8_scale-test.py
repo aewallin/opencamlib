@@ -6,6 +6,7 @@ import datetime
 import math
 import random
 import numpy as np
+import gc
 
 def drawVertex(myscreen, p, vertexColor, rad=1):
     myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=rad, color=vertexColor ) )
@@ -136,7 +137,7 @@ class VD:
     def setAll(self, vd):
         self.setGenerators(vd)
         #self.setFar(vd)
-        self.setVertices(vd)
+        #self.setVertices(vd)
         self.setEdges(vd)
 
 def addVertexSlow(myscreen, vd, vod, p):        
@@ -150,10 +151,10 @@ def drawDiag(far, framenr):
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-    scale=1000
+    scale=10000
     #far = 0.00001
     vd = ocl.VoronoiDiagram(far,1200)
-    camPos = 0.2* (far/0.0001)
+    camPos = 0.4* (far/0.00001)
     myscreen.camera.SetPosition(camPos/10000, 0, camPos) 
     myscreen.camera.SetClippingRange(-2*camPos,2*camPos)
     random.seed(42)
@@ -177,7 +178,7 @@ def drawDiag(far, framenr):
     myscreen.render()
             
     w2if.Modified() 
-    lwr.SetFileName("frames/vd_scale_sat_"+ ('%05d' % framenr)+".png")
+    lwr.SetFileName("frames/vd_v_"+ ('%05d' % framenr)+".png")
     lwr.Write()
         
     print "PYTHON All DONE."
@@ -191,11 +192,11 @@ def drawDiag(far, framenr):
 if __name__ == "__main__":  
     print ocl.revision()
 
-    maxf = 0.00001
+    maxf = 0.0001
     minf = 0.00000001
     lmaxf = math.log(maxf)
     lminf = math.log(minf)
-    Nframes = 10
+    Nframes = 200
     lrange = np.arange(lmaxf,lminf, -(lmaxf-lminf)/Nframes)
     print lrange
     fars = []
@@ -207,6 +208,11 @@ if __name__ == "__main__":
     #farvals = [0.1 , 0.01]
     n=1
     for f in fars:
+        print "****************"
+        print "PYTHON diagram with f= ",f
+        print "****************"
         drawDiag(f,n)
         n=n+1
+        gc.collect()
+        
     
