@@ -864,6 +864,9 @@ void VoronoiDiagram::pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q
 void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, Point& p) {
     assert(v0.size()==1);
     std::queue<HEVertex> Q;
+    // a priority_queue could be used here instead.
+    // allways examine and decide on the vertex with largest detH, since that vertex has the most reliable detH sign.
+    
     in_vertices.push_back( v0[0] );
     markAdjecentFacesIncident( v0[0] );
     assert( Q.empty() );

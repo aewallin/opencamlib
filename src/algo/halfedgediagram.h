@@ -79,6 +79,7 @@ typedef std::vector<HEVertex> VertexVector;
 typedef std::vector<HEFace> FaceVector;
 typedef std::vector<HEEdge> EdgeVector;  
 
+    
 typedef std::vector< std::vector< HEEdge > > HEPlanarEmbedding;
 
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
@@ -101,6 +102,9 @@ struct VertexProps {
     void set_position();
     /// based on precalculated J2, J3, J4, calculate the H determinant for Point pl
     double detH(const Point& pl);
+    bool operator<(const VertexProps& other) const {
+        return ( abs(this->H) < abs(other.H) );
+    }
     /// set the J values
     void set_J(Point& pi, Point& pj, Point& pk);
     /// calculate J2
@@ -125,6 +129,7 @@ struct VertexProps {
     double J3;
     /// J4 determinant
     double J4;
+    double H;
 };
 
 /// properties of an edge in the voronoi diagram

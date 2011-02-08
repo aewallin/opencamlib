@@ -163,7 +163,7 @@ if __name__ == "__main__":
     
     #RANDOM points
     
-    Nmax = 100
+    Nmax = 30
     rpos=[-50,-50]
     for n in range(Nmax):
         x=rpos[0]+60*random.random()
@@ -172,7 +172,7 @@ if __name__ == "__main__":
     
     
     # SQUARE
-    Nmax = 100
+    Nmax = 30
     rpos=[50,-50]
     side=30
     pts=[ ocl.Point(rpos[0]-side,rpos[1]-side) , 
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     # POINTS ON A CIRCLE
     #"""
     cpos=[50,50]
-    npts = 300
+    npts = 100
     dalfa= 2*math.pi/npts
     dgamma= 10*2*math.pi/npts
     alfa=0

@@ -34,7 +34,8 @@ void VertexProps::set_position() {
 }
 
 double VertexProps::detH(const Point& pl) {
-    return J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
+    H = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
+    return H;
 }
 
 void VertexProps::set_J(Point& pi, Point& pj, Point& pkin) { 
