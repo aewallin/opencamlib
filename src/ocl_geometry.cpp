@@ -52,6 +52,7 @@ void export_geometry() {
         .def(bp::self += bp::other<Point>())
         .def(bp::self + bp::other<Point>())
         .def("norm", &Point::norm)
+        .def("xyNorm", &Point::xyNorm)
         .def("normalize", &Point::normalize)
         .def("dot", &Point::dot)
         .def("cross", &Point::cross)
