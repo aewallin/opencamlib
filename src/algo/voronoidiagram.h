@@ -32,6 +32,8 @@
 namespace ocl
 {
 
+
+
 /// \brief Voronoi diagram.
 ///
 /// the dual of a voronoi diagram is the delaunay diagram(triangulation).
@@ -85,6 +87,8 @@ class VoronoiDiagram {
         void augment_vertex_set_RB(VertexVector& q, Point& p);
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set_M(VertexVector& q, Point& p);
+        
+        EdgeVector find_edges(VertexVector& q, VoronoiVertexType vtype);
         
         bool adjacentInVertexNotInFace( HEVertex w, HEFace f );
         bool adjacentInVertexInFace( HEVertex w, HEFace f );

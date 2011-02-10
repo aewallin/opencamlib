@@ -208,6 +208,8 @@ void export_algo() {
         .def("getClosestFaceGenerator",  &VoronoiDiagram_py::getClosestFaceGenerator)
         .def("getSeedVertex",  &VoronoiDiagram_py::getSeedVertex)
         .def("getDeleteSet",  &VoronoiDiagram_py::getDeleteSet)
+        .def("getDeleteEdges",  &VoronoiDiagram_py::getDeleteEdges)
+        .def("getModEdges",  &VoronoiDiagram_py::getModEdges)
         .def("__str__", &VoronoiDiagram_py::str)
     ;
     bp::enum_<VoronoiVertexType>("VoronoiVertexType")

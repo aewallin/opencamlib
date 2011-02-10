@@ -47,7 +47,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             hed[v_seed].type = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
-            augment_vertex_set_B(v0, p);
+            augment_vertex_set_M(v0, p);
             BOOST_FOREACH( HEVertex v, v0) {
                 boost::python::list vert;
                 vert.append( hed[ v ].position );
@@ -58,7 +58,46 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             return out;
             
         }
-
+        boost::python::list getDeleteEdges( Point p ) {
+            boost::python::list out;
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            HEVertex v_seed = find_seed_vertex(closest_face, p);
+            hed[v_seed].type = IN;
+            VertexVector v0;
+            v0.push_back(v_seed); 
+            augment_vertex_set_M(v0, p);
+            EdgeVector del = find_edges(v0, IN);
+            BOOST_FOREACH( HEEdge e, del) {
+                boost::python::list edge;
+                HEVertex src = hed.source(e);
+                HEVertex trg = hed.target(e);
+                edge.append( hed[ src ].position );
+                edge.append( hed[ trg ].position );
+                out.append( edge );
+            }
+            reset_labels();            
+            return out;
+        }
+        boost::python::list getModEdges( Point p ) {
+            boost::python::list out;
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            HEVertex v_seed = find_seed_vertex(closest_face, p);
+            hed[v_seed].type = IN;
+            VertexVector v0;
+            v0.push_back(v_seed); 
+            augment_vertex_set_M(v0, p);
+            EdgeVector del = find_edges(v0, OUT);
+            BOOST_FOREACH( HEEdge e, del) {
+                boost::python::list edge;
+                HEVertex src = hed.source(e);
+                HEVertex trg = hed.target(e);
+                edge.append( hed[ src ].position );
+                edge.append( hed[ trg ].position );
+                out.append( edge );
+            }
+            reset_labels();            
+            return out;
+        }
         boost::python::list getDelaunayEdges()  {
             boost::python::list edge_list;
             BOOST_FOREACH( HEEdge edge, dt->edges() ) {

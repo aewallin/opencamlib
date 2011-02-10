@@ -160,10 +160,15 @@ class Bisector:
         # t = x6-x4 / (x5-x7)    or    t = x4-x6 / (x5+x7)
         x = self.x 
         y = self.y 
-        t1 = (x[6]-x[4]) / (x[5]-x[7])
-        t2 = (-x[4]-x[6]) / (x[5]+x[7])
-        t3 = (y[6]-y[4]) / (y[5]-y[7])
-        t4 = (-y[4]-y[6]) / (y[5]+y[7])
+        t1=0
+        t2=0
+        t3=0
+        t4=0
+        if (((x[5]-x[7])!=0) and ((x[5]+x[7])!=0) ):
+            t1 = (x[6]-x[4]) / (x[5]-x[7])
+            t2 = (-x[4]-x[6]) / (x[5]+x[7])
+            t3 = (y[6]-y[4]) / (y[5]-y[7])
+            t4 = (-y[4]-y[6]) / (y[5]+y[7])
         print " t1 solution= ",t1
         print " t2 solution= ",t2
         print " t3 solution= ",t3
@@ -172,7 +177,8 @@ class Bisector:
         
 def drawBisector(myscreen, bis):
     N = 300
-    t= 0
+    t= bis.minT()
+    
     tmax = 400
     dt = float(tmax)/float(N)
     ppts = []

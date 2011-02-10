@@ -321,19 +321,25 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     //assert( isDegreeThree() );
 }
 
+EdgeVector VoronoiDiagram::find_edges(VertexVector& inVertices, VoronoiVertexType vtype) {
+    assert( !inVertices.empty() );
+    EdgeVector output; // new vertices generated on these edges
+    BOOST_FOREACH( HEVertex v, inVertices ) {                                   
+        assert( hed[v].type == IN ); // all verts in v0 are IN
+        BOOST_FOREACH( HEEdge edge, hed.out_edges( v ) ) {
+            HEVertex adj_vertex = hed.target( edge );
+            if ( hed[adj_vertex].type == vtype ) 
+                output.push_back(edge); // this is an IN-vtype edge
+        }
+    }
+    return output;
+}
+
 // the set v0 are IN vertices that should be removed
 // generate new voronoi-vertices on all edges connecting v0 to OUT-vertices
 void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, Point& p) {
     assert( !v0.empty() );
-    EdgeVector q_edges; // new vertices generated on these edges
-    BOOST_FOREACH( HEVertex v, v0 ) {                                   
-        assert( hed[v].type == IN ); // all verts in v0 are IN
-        BOOST_FOREACH( HEEdge edge, hed.out_edges( v ) ) {
-            HEVertex adj_vertex = hed.target( edge );
-            if ( hed[adj_vertex].type == OUT ) 
-                q_edges.push_back(edge); // this is an IN-OUT edge
-        }
-    }
+    EdgeVector q_edges = find_edges(v0, OUT); // new vertices generated on these IN-OUT edges
     assert( !q_edges.empty() );
     
     for( unsigned int m=0; m<q_edges.size(); ++m )  {  // create new vertices on all edges q_edges[]
