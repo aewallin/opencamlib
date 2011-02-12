@@ -144,7 +144,7 @@ class VD:
 def writeFrame( w2if, lwr, n ):
     w2if.Modified() 
     lwr.SetFileName("frames/vd500_"+ ('%05d' % n)+".png")
-    lwr.Write()
+    #lwr.Write()
     
 if __name__ == "__main__":  
     print ocl.revision()

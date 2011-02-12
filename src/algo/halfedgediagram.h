@@ -87,32 +87,93 @@ enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 /// vertex properties of a vertex in the voronoi diagram
 struct VertexProps {
     VertexProps() {
-        index = count;
-        count++;
+        init();
     }
     /// construct vertex at position p with type t
     VertexProps( Point p, VoronoiVertexType t) {
         position=p;
         type=t;
-        index = count;
-        count++;
+        init();
         
     }
+    void init() {
+        index = count;
+        count++;
+        in_queue = false;
+    }
+
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
-    void set_position();
+    void set_position() {
+        double w = J4;
+        double x = - J2/w+pk.x;
+        double y = J3/w+pk.y;
+        position =  Point(x,y);
+    }
     /// based on precalculated J2, J3, J4, calculate the H determinant for Point pl
-    double detH(const Point& pl);
+    double detH(const Point& pl) {
+        H = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
+        return H;
+    }
     bool operator<(const VertexProps& other) const {
         return ( abs(this->H) < abs(other.H) );
     }
     /// set the J values
-    void set_J(Point& pi, Point& pj, Point& pk);
+    void set_J(Point& pi, Point& pj, Point& pkin) { 
+        // 1) i-j-k should come in CCW order
+        Point pi_,pj_,pk_;
+        if ( pi.isRight(pj,pkin) ) {
+            pi_ = pj;
+            pj_ = pi;
+            pk_ = pkin;
+        } else {
+            pi_ = pi;
+            pj_ = pj;
+            pk_ = pkin;
+        }
+        assert( !pi_.isRight(pj_,pk_) );
+        // 2) point pk should have the largest angle 
+        // largest angle is opposite longest side.
+        Point pi__,pj__,pk__;
+        pi__ = pi_;                          
+        pj__ = pj_;                          
+        pk__ = pk_;
+        double longest_side = (pi_ - pj_).xyNorm();
+        if (  (pj_ - pk_).xyNorm() > longest_side ) {
+            longest_side = (pj_ - pk_).xyNorm(); //j-k is longest, so i should be new k
+            pk__ = pi_;                         // old  i-j-k 
+            pi__ = pj_;                         // new  k-i-j
+            pj__ = pk_;
+        }
+        if ( (pi_ - pk_).xyNorm() > longest_side ) { // i-k is longest, so j should be new k                    
+            pk__ = pj_;                          // old  i-j-k
+            pj__ = pi_;                          // new  j-k-i
+            pi__ = pk_;
+        }
+        
+        assert( !pi__.isRight(pj__,pk__) );
+        assert( (pi__ - pj__).xyNorm() >=  (pj__ - pk__).xyNorm() );
+        assert( (pi__ - pj__).xyNorm() >=  (pk__ - pi__).xyNorm() );
+        
+        this->pk = pk__;
+        J2 = detH_J2( pi__, pj__, pk__);
+        J3 = detH_J3( pi__, pj__, pk__);
+        J4 = detH_J4( pi__, pj__, pk__);
+
+        //assert( J4 > 0.0 );
+
+    }
     /// calculate J2
-    double detH_J2(Point& pi, Point& pj, Point& pk);
+    double detH_J2(Point& pi, Point& pj, Point& pk) {
+        return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
+    }
     /// calculate J3
-    double detH_J3(Point& pi, Point& pj, Point& pk);
+    double detH_J3(Point& pi, Point& pj, Point& pk) {
+        return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
+    }
     /// calculate J4
-    double detH_J4(Point& pi, Point& pj, Point& pk);
+    double detH_J4(Point& pi, Point& pj, Point& pk) {
+        return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
+    }
 // DATA
     /// the position of the vertex
     Point position;
@@ -130,6 +191,7 @@ struct VertexProps {
     /// J4 determinant
     double J4;
     double H;
+    bool in_queue;
 };
 
 /// properties of an edge in the voronoi diagram
@@ -176,7 +238,7 @@ struct FaceProps {
 /// half-edge diagram class.
 class HalfEdgeDiagram : public HEGraph {
     public:
-        HalfEdgeDiagram(); 
+        HalfEdgeDiagram() {}
         virtual ~HalfEdgeDiagram() {}
     
     // add vertex,edge,face to diagram
@@ -257,6 +319,7 @@ class HalfEdgeDiagram : public HEGraph {
         /// inserts given vertex and its twin into edge e
         void insert_vertex_in_edge(HEVertex v, HEEdge e);
         
+        /// check that all edges belong to the correct face
         bool checkFaces() {
             BOOST_FOREACH(FaceProps f, faces) {
                 BOOST_FOREACH( HEEdge e, face_edges(f.idx)) {

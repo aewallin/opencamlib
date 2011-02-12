@@ -192,11 +192,11 @@ def drawDiag(far, framenr):
 if __name__ == "__main__":  
     print ocl.revision()
 
-    maxf = 0.0001
+    maxf = 0.00001
     minf = 0.00000001
     lmaxf = math.log(maxf)
     lminf = math.log(minf)
-    Nframes = 200
+    Nframes = 5
     lrange = np.arange(lmaxf,lminf, -(lmaxf-lminf)/Nframes)
     print lrange
     fars = []

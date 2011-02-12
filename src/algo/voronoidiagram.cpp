@@ -190,6 +190,7 @@ HEFace VoronoiDiagram::split_faces(Point& p) {
 
 void VoronoiDiagram::reset_labels() {
     BOOST_FOREACH( HEVertex v, in_vertices ) {
+        hed[v].in_queue = false;
         if ( hed[v].type != UNDECIDED ) {
             hed[v].type = UNDECIDED;
         }
@@ -484,6 +485,326 @@ int VoronoiDiagram::outVertexCount(HEFace f) {
     return outCount;
 }
 
+
+bool VoronoiDiagram::allIncidentFacesOK() {
+    // all incident faces should pass the sanity-check
+    BOOST_FOREACH( HEFace f, incident_faces ) {
+        if ( !faceVerticesConnected(  f, IN ) )
+            return false; // IN vertices should be connected
+        if ( !faceVerticesConnected(  f, OUT ) )  // OUT vertices should be connected
+            return false;
+        if ( !noUndecidedInFace( f ) )            // no UNDECIDED vertices should remain
+            return false;
+    }
+    return true;
+}
+
+bool VoronoiDiagram::allIn(VertexVector& q) {
+    BOOST_FOREACH( HEVertex v, q) {
+        if ( hed[v].type != IN )
+            return false;
+    }
+    return true;
+}
+
+VertexVector VoronoiDiagram::findRepairVerts(HEFace f, VoronoiVertexType Vtype) {
+    assert( !faceVerticesConnected(  f, Vtype ) ); // Vtype is not connected.
+    // example 2-0-1-2-0
+    
+    // repair pattern: Vtype - U - Vtype
+    // find potential U-sets
+    HEEdge currentEdge = hed[f].edge;
+    HEVertex endVertex = hed.source(currentEdge); // stop when target here
+    EdgeVector startEdges;
+    bool done = false;
+    while (!done) { 
+        HEVertex src = hed.source( currentEdge );
+        HEVertex trg = hed.target( currentEdge );
+        if ( hed[src].type == Vtype ) { // seach Vtype - U
+            if ( hed[trg].type == UNDECIDED ) {
+                // we have found Vtype-U
+                startEdges.push_back( currentEdge );
+            }
+        }
+        currentEdge = hed[currentEdge].next;
+        if ( trg == endVertex ) {
+            done = true;
+        }
+    }
+    //std::cout << "findRepairVerts(): startEdges.size() = " << startEdges.size() << "\n";
+    
+    if (startEdges.empty()) {
+        std::cout << "findRepairVerts(): ERROR repairing face= " << f << " type= "<< Vtype << "\n";
+        std::cout << "findRepairVerts(): ERROR can't find Vtype-U start edge!\n";
+        printFaceVertexTypes(f);
+        assert(0); // repair is not possible if we don't have a startEdge
+    }
+    std::vector<VertexVector> repair_sets;
+    
+    BOOST_FOREACH( HEEdge uedge, startEdges ) {
+        HEEdge ucurrent = uedge;
+        bool set_done = false;
+        VertexVector uset;
+        while (!set_done) {
+            HEVertex trg = hed.target( ucurrent );
+            if ( hed[trg].type == UNDECIDED ) {
+                uset.push_back(trg);
+                ucurrent = hed[ucurrent].next;
+            } else if ( hed[trg].type == Vtype ) {
+                repair_sets.push_back(uset); // done with this set
+                set_done = true;
+            } else { // doesn't end in Vtype, so not a valid set
+                set_done = true;
+            }
+        }
+    }
+    
+    // among the repair sets, find the minimal one
+    if (repair_sets.empty()) {
+        std::cout << "findRepairVerts(): Vtype-U found, but cannot repair:\n";
+        printFaceVertexTypes(f);
+        assert(0);
+    }
+    
+    std::size_t min_idx = 0;
+    std::size_t min_size = repair_sets[min_idx].size();
+    for( std::size_t idx = 0; idx<repair_sets.size(); ++idx ) {
+        if ( repair_sets[idx].size() < min_size ) {
+            min_idx = idx;
+            min_size = repair_sets[idx].size();
+        }
+    }
+    //std::cout << "findRepairVerts(): repair_sets[min_idx].size() = " << repair_sets[min_idx].size() << "\n";
+    return repair_sets[min_idx];
+}
+
+bool VoronoiDiagram::noUndecidedInFace(HEFace f) {
+    VertexVector face_verts = hed.face_vertices(f);
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        if ( hed[v].type == UNDECIDED )
+            return false;
+    }
+    return true;
+}
+
+// check that the vertices TYPE are connected
+bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) {
+    VertexVector face_verts = hed.face_vertices(f);
+    VertexVector type_verts;
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        if ( hed[v].type == Vtype )
+            type_verts.push_back(v);
+    }
+    assert( !type_verts.empty() );
+    if (type_verts.size()==1) // set of 1 is allways connected
+        return true;
+    
+    // check that type_verts are connected
+    HEEdge currentEdge = hed[f].edge;
+    HEVertex endVertex = hed.source(currentEdge); // stop when target here
+    EdgeVector startEdges;
+    bool done = false;
+    while (!done) { 
+        HEVertex src = hed.source( currentEdge );
+        HEVertex trg = hed.target( currentEdge );
+        if ( hed[src].type != Vtype ) { // seach ?? - Vtype
+            if ( hed[trg].type == Vtype ) {
+                // we have found ?? - Vtype
+                startEdges.push_back( currentEdge );
+            }
+        }
+        currentEdge = hed[currentEdge].next;
+        if ( trg == endVertex ) {
+            done = true;
+        }
+    }
+    assert( !startEdges.empty() );
+    if ( startEdges.size() != 1 ) // when the Vtype vertices are connected, there is exactly one startEdge
+        return false;
+    else 
+        return true;
+}
+
+void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
+    std::cout << " Face " << f << ": ";
+    VertexVector face_verts = hed.face_vertices(f);    
+    unsigned count=1;
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        std::cout << hed[v].index  << "(" << hed[v].type  << ")";
+        if (count != face_verts.size() )
+            std::cout << "-";
+        count++;
+    }
+    std::cout << "\n";
+}
+
+void VoronoiDiagram::printVertices(VertexVector& q) {
+    BOOST_FOREACH( HEVertex v, q) {
+        std::cout << hed[v].index << " ";
+    }
+    std::cout << std::endl;
+}
+
+void VoronoiDiagram::pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q) {
+    VertexVector adj_verts = hed.adjacent_vertices(v);
+    BOOST_FOREACH( HEVertex w, adj_verts ) {
+        if ( hed[w].type == UNDECIDED ) {
+            if ( !hed[w].in_queue ) { 
+                Q.push(w); // push adjacent undecided verts for testing.
+                hed[w].in_queue=true;
+            }
+        }
+    }
+}
+
+int VoronoiDiagram::adjacentInCount(HEVertex v) {
+    VertexVector adj_v = hed.adjacent_vertices(v);
+    int in_count=0;
+    BOOST_FOREACH( HEVertex w, adj_v) {
+        if ( hed[w].type == IN )
+            in_count++;
+    }
+    return in_count;
+}
+FaceVector VoronoiDiagram::adjacentIncidentFaces(HEVertex v) {
+    FaceVector adj_faces = hed.adjacent_faces(v);
+    assert( adj_faces.size() == 3 );
+    FaceVector inc_faces;
+    BOOST_FOREACH( HEFace f, adj_faces ) {
+        if ( hed[f].type == INCIDENT )
+            inc_faces.push_back( f );
+    }
+    assert( !inc_faces.empty() );
+    return inc_faces;
+}
+
+bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
+    bool all_found = true;
+    BOOST_FOREACH( HEFace f, adjacentIncidentFaces(v) ) { // check each face f
+        // v should be adjacent to an IN vertex on the face
+        // VertexVector face_verts = hed.face_vertices(f);
+        bool face_found=false;
+        BOOST_FOREACH( HEVertex w, hed.face_vertices(f) ) {
+            if ( w != v && hed[w].type == IN && hed.edge(w,v) ) 
+                face_found = true;
+        }
+        if (!face_found)
+            all_found=false;
+    }
+    return all_found;
+}
+
+// from the "one million" paper, growing the tree by breadth-first search
+void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, Point& p) {
+    assert(v0.size()==1);
+    std::queue<HEVertex> Q;
+    // a priority_queue could be used here instead.
+    // allways examine and decide on the vertex with largest detH, since that vertex has the most reliable detH sign.
+    in_vertices.push_back( v0[0] );
+    markAdjecentFacesIncident( v0[0] );
+    assert( Q.empty() );
+    pushAdjacentVertices( v0[0] , Q);
+    while( !Q.empty() ) {
+        HEVertex v = Q.front();
+        assert( hed[v].type == UNDECIDED );
+        // add to v0 if detH<0 and passes tests. otherwise OUT
+        double h = hed[v].detH( p );
+        if ( h < 0.0 ) { // try to mark IN
+            // (C4) v should not be adjacent to two or more IN vertices
+            // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
+            if ( (adjacentInCount(v) >= 2) || (!incidentFacesHaveAdjacentInVertex(v)) ) {
+                assert( hed[v].type == UNDECIDED );
+                hed[v].type = OUT;
+                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
+                in_vertices.push_back( v );
+            } else {
+                hed[v].type = IN;
+                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
+                in_vertices.push_back( v );
+                v0.push_back( v );
+                markAdjecentFacesIncident( v );
+                pushAdjacentVertices( v , Q);
+            }
+        } else { // mark OUT
+            //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
+            assert( h >= 0.0 );
+            assert( hed[v].type == UNDECIDED );
+            hed[v].type = OUT;
+            in_vertices.push_back( v );
+        }
+        Q.pop(); // delete from queue
+    }
+    
+    BOOST_FOREACH( HEFace f, incident_faces ) {
+        if ( !faceVerticesConnected( f, IN ) ) {
+            std::cout << " augment_vertex_set_M() ERROR, IN-vertices not connected.\n";
+            std::cout << " printing all incident faces for debug: \n";
+            BOOST_FOREACH( HEFace f, incident_faces ) {
+                printFaceVertexTypes( f );
+            } 
+        }
+    }
+    
+    BOOST_FOREACH( HEFace f, incident_faces ) {
+        assert( faceVerticesConnected( f, IN ) );
+    }
+    //std::cout << " augment_M done:\n";
+    //printVertices(v0);
+}
+
+// simple algorithm for finding vertex set
+// relies on the correct computation of detH (this will fail due to floating point error - sooner or later)
+// roughly "Algorithm RB" from Sugihara& Iri 1994, page 18
+void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
+    assert(q.size()==1);
+    std::stack<HEFace> S;
+    in_vertices.push_back( q[0] );
+    markAdjecentFacesIncident(S, q[0]); // B1.3  we push all the adjacent faces onto the stack, and label them INCIDENT
+    while ( !S.empty() ) { // examine all incident faces until done.
+        HEFace f = S.top();
+        S.pop();
+        HEEdge current_edge = hed[f].edge; 
+        HEEdge start_edge = current_edge;
+        bool done=false;
+        while (!done) {
+            assert( hed[ hed[current_edge].face ].type == INCIDENT );
+            assert( hed[current_edge].face == f );
+            // add v to V0 subject to:
+            // (T4) V0 graph is a tree
+            // (T5) the IN-vertices of face f are connected
+            HEVertex v = hed.target( current_edge );
+            if ( hed[v].type == UNDECIDED ) {
+                in_vertices.push_back( v ); // this vertex needs to be reset by reset_labels()
+                if ( hed[v].detH( p ) < 0.0 ) { // assume correct sign of H here
+                    hed[v].type = IN;
+                    q.push_back(v);
+                    markAdjecentFacesIncident(S, v);
+                } else {
+                    hed[v].type = OUT;
+                }
+            }
+            current_edge = hed[current_edge].next; // jump to the next edge on this face
+            
+            if ( current_edge == start_edge ) // when we are back where we started, stop.
+                done = true;
+        }
+        // we should be done with face f
+        if (!faceVerticesConnected( f, IN )) {
+            std::cout << " augment_RB ERROR IN-verts not connected:\n";
+            printFaceVertexTypes(f);
+        }
+        assert( faceVerticesConnected( f, IN ) );
+        assert( faceVerticesConnected( f, OUT ) );
+        assert( noUndecidedInFace( f ) ); 
+    }
+    
+    assert( allIn(q) );
+    //printVertices(q);
+    
+}
+
+
+
 // this is "Algorithm B" from Sugihara&Iri 1994, page 20-21
 // http://dx.doi.org/10.1142/S0218195994000124
 void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
@@ -695,341 +1016,6 @@ void VoronoiDiagram::augment_vertex_set_B(VertexVector& q, Point& p) {
     assert( allIncidentFacesOK() );
     assert( allIn(q) );
     //printVertices(q);
-}
-
-bool VoronoiDiagram::allIncidentFacesOK() {
-    // all incident faces should pass the sanity-check
-    BOOST_FOREACH( HEFace f, incident_faces ) {
-        if ( !faceVerticesConnected(  f, IN ) )
-            return false; // IN vertices should be connected
-        if ( !faceVerticesConnected(  f, OUT ) )  // OUT vertices should be connected
-            return false;
-        if ( !noUndecidedInFace( f ) )            // no UNDECIDED vertices should remain
-            return false;
-    }
-    return true;
-}
-
-bool VoronoiDiagram::allIn(VertexVector& q) {
-    BOOST_FOREACH( HEVertex v, q) {
-        if ( hed[v].type != IN )
-            return false;
-    }
-    return true;
-}
-
-VertexVector VoronoiDiagram::findRepairVerts(HEFace f, VoronoiVertexType Vtype) {
-    assert( !faceVerticesConnected(  f, Vtype ) ); // Vtype is not connected.
-    // example 2-0-1-2-0
-    
-    // repair pattern: Vtype - U - Vtype
-    // find potential U-sets
-    HEEdge currentEdge = hed[f].edge;
-    HEVertex endVertex = hed.source(currentEdge); // stop when target here
-    EdgeVector startEdges;
-    bool done = false;
-    while (!done) { 
-        HEVertex src = hed.source( currentEdge );
-        HEVertex trg = hed.target( currentEdge );
-        if ( hed[src].type == Vtype ) { // seach Vtype - U
-            if ( hed[trg].type == UNDECIDED ) {
-                // we have found Vtype-U
-                startEdges.push_back( currentEdge );
-            }
-        }
-        currentEdge = hed[currentEdge].next;
-        if ( trg == endVertex ) {
-            done = true;
-        }
-    }
-    //std::cout << "findRepairVerts(): startEdges.size() = " << startEdges.size() << "\n";
-    
-    if (startEdges.empty()) {
-        std::cout << "findRepairVerts(): ERROR repairing face= " << f << " type= "<< Vtype << "\n";
-        std::cout << "findRepairVerts(): ERROR can't find Vtype-U start edge!\n";
-        printFaceVertexTypes(f);
-        assert(0); // repair is not possible if we don't have a startEdge
-    }
-    std::vector<VertexVector> repair_sets;
-    
-    BOOST_FOREACH( HEEdge uedge, startEdges ) {
-        HEEdge ucurrent = uedge;
-        bool set_done = false;
-        VertexVector uset;
-        while (!set_done) {
-            HEVertex trg = hed.target( ucurrent );
-            if ( hed[trg].type == UNDECIDED ) {
-                uset.push_back(trg);
-                ucurrent = hed[ucurrent].next;
-            } else if ( hed[trg].type == Vtype ) {
-                repair_sets.push_back(uset); // done with this set
-                set_done = true;
-            } else { // doesn't end in Vtype, so not a valid set
-                set_done = true;
-            }
-        }
-    }
-    
-    // among the repair sets, find the minimal one
-    if (repair_sets.empty()) {
-        std::cout << "findRepairVerts(): Vtype-U found, but cannot repair:\n";
-        printFaceVertexTypes(f);
-        assert(0);
-    }
-    
-    std::size_t min_idx = 0;
-    std::size_t min_size = repair_sets[min_idx].size();
-    for( std::size_t idx = 0; idx<repair_sets.size(); ++idx ) {
-        if ( repair_sets[idx].size() < min_size ) {
-            min_idx = idx;
-            min_size = repair_sets[idx].size();
-        }
-    }
-    //std::cout << "findRepairVerts(): repair_sets[min_idx].size() = " << repair_sets[min_idx].size() << "\n";
-    return repair_sets[min_idx];
-}
-
-bool VoronoiDiagram::noUndecidedInFace(HEFace f) {
-    VertexVector face_verts = hed.face_vertices(f);
-    BOOST_FOREACH( HEVertex v, face_verts ) {
-        if ( hed[v].type == UNDECIDED )
-            return false;
-    }
-    return true;
-}
-
-// check that the vertices TYPE are connected
-bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) {
-    VertexVector face_verts = hed.face_vertices(f);
-    VertexVector type_verts;
-    BOOST_FOREACH( HEVertex v, face_verts ) {
-        if ( hed[v].type == Vtype )
-            type_verts.push_back(v);
-    }
-    assert( !type_verts.empty() );
-    if (type_verts.size()==1) // set of 1 is allways connected
-        return true;
-    
-    // check that type_verts are connected
-    HEEdge currentEdge = hed[f].edge;
-    HEVertex endVertex = hed.source(currentEdge); // stop when target here
-    EdgeVector startEdges;
-    bool done = false;
-    while (!done) { 
-        HEVertex src = hed.source( currentEdge );
-        HEVertex trg = hed.target( currentEdge );
-        if ( hed[src].type != Vtype ) { // seach ?? - Vtype
-            if ( hed[trg].type == Vtype ) {
-                // we have found ?? - Vtype
-                startEdges.push_back( currentEdge );
-            }
-        }
-        currentEdge = hed[currentEdge].next;
-        if ( trg == endVertex ) {
-            done = true;
-        }
-    }
-    assert( !startEdges.empty() );
-    if ( startEdges.size() != 1 ) // when the Vtype vertices are connected, there is exactly one startEdge
-        return false;
-    else 
-        return true;
-}
-
-void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
-    std::cout << " Face " << f << ": ";
-    VertexVector face_verts = hed.face_vertices(f);    
-    unsigned count=1;
-    BOOST_FOREACH( HEVertex v, face_verts ) {
-        std::cout << hed[v].index  << "(" << hed[v].type  << ")";
-        if (count != face_verts.size() )
-            std::cout << "-";
-        count++;
-    }
-    std::cout << "\n";
-}
-
-void VoronoiDiagram::printVertices(VertexVector& q) {
-    BOOST_FOREACH( HEVertex v, q) {
-        std::cout << hed[v].index << " ";
-    }
-    std::cout << std::endl;
-}
-
-void VoronoiDiagram::pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q) {
-    VertexVector adj_verts = hed.adjacent_vertices(v);
-    BOOST_FOREACH( HEVertex w, adj_verts ) {
-        if ( hed[w].type == UNDECIDED ) {
-            if (not_in_queue(w,Q)) 
-                Q.push(w); // push adjacent undecided verts for testing.
-        }
-    }
-}
-
-// from the "one million" paper, growing the tree by breadth-first search
-void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, Point& p) {
-    assert(v0.size()==1);
-    std::queue<HEVertex> Q;
-    // a priority_queue could be used here instead.
-    // allways examine and decide on the vertex with largest detH, since that vertex has the most reliable detH sign.
-    
-    in_vertices.push_back( v0[0] );
-    markAdjecentFacesIncident( v0[0] );
-    assert( Q.empty() );
-    pushAdjacentVertices( v0[0] , Q);
-    
-    while( !Q.empty() ) {
-        HEVertex v = Q.front();
-        assert( hed[v].type == UNDECIDED );
-        
-        // add to v0 if detH<0 and passes tests. otherwise OUT
-        double h = hed[v].detH( p );
-        if ( h < 0.0 ) {
-            // try to mark IN
-            // (C4) v should not be adjacent to two or more IN vertices
-            VertexVector adj_v = hed.adjacent_vertices(v);
-            int in_count=0;
-            BOOST_FOREACH( HEVertex w, adj_v) {
-                if ( hed[w].type == IN )
-                    in_count++;
-            }
-            
-            if ( in_count >= 2 ) {
-                hed[v].type = OUT;
-                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
-                in_vertices.push_back( v );
-            } else {
-                // (C5) for an incident face containing v:
-                //      v is adjacent to an IN vertex on this face
-                FaceVector adj_faces = hed.adjacent_faces(v);
-                assert( adj_faces.size() == 3 );
-                FaceVector inc_faces;
-                BOOST_FOREACH( HEFace f, adj_faces ) {
-                    if ( hed[f].type == INCIDENT )
-                        inc_faces.push_back( f );
-                }
-                assert( !inc_faces.empty() );
-                bool all_found = true;
-                BOOST_FOREACH( HEFace f, inc_faces ) {
-                    // check each face f
-                    // v should be adjacent to an IN vertex on the face
-                    VertexVector face_verts = hed.face_vertices(f);
-                    bool face_found=false;
-                    BOOST_FOREACH( HEVertex w, face_verts ) {
-                        if ( w != v ) {
-                            if ( hed[w].type == IN ) {
-                                assert( hed.edge(w,v) == hed.edge(v,w) );
-                                if ( hed.edge(w,v) || hed.edge(v,w) ) {
-                                    face_found = true;
-                                }
-                            }
-                        }
-                    }
-                    if (!face_found) {
-                        all_found=false;
-                    }
-                }
-                if (all_found) {
-                    hed[v].type = IN;
-                    //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
-                    in_vertices.push_back( v );
-                    v0.push_back(v);
-                    markAdjecentFacesIncident(v);
-                    pushAdjacentVertices( v , Q);
-                } else {
-                    assert( hed[v].type == UNDECIDED );
-                    hed[v].type = OUT;
-                    //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " NOT_FOUND (h<0)\n";
-                    in_vertices.push_back( v );
-                }
-            }
-        } else {
-            assert( h >= 0.0 );
-            assert( hed[v].type == UNDECIDED );
-            // mark OUT
-            hed[v].type = OUT;
-            //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
-            in_vertices.push_back( v );
-        }
-        Q.pop(); // delete from queue
-    }
-    
-    BOOST_FOREACH( HEFace f, incident_faces ) {
-        if ( !faceVerticesConnected( f, IN ) ) {
-            std::cout << " augment_vertex_set_M() ERROR, IN-vertices not connected.\n";
-            std::cout << " printing all incident faces for debug: \n";
-            BOOST_FOREACH( HEFace f, incident_faces ) {
-                printFaceVertexTypes( f );
-            } 
-        }
-    }
-    
-    BOOST_FOREACH( HEFace f, incident_faces ) {
-        assert( faceVerticesConnected( f, IN ) );
-    }
-    //std::cout << " augment_M done:\n";
-    //printVertices(v0);
-}
-
-bool VoronoiDiagram::not_in_queue(HEVertex w, std::queue<HEVertex> Q) {
-    while( !Q.empty() ) {
-        HEVertex v = Q.front();
-        Q.pop();
-        if ( w == v )
-            return false;
-    }
-    return true;
-}
-
-// simple algorithm for finding vertex set
-// relies on the correct computation of detH (this will fail due to floating point error - sooner or later)
-// roughly "Algorithm RB" from Sugihara& Iri 1994, page 18
-void VoronoiDiagram::augment_vertex_set_RB(VertexVector& q, Point& p) {
-    assert(q.size()==1);
-    std::stack<HEFace> S;
-    in_vertices.push_back( q[0] );
-    markAdjecentFacesIncident(S, q[0]); // B1.3  we push all the adjacent faces onto the stack, and label them INCIDENT
-    while ( !S.empty() ) { // examine all incident faces until done.
-        HEFace f = S.top();
-        S.pop();
-        HEEdge current_edge = hed[f].edge; 
-        HEEdge start_edge = current_edge;
-        bool done=false;
-        while (!done) {
-            assert( hed[ hed[current_edge].face ].type == INCIDENT );
-            assert( hed[current_edge].face == f );
-            // add v to V0 subject to:
-            // (T4) V0 graph is a tree
-            // (T5) the IN-vertices of face f are connected
-            HEVertex v = hed.target( current_edge );
-            if ( hed[v].type == UNDECIDED ) {
-                in_vertices.push_back( v ); // this vertex needs to be reset by reset_labels()
-                if ( hed[v].detH( p ) < 0.0 ) { // assume correct sign of H here
-                    hed[v].type = IN;
-                    q.push_back(v);
-                    markAdjecentFacesIncident(S, v);
-                } else {
-                    hed[v].type = OUT;
-                }
-            }
-            current_edge = hed[current_edge].next; // jump to the next edge on this face
-            
-            if ( current_edge == start_edge ) // when we are back where we started, stop.
-                done = true;
-        }
-        // we should be done with face f
-        if (!faceVerticesConnected( f, IN )) {
-            std::cout << " augment_RB ERROR IN-verts not connected:\n";
-            printFaceVertexTypes(f);
-        }
-        assert( faceVerticesConnected( f, IN ) );
-        assert( faceVerticesConnected( f, OUT ) );
-        assert( noUndecidedInFace( f ) ); 
-    }
-    
-    assert( allIn(q) );
-    //printVertices(q);
-    
 }
 
 // used by augment_M

@@ -45,9 +45,7 @@ class VoronoiDiagram {
         VoronoiDiagram() {}
         /// create diagram with given far-radius and number of bins
         VoronoiDiagram(double far, unsigned int n_bins);
-        virtual ~VoronoiDiagram() {
-            delete fgrid;
-        }
+        virtual ~VoronoiDiagram() { delete fgrid; }
         /// add a vertex generator at given position
         void addVertexSite(Point p);
         
@@ -97,8 +95,9 @@ class VoronoiDiagram {
         void printFaceVertexTypes(HEFace f);
         void printVertices(VertexVector& q);
         int outVertexCount(HEFace f);
-        
-        bool not_in_queue(HEVertex w, std::queue<HEVertex> Q);
+        int adjacentInCount(HEVertex v);
+        FaceVector adjacentIncidentFaces(HEVertex v);
+        bool incidentFacesHaveAdjacentInVertex(HEVertex v);
         
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         VertexVector findRepairVerts(HEFace f, VoronoiVertexType Vtype);
