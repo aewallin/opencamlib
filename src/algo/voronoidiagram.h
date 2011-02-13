@@ -65,7 +65,7 @@ class VoronoiDiagram {
         // for visualizing seed-vertex
         Point getSeedVertex( const Point p ) {
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v = find_seed_vertex(closest_face, p);
+            HEVertex v = findSeedVertex(closest_face, p);
             return hed[ v ].position;
         }
 
@@ -78,7 +78,7 @@ class VoronoiDiagram {
         /// initialize the diagram with three generators
         void init();
         /// among the vertices of f, find the one with the lowest detH value
-        HEVertex find_seed_vertex(HEFace f, const Point& p);
+        HEVertex findSeedVertex(HEFace f, const Point& p);
         /// from sugihara-iri 1994 paper, examine vertices of each incident face
         void augment_vertex_set_B(VertexVector& v, Point& p);
         /// naive algorithm, relies on correct detH sign

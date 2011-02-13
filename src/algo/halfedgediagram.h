@@ -101,7 +101,10 @@ struct VertexProps {
         count++;
         in_queue = false;
     }
-
+    void reset() {
+        in_queue = false;
+        type = UNDECIDED;
+    }
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
     void set_position() {
         double w = J4;

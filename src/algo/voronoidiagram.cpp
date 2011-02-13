@@ -156,7 +156,7 @@ void VoronoiDiagram::addVertexSite(Point p) {
     gen_count++;
     HEFace closest_face = fgrid->grid_find_closest_face( p );
 
-    HEVertex v_seed = find_seed_vertex(closest_face, p);
+    HEVertex v_seed = findSeedVertex(closest_face, p);
     hed[v_seed].type = IN;
     VertexVector v0;
     v0.push_back(v_seed); 
@@ -190,13 +190,10 @@ HEFace VoronoiDiagram::split_faces(Point& p) {
 
 void VoronoiDiagram::reset_labels() {
     BOOST_FOREACH( HEVertex v, in_vertices ) {
-        hed[v].in_queue = false;
-        if ( hed[v].type != UNDECIDED ) {
-            hed[v].type = UNDECIDED;
-        }
+        hed[v].reset();
     }
     in_vertices.clear();
-    hed[v01].type = OUT; // the outer vertices are special:
+    hed[v01].type = OUT; // the outer vertices are special.
     hed[v02].type = OUT;
     hed[v03].type = OUT;
     BOOST_FOREACH(HEFace f, incident_faces ) { hed[f].type = NONINCIDENT; }
@@ -743,9 +740,6 @@ void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, Point& p) {
                 printFaceVertexTypes( f );
             } 
         }
-    }
-    
-    BOOST_FOREACH( HEFace f, incident_faces ) {
         assert( faceVerticesConnected( f, IN ) );
     }
     //std::cout << " augment_M done:\n";
@@ -1031,8 +1025,9 @@ void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
     }
 }
 
+// set the adjacent faces to incident, and push onto stack
 void VoronoiDiagram::markAdjecentFacesIncident(std::stack<HEFace>& S, HEVertex v) {
-    FaceVector new_adjacent_faces = hed.adjacent_faces( v ); // also set the adjacent faces to incident
+    FaceVector new_adjacent_faces = hed.adjacent_faces( v ); 
     assert( new_adjacent_faces.size()==3 );
     BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
         if ( hed[adj_face].type  != INCIDENT ) {
@@ -1045,7 +1040,7 @@ void VoronoiDiagram::markAdjecentFacesIncident(std::stack<HEFace>& S, HEVertex v
 
 // evaluate H on all face vertices and return
 // vertex with the lowest H
-HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
+HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
     VertexVector face_verts = hed.face_vertices(f);                 
     assert( face_verts.size() >= 3 ); 
     double minimumH; // safe, because we expect the min H to be negative...
@@ -1056,14 +1051,10 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
         if ( hed[q].type != OUT ) {
             h = hed[q].detH( p ); 
             //std::cout << "  detH = " << h << " ! \n";
-            if ( first ) {
+            if ( first || (h<minimumH) ) {
                 minimumH = h;
                 minimalVertex = q;
                 first = false;
-            }
-            if (h<minimumH) { // find minimum H value among q_verts
-                minimumH = h;
-                minimalVertex = q;
             }
         }
     }
@@ -1115,7 +1106,6 @@ HalfEdgeDiagram* VoronoiDiagram::getDelaunayTriangulation()  {
                     if (itr != map.end() ) {
                         HEVertex v2 = itr->second;
                         //std::cout << " dt edge " << v1 << " , " << v2 << std::endl;
-                        
                         dt->add_edge( v1, v2 );
                     }
                 }

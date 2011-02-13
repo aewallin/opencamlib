@@ -43,7 +43,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         boost::python::list getDeleteSet( Point p ) { // no const here(?)
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v_seed = find_seed_vertex(closest_face, p);
+            HEVertex v_seed = findSeedVertex(closest_face, p);
             hed[v_seed].type = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
@@ -61,7 +61,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         boost::python::list getDeleteEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v_seed = find_seed_vertex(closest_face, p);
+            HEVertex v_seed = findSeedVertex(closest_face, p);
             hed[v_seed].type = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
@@ -81,7 +81,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         boost::python::list getModEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v_seed = find_seed_vertex(closest_face, p);
+            HEVertex v_seed = findSeedVertex(closest_face, p);
             hed[v_seed].type = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
