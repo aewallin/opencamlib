@@ -45,6 +45,7 @@ PathDropCutter::~PathDropCutter() {
 
 void PathDropCutter::setPath(const Path *p) {
     path = p;
+	((BatchDropCutter*)(subOp[0]))->clearCLPoints();
 }
 
 void PathDropCutter::run() {

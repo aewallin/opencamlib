@@ -57,6 +57,8 @@ class BatchDropCutter : public Operation {
     // getters and setters
         /// return a vector of CLPoints, the result of this operation
         std::vector<CLPoint> getCLPoints() {return *clpoints;}
+		/// clears the vector of CLPoints
+		void clearCLPoints() {clpoints->clear();}
         
     protected:
         /// unoptimized drop-cutter,  tests against all triangles of surface
