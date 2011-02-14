@@ -242,11 +242,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\algo\facegrid.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\algo\fiber.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\algo\fiberpushcutter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\halfedgediagram.cpp"
 				>
 			</File>
 			<File
@@ -412,11 +420,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\algo\facegrid.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\algo\fiber.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\algo\fiberpushcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\halfedgediagram.h"
 				>
 			</File>
 			<File
