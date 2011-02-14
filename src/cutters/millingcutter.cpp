@@ -299,6 +299,7 @@ bool MillingCutter::shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1,
                 result = true;
         }
     }
+    //std::cout << " shaftEdgePush = " << result << "\n";
     return result;
 }
 
@@ -334,6 +335,7 @@ bool MillingCutter::horizEdgePush(const Fiber& f, Interval& i,  const Point& p1,
             }
         }
     }
+    //std::cout << " horizEdgePush = " << result << "\n";
     return result;
 }
 
@@ -345,9 +347,15 @@ bool MillingCutter::calcCCandUpdateInterval( double t, double u, const Point& q,
 } 
 
 bool MillingCutter::pushCutter(const Fiber& f, Interval& i, const Triangle& t) const {
-    bool v = vertexPush(f,i,t);
+    //std::cout << " vertexPush() ";
+    bool v = vertexPush(f,i,t); 
+    //std::cout << " done.\n";
+    //std::cout << " facetPush() ";
     bool fa = facetPush(f,i,t);
+    //std::cout << " done.\n";
+    //std::cout << " edgePush() ";
     bool e = edgePush(f,i,t);
+    //std::cout << " done.\n";
     return v || fa || e;
 }
 

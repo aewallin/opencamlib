@@ -65,7 +65,7 @@ class Waterline : public Operation {
         /// the z-height for this Waterline
         double zh;
         /// the results of this operation, a list of loops
-        std::vector< std::vector<Point> >  loops; // change to CLPoint!!
+        std::vector< std::vector<Point> >  loops; // change to CLPoint ?
 };
 
 

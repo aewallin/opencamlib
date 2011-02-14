@@ -61,6 +61,10 @@ CC_CLZ_Pair BallCutter::singleEdgeDropCanonical(const Point& u1, const Point& u2
 // push-cutter: vertex and facet handled in base-class
 bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
+    if ( isZero_tol( (p2-p1).xyNorm() ) ) { // this would be a vertical edge
+        return result;
+    }
+    
     const Point ufp1 = f.p1 + Point(0,0,radius); // take a fiber which is raised up by radius
     const Point ufp2 = f.p2 + Point(0,0,radius); // and intersect it with a cylinder around the edge p1-p2
     // Ray : P(t) = O + t*V    from point O, in direction V

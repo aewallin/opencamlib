@@ -26,7 +26,7 @@
 #include "revision.h"
 
 #ifdef WIN32
-bool isnan(double x){return false;}
+    bool isnan(double x){return false;}
 #endif
 
 namespace ocl
@@ -48,7 +48,7 @@ double xyVectorToDiangle(double x, double y) {
         diangle = (x >= 0 ? y/(x+y) : 1-x/(-x+y));
     else
         diangle = (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
-    if ( isnan(diangle) ) { // error C3861: 'isnan': identifier not found
+    if ( isnan(diangle) ) { // Windows platform problem: error C3861: 'isnan': identifier not found
         std::cout << "numeric::xyVectorToDiangle() error (x,y)= ("<< x << " , " << y  << " ) and diangle=" << diangle << "\n";
         assert(0);
     }

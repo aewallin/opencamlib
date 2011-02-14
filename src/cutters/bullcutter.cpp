@@ -89,14 +89,24 @@ CC_CLZ_Pair BullCutter::singleEdgeDropCanonical( const Point& u1, const Point& u
 // push-cutter: vertex and facet handled by base-class
 
 bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    //std::cout << " BullCutter::generalEdgePush() \n";
     bool result = false;
-    if ( isZero_tol( p2.z-p1.z ) )
+    
+    if ( isZero_tol( (p2-p1).xyNorm() ) ) { // this would be a vertical edge
         return result;
-    assert( fabs(p2.z-p1.z) > 0.0 ); // guard against horiz edges
+    }
+    
+    if ( isZero_tol( p2.z-p1.z ) ) // this would be a horizontal edge
+        return result;
+    assert( fabs(p2.z-p1.z) > 0.0 ); // no horiz edges allowed hereafter
+    
     // p1+t*(p2-p1) = f.p1.z+radius2   =>  
     double tplane = (f.p1.z + radius2 - p1.z ) / (p2.z-p1.z); // intersect edge with plane at z = ufp1.z
-    Point ell_center = p1+tplane*(p2-p1);                               assert( isZero_tol( fabs(ell_center.z - (f.p1.z+radius2)) ) );
-    Point major_dir = (p2-p1);                    
+    Point ell_center = p1+tplane*(p2-p1);                               
+    assert( isZero_tol( fabs(ell_center.z - (f.p1.z+radius2)) ) );
+    Point major_dir = (p2-p1);     
+    assert( major_dir.xyNorm() > 0.0 );               
+    
     major_dir.z = 0;
     major_dir.xyNormalize();
     Point minor_dir = major_dir.xyPerp();
@@ -111,8 +121,10 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         CCPoint cc2 = pseudo_cc2.closestPoint(p1,p2);
         cc.type  = EDGE_POS;
         cc2.type = EDGE_POS;
-        Point cl  = e.oePoint1() - Point(0,0,center_height);            assert( isZero_tol( fabs(cl.z - f.p1.z)) );
-        Point cl2 = e.oePoint2() - Point(0,0,center_height);            assert( isZero_tol( fabs(cl2.z - f.p1.z)) );
+        Point cl  = e.oePoint1() - Point(0,0,center_height);            
+        assert( isZero_tol( fabs(cl.z - f.p1.z)) );
+        Point cl2 = e.oePoint2() - Point(0,0,center_height);            
+        assert( isZero_tol( fabs(cl2.z - f.p1.z)) );
         double cl_t  = f.tval(cl);
         double cl_t2 = f.tval(cl2);
         if ( i.update_ifCCinEdgeAndTrue( cl_t, cc, p1, p2, true ) )
@@ -120,6 +132,7 @@ bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         if ( i.update_ifCCinEdgeAndTrue( cl_t2, cc2, p1, p2, true ) )
             result = true;
     }
+    //std::cout << " BullCutter::generalEdgePush() DONE result= " << result << "\n";
     return result;
 }
 

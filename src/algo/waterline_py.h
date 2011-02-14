@@ -32,7 +32,8 @@ namespace ocl
 /// Python wrapper for Waterline
 class Waterline_py : public Waterline {
     public:
-        Waterline_py() : Waterline() {};
+        Waterline_py() : Waterline() {}
+        ~Waterline_py() {}
         /// return loop as a list of lists to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;
@@ -44,7 +45,7 @@ class Waterline_py : public Waterline {
                 loop_list.append(point_list);
             }
             return loop_list;
-        };
+        }
         /// return a list of yfibers to python
         boost::python::list getXFibers() const {
             boost::python::list flist;
@@ -54,7 +55,7 @@ class Waterline_py : public Waterline {
                 flist.append(f2);
             }
             return flist;
-        };
+        }
         /// return a list of yfibers to python
         boost::python::list getYFibers() const {
             boost::python::list flist;
@@ -64,7 +65,7 @@ class Waterline_py : public Waterline {
                 flist.append(f2);
             }
             return flist;
-        };
+        }
         
 };
 

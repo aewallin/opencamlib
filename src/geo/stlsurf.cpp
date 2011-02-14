@@ -19,6 +19,7 @@
 */
 
 #include <list>
+#include <cassert>
 
 #include "point.h"
 #include "triangle.h"
@@ -28,6 +29,12 @@ namespace ocl
 {
 
 void STLSurf::addTriangle(const Triangle &t) {
+    
+    // some sanity-checking:
+    assert( (t.p[0]-t.p[1]).norm() > 0.0 );
+    assert( (t.p[1]-t.p[2]).norm() > 0.0 );
+    assert( (t.p[2]-t.p[0]).norm() > 0.0 );
+    
     tris.push_back(t);
     bb.addTriangle(t);
     return;

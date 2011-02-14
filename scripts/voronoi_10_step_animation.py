@@ -143,13 +143,13 @@ class VD:
 
 def writeFrame( w2if, lwr, n ):
     w2if.Modified() 
-    lwr.SetFileName("frames/vd500_"+ ('%05d' % n)+".png")
-    #lwr.Write()
+    lwr.SetFileName("frames/vd500_zoomout"+ ('%05d' % n)+".png")
+    lwr.Write()
     
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetFocalPoint(0, 0, 0)
+    
     
     camvtk.drawOCLtext(myscreen)
     
@@ -167,10 +167,10 @@ if __name__ == "__main__":
     # far = 0.000002 generator 52 face_count crash
     # far = 0.000010 crashes at n=192
     
-    camPos = 0.4* (far/0.0001)
-    myscreen.camera.SetPosition(camPos/1000, 0, camPos) 
+    camPos = 2* (far/0.0001)
+    myscreen.camera.SetPosition(camPos/1000, camPos/1000, camPos) 
     myscreen.camera.SetClippingRange(-2*camPos,2*camPos)
-
+    myscreen.camera.SetFocalPoint(0.051, 0, 0)
     vd = ocl.VoronoiDiagram(far,1200)
     
     vod = VD(myscreen,vd,scale)
@@ -211,7 +211,7 @@ if __name__ == "__main__":
         #GENERATOR
         #"""
         gp=scale*p
-        gen_actor = camvtk.Sphere( center=(gp.x,gp.y,gp.z), radius=far*20, color=camvtk.yellow )
+        gen_actor = camvtk.Sphere( center=(gp.x,gp.y,gp.z), radius=far*60, color=camvtk.yellow )
         if n in ren:
             myscreen.addActor(gen_actor)
             myscreen.render()
@@ -235,7 +235,7 @@ if __name__ == "__main__":
         #"""
         sv = scale*vd.getSeedVertex(p)
         print " seed vertex is ",sv
-        seed_actor = camvtk.Sphere( center=(sv.x,sv.y,sv.z), radius=far*20, color=camvtk.pink )
+        seed_actor = camvtk.Sphere( center=(sv.x,sv.y,sv.z), radius=far*60, color=camvtk.pink )
         if n in ren:
             myscreen.addActor(seed_actor)
             myscreen.render()
@@ -253,7 +253,7 @@ if __name__ == "__main__":
             for pd in delset:
                 pos = scale*pd[0]
                 type = pd[1]
-                p_actor = camvtk.Sphere( center=(pos.x,pos.y,pos.z), radius=far*20, color=camvtk.red )
+                p_actor = camvtk.Sphere( center=(pos.x,pos.y,pos.z), radius=far*60, color=camvtk.red )
                 p_actors.append(p_actor)
             for a in p_actors:
                 myscreen.addActor(a)
