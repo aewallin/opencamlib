@@ -45,7 +45,8 @@ PathDropCutter::~PathDropCutter() {
 
 void PathDropCutter::setPath(const Path *p) {
     path = p;
-	((BatchDropCutter*)(subOp[0]))->clearCLPoints();
+    // ((BatchDropCutter*)(subOp[0]))->clearCLPoints();
+    subOp[0]->clearCLPoints();
 }
 
 void PathDropCutter::run() {
@@ -63,8 +64,7 @@ void PathDropCutter::uniform_sampling_run() {
 }
 
 // this samples the Span and pushes the corresponding sampled points to bdc
-void PathDropCutter::sample_span(const Span* span)
-{
+void PathDropCutter::sample_span(const Span* span) {
     assert( sampling > 0.0 );
     unsigned int num_steps = (unsigned int)(span->length2d() / sampling + 1);
     for(unsigned int i = 0; i<=num_steps; i++) {

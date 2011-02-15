@@ -28,8 +28,8 @@ if __name__ == "__main__":
     pdc.setCutter(cutter)               # set the cutter
     apdc.setCutter(cutter)
     #print "set minimumZ"
-    pdc.minimumZ = -1                   # set the minimum Z-coordinate, or "floor" for drop-cutter
-    apdc.minimumZ = -1 
+    #pdc.minimumZ = -1                   # set the minimum Z-coordinate, or "floor" for drop-cutter
+    #apdc.minimumZ = -1 
     #print "set the sampling interval"
     pdc.setSampling(0.4)
     apdc.setSampling(0.4)

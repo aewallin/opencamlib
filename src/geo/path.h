@@ -46,7 +46,7 @@ class Span{
         /// return the length of the span in the xy-plane
         virtual double length2d()const = 0;
         /// return a point at parameter value 0 <= t <= 1.0
-        virtual Point getPoint(double t)const = 0; // 0.0 to 1.0
+        virtual Point getPoint(double t) const = 0; // 0.0 to 1.0
 };
 
 /// Line Span
@@ -61,9 +61,13 @@ class LineSpan : public Span {
         /// return span type
         SpanType type()const{return LineSpanType;}
         /// return span length
-        double length2d()const{return line.length2d();}
+        double length2d() const {
+            return line.length2d();
+        }
         /// return point on span
-        Point getPoint(double t)const{return line.getPoint(t);}
+        Point getPoint(double t) const {
+            return line.getPoint(t);
+        }
 };
 
 /// circular Arc Span

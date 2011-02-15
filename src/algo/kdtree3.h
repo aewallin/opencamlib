@@ -70,9 +70,15 @@ template <class BBObj>
 class KDTree {
     public:
         KDTree() {};
-        virtual ~KDTree() {delete root;};
+        virtual ~KDTree() {
+            // std::cout << " ~KDTree()\n";
+            delete root;
+        }
         /// set the bucket-size 
-        void setBucketSize(int b){bucketSize = b;};
+        void setBucketSize(int b){
+            std::cout << "KDTree::setBucketSize = " << b << "\n"; 
+            bucketSize = b;
+        }
         /// set the search dimension to the XY-plane
         void setXYDimensions(){
             std::cout << "KDTree::setXYDimensions()\n"; 
@@ -81,7 +87,7 @@ class KDTree {
             dimensions.push_back(1); // x
             dimensions.push_back(2); // y
             dimensions.push_back(3); // y
-        }; // for drop-cutter search in XY plane
+        } // for drop-cutter search in XY plane
         /// set search-plane to YZ
         void setYZDimensions(){ // for X-fibers
             std::cout << "KDTree::setYZDimensions()\n"; 
@@ -90,7 +96,7 @@ class KDTree {
             dimensions.push_back(3); // y
             dimensions.push_back(4); // z
             dimensions.push_back(5); // z
-        }; // for X-fibers
+        } // for X-fibers
         /// set search plane to XZ
         void setXZDimensions(){ // for Y-fibers
             std::cout << "KDTree::setXZDimensions()\n";
@@ -99,25 +105,26 @@ class KDTree {
             dimensions.push_back(1); // x
             dimensions.push_back(4); // z
             dimensions.push_back(5); // z
-        }; // for Y-fibers
+        } // for Y-fibers
         /// build the kd-tree based on a list of input objects
         void build(const std::list<BBObj>& list){
+            //std::cout << "KDTree::build() list.size()= " << list.size() << " \n";
             root = build_node( &list, 0, NULL ); 
-        };
+        }
         /// search for overlap with input Bbox bb, return found objects
         std::list<BBObj>* search( const Bbox& bb ){
             assert( !dimensions.empty() );
             std::list<BBObj>* tris = new std::list<BBObj>();
             this->search_node( tris, bb, root );
             return tris;
-        };
+        }
         /// search for overlap with a MillingCutter c positioned at cl, return found objects
         std::list<BBObj>* search_cutter_overlap(const MillingCutter* c, CLPoint* cl ){
             double r = c->getRadius();
             // build a bounding-box at the current CL
             Bbox bb( cl->x-r, cl->x+r, cl->y-r, cl->y+r, cl->z, cl->z+c->getLength() );    
             return this->search( bb );
-        };
+        }
         /// string repr
         std::string str() const;
         
@@ -125,7 +132,9 @@ class KDTree {
         /// build and return a KDNode3 containing list *tris at depth dep.
         KDNode3<BBObj>* build_node(     const std::list<BBObj> *tris,  // triangles 
                                         int dep,                       // depth of node
-                                        KDNode3<BBObj> *par)   {
+                                        KDNode3<BBObj> *par)   {       // parent node
+            //std::cout << "KDNode::build_node list.size()=" << tris->size() << "\n";
+            
             if (tris->size() == 0 ) { //this is a fatal error.
                 std::cout << "ERROR: KDTree::build_node() called with tris->size()==0 ! \n";
                 assert(0);
@@ -134,8 +143,10 @@ class KDTree {
             Spread3* spr = calc_spread(tris); // calculate spread in order to know how to cut
             double cutvalue = spr->start + spr->val/2; // cut in the middle
             if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {  // then return a bucket/leaf node
+                std::cout << "KDNode::build_node BUCKET list.size()=" << tris->size() << "\n";
                 KDNode3<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
-                bucket = new KDNode3<BBObj>(spr->d, 0.0 , par , NULL, NULL, tris, dep);
+                bucket = new KDNode3<BBObj>(spr->d, cutvalue , par , NULL, NULL, tris, dep);
+                assert( bucket->isLeaf );
                 delete spr;
                 return bucket; // this is the leaf/end of the recursion-tree
             }
@@ -213,9 +224,11 @@ class KDTree {
         /// found objects in *tris
         void search_node( std::list<BBObj> *tris, const Bbox& bb, KDNode3<BBObj> *node) {
             if (node->isLeaf ) { // we found a bucket node, so add all triangles and return.
-                BOOST_FOREACH( Triangle t, *(node->tris) ) {
+            
+                BOOST_FOREACH( BBObj t, *(node->tris) ) {
                         tris->push_back(t); 
                 } 
+                //std::cout << " search_node Leaf bucket tris-size() = " << tris->size() << "\n";
                 return; // end recursion
             } else if ( (node->dim % 2) == 0) { // cutting along a min-direction: 0, 2, 4
                 // not a bucket node, so recursevily seach hi/lo branches of KDNode

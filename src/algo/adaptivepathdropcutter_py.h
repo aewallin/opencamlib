@@ -31,15 +31,20 @@ namespace ocl
 /// Python wrapper for PathDropCutter
 class AdaptivePathDropCutter_py : public AdaptivePathDropCutter {
     public:
-        AdaptivePathDropCutter_py() : AdaptivePathDropCutter() {};
+        AdaptivePathDropCutter_py() : AdaptivePathDropCutter() {}
+        virtual ~AdaptivePathDropCutter_py()  {
+            std::cout << " ~AdaptivePathDropCutter_py() ";
+            }
         /// return a list of CL-points to python
         boost::python::list getCLPoints_py() {
+            std::cout << " apdc_py::getCLPoints_py()...";
             boost::python::list plist;
             BOOST_FOREACH(CLPoint p, clpoints) {
                 plist.append(p);
             }
+            std::cout << " DONE.\n";
             return plist;
-        };
+        }
 };
 
 } // end namespace

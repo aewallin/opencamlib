@@ -61,9 +61,13 @@ class KDNode3 {
             }
         }
         virtual ~KDNode3() {
-            delete hi;
-            delete lo;
-            delete tris;
+            // std::cout << " ~KDNode3()\n";
+            if (hi)
+                delete hi;
+            if (lo)
+                delete lo;
+            if (tris)
+                delete tris;
         }
         /// string repr
         std::string str() const {

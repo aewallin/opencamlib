@@ -46,8 +46,8 @@ Ellipse::Ellipse(Point& centerin, double ain, double bin, double offsetin) {
 
 AlignedEllipse::AlignedEllipse(Point& centerin, double ain, double bin, double offsetin, Point& major, Point& minor) {
     center = centerin;
-    a = ain;
-    b = bin;
+    a = ain; // major axis of ellipse
+    b = bin; // minor axis of ellipse
     assert( b > 0.0 );
     eccen = a/b;
     offset = offsetin;

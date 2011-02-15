@@ -46,7 +46,7 @@ PointDropCutter::PointDropCutter() {
 }
 
 void PointDropCutter::setSTL(const STLSurf &s) {
-    std::cout << "pdc::setSTL()\n";
+    std::cout << "PointDropCutter::setSTL()\n";
     surf = &s;
     root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     root->setBucketSize( bucketSize );
@@ -54,7 +54,9 @@ void PointDropCutter::setSTL(const STLSurf &s) {
 }
 
 void PointDropCutter::run(CLPoint& clp) {
+    //std::cout << "PointDropCutter::run() clp= " << clp << " dropped to ";
     pointDropCutter1(clp);
+    //std::cout  << clp << " nCalls = " << nCalls <<"\n ";
 }
 
 // use OpenMP to share work between threads
@@ -62,10 +64,9 @@ void PointDropCutter::pointDropCutter1(CLPoint& clp) {
     nCalls = 0;
     int calls=0;
     std::list<Triangle>* tris;
-    tris=new std::list<Triangle>();
+    //tris=new std::list<Triangle>();
     tris = root->search_cutter_overlap( cutter, &clp );
     std::list<Triangle>::iterator it;
-
     for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
         if ( cutter->overlaps(clp,*it) ) { // cutter overlap triangle? check
             if (clp.below(*it)) {

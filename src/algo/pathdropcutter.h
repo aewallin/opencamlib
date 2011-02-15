@@ -47,9 +47,13 @@ class PathDropCutter : public Operation {
         /// set the Path to follow and sample
         void setPath(const Path* path);
         /// set the minimum z-value, or "floor" for drop-cutter
-        void setZ(const double z) {minimumZ = z;}
+        void setZ(const double z) {
+            minimumZ = z;
+        }
         /// return Z
-        double getZ() const {return minimumZ;}
+        double getZ() const {
+            return minimumZ;
+        }
         /// run drop-cutter on the whole Path
         virtual void run();
         

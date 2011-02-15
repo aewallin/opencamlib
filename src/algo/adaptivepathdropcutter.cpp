@@ -43,6 +43,7 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
 }
 
 AdaptivePathDropCutter::~AdaptivePathDropCutter() {
+    std::cout << " ~AdaptivePathDropCutter() \n";
     delete subOp[0];
 }
 
@@ -51,8 +52,10 @@ void AdaptivePathDropCutter::run() {
 }
 
 void AdaptivePathDropCutter::adaptive_sampling_run() {
+    std::cout << " apdc::adaptive_sampling_run()... ";
+    
     clpoints.clear();
-    BOOST_FOREACH( const Span* span, path->span_list ) {  // this loop could run in parallel
+    BOOST_FOREACH( const Span* span, path->span_list ) {  // this loop could run in parallel, since spans don't depend on eachother
         CLPoint start = span->getPoint(0.0);
         CLPoint stop = span->getPoint(1.0);
         subOp[0]->run(start);
@@ -60,16 +63,18 @@ void AdaptivePathDropCutter::adaptive_sampling_run() {
         clpoints.push_back(start);
         adaptive_sample( span, 0.0, 1.0, start, stop);
     }
+    std::cout << " DONE clpoints.size()=" << clpoints.size() << "\n";
 }
 
 void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
     CLPoint mid_cl = span->getPoint(mid_t);
+    //std::cout << " apdc sampling at " << mid_t << "\n";
     subOp[0]->run( mid_cl );
     double fw_step = (stop_cl-start_cl).xyNorm();
     if ( (fw_step > sampling) || // above minimum step-forward, need to sample more
-          ( (!flat(start_cl,mid_cl,stop_cl)) && (fw_step > min_sampling) ) ) { 
+          ( (!flat(start_cl,mid_cl,stop_cl)) && (fw_step > min_sampling) ) ) { // OR not flat, and not max sampling
         adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
         adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
     } else {
@@ -82,8 +87,7 @@ bool AdaptivePathDropCutter::flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& s
     CLPoint v2 = stop_cl-mid_cl;
     v1.normalize();
     v2.normalize();
-    double dotprod = v1.dot(v2);
-    return (dotprod>cosLimit);
+    return (v1.dot(v2) > cosLimit);
 }
 
 } // end namespace

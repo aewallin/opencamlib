@@ -42,7 +42,9 @@ class MillingCutter;
 class Operation {
     public:
         Operation() {}
-        virtual ~Operation() {}
+        virtual ~Operation() {
+            std::cout << "~Operation()\n";
+        }
         /// set the STL-surface and build kd-tree
         virtual void setSTL(const STLSurf& s) {
             surf = &s;
@@ -100,6 +102,8 @@ class Operation {
             std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 
             return *clv;
         }
+        virtual void clearCLPoints() {}
+        
         /// add an input CLPoint to this Operation
         virtual void appendPoint(CLPoint& p) {}
         /// used by batchpushcutter

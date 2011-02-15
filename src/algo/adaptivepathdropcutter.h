@@ -42,7 +42,7 @@ class KDNode;
 
 ///
 /// \brief path drop cutter finish Path generation
-class AdaptivePathDropCutter : public PathDropCutter{
+class AdaptivePathDropCutter : public Operation {
     public:
         /// construct an empty PathDropCutter object
         AdaptivePathDropCutter();
@@ -51,10 +51,24 @@ class AdaptivePathDropCutter : public PathDropCutter{
         /// run drop-cutter on the whole Path
         virtual void run();
         /// set the minimum sapling interval
-        void setMinSampling(double s) {min_sampling=s;}
+        void setMinSampling(double s) {
+            assert( s > 0.0 );
+            std::cout << " apdc::setMinSampling = " << s << "\n";
+            min_sampling=s;
+        }
         /// set the cosine limit for the flat() predicate
         void setCosLimit(double lim) {cosLimit=lim;}
-        
+        void setZ(const double z) {
+            minimumZ = z;
+        }
+        double getZ() const {
+            return minimumZ;
+        }
+        void setPath(const Path* p) {
+            path = p;
+            
+            subOp[0]->clearCLPoints();
+        }
     protected:
         /// run adaptive sample on the given Span between t-values of start_t and stop_t
         void adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl);
@@ -67,6 +81,9 @@ class AdaptivePathDropCutter : public PathDropCutter{
         double min_sampling;
         /// the limit for dot-product used in flat()
         double cosLimit;
+        const Path* path;
+        double minimumZ;
+        std::vector<CLPoint> clpoints;
 };
 
 } // end namespace
