@@ -2,6 +2,31 @@ project(OpenCamLib)
 
 cmake_minimum_required(VERSION 2.4)
 
+
+
+# some options to set what is built:
+option(BUILD_CXX_LIB
+  "Build/install the pure c++ libocl library? " OFF)
+
+option(BUILD_PY_LIB 
+  "Build/install the python ocl library? " ON)
+
+option(BUILD_DOC
+  "Build/install the ocl documentation? " OFF)
+
+if (NOT BUILD_CXX_LIB)
+    MESSAGE(STATUS " Note: will NOT build pure c++ library")
+endif(NOT BUILD_CXX_LIB)
+
+if (NOT BUILD_PY_LIB)
+    MESSAGE(STATUS " Note: will NOT build python library")
+endif(NOT BUILD_PY_LIB)
+
+if (NOT BUILD_DOC)
+    MESSAGE(STATUS " Note: will NOT build ocl documentation")
+endif(NOT BUILD_DOC)
+
+
 #
 # Turn compiler warnings up to 11, at least with gcc.  I dont know how to
 # do this with other compilers we might support and I'm leaving it up to
@@ -9,16 +34,31 @@ cmake_minimum_required(VERSION 2.4)
 # #include'ing the boost graph-library creates deprecated warnings
 # thus we use now use -Wno-deprecated here.
 #
-
 if (CMAKE_BUILD_TOOL MATCHES "make")
+    MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
     add_definitions(-Wall -Werror -Wno-deprecated -pedantic-errors)
 endif (CMAKE_BUILD_TOOL MATCHES "make")
+
+# find out the number of CPUs
+# from: http://www.kitware.com/blog/home/post/63
+if(NOT DEFINED PROCESSOR_COUNT)
+  # Unknown:
+  set(PROCESSOR_COUNT 0)
+  # Linux:
+  set(cpuinfo_file "/proc/cpuinfo")
+  if(EXISTS "${cpuinfo_file}")
+    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
+    list(LENGTH procs PROCESSOR_COUNT)
+  endif()
+  MESSAGE(STATUS "Number of processors on this system " ${PROCESSOR_COUNT} )
+  # FIXME: how do we make cmake/make use all the processors...
+endif()
+
 
 #
 # this figures out the Python include directories and adds them to the
 # header file search path
 #
-
 execute_process(
     COMMAND python-config --includes
     COMMAND sed -r "s/-I//g; s/ +/;/g"
@@ -33,6 +73,8 @@ execute_process(
      COMMAND python get_revision.py
 )
 MESSAGE(STATUS "running get_revision.py to generate revision.h")
+
+
 
 
 # find BOOST and boost-python
@@ -54,6 +96,8 @@ IF (OPENMP_FOUND)
     MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF(OPENMP_FOUND)
+
+# this defines the source-files
 
 set(OCL_GEO_SRC
     ${OpenCamLib_SOURCE_DIR}/geo/arc.cpp
@@ -172,36 +216,38 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
-#
-# this makes the ocl Python module
-#
+if (BUILD_PY_LIB)
+    # this makes the ocl Python module
+    add_library(
+        ocl 
+        MODULE
+        ocl_cutters.cpp
+        ocl_geometry.cpp
+        ocl_cutsim.cpp
+        ocl_algo.cpp
+        ocl.cpp
+    )
+endif (BUILD_PY_LIB)
 
-add_library(
-    ocl 
-    MODULE
-    ocl_cutters.cpp
-    ocl_geometry.cpp
-    ocl_cutsim.cpp
-    ocl_algo.cpp
-    ocl.cpp
-)
 MESSAGE(STATUS "linking ocl.so with boost: " ${Boost_LIBRARIES})
 target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ocl_cutsim ${Boost_LIBRARIES})
 # this makes the lib name ocl.so and not libocl.so
 set_target_properties(ocl PROPERTIES PREFIX "") 
 
 
+
 # this is the C++ shared library
-add_library(
-    libocl
-    # STATIC
-    SHARED
-    ${OCL_GEO_SRC}
-    ${OCL_CUTTER_SRC}
-    ${OCL_ALGO_SRC}
-    ${OCL_CUTSIM_SRC}
-)
-set_target_properties(libocl PROPERTIES PREFIX "") 
+if (BUILD_CXX_LIB)
+    add_library(
+        libocl
+        SHARED
+        ${OCL_GEO_SRC}
+        ${OCL_CUTTER_SRC}
+        ${OCL_ALGO_SRC}
+        ${OCL_CUTSIM_SRC}
+    )
+    set_target_properties(libocl PROPERTIES PREFIX "") 
+endif (BUILD_CXX_LIB)
 
 #
 # this figures out where to install the Python modules
@@ -214,33 +260,41 @@ execute_process(
 )
 MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
 
-# this installs the python library
-install(
-    TARGETS ocl
-    LIBRARY DESTINATION ${Python_site_packages}
-)
+if (BUILD_PY_LIB)
+    # this installs the python library
+    install(
+        TARGETS ocl
+        LIBRARY DESTINATION ${Python_site_packages}
+    )
+
+
+    # these are the python helper lib-files such as camvtk.py 
+    install(
+        DIRECTORY ../lib/
+        DESTINATION ${Python_site_packages}
+        PATTERN .svn EXCLUDE
+    )
+endif (BUILD_PY_LIB)
 
 # this installs the c++ library
-install(
-    TARGETS libocl
-    LIBRARY 
-    DESTINATION lib/opencamlib
-    ARCHIVE DESTINATION lib/opencamlib
-    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
+if (BUILD_CXX_LIB)
+    install(
+        TARGETS libocl
+        LIBRARY 
+        DESTINATION lib/opencamlib
+        ARCHIVE DESTINATION lib/opencamlib
+        PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+    )
 
-# this installs the c++ include headers
-install(
-    FILES ${OCL_INCLUDE_FILES}
-    DESTINATION include/opencamlib
-    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-)
+    # this installs the c++ include headers
+    install(
+        FILES ${OCL_INCLUDE_FILES}
+        DESTINATION include/opencamlib
+        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+    )
+endif (BUILD_CXX_LIB)
 
-install(
-    DIRECTORY ../lib/
-    DESTINATION ${Python_site_packages}
-    PATTERN .svn EXCLUDE
-)
+
 
 
 #
@@ -253,6 +307,7 @@ install(
 #    PATTERN .svn EXCLUDE
 # )
 
+# the example STL files
 # install(
 #     DIRECTORY ../stl/
 #     DESTINATION share/doc/python-opencam/examples/stl
@@ -264,8 +319,12 @@ install(
 # build & install documentation (if Doxygen is available)
 #
 
+if (BUILD_DOC)
+
 FIND_PACKAGE(Doxygen)
 IF (DOXYGEN_FOUND)
+    MESSAGE(STATUS "Found doxygen. ")
+    
     # this works around a bug in cmake 2.4 (Ubuntu Hardy)
     execute_process(
         COMMAND mkdir -p doc/html doc/latex
@@ -343,19 +402,8 @@ IF (DOXYGEN_FOUND)
     #)
 
 ENDIF(DOXYGEN_FOUND)
+endif (BUILD_DOC)
 
 
-# find out the number of CPUs
-# from: http://www.kitware.com/blog/home/post/63
-if(NOT DEFINED PROCESSOR_COUNT)
-  # Unknown:
-  set(PROCESSOR_COUNT 0)
-  # Linux:
-  set(cpuinfo_file "/proc/cpuinfo")
-  if(EXISTS "${cpuinfo_file}")
-    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
-    list(LENGTH procs PROCESSOR_COUNT)
-  endif()
-  MESSAGE(STATUS "Number of processors on this system " ${PROCESSOR_COUNT} )
-endif()
+
 

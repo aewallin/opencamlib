@@ -53,13 +53,13 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
     zh=[29,28,25,20,15,10,5,0,-5,-10,-15,-20]
     #zh=[15]
-    diam = 14
+    diam = 3
     length = 50
     loops = []
 
-    #cutter = ocl.CylCutter( diam , length )
+    cutter = ocl.CylCutter( diam , length )
     #cutter = ocl.BallCutter( diam , length )
-    cutter = ocl.BullCutter( diam , diam/5, length )
+    #cutter = ocl.BullCutter( diam , diam/5, length )
     
     loops = []
     for z in zh:
