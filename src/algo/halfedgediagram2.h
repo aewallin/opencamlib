@@ -60,27 +60,28 @@ namespace ocl
 // fwd decl:    
 struct VertexProps; 
 struct EdgeProps;
-struct FaceProps;
+//struct FaceProps;
+//struct HEEdge;
+
 typedef unsigned int HEFace; 
 
-typedef boost::adjacency_list< boost::listS,            // out-edges stored in a std::list
+        typedef boost::adjacency_list< boost::listS,            // out-edges stored in a std::list
                                boost::listS,            // vertex set stored here
                                boost::bidirectionalS,   // bidirectional graph.
                                VertexProps,             // vertex properties
                                EdgeProps                // edge properties
                                > HEGraph; 
-typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
-typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
-typedef boost::graph_traits< HEGraph >::edge_descriptor    HEEdge;
-typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
-typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
-typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
-typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
-typedef std::vector<HEVertex> VertexVector;
-typedef std::vector<HEFace> FaceVector;
-typedef std::vector<HEEdge> EdgeVector;  
+        typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
+        typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
+        typedef boost::graph_traits< HEGraph >::edge_descriptor    HEEdge;
+        typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
+        typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
+        typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
+        typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
 
-    
+
+
+
 // typedef std::vector< std::vector< HEEdge > > HEPlanarEmbedding;
 
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
@@ -238,12 +239,19 @@ struct FaceProps {
     /// face type
     VoronoiFaceType type;
 };
- 
+
+
+
+
 //template <class VertexProps, class EdgeProps, class FaceProps>
 /// half-edge diagram class.
 class HalfEdgeDiagram  {
-    
     public:
+
+        typedef std::vector<HEVertex> VertexVector;
+        typedef std::vector<HEFace> FaceVector;
+        typedef std::vector<HEEdge> EdgeVector;  
+    
         HalfEdgeDiagram() {}
         virtual ~HalfEdgeDiagram() {}
     
@@ -510,4 +518,4 @@ class HalfEdgeDiagram  {
 
 } // end namespace
 #endif
-// end halfedgediagram.h
+// end halfedgediagram2.h

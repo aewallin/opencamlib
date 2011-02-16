@@ -32,7 +32,9 @@
 namespace ocl
 {
 
-
+    typedef HalfEdgeDiagram::VertexVector VertexVector;
+    typedef HalfEdgeDiagram::FaceVector FaceVector;
+    typedef HalfEdgeDiagram::EdgeVector EdgeVector;  
 
 /// \brief Voronoi diagram.
 ///
@@ -41,6 +43,9 @@ namespace ocl
 ///  vornoi-vertices are dual to delaunay-faces 
 ///  voronoi-edges are dual to delaunay-edges
 class VoronoiDiagram {
+    
+
+    
     public:
         VoronoiDiagram() {}
         /// create diagram with given far-radius and number of bins
