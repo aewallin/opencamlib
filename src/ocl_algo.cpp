@@ -32,7 +32,7 @@
 #include "numeric.h"
 #include "voronoidiagram_py.h"  
 #include "zigzag.h"
-#include "clsurface.h"
+//#include "clsurface.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -223,6 +223,7 @@ void export_algo() {
         .value("INCIDENT", INCIDENT)
         .value("NONINCIDENT", NONINCIDENT)
     ;
+    /*
     bp::class_< CutterLocationSurface >("CutterLocationSurface")  
         .def("run", &CutterLocationSurface::run)
         .def("setMinSampling", &CutterLocationSurface::setMinSampling)
@@ -232,6 +233,6 @@ void export_algo() {
         .def("getVertices", &CutterLocationSurface::getVertices)
         .def("getEdges", &CutterLocationSurface::getEdges)
         .def("__str__", &CutterLocationSurface::str)
-    ;
+    ;*/
 }
 

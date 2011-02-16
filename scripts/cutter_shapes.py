@@ -96,8 +96,8 @@ if __name__ == "__main__":
     sampling = 0.1
     
     #cutter = ocl.CylCutter( diam , length )
-    #cutter = ocl.BallCutter( diam , length )
-    cutter = ocl.BullCutter( diam , diam/5, length )
+    cutter = ocl.BallCutter( diam , length )
+    #cutter = ocl.BullCutter( diam , diam/5, length )
     
     pts = []
     for y in [diam*0.4, diam*0.2,0,-diam*0.2,diam*(-0.4)]:

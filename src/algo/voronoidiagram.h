@@ -26,7 +26,7 @@
 #include <queue>
 
 #include "point.h"
-#include "halfedgediagram.h"
+#include "halfedgediagram2.h"
 #include "facegrid.h"
 
 namespace ocl

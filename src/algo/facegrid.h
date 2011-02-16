@@ -23,7 +23,7 @@
 
 #include <boost/multi_array.hpp> // for bucketing in FaceGrid
 
-#include "halfedgediagram.h"
+#include "halfedgediagram2.h"
 
 namespace ocl
 {
