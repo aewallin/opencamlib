@@ -38,7 +38,7 @@ def getWaterline(s, cutter, zh, sampling):
     loops = wl.getLoops()
     return loops
 
-def getPaths(s,cutter,sampling,x,y):
+def getPathsY(s,cutter,sampling,y):
     #apdc = ocl.PathDropCutter()
     apdc = ocl.AdaptivePathDropCutter()
     apdc.setSTL(s)
@@ -47,21 +47,30 @@ def getPaths(s,cutter,sampling,x,y):
     apdc.setSampling(sampling)
     apdc.setMinSampling(sampling/700)
     path = ocl.Path() 
-    p1 = ocl.Point(-x , y,-111)   # start-point of line
-    p2 = ocl.Point(+x, y,-111)   # end-point of line
-    #print p1
-    #print p2
+    p1 = ocl.Point(-1.52*cutter.getDiameter() , y,-111)   # start-point of line
+    p2 = ocl.Point(+1.52*cutter.getDiameter(), y,-111)   # end-point of line
     l = ocl.Line(p1,p2)     # line-object
     path.append( l )  
     apdc.setPath( path )
     apdc.run() 
-    print " PYTHON apdc.run() done."
-    aclp = apdc.getCLPoints()
-    print " PYTHON apdc.getCLPoints() done.", len(aclp)
-    #for p in aclp:
-    #    print p
-    print " returning "
-    return aclp
+    return apdc.getCLPoints()
+
+def getPathsX(s,cutter,sampling,x):
+    #apdc = ocl.PathDropCutter()
+    apdc = ocl.AdaptivePathDropCutter()
+    apdc.setSTL(s)
+    apdc.setCutter(cutter) 
+    apdc.setZ( -20 ) 
+    apdc.setSampling(sampling)
+    apdc.setMinSampling(sampling/700)
+    path = ocl.Path() 
+    p1 = ocl.Point(x, -1.52*cutter.getDiameter() , -111)   # start-point of line
+    p2 = ocl.Point(x, +1.52*cutter.getDiameter(), -111)   # end-point of line
+    l = ocl.Line(p1,p2)     # line-object
+    path.append( l )  
+    apdc.setPath( path )
+    apdc.run() 
+    return apdc.getCLPoints()
 
 if __name__ == "__main__":  
     print ocl.revision()
@@ -87,22 +96,37 @@ if __name__ == "__main__":
     
     print "STL surface read,", s.size(), "triangles"
     
-    Nwaterlines = 10
+    Nwaterlines = 40
     zh=[-0.15*x for x in xrange(Nwaterlines)]
     #zh=[15]
-    diam = 3.0
+    diam = 3.01
     length = 50
     loops = []
     sampling = 0.1
     
     #cutter = ocl.CylCutter( diam , length )
-    cutter = ocl.BallCutter( diam , length )
+    #cutter = ocl.BallCutter( diam , length )
     #cutter = ocl.BullCutter( diam , diam/5, length )
+    #cutter = ocl.ConeCutter(diam, math.pi/3, length)
+    #cutter =  ocl.CylConeCutter(diam/3,diam,math.pi/9)
+    #cutter = ocl.BallConeCutter(diam/3,diam,math.pi/9)
+    #cutter = ocl.BullConeCutter(diam/2, diam/10, diam, math.pi/10)
+    cutter = ocl.ConeConeCutter(diam/2,math.pi/3,diam,math.pi/6)
     
-    pts = []
-    for y in [diam*0.4, diam*0.2,0,-diam*0.2,diam*(-0.4)]:
-        ptsy = getPaths(s,cutter,sampling,1.52*cutter.getDiameter(), y)
-        pts.append(ptsy)
+    
+    ptsy_all = []
+    ptsx_all = []
+    yvals=[]
+    Nmax=15
+    for i in range(Nmax):
+        yvals.append( diam* float(i)/float(Nmax) )
+        yvals.append( -diam* float(i)/float(Nmax) )
+        
+    for y in yvals: #[diam*0.4, diam*0.2, 0, -diam*0.2,diam*(-0.4)]:
+        ptsy = getPathsY(s,cutter,sampling, y)
+        ptsx = getPathsX(s,cutter,sampling, y)
+        ptsy_all.append(ptsy)
+        ptsx_all.append(ptsx)
         
     #print " got ",len(pts)," cl-points"
     #for p in pts:
@@ -126,7 +150,8 @@ if __name__ == "__main__":
     print "All waterlines done. Got", len(loops)," loops in total."
     # draw the loops
     drawLoops(myscreen, loops, camvtk.yellow)
-    drawLoops(myscreen, pts, camvtk.red)
+    drawLoops(myscreen, ptsy_all, camvtk.red)
+    drawLoops(myscreen, ptsx_all, camvtk.green)
     
     print "done."
     myscreen.camera.SetPosition(15, 13, 7)
