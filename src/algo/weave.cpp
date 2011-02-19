@@ -31,28 +31,21 @@ namespace ocl
 {
 
 Weave::Weave() {
-    fibers.clear();
+    //fibers.clear();
     xfibers.clear();
     yfibers.clear();
     loops.clear();
 }
 
 void Weave::addFiber(Fiber& f) {
-     fibers.push_back(f);
-}
-
-void Weave::sort_fibers() {
-    // sort fibers into X and Y fibers
-    xfibers.clear();
-    yfibers.clear();
-    BOOST_FOREACH( Fiber f, fibers ) {
-        if ( f.dir.xParallel() && !f.empty() ) {
-            xfibers.push_back(f);
-        } 
-        if ( f.dir.yParallel() && !f.empty() ) {
-            yfibers.push_back(f);
-        }
-    }    
+    //fibers.push_back(f);
+    if ( f.dir.xParallel() && !f.empty() ) {
+        xfibers.push_back(f);
+    } else if ( f.dir.yParallel() && !f.empty() ) {
+        yfibers.push_back(f);
+    } else if (!f.empty()) {
+        assert(0); // fiber must be either x or y
+    }
 }
 
 void Weave::add_vertex( Point& position, WeaveVertexType t, Interval& i, double ipos) {
@@ -158,7 +151,7 @@ void Weave::build() {
     //      xcl_lower <-> intp <-> xcl_upper
     // if this connects points that are already connected, then remove old edge and
     // provide this "via" connection
-    sort_fibers(); // fibers are sorted into xfibers and yfibers
+    //sort_fibers(); // fibers are sorted into xfibers and yfibers
     BOOST_FOREACH( Fiber& xf, xfibers) {
         assert( !xf.empty() ); // sort_fibers() ensures no empty fibers remain
         BOOST_FOREACH( Interval& xi, xf.ints ) {
@@ -285,7 +278,7 @@ std::vector< std::vector<Point> > Weave::getLoops() const {
 std::string Weave::str() const {
     std::ostringstream o;
     o << "Weave\n";
-    o << "  " << fibers.size() << " fibers\n";
+    //o << "  " << fibers.size() << " fibers\n";
     o << "  " << xfibers.size() << " X-fibers\n";
     o << "  " << yfibers.size() << " Y-fibers\n";
     return o.str();

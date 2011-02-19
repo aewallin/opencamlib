@@ -33,6 +33,8 @@
 namespace ocl
 {
 
+
+
 /// \brief Voronoi diagram.
 ///
 /// the dual of a voronoi diagram is the delaunay diagram(triangulation).

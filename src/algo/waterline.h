@@ -50,7 +50,9 @@ class Waterline : public Operation {
         virtual ~Waterline();
         
         /// Set the z-coordinate for the waterline we generate
-        void setZ(const double z) {zh = z;};
+        void setZ(const double z) {
+            zh = z;
+        }
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
