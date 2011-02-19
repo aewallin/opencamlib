@@ -26,14 +26,13 @@
 
 #include <boost/multi_array.hpp> // for bucketing in FaceGrid
 
-// #include "halfedgediagram2.h"
 #include "voronoidiagram_graph.h"
 #include "point.h"
 
 namespace ocl
 {
 
-struct FaceProps;
+//struct FaceProps;
 
 typedef std::vector<FaceProps>                   FacePropVector;
 typedef boost::multi_array< FacePropVector* , 2> Grid;

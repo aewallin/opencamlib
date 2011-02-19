@@ -73,13 +73,13 @@ template <class OutEdgeList,
           class GraphProperties,
           class EdgeList 
           >
-class HEDIGraph : public boost::adjacency_list< OutEdgeList,           // out-edges stored in a std::list
-                                                VertexList,            // vertex set stored here
-                                                Directed,              // bidirectional graph.
+class HEDIGraph : public boost::adjacency_list< OutEdgeList,           // out-edge storage
+                                                VertexList,            // vertex set storage
+                                                Directed,              // directed tag
                                                 VertexProperties,      // vertex properties
                                                 EdgeProperties,        // edge properties
-                                                GraphProperties,        
-                                                EdgeList
+                                                GraphProperties,       // graph-properties (?)
+                                                EdgeList               // edge storage
                                                 > 
 {
     public:
@@ -152,8 +152,6 @@ unsigned int add_face(FaceProperty f_prop, Graph& g) {
 }
         
 
-        
-    // access vertices    
 /// return the target vertex of the given edge
 template <class Graph>
 typename boost::graph_traits< Graph >::vertex_descriptor target( typename boost::graph_traits< Graph >::edge_descriptor e,
@@ -161,14 +159,12 @@ typename boost::graph_traits< Graph >::vertex_descriptor target( typename boost:
     return boost::target( e, g);
 }
 
-
 /// return the source vertex of the given edge
 template <class Graph>
 typename boost::graph_traits< Graph >::vertex_descriptor source( typename boost::graph_traits< Graph >::edge_descriptor e,
                                                         const Graph& g)  { 
     return boost::source( e, g); 
 }
-
 
 /// return all vertices in a vector of vertex descriptors
 template<class Graph>
@@ -198,8 +194,7 @@ typename std::vector< typename boost::graph_traits< Graph >::vertex_descriptor >
     }
     return vv;
 }
-        
-        
+
 /// return all vertices of given face
 template <class Graph>
 typename std::vector< typename boost::graph_traits< Graph >::vertex_descriptor > face_vertices(unsigned int face_idx, Graph& g) {
@@ -220,20 +215,19 @@ typename std::vector< typename boost::graph_traits< Graph >::vertex_descriptor >
     } while ( current != startedge );
     return verts;
 }
-        
+
 /// return degree of given vertex
 template <class Graph>
 unsigned int degree(typename boost::graph_traits< Graph >::vertex_descriptor v, const Graph& g)  { 
     return boost::degree( v, g); 
 }
-        
+
 /// return number of vertices in graph
 template <class Graph>
 unsigned int num_vertices(const Graph& g) { 
     return boost::num_vertices( g ); 
 }
-        
-    // access edges
+
 /// return out_edges of given vertex
 template <class Graph>
 typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor > out_edges( 
@@ -249,7 +243,6 @@ typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor > o
     }
     return ev;
 }
-
 
 /// return all edges
 template <class Graph>
@@ -279,8 +272,7 @@ typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor  > 
             } while( current_edge != start_edge );
             return out;
         }*/
-        
-        
+
 /// return the previous edge. traverses all edges in face until previous found.
 template <class Graph>
 typename boost::graph_traits< Graph >::edge_descriptor previous_edge(
@@ -324,8 +316,7 @@ std::vector<unsigned int> adjacent_faces( typename boost::graph_traits< Graph >:
     }
     return fv;
 }
-        
-        
+
 /// return number of faces in graph
 template <class Graph>
 unsigned int num_faces(Graph& g) { 
@@ -337,16 +328,6 @@ template <class Graph>
 unsigned int num_edges(const Graph& g) { 
     return boost::num_edges( g ); 
 }
-        
-    // Directly access vertex,edge,face properties
-        /// access to the base-class operator[]
-        //using HEGraph::operator[]; 
-        /// operator[] for accessing face properties
-        //VertexProps& operator[](HEVertex v)  { return g[v]; }
-        //const VertexProps& operator[](HEVertex v)  const { return g[v]; }
-        //EdgeProps& operator[](HEEdge e)  { return g[e]; }
-        //const EdgeProps& operator[](HEEdge e)  const { return g[e]; }
-        
 
 /// inserts given vertex and its twin into edge e
 template <class Graph>
