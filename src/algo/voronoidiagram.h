@@ -26,15 +26,18 @@
 #include <queue>
 
 #include "point.h"
+#include "voronoidiagram_graph.h"
 #include "halfedgediagram2.h"
 #include "facegrid.h"
 
 namespace ocl
 {
 
-    typedef HalfEdgeDiagram::VertexVector VertexVector;
-    typedef HalfEdgeDiagram::FaceVector FaceVector;
-    typedef HalfEdgeDiagram::EdgeVector EdgeVector;  
+
+
+    //typedef HalfEdgeDiagram::VertexVector VertexVector;
+    //typedef HalfEdgeDiagram::FaceVector FaceVector;
+    //typedef HalfEdgeDiagram::EdgeVector EdgeVector;  
 
 /// \brief Voronoi diagram.
 ///
@@ -50,28 +53,30 @@ class VoronoiDiagram {
         VoronoiDiagram() {}
         /// create diagram with given far-radius and number of bins
         VoronoiDiagram(double far, unsigned int n_bins);
-        virtual ~VoronoiDiagram() { delete fgrid; }
+        virtual ~VoronoiDiagram() { 
+            delete fgrid; 
+        }
         /// add a vertex generator at given position
         void addVertexSite(Point p);
         
         /// return the dual graph
-        HalfEdgeDiagram* getDelaunayTriangulation();
-        void setDelaunayTriangulation() {
+        //HalfEdgeDiagram* getDelaunayTriangulation();
+        //void setDelaunayTriangulation() {
             //if (dt != NULL)
             //    delete dt;
-            dt = getDelaunayTriangulation();
-        }
+        //    dt = getDelaunayTriangulation();
+        //}
         
         // for visualizing the closest face
         Point getClosestFaceGenerator( const Point p ) {
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            return hed[closest_face].generator;
+            return g[closest_face].generator;
         }
         // for visualizing seed-vertex
         Point getSeedVertex( const Point p ) {
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v = findSeedVertex(closest_face, p);
-            return hed[ v ].position;
+            return g[ v ].position;
         }
 
         /// string repr
@@ -85,9 +90,9 @@ class VoronoiDiagram {
         /// among the vertices of f, find the one with the lowest detH value
         HEVertex findSeedVertex(HEFace f, const Point& p);
         /// from sugihara-iri 1994 paper, examine vertices of each incident face
-        void augment_vertex_set_B(VertexVector& v, Point& p);
+        //void augment_vertex_set_B(VertexVector& v, Point& p);
         /// naive algorithm, relies on correct detH sign
-        void augment_vertex_set_RB(VertexVector& q, Point& p);
+        //void augment_vertex_set_RB(VertexVector& q, Point& p);
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set_M(VertexVector& q, Point& p);
         
@@ -138,9 +143,9 @@ class VoronoiDiagram {
         
     // DATA
         /// the half-edge diagram of the vd
-        HalfEdgeDiagram hed;
+        HEGraph g;
         /// delaunay triangulation, i.e. the dual graph of the VD
-        HalfEdgeDiagram* dt;
+        //HalfEdgeDiagram* dt;
         /// a grid which allows fast nearest-neighbor search
         FaceGrid* fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius

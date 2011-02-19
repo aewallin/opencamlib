@@ -58,219 +58,81 @@ namespace ocl
 // may or may not store edge pointer
 
 // fwd decl:    
-struct VertexProps; 
-struct EdgeProps;
-//struct FaceProps;
-//struct HEEdge;
-
-typedef unsigned int HEFace; 
-
-        typedef boost::adjacency_list< boost::listS,            // out-edges stored in a std::list
-                               boost::listS,            // vertex set stored here
-                               boost::bidirectionalS,   // bidirectional graph.
-                               VertexProps,             // vertex properties
-                               EdgeProps                // edge properties
-                               > HEGraph; 
-        typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
-        typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
-        typedef boost::graph_traits< HEGraph >::edge_descriptor    HEEdge;
-        typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
-        typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
-        typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
-        typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
-
-
-
-
-// typedef std::vector< std::vector< HEEdge > > HEPlanarEmbedding;
-
-enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
-
-/// vertex properties of a vertex in the voronoi diagram
-struct VertexProps {
-    VertexProps() {
-        init();
-    }
-    /// construct vertex at position p with type t
-    VertexProps( Point p, VoronoiVertexType t) {
-        position=p;
-        type=t;
-        init();
-    }
-    void init() {
-        index = count;
-        count++;
-        in_queue = false;
-    }
-    void reset() {
-        in_queue = false;
-        type = UNDECIDED;
-    }
-    /// based on previously calculated J2, J3, and J4, set the position of the vertex
-    void set_position() {
-        double w = J4;
-        double x = - J2/w+pk.x;
-        double y = J3/w+pk.y;
-        position =  Point(x,y);
-    }
-    /// based on precalculated J2, J3, J4, calculate the H determinant for Point pl
-    double detH(const Point& pl) {
-        H = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
-        return H;
-    }
-    bool operator<(const VertexProps& other) const {
-        return ( abs(this->H) < abs(other.H) );
-    }
-    /// set the J values
-    void set_J(Point& pi, Point& pj, Point& pkin) { 
-        // 1) i-j-k should come in CCW order
-        Point pi_,pj_,pk_;
-        if ( pi.isRight(pj,pkin) ) {
-            pi_ = pj;
-            pj_ = pi;
-            pk_ = pkin;
-        } else {
-            pi_ = pi;
-            pj_ = pj;
-            pk_ = pkin;
-        }
-        assert( !pi_.isRight(pj_,pk_) );
-        // 2) point pk should have the largest angle 
-        // largest angle is opposite longest side.
-        Point pi__,pj__,pk__;
-        pi__ = pi_;                          
-        pj__ = pj_;                          
-        pk__ = pk_;
-        double longest_side = (pi_ - pj_).xyNorm();
-        if (  (pj_ - pk_).xyNorm() > longest_side ) {
-            longest_side = (pj_ - pk_).xyNorm(); //j-k is longest, so i should be new k
-            pk__ = pi_;                         // old  i-j-k 
-            pi__ = pj_;                         // new  k-i-j
-            pj__ = pk_;
-        }
-        if ( (pi_ - pk_).xyNorm() > longest_side ) { // i-k is longest, so j should be new k                    
-            pk__ = pj_;                          // old  i-j-k
-            pj__ = pi_;                          // new  j-k-i
-            pi__ = pk_;
-        }
-        
-        assert( !pi__.isRight(pj__,pk__) );
-        assert( (pi__ - pj__).xyNorm() >=  (pj__ - pk__).xyNorm() );
-        assert( (pi__ - pj__).xyNorm() >=  (pk__ - pi__).xyNorm() );
-        
-        this->pk = pk__;
-        J2 = detH_J2( pi__, pj__, pk__);
-        J3 = detH_J3( pi__, pj__, pk__);
-        J4 = detH_J4( pi__, pj__, pk__);
-        //assert( J4 > 0.0 );
-    }
-    /// calculate J2
-    double detH_J2(Point& pi, Point& pj, Point& pk) {
-        return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
-    }
-    /// calculate J3
-    double detH_J3(Point& pi, Point& pj, Point& pk) {
-        return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
-    }
-    /// calculate J4
-    double detH_J4(Point& pi, Point& pj, Point& pk) {
-        return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
-    }
-// VD DATA
-    /// vertex type
-    VoronoiVertexType type;
-    /// the reference point for J-calculations
-    Point pk;
-    /// J2 determinant
-    double J2;
-    /// J3 determinant
-    double J3;
-    /// J4 determinant
-    double J4;
-    double H;
-    bool in_queue;
-// HE data
-    /// the position of the vertex
-    Point position;
-    /// index of vertex
-    int index;
-    /// global vertex count
-    static int count;
-};
-
-/// properties of an edge in the voronoi diagram
-// HEEdge, HEFace
-struct EdgeProps {
-    EdgeProps() {}
-    /// create edge with given next, twin, and face
-    EdgeProps(HEEdge n, HEEdge t, HEFace f){
-        next = n;
-        twin = t;
-        face = f;
-    }
-    /// the next edge, counterclockwise, from this edge
-    HEEdge next; 
-    /// the twin edge
-    HEEdge twin;
-    /// the face to which this edge belongs
-    HEFace face; 
-};
-
-/// types of faces in the voronoi diagram
-enum VoronoiFaceType {INCIDENT, NONINCIDENT};
-
-/// properties of a face in the voronoi diagram
-// HEFace, HEEdge
-struct FaceProps {
-    /// create face with given edge, generator, and type
-    FaceProps( HEEdge e , Point gen, VoronoiFaceType t) {
-        edge = e;
-        generator = gen;
-        type = t;
-    }
-    /// operator for sorting faces
-    bool operator<(const FaceProps& f) const {return (this->idx<f.idx);}
-    /// face index
-    HEFace idx;
-    /// one edge that bounds this face
-    HEEdge edge;
-    /// the generator for this face
-    Point generator;
-    /// face type
-    VoronoiFaceType type;
-};
-
-
 
 
 //template <class VertexProps, class EdgeProps, class FaceProps>
-/// half-edge diagram class.
-class HalfEdgeDiagram  {
-    public:
 
-        typedef std::vector<HEVertex> VertexVector;
-        typedef std::vector<HEFace> FaceVector;
-        typedef std::vector<HEEdge> EdgeVector;  
-    
-        HalfEdgeDiagram() {}
-        virtual ~HalfEdgeDiagram() {}
-    
-    // add vertex,edge,face to diagram
-        /// add a blank vertex and return its descriptor
-        HEVertex add_vertex() { 
-            return boost::add_vertex( g );
+
+
+template <class OutEdgeList, 
+          class VertexList,
+          class Directed, 
+          class VertexProperties,
+          class EdgeProperties,
+          class FaceProperties,
+          class GraphProperties,
+          class EdgeList 
+          >
+class HEDIGraph : public boost::adjacency_list< OutEdgeList,           // out-edges stored in a std::list
+                                                VertexList,            // vertex set stored here
+                                                Directed,              // bidirectional graph.
+                                                VertexProperties,      // vertex properties
+                                                EdgeProperties,        // edge properties
+                                                GraphProperties,        
+                                                EdgeList
+                                                > 
+{
+    public:
+        typedef unsigned int HEFace; 
+        typedef boost::adjacency_list< OutEdgeList,            
+                                                VertexList,            
+                                                Directed,   
+                                                VertexProperties,             
+                                                EdgeProperties,                
+                                                GraphProperties,
+                                                EdgeList
+                                                > BGLGraph;
+        /// use base class operator[] for vertex and edge properties
+        using BGLGraph::operator[]; 
+        /// operator[] to access face properties
+        FaceProperties& operator[](HEFace f)  { 
+            return faces[f]; 
         }
-        /// add a vertex with given properties, return vertex descriptor
-        HEVertex add_vertex(VertexProps prop) {
-            return boost::add_vertex( prop, g );
+        /// const operator[] for accessing face properties
+        const FaceProperties& operator[](HEFace f) const  { 
+            return faces[f]; 
         }
-        /// add an edge between vertices v1-v2
-        HEEdge add_edge(HEVertex v1, HEVertex v2) {
-            HEEdge e;
-            bool b;
-            boost::tie( e , b ) = boost::add_edge( v1, v2, g);
-            return e;
-        }
+//DATA
+        std::vector<FaceProperties> faces;
+};
+
+namespace hedi  { // collect half-edge diagram functions here.
+
+/// add a blank vertex and return its descriptor
+template<class Graph>
+typename boost::graph_traits< Graph >::vertex_descriptor add_vertex(Graph& g) { 
+    return boost::add_vertex( g );
+}
+
+/// add a vertex with given properties, return vertex descriptor
+template <class Graph, class VertexProperty>
+typename boost::graph_traits< Graph >::vertex_descriptor add_vertex(const VertexProperty& prop, Graph& g) {
+    return boost::add_vertex( prop, g );
+}
+
+/// add an edge between vertices v1-v2
+template <class Graph>
+typename boost::graph_traits< Graph >::edge_descriptor add_edge(typename boost::graph_traits< Graph >::vertex_descriptor v1, 
+                                                       typename boost::graph_traits< Graph >::vertex_descriptor v2, 
+                                                       Graph& g) {
+    typename boost::graph_traits< Graph >::edge_descriptor e;
+    bool b;
+    boost::tie( e , b ) = boost::add_edge( v1, v2, g);
+    return e;
+}
+        
+        
+/*        
         /// add an edge with given properties
         HEEdge add_edge(HEVertex v1, HEVertex v2, EdgeProps prop) {
             HEEdge e;
@@ -278,92 +140,135 @@ class HalfEdgeDiagram  {
             boost::tie( e , b ) = boost::add_edge( v1, v2, prop, g);
             return e;
         }
-        /// add a face with given properties
-        HEFace add_face(FaceProps f_prop) {
-            faces.push_back(f_prop);
-            HEFace index = faces.size()-1;
-            faces[index].idx = index;
-            return index;    
-        }
-        /// delete a vertex
-        void delete_vertex(HEVertex v) { 
-            clear_vertex(v);
-            remove_vertex(v); 
-        }
+*/
+
+/// add a face with given properties
+template <class Graph, class FaceProperty>
+unsigned int add_face(FaceProperty f_prop, Graph& g) {
+    g.faces.push_back(f_prop); 
+    unsigned int index = g.faces.size()-1;
+    g.faces[index].idx = index;
+    return index;    
+}
+        
+
         
     // access vertices    
-        /// return the target vertex of the given edge
-        HEVertex target(HEEdge e) const { 
-            return boost::target( e, g);
-        }
-        /// return the source vertex of the given edge
-        HEVertex source(HEEdge e) const { 
-            return boost::source( e, g); 
-        }
-        /// return all vertices
-        VertexVector vertices() const {
-            VertexVector vv;
-            HEVertexItr it_begin, it_end, itr;
-            boost::tie( it_begin, it_end ) = boost::vertices( g );
-            for ( itr=it_begin ; itr != it_end ; ++itr ) {
-                vv.push_back( *itr );
-            }
-            return vv;
-        }
-        /// return all vertices adjecent to given vertex
-        VertexVector adjacent_vertices(HEVertex v) const {
-            VertexVector vv;
-            BOOST_FOREACH( HEEdge edge, out_edges( v ) ) {
-                vv.push_back( target( edge ) );
-            }
-            return vv;
-        }
-        /// return all vertices of given face
-        VertexVector face_vertices(HEFace face_idx) const {
-            VertexVector verts;
-            HEEdge startedge = faces[face_idx].edge; // the edge where we start
-            HEVertex start_target = boost::target( startedge, g); 
-            verts.push_back(start_target);
-            HEEdge current = g[startedge].next;
-            do {
-                HEVertex current_target = boost::target( current, g); 
-                assert( current_target != start_target );
-                verts.push_back(current_target);
-                current = g[current].next;
-            } while ( current != startedge );
-            return verts;
-        }
-        /// return degree of given vertex
-        unsigned int degree(HEVertex v) const { 
-            return boost::degree( v, g); 
-        }
-        /// return number of vertices in graph
-        unsigned int num_vertices() const { 
-            return boost::num_vertices( g ); 
-        }
+/// return the target vertex of the given edge
+template <class Graph>
+typename boost::graph_traits< Graph >::vertex_descriptor target( typename boost::graph_traits< Graph >::edge_descriptor e,
+                                                                const Graph& g) { 
+    return boost::target( e, g);
+}
+
+
+/// return the source vertex of the given edge
+template <class Graph>
+typename boost::graph_traits< Graph >::vertex_descriptor source( typename boost::graph_traits< Graph >::edge_descriptor e,
+                                                        const Graph& g)  { 
+    return boost::source( e, g); 
+}
+
+
+/// return all vertices in a vector of vertex descriptors
+template<class Graph>
+typename std::vector< typename boost::graph_traits<Graph>::vertex_descriptor > vertices(const Graph& g)  {
+    typedef typename boost::graph_traits< Graph >::vertex_descriptor  HEVertex;
+    typedef std::vector<HEVertex> VertexVector;
+    typedef typename boost::graph_traits< Graph >::vertex_iterator    HEVertexItr;
+    VertexVector vv;
+    HEVertexItr it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        vv.push_back( *itr );
+    }
+    return vv;
+}
+
+/// return all vertices adjecent to given vertex
+template <class Graph>
+typename std::vector< typename boost::graph_traits< Graph >::vertex_descriptor > 
+    adjacent_vertices(  typename boost::graph_traits< Graph >::vertex_descriptor v, Graph& g) {
+    typedef typename boost::graph_traits< Graph >::vertex_descriptor  HEVertex;
+    typedef typename boost::graph_traits< Graph >::edge_descriptor    HEEdge;
+    typedef std::vector<HEVertex> VertexVector;
+    VertexVector vv;
+    BOOST_FOREACH( HEEdge edge, out_edges( v , g) ) {
+        vv.push_back( target( edge , g) );
+    }
+    return vv;
+}
+        
+        
+/// return all vertices of given face
+template <class Graph>
+typename std::vector< typename boost::graph_traits< Graph >::vertex_descriptor > face_vertices(unsigned int face_idx, Graph& g) {
+    typedef typename boost::graph_traits< Graph >::vertex_descriptor  HEVertex;
+    typedef typename boost::graph_traits< Graph >::edge_descriptor    HEEdge;
+    typedef std::vector<HEVertex> VertexVector;
+    
+    VertexVector verts;
+    HEEdge startedge = g[face_idx].edge; // the edge where we start
+    HEVertex start_target = boost::target( startedge, g); 
+    verts.push_back(start_target);
+    HEEdge current = g[startedge].next;
+    do {
+        HEVertex current_target = boost::target( current, g); 
+        assert( current_target != start_target );
+        verts.push_back(current_target);
+        current = g[current].next;
+    } while ( current != startedge );
+    return verts;
+}
+        
+/// return degree of given vertex
+template <class Graph>
+unsigned int degree(typename boost::graph_traits< Graph >::vertex_descriptor v, const Graph& g)  { 
+    return boost::degree( v, g); 
+}
+        
+/// return number of vertices in graph
+template <class Graph>
+unsigned int num_vertices(const Graph& g) { 
+    return boost::num_vertices( g ); 
+}
         
     // access edges
-        /// return out_edges of given vertex
-        EdgeVector out_edges( HEVertex v ) const {
-            EdgeVector ev;
-            HEOutEdgeItr it, it_end;
-            boost::tie( it, it_end ) = boost::out_edges( v, g );
-            for ( ; it != it_end ; ++it ) {
-                ev.push_back(*it);
-            }
-            return ev;
-        }
-        /// return all edges
-        EdgeVector edges() const {
-            EdgeVector ev;
-            HEEdgeItr it, it_end;
-            boost::tie( it, it_end ) = boost::edges( g );
-            for ( ; it != it_end ; ++it ) {
-                ev.push_back(*it);
-            }
-            return ev;
-        }
+/// return out_edges of given vertex
+template <class Graph>
+typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor > out_edges( 
+        typename boost::graph_traits< Graph >::vertex_descriptor v , const Graph& g)  {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor  HEEdge;
+    typedef std::vector<HEEdge> EdgeVector;  
+    typedef typename boost::graph_traits< Graph >::out_edge_iterator  HEOutEdgeItr;
+    EdgeVector ev;
+    HEOutEdgeItr it, it_end;
+    boost::tie( it, it_end ) = boost::out_edges( v, g );
+    for ( ; it != it_end ; ++it ) {
+        ev.push_back(*it);
+    }
+    return ev;
+}
+
+
+/// return all edges
+template <class Graph>
+typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor  >  edges(Graph& g) {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor  HEEdge;
+    typedef typename std::vector< HEEdge > EdgeVector;
+    typedef typename boost::graph_traits< Graph >::edge_iterator      HEEdgeItr; 
+    EdgeVector ev;
+    HEEdgeItr it, it_end;
+    boost::tie( it, it_end ) = boost::edges( g );
+    for ( ; it != it_end ; ++it ) {
+        ev.push_back(*it);
+    }
+    return ev;
+}
+        
+        
         /// return edges of face f
+        /*
         EdgeVector face_edges(HEFace f) {
             HEEdge start_edge = faces[f].edge;
             HEEdge current_edge = start_edge;
@@ -373,123 +278,146 @@ class HalfEdgeDiagram  {
                 current_edge = g[current_edge].next;
             } while( current_edge != start_edge );
             return out;
-        }
-        /// return the previous edge. traverses all edges in face until previous found.
-        HEEdge previous_edge(HEEdge e) {
-            HEEdge previous = g[e].next;
-            while ( g[previous].next != e ) {
-                previous = g[previous].next;
-            }
-            return previous;
-        }
-        /// return number of edges in graph
-        unsigned int num_edges() const { 
-            return boost::num_edges( g ); 
-        }
-        /// return true if v1-v2 edge exists
-        bool edge( HEVertex v1, HEVertex v2 ) {
-            typedef std::pair<HEEdge, bool> EdgeBool;
-            EdgeBool result = boost::edge(v1, v2, g );
-            return result.second;
-        }
+        }*/
         
-    // access faces
-        /// return adjacent faces to the given vertex
-        FaceVector adjacent_faces( HEVertex q ) {
-            std::set<HEFace> face_set;
-            HEOutEdgeItr itr, itr_end;
-            boost::tie( itr, itr_end) = boost::out_edges(q, g);
-            for ( ; itr!=itr_end ; ++itr ) {
-                face_set.insert( g[*itr].face );
-            }
-            //assert( face_set.size() == 3); // degree of q is three, so has three faces
-            FaceVector fv;
-            BOOST_FOREACH(HEFace m, face_set) {
-                fv.push_back(m);
-            }
-            return fv;
-        }
-        /// return number of faces in graph
-        unsigned int num_faces() const { return faces.size(); }
+        
+/// return the previous edge. traverses all edges in face until previous found.
+template <class Graph>
+typename boost::graph_traits< Graph >::edge_descriptor previous_edge(
+                      typename boost::graph_traits< Graph >::edge_descriptor e, Graph& g) {
+    typename boost::graph_traits< Graph >::edge_descriptor previous = g[e].next;
+    while ( g[previous].next != e ) {
+        previous = g[previous].next;
+    }
+    return previous;
+}
+
+
+/// return true if v1-v2 edge exists
+template <class Graph>
+bool edge( typename boost::graph_traits< Graph >::vertex_descriptor v1, 
+           typename boost::graph_traits< Graph >::vertex_descriptor v2, 
+           Graph& g ) {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor HEEdge;
+    typedef typename std::pair<HEEdge, bool> EdgeBool;
+    EdgeBool result = boost::edge(v1, v2, g );
+    return result.second;
+}
+
+
+/// return adjacent faces to the given vertex
+template <class Graph>
+std::vector<unsigned int> adjacent_faces( typename boost::graph_traits< Graph >::vertex_descriptor q , Graph& g) {
+    typedef typename boost::graph_traits< Graph >::out_edge_iterator  HEOutEdgeItr;
+    typedef std::vector<unsigned int> FaceVector;
+    
+    std::set<unsigned int> face_set;
+    HEOutEdgeItr itr, itr_end;
+    boost::tie( itr, itr_end) = boost::out_edges(q, g);
+    for ( ; itr!=itr_end ; ++itr ) {
+        face_set.insert( g[*itr].face );
+    }
+    //assert( face_set.size() == 3); // degree of q is three, so has three faces
+    FaceVector fv;
+    BOOST_FOREACH(unsigned int m, face_set) {
+        fv.push_back(m);
+    }
+    return fv;
+}
+        
+        
+/// return number of faces in graph
+template <class Graph>
+unsigned int num_faces(Graph& g) { 
+    return g.faces.size(); 
+}
+
+/// return number of edges in graph
+template <class Graph>
+unsigned int num_edges(const Graph& g) { 
+    return boost::num_edges( g ); 
+}
         
     // Directly access vertex,edge,face properties
         /// access to the base-class operator[]
         //using HEGraph::operator[]; 
         /// operator[] for accessing face properties
-        VertexProps& operator[](HEVertex v)  { return g[v]; }
-        const VertexProps& operator[](HEVertex v)  const { return g[v]; }
-        EdgeProps& operator[](HEEdge e)  { return g[e]; }
-        const EdgeProps& operator[](HEEdge e)  const { return g[e]; }
+        //VertexProps& operator[](HEVertex v)  { return g[v]; }
+        //const VertexProps& operator[](HEVertex v)  const { return g[v]; }
+        //EdgeProps& operator[](HEEdge e)  { return g[e]; }
+        //const EdgeProps& operator[](HEEdge e)  const { return g[e]; }
         
-        FaceProps& operator[](HEFace f)  { return faces[f]; }
-        /// const operator[] for accessing face properties
-        const FaceProps& operator[](HEFace f) const  { return faces[f]; }
-        
-    // general half-edge methods:
-        /// inserts given vertex and its twin into edge e
-        void insert_vertex_in_edge(HEVertex v, HEEdge e) {
-            // the vertex v is in the middle of edge e
-            //                    face
-            //                    e1   e2
-            // previous-> source  -> v -> target -> next
-            //            tw_trg  <- v <- tw_src <- tw_previous
-            //                    te2  te1
-            //                    twin_face
-            
-            HEEdge twin = g[e].twin;
-            HEVertex source = boost::source( e , g );
-            HEVertex target = boost::target( e , g);
-            HEVertex twin_source = boost::source( twin , g);
-            HEVertex twin_target = boost::target( twin , g );
-            assert( source == twin_target );    
-            assert( target == twin_source );
-            
-            HEFace face = g[e].face;
-            HEFace twin_face = g[twin].face;
-            HEEdge previous = previous_edge(e);
-            assert( g[previous].face == g[e].face );
-            HEEdge twin_previous = previous_edge(twin);
-            assert( g[twin_previous].face == g[twin].face );
-            
-            HEEdge e1 = add_edge( source, v  );
-            HEEdge e2 = add_edge( v, target  );
-            
-            // preserve the left/right face link
-            g[e1].face = face;
-            g[e2].face = face;
-            // next-pointers
-            g[previous].next = e1;
-            g[e1].next = e2;
-            g[e2].next = g[e].next;
-            
-            
-            HEEdge te1 = add_edge( twin_source, v  );
-            HEEdge te2 = add_edge( v, twin_target  );
-            
-            g[te1].face = twin_face;
-            g[te2].face = twin_face;
-            
-            g[twin_previous].next = te1;
-            g[te1].next = te2;
-            g[te2].next = g[twin].next;
-            
-            // TWINNING (note indices 'cross', see ASCII art above)
-            g[e1].twin = te2;
-            g[te2].twin = e1;
-            g[e2].twin = te1;
-            g[te1].twin = e2;
-            
-            // update the faces (required here?)
-            faces[face].edge = e1;
-            faces[twin_face].edge = te1;
-            
-            // finally, remove the old edge
-            boost::remove_edge( e   , g);
-            boost::remove_edge( twin, g);
-        }
+
+/// inserts given vertex and its twin into edge e
+template <class Graph>
+void insert_vertex_in_edge(typename boost::graph_traits< Graph >::vertex_descriptor  v, 
+                           typename boost::graph_traits< Graph >::edge_descriptor e, 
+                           Graph& g) {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor    HEEdge;
+    typedef typename boost::graph_traits< Graph >::vertex_descriptor  HEVertex;
+    // the vertex v is in the middle of edge e
+    //                    face
+    //                    e1   e2
+    // previous-> source  -> v -> target -> next
+    //            tw_trg  <- v <- tw_src <- tw_previous
+    //                    te2  te1
+    //                    twin_face
+    
+    HEEdge twin = g[e].twin;
+    HEVertex source = boost::source( e , g );
+    HEVertex target = boost::target( e , g);
+    HEVertex twin_source = boost::source( twin , g);
+    HEVertex twin_target = boost::target( twin , g );
+    assert( source == twin_target );    
+    assert( target == twin_source );
+    
+    unsigned int face = g[e].face;
+    unsigned int twin_face = g[twin].face;
+    HEEdge previous = previous_edge(e, g);
+    assert( g[previous].face == g[e].face );
+    HEEdge twin_previous = previous_edge(twin, g);
+    assert( g[twin_previous].face == g[twin].face );
+    
+    HEEdge e1 = add_edge( source, v , g);
+    HEEdge e2 = add_edge( v, target , g);
+    
+    // preserve the left/right face link
+    g[e1].face = face;
+    g[e2].face = face;
+    // next-pointers
+    g[previous].next = e1;
+    g[e1].next = e2;
+    g[e2].next = g[e].next;
+    
+    
+    HEEdge te1 = add_edge( twin_source, v  , g);
+    HEEdge te2 = add_edge( v, twin_target  , g);
+    
+    g[te1].face = twin_face;
+    g[te2].face = twin_face;
+    
+    g[twin_previous].next = te1;
+    g[te1].next = te2;
+    g[te2].next = g[twin].next;
+    
+    // TWINNING (note indices 'cross', see ASCII art above)
+    g[e1].twin = te2;
+    g[te2].twin = e1;
+    g[e2].twin = te1;
+    g[te1].twin = e2;
+    
+    // update the faces (required here?)
+    g.faces[face].edge = e1;
+    g.faces[twin_face].edge = te1;
+    
+    // finally, remove the old edge
+    boost::remove_edge( e   , g);
+    boost::remove_edge( twin, g);
+}
 
         
         /// check that all edges belong to the correct face
+        /*
         bool checkFaces() {
             BOOST_FOREACH(FaceProps f, faces) {
                 BOOST_FOREACH( HEEdge e, face_edges(f.idx)) {
@@ -498,24 +426,28 @@ class HalfEdgeDiagram  {
                 }
             }
             return true;
-        }
-        
-    private:
-        /// clear given vertex. this removes all edges connecting to the vertex.
-        void clear_vertex(HEVertex v) { 
-            boost::clear_vertex( v, g ); 
-        }
-        /// remove given vertex
-        void remove_vertex(HEVertex v) { 
-            boost::remove_vertex( v , g );
-        }
-    // DATA
-        /// a vector of face properties
-        std::vector<FaceProps> faces;
-        /// the boost BGL graph
-        HEGraph g;
-};
+        }*/
 
-} // end namespace
+/// delete a vertex
+template <class Graph>
+void delete_vertex(typename boost::graph_traits< Graph >::vertex_descriptor  v, Graph& g) { 
+    clear_vertex(v, g);
+    remove_vertex(v, g); 
+}
+
+/// clear given vertex. this removes all edges connecting to the vertex.
+template <class Graph>
+void clear_vertex(typename boost::graph_traits< Graph >::vertex_descriptor v, Graph& g) { 
+    boost::clear_vertex( v, g ); 
+}
+/// remove given vertex
+template <class Graph>
+void remove_vertex(typename boost::graph_traits< Graph >::vertex_descriptor v, Graph& g) { 
+    boost::remove_vertex( v , g );
+}
+
+} // end hedi namespace
+
+} // end ocl namespace
 #endif
 // end halfedgediagram2.h
