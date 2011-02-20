@@ -32,7 +32,7 @@
 #include "numeric.h"
 #include "voronoidiagram_py.h"  
 #include "zigzag.h"
-//#include "clsurface.h"
+#include "clsurface.h"
 
 /*
  *  Python wrapping of octree and related classes
@@ -223,16 +223,17 @@ void export_algo() {
         .value("INCIDENT", INCIDENT)
         .value("NONINCIDENT", NONINCIDENT)
     ;
-    /*
-    bp::class_< CutterLocationSurface >("CutterLocationSurface")  
-        .def("run", &CutterLocationSurface::run)
-        .def("setMinSampling", &CutterLocationSurface::setMinSampling)
-        .def("setSampling", &CutterLocationSurface::setSampling)
-        .def("setSTL", &CutterLocationSurface::setSTL)
-        .def("setCutter", &CutterLocationSurface::setCutter)
-        .def("getVertices", &CutterLocationSurface::getVertices)
-        .def("getEdges", &CutterLocationSurface::getEdges)
-        .def("__str__", &CutterLocationSurface::str)
-    ;*/
+    
+    bp::class_< clsurf::CutterLocationSurface >("CutterLocationSurface")  
+        .def(bp::init<double>())
+        .def("run", &clsurf::CutterLocationSurface::run)
+        .def("setMinSampling", &clsurf::CutterLocationSurface::setMinSampling)
+        .def("setSampling", &clsurf::CutterLocationSurface::setSampling)
+        .def("setSTL", &clsurf::CutterLocationSurface::setSTL)
+        .def("setCutter", &clsurf::CutterLocationSurface::setCutter)
+        .def("getVertices", &clsurf::CutterLocationSurface::getVertices)
+        .def("getEdges", &clsurf::CutterLocationSurface::getEdges)
+        .def("__str__", &clsurf::CutterLocationSurface::str)
+    ;
 }
 

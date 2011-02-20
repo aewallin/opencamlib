@@ -130,7 +130,15 @@ typename boost::graph_traits< Graph >::edge_descriptor add_edge(typename boost::
     boost::tie( e , b ) = boost::add_edge( v1, v2, g);
     return e;
 }
-        
+
+template <class Graph>
+void twin_edges( typename boost::graph_traits< Graph >::edge_descriptor e1,
+                 typename boost::graph_traits< Graph >::edge_descriptor e2,
+                 Graph& g) {
+    g[e1].twin = e2;
+    g[e2].twin = e1;
+}
+
         
 /*        
         /// add an edge with given properties
@@ -216,6 +224,8 @@ typename std::vector< typename boost::graph_traits< Graph >::vertex_descriptor >
     return verts;
 }
 
+
+
 /// return degree of given vertex
 template <class Graph>
 unsigned int degree(typename boost::graph_traits< Graph >::vertex_descriptor v, const Graph& g)  { 
@@ -260,18 +270,20 @@ typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor  > 
 }
         
         
-        /// return edges of face f
-        /*
-        EdgeVector face_edges(HEFace f) {
-            HEEdge start_edge = faces[f].edge;
-            HEEdge current_edge = start_edge;
-            EdgeVector out;
-            do {
-                out.push_back(current_edge);
-                current_edge = g[current_edge].next;
-            } while( current_edge != start_edge );
-            return out;
-        }*/
+/// return edges of face f
+template <class Graph>
+typename std::vector< typename boost::graph_traits< Graph >::edge_descriptor  > face_edges( unsigned int f, Graph& g) {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor  HEEdge;
+    typedef typename std::vector< HEEdge > EdgeVector;
+    HEEdge start_edge = g[f].edge;
+    HEEdge current_edge = start_edge;
+    EdgeVector out;
+    do {
+        out.push_back(current_edge);
+        current_edge = g[current_edge].next;
+    } while( current_edge != start_edge );
+    return out;
+}
 
 /// return the previous edge. traverses all edges in face until previous found.
 template <class Graph>
