@@ -31,14 +31,12 @@ namespace ocl
 {
 
 Weave::Weave() {
-    //fibers.clear();
     xfibers.clear();
     yfibers.clear();
     loops.clear();
 }
 
 void Weave::addFiber(Fiber& f) {
-    //fibers.push_back(f);
     if ( f.dir.xParallel() && !f.empty() ) {
         xfibers.push_back(f);
     } else if ( f.dir.yParallel() && !f.empty() ) {
@@ -52,7 +50,7 @@ void Weave::add_vertex( Point& position, WeaveVertexType t, Interval& i, double 
     WeaveVertex  v = boost::add_vertex(g);
     g[v].position = position;
     g[v].type = t;
-    i.intersections.insert( VertexPair( v, ipos) );
+    i.intersections.insert( VertexPair( v, ipos) ); // ?? Interval depends on WeaveGraph
 }
 
 void Weave::print_embedding(WeavePlanarEmbedding& e) {
@@ -153,7 +151,7 @@ void Weave::build() {
     // provide this "via" connection
     //sort_fibers(); // fibers are sorted into xfibers and yfibers
     BOOST_FOREACH( Fiber& xf, xfibers) {
-        assert( !xf.empty() ); // sort_fibers() ensures no empty fibers remain
+        assert( !xf.empty() ); // no empty fibers
         BOOST_FOREACH( Interval& xi, xf.ints ) {
             double xmin = xf.point(xi.lower).x;
             double xmax = xf.point(xi.upper).x;

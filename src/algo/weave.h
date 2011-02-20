@@ -45,7 +45,7 @@ class Weave {
         void addFiber(Fiber& f);
         /// from the list of fibers, build a graph
         void build();
-        /// split this Weave into it's disconnected components
+        /// split this Weave into its disconnected components
         std::vector<Weave> split_components();
         /// run planar_face_traversal to get the waterline points in correct order
         void face_traverse();

@@ -32,6 +32,7 @@
 #include "weave.h"
 #include "batchpushcutter.h"
 
+#include "weave2.h"
 
 namespace ocl
 {
@@ -103,6 +104,31 @@ void Waterline::run() {
     std::cout << "done.\n" << std::flush;
 }
 
+void Waterline::run2() {
+    std::cout << "Weave2..." << std::flush;
+    weave2::Weave2 w;
+    BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
+        w.addFiber(f);
+    }
+    BOOST_FOREACH( Fiber f, *( subOp[1]->getFibers() ) ) {
+        w.addFiber(f);
+    }
+    /*
+    std::cout << "build()..." << std::flush;
+    w.build(); // build weave from fibers
+    std::cout << "split()..." << std::flush;
+    std::vector<Weave> subweaves = w.split_components(); // split into components
+    std::cout << "traverse()..." << std::flush;
+    std::vector< std::vector<Point> > subweave_loops;
+    BOOST_FOREACH( Weave sw, subweaves ) {
+        sw.face_traverse(); // traverse to find loops
+        subweave_loops = sw.getLoops();
+        BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
+            this->loops.push_back( loop );
+        }
+    }*/
+    std::cout << "done.\n" << std::flush;
+}
 
 
 void Waterline::init_fibers() {

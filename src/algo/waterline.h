@@ -30,6 +30,7 @@
 #include "batchpushcutter.h"
 #include "operation.h"
 
+
 namespace ocl
 {
 
@@ -56,6 +57,7 @@ class Waterline : public Operation {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
+        void run2();
         
     protected:
         /// initialization
