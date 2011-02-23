@@ -128,56 +128,73 @@ CC_CLZ_Pair ConeCutter::singleEdgeDropCanonical( const Point& u1, const Point& u
 // cone is pushed along Fiber f into contact with edge p1-p2
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
-    double m = (p2.z-p1.z) / (p2-p1).xyNorm() ; // edge slope
-    double tanangle = tan(angle);
-    // general quadratic form:
-    // Ax^2 + Bxy + Cy^2 + Dx + Ey + F =0
-    // =>
-    // Ax^2 + Bxy + Cy^2 = -(Dx + Ey + F)
-    // or intersection btw plane z = -(Dx + Ey + F)
-    // and quadratic z = Ax^2 + Bxy + Cy^2 
     
-    // cone quadratic is (1/c^2)*(x^2+y^2) = (z-z0)^2     
-    //          where c=r/h ratio of radius to height (opening angle), and z0= height above z=0
-    // sqrt(x^2 +y^2) = c ( z -  z0 ) 
-    // => z = z0 + (1/c)*sqrt(x^2+y^2)   CONE
-    //
-    // plane   D*x + E*y + G*z + F = 0, so
-    // F = -A*x - E*y - G*z, where  (A,E,G) = surface normal
-    // p1 and p2 are in plane, so is p1+f.dir
-    // normal = (p2-p1).cross(p1+f.dir)
-    Point planeNormal = (p2-p1).cross(p1+f.dir);
-    // now
-    // z = -(1/G)*(Dx + Ey + F)   PLANE
-    //
-    // set equal:  CONE = PLANE
-    //
-    //  z = z0 + (1/c)*sqrt(x^2+y^2) = -(1/G)*(Dx + Ey + F)   
-    // aĺfa = cD/G
-    // beta = cE/G
-    // lam  = cF/G + cz0
-    // quadratic:
-    // (1-alfa^2)x^2 + (1-beta^2)y^2 + 2*aflfa*beta -2*alfa*lam*x - 2*beta*lam*y - lam^2 = 0
-    // Ax^2 + Bxy + Cy^2 + Dx + Ey + F =0   (standard form)
-    // identify coefficients as:
-    // A = 1-alfa^2
-    // B = 2*alfa*beta
-    // C = 1-beta^2
-    // D = -2*alfa*lam
-    // E = -2*beta*lam
-    // F = -lam^2
-    // discriminant = B^2 - 4AC
-    // < 0 ellipse
-    // ==0 parabola
-    // > 0 hyperbola
+    // idea: as the ITO-cone slides along the edge it will pierce a z-plane at the height of the fiber
+    // the shaped of the pierced area is either a circle if the edge is steep
+    // or a 'half-circle' + cone shape if the edge is shallow
+    // we can now intersect this 2D shape with the fiber and get the CL-points.
+    // how to get the CC-point? (point on edge closest to z-axis of cutter?)
     
-    if (fabs(m) > tanangle ) {
-        // hyperbola case
+    // line: p1+t*(p2-p1) = zheight
+    // => t = (zheight - p1)/ (p2-p1)
+    if ( isZero_tol(p2.z-p1.z) )
+        return result;
+        
+    assert( (p2.z-p1.z) != 0.0 );
+    // this is where the ITO cone pierces the plane
+    double t0 = (f.p1.z - p1.z) / (p2.z-p1.z);
+    Point tp0 = p1 + t0*(p2-p1);
+    // this is where the ITO cone exits the plane
+    double t1 = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);
+    Point tp1 = p1 + t1*(p2-p1);
+    //std::cout << "(t0, t1) (" << t0 << " , " << t1 << ") \n";
+    double L = (tp1-tp0).xyNorm();
+    
+    if ( L <= radius ) {
+        // this is where the ITO-slice is a circle
+        // find intersection points, if any, between the fiber and the circle
+        // fiber is f.p1 - f.p2
+        // circle is centered at tp1 and radius
+        double d = tp1.xyDistanceToLine(f.p1, f.p2);
+        if ( d <= radius ) {
+            // we know there is an intersection point.
+            // http://mathworld.wolfram.com/Circle-LineIntersection.html
+            double dx = f.p2.x - f.p1.x;
+            double dy = f.p2.y - f.p1.y;
+            double dr = sqrt( square(dx) + square(dy) );
+            double det = f.p1.x * f.p2.y - f.p2.x * f.p1.y;
+            
+            // intersection given by:
+            //  x = det*dy +/- sign(dy) * dx * sqrt( r^2 dr^2 - det^2 )   / dr^2
+            //  y = -det*dx +/- abs(dy) * dx * sqrt( r^2 dr^2 - det^2 )   / dr^2
+            
+            double discr = square(radius) * square(dr) - square(det);
+            assert( discr > 0.0 ); // this means we have an intersection
+            if ( discr == 0.0 ) {
+                // tangent case
+                //  x = det*dy/ dr^2
+                //  y = -det*dx / dr^2
+            } else {
+                // two intersection points
+                
+            }
+            
+            // circle ( cx + r* cosu, cy + r * sinu )   with cosu^2+sinu^2=1 => cosu = +/- sqrt( 1-sinu^2 ) 
+            // fiber p1 + t*(p2-p1)
+            //
+            //  r*cosu = p1.x + t*(p2.x-p1.x)
+            //  r*sinu = p1.x + t*(p2.x-p1.x)
+        }
+        return result;
     } else {
-        // ellipse case
+        // ITO-slice is cone + half-circle
+        
+        // find the tangent points as intersections between circle(diameter) and circle(L/2)
+        
+        return result;
     }
 
-    return result;
+    //return result;
 }
 
 

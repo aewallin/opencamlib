@@ -11,6 +11,7 @@ def loop_waterline(zh, cutter,s):
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     bpc = ocl.BatchPushCutter()
+    bpc.setXDirection()
     bpc.setSTL(s)
     bpc.setCutter(cutter)
     for y in yvals:
@@ -63,15 +64,18 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
-    
-    cutter = ocl.CylCutter(0.3, 5)
+    diameter = 0.4
+    angle = math.pi/4
+    length = 5
+    #cutter = ocl.CylCutter(0.3, 5)
     #cutter = ocl.BallCutter(0.4, 5)
     #cutter = ocl.BullCutter(0.4, 0.1, 5)
+    cutter = ocl.ConeCutter(diameter, angle, length)
     print cutter
-    zstart = -0.1
+    zstart = 0
     zend = 0.35
     zvals=[]
-    Nz = 30
+    Nz = 7
     for n in xrange(0,Nz):
         zvals.append( zstart + n*(zend-zstart)/float(Nz-1) )
     for zh in zvals:
