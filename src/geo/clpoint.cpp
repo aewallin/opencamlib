@@ -88,7 +88,7 @@ bool CLPoint::liftZ(double zin, CCPoint& ccp) {
 }
 
 bool CLPoint::liftZ_if_InsidePoints(double zin, CCPoint& cc_tmp, const Point& p1,const Point& p2) {
-    if ( cc_tmp.isInsidePoints(p1, p2) ) 
+    if ( cc_tmp.isInside(p1, p2) ) 
         return this->liftZ(zin, cc_tmp);
     return false;
 }

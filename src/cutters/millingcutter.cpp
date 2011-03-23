@@ -155,8 +155,21 @@ bool MillingCutter::singleVertexPush(const Fiber& f, Interval& i, const Point& p
     return result;
 }
 
-// general purpose facetPush
 bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
+    return generalFacetPush(this->normal_length,
+                            this->center_height,
+                            this->xy_normal_length,
+                            fib,i,t);
+}
+    
+// general purpose facetPush
+bool MillingCutter::generalFacetPush(double normal_length,
+                                     double center_height,
+                                     double xy_normal_length,
+                                     const Fiber& fib, 
+                                     Interval& i,  
+                                     const Triangle& t) 
+                                     const {
     bool result = false;
     Point normal = t.upNormal(); // facet surface normal, pointing up 
     if ( normal.zParallel() ) // normal points in z-dir   
@@ -193,14 +206,16 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     double c = t.p[1].z - t.p[0].z;
     double d = t.p[2].z - t.p[0].z;
     double e;
-    double f = -t.p[0].z - this->normal_length*normal.z + fib.p1.z + this->center_height; // note: the xy_normal does not have a z-component, so omitted here.
+    double f = -t.p[0].z - normal_length*normal.z + fib.p1.z + center_height; 
+    // note: the xy_normal does not have a z-component, so omitted here.
+    
     double u;
     double v;
     // a,b,e depend on the fiber:
     if ( fib.p1.y == fib.p2.y ) { // XFIBER
         a = t.p[1].y - t.p[0].y;
         b = t.p[2].y - t.p[0].y;
-        e = -t.p[0].y - this->normal_length*normal.y - this->xy_normal_length*xy_normal.y + fib.p1.y;
+        e = -t.p[0].y - normal_length*normal.y - xy_normal_length*xy_normal.y + fib.p1.y;
         if (!two_by_two_solver(a,b,c,d,e,f,u,v))
             return result;
         CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
@@ -211,7 +226,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
         // =>
         // t = 1/(p2x-p1x) * ( v0x + r2*nx + r1*xy_n.x - p1x +  u*(v1x-v0x) + v*(v2x-v0x)       )
         assert( !isZero_tol( fib.p2.x - fib.p1.x )  );
-        double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + this->normal_length*normal.x + this->xy_normal_length*xy_normal.x - fib.p1.x 
+        double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + normal_length*normal.x + xy_normal_length*xy_normal.x - fib.p1.x 
                                                         + u*(t.p[1].x-t.p[0].x)+v*(t.p[2].x-t.p[0].x) );
         if ( tval < 0.0 || tval > 1.0  ) {
             std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";
@@ -223,7 +238,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
     } else if (fib.p1.x == fib.p2.x) { // YFIBER
         a = t.p[1].x - t.p[0].x;
         b = t.p[2].x - t.p[0].x;
-        e = -t.p[0].x - this->normal_length*normal.x - this->xy_normal_length*xy_normal.x + fib.p1.x;
+        e = -t.p[0].x - normal_length*normal.x - xy_normal_length*xy_normal.x + fib.p1.x;
         if (!two_by_two_solver(a,b,c,d,e,f,u,v))
             return result;
         CCPoint cc = t.p[0] + u*(t.p[1]-t.p[0]) + v*(t.p[2]-t.p[0]);
@@ -231,7 +246,7 @@ bool MillingCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t)
         if ( ! cc.isInside( t ) ) 
             return result;
         assert( !isZero_tol( fib.p2.y - fib.p1.y )  );
-        double tval = (1.0/( fib.p2.y - fib.p1.y )) * ( t.p[0].y + this->normal_length*normal.y + this->xy_normal_length*xy_normal.y - fib.p1.y 
+        double tval = (1.0/( fib.p2.y - fib.p1.y )) * ( t.p[0].y + normal_length*normal.y + xy_normal_length*xy_normal.y - fib.p1.y 
                                                         + u*(t.p[1].y-t.p[0].y)+v*(t.p[2].y-t.p[0].y) );
         if ( tval < 0.0 || tval > 1.0  ) {
             std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";

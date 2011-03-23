@@ -50,7 +50,14 @@ class ConeCutter : public MillingCutter {
         
     protected:
         CC_CLZ_Pair singleEdgeDropCanonical( const Point& u1, const Point& u2) const;
+        
+        bool facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const;
+            
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        
+        bool circle_CC( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
+
+        
         double height(double r) const;
         double width(double h) const;
         /// the half-angle of the cone, in radians

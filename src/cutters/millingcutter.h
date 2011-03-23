@@ -101,6 +101,14 @@ class MillingCutter {
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        bool generalFacetPush(double normal_length,
+                                     double center_height,
+                                     double xy_normal_length,
+                                     const Fiber& fib, 
+                                     Interval& i,  
+                                     const Triangle& t) 
+                                     const;
+                                         
         /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
         /// calls singleEdgePush() on all three edges of Triangle t.
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;

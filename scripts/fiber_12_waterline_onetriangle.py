@@ -67,10 +67,10 @@ if __name__ == "__main__":
     diameter = 0.4
     angle = math.pi/4
     length = 5
-    #cutter = ocl.CylCutter(0.3, 5)
+    cutter = ocl.CylCutter(0.3, 5)
     #cutter = ocl.BallCutter(0.4, 5)
     #cutter = ocl.BullCutter(0.4, 0.1, 5)
-    cutter = ocl.ConeCutter(diameter, angle, length)
+    #cutter = ocl.ConeCutter(diameter, angle, length)
     print cutter
     zstart = 0
     zend = 0.35

@@ -44,8 +44,9 @@ void Interval::update(const double t, CCPoint& p) {
 }
 
 bool Interval::update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition) {
-    if ( cc_tmp.isInsidePoints(p1,p2)  && condition ) {
-        update( t_cl  , cc_tmp );
+    //if ( cc_tmp.isInsidePoints(p1,p2)  && condition ) {
+    if ( cc_tmp.isInside(p1,p2)  && condition ) {
+        update( t_cl  , cc_tmp ); // both updateUpper(t,p) and updateLower(t,p)
         return true;  
     } else {
         return false;

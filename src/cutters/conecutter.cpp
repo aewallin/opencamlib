@@ -47,6 +47,8 @@ double ConeCutter::height(double r) const {
 }
 
 double ConeCutter::width(double h) const {
+    // grows from zero up to radius
+    // above that (cutter shaft) return radius
     return (h<center_height) ? h*tan(angle) : radius ;
 }
 
@@ -125,65 +127,111 @@ CC_CLZ_Pair ConeCutter::singleEdgeDropCanonical( const Point& u1, const Point& u
     return CC_CLZ_Pair( ccu , cl_z);
 }
 
+bool ConeCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
+    // push two objects: tip, base-circle
+    bool result = false;
+    if ( generalFacetPush( 0, 0, 0, fib, i, t) ) // TIP
+        result = true;
+    if ( generalFacetPush( 0, this->center_height, this->xy_normal_length , fib, i ,t) ) // BASE
+        result = true;
+        
+    return result;
+}
+
+
+
+// #define CONE_DUMMY
+
+#ifdef CONE_DUMMY
+bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
+    bool result = false;
+    std::cout << " dummy() \n";
+    return result;
+}
+#endif
+
+#ifndef CONE_DUMMY
 // cone is pushed along Fiber f into contact with edge p1-p2
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     
+    if ( isZero_tol(p2.z-p1.z) ) // guard agains horizontal edge
+        return result;
+    assert( (p2.z-p1.z) != 0.0 );
     // idea: as the ITO-cone slides along the edge it will pierce a z-plane at the height of the fiber
     // the shaped of the pierced area is either a circle if the edge is steep
-    // or a 'half-circle' + cone shape if the edge is shallow
+    // or a 'half-circle' + cone shape if the edge is shallow (ice-cream cone...)
     // we can now intersect this 2D shape with the fiber and get the CL-points.
-    // how to get the CC-point? (point on edge closest to z-axis of cutter?)
+    // how to get the CC-point? (point on edge closest to z-axis of cutter? closest to CL?)
+
+
     
-    // line: p1+t*(p2-p1) = zheight
-    // => t = (zheight - p1)/ (p2-p1)
-    if ( isZero_tol(p2.z-p1.z) )
-        return result;
-        
-    assert( (p2.z-p1.z) != 0.0 );
     // this is where the ITO cone pierces the plane
-    double t0 = (f.p1.z - p1.z) / (p2.z-p1.z);
-    Point tp0 = p1 + t0*(p2-p1);
-    // this is where the ITO cone exits the plane
-    double t1 = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);
-    Point tp1 = p1 + t1*(p2-p1);
-    //std::cout << "(t0, t1) (" << t0 << " , " << t1 << ") \n";
-    double L = (tp1-tp0).xyNorm();
+    // edge-line: p1+t*(p2-p1) = zheight
+    // => t = (zheight - p1)/ (p2-p1)  
+    double t_tip = (f.p1.z - p1.z) / (p2.z-p1.z);
+    if (t_tip < 0.0 )
+        t_tip = 0.0;
+    Point p_tip = p1 + t_tip*(p2-p1);
+    assert( isZero_tol( abs(p_tip.z-f.p1.z) ) ); // p_tip should be in plane of fiber
     
-    if ( L <= radius ) {
-        // this is where the ITO-slice is a circle
+    // this is where the ITO cone base exits the plane
+    double t_base = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);
+    Point p_base = p1 + t_base*(p2-p1);
+    p_base.z = f.p1.z; // project to plane of fiber
+    //std::cout << "(t0, t1) (" << t0 << " , " << t1 << ") \n";
+    double L = (p_base-p_tip).xyNorm(); 
+    
+    if ( L <= radius ) { // this is where the ITO-slice is a circle
         // find intersection points, if any, between the fiber and the circle
         // fiber is f.p1 - f.p2
-        // circle is centered at tp1 and radius
-        double d = tp1.xyDistanceToLine(f.p1, f.p2);
+        // circle is centered at p_base and radius
+        double d = p_base.xyDistanceToLine(f.p1, f.p2);
         if ( d <= radius ) {
             // we know there is an intersection point.
             // http://mathworld.wolfram.com/Circle-LineIntersection.html
+            
+            // subtract circle center, math is for circle centered at (0,0)
             double dx = f.p2.x - f.p1.x;
             double dy = f.p2.y - f.p1.y;
             double dr = sqrt( square(dx) + square(dy) );
-            double det = f.p1.x * f.p2.y - f.p2.x * f.p1.y;
+            double det = (f.p1.x-p_base.x) * (f.p2.y-p_base.y) - (f.p2.x-p_base.x) * (f.p1.y-p_base.y);
             
             // intersection given by:
             //  x = det*dy +/- sign(dy) * dx * sqrt( r^2 dr^2 - det^2 )   / dr^2
-            //  y = -det*dx +/- abs(dy) * dx * sqrt( r^2 dr^2 - det^2 )   / dr^2
+            //  y = -det*dx +/- abs(dy)  * sqrt( r^2 dr^2 - det^2 )   / dr^2
             
             double discr = square(radius) * square(dr) - square(det);
             assert( discr > 0.0 ); // this means we have an intersection
-            if ( discr == 0.0 ) {
-                // tangent case
-                //  x = det*dy/ dr^2
-                //  y = -det*dx / dr^2
+            if ( discr == 0.0 ) { // tangent case
+                
+                double x_tang =  ( det*dy  )/ square(dr);
+                double y_tang = -( det*dx  )/ square(dr);
+                Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
+                double t_tang = f.tval( p_tang );
+                if ( circle_CC( t_tang, p1, p2, f, i) ) {
+                    result = true;
+                    std::cout << " circle -> TANGENT case \n";
+                }
             } else {
                 // two intersection points
-                
+                double x_pos = (  det*dy + sign(dy)* dx * sqrt( discr ) ) / square(dr);
+                double y_pos = ( -det*dx + abs(dy)  * sqrt( discr ) ) / square(dr); 
+                Point p_pos(x_pos+p_base.x, y_pos+p_base.y);
+                double t_pos = f.tval( p_pos );
+                // the same with "-" sign:
+                double x_neg = (  det*dy - sign(dy) * dx * sqrt( discr ) ) / square(dr);
+                double y_neg = ( -det*dx - abs(dy)  * sqrt( discr ) ) / square(dr); 
+                Point p_neg(x_neg+p_base.x, y_neg+p_base.y);
+                double t_neg = f.tval( p_neg );
+                if ( circle_CC( t_pos, p1, p2, f, i) ) 
+                    result = true;
+
+                if ( circle_CC( t_neg, p1, p2, f, i) ) 
+                    result = true;
+
             }
             
-            // circle ( cx + r* cosu, cy + r * sinu )   with cosu^2+sinu^2=1 => cosu = +/- sqrt( 1-sinu^2 ) 
-            // fiber p1 + t*(p2-p1)
-            //
-            //  r*cosu = p1.x + t*(p2.x-p1.x)
-            //  r*sinu = p1.x + t*(p2.x-p1.x)
         }
         return result;
     } else {
@@ -194,9 +242,20 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         return result;
     }
 
-    //return result;
+    
 }
+#endif
 
+// t is a position along the fiber
+// p1-p2 is the edge
+// Interval& i is updated
+bool ConeCutter::circle_CC( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
+    // cone base circle is center_height above fiber
+    double t_cc = (f.p1.z+center_height - p1.z) / (p2.z-p1.z); 
+    CCPoint cc_tmp = p1 + t_cc*(p2-p1); // cc-point on the edge
+    cc_tmp.type = EDGE_CONE;
+    return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, (true) );
+}
 
 
 std::string ConeCutter::str() const {

@@ -12,7 +12,7 @@ if __name__ == "__main__":
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(0,0,0)
+    c = ocl.Point(0,0,-2)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
@@ -20,7 +20,8 @@ if __name__ == "__main__":
     t = ocl.Triangle(b,c,a)
     s = ocl.STLSurf()
     s.addTriangle(t) # a one-triangle STLSurf
-    zheights=[0.15]  # the z-coordinates for the waterlines
+    zheights=[-0.3, -0.2, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.26, 0.27, 0.28, 0.29 ]  # the z-coordinates for the waterlines
+    zheights=[-0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2,  0.28 ]
     cutter_diams = [0.6] # run the thing for all these cutter diameters
     length = 5
     loops = []
@@ -31,13 +32,15 @@ if __name__ == "__main__":
             
             #cutter = ocl.CylCutter( diam , length )
             #cutter = ocl.BallCutter( diam , length )
-            cutter = ocl.BullCutter( diam , diam/5, length )
+            #cutter = ocl.BullCutter( diam , diam/5, length )
+            cutter = ocl.ConeCutter( diam , math.pi/5, length )
             wl = ocl.Waterline()
             #wl.setThreads(1)
             wl.setSTL(s)
             wl.setCutter(cutter)
             wl.setZ(zh)
-            wl.setSampling(0.1)
+            wl.setSampling(0.02)
+            wl.setThreads(1)
             t_before = time.time() 
             wl.run()
             t_after = time.time()

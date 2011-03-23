@@ -108,10 +108,14 @@ bool BallCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     return result;
 }
 
+// t is a position along the fiber
+// p1-p2 is the edge
+// Interval& i is updated
 bool BallCutter::calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
-    Point cl_center = f.point(t) + Point(0,0,radius);
-    CCPoint cc_tmp = cl_center.closestPoint(p1,p2);
+    Point cl_center = f.point(t) + Point(0,0,radius); // center of ball is here
+    CCPoint cc_tmp = cl_center.closestPoint(p1,p2); // cc-point on the edge, point on edge closest to center
     cc_tmp.type = EDGE_BALL;
+    // require contact with lower hemishphere
     return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, ((cl_center-cc_tmp).z >=0) );
 }
     

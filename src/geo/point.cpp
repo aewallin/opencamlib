@@ -190,8 +190,7 @@ bool Point::isRight(const Point &p1, const Point &p2) const
         return false;    
 }
 
-bool Point::isInside(const Triangle &t) const
-{
+bool Point::isInside(const Triangle &t) const {
     // point in triangle test
     // http://www.blackpawn.com/texts/pointinpoly/default.html
     
@@ -214,37 +213,21 @@ bool Point::isInside(const Triangle &t) const
     return (u > 0.0) && (v > 0.0) && (u + v < 1.0);
 }
 
-
-#define TOLERANCE 0.000001 // FIXME: magic number constant...
-// FIXME, use t-parameter instead!
-bool Point::isInsidePoints(const Point &p1, const Point &p2) const {
-    double minx,maxx,miny,maxy;
-    if (p1.x > p2.x) {
-        minx = p2.x;
-        maxx = p1.x;
-    } else {
-        minx = p1.x;
-        maxx = p2.x;
-    }
-    if (p1.y > p2.y) {
-        miny = p2.y;
-        maxy = p1.y;
-    } else {
-        miny = p1.y;
-        maxy = p2.y;
-    }
-    //std::cout << "minx=" << minx << "maxx=" << maxx << "miny=" << miny << "maxy=" << maxy << "\n";
-    //std::cout << "x=" << x << " y=" << y << "\n";
-    bool b1 = (x>= (minx-TOLERANCE));
-    bool b2 = (x<= (maxx+TOLERANCE));
-    bool b3 = (y>= (miny-TOLERANCE));
-    bool b4 = (y<= (maxy+TOLERANCE));
-    //std::cout << "b1=" << b1 << " b2=" << b2 << " b3=" << b3 << " b4=" << b4 << "\n";
-    if ( b1 && b2 && b3 && b4) 
-        return true;
-    else 
+bool Point::isInside(const Point& p1, const Point& p2) const {
+    // segment is p1 + t*(p2-p1)
+    // p1 + t*(p2-p1) = p
+    // p1*(p2-p1) + t * (p2-p1)*(p2-p1) = p*(p2-p1)
+    // t = (p - p1 )*(p2-p1) / (p2-p1)*(p2-p1)
+    double t = (*this - p1).dot( p2-p1 ) / (p2-p1).dot(p2-p1);
+    if (t > 1.0)
         return false;
+    else if (t < 0.0)
+        return false;
+    else
+        return true;
 }
+
+
 
 
 
