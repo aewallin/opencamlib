@@ -128,7 +128,7 @@ CC_CLZ_Pair ConeCutter::singleEdgeDropCanonical( const Point& u1, const Point& u
 }
 
 bool ConeCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const {
-    // push two objects: tip, base-circle
+    // push two objects: tip, and base-circle
     bool result = false;
     if ( generalFacetPush( 0, 0, 0, fib, i, t) ) // TIP
         result = true;
@@ -138,19 +138,6 @@ bool ConeCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
     return result;
 }
 
-
-
-// #define CONE_DUMMY
-
-#ifdef CONE_DUMMY
-bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
-    bool result = false;
-    std::cout << " dummy() \n";
-    return result;
-}
-#endif
-
-#ifndef CONE_DUMMY
 // cone is pushed along Fiber f into contact with edge p1-p2
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
@@ -204,15 +191,12 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             double discr = square(radius) * square(dr) - square(det);
             assert( discr > 0.0 ); // this means we have an intersection
             if ( discr == 0.0 ) { // tangent case
-                
                 double x_tang =  ( det*dy  )/ square(dr);
                 double y_tang = -( det*dx  )/ square(dr);
                 Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
                 double t_tang = f.tval( p_tang );
-                if ( circle_CC( t_tang, p1, p2, f, i) ) {
+                if ( circle_CC( t_tang, p1, p2, f, i) )
                     result = true;
-                    std::cout << " circle -> TANGENT case \n";
-                }
             } else {
                 // two intersection points
                 double x_pos = (  det*dy + sign(dy)* dx * sqrt( discr ) ) / square(dr);
@@ -226,25 +210,29 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
                 double t_neg = f.tval( p_neg );
                 if ( circle_CC( t_pos, p1, p2, f, i) ) 
                     result = true;
-
                 if ( circle_CC( t_neg, p1, p2, f, i) ) 
                     result = true;
-
             }
-            
         }
         return result;
     } else {
-        // ITO-slice is cone + half-circle
+        // ITO-slice is cone + half-circle        
+        // lines from p_tip to tangent points
+        assert( L > radius );
+        // http://mathworld.wolfram.com/CircleTangentLine.html
+        // circle centered at x0, y0, radius a
+        // tangent through (0,0)
+        // t = +/- acos(  -a*x0 +/- y0*sqrt(x0^2+y0^2-a^2) / (x0^2+y0^2) )
+        // translate so p_mid is at (0,0)
+        //Point c = p_base - p_mid;
+        //double cos1 = (-radius*c.x + c.y*sqrt(square(c.x)+square(c.y)+square(radius)) )/ (square(c.x) + square(c.y) );
+        //double cos2 = (-radius*c.x - c.y*sqrt(square(c.x)+square(c.y)+square(radius)) )/ (square(c.x) + square(c.y) );
         
-        // find the tangent points as intersections between circle(diameter) and circle(L/2)
         
         return result;
     }
-
-    
 }
-#endif
+
 
 // t is a position along the fiber
 // p1-p2 is the edge

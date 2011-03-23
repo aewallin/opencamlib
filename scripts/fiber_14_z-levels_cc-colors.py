@@ -54,7 +54,7 @@ if __name__ == "__main__":
     
     a = ocl.Point(0,1,0.3)
     b = ocl.Point(1,0.5,0.3)    
-    c = ocl.Point(0.2,0.2,-0.5)
+    c = ocl.Point(0.2,0.2,0.1)
     
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
