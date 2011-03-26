@@ -44,9 +44,9 @@ def main():
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(4)
     n = 0 # the frame number
-    nmax=3
+    nmax=30
     theta=0
-    dtheta=0.5
+    dtheta=0.05
     s.center =  ocl.Point( 0.5*math.cos(theta),0.3*math.sin(theta),theta)  
     while (n<=nmax):
         print "diff...",

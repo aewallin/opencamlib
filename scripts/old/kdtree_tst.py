@@ -8,30 +8,31 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     myscreen.setAmbient(1,1,1)
     
-    stl = camvtk.STLSurf(filename="demo.stl")
+    #stl = camvtk.STLSurf(filename="demo.stl")
+    stl = camvtk.STLSurf(filename="demo2.stl")
     print "STL surface read"
     myscreen.addActor(stl)
     stl.SetWireframe()
-    stl.SetColor((0.5,0.5,0.5))
+    stl.SetColor((0.5,0.5,0.8))
     #stl.SetFlat()
     polydata = stl.src.GetOutput()
     s= cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STLSurf with ", s.size(), " triangles"
-    cutterDiameter=0.6
-    cutter = cam.CylCutter(cutterDiameter)
+    cutterDiameter=20
+    cutter = cam.CylCutter(cutterDiameter, 5)
     #print cutter.str()
     #print cc.type
-    minx=-1
-    dx=1
-    maxx=11
+    minx=20
+    dx=15
+    maxx=130
     
-    miny=-1
-    dy=0.1
-    maxy=11
-    z=-0.2
+    miny=-70
+    dy=1
+    maxy=50
+    z=-10
     
-    bucketSize = 20
+    bucketSize = 1
     
     #pftp = cam.ParallelFinish()
     #pftp.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
@@ -57,8 +58,8 @@ if __name__ == "__main__":
     nn=0
     ne=0
     nf=0
-    myscreen.camera.SetPosition(3, 23, 15)
-    myscreen.camera.SetFocalPoint(5, 5, 0)
+    myscreen.camera.SetPosition(3, 300, 200)
+    myscreen.camera.SetFocalPoint(75, 0, 0)
     t = camvtk.Text()
     t.SetPos( (myscreen.width-200, myscreen.height-30) )
     
@@ -77,6 +78,14 @@ if __name__ == "__main__":
     
     n=0
     precl = cam.Point()
+    
+    w2if = vtk.vtkWindowToImageFilter()
+    w2if.SetInput(myscreen.renWin)
+    lwr = vtk.vtkPNGWriter()
+    lwr.SetInput( w2if.GetOutput() )
+    w2if.Modified()
+    lwr.SetFileName("tux1.png")
+    
     for cl,cc in zip(clpoints,ccpoints):
         
         camEye = myscreen.camera.GetFocalPoint()
@@ -119,7 +128,7 @@ if __name__ == "__main__":
         trilist=[]
         
         
-        cutactor = camvtk.Cylinder(center=(cl.x,cl.y,cl.z), radius=cutterDiameter/2, height=2, color=(0.7,1,1))
+        cutactor = camvtk.Cylinder(center=(cl.x,cl.y,cl.z), radius=cutterDiameter/2, height=20, color=(0.7,0,1))
         myscreen.addActor( cutactor )
         
         #myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=col) )    
@@ -128,16 +137,21 @@ if __name__ == "__main__":
             precl = cl
         else:
             d = cl-precl
-            if (d.norm() < 9):
+            if (d.norm() < 90):
                 myscreen.addActor( camvtk.Line( p1=(precl.x, precl.y, precl.z), p2=(cl.x, cl.y, cl.z), color=(0,1,1) ) )
             precl = cl
         n=n+1
         #myscreen.addActor( camvtk.Point(center=(cl2.x,cl2.y,cl2.z+0.2) , color=(0.6,0.2,0.9)) )  
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
         #print cc.type
-        myscreen.camera.Azimuth( 0.2 )
+        myscreen.camera.Azimuth( 1 )
         #time.sleep(0.01)
         myscreen.render()
+        w2if.Modified() 
+        lwr.SetFileName("frames/kdbetter"+ ('%05d' % n)+".png")
+        #lwr.Write()
+
+
         #raw_input("Press Enter to continue") 
         myscreen.removeActor(stl2)
         myscreen.removeActor( cutactor )
@@ -147,12 +161,7 @@ if __name__ == "__main__":
 
     
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("tux1.png")
+
     #lwr.Write()
     
 

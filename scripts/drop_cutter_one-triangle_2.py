@@ -74,7 +74,7 @@ if __name__ == "__main__":
      
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
-    
+    myscreen.camera.SetClippingRange(-20,20)
     myscreen.render()
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

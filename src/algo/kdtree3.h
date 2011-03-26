@@ -143,7 +143,7 @@ class KDTree {
             Spread3* spr = calc_spread(tris); // calculate spread in order to know how to cut
             double cutvalue = spr->start + spr->val/2; // cut in the middle
             if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {  // then return a bucket/leaf node
-                std::cout << "KDNode::build_node BUCKET list.size()=" << tris->size() << "\n";
+                //std::cout << "KDNode::build_node BUCKET list.size()=" << tris->size() << "\n";
                 KDNode3<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
                 bucket = new KDNode3<BBObj>(spr->d, cutvalue , par , NULL, NULL, tris, dep);
                 assert( bucket->isLeaf );

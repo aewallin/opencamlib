@@ -25,7 +25,7 @@ def main(filename="frame/f.png"):
         
 
     
-    c = ocl.CylCutter(1) # cutter
+    c = ocl.CylCutter(1,4) # cutter
     c.length = 3
     print "cutter length=", c.length
     
@@ -49,13 +49,13 @@ def main(filename="frame/f.png"):
     print "generated grid with", len(clpoints)," CL-points"
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
-    bdc.setSTL(s,1)
+    bdc.setSTL(s)
     bdc.setCutter(c)
     for p in clpoints:
         bdc.appendPoint(p)
     t_before = time.time()    
-    print "threads=",bdc.nthreads
-    bdc.dropCutter4()
+    print "threads=",bdc.getThreads()
+    bdc.run()
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
