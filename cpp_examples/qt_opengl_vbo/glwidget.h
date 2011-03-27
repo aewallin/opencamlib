@@ -45,6 +45,7 @@ class NeHeWidget : public QGLWidget {
             glTranslatef(1.0f,0.0f,-6.0f);
             glEnableClientState(GL_COLOR_ARRAY);
             glEnableClientState(GL_VERTEX_ARRAY);
+            //glColor3f(0.7f,0.2f,1.0f); // if no GL_COLOR_ARRAY defined, draw with only one color
             
             glVertexPointer(3, GL_FLOAT, sizeof(MyVertex), BUFFER_OFFSET(0));
             glColorPointer(3, GL_FLOAT, sizeof(MyVertex), BUFFER_OFFSET(12)); // color is offset 12-bytes from position
