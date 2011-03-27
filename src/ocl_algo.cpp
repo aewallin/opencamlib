@@ -30,9 +30,13 @@
 #include "adaptivewaterline_py.h"  
 #include "lineclfilter_py.h"    
 #include "numeric.h"
+#ifndef WIN32
 #include "voronoidiagram_py.h"  
+#endif
 #include "zigzag.h"
+#ifndef WIN32
 #include "clsurface.h"
+#endif
 
 /*
  *  Python wrapping of octree and related classes
@@ -193,6 +197,7 @@ void export_algo() {
         .def("run",         &LineCLFilter_py::run)
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
+#ifndef WIN32
     bp::class_<VoronoiDiagram >("VoronoiDiagram_base")
     ;
     bp::class_< VoronoiDiagram_py, bp::bases<VoronoiDiagram> >("VoronoiDiagram")
@@ -235,5 +240,6 @@ void export_algo() {
         .def("getEdges", &clsurf::CutterLocationSurface::getEdges)
         .def("__str__", &clsurf::CutterLocationSurface::str)
     ;
+#endif
 }
 

@@ -32,7 +32,9 @@
 #include "weave.h"
 #include "batchpushcutter.h"
 
+#ifndef WIN32
 #include "weave2.h"
+#endif
 
 namespace ocl
 {
@@ -105,6 +107,7 @@ void Waterline::run() {
 }
 
 void Waterline::run2() {
+#ifndef WIN32
     std::cout << "Weave2..." << std::flush;
     weave2::Weave2 w;
     BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
@@ -128,6 +131,7 @@ void Waterline::run2() {
         }
     }*/
     std::cout << "done.\n" << std::flush;
+#endif
 }
 
 

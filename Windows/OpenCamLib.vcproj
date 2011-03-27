@@ -242,19 +242,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\facegrid.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\algo\fiber.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\algo\fiberpushcutter.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\algo\halfedgediagram.cpp"
 				>
 			</File>
 			<File
@@ -346,10 +338,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\voronoidiagram.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\algo\waterline.cpp"
 				>
 			</File>
@@ -432,7 +420,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\halfedgediagram.h"
+				RelativePath="..\src\algo\halfedgediagram2.h"
 				>
 			</File>
 			<File
@@ -504,11 +492,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\revision.h"
+				RelativePath="..\src\revision.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\revision.h"
+				RelativePath=".\revision.h"
 				>
 			</File>
 			<File
@@ -528,11 +516,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\triangle.h"
+				RelativePath="..\src\geo\triangle.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\geo\triangle.h"
+				RelativePath="..\src\triangle.h"
 				>
 			</File>
 			<File
@@ -544,11 +532,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\algo\voronoidiagram_graph.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\algo\waterline.h"
 				>
 			</File>
 			<File
 				RelativePath="..\src\algo\weave.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\algo\weave2.h"
 				>
 			</File>
 			<File
