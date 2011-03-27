@@ -7,42 +7,13 @@
 
 NeHeWidget::NeHeWidget( QWidget *parent, char *name ) 
   : QGLWidget(parent) {
-    //QGLFormat(QGL::SampleBuffers), parent) {
     m_timer = new QTimer(this);
     m_timer->setInterval(10);
     connect( m_timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
     rtri = 0.0;
     rquad = 0.0;
     m_timer->start();
-    
-     pvertex[0].x = 0.0;
-     pvertex[0].y = 0.0;
-     pvertex[0].z = 0.0;
-     pvertex[0].nx = 0.0;
-     pvertex[0].ny = 0.0;
-     pvertex[0].nz = 1.0;
-     pvertex[0].s0 = 0.0;
-     pvertex[0].t0 = 0.0;
-     //VERTEX 1
-     pvertex[1].x = 1.0;
-     pvertex[1].y = 0.0;
-     pvertex[1].z = 0.0;
-     pvertex[1].nx = 0.0;
-     pvertex[1].ny = 0.0;
-     pvertex[1].nz = 1.0;
-     pvertex[1].s0 = 1.0;
-     pvertex[1].t0 = 0.0;
-     //VERTEX 2
-     pvertex[2].x = 0.0;
-     pvertex[2].y = 1.0;
-     pvertex[2].z = 0.0;
-     pvertex[2].nx = 0.0;
-     pvertex[2].ny = 0.0;
-     pvertex[2].nz = 1.0;
-     pvertex[2].s0 = 0.0;
-     pvertex[2].t0 = 1.0;
 
-                    
 }
 
 
@@ -78,9 +49,6 @@ void NeHeWidget::resizeGL( int width, int height ) {
 
 
 void NeHeWidget::paintGL()  {
-    
-    
-    //std::cout << "paintGL()\n";
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glLoadIdentity();
