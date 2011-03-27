@@ -41,23 +41,37 @@ void LineCLFilter::run() {
     int n = clpoints.size();
     if (n<2)
         return; // can't filter lists of length 0, 1, or 2
+
+	std::list<CLPoint> new_list;
     
     cl_itr p0 = clpoints.begin();
     cl_itr p1 = clpoints.begin();
     p1++;
     cl_itr p2 = p1;
     p2++;
-    for(  ; p2 != clpoints.end(); ) {
-        Point p = p1->closestPoint(*p0, *p2);
-        if ( (p- *p1).norm() < tol )  { // p1 is to be removed
-            p1 = clpoints.erase(p1);
+    cl_itr p_last_good = p1;
+
+	new_list.push_back(*p0);
+
+	bool even_number = true;
+
+	for(  ; p2 != clpoints.end(); ) {
+		Point p = p1->closestPoint(*p0, *p2);
+		if((p - *p1).norm() < tol) {
+			p_last_good = p2;
             p2++;
-        } else {
-            p0++;
-            p1++;
-            p2++;
+			if(even_number)p1++;
+			even_number = !even_number;
+        }else {
+			new_list.push_back(*p_last_good);
+			p0 = p_last_good;
+            p1 = p2;
+			p2++;
         }
     }
+
+	clpoints = new_list;
+
     return;
 }
 
