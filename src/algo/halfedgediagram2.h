@@ -1,6 +1,6 @@
 /*  $Id: $
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -52,18 +52,23 @@ namespace ocl
 //  - edge pointer to HalfEdge
 //    this edge has this Face object as face
 //    half-edge can be any one on the boundary of face
-
-
 // special "infinite face", face on "outside" of boundary
 // may or may not store edge pointer
 
-// fwd decl:    
 
-
-//template <class VertexProps, class EdgeProps, class FaceProps>
-
-
-
+/// HEDIGraph is a A half-edge diagram class.
+/// Templated on Vertex/Edge/Face property classes which allow
+/// attaching information to vertices/edges/faces that is 
+/// required for a particular algorithm.
+/// 
+/// Inherits from boost::adjacency_list
+/// minor additions allow storing face-properties.
+///
+/// the hedi namespace contains functions for manipulating HEDIGraphs
+///
+/// For a general description of the half-edge data structure see e.g.:
+///  - http://www.holmes3d.net/graphics/dcel/
+///  - http://openmesh.org/index.php?id=228
 template <class OutEdgeList, 
           class VertexList,
           class Directed, 
