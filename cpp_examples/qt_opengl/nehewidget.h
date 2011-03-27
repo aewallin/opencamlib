@@ -1,7 +1,11 @@
 #ifndef NEHEWIDGET
 #define NEHEWIDGET
 
-#include <QtOpenGL/qgl.h>
+//#include <QtOpenGL/qgl.h>
+//#include <QtOpenGL/glu.h>
+#include <QGLWidget>
+
+//#include <QGL>
 #include <QTimer>
 #include <QtGui>
 #include <iostream>
