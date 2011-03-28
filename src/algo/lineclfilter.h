@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -26,7 +26,12 @@
 namespace ocl
 {  
 
-/// find colinear points and delete redundant ones
+/// LineCLFilter takes a sequence of cutter-location (CL) points
+/// as input and produces another sequence as output.
+///
+/// The number of CL-points is reduced by finding co-linear points, 
+/// to within a set tolerance, and deleting redundant ones.
+///
 class LineCLFilter : public CLFilter  { 
     public:
         LineCLFilter();

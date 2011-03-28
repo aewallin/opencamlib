@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -42,7 +42,7 @@ void LineCLFilter::run() {
     if (n<2)
         return; // can't filter lists of length 0, 1, or 2
 
-	std::list<CLPoint> new_list;
+    std::list<CLPoint> new_list;
     
     cl_itr p0 = clpoints.begin();
     cl_itr p1 = clpoints.begin();
@@ -51,29 +51,27 @@ void LineCLFilter::run() {
     p2++;
     cl_itr p_last_good = p1;
 
-	new_list.push_back(*p0);
+    new_list.push_back(*p0);
 
-	bool even_number = true;
+    bool even_number = true;
 
-	for(  ; p2 != clpoints.end(); ) {
-		Point p = p1->closestPoint(*p0, *p2);
-		if((p - *p1).norm() < tol) {
-			p_last_good = p2;
+    for(  ; p2 != clpoints.end(); ) {
+        Point p = p1->closestPoint(*p0, *p2);
+        if((p - *p1).norm() < tol) {
+            p_last_good = p2;
             p2++;
-			if(even_number)p1++;
-			even_number = !even_number;
+            if(even_number)p1++;
+            even_number = !even_number;
         }else {
-			new_list.push_back(*p_last_good);
-			p0 = p_last_good;
+            new_list.push_back(*p_last_good);
+            p0 = p_last_good;
             p1 = p2;
-			p_last_good = p1;
-			p2++;
+            p_last_good = p1;
+            p2++;
         }
     }
-	new_list.push_back(clpoints.back());
-
-	clpoints = new_list;
-
+    new_list.push_back(clpoints.back());
+    clpoints = new_list;
     return;
 }
 
