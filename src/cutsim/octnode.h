@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -32,8 +32,9 @@
 namespace ocl
 {
 
-/// octree node.
-/// each node is a cube with side length scale
+/// Octnode represents a node in the octree.
+///
+/// each node in the octree is a cube with side length scale
 /// the distance field at each corner vertex is stored.
 class Octnode {
     public:

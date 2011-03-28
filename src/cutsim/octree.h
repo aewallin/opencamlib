@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -34,7 +34,17 @@ namespace ocl
 class Octnode;
 class OCTVolume;
 
-/// octree class which stores the root-node and allows operations on the tree
+/// Octree class for cutting simulation
+/// see http://en.wikipedia.org/wiki/Octree
+/// The root node is divided into eight sub-octants, and each sub-octant
+/// is recursively further divided into octants.
+/// The side-length of the root node is root_scale
+/// The dept of the root node is zero.
+/// Subdivision is continued unti max_depth is reached.
+/// A node at tree-dept n is a cube with side-length root_scale/pow(2,n)
+///
+/// This class stores the root Octnode and allows operations on the tree
+///
 class Octree {
     public:
         Octree() { assert(0); };
