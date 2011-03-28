@@ -4,7 +4,7 @@
 int main( int argc, char **argv )
 {
   QApplication a( argc, argv );
-  NeHeWidget *w = new NeHeWidget();
+  GLWidget *w = new GLWidget();
   w->show();
   return a.exec();
 }

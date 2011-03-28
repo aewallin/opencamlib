@@ -1,23 +1,21 @@
-
-
 #include <iostream>
 #include <QObject>
 #include <GL/glut.h>
 #include "glwidget.h"
 
-NeHeWidget::NeHeWidget( QWidget *parent, char *name ) 
+GLWidget::GLWidget( QWidget *parent, char *name ) 
   : QGLWidget(parent) {
-    m_timer = new QTimer(this);
-    m_timer->setInterval(10);
-    connect( m_timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
-    rtri = 0.0;
-    rquad = 0.0;
-    m_timer->start();
+    //m_timer = new QTimer(this);
+    //m_timer->setInterval(10);
+    //connect( m_timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
+    //rtri = 0.0;
+    //rquad = 0.0;
+    //m_timer->start();
 
 }
 
 
-void NeHeWidget::initializeGL() {
+void GLWidget::initializeGL() {
     std::cout << "initializeGL()\n";
     glShadeModel(GL_SMOOTH);
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -31,7 +29,7 @@ void NeHeWidget::initializeGL() {
 }
 
 
-void NeHeWidget::resizeGL( int width, int height ) {
+void GLWidget::resizeGL( int width, int height ) {
     std::cout << "resizeGL(" << width << " , " << height << " )\n";
     if (height == 0)    {
        height = 1;
@@ -48,34 +46,32 @@ void NeHeWidget::resizeGL( int width, int height ) {
 
 
 
-void NeHeWidget::paintGL()  {
+void GLWidget::paintGL()  {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushMatrix();
     
     glLoadIdentity();
-    glTranslatef(-1.5f,0.0f,-6.0f);
-    glRotatef(rtri,0.0f,1.0f,0.0f);
-    glColor3f(1.0f,0.0f,0.0f);
-    glBegin(GL_TRIANGLES);
-        glColor3f(1.0f,0.0f,0.0f);
-        glVertex3f( 0.0f, 1.0f, 0.0f);
-        glColor3f(0.0f,1.0f,0.0f);
-        glVertex3f(-1.0f,-1.0f, 0.0f);
-        glColor3f(0.0f,0.0f,1.0f);
-        glVertex3f( 1.0f,-1.0f, 0.0f);
-    glEnd();
+    glTranslatef(1.0f,0.0f,-6.0f);
+    //std::cout << " before bind: g.indexCount() = " << g.indexCount() << "\n";
+    if ( !g.bind() )
+        assert(0);
+    //std::cout << " after g.indexCount() = " << g.indexCount() << "\n";
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    //glColor3f(0.7f,0.2f,1.0f); // if no GL_COLOR_ARRAY defined, draw with only one color
     
-    glLoadIdentity();
-    glTranslatef(1.5f,0.0f,-6.0f);
-    glRotatef(rquad,1.0f,0.0f,0.0f);
-    glColor3f(0.5f,0.5f,1.0f);
-    glBegin(GL_QUADS);
-        glVertex3f(-1.0f, 1.0f, 0.0f);
-        glVertex3f( 1.0f, 1.0f, 0.0f);
-        glVertex3f( 1.0f,-1.0f, 0.0f);
-        glVertex3f(-1.0f,-1.0f, 0.0f);
-    glEnd();
+    // coords/vert, type, stride, pointer/offset
+    glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset));
+    glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); // color is offset 12-bytes from position
     
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //              mode       idx-count     type         indices*/offset
+    glDrawElements( g.type , g.indexCount() , GLData::index_type, 0);
+     
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    
+    g.release();
+    
+    glPopMatrix();
 
-    paintVBO();
 }
