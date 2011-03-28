@@ -66,9 +66,11 @@ void LineCLFilter::run() {
 			new_list.push_back(*p_last_good);
 			p0 = p_last_good;
             p1 = p2;
+			p_last_good = p1;
 			p2++;
         }
     }
+	new_list.push_back(clpoints.back());
 
 	clpoints = new_list;
 
