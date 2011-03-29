@@ -60,15 +60,10 @@ class Octree {
         void get_leaf_nodes( std::vector<Octnode*>& nodelist) const {
             get_leaf_nodes( root,  nodelist);
         }
-        
         /// find the leaf-nodes under Octnode* current
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         /// return all nodes in tree
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
-        /// run marching-cubes on the tree
-        //std::vector<Triangle> mc();
-        /// generate the side-triangles
-        //std::vector<Triangle> side_triangles();
         
         /// initialize by recursively calling subdivide() on all nodes n times
         void init(const unsigned int n);

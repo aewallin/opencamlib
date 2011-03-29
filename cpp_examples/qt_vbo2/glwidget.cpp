@@ -2,15 +2,17 @@
 #include <QObject>
 #include <GL/glut.h>
 #include "glwidget.h"
+#include <QTimer>
 
 GLWidget::GLWidget( QWidget *parent, char *name ) 
   : QGLWidget(parent) {
-    //m_timer = new QTimer(this);
-    //m_timer->setInterval(10);
-    //connect( m_timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
+    timer = new QTimer(this);
+    timer->setInterval(10);
+    connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
     //rtri = 0.0;
     //rquad = 0.0;
-    //m_timer->start();
+    timer->start();
+    z = -6;
 
 }
 
@@ -50,28 +52,30 @@ void GLWidget::paintGL()  {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
     
-    glLoadIdentity();
-    glTranslatef(1.0f,0.0f,-6.0f);
-    //std::cout << " before bind: g.indexCount() = " << g.indexCount() << "\n";
-    if ( !g.bind() )
-        assert(0);
-    //std::cout << " after g.indexCount() = " << g.indexCount() << "\n";
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    //glColor3f(0.7f,0.2f,1.0f); // if no GL_COLOR_ARRAY defined, draw with only one color
-    
-    // coords/vert, type, stride, pointer/offset
-    glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset));
-    glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); // color is offset 12-bytes from position
-    
-    //              mode       idx-count     type         indices*/offset
-    glDrawElements( g.type , g.indexCount() , GLData::index_type, 0);
-     
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
-    g.release();
-    
+    //glLoadIdentity();
+    BOOST_FOREACH( GLData* g, glObjects ) {
+        glLoadIdentity();
+        glTranslatef(1.0f,0.0f,z ); //-6.0f);
+        //std::cout << " before bind: g.indexCount() = " << g.indexCount() << "\n";
+        if ( !g->bind() )
+            assert(0);
+        //std::cout << " after g.indexCount() = " << g.indexCount() << "\n";
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        //glColor3f(0.7f,0.2f,1.0f); // if no GL_COLOR_ARRAY defined, draw with only one color
+        
+        // coords/vert, type, stride, pointer/offset
+        glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset));
+        glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); // color is offset 12-bytes from position
+        
+        //              mode       idx-count     type         indices*/offset
+        glDrawElements( g->type , g->indexCount() , GLData::index_type, 0);
+         
+        glDisableClientState(GL_VERTEX_ARRAY);
+        glDisableClientState(GL_COLOR_ARRAY);
+        
+        g->release();
+    }
     glPopMatrix();
 
 }

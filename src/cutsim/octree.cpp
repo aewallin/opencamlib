@@ -99,39 +99,6 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
-/*
-// run marching cubes on the whole octree, returning the surface triangles
-std::vector<Triangle> Octree::mc() {
-    std::vector<Octnode*> leaf_nodes;
-    get_leaf_nodes(this->root, leaf_nodes);
-    //std::cout << " mc() got " << leaf_nodes.size() << " leaf nodes\n";
-    std::vector<Triangle> mc_triangles;
-    BOOST_FOREACH(Octnode* n, leaf_nodes) {
-        std::vector<Triangle> tris = n->mc_triangles();
-        BOOST_FOREACH( Triangle t, tris) {
-            mc_triangles.push_back(t);
-        }
-    }
-    return mc_triangles;
-}*/
-
-
-// generate side_triangles
-/*
-std::vector<Triangle> Octree::side_triangles() {
-    std::vector<Octnode*> leaf_nodes;
-    get_leaf_nodes(this->root, leaf_nodes);
-    //std::cout << " Octree::side_triangles() got " << leaf_nodes.size() << " leaf nodes\n";
-    std::vector<Triangle> s_triangles;
-    BOOST_FOREACH(Octnode* n, leaf_nodes) {
-        std::vector<Triangle> tris = n->side_triangles();
-        BOOST_FOREACH( Triangle t, tris) {
-            s_triangles.push_back(t);
-        }
-    }
-    return s_triangles;
-}*/
-
 // subtract vol from the root
 void Octree::diff_negative_root(const OCTVolume* vol) {
     diff_negative( this->root, vol);
