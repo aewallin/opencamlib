@@ -9,6 +9,7 @@ int main( int argc, char **argv )
     GLData* g = w->addObject();
     std::cout << " genVBO()\n";
     g->setTriangles(); 
+    g->setPosition(1,0,-6);
     g->setUsage( QGLBuffer::StaticDraw );
     g->addVertex(GLVertex(-1.0f,-1.0f, 0.0f,  1.0f,0.0f,0.0f));
     g->addVertex(GLVertex( 1.0f,-1.0f, 0.0f,  0.0f,1.0f,0.0f));
@@ -36,6 +37,7 @@ int main( int argc, char **argv )
     // now try a quad.
     GLData* q = w->addObject();
     q->setQuads();
+    q->setPosition(2,0,-6);
     q->setUsage( QGLBuffer::StaticDraw );
     q->addVertex(-3.0f,0.0f,0.0f,0.0f,0.0f,1.0f);
     q->addVertex(-3.0f,1.0f,0.0f,0.0f,0.0f,1.0f);

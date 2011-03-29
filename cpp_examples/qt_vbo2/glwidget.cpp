@@ -1,18 +1,19 @@
 #include <iostream>
-#include <QObject>
+
 #include <GL/glut.h>
-#include "glwidget.h"
+
+#include <QObject>
 #include <QTimer>
+
+#include "glwidget.h"
 
 GLWidget::GLWidget( QWidget *parent, char *name ) 
   : QGLWidget(parent) {
     timer = new QTimer(this);
     timer->setInterval(10);
     connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
-    //rtri = 0.0;
-    //rquad = 0.0;
+
     timer->start();
-    z = -6;
 
 }
 
@@ -39,8 +40,11 @@ void GLWidget::resizeGL( int width, int height ) {
     glViewport(0, 0, width, height); // Reset The Current Viewport
     glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
     glLoadIdentity(); // Reset The Projection Matrix
+    
     // Calculate The Aspect Ratio Of The Window
+    // void gluPerspective( fovy, aspect, zNear, zFar);
     gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+    
     glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
     glLoadIdentity(); // Reset The Modelview Matrix
     return;
@@ -52,14 +56,13 @@ void GLWidget::paintGL()  {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
     
-    //glLoadIdentity();
-    BOOST_FOREACH( GLData* g, glObjects ) {
+    BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
         glLoadIdentity();
-        glTranslatef(1.0f,0.0f,z ); //-6.0f);
-        //std::cout << " before bind: g.indexCount() = " << g.indexCount() << "\n";
+        glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
+        
         if ( !g->bind() )
             assert(0);
-        //std::cout << " after g.indexCount() = " << g.indexCount() << "\n";
+        
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);
         //glColor3f(0.7f,0.2f,1.0f); // if no GL_COLOR_ARRAY defined, draw with only one color

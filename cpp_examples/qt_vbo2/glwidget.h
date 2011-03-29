@@ -43,7 +43,6 @@ class GLWidget : public QGLWidget {
             return;
         }
         void timeOut() {
-            z=z-0.1;
             updateGL();
         }
         
@@ -61,7 +60,6 @@ class GLWidget : public QGLWidget {
   
     private:
         std::vector<GLData*> glObjects;
-        GLfloat z;
         QTimer* timer;
 };
 #endif

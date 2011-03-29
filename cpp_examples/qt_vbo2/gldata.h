@@ -8,6 +8,8 @@
 
 struct GLVertex {
     GLVertex() : x(0), y(0), z(0), r(0), g(0), b(0) {}
+    GLVertex(GLfloat x, GLfloat y, GLfloat z) 
+         : x(x), y(y), z(z), r(0), g(0), b(0) {}
     GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) 
          : x(x), y(y), z(z), r(r), g(g), b(b) {}
 
@@ -52,7 +54,7 @@ struct VertexData {
 //
 // - add vertex  DONE
 //   add vertex with empty polygon list and pointer to octree-node
-// 
+//
 // - remove vertex (also removes associated polygons)
 //   process list of polygons, from highest to lowest. call remove_polygon on each poly.
 //   overwrite with last vertex. shorten list. request each poly to re-number
@@ -123,6 +125,9 @@ public:
         vertexBuffer->release();
         indexBuffer->release();
     }
+    void setPosition(float x, float y, float z) {
+        pos = GLVertex(x,y,z);
+    }
     void print() ;
 //DATA
     // the type of this GLData, one of:
@@ -159,6 +164,9 @@ public:
     QGLBuffer* indexBuffer;
     /// number of vertices per polygon. 3 for GL_TRIANGLES, 4 for GL_QUADS
     int polyVerts; 
+    /// translation to be applied before drawing
+    GLVertex pos;
+    
 protected:
     void setType(GLenum t) {
         type = t;
