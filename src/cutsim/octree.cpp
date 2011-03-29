@@ -47,16 +47,20 @@ Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
     for (int m=0;m<6;++m) // the root node has all cube-surfaces
         root->surface[m]=true;
 }
+
 Octree::~Octree() {
     delete root;
     root = 0;
 }
+
 unsigned int Octree::get_max_depth() const {
     return max_depth;
 }
+
 double Octree::get_root_scale() const {
     return root_scale;
 }
+
 double Octree::leaf_scale() const {
     return (2.0*root_scale) / pow(2.0, (int)max_depth );
 }
@@ -95,6 +99,7 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
     }
 }
 
+/*
 // run marching cubes on the whole octree, returning the surface triangles
 std::vector<Triangle> Octree::mc() {
     std::vector<Octnode*> leaf_nodes;
@@ -108,9 +113,11 @@ std::vector<Triangle> Octree::mc() {
         }
     }
     return mc_triangles;
-}
+}*/
+
 
 // generate side_triangles
+/*
 std::vector<Triangle> Octree::side_triangles() {
     std::vector<Octnode*> leaf_nodes;
     get_leaf_nodes(this->root, leaf_nodes);
@@ -123,7 +130,7 @@ std::vector<Triangle> Octree::side_triangles() {
         }
     }
     return s_triangles;
-}
+}*/
 
 // subtract vol from the root
 void Octree::diff_negative_root(const OCTVolume* vol) {

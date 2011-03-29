@@ -31,7 +31,7 @@
 #include "numeric.h"
 #include "octnode.h"
 #include "volume.h"
-#include "mc_tables.h"
+//#include "mc_tables.h"
 
 namespace ocl
 {
@@ -205,14 +205,16 @@ void Octnode::evaluate(const OCTVolume* vol) {
     evaluated = true;
 }
 
+/*
 // interpolate f-value between vertices idx1 and idx2
 Point Octnode::interpolate(int idx1, int idx2) {
     // p = p1 - v1 (p2-p1)/(v2-v1)
     assert( !isZero_tol( f[idx2]-f[idx1]  ) );
     return *vertex[idx1] - f[idx1]*( *vertex[idx2]-(*vertex[idx1]) ) * 
                                     (1.0/(f[idx2]-f[idx1]));
-}
+}*/
 
+/*
 // use marching-cubes and return a list of triangles for this node
 std::vector<Triangle> Octnode::mc_triangles() {
     assert( this->childcount == 0 ); // don't call this on non-leafs!
@@ -300,11 +302,13 @@ std::vector<Triangle> Octnode::mc_triangles() {
     this->mc_tris = tris;
     this->mc_tris_valid = true;
     return tris;
-}
+}*/
 
 // marching-cubes doesn't produce triangles between an original unmodified octree
 // and a cut region. these extra triangles should cover the cracks that result.
 // TODO: only seems to work for the top-surface of the XY-plane right now.
+
+/*
 std::vector<Triangle> Octnode::crack_triangles(std::vector<Point>& vertices) {
     assert( childcount == 0); // don't call this on non-leafs!
     std::vector<Triangle> tris;
@@ -396,9 +400,10 @@ std::vector<Triangle> Octnode::crack_triangles(std::vector<Point>& vertices) {
     }
     
     return tris;
-}
+}*/
 
 // these are the side-triangles of an un-cut octree (e.g. initial stock shape)
+/*
 std::vector<Triangle> Octnode::side_triangles() {
     assert( this->childcount == 0 ); // this is a leaf-node
     std::vector<Triangle> tris;
@@ -434,7 +439,7 @@ std::vector<Triangle> Octnode::side_triangles() {
         }
     }
     return tris;
-}
+}*/
 
 // return centerpoint of child with index n
 Point* Octnode::childcenter(int n) {

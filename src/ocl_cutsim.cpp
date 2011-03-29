@@ -25,6 +25,8 @@
 #include "octnode_py.h"     // new-style wrapper
 #include "octree_py.h"      // new-style wrapper
 
+#include "marching_cubes.h"
+
 /*
  *  Python wrapping of octree and related classes
  */
@@ -34,6 +36,10 @@ using namespace ocl;
 namespace bp = boost::python;
 
 void export_cutsim() {
+    bp::class_<MarchingCubes>("MarchingCubes") 
+        .def("mc_tree", &MarchingCubes::py_mc_tree)
+    ;
+    
     bp::class_<Octree>("Octree_base")
     ;
     bp::class_<Octree_py, bp::bases<Octree> >("Octree")
@@ -42,11 +48,11 @@ void export_cutsim() {
         .def("root_scale", &Octree_py::get_root_scale)
         .def("leaf_scale", &Octree_py::leaf_scale)
         .def("get_leaf_nodes",       &Octree_py::py_get_leaf_nodes)
-        .def("mc_triangles",       &Octree_py::py_mc_triangles)
-        .def("side_triangles",       &Octree_py::py_s_triangles)
+        //.def("mc_triangles",       &Octree_py::py_mc_triangles)
+        //.def("side_triangles",       &Octree_py::py_s_triangles)
         .def("diff_negative", &Octree_py::diff_negative_root)
         .def("init",       &Octree_py::init)
-        .def("mc",       &Octree_py::mc)
+        //.def("mc",       &Octree_py::mc)
         .def("__str__",            &Octree_py::str)
     ;
     bp::class_<Octnode>("Octnode_base")

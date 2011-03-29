@@ -34,7 +34,18 @@ class Point;
 class Triangle;
 class MillingCutter;
 
-/// base-class for defining volumes to build octrees
+/// base-class for defining implicit volumes from which to build octrees
+/// an implicit volume is defined as a function dist(Point p)
+/// which returns a negative value inside the volume and a positive volume outside
+///
+/// iso-surface extraction using standard marching-cubes requires just the distance
+/// field to be stored at each corner vertex of an octree leaf-node.
+///
+/// advanced iso-surface extraction using extended-marching-cubes/dual-contouring may require
+/// more information such as normals of the distance field or exact
+/// intersection points and normals.
+/// in multi-material simulation a material-index can be stored.
+/// each cutter may cut the material with a color of its own.
 class OCTVolume {
     public:
         /// default constructor
@@ -44,10 +55,14 @@ class OCTVolume {
         /// return signed distance from volume surface to Point p
         virtual double dist(Point& p) const = 0;
         /// return true if Point p is in the bounding box
-        bool isInsideBB(Point& p) const;
+        bool isInsideBB(Point& p) const {
+            return bb.isInside(p);
+        }
         /// bounding-box
         Bbox bb;
 };
+
+// sub-classes of OCTVolume below:
 
 /// sphere centered at center
 class SphereOCTVolume: public OCTVolume {

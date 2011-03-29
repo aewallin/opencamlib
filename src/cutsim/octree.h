@@ -47,21 +47,28 @@ class OCTVolume;
 ///
 class Octree {
     public:
-        Octree() { assert(0); };
+        Octree() { 
+            assert(0); 
+        }
         virtual ~Octree();
         /// create an octree with a root node with scale=root_scale, maximum
         /// tree-depth of max_depth and centered at centerp.
         Octree(double root_scale, unsigned int max_depth, Point& centerPoint);
         /// subtract vol from tree
         void diff_negative_root(const OCTVolume* vol);
-        /// return the leaf-nodes
+        /// find all leaf-nodes
+        void get_leaf_nodes( std::vector<Octnode*>& nodelist) const {
+            get_leaf_nodes( root,  nodelist);
+        }
+        
+        /// find the leaf-nodes under Octnode* current
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         /// return all nodes in tree
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         /// run marching-cubes on the tree
-        std::vector<Triangle> mc();
+        //std::vector<Triangle> mc();
         /// generate the side-triangles
-        std::vector<Triangle> side_triangles();
+        //std::vector<Triangle> side_triangles();
         
         /// initialize by recursively calling subdivide() on all nodes n times
         void init(const unsigned int n);

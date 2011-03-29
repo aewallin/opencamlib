@@ -49,6 +49,7 @@ class Octree_py : public Octree {
             return pynodelist;
         };
         /// return python-list of marching-cubes triangles
+        /*
         boost::python::list py_mc_triangles() {
             std::vector<Triangle> mc_triangles = mc();
             boost::python::list tlist;
@@ -58,7 +59,10 @@ class Octree_py : public Octree {
             }
             return tlist;
         };
+        */
+        
         /// return python-list of side-trianges
+        /*
         boost::python::list py_s_triangles() {
             std::vector<Triangle> s_triangles = side_triangles();
             boost::python::list tlist;
@@ -68,6 +72,7 @@ class Octree_py : public Octree {
             }
             return tlist;
         };
+        */
 };
 
 } // end namespace

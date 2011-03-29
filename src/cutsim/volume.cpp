@@ -34,12 +34,6 @@
 namespace ocl
 {
 
-//************* OCTVolume base-class **************/
-
-/// return true if point p is inside the Bbox bb
-bool OCTVolume::isInsideBB(Point& p) const{
-    return bb.isInside(p);
-}
 
 
 //************* Sphere **************/
