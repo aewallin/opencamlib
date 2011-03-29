@@ -30,10 +30,10 @@ def main():
     lwr.SetInput( w2if.GetOutput() )
     
     # text
-    #camvtk.drawOCLtext(myscreen)
-    #octtext = camvtk.Text()
-    #octtext.SetPos( (myscreen.width-400, myscreen.height-290) )
-    #myscreen.addActor( octtext)
+    camvtk.drawOCLtext(myscreen)
+    octtext = camvtk.Text()
+    octtext.SetPos( (myscreen.width-400, myscreen.height-290) )
+    myscreen.addActor( octtext)
 
     
     
@@ -47,7 +47,9 @@ def main():
     nmax=30
     theta=0
     dtheta=0.05
-    s.center =  ocl.Point( 0.5*math.cos(theta),0.3*math.sin(theta),theta)  
+    s.center =  ocl.Point( 1.5*math.cos(theta),0.3*math.sin(theta),theta)  
+    mc = ocl.MarchingCubes()
+    tris=[]
     while (n<=nmax):
         print "diff...",
         t_before = time.time() 
@@ -55,14 +57,14 @@ def main():
         t_after = time.time() 
         build_time = t_after-t_before
         print "done in ", build_time," s"
-        #infotext= "Octree + Marching-Cubes test\nmax octree-depth:%i \ntriangles: %i \nbuild() time: %f ms" % (max_depth, 
-        #                                                  len(tris), build_time*1e3 )
-        #octtext.SetText(infotext)
+        infotext= "Octree + Marching-Cubes test\nmax octree-depth:%i \ntriangles: %i \nbuild() time: %f ms" % (max_depth, 
+                                                len(tris), build_time*1e3 )
+        octtext.SetText(infotext)
         
         if n==nmax:
             t_before = time.time() 
             print "mc()...",
-            tris = t.mc_triangles()
+            tris = mc.mc_tree(t) #.mc_triangles()
             t_after = time.time() 
             mc_time = t_after-t_before
             print "done in ", mc_time," s"

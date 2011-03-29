@@ -66,25 +66,27 @@ def main():
     
     #t.diff_negative(s)
     
+    mc = ocl.MarchingCubes()
+    
     print "mc()...",
-    tris = t.mc_triangles()
+    tris = mc.mc_tree(t) # t.mc_triangles()
     print " mc() got ", len(tris), " triangles"
-    tris2 = t.side_triangles()
-    print "appending"
+    #tris2 = t.side_triangles()
+    #print "appending"
     #for tr in tris2:
     #    tris.append(tr)
-    print " side_triangles() got ", len(tris2), " triangles"
+    #print " side_triangles() got ", len(tris2), " triangles"
     mc_surf = camvtk.STLSurf( triangleList=tris )
     mc_surf.SetColor(camvtk.cyan)
-    s_surf = camvtk.STLSurf( triangleList=tris2 )
-    s_surf.SetColor(camvtk.yellow)
+    #s_surf = camvtk.STLSurf( triangleList=tris2 )
+    #s_surf.SetColor(camvtk.yellow)
     
     #mc_surf.SetWireframe()
     #mc_surf.SetOpacity(0.3)
     
     print " STLSurf()...",
     myscreen.addActor( mc_surf )
-    myscreen.addActor( s_surf )
+    #myscreen.addActor( s_surf )
     print "done."
     myscreen.render()
     
@@ -93,7 +95,7 @@ def main():
     #myscreen.iren.Start() 
     #exit()
     myscreen.removeActor( mc_surf )
-    myscreen.removeActor( s_surf )
+    #myscreen.removeActor( s_surf )
     #renderinterleave=900
     #step_time = 0
     Nmax=10
@@ -112,7 +114,7 @@ def main():
         #step_time=step_time+build_time
         if n<Nmax:
             myscreen.removeActor( mc_surf )
-            myscreen.removeActor( s_surf )
+            #myscreen.removeActor( s_surf )
             #for c in cactors:
             #    myscreen.removeActor( c )
         
@@ -127,8 +129,8 @@ def main():
         #cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
         #t_before = time.time() 
         #print "mc()...",
-        tris = t.mc_triangles()
-        tris2 = t.side_triangles()
+        tris = mc.mc_tree(t) #t.mc_triangles()
+        #tris2 = t.side_triangles()
         #print "appending"
         #for tr in tris2:
         #    tris.append(tr)
@@ -140,10 +142,10 @@ def main():
         mc_surf.SetWireframe()
         mc_surf.SetColor(camvtk.cyan)
         myscreen.addActor( mc_surf )
-        s_surf = camvtk.STLSurf( triangleList=tris2 )
-        s_surf.SetWireframe()
-        s_surf.SetColor(camvtk.yellow)
-        myscreen.addActor( s_surf )
+        #s_surf = camvtk.STLSurf( triangleList=tris2 )
+        #s_surf.SetWireframe()
+        #s_surf.SetColor(camvtk.yellow)
+        #myscreen.addActor( s_surf )
         
         #print "done."
         #print " render()...",
@@ -155,7 +157,8 @@ def main():
         
         #print "done."   
         #time.sleep(0.4)
-        print n, " mc_tris=",len(tris)," side_tris=",len(tris2)
+        print n, " mc_tris=",len(tris)
+        #," side_tris=",len(tris2)
         n=n+1
         #myscreen.camera.SetPosition(3*math.cos( 7*float(n)/(float(Nmax)) ), 3*math.sin( 7*float(n)/(float(Nmax)) ), 5)
         #myscreen.camera.Azimuth( math.sin( 5*float(n)/(float(Nmax)) ) )
