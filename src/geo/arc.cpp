@@ -44,13 +44,9 @@ void Arc::setProperties() {
     // arc properties
     Point vs = (p1 - c).xyPerp();
     Point ve = (p2 - c).xyPerp();
-
-    if(!dir) {
-        vs *= -1.0;    // reverse directions for CW arc
-        ve *= -1.0;
-    }
-
     radius = vs.xyNorm();
+    vs.normalize();
+    ve.normalize();
     length = fabs(xyIncludedAngle(vs, ve, dir)) * radius;
 }
 
@@ -70,29 +66,29 @@ Point Arc::getPoint(double t)const {
         double d = t * length;
         if(!dir)d = -d;
         Point v = p1 - c;
-        v.xyRotate(d * dir / radius);
+        v.xyRotate(d / radius);
         return v + c;
 }
 
 double Arc::xyIncludedAngle(const Point& v1, const Point& v2, bool dir) {
-        // returns the absolute included angle between 2 vectors in 
+    // returns the absolute included angle between 2 vectors in 
     // the direction of dir ( true=acw  false=cw )
-        int d = dir ? 1 : (-1);
-        double inc_ang = v1.dot(v2);
-        if(inc_ang > 1. - 1.0e-10) 
+    int d = dir ? 1 : (-1);
+    double inc_ang = v1.dot(v2);
+    if(inc_ang > 1. - 1.0e-10) 
         return 0;
-        if(inc_ang < -1. + 1.0e-10)
+    if(inc_ang < -1. + 1.0e-10)
         inc_ang = PI;
-        else {  // dot product,   v1 . v2  =  cos(alfa)
-                if(inc_ang > 1.0) 
+    else {  // dot product,   v1 . v2  =  cos(alfa)
+        if(inc_ang > 1.0) 
             inc_ang = 1.0;
-                inc_ang = acos(inc_ang); // 0 to pi radians
+        inc_ang = acos(inc_ang); // 0 to pi radians
 
-                double x = v1.x * v2.x + v1.y * v2.y; 
-                if(d * x < 0) 
+        double x = v1.x * v2.y - v1.y * v2.x; 
+        if(d * x < 0) 
             inc_ang = 2 * PI - inc_ang ; // cp
-        }
-        return d * inc_ang;
+    }
+    return d * inc_ang;
 }
 
 } // end namespace
