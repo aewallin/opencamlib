@@ -24,18 +24,19 @@
 #include <iostream>
 #include <list>
 
-#include <boost/python.hpp>
+//#include <boost/python.hpp>
+#include <boost/foreach.hpp>
 
 #include "point.h"
 #include "triangle.h"
 #include "bbox.h"
-
+#include "octnode.h"
 #include "numeric.h"
 
 namespace ocl
 {
 
-class Octnode;
+//class Octnode;
 
 /// Marching-cubes isosurface extraction from distance field stored in Octree
 /// see http://en.wikipedia.org/wiki/Marching_cubes
@@ -47,6 +48,7 @@ class MarchingCubes {
         virtual ~MarchingCubes() {
         }
         
+        /*
         boost::python::list py_mc_tree(Octree* tree) {
             mc_tree(tree);
             //std::vector<Octnode*> nodelist;
@@ -58,9 +60,11 @@ class MarchingCubes {
             }
             return pylist;
         };
+        */
+        
         
         // starting at root, find all leafs and run mc.
-        void mc_tree(Octree* tree) {
+        std::vector<Triangle> mc_tree(Octree* tree) {
             std::vector<Octnode*> leaf_nodes;
             tree->get_leaf_nodes( leaf_nodes );
             std::cout << " mc() got " << leaf_nodes.size() << " leaf nodes\n";
@@ -71,6 +75,7 @@ class MarchingCubes {
                     triangles.push_back(t);
                 }
             }
+            return triangles;
         }
         
 

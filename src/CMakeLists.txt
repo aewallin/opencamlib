@@ -176,10 +176,11 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.h
     
-    ${OpenCamLib_SOURCE_DIR}/cutsim/mc_tables.h
+    #${OpenCamLib_SOURCE_DIR}/cutsim/mc_tables.h
     ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.h
     ${OpenCamLib_SOURCE_DIR}/cutsim/octree.h
     ${OpenCamLib_SOURCE_DIR}/cutsim/volume.h
+    ${OpenCamLib_SOURCE_DIR}/cutsim/marching_cubes.h
     
     ${OpenCamLib_SOURCE_DIR}/algo/operation.h
     ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.h

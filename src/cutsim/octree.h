@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <list>
+#include <cassert>
 
 #include "point.h"
 #include "triangle.h"
@@ -62,6 +63,11 @@ class Octree {
         }
         /// find the leaf-nodes under Octnode* current
         void get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
+        
+        /// find the leaf-nodes under Octnode* current that are invalid.
+        void get_invalid_leaf_nodes(std::vector<Octnode*>& nodelist) const;
+        void get_invalid_leaf_nodes( Octnode* current, std::vector<Octnode*>& nodelist) const;
+        
         /// return all nodes in tree
         void get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const;
         

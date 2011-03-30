@@ -47,7 +47,18 @@ class Octnode {
         void subdivide(); // create children
         /// evaluate the vol.dist() function for this node
         void evaluate(const OCTVolume* vol);
-
+        
+        void setIsoSurfaceInvalid() {
+            isosurface_valid = false;
+            if ( parent )
+                parent->setIsoSurfaceInvalid();
+        }
+        bool invalid() const {
+            return !isosurface_valid;
+        }
+        bool surface() const {
+            return ( !inside && !outside );
+        }
     // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;
@@ -64,7 +75,7 @@ class Octnode {
         /// flag for inside node
         bool inside;
         /// bool-array to indicate surface status of the faces
-        std::vector<bool> surface; // flag for surface triangles FIXME!
+        //std::vector<bool> surface; // flag for surface triangles FIXME!
         /// the center point of this node
         Point* center; // the centerpoint of this node
         /// the tree-dept of this node
@@ -77,27 +88,23 @@ class Octnode {
         bool evaluated;
         /// bounding-box corresponding to this node
         Bbox bb;
-        /// vector for storing marching-cubes triangles
-        std::vector<Triangle> mc_tris;
-        /// flag for telling if mc-triangles have been calculated and are valid
-        bool mc_tris_valid;
-        
+    
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
 
-    protected:
-        /// print out surfaces
-        void print_surfaces();
-        /// inherit the surface-property from a parent 
-        void set_surfaces();
-        
+    protected:        
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
         /// return center of child with index n
         Point* childcenter(int n); // return position of child centerpoint
-        
+// DATA
+        /// flag for telling isosurface extraction is valid for this node
+        /// if false, the node needs updating.
+        bool isosurface_valid;
+        // the vertex indices for the triangles that this node produces
+        std::vector<unsigned int> vertexIndex;
     // STATIC
         /// the direction to the vertices, from the center 
         static Point direction[8];

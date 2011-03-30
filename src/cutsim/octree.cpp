@@ -18,7 +18,6 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include <list>
 // uncomment to disable assert() calls
 // #define NDEBUG
@@ -41,14 +40,15 @@ Octree::Octree(double scale, unsigned int  depth, Point& centerp) {
     root_scale = scale;
     max_depth = depth;
                     // parent, idx, scale, depth
-    root = new Octnode( 0, 0, root_scale, 0 );
-    root->center = &centerp;
-    
-    for (int m=0;m<6;++m) // the root node has all cube-surfaces
-        root->surface[m]=true;
+    root = new Octnode( NULL , 0, root_scale, 0 );
+    root->center = new Point(centerp);
+    for ( int n=0;n<8;++n) {
+        root->child[n] = NULL;
+    }
 }
 
 Octree::~Octree() {
+    //std::cout << " ~Octree() \n";
     delete root;
     root = 0;
 }
@@ -75,6 +75,27 @@ void Octree::init(const unsigned int n) {
         }
     }
 }
+
+void Octree::get_invalid_leaf_nodes( std::vector<Octnode*>& nodelist) const {
+    get_invalid_leaf_nodes( root, nodelist );
+}
+
+void Octree::get_invalid_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const {
+    if ( current->childcount == 0 ) {
+        if ( current->invalid() ) {
+            nodelist.push_back( current );
+        }
+    } else {
+        for ( int n=0;n<8;++n) {
+            if ( current->child[n] != NULL ) {
+                if ( current->invalid() ) {
+                    get_leaf_nodes( current->child[n], nodelist );
+                }
+            }
+        }
+    }
+}   
+
 
 /// put leaf nodes into nodelist
 void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const {
@@ -152,17 +173,23 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
 // string repr
 std::string Octree::str() const {
     std::ostringstream o;
-    o << " Octree:\n";
+    o << " Octree: ";
     std::vector<Octnode*> nodelist;
-    Octree::get_leaf_nodes(root, nodelist);
+    Octree::get_all_nodes(root, nodelist);
     std::vector<int> nodelevel(this->max_depth);
+    std::vector<int> invalidsAtLevel(this->max_depth);
+    std::vector<int> surfaceAtLevel(this->max_depth);
     BOOST_FOREACH( Octnode* n, nodelist) {
         ++nodelevel[n->depth];
+        if (n->invalid() ) 
+            ++invalidsAtLevel[n->depth];
+        if (n->surface() ) 
+            ++surfaceAtLevel[n->depth];
     }
     o << "  " << nodelist.size() << " leaf-nodes:\n";
     int m=0;
     BOOST_FOREACH( int count, nodelevel) {
-        o << "depth="<<m <<" has " << count << " nodes\n";
+        o << "depth="<<m <<"  " << count << " nodes, " << invalidsAtLevel[m] << " invalid, surface=" << surfaceAtLevel[m] << " \n";
         ++m;
     }
     return o.str();

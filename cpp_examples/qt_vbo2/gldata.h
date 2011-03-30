@@ -23,8 +23,7 @@ struct GLVertex {
     GLfloat r,g,b; // color, 12-bytes offset from position data.
 };
 
-// the octree-node needs to be notified when the vertex index changes.
-// use this base-class dummy as a mix-in with the actual octree-node.
+// this is a dummy octree-node class for testing.
 class OctreeNode {
 public:
     OctreeNode() {

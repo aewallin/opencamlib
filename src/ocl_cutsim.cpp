@@ -37,7 +37,7 @@ namespace bp = boost::python;
 
 void export_cutsim() {
     bp::class_<MarchingCubes>("MarchingCubes") 
-        .def("mc_tree", &MarchingCubes::py_mc_tree)
+        //.def("mc_tree", &MarchingCubes::py_mc_tree)
     ;
     
     bp::class_<Octree>("Octree_base")

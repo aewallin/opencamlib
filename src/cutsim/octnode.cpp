@@ -66,11 +66,9 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     child.resize(8);
     vertex.resize(8);
     f.resize(8);
-    surface.resize(6);
     
     if (parent) {
         center = parent->childcenter(idx);
-        set_surfaces();
         inside = parent->inside;
         outside = parent->outside;
     } else {
@@ -84,14 +82,13 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     for ( int n=0;n<8;++n) {
         vertex[n] = new Point(*center + scale*direction[n] ) ;
         f[n] = 1e6;
-        //surface[n]=false;
     }
     bb.clear();
     bb.addPoint( *vertex[2] ); // vertex[2] has the minimum x,y,z coordinates
     bb.addPoint( *vertex[4] ); // vertex[4] has the max x,y,z
     
     
-    mc_tris_valid = false;
+    isosurface_valid = false;
     evaluated = false;
     childcount = 0;
 }
@@ -99,22 +96,22 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
 // call delete on children, vertices, and center
 Octnode::~Octnode() {
     for(int n=0;n<8;++n) {
-        if (child[n]) {
+        //if (child[n]) {
             delete child[n];
             child[n] = 0;
-        }
-        if (vertex[n]) {
+        //}
+        //if (vertex[n]) {
             delete vertex[n];
             vertex[n] = 0;
-        }
+        //}
     }
-    if (center) {
+    //if (center) {
         delete center;
         center = 0;
-    }
+    //}
 }
 
-
+/*
 void Octnode::set_surfaces() {
     assert( parent );
     surface = parent->surface; // copy surface flags from parent
@@ -164,7 +161,7 @@ void Octnode::set_surfaces() {
     }
     //std::cout << " after=";
     //print_surfaces();
-}
+}*/
 
 // create the 8 children of this node
 void Octnode::subdivide() {
@@ -190,10 +187,12 @@ void Octnode::evaluate(const OCTVolume* vol) {
         double newf = vol->dist( *(vertex[n]) );
         if ( !evaluated ) {
             f[n] = newf;
-            mc_tris_valid = false; 
+            setIsoSurfaceInvalid();
+            //isosurface_valid = false; 
         } else if( (newf < f[n] )   ) {
             f[n] = newf;
-            mc_tris_valid = false; 
+            setIsoSurfaceInvalid();
+            //isosurface_valid = false; 
         } 
         if ( f[n] <= 0.0 ) {// if one vertex is inside
             outside = false; // then it's not an outside-node
@@ -212,11 +211,12 @@ Point* Octnode::childcenter(int n) {
 
 
 // print out the boolean array of surface-flags
+/*
 void Octnode::print_surfaces() {
     for (int n=0;n<6;++n)
         std::cout << surface[n];
     std::cout << "\n";
-}
+}*/
 
 
 // string repr
