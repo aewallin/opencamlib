@@ -30,7 +30,7 @@ MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 
 
 set(OCL_TST_SRC
-    ${OCL_POINT_EXAMPLE_SOURCE_DIR}/cutsim1.cpp
+    ${OCL_CUTSIM1_EXAMPLE_SOURCE_DIR}/cutsim1.cpp
 )
 
 add_executable(
