@@ -1,22 +1,26 @@
 #include <QApplication>
+
+#include <functional>
+#include <boost/bind.hpp>
 #include "glwidget.h"
 #include "gldata.h"
 
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
+    OctreeNode n1;
     GLWidget *w = new GLWidget();
     GLData* g = w->addObject();
     std::cout << " genVBO()\n";
     g->setTriangles(); 
     g->setPosition(1,0,-6);
-    g->setUsage( QGLBuffer::StaticDraw );
-    g->addVertex(GLVertex(-1.0f,-1.0f, 0.0f,  1.0f,0.0f,0.0f));
-    g->addVertex(GLVertex( 1.0f,-1.0f, 0.0f,  0.0f,1.0f,0.0f));
-    g->addVertex(GLVertex( 0.0f, 1.0f, 0.0f,  0.0f,0.0f,1.0f));
-    g->addVertex(GLVertex( 1.0f, 1.0f, 0.0f,  1.0f,0.0f,1.0f));
-    g->addVertex(GLVertex( -1.0f, 1.0f, 0.0f,  1.0f,1.0f,1.0f));
-    g->addVertex(GLVertex( -2.0f, 0.0f, 0.0f,  1.0f,1.0f,1.0f));
+    g->setUsageStaticDraw();
+    g->addVertex(-1.0f,-1.0f, 0.0f,  1.0f,0.0f,0.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) ); //&n1::indexSwap);
+    g->addVertex( 1.0f,-1.0f, 0.0f,  0.0f,1.0f,0.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
+    g->addVertex( 0.0f, 1.0f, 0.0f,  0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
+    g->addVertex( 1.0f, 1.0f, 0.0f,  1.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
+    g->addVertex( -1.0f, 1.0f, 0.0f,  1.0f,1.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
+    g->addVertex( -2.0f, 0.0f, 0.0f,  1.0f,1.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
     std::vector<GLuint> poly(3);
     //poly.resize(3);
     poly[0]=0; poly[1]=1; poly[2]=2;
@@ -30,7 +34,7 @@ int main( int argc, char **argv )
     g->print();
     //std::cout << "removePolygon()\n";
     //g.removePolygon(0);
-    //std::cout << "removeVertex()\n";
+    std::cout << "removeVertex(4)\n";
     g->removeVertex(4);
     g->print();
 
@@ -38,11 +42,11 @@ int main( int argc, char **argv )
     GLData* q = w->addObject();
     q->setQuads();
     q->setPosition(2,0,-6);
-    q->setUsage( QGLBuffer::StaticDraw );
-    q->addVertex(-3.0f,0.0f,0.0f,0.0f,0.0f,1.0f);
-    q->addVertex(-3.0f,1.0f,0.0f,0.0f,0.0f,1.0f);
-    q->addVertex(-4.0f,1.0f,0.0f,0.0f,0.0f,1.0f);
-    q->addVertex(-4.0f,0.0f,0.0f,0.0f,0.0f,1.0f);
+    q->setUsageStaticDraw(); 
+    q->addVertex(-3.0f,0.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
+    q->addVertex(-3.0f,1.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
+    q->addVertex(-4.0f,1.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
+    q->addVertex(-4.0f,0.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
     std::vector<GLuint> quad(4);
     quad[0]=0; quad[1]=1; quad[2]=2; quad[3]=3;
     q->addPolygon(quad);

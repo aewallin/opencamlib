@@ -23,16 +23,13 @@ class GLWidget : public QGLWidget {
     Q_OBJECT
     public:
         GLWidget( QWidget *parent=0, char *name=0 ) ;
-        ~GLWidget() {
-        }
+        ~GLWidget() {}
 
         void initializeGL();
         /// add new GLData object and return pointer to it.
-        GLData* addObject() {
-            GLData* g = new GLData();
-            glObjects.push_back(g);
-            return g;
-        }
+
+        GLData* addObject();
+        
     protected:
         
         void resizeGL( int width, int height );

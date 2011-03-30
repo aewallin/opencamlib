@@ -12,11 +12,14 @@ GLWidget::GLWidget( QWidget *parent, char *name )
     timer = new QTimer(this);
     timer->setInterval(10);
     connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
-
     timer->start();
-
 }
 
+GLData* GLWidget::addObject() {
+    GLData* g = new GLData();
+    glObjects.push_back(g);
+    return g;
+}
 
 void GLWidget::initializeGL() {
     std::cout << "initializeGL()\n";
@@ -65,7 +68,6 @@ void GLWidget::paintGL()  {
         
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);
-        //glColor3f(0.7f,0.2f,1.0f); // if no GL_COLOR_ARRAY defined, draw with only one color
         
         // coords/vert, type, stride, pointer/offset
         glVertexPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::vertex_offset));

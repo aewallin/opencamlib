@@ -6,6 +6,8 @@
 #include <QGLBuffer>
 #include <QVarLengthArray>
 
+#include <boost/function.hpp>
+
 struct GLVertex {
     GLVertex() : x(0), y(0), z(0), r(0), g(0), b(0) {}
     GLVertex(GLfloat x, GLfloat y, GLfloat z) 
@@ -21,12 +23,19 @@ struct GLVertex {
     GLfloat r,g,b; // color, 12-bytes offset from position data.
 };
 
-
+// the octree-node needs to be notified when the vertex index changes.
+// use this base-class dummy as a mix-in with the actual octree-node.
+class OctreeNode {
+public:
+    virtual void indexSwap( unsigned int lastIdx, unsigned int vertexIdx ) {
+        std::cout << " lastIdx="<< lastIdx << " moved to vertexIdx=" << vertexIdx << "\n";
+    }
+};
 
 // additional data not needed for OpenGL rendering
-// but required for the algorithm.
+// but required for the isosurface or cutting-simulation algorithm.
+typedef boost::function2< void, unsigned int, unsigned int> IndexCallBack;
 struct VertexData {
-    //friend std::ostream& operator<<(std::ostream &stream, const VertexData &d);
     void str() {
         BOOST_FOREACH( GLuint pIdx, polygons ) {
             std::cout << pIdx << " ";
@@ -34,7 +43,7 @@ struct VertexData {
     }
     // Note: we want to access polygons from highest index to lowest, thus compare with "greater"
     typedef std::set< unsigned int, std::greater<unsigned int> > PolygonSet;
-    PolygonSet polygons;
+    
     void addPolygon( unsigned int idx ) {
         polygons.insert( idx );
     }
@@ -45,6 +54,14 @@ struct VertexData {
         return polygons.empty();
     }
     // TODO: octree-node pointer.
+    
+// DATA
+    PolygonSet polygons;
+    
+    // this function is called if the vertex indices change.
+    IndexCallBack callBack;
+    
+    //OctreeNode* node; // pointer to the octree-node that generated this vertex
 };
 
 
@@ -76,10 +93,14 @@ struct VertexData {
 class GLData {
 public:
     /// add a vertex, return its index
-    int addVertex(float x, float y, float z, float r, float g, float b) {
-        return addVertex( GLVertex(x,y,z,r,g,b) );
-    }
+    int addVertex(float x, float y, float z, float r, float g, float b);
     int addVertex(GLVertex v);
+
+    int addVertex(float x, float y, float z, float r, float g, float b, IndexCallBack c) {
+        int id = addVertex(x,y,z,r,g,b);
+        vertexDataArray[id].callBack = c;
+    }
+    
     /// remove vertex at given index
     void removeVertex( unsigned int vertexIdx );
     /// add a polygon, return its index
@@ -88,6 +109,7 @@ public:
     void removePolygon( unsigned int polygonIdx);
     /// return the number of polygons
     int indexCount() const { return indexArray.size(); }
+    
     
     template <class Data>
     QGLBuffer* makeBuffer(  QGLBuffer::Type t, Data& d) {
@@ -104,30 +126,18 @@ public:
     }
     
     /// generate the VBOs
-    void genVBO() {
-        vertexBuffer = makeBuffer(  QGLBuffer::VertexBuffer, vertexArray );
-        indexBuffer = makeBuffer( QGLBuffer::IndexBuffer, indexArray );
-    }
+    void genVBO();
     /// set polygon type to triangles
     void setTriangles() {setType(GL_TRIANGLES); polyVerts=3;}
     /// set polygon type to quads
     void setQuads() {setType(GL_QUADS); polyVerts=4;}
-    /// set the OpenGL usage pattern
-    void setUsage(QGLBuffer::UsagePattern p ) {
-        usagePattern = p;
-    }
+    void setUsageStaticDraw() {usagePattern = QGLBuffer::StaticDraw;}
+    void setUsageDynamicDraw() {usagePattern = QGLBuffer::DynamicDraw;}
     /// bind the vertex and index buffers
-    bool bind() {
-        return (vertexBuffer->bind() && indexBuffer->bind());
-    }
+    bool bind();
     /// release the vertex and index buffers
-    void release() {
-        vertexBuffer->release();
-        indexBuffer->release();
-    }
-    void setPosition(float x, float y, float z) {
-        pos = GLVertex(x,y,z);
-    }
+    void release();
+    void setPosition(float x, float y, float z);
     void print() ;
 //DATA
     // the type of this GLData, one of:
@@ -160,19 +170,26 @@ public:
     static const unsigned int vertex_offset = 0;
     static const unsigned int color_offset = 12;
 
-    QGLBuffer* vertexBuffer;
-    QGLBuffer* indexBuffer;
-    /// number of vertices per polygon. 3 for GL_TRIANGLES, 4 for GL_QUADS
-    int polyVerts; 
     /// translation to be applied before drawing
     GLVertex pos;
     
 protected:
+
+    /// set type of drawing, e.g. GL_TRIANGLES, GL_QUADS
     void setType(GLenum t) {
         type = t;
     }
+    /// set the OpenGL usage pattern
+    void setUsage(QGLBuffer::UsagePattern p ) {
+        usagePattern = p;
+    }
+    QGLBuffer* vertexBuffer;
+    QGLBuffer* indexBuffer;
+    /// number of vertices per polygon. 3 for GL_TRIANGLES, 4 for GL_QUADS
+    int polyVerts; 
+    
     QVarLengthArray<GLVertex> vertexArray;
-    QVarLengthArray<VertexData> vertexDataArray;
+    QVarLengthArray< VertexData > vertexDataArray;
     QVarLengthArray<GLuint> indexArray;
 };
 

@@ -13,8 +13,9 @@
 #include "gldata.h"
 
 
-/// a GLData object holds data which is drawn by OpenGL using VBOs
-
+int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
+    return addVertex( GLVertex(x,y,z,r,g,b) );
+}
     
 int GLData::addVertex(GLVertex v) {
     // add vertex with empty polygon-list.
@@ -36,7 +37,9 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
     if (vertexIdx != lastIdx) {
         vertexArray[vertexIdx] = vertexArray[lastIdx];
         vertexDataArray[vertexIdx] = vertexDataArray[lastIdx];
-        // update octree-node with new index here!
+        // notify octree-node with new index here!
+        // vertex that was at lastIdx is now at vertexIdx
+        vertexDataArray[vertexIdx].callBack( lastIdx, vertexIdx );
         
         // request each polygon to re-number this vertex.
         BOOST_FOREACH( unsigned int polygonIdx, vertexDataArray[vertexIdx].polygons ) {
@@ -52,7 +55,6 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
     vertexDataArray.resize( vertexDataArray.size()-1 );
     assert( vertexArray.size() == vertexDataArray.size() );
 }
-
 
 int GLData::addPolygon( std::vector<GLuint>& verts) {
     // append to indexArray, request each vertex to update
@@ -74,24 +76,36 @@ void GLData::removePolygon( unsigned int polygonIdx) {
     // check for orphan vertices (?), and delete them (?)
     
     unsigned int last_index = (indexArray.size()-polyVerts);
-    if (idx!=last_index) { // if deleted polygon is last on the list, do nothing??
-    
+    // if deleted polygon is last on the list, do nothing??
+    if (idx!=last_index) { 
         // ii) remove from polygon-list by overwriting with last element
         for (int m=0; m<polyVerts ; ++m)
             indexArray[idx+m  ] = indexArray[ last_index+m   ];
-
-        
         // iii) for the moved polygon, request that each vertex update the polygon number
-        for (int m=0; m<polyVerts ; ++m) 
+        for (int m=0; m<polyVerts ; ++m) {
             vertexDataArray[ indexArray[idx+m   ] ].addPolygon( idx/polyVerts ); // this is the new polygon index
-            
-        for (int m=0; m<polyVerts ; ++m) 
             vertexDataArray[ indexArray[idx+m   ] ].removePolygon( last_index/polyVerts ); // this polygon is no longer there!
-        
+        }
     }
     indexArray.resize( indexArray.size()-polyVerts ); // shorten array
 } 
 
+void GLData::genVBO() {
+    vertexBuffer = makeBuffer(  QGLBuffer::VertexBuffer, vertexArray );
+    indexBuffer = makeBuffer( QGLBuffer::IndexBuffer, indexArray );
+}
+bool GLData::bind() {
+    return (vertexBuffer->bind() && indexBuffer->bind());
+}
+/// release the vertex and index buffers
+void GLData::release() {
+    vertexBuffer->release();
+    indexBuffer->release();
+}
+void GLData::setPosition(float x, float y, float z) {
+    pos = GLVertex(x,y,z);
+}
+    
     
 void GLData::print() {
     std::cout << "GLData vertices: \n";
