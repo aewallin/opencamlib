@@ -27,9 +27,14 @@ struct GLVertex {
 // use this base-class dummy as a mix-in with the actual octree-node.
 class OctreeNode {
 public:
-    virtual void indexSwap( unsigned int lastIdx, unsigned int vertexIdx ) {
-        std::cout << " lastIdx="<< lastIdx << " moved to vertexIdx=" << vertexIdx << "\n";
+    OctreeNode() {
+        id=count++;
     }
+    virtual void indexSwap( unsigned int lastIdx, unsigned int vertexIdx ) {
+        std::cout << id << " lastIdx="<< lastIdx << " moved to vertexIdx=" << vertexIdx << "\n";
+    }
+    int id;
+    static int count;
 };
 
 // additional data not needed for OpenGL rendering

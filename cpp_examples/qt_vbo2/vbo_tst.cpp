@@ -5,6 +5,8 @@
 #include "glwidget.h"
 #include "gldata.h"
 
+int OctreeNode::count =0;
+
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
@@ -15,7 +17,7 @@ int main( int argc, char **argv )
     g->setTriangles(); 
     g->setPosition(1,0,-6);
     g->setUsageStaticDraw();
-    g->addVertex(-1.0f,-1.0f, 0.0f,  1.0f,0.0f,0.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) ); //&n1::indexSwap);
+    g->addVertex(-1.0f,-1.0f, 0.0f,  1.0f,0.0f,0.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) ); 
     g->addVertex( 1.0f,-1.0f, 0.0f,  0.0f,1.0f,0.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
     g->addVertex( 0.0f, 1.0f, 0.0f,  0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
     g->addVertex( 1.0f, 1.0f, 0.0f,  1.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2) );
@@ -39,17 +41,22 @@ int main( int argc, char **argv )
     g->print();
 
     // now try a quad.
+    OctreeNode n2;
     GLData* q = w->addObject();
     q->setQuads();
     q->setPosition(2,0,-6);
     q->setUsageStaticDraw(); 
-    q->addVertex(-3.0f,0.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
-    q->addVertex(-3.0f,1.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
-    q->addVertex(-4.0f,1.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
-    q->addVertex(-4.0f,0.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n1, _1, _2));
+    q->addVertex(-3.0f,0.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n2, _1, _2));
+    q->addVertex(-3.0f,1.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n2, _1, _2));
+    q->addVertex(-4.0f,1.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n2, _1, _2));
+    q->addVertex(-4.0f,0.0f,0.0f,0.0f,0.0f,1.0f, boost::bind(&OctreeNode::indexSwap, &n2, _1, _2));
     std::vector<GLuint> quad(4);
     quad[0]=0; quad[1]=1; quad[2]=2; quad[3]=3;
     q->addPolygon(quad);
+    
+    q->print();
+    std::cout << "Q removeVertex(3)\n";
+    q->removeVertex(0);
     q->print();
     
     w->show();
