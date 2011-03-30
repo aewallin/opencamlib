@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 #include "glwidget.h"
 #include "gldata.h"
+#include "randomsource.h"
 
 int OctreeNode::count =0;
 
@@ -12,7 +13,13 @@ int main( int argc, char **argv ) {
     OctreeNode n1;
     GLWidget *w = new GLWidget();
     GLData* g = w->addObject();
+    
+    GLData* rnd = w->addObject();
+    RandomSource src( rnd );
+    QObject::connect( w->timer, SIGNAL(timeout()), &src, SLOT(timeOutSlot()) );
+    
     std::cout << " genVBO()\n";
+    /*
     g->setTriangles(); 
     g->setPosition(1,0,-6);
     g->setUsageStaticDraw();
@@ -38,7 +45,7 @@ int main( int argc, char **argv ) {
     std::cout << "removeVertex(4)\n";
     g->removeVertex(4);
     g->print();
-
+*/
     // now try a quad.
     OctreeNode n2;
     GLData* q = w->addObject();
@@ -55,7 +62,7 @@ int main( int argc, char **argv ) {
     
     q->print();
     std::cout << "Q removeVertex(3)\n";
-    q->removeVertex(0);
+    //q->removeVertex(0);
     q->print();
     
     w->show();

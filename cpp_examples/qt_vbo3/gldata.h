@@ -1,4 +1,3 @@
-
 #ifndef GL_DATA_H
 #define GL_DATA_H
 
@@ -6,6 +5,10 @@
 #include <QGLBuffer>
 #include <QVarLengthArray>
 
+#include <iostream>
+#include <set>
+
+#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 
 
@@ -130,9 +133,17 @@ public:
         buffer->release();
         return buffer;
     }
+    template <class Data>
+    void updateBuffer(  QGLBuffer* buffer, Data& d) {
+        if (!buffer->bind())
+            assert(0);
+        buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
+        buffer->release();
+    }
     
     /// generate the VBOs
     void genVBO();
+    void updateVBO();
     /// set polygon type to triangles
     void setTriangles() {setType(GL_TRIANGLES); polyVerts=3;}
     /// set polygon type to quads
