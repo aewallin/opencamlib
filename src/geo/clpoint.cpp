@@ -105,7 +105,7 @@ CLPoint& CLPoint::operator=(const CLPoint &clp) {
     x=clp.x;
     y=clp.y;
     z=clp.z;
-    cc= clp.cc;
+    cc= new CCPoint( *(clp.cc) );
     return *this;
 }
 
