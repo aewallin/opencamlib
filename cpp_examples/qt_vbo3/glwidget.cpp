@@ -66,7 +66,11 @@ void GLWidget::resizeGL( int width, int height ) {
     gluPerspective( _fovy, (GLfloat)_width / (GLfloat)_height, z_near, z_far);
     
     glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
-    glLoadIdentity(); // Reset The Modelview Matrix
+    glLoadIdentity();
+    gluLookAt( _eye.x, _eye.y, _eye.z, _center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //glLoadIdentity(); // Reset The Modelview Matrix
     return;
 }
 
