@@ -12,7 +12,13 @@ if(OPENGL_FOUND)
     MESSAGE(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
 endif(OPENGL_FOUND)
 
+find_package(GLUT REQUIRED)
 
+if(GLUT_FOUND)
+    MESSAGE(STATUS "found glut, lib = " ${GLUT_LIBRARIES} )
+    MESSAGE(STATUS "found glut, include = " ${GLUT_INCLUDE_DIR} )
+    include_directories(${GLUT_INCLUDE_DIR})
+endif(GLUT_FOUND)
 
 
 

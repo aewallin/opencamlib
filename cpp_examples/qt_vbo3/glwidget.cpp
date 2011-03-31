@@ -13,13 +13,21 @@ GLWidget::GLWidget( QWidget *parent, char *name )
     timer->setInterval(1000);
     connect( timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
     timer->start();
-    fov_y = 60.0;
+    _fovy = 60.0;
     z_near = 0.1;
     z_far = 100.0;
-    up.x=0;up.y=1;up.z=1;
-    eye.y=4;
-    center.x=10;
+    _up.x=0;
+    _up.y=1;
+    _up.z=0;
+    _up *= 1/_up.norm();
+    _eye.x=0;
+    _eye.y=0;
+    _eye.z=0;
+    _center.x=0;
+    _center.y=0;
+    _center.z=-10;
     //setCursor(cursor);
+    updateDir();
 }
 
 GLData* GLWidget::addObject() {
@@ -42,19 +50,20 @@ void GLWidget::initializeGL() {
 }
 
 void GLWidget::resizeGL( int width, int height ) {
-    std::cout << "resizeGL(" << width << " , " << height << " )\n";
     if (height == 0)    {
        height = 1;
     }
-    glViewport(0, 0, width, height); // Reset The Current Viewport
     _width = width;
     _height = height;
+    std::cout << "resizeGL(" << width << " , " << height << " )\n";
+    
+    glViewport(0, 0, _width, _height); // Reset The Current Viewport
     glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
     glLoadIdentity(); // Reset The Projection Matrix
     
     // Calculate The Aspect Ratio Of The Window
     // void gluPerspective( fovy, aspect, zNear, zFar);
-    gluPerspective( fov_y, (GLfloat)width / (GLfloat)height, z_near, z_far);
+    gluPerspective( _fovy, (GLfloat)_width / (GLfloat)_height, z_near, z_far);
     
     glMatrixMode(GL_MODELVIEW); // Select The Modelview Matrix
     glLoadIdentity(); // Reset The Modelview Matrix
@@ -62,10 +71,14 @@ void GLWidget::resizeGL( int width, int height ) {
 }
 
 void GLWidget::paintGL()  {
+    //glMatrixMode(GL_PROJECTION); 
+    //glLoadIdentity();
+    //gluLookAt( _eye.x, _eye.y, _eye.z, _center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
     glMatrixMode(GL_MODELVIEW);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    
     //glPushMatrix();
     
     BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
@@ -90,7 +103,22 @@ void GLWidget::paintGL()  {
         
         g->release();
     }
-    //glPopMatrix();
+    
+    
+    // calculate and display FPS
+    int msecs =  - _lastFrameTime.msecsTo( _lastFrameTime );
+    if (msecs == 0)
+        msecs = 1;
+    float fps = (float)1000/(float)msecs;
+    QString fps_str;
+    fps_str = QString("%1 FPS, eye=%2, center=%3, up=%4").arg(fps).arg(_eye.str()).arg(_center.str()).arg(_up.str());
+    renderText( 10, 20, fps_str );
+    _lastFrameTime = QTime::currentTime();
+    
+    QString dir_str;
+    dir_str = QString("dir x = %1 dir y = %2 norm(y)= %3 ").arg(_dirx.str()).arg(_diry.str()).arg(_diry.norm());
+    renderText( 10, 50, dir_str );
+    
 }
 
 
