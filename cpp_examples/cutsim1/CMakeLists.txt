@@ -3,8 +3,20 @@ project(OCL_CUTSIM1_EXAMPLE)
 cmake_minimum_required(VERSION 2.4)
 
 if (CMAKE_BUILD_TOOL MATCHES "make")
-    add_definitions(-Wall -Werror -Wno-deprecated -pedantic-errors)
+    add_definitions(-Wall  -Wno-deprecated )
 endif (CMAKE_BUILD_TOOL MATCHES "make")
+# -Werror
+# -pedantic-errors
+
+FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
+INCLUDE(${QT_USE_FILE})
+ MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
+
+find_package(OpenGL REQUIRED)
+if(OPENGL_FOUND)
+    MESSAGE(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
+endif(OPENGL_FOUND)
+
 
 # find BOOST and boost-python
 find_package( Boost )
@@ -14,11 +26,7 @@ if(Boost_FOUND)
     MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
 endif()
 
-find_package( OpenMP REQUIRED )
-IF (OPENMP_FOUND)
-    MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-ENDIF(OPENMP_FOUND)
+
 
 find_library(OCL_LIBRARY 
             NAMES ocl
@@ -28,15 +36,21 @@ find_library(OCL_LIBRARY
 #find_package(ocl REQUIRED)
 MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 
+set (MOC_HEADERS glwidget.h )
+qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
+
 
 set(OCL_TST_SRC
-    ${OCL_CUTSIM1_EXAMPLE_SOURCE_DIR}/cutsim1.cpp
+    ${OCL_CUTSIM1_EXAMPLE_SOURCE_DIR}/main.cpp
 )
+
+add_library(glwidget SHARED glwidget.cpp gldata.cpp ${MOC_OUTFILES})
+target_link_libraries(glwidget  ${OPENGL_LIBRARIES})
 
 add_executable(
     cutsim1
     ${OCL_TST_SRC}
 )
-target_link_libraries(cutsim1 ${OCL_LIBRARY} ${Boost_LIBRARIES})
+target_link_libraries(cutsim1 glwidget ${OCL_LIBRARY} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${OPENGL_LIBRARIES})
 
 
