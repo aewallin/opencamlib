@@ -8,10 +8,10 @@
 
 #include "cutsim.h"
 
-int OctreeNode::count =0;
+//int OctreeNode::count =0;
 
 int main( int argc, char **argv ) {
-    QApplication a( argc, argv );
+    QApplication app( argc, argv );
     //OctreeNode n1;
     GLWidget *w = new GLWidget();
     //GLData* g = w->addObject();
@@ -81,6 +81,10 @@ int main( int argc, char **argv ) {
         int id0 = g->addVertex( t.p[0].x, t.p[0].y, t.p[0].z, r,gr,b);
         int id1 = g->addVertex( t.p[1].x, t.p[1].y, t.p[1].z, r,gr,b);
         int id2 = g->addVertex( t.p[2].x, t.p[2].y, t.p[2].z, r,gr,b);
+        // set the normals
+        g->setNormal(id0, t.n.x, t.n.y, t.n.z );
+        g->setNormal(id1, t.n.x, t.n.y, t.n.z );
+        g->setNormal(id2, t.n.x, t.n.y, t.n.z );
         std::vector<unsigned int> poly(3);
         poly[0]=id0;
         poly[1]=id1;
@@ -89,5 +93,5 @@ int main( int argc, char **argv ) {
     }
     
     w->show();
-    return a.exec();
+    return app.exec();
 }

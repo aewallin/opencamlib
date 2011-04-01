@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <set>
+#include <cmath>
 
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
@@ -19,26 +20,23 @@ struct GLVertex {
          : x(x), y(y), z(z), r(0), g(0), b(0) {}
     GLVertex(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b) 
          : x(x), y(y), z(z), r(r), g(g), b(b) {}
-
+    void setNormal(GLfloat x, GLfloat y, GLfloat z) {
+        nx=x;
+        ny=y;
+        nz=z;
+        // normalize:
+        GLfloat norm = sqrt( x*x+y*y+z*z );
+        nx /= norm;
+        ny /= norm;
+        nz /= norm;
+    }
     void str() {
         std::cout << "(" << x << ", " << y << ", " << z << ")"; 
     }
 // DATA
     GLfloat x,y,z; // position
     GLfloat r,g,b; // color, 12-bytes offset from position data.
-};
-
-// this is a dummy octree-node class for testing.
-class OctreeNode {
-public:
-    OctreeNode() {
-        id=count++;
-    }
-    virtual void indexSwap( unsigned int lastIdx, unsigned int vertexIdx ) {
-        std::cout << id << " lastIdx="<< lastIdx << " moved to vertexIdx=" << vertexIdx << "\n";
-    }
-    int id;
-    static int count;
+    GLfloat nx,ny,nz; // normal, 24-bytes offset
 };
 
 // additional data not needed for OpenGL rendering
@@ -110,7 +108,9 @@ public:
         vertexDataArray[id].callBack = c;
         return id;
     }
-    
+    void setNormal(unsigned int vertexIdx, float x, float y, float z) {
+        vertexArray[vertexIdx].setNormal(x,y,z);
+    }
     /// remove vertex at given index
     void removeVertex( unsigned int vertexIdx );
     /// add a polygon, return its index
@@ -188,7 +188,7 @@ public:
     static const GLenum coordinate_type = GL_FLOAT;
     static const unsigned int vertex_offset = 0;
     static const unsigned int color_offset = 12;
-
+    static const unsigned int normal_offset = 24;
     /// translation to be applied before drawing
     GLVertex pos;
     
