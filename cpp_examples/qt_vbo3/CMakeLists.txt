@@ -28,6 +28,6 @@ qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 add_library(glwidget SHARED glwidget.cpp gldata.cpp ${MOC_OUTFILES})
 target_link_libraries(glwidget  ${OPENGL_LIBRARIES})
 
-ADD_EXECUTABLE(vbo_tst main.cpp )
+ADD_EXECUTABLE(vbo_tst vbo_tst.cpp )
 target_link_libraries(vbo_tst glwidget ${QT_LIBRARIES}  ${GLUT_LIBRARIES})
 
