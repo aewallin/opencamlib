@@ -22,10 +22,10 @@ GLWidget::GLWidget( QWidget *parent, char *name )
     _up *= 1/_up.norm();
     _eye.x=0;
     _eye.y=0;
-    _eye.z=0;
+    _eye.z=6;
     _center.x=0;
     _center.y=0;
-    _center.z=-10;
+    _center.z=0;
     //setCursor(cursor);
     updateDir();
 }
@@ -77,17 +77,22 @@ void GLWidget::resizeGL( int width, int height ) {
 void GLWidget::paintGL()  {
     //glMatrixMode(GL_PROJECTION); 
     //glLoadIdentity();
-    //gluLookAt( _eye.x, _eye.y, _eye.z, _center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
+    //
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    gluLookAt( _eye.x, _eye.y, _eye.z, _center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
+    //gluLookAt( 0,0,6 , // _eye.x, _eye.y, _eye.z,
+    //           0,0,0 , //_center.x, _center.y, _center.z, _up.x, _up.y, _up.z );
+    //           0,1,0);
+    
     
     
     //glPushMatrix();
     
     BOOST_FOREACH( GLData* g, glObjects ) { // draw each object
-        glLoadIdentity();
-        glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
+        //glLoadIdentity();
+        //glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
         
         if ( !g->bind() )
             assert(0);

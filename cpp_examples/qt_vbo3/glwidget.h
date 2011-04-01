@@ -79,6 +79,37 @@ public:
         return P3<Scalar>(xc, yc, zc);
     }
 
+    void rotate(const P3<Scalar>& origin, const P3<Scalar>& v, Scalar alfa) {
+        // rotate point p by alfa deg/rad around vector o->v
+        // p = o + M*(p-o)
+        Scalar M[3][3];
+        Scalar c = cos(alfa);
+        Scalar D = 1.0 - c;
+        Scalar s = sin(alfa);
+        M[0][0] = v.x*v.x*D+c; 
+        M[0][1] = v.y*v.x*D+v.z*s; 
+        M[0][2] = v.z*v.x*D-v.y*s;
+        M[1][0] = v.x*v.y*D-v.z*s;
+        M[1][1] = v.y*v.y*D+c;
+        M[1][2] = v.z*v.y*D+v.x*s;
+        M[2][0] = v.x*v.z*D+v.y*s;
+        M[2][1] = v.y*v.z*D-v.x*s;
+        M[2][2] = v.z*v.z*D+c;
+        // matrix multiply
+        Scalar vector[3];
+        vector[0] = x - origin.x;
+        vector[1] = y - origin.y;
+        vector[2] = z - origin.z;
+        Scalar result[3];
+        for (int i=0; i < 3; i++) {
+            result[i]=0;
+            for (int j=0; j < 3; j++)
+	            result[i]+=vector[j]*M[i][j];
+        }
+        x = origin.x + result[0];
+        y = origin.y + result[1];
+        z = origin.z + result[2];
+    }
     QString str() { return QString("(%1, %2, %3 )").arg(x).arg(y).arg(z); }
 
 };
@@ -109,49 +140,59 @@ class GLWidget : public QGLWidget {
             _dirx = _up;
             P3<float> newy = _up.cross(_center-_eye);
             _diry = newy * ( (float)1.0/ newy.norm() );
-            std::cout << " new diry length = " << _diry.norm() << "\n";
         }
-        void panView(const QPoint& newPos) {
-            std::cout << "width, height = (" << _width << " , " << _height << " )\n";
-            //int idx = (newPos - oldMousePos).x(); // / 
-            float dx = (float)(newPos.x() - oldMousePos.x()) / (float)_width;
-            float dy = (float)(newPos.y() - oldMousePos.y()) / (float)_height;
-            //int idy = (newPos - oldMousePos).y(); // / 
-            //float dy = (float)idy / (float)height;
-            //float dy = (float)(newPos.y() - oldPos.y()) / (float)width;
-            
-            // pan
-            // height of window in object space: length = 2* norm(eye-center)*tan(fovy/2)
-            // new position of center is:
-            // center = center + dir_y *dx*length *width/height
-            //                 + dir_x * dy * length
+        void zoomView( int delta ) {
+            float dZoom = (float)delta*(0.1/120.0);
+            _eye = _center + (_eye-_center)*(dZoom + 1.0);
+            updateGL();
+        }
+        void panView(const QPoint& newPos) {           
+            float dx = (float)(newPos.x() - _oldMousePos.x()) / (float)_width;
+            float dy = (float)(newPos.y() - _oldMousePos.y()) / (float)_height;
+            _oldMousePos = newPos;
             float length = 2* (_eye-_center).norm() * tan( (_fovy/360)*2*PI /2);
-            std::cout << "panning dx= "<< dx << " dy=" << dy << " length= " << length << "\n";
-            P3<float> y_pan = _diry * ( dx*length* (float)_width/(float)_height );
-            std::cout << " y-pan = " << y_pan.str().toStdString();
-            
-            _center += y_pan; // _diry * ( dx*length* (float)_width/(float)_height )  ;
-            _center += _dirx * ( dy*length )  ;
             updateDir();
-            // resizeGL( width(), height() );
+            P3<float> y_pan = _diry * ( dx*length* (float)_width/(float)_height );
+            P3<float> x_pan = _dirx * ( dy*length ); 
+            _center += y_pan + x_pan; 
+            _eye += y_pan + x_pan;
+            updateGL();
         }
-        
+        void rotateView(const QPoint& newPos) {
+            float dx = (float)(newPos.x() - _oldMousePos.x()) / (float)_width;
+            float dy = (float)(newPos.y() - _oldMousePos.y()) / (float)_height;
+            _oldMousePos = newPos;
+            updateDir();
+            // rotate eye around center
+            _eye.rotate(_center, _dirx, -dx * PI );
+            _eye.rotate(_center, _diry, dy*PI );
+            
+            // now calculate the new up-vector
+            P3<float> upCenter = _center + _up;
+            upCenter.rotate( _center , _diry, dy*PI);
+            _up = upCenter - _center;
+            _up *= 1.0/_up.norm();
+            
+            updateGL();
+        }
         void keyPressEvent( QKeyEvent *e ) {
             std::cout << e->key() << " pressed.\n";
             return;
         }
         void mouseMoveEvent( QMouseEvent *e ) {
-            qDebug() << " mouseMove : " << e->pos() << " button=" << e->button() << "\n";
             if (_leftButtonPressed ) {
-                panView( e->pos() ); 
+               panView( e->pos() ); 
+            } else if (_rightButtonPressed) {
+                rotateView( e->pos() ); 
             }
+        }
+        void wheelEvent( QWheelEvent *e ) {
+            qDebug() << " mouseWheel delta= " << e->delta() << "\n";
+            zoomView( e->delta() );
         }
         void mousePressEvent( QMouseEvent *e ) {
             qDebug() << " mousePress : " << e->pos() << " button=" << e->button() << "\n";
-            // button = 1  is left
-            // button = 2  is right
-            // button = 4  is middle 
-            oldMousePos = e->pos();
+            _oldMousePos = e->pos();
             if (e->button() == Qt::LeftButton) {
                 setCursor(Qt::OpenHandCursor);
                 _leftButtonPressed = true;
@@ -194,7 +235,7 @@ class GLWidget : public QGLWidget {
         float z_far;
         std::vector<GLData*> glObjects;
         //QCursor cursor;
-        QPoint oldMousePos;
+        QPoint _oldMousePos;
         int _width;
         int _height;
         bool _rightButtonPressed;
