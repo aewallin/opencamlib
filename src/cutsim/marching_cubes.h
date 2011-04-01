@@ -24,7 +24,6 @@
 #include <iostream>
 #include <list>
 
-//#include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
 #include "point.h"
@@ -36,11 +35,11 @@
 namespace ocl
 {
 
-//class Octnode;
 
 /// Marching-cubes isosurface extraction from distance field stored in Octree
 /// see http://en.wikipedia.org/wiki/Marching_cubes
 ///
+/// (Note: there is no cpp file, all code is here in the .h file)
 class MarchingCubes {
     public:
         MarchingCubes() { 
@@ -195,7 +194,10 @@ class MarchingCubes {
         static const int triTable[256][16]; 
 };
 
-
+// this table stores indices into the triTable below, i.e. it tells
+// us which of the 256 cases we are in.
+// the function mc_edgeTableIndex() looks at the distance-field signs
+// at each corner of the cube and computes an index for this table.
 const unsigned int MarchingCubes::edgeTable[256] = {
     0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
     0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
@@ -229,9 +231,12 @@ const unsigned int MarchingCubes::edgeTable[256] = {
     0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99 , 0x190,
     0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,
     0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0
-        }; // see mc_tables.h
+    }; 
 
-
+// these are the 256 different cases for how to generate triangles from a cube
+// each row has indices, in groups of three, of the triangles to be generated.
+// the sequence ends with a -1. 
+// each row is of length 16, so a maximum of 15/3 = 5 triangles can be generated from one cube
 const int MarchingCubes::triTable[256][16] = {
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     {0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -489,7 +494,7 @@ const int MarchingCubes::triTable[256][16] = {
     {0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
     {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-    }; // see mc_tables.h
+    }; 
 
 } // end namespace
 #endif

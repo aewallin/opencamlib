@@ -111,65 +111,12 @@ Octnode::~Octnode() {
     //}
 }
 
-/*
-void Octnode::set_surfaces() {
-    assert( parent );
-    surface = parent->surface; // copy surface flags from parent
-    switch ( this->idx ) {
-        case 0:
-            surface[0]=false;
-            surface[3]=false;
-            surface[5]=false;
-            break;
-        case 1:
-            surface[0]=false;
-            surface[1]=false;
-            surface[5]=false;
-            break;
-        case 2:
-            surface[1]=false;
-            surface[2]=false;
-            surface[5]=false;
-            break;
-        case 3:
-            surface[2]=false;
-            surface[3]=false;
-            surface[5]=false;
-            break;
-        case 4:
-            surface[0]=false;
-            surface[3]=false;
-            surface[4]=false;
-            break;
-        case 5:
-            surface[0]=false;
-            surface[1]=false;
-            surface[4]=false;
-            break;
-        case 6:
-            surface[1]=false;
-            surface[2]=false;
-            surface[4]=false;
-            break;
-        case 7:
-            surface[2]=false;
-            surface[3]=false;
-            surface[4]=false;
-            break;
-        default:
-            assert(0);
-    }
-    //std::cout << " after=";
-    //print_surfaces();
-}*/
-
 // create the 8 children of this node
 void Octnode::subdivide() {
     if (this->childcount==0) {
         for( int n=0;n<8;++n ) {
             this->child[n] = new Octnode( this, n , scale/2.0 , depth+1 ); // parent,  idx, scale,   depth
             ++childcount;
-            // inherit the surface property here
             // optimization: inherit one f[n] from the corner?
         }
     } else {
@@ -187,11 +134,11 @@ void Octnode::evaluate(const OCTVolume* vol) {
         double newf = vol->dist( *(vertex[n]) );
         if ( !evaluated ) {
             f[n] = newf;
-            setIsoSurfaceInvalid();
+            setInValid();
             //isosurface_valid = false; 
         } else if( (newf < f[n] )   ) {
             f[n] = newf;
-            setIsoSurfaceInvalid();
+            setInValid();
             //isosurface_valid = false; 
         } 
         if ( f[n] <= 0.0 ) {// if one vertex is inside

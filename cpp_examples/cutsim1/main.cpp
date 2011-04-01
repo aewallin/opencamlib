@@ -69,12 +69,12 @@ int main( int argc, char **argv ) {
     q->print();
     */
     GLData* g = w->addObject();
-    g->setTriangles(); 
-    g->setPosition(1,0,-6);
-    g->setUsageStaticDraw();
     Cutsim cs;
-    cs.surf();
-    std::vector<ocl::Triangle> tris = cs.getTris();
+    cs.setGLData(g);
+    //Cutsim cs;
+    cs.updateGL();
+    
+    /*std::vector<ocl::Triangle> tris = cs.getTris(); 
     //std::cout<
     float r=1,gr=0,b=0;
     BOOST_FOREACH( ocl::Triangle t, tris) {
@@ -90,7 +90,7 @@ int main( int argc, char **argv ) {
         poly[1]=id1;
         poly[2]=id2;
         g->addPolygon( poly );
-    }
+    }*/
     
     w->show();
     return app.exec();

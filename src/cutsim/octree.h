@@ -81,6 +81,7 @@ class Octree {
         double leaf_scale() const;
         /// string output
         std::string str() const;
+        Octnode* getRoot() {return root;}
         
     protected:
         /// recursively traverse the tree subtracting vol

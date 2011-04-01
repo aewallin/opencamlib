@@ -82,13 +82,13 @@ void Octree::get_invalid_leaf_nodes( std::vector<Octnode*>& nodelist) const {
 
 void Octree::get_invalid_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const {
     if ( current->childcount == 0 ) {
-        if ( current->invalid() ) {
+        if ( !current->valid() ) {
             nodelist.push_back( current );
         }
-    } else {
+    } else {//surface()surface()
         for ( int n=0;n<8;++n) {
-            if ( current->child[n] != NULL ) {
-                if ( current->invalid() ) {
+            if ( current->hasChild(n) ) {
+                if ( !current->valid() ) {
                     get_leaf_nodes( current->child[n], nodelist );
                 }
             }
@@ -99,7 +99,7 @@ void Octree::get_invalid_leaf_nodes(Octnode* current, std::vector<Octnode*>& nod
 
 /// put leaf nodes into nodelist
 void Octree::get_leaf_nodes(Octnode* current, std::vector<Octnode*>& nodelist) const {
-    if ( current->childcount == 0 ) {
+    if ( current->isLeaf() ) {
         nodelist.push_back( current );
     } else {
         for ( int n=0;n<8;++n) {
@@ -181,7 +181,7 @@ std::string Octree::str() const {
     std::vector<int> surfaceAtLevel(this->max_depth);
     BOOST_FOREACH( Octnode* n, nodelist) {
         ++nodelevel[n->depth];
-        if (n->invalid() ) 
+        if ( !n->valid() ) 
             ++invalidsAtLevel[n->depth];
         if (n->surface() ) 
             ++surfaceAtLevel[n->depth];

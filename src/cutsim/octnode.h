@@ -23,6 +23,7 @@
 
 #include <iostream>
 #include <list>
+#include <set>
 
 #include "point.h"
 #include "volume.h"
@@ -47,24 +48,42 @@ class Octnode {
         void subdivide(); // create children
         /// evaluate the vol.dist() function for this node
         void evaluate(const OCTVolume* vol);
-        
-        void setIsoSurfaceInvalid() {
-            isosurface_valid = false;
-            if ( parent )
-                parent->setIsoSurfaceInvalid();
+        void setValid() {
+            isosurface_valid = true;
+            // try to propagate valid up the tree:
+            if (parent) {
+                for (int m=0;m<8;++m) {
+                    if ( parent->hasChild(m) ) {
+                        if ( ! (parent->child[m]->valid() ) ) {
+                            return;
+                        }
+                    }
+                }
+                // if we get here, there was a parent all all children are valid
+                parent->setValid();
+            }
         }
-        bool invalid() const {
-            return !isosurface_valid;
+        void setInValid() { 
+            isosurface_valid = false;
+            if ( parent && !parent->valid() ) // update parent status also
+                parent->setInValid();
+        }
+        bool valid() const {
+            return isosurface_valid;
         }
         bool surface() const {
             return ( !inside && !outside );
         }
     // DATA
+        bool hasChild(int n) {
+            return (this->child[n] != NULL);
+        }
         /// pointers to child nodes
         std::vector<Octnode*> child;
         /// pointer to parent node
         Octnode* parent;
         /// number of children
+        bool isLeaf() {return childcount==0;}
         unsigned int childcount;
         /// The eight corners of this node
         std::vector<Point*> vertex; 
@@ -93,7 +112,11 @@ class Octnode {
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
-
+        void addIndex(unsigned int id) { vertexIndex.insert(id); }
+        void swapIndex(unsigned int oldId, unsigned int newId) {
+            vertexIndex.erase(oldId);
+            vertexIndex.insert(newId);
+        }
     protected:        
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
@@ -104,7 +127,7 @@ class Octnode {
         /// if false, the node needs updating.
         bool isosurface_valid;
         // the vertex indices for the triangles that this node produces
-        std::vector<unsigned int> vertexIndex;
+        std::set<unsigned int> vertexIndex;
     // STATIC
         /// the direction to the vertices, from the center 
         static Point direction[8];
