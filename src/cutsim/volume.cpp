@@ -39,10 +39,9 @@ namespace ocl
 //************* Sphere **************/
 
 /// sphere at center
-SphereOCTVolume::SphereOCTVolume()
-{
-    center = Point(2,0,0);
-    radius = 3.0;
+SphereOCTVolume::SphereOCTVolume() {
+    center = Point(0,0,0);
+    radius = 1.0;
     calcBB();
 }
 
@@ -53,6 +52,7 @@ double SphereOCTVolume::dist(Point& p ) const {
 
 /// set the bounding box values
 void SphereOCTVolume::calcBB() {
+    bb.clear();
     Point maxpt = Point(center.x + radius, center.y + radius, center.z + radius);
     Point minpt = Point(center.x - radius, center.y - radius, center.z - radius);
     bb.addPoint( maxpt );

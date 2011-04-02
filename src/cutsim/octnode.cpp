@@ -126,11 +126,12 @@ void Octnode::subdivide() {
 }
 
 // evaluate vol->dist() at all the vertices and store in f[]
+// set the insinde/outside flags based on the sings of dist()
 void Octnode::evaluate(const OCTVolume* vol) {
     //assert( childcount==0 );
     outside = true;
     inside = true;
-    for ( int n=0;n<8;++n) {
+    for ( int n=0;n<8;++n) { // go through the 8 corners of the cube
         double newf = vol->dist( *(vertex[n]) );
         if ( !evaluated ) {
             f[n] = newf;

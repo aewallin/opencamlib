@@ -36,7 +36,7 @@ find_library(OCL_LIBRARY
 #find_package(ocl REQUIRED)
 MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 
-set (MOC_HEADERS glwidget.h )
+set (MOC_HEADERS glwidget.h cutsim.h)
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 
 

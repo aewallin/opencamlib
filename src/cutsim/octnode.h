@@ -71,13 +71,13 @@ class Octnode {
         bool valid() const {
             return isosurface_valid;
         }
-        bool surface() const {
+        bool surface() const { // surface nodes are neither inside nor outside
             return ( !inside && !outside );
         }
-    // DATA
         bool hasChild(int n) {
             return (this->child[n] != NULL);
         }
+    // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;
         /// pointer to parent node
@@ -117,6 +117,11 @@ class Octnode {
             vertexIndex.erase(oldId);
             vertexIndex.insert(newId);
         }
+        void clearIndex() {
+            vertexIndex.clear();
+        }
+        // the vertex indices for the triangles that this node produces
+        std::set<unsigned int> vertexIndex;
     protected:        
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
@@ -126,8 +131,6 @@ class Octnode {
         /// flag for telling isosurface extraction is valid for this node
         /// if false, the node needs updating.
         bool isosurface_valid;
-        // the vertex indices for the triangles that this node produces
-        std::set<unsigned int> vertexIndex;
     // STATIC
         /// the direction to the vertices, from the center 
         static Point direction[8];

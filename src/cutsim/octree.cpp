@@ -127,8 +127,9 @@ void Octree::diff_negative_root(const OCTVolume* vol) {
 
 // subtract vol from the Octnode curremt
 void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
-    current->evaluate( vol ); // this sets the inside/outside flags
-    if ( current->childcount == 0) { // process only leaf-nodes
+    current->evaluate( vol ); // this evaluates the distance field
+                              // and sets the inside/outside flags
+    if ( current->isLeaf() ) { // process only leaf-nodes
         if ( current->inside ) { // inside nodes should be deleted
             Octnode* parent = current->parent;
             assert( parent );

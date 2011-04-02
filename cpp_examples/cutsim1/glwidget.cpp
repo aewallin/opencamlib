@@ -98,7 +98,7 @@ void GLWidget::initializeGL() {
     //                GL_SHININESS,
     //                GL_AMBIENT_AND_DIFFUSE, or
     //                GL_COLOR_INDEXES.
-    GLfloat ambientMat[] = {.5,0,0,1}; // rgba reflectance
+    GLfloat ambientMat[] = {.5,0,0,0.5}; // rgba reflectance
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, ambientMat);
     //glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
 
@@ -197,6 +197,12 @@ void GLWidget::updateDir() {
     P3<float> newy = _up.cross(_center-_eye);
     _diry = newy * ( (float)1.0/ newy.norm() );
 }
+void GLWidget::zoomView( const QPoint& newPos ) {
+    float dy = (float)(newPos.y() - _oldMousePos.y()) / (float)_height;
+    _oldMousePos = newPos;
+    zoomView( (int)(dy*120*5) );
+}
+
 void GLWidget::zoomView( int delta ) {
     float dZoom = (float)delta*(0.1/120.0);
     _eye = _center + (_eye-_center)*(dZoom + 1.0);
