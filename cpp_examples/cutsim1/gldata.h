@@ -41,7 +41,7 @@ struct GLVertex {
 
 // additional data not needed for OpenGL rendering
 // but required for the isosurface or cutting-simulation algorithm.
-typedef boost::function2< void, unsigned int, unsigned int> IndexCallBack;
+typedef boost::function2< void, unsigned int, unsigned int> VoidIntIntCallBack;
 struct VertexData {
     void str() {
         BOOST_FOREACH( GLuint pIdx, polygons ) {
@@ -66,7 +66,10 @@ struct VertexData {
     PolygonSet polygons;
     
     // this function is called if the vertex indices change.
-    IndexCallBack callBack;
+    // intended use: each octree-node stores the indexes of the vertices it has produced
+    // to keep this data valid, each node is notified whenever GLData reorders vertices.
+    // the call is: void callBack( oldIndex, newIndex )
+    VoidIntIntCallBack indexSwapCallBack;
     
     //OctreeNode* node; // pointer to the octree-node that generated this vertex
 };
@@ -103,11 +106,7 @@ public:
     int addVertex(float x, float y, float z, float r, float g, float b);
     int addVertex(GLVertex v);
 
-    int addVertex(float x, float y, float z, float r, float g, float b, IndexCallBack c) {
-        int id = addVertex(x,y,z,r,g,b);
-        vertexDataArray[id].callBack = c;
-        return id;
-    }
+    int addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c);
     void setNormal(unsigned int vertexIdx, float x, float y, float z) {
         vertexArray[vertexIdx].setNormal(x,y,z);
     }
@@ -121,19 +120,7 @@ public:
     int indexCount() const { return indexArray.size(); }
     
     
-    template <class Data>
-    QGLBuffer* makeBuffer(  QGLBuffer::Type t, Data& d) {
-        QGLBuffer* buffer = new QGLBuffer(t);
-        buffer->create();
-        if (!buffer->bind())
-            assert(0);
-        buffer->setUsagePattern( usagePattern );
-        //std::cout << " allocating " << sizeof(typename Data::value_type)*d.size() << " bytes.\n";
-        buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
-        //std::cout << " buffer size = " << buffer->size() << "\n";
-        buffer->release();
-        return buffer;
-    }
+
     template <class Data>
     void updateBuffer(  QGLBuffer* buffer, Data& d) {
         if (!buffer->bind())
@@ -193,7 +180,19 @@ public:
     GLVertex pos;
     
 protected:
-
+    template <class Data>
+    QGLBuffer* makeBuffer(  QGLBuffer::Type t, Data& d) {
+        QGLBuffer* buffer = new QGLBuffer(t);
+        buffer->create();
+        if (!buffer->bind())
+            assert(0);
+        buffer->setUsagePattern( usagePattern );
+        //std::cout << " allocating " << sizeof(typename Data::value_type)*d.size() << " bytes.\n";
+        buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
+        //std::cout << " buffer size = " << buffer->size() << "\n";
+        buffer->release();
+        return buffer;
+    }
     /// set type of drawing, e.g. GL_TRIANGLES, GL_QUADS
     void setType(GLenum t) {
         type = t;

@@ -26,6 +26,11 @@ int GLData::addVertex(GLVertex v) {
     return idx; // return index of newly appended vertex
 }
 
+int GLData::addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c) {
+    int id = addVertex(x,y,z,r,g,b);
+    vertexDataArray[id].indexSwapCallBack = c;
+    return id;
+}
 
 void GLData::removeVertex( unsigned int vertexIdx ) {
     // i) for each polygon of this vertex, call remove_polygon:
@@ -39,7 +44,7 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
         vertexDataArray[vertexIdx] = vertexDataArray[lastIdx];
         // notify octree-node with new index here!
         // vertex that was at lastIdx is now at vertexIdx
-        vertexDataArray[vertexIdx].callBack( lastIdx, vertexIdx );
+        vertexDataArray[vertexIdx].indexSwapCallBack( lastIdx, vertexIdx );
         
         // request each polygon to re-number this vertex.
         BOOST_FOREACH( unsigned int polygonIdx, vertexDataArray[vertexIdx].polygons ) {

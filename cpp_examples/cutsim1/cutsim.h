@@ -55,6 +55,7 @@ public:
         mc = new ocl::MarchingCubes();
     } 
     void setGLData(GLData* gldata) {
+        // this is the GLData that corresponds to the tree
         g = gldata;
         g->setTriangles(); // mc: triangles, dual_contour: quads
         g->setPosition(0,0,0); // position offset (?used)
@@ -100,7 +101,7 @@ public:
         }
     }
     void surf() {
-        tris = mc->mc_tree( tree );
+        tris = mc->mc_tree( tree ); // this gets ALL triangles from the tree and stores them here.
         std::cout << " mc() got " << tris.size() << " triangles\n";
     }
     std::vector<ocl::Triangle> getTris() {
@@ -108,7 +109,7 @@ public:
     }
     
 public slots:
-    void cut() {
+    void cut() { // demo slot of doing a cutting operation on the tree with a volume.
         std::cout << " cut! called \n";
         ocl::SphereOCTVolume s;
         s.radius = 3;
@@ -122,10 +123,9 @@ public slots:
     }
 private:
     ocl::MarchingCubes* mc; // simplest isosurface-extraction algorithm
-    std::vector<ocl::Triangle> tris; // do we need to store all tris here??
-    ocl::Octree* tree;
-    GLData* g;
-    //return 0;
+    std::vector<ocl::Triangle> tris; // do we need to store all tris here?? no!
+    ocl::Octree* tree; // this is the stock model
+    GLData* g; // this is the graphics object drawn on the screen
 };
 
 #endif

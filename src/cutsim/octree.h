@@ -25,6 +25,9 @@
 #include <list>
 #include <cassert>
 
+#include <boost/function.hpp>
+
+
 #include "point.h"
 #include "triangle.h"
 #include "bbox.h"
@@ -34,6 +37,17 @@ namespace ocl
 
 class Octnode;
 class OCTVolume;
+
+// the tree uses an iso-surface algorithm that produces vertices and polygons.
+// this defines types for the callback fuctions called on GLData
+
+// addVertex
+
+// addPolygon( vertexIdx0, vertexIdx1, vertexIdx2 )   
+// (polygons are removed automatically by GLData when vertices are removed)
+typedef boost::function3< void, unsigned int, unsigned int, unsigned int> Void3UIntCallBack;
+// void removeVertex( vertexIdx )
+typedef boost::function1< void, unsigned int> VoidUIntCallBack;
 
 /// Octree class for cutting simulation
 /// see http://en.wikipedia.org/wiki/Octree
