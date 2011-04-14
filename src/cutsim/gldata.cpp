@@ -4,11 +4,11 @@
 #include <set>
 #include <vector>
 
-#include <QObject>
-#include <QGLBuffer>
-#include <QVarLengthArray>
+//#include <QObject>
+//#include <QGLBuffer>
+//#include <QVarLengthArray>
 
-#include <boost/foreach.hpp> 
+//#include <boost/foreach.hpp> 
 
 #include "gldata.h"
 
@@ -28,13 +28,23 @@ int GLData::addVertex(GLVertex v) {
     return idx; // return index of newly appended vertex
 }
 
+/*
 int GLData::addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c) {
     int id = addVertex(x,y,z,r,g,b);
     vertexDataArray[id].indexSwapCallBack = c;
     return id;
+}*/
+
+int GLData::addVertex(float x, float y, float z, float r, float g, float b, Octnode* n) {
+    int id = addVertex(x,y,z,r,g,b);
+    vertexDataArray[id].node = n;
+    return id;
 }
 
+
 void GLData::removeVertex( unsigned int vertexIdx ) {
+    //std::cout << "GLData::removeVertex( " << vertexIdx << " )\n";
+    
     // i) for each polygon of this vertex, call remove_polygon:
     BOOST_FOREACH( unsigned int polygonIdx, vertexDataArray[vertexIdx].polygons ) {
         removePolygon( polygonIdx );
@@ -46,7 +56,8 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
         vertexDataArray[vertexIdx] = vertexDataArray[lastIdx];
         // notify octree-node with new index here!
         // vertex that was at lastIdx is now at vertexIdx
-        vertexDataArray[vertexIdx].indexSwapCallBack( lastIdx, vertexIdx );
+        //vertexDataArray[vertexIdx].indexSwapCallBack( lastIdx, vertexIdx );
+        vertexDataArray[vertexIdx].node->swapIndex( lastIdx, vertexIdx );
         
         // request each polygon to re-number this vertex.
         BOOST_FOREACH( unsigned int polygonIdx, vertexDataArray[vertexIdx].polygons ) {
@@ -74,7 +85,7 @@ int GLData::addPolygon( std::vector<GLuint>& verts) {
 }
 
 void GLData::removePolygon( unsigned int polygonIdx) {
-    std::cout << " removePolygon( " << polygonIdx << " )\n";
+    //std::cout << " removePolygon( " << polygonIdx << " )\n";
     unsigned int idx = polyVerts*polygonIdx; // start-index for polygon
     // i) request remove for each vertex in polygon:
     for (int m=0; m<polyVerts ; ++m)

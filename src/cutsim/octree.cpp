@@ -121,7 +121,7 @@ void Octree::get_all_nodes(Octnode* current, std::vector<Octnode*>& nodelist) co
 }
 
 // subtract vol from the root
-void Octree::diff_negative_root(const OCTVolume* vol) {
+void Octree::diff_negative(const OCTVolume* vol) {
     diff_negative( this->root, vol);
 }
 
@@ -131,37 +131,38 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
                               // and sets the inside/outside flags
     if ( current->isLeaf() ) { // process only leaf-nodes
         if ( current->inside ) { // inside nodes should be deleted
-            Octnode* parent = current->parent;
-            assert( parent );
-            if (parent) {
-                unsigned int delete_index = current->idx;
-                assert( delete_index >=0 && delete_index <=7 ); 
-                delete parent->child[ delete_index ];
-                parent->child[ delete_index ]=0;
-                --parent->childcount;
-                assert( parent->childcount >=0 && parent->childcount <=8);
-                
-                if (parent->childcount == 0)  { // if the parent has become a leaf node
-                    parent->evaluate( vol );
-                    assert( parent->inside  ); // then it is itself inside
-                }
+            Octnode* parent = current->parent;                          assert( parent );
+            //if (parent) {
+            remove_node_vertices(current);
+            
+            unsigned int delete_index = current->idx;                   assert( delete_index >=0 && delete_index <=7 ); 
+            delete parent->child[ delete_index ]; // call destructor!
+            parent->child[ delete_index ]=0;
+            --parent->childcount;
+            assert( parent->childcount >=0 && parent->childcount <=8);
+            if (parent->childcount == 0)  { // if the parent has become a leaf node
+                //diff_negative(parent, vol); // this causes segfault...
+                parent->evaluate( vol ); // back up the tree
+                assert( parent->inside  ); // then it is itself inside
             }
-        } else if (current->outside) {// we do nothing to outside nodes.
+            //}
+        } else if (current->outside) {
+            // outside nodes should not have vertices associated with them
+            // remove_node_vertices(current);
         } else {// these are intermediate nodes
             if ( current->depth < (this->max_depth) ) { // subdivide, if possible
-                current->subdivide();
-                assert( current->childcount == 8 );
+                current->subdivide();                                   assert( current->childcount == 8 );
                 for(int m=0;m<8;++m) {
                     assert(current->child[m]); // when we subdivide() there must be a child.
                     if ( vol->bb.overlaps( current->child[m]->bb ) )
                         diff_negative( current->child[m], vol); // build child
                 }
             } else { 
-                // max depth reached, can't subdivide
+                // max depth reached, intermediate node, but can't subdivide anymore
             }
         }
-    } else {
-        for(int m=0;m<8;++m) { // not a leaf, so go deeper into tree
+    } else { // not a leaf, so go deeper into tree
+        for(int m=0;m<8;++m) { 
                 if ( current->child[m] ) {
                     if ( vol->bb.overlaps( current->child[m]->bb ) )
                         diff_negative( current->child[m], vol); // build child

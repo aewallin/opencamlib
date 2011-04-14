@@ -137,7 +137,7 @@ void Octnode::evaluate(const OCTVolume* vol) {
             f[n] = newf;
             setInValid();
             //isosurface_valid = false; 
-        } else if( (newf < f[n] )   ) {
+        } else if( (newf < f[n] )   ) { // only update distance field if new distance is smaller than old stored distance
             f[n] = newf;
             setInValid();
             //isosurface_valid = false; 

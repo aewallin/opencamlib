@@ -12,6 +12,8 @@
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
 
+#include "octnode.h"
+
 namespace ocl
 {
 
@@ -43,7 +45,7 @@ struct GLVertex {
 
 // additional data not needed for OpenGL rendering
 // but required for the isosurface or cutting-simulation algorithm.
-typedef boost::function2< void, unsigned int, unsigned int> VoidIntIntCallBack;
+//typedef boost::function2< void, unsigned int, unsigned int> VoidIntIntCallBack;
 struct VertexData {
     void str() {
         BOOST_FOREACH( GLuint pIdx, polygons ) {
@@ -71,7 +73,8 @@ struct VertexData {
     // intended use: each octree-node stores the indexes of the vertices it has produced
     // to keep this data valid, each node is notified whenever GLData reorders vertices.
     // the call is: void callBack( oldIndex, newIndex )
-    VoidIntIntCallBack indexSwapCallBack;
+    //VoidIntIntCallBack indexSwapCallBack;
+    Octnode* node;
     
     //OctreeNode* node; // pointer to the octree-node that generated this vertex
 };
@@ -108,10 +111,12 @@ public:
     int addVertex(float x, float y, float z, float r, float g, float b);
     int addVertex(GLVertex v);
 
-    int addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c);
+    //int addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c);
     void setNormal(unsigned int vertexIdx, float x, float y, float z) {
         vertexArray[vertexIdx].setNormal(x,y,z);
     }
+    int addVertex(float x, float y, float z, float r, float g, float b, Octnode* n);
+    
     /// remove vertex at given index
     void removeVertex( unsigned int vertexIdx );
     /// add a polygon, return its index

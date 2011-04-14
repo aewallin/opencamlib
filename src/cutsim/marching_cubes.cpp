@@ -39,6 +39,7 @@ namespace ocl
         
         
         // starting at root, find all leafs and run mc.
+        /*
         std::vector<Triangle> MarchingCubes::mc_tree(Octree* tree) {
             std::vector<Octnode*> leaf_nodes;
             tree->get_leaf_nodes( leaf_nodes );
@@ -52,7 +53,7 @@ namespace ocl
             }
             return triangles;
         }
-        
+        */
 
         
         // run mc on one Octnode

@@ -26,11 +26,13 @@
 #include <cassert>
 
 #include <boost/function.hpp>
-
+#include <boost/bind.hpp>
 
 #include "point.h"
 #include "triangle.h"
 #include "bbox.h"
+#include "gldata.h"
+#include "marching_cubes.h"
 
 namespace ocl
 {
@@ -45,9 +47,9 @@ class OCTVolume;
 
 // addPolygon( vertexIdx0, vertexIdx1, vertexIdx2 )   
 // (polygons are removed automatically by GLData when vertices are removed)
-typedef boost::function3< void, unsigned int, unsigned int, unsigned int> Void3UIntCallBack;
+//typedef boost::function3< void, unsigned int, unsigned int, unsigned int> Void3UIntCallBack;
 // void removeVertex( vertexIdx )
-typedef boost::function1< void, unsigned int> VoidUIntCallBack;
+//typedef boost::function1< void, unsigned int> VoidUIntCallBack;
 
 /// Octree class for cutting simulation
 /// see http://en.wikipedia.org/wiki/Octree
@@ -70,7 +72,7 @@ class Octree {
         /// tree-depth of max_depth and centered at centerp.
         Octree(double root_scale, unsigned int max_depth, Point& centerPoint);
         /// subtract vol from tree
-        void diff_negative_root(const OCTVolume* vol);
+        void diff_negative(const OCTVolume* vol);
         /// find all leaf-nodes
         void get_leaf_nodes( std::vector<Octnode*>& nodelist) const {
             get_leaf_nodes( root,  nodelist);
@@ -96,10 +98,69 @@ class Octree {
         /// string output
         std::string str() const;
         Octnode* getRoot() {return root;}
+        void setGLData(GLData* gdata) {
+            g=gdata;
+        }
+        void updateGL() { updateGL(root); }
+        void setIsoSurf(MarchingCubes* m) {mc = m;}
         
     protected:
+    
+        void updateGL(Octnode* current) {
+            // starting at current, update the isosurface
+            if ( current->isLeaf() && current->surface() && !current->valid() ) { 
+                // this is a leaf and a surface-node
+                // std::vector<ocl::Triangle> node_tris = mc->mc_node(current);
+                BOOST_FOREACH(ocl::Triangle t, mc->mc_node(current) ) {
+                    double r=1,gr=0,b=0;
+                    std::vector<unsigned int> polyIndexes;
+                    for (int m=0;m<3;++m) { // FOUR for quads
+                        //unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
+                        //                        boost::bind(&Octnode::swapIndex, current, _1, _2)) ; // add vertex to GL
+                        
+                        unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
+                                                current ); // add vertex to GL
+                                                
+                        g->setNormal( vertexId, t.n.x, t.n.y, t.n.z );
+                        polyIndexes.push_back( vertexId );
+                        current->addIndex( vertexId ); // associate node with vertex
+                    }
+                    g->addPolygon(polyIndexes); // add poly to GL
+                    current->setValid(); // isosurface is now valid for this node!
+                }
+            } else if ( current->isLeaf() && !current->surface() && !current->valid() ) { //leaf, but no surface
+                // remove vertices, if any
+                //std::cout << " octree updateGL REMOVE VERTEX case \n";
+                //remove_node_vertices(current );
+                //assert(0);
+                /*
+                BOOST_FOREACH(unsigned int vId, current->vertexSet ) {
+                    g->removeVertex(vId);
+                }
+                current->clearIndex();
+                current->setValid();*/
+            }
+            else {
+                for (int m=0;m<8;++m) { // go deeper into tree, if !valid
+                    if ( current->hasChild(m) && !current->valid() ) {
+                        updateGL(current->child[m]);
+                    }
+                }
+            }
+        }
+        
         /// recursively traverse the tree subtracting vol
         void diff_negative(Octnode* current, const OCTVolume* vol);
+        
+        // remove vertices associated with the current node
+        void remove_node_vertices(Octnode* current ) {
+            while( !current->vertexSet.empty() ) {
+                std::set<unsigned int>::iterator first = current->vertexSet.begin();
+                g->removeVertex( *first );
+                current->removeIndex( *first );
+            }
+            assert( current->vertexSet.empty() );
+        }
     // DATA
         /// the root scale
         double root_scale;
@@ -107,6 +168,8 @@ class Octree {
         unsigned int max_depth;
         /// pointer to the root node
         Octnode* root;
+        GLData* g;
+        MarchingCubes* mc;
 };
 
 } // end namespace

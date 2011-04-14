@@ -100,10 +100,12 @@ public:
             }
         }
     }
+    
     void surf() {
         tris = mc->mc_tree( tree ); // this gets ALL triangles from the tree and stores them here.
         std::cout << " mc() got " << tris.size() << " triangles\n";
     }
+    
     std::vector<ocl::Triangle> getTris() {
         return tris;
     }

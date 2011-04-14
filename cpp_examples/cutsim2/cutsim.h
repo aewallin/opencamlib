@@ -33,10 +33,10 @@ public:
     // Octree(root_scale, max_depth, cp)
     Cutsim () {
         ocl::Point octree_center(0,0,0);
-        unsigned int max_depth = 7;
+        unsigned int max_depth = 8;
         tree = new ocl::Octree(10.0, max_depth, octree_center );
         std::cout << " tree before init: " << tree->str() << "\n";
-        tree->init(3u);
+        tree->init(4u);
         std::cout << " tree after init: " << tree->str() << "\n";
         ocl::PlaneVolume px_plus(true, 0u, -7);
         ocl::PlaneVolume px_minus(false, 0u, 7);
@@ -45,14 +45,15 @@ public:
         ocl::PlaneVolume pz_plus(true, 2u, -7);
         ocl::PlaneVolume pz_minus(false, 2u, 7);
         
-        tree->diff_negative_root( &px_plus  );
-        tree->diff_negative_root( &px_minus );
-        tree->diff_negative_root( &py_plus  );
-        tree->diff_negative_root( &py_minus );
-        tree->diff_negative_root( &pz_plus  );
-        tree->diff_negative_root( &pz_minus );
-        
+        tree->diff_negative( &px_plus  );
+        tree->diff_negative( &px_minus );
+        tree->diff_negative( &py_plus  );
+        tree->diff_negative( &py_minus );
+        tree->diff_negative( &pz_plus  );
+        tree->diff_negative( &pz_minus );
+        std::cout << " tree after pane-cut: " << tree->str() << "\n";
         mc = new ocl::MarchingCubes();
+        tree->setIsoSurf(mc);
     } 
     void setGLData(ocl::GLData* gldata) {
         // this is the GLData that corresponds to the tree
@@ -60,12 +61,16 @@ public:
         g->setTriangles(); // mc: triangles, dual_contour: quads
         g->setPosition(0,0,0); // position offset (?used)
         g->setUsageDynamicDraw();
+        tree->setGLData(g);
     }
     void updateGL() {
         // traverse the octree and update the GLData correspondingly
-        ocl::Octnode* root = tree->getRoot();
-        updateGL(root);
+        //ocl::Octnode* root = tree->getRoot();
+        tree->updateGL();
     }
+    
+    // update the GLData 
+    /*
     void updateGL(ocl::Octnode* current) {
         // starting at current, update the isosurface
         if ( current->isLeaf() && current->surface() && !current->valid() ) { 
@@ -99,14 +104,18 @@ public:
                 }
             }
         }
-    }
+    }*/
+    
+    /*
     void surf() {
         tris = mc->mc_tree( tree ); // this gets ALL triangles from the tree and stores them here.
         std::cout << " mc() got " << tris.size() << " triangles\n";
     }
+    
+    
     std::vector<ocl::Triangle> getTris() {
         return tris;
-    }
+    }*/
     
 public slots:
     void cut() { // demo slot of doing a cutting operation on the tree with a volume.
@@ -116,11 +125,12 @@ public slots:
         s.center = ocl::Point(7,7,7);
         s.calcBB();
         std::cout << " before diff: " << tree->str() << "\n";
-        tree->diff_negative_root( &s );
+        tree->diff_negative( &s );
         std::cout << " AFTER diff: " << tree->str() << "\n";
 
         updateGL();
     }
+    
 private:
     ocl::MarchingCubes* mc; // simplest isosurface-extraction algorithm
     std::vector<ocl::Triangle> tris; // do we need to store all tris here?? no!

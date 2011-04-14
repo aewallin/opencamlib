@@ -253,7 +253,7 @@ ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-# include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
+include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 if (BUILD_PY_LIB)

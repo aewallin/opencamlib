@@ -117,12 +117,21 @@ class Octnode {
             vertexSet.erase(oldId);
             vertexSet.insert(newId);
         }
+        void removeIndex(unsigned int id) {vertexSet.erase(id);}
+        
         void clearIndex() {
             vertexSet.clear();
         }
         // the vertex indices for the triangles that this node produces
         std::set<unsigned int> vertexSet;
-    protected:        
+
+        
+
+        
+    protected:   
+        
+
+         
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
         /// return center of child with index n
