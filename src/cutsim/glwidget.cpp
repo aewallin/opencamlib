@@ -7,6 +7,9 @@
 
 #include "glwidget.h"
 
+namespace ocl
+{
+
 GLWidget::GLWidget( QWidget *parent, char *name ) 
   : QGLWidget(parent) {
     timer = new QTimer(this);
@@ -238,6 +241,8 @@ void GLWidget::rotateView(const QPoint& newPos) {
     updateGL();
 }
         
+} // end ocl namespace
+
 
 // mouse movement
 // dx in [-1,1]

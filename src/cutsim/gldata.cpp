@@ -12,6 +12,8 @@
 
 #include "gldata.h"
 
+namespace ocl
+{
 
 int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
     return addVertex( GLVertex(x,y,z,r,g,b) );
@@ -141,5 +143,5 @@ void GLData::print() {
 }
 
 
-
+} // end ocl namespace
 

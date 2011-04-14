@@ -12,6 +12,8 @@
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
 
+namespace ocl
+{
 
 
 struct GLVertex {
@@ -206,9 +208,15 @@ protected:
     /// number of vertices per polygon. 3 for GL_TRIANGLES, 4 for GL_QUADS
     int polyVerts; 
     
+    // vertices stored in this array. this array is bound to the OpenGL buffer
+    // and used directly for drawing as the OpenGL vertex, color, and normal array.
     QVarLengthArray<GLVertex> vertexArray;
-    QVarLengthArray< VertexData > vertexDataArray;
+    // extran vertex data is stored here. this data is not needed for OpenGL drawing.
+    QVarLengthArray<VertexData> vertexDataArray;
+    // this is the index array for drawing polygons. used by OpenGL glDrawElements
     QVarLengthArray<GLuint> indexArray;
 };
+
+} // end namespace
 
 #endif

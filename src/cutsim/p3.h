@@ -2,6 +2,10 @@
 #ifndef GLPOINT_H
 #define GLPOINT_H
 
+#include <QString>
+
+namespace ocl {
+
 template <class Scalar>
 class  P3 {
 public:
@@ -94,5 +98,7 @@ public:
     QString str() { return QString("(%1, %2, %3 )").arg(x).arg(y).arg(z); }
 
 };
+
+} // end namespace
 
 #endif

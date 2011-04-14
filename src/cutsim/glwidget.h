@@ -17,12 +17,17 @@
 #include <set>
 #include <vector>
 
+#include "gldata.h"
+#include "p3.h"
+
+namespace ocl
+{
+
 #define PI 3.14159265
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + (i))
 
-#include "gldata.h"
-#include "point.h"
+
 
 class GLWidget : public QGLWidget {
     Q_OBJECT
@@ -123,4 +128,7 @@ class GLWidget : public QGLWidget {
         bool _middleButtonPressed;
         QTime _lastFrameTime;
 };
+
+} // end ocl namespace
+
 #endif
