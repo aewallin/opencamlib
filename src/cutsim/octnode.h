@@ -112,16 +112,16 @@ class Octnode {
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
-        void addIndex(unsigned int id) { vertexIndex.insert(id); }
+        void addIndex(unsigned int id) { vertexSet.insert(id); }
         void swapIndex(unsigned int oldId, unsigned int newId) {
-            vertexIndex.erase(oldId);
-            vertexIndex.insert(newId);
+            vertexSet.erase(oldId);
+            vertexSet.insert(newId);
         }
         void clearIndex() {
-            vertexIndex.clear();
+            vertexSet.clear();
         }
         // the vertex indices for the triangles that this node produces
-        std::set<unsigned int> vertexIndex;
+        std::set<unsigned int> vertexSet;
     protected:        
         /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
         Point interpolate(int idx1, int idx2);
