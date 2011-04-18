@@ -56,7 +56,6 @@ void GLData::removeVertex( unsigned int vertexIdx ) {
         vertexDataArray[vertexIdx] = vertexDataArray[lastIdx];
         // notify octree-node with new index here!
         // vertex that was at lastIdx is now at vertexIdx
-        //vertexDataArray[vertexIdx].indexSwapCallBack( lastIdx, vertexIdx );
         vertexDataArray[vertexIdx].node->swapIndex( lastIdx, vertexIdx );
         
         // request each polygon to re-number this vertex.

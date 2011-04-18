@@ -112,17 +112,29 @@ class Octnode {
         friend std::ostream& operator<<(std::ostream &stream, const Octnode &o);
         /// string repr
         std::string str() const;
-        void addIndex(unsigned int id) { vertexSet.insert(id); }
+        
+        void addIndex(unsigned int id) { 
+            std::set<unsigned int>::iterator found = vertexSet.find( id );
+            assert( found == vertexSet.end() );
+            
+            vertexSet.insert(id); 
+        }
         void swapIndex(unsigned int oldId, unsigned int newId) {
+            std::set<unsigned int>::iterator found = vertexSet.find(oldId);
+            assert( found != vertexSet.end() );
+            
             vertexSet.erase(oldId);
             vertexSet.insert(newId);
         }
-        void removeIndex(unsigned int id) {vertexSet.erase(id);}
-        
-        void clearIndex() {
-            vertexSet.clear();
+        void removeIndex(unsigned int id) {
+            std::set<unsigned int>::iterator found = vertexSet.find( id );
+            assert( found != vertexSet.end() );
+            
+            vertexSet.erase(id);
         }
-        // the vertex indices for the triangles that this node produces
+        
+
+        // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;
 
         

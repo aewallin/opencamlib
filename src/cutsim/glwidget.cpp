@@ -159,6 +159,8 @@ void GLWidget::paintGL()  {
         
         if ( !g->bind() )
             assert(0);
+            
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // this draws polygons in wireframe mode
         
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);

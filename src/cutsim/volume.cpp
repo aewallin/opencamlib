@@ -113,6 +113,7 @@ BoxOCTVolume::BoxOCTVolume()
 }
 
 void BoxOCTVolume::calcBB() {
+    bb.clear();
     bb.addPoint(corner);
     bb.addPoint(corner+v1);
     bb.addPoint(corner+v2);
@@ -121,6 +122,7 @@ void BoxOCTVolume::calcBB() {
 
 bool BoxOCTVolume::isInside(Point& p) const
 {
+    /*
     // translate to origo
     Point pt = p - corner;
     
@@ -159,8 +161,8 @@ bool BoxOCTVolume::isInside(Point& p) const
     //t = pt.dot(v3)/v3.dot(v3);
     //if ( (t < 0.0) || (t>1.0) )
     //    return false;
-    
-    return true;
+    */
+    return (dist(p) <= 0.0);
     
 }
 

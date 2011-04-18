@@ -135,13 +135,15 @@ void Octnode::evaluate(const OCTVolume* vol) {
         double newf = vol->dist( *(vertex[n]) );
         if ( !evaluated ) {
             f[n] = newf;
-            setInValid();
+            //setInValid();
             //isosurface_valid = false; 
         } else if( (newf < f[n] )   ) { // only update distance field if new distance is smaller than old stored distance
             f[n] = newf;
-            setInValid();
+            //setInValid();
             //isosurface_valid = false; 
         } 
+        
+        // set the flags
         if ( f[n] <= 0.0 ) {// if one vertex is inside
             outside = false; // then it's not an outside-node
         } else { // if one vertex is outside
@@ -169,7 +171,7 @@ void Octnode::print_surfaces() {
 
 // string repr
 std::ostream& operator<<(std::ostream &stream, const Octnode &n) {
-    stream << " Octnode: N=";     
+    stream << " c=" << *(n.center) << " depth=" << n.depth ;     
     return stream;
 }
 

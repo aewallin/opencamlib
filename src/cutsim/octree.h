@@ -103,7 +103,7 @@ class Octree {
         }
         void updateGL() { updateGL(root); }
         void setIsoSurf(MarchingCubes* m) {mc = m;}
-        
+        bool debug;
     protected:
     
         void updateGL(Octnode* current) {
@@ -154,10 +154,16 @@ class Octree {
         
         // remove vertices associated with the current node
         void remove_node_vertices(Octnode* current ) {
+            if ( !current->vertexSet.empty() ) {
+                std::cout << " removing " << current->vertexSet.size() << " vertices \n";
+                //char c;
+                //std::cin >> c;     
+            }       
             while( !current->vertexSet.empty() ) {
                 std::set<unsigned int>::iterator first = current->vertexSet.begin();
-                g->removeVertex( *first );
-                current->removeIndex( *first );
+                unsigned int delId = *first;
+                current->removeIndex( delId );
+                g->removeVertex( delId );
             }
             assert( current->vertexSet.empty() );
         }
@@ -170,6 +176,7 @@ class Octree {
         Octnode* root;
         GLData* g;
         MarchingCubes* mc;
+        
 };
 
 } // end namespace

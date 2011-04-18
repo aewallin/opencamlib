@@ -33,27 +33,55 @@ public:
     // Octree(root_scale, max_depth, cp)
     Cutsim () {
         ocl::Point octree_center(0,0,0);
-        unsigned int max_depth = 8;
+        unsigned int max_depth = 7;
         tree = new ocl::Octree(10.0, max_depth, octree_center );
         std::cout << " tree before init: " << tree->str() << "\n";
-        tree->init(4u);
+        tree->init(2u);
+        tree->debug=false;
         std::cout << " tree after init: " << tree->str() << "\n";
-        ocl::PlaneVolume px_plus(true, 0u, -7);
-        ocl::PlaneVolume px_minus(false, 0u, 7);
-        ocl::PlaneVolume py_plus(true, 1u, -7);
-        ocl::PlaneVolume py_minus(false, 1u, 7);
-        ocl::PlaneVolume pz_plus(true, 2u, -7);
-        ocl::PlaneVolume pz_minus(false, 2u, 7);
         
-        tree->diff_negative( &px_plus  );
-        tree->diff_negative( &px_minus );
-        tree->diff_negative( &py_plus  );
-        tree->diff_negative( &py_minus );
-        tree->diff_negative( &pz_plus  );
-        tree->diff_negative( &pz_minus );
+        /*
+        ocl::BoxOCTVolume stock_box;
+        stock_box.corner = ocl::Point(-7,-7,-7);
+        stock_box.v1 = ocl::Point(14,0,0);
+        stock_box.v2 = ocl::Point(0,14,0);
+        stock_box.v3 = ocl::Point(0,0,14);
+        stock_box.calcBB();
+        */
+        
+        ocl::SphereOCTVolume stock_sphere;
+        stock_sphere.radius = 7;
+        stock_sphere.center = ocl::Point(0,0,0);
+        stock_sphere.calcBB();
+        
+        /*
+        stock_box.corner = ocl::Point(-7,-7,-7);
+        stock_box.v1 = ocl::Point(14,0,0);
+        stock_box.v2 = ocl::Point(0,14,0);
+        stock_box.v3 = ocl::Point(0,0,14);
+        stock_box.calcBB();
+        */
+        
+        //ocl::PlaneVolume px_plus(false, 0u, 7);
+        //ocl::PlaneVolume px_minus(true, 0u, -7);
+        //ocl::PlaneVolume py_plus(false, 1u, 7);
+        //ocl::PlaneVolume py_minus(true, 1u, -7);
+        //ocl::PlaneVolume pz_plus(false, 2u, 7);
+        //ocl::PlaneVolume pz_minus(true, 2u, -7);
+        
+        //tree->diff_negative( &px_plus  );
+        //tree->diff_negative( &px_minus );
+        //tree->diff_negative( &py_plus  );
+        //tree->diff_negative( &py_minus );
+        //tree->diff_negative( &pz_plus  );
+        //tree->diff_negative( &pz_minus );
+        
+        tree->diff_negative( &stock_sphere );
+        
         std::cout << " tree after pane-cut: " << tree->str() << "\n";
         mc = new ocl::MarchingCubes();
         tree->setIsoSurf(mc);
+        //tree->debug=true;
     } 
     void setGLData(ocl::GLData* gldata) {
         // this is the GLData that corresponds to the tree
@@ -122,13 +150,13 @@ public slots:
         std::cout << " cut! called \n";
         ocl::SphereOCTVolume s;
         s.radius = 3;
-        s.center = ocl::Point(7,7,7);
+        s.center = ocl::Point(4,4,4);
         s.calcBB();
         std::cout << " before diff: " << tree->str() << "\n";
         tree->diff_negative( &s );
         std::cout << " AFTER diff: " << tree->str() << "\n";
 
-        updateGL();
+        //updateGL();
     }
     
 private:

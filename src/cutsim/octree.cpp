@@ -130,9 +130,28 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
     current->evaluate( vol ); // this evaluates the distance field
                               // and sets the inside/outside flags
     if ( current->isLeaf() ) { // process only leaf-nodes
-        if ( current->inside ) { // inside nodes should be deleted
+        if ( current->inside && !current->outside ) { 
+            // inside nodes should be deleted
             Octnode* parent = current->parent;                          assert( parent );
-            //if (parent) {
+            // if (parent) {
+            if (debug) {
+                double dist = ( *(current->center) -  Point(4,4,4)).norm();
+                std::cout << " inside node, remove!: " << current->str() << " d= " << dist << " \n";
+                if ( dist > 3.0 ) {
+                    std::cout << " corners: \n";
+                    for(int m=0;m<8;++m) {
+                        double dist2 = ( *(current->vertex[m]) -  Point(7,7,7)).norm();
+                        std::cout << *(current->vertex[m]) << " d= " << dist2 << " \n";
+                    }
+                    std::cout << " f-values: \n";
+                    for(int m=0;m<8;++m) {
+                        std::cout << current->f[m] << " ";
+                    }
+                    std::cout << "\n";
+                }
+                //assert( dist < 3.0 );
+            }
+            
             remove_node_vertices(current);
             
             unsigned int delete_index = current->idx;                   assert( delete_index >=0 && delete_index <=7 ); 
@@ -147,15 +166,16 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
             }
             //}
         } else if (current->outside) {
-            // outside nodes should not have vertices associated with them
-            // remove_node_vertices(current);
-        } else {// these are intermediate nodes
-            if ( current->depth < (this->max_depth) ) { // subdivide, if possible
+            // do nothing to outside  leaf nodes.
+            // this terminates recursion.
+        } else {// these are intermediate leaf nodes
+            if ( current->depth < (this->max_depth) ) { 
+                // subdivide, if possible
                 current->subdivide();                                   assert( current->childcount == 8 );
                 for(int m=0;m<8;++m) {
                     assert(current->child[m]); // when we subdivide() there must be a child.
                     if ( vol->bb.overlaps( current->child[m]->bb ) )
-                        diff_negative( current->child[m], vol); // build child
+                        diff_negative( current->child[m], vol); // call diff on child
                 }
             } else { 
                 // max depth reached, intermediate node, but can't subdivide anymore
@@ -165,7 +185,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
         for(int m=0;m<8;++m) { 
                 if ( current->child[m] ) {
                     if ( vol->bb.overlaps( current->child[m]->bb ) )
-                        diff_negative( current->child[m], vol); // build child
+                        diff_negative( current->child[m], vol); // call diff on child
                 }
         }
     }

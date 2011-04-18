@@ -130,7 +130,89 @@ class BoxOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
         /// update the bounding-box
         void calcBB();
-        double dist(Point& p) const {return -1;}
+        double dist(Point& p) const {
+            // translate to origo
+            //Point pt = p - corner;
+            double max_x = corner.x + v1.x;
+            double min_x = corner.x;
+            double max_y = corner.y + v2.y;
+            double min_y = corner.y;
+            double max_z = corner.z + v3.z;
+            double min_z = corner.z;
+            
+            double xdist;
+            if (p.x < min_x) {
+                xdist = min_x - p.x;
+            } else if ( (min_x <= p.x) && (p.x <= max_x) ) {
+                if ( (p.x-min_x) > (max_x-p.x) )
+                    xdist = p.x-min_x;
+                else
+                    xdist = max_x-p.x;
+            } else if ( p.x > max_x ) {
+                xdist = p.x-max_x;
+            } else {
+                assert(0);
+            }
+            
+            double ydist;
+            if (p.y < min_y) {
+                ydist = min_y - p.y;
+            } else if ( (min_y <= p.y) && (p.y <= max_y) ) {
+                if ( (p.y-min_y) > (max_y-p.y) )
+                    ydist = p.y-min_y;
+                else
+                    ydist = max_y-p.y;
+            } else if ( p.y > max_y ) {
+                ydist = p.y-max_y;
+            } else {
+                assert(0);
+            }
+            
+            double zdist;
+            if (p.z < min_z) {
+                zdist = min_z - p.z;
+            } else if ( (min_z <= p.z) && (p.z <= max_z) ) {
+                if ( (p.z-min_z) > (max_z-p.z) )
+                    zdist = p.z-min_z;
+                else
+                    zdist = max_z-p.z;
+            } else if ( p.z > max_z ) {
+                zdist = p.z-max_z;
+            } else {
+                assert(0);
+            }
+            
+            if ( xdist <= ydist && xdist <= zdist )
+                return xdist;
+            else if ( ydist < xdist && ydist < zdist )
+                return ydist;
+            else if ( zdist < xdist && zdist < xdist )
+                return zdist;
+            else {
+                assert(0);
+                return -1;
+            }
+            // box is = a*v1 + b*v2 + c*v3
+            // where a,b,c are in [0,1]
+            
+            // v1 radial
+            // v2 along move
+            // v3 axial(z-dir)
+            /*
+            Point v1xy = v1;
+            v1xy.z = 0;
+            
+            Point v2xy = v2;
+            v2xy.z = 0;
+            
+            // projection along each vector, in turn
+            // this only works if the vectors are orthogonal
+            double t1 = pt.dot(v1xy)/v1xy.dot(v1xy);
+            if ( (t1 < 0.0) || (t1>1.0) )
+                return false;
+            */
+            //return dist;
+        }
 };
 
 /// elliptic tube volume
