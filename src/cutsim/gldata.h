@@ -108,14 +108,14 @@ struct VertexData {
 class GLData {
 public:
     /// add a vertex, return its index
-    int addVertex(float x, float y, float z, float r, float g, float b);
-    int addVertex(GLVertex v);
+    unsigned int addVertex(float x, float y, float z, float r, float g, float b);
+    unsigned int addVertex(GLVertex v);
 
     //int addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c);
     void setNormal(unsigned int vertexIdx, float x, float y, float z) {
         vertexArray[vertexIdx].setNormal(x,y,z);
     }
-    int addVertex(float x, float y, float z, float r, float g, float b, Octnode* n);
+    unsigned int addVertex(float x, float y, float z, float r, float g, float b, Octnode* n);
     
     /// remove vertex at given index
     void removeVertex( unsigned int vertexIdx );

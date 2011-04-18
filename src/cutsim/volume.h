@@ -77,6 +77,7 @@ class SphereOCTVolume: public OCTVolume {
         /// update the Bbox
         void calcBB();
         double dist(Point& p) const;
+        bool invert;
 };
 
 /// cube at center with side-length side

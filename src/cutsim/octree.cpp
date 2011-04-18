@@ -127,12 +127,14 @@ void Octree::diff_negative(const OCTVolume* vol) {
 
 // subtract vol from the Octnode curremt
 void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
-    current->evaluate( vol ); // this evaluates the distance field
-                              // and sets the inside/outside flags
+
     if ( current->isLeaf() ) { // process only leaf-nodes
-        if ( current->inside && !current->outside ) { 
+        current->evaluate( vol ); // this evaluates the distance field
+                              // and sets the inside/outside flags
+                              
+        if ( current->inside  ) { 
             // inside nodes should be deleted
-            Octnode* parent = current->parent;                          assert( parent );
+            
             // if (parent) {
             if (debug) {
                 double dist = ( *(current->center) -  Point(4,4,4)).norm();
@@ -154,6 +156,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
             
             remove_node_vertices(current);
             
+            Octnode* parent = current->parent;                          assert( parent );
             unsigned int delete_index = current->idx;                   assert( delete_index >=0 && delete_index <=7 ); 
             delete parent->child[ delete_index ]; // call destructor!
             parent->child[ delete_index ]=0;
@@ -168,7 +171,7 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
         } else if (current->outside) {
             // do nothing to outside  leaf nodes.
             // this terminates recursion.
-        } else {// these are intermediate leaf nodes
+        } else {// these are intermediate (netiher inside nor outside) leaf nodes
             if ( current->depth < (this->max_depth) ) { 
                 // subdivide, if possible
                 current->subdivide();                                   assert( current->childcount == 8 );
@@ -183,13 +186,80 @@ void Octree::diff_negative(Octnode* current, const OCTVolume* vol) {
         }
     } else { // not a leaf, so go deeper into tree
         for(int m=0;m<8;++m) { 
-                if ( current->child[m] ) {
-                    if ( vol->bb.overlaps( current->child[m]->bb ) )
-                        diff_negative( current->child[m], vol); // call diff on child
-                }
+            if ( current->child[m] ) {
+                if ( vol->bb.overlaps( current->child[m]->bb ) )
+                    diff_negative( current->child[m], vol); // call diff on child
+            }
         }
     }
 
+}
+
+void Octree::updateGL(Octnode* current) {
+    // starting at current, update the isosurface
+    if (current->valid() ) {
+        // since valid(), do nothing. terminate recursion here as early as possible.
+    } else if ( current->isLeaf() && current->surface()  && !current->valid() ) {  // 
+        // this is a leaf and a surface-node
+        // std::vector<ocl::Triangle> node_tris = mc->mc_node(current);
+        BOOST_FOREACH(ocl::Triangle t, mc->mc_node(current) ) {
+            
+            double r=1,gr=0,b=0;
+            std::vector<unsigned int> polyIndexes;
+            for (int m=0;m<3;++m) { // FOUR for quads
+                //unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
+                //                        boost::bind(&Octnode::swapIndex, current, _1, _2)) ; // add vertex to GL
+                
+                unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
+                                        current ); // add vertex to GL
+                current->addIndex( vertexId ); // associate node with vertex
+                
+                g->setNormal( vertexId, t.n.x, t.n.y, t.n.z );
+                polyIndexes.push_back( vertexId );
+                
+            }
+            assert( polyIndexes.size() == 3 );
+            g->addPolygon(polyIndexes); // add poly to GL
+            current->setValid(); // isosurface is now valid for this node!
+        }
+    } else if ( current->isLeaf() && !current->surface() && !current->valid() ) { //leaf, but no surface
+        // remove vertices, if any
+        //std::cout << " octree updateGL REMOVE VERTEX case \n";
+        //remove_node_vertices(current );
+        //assert(0);
+        /*
+        BOOST_FOREACH(unsigned int vId, current->vertexSet ) {
+            g->removeVertex(vId);
+        }
+        current->clearIndex();
+        current->setValid();*/
+    } else {
+        for (int m=0;m<8;++m) { // go deeper into tree, if !valid
+            if ( current->hasChild(m)  && !current->valid() ) { // 
+                updateGL(current->child[m]);
+            }
+        }
+    }
+}
+
+
+void Octree::remove_node_vertices(Octnode* current ) {
+    /*
+    if ( !current->vertexSet.empty() ) {
+        std::cout << " removing " << current->vertexSet.size() << " vertices \n";
+        //char c;
+        //std::cin >> c;     
+    }*/
+          
+    while( !current->vertexSet.empty() ) {
+        std::set<unsigned int>::iterator first = current->vertexSet.begin();
+        unsigned int delId = *first;
+        current->removeIndex( delId );
+        g->removeVertex( delId );
+    }
+    
+    // when done, set should be empty
+    assert( current->vertexSet.empty() );
 }
 
 // string repr

@@ -106,67 +106,13 @@ class Octree {
         bool debug;
     protected:
     
-        void updateGL(Octnode* current) {
-            // starting at current, update the isosurface
-            if ( current->isLeaf() && current->surface() && !current->valid() ) { 
-                // this is a leaf and a surface-node
-                // std::vector<ocl::Triangle> node_tris = mc->mc_node(current);
-                BOOST_FOREACH(ocl::Triangle t, mc->mc_node(current) ) {
-                    double r=1,gr=0,b=0;
-                    std::vector<unsigned int> polyIndexes;
-                    for (int m=0;m<3;++m) { // FOUR for quads
-                        //unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
-                        //                        boost::bind(&Octnode::swapIndex, current, _1, _2)) ; // add vertex to GL
-                        
-                        unsigned int vertexId =  g->addVertex( t.p[m].x, t.p[m].y, t.p[m].z, r,gr,b,
-                                                current ); // add vertex to GL
-                                                
-                        g->setNormal( vertexId, t.n.x, t.n.y, t.n.z );
-                        polyIndexes.push_back( vertexId );
-                        current->addIndex( vertexId ); // associate node with vertex
-                    }
-                    g->addPolygon(polyIndexes); // add poly to GL
-                    current->setValid(); // isosurface is now valid for this node!
-                }
-            } else if ( current->isLeaf() && !current->surface() && !current->valid() ) { //leaf, but no surface
-                // remove vertices, if any
-                //std::cout << " octree updateGL REMOVE VERTEX case \n";
-                //remove_node_vertices(current );
-                //assert(0);
-                /*
-                BOOST_FOREACH(unsigned int vId, current->vertexSet ) {
-                    g->removeVertex(vId);
-                }
-                current->clearIndex();
-                current->setValid();*/
-            }
-            else {
-                for (int m=0;m<8;++m) { // go deeper into tree, if !valid
-                    if ( current->hasChild(m) && !current->valid() ) {
-                        updateGL(current->child[m]);
-                    }
-                }
-            }
-        }
+        void updateGL(Octnode* current);
         
         /// recursively traverse the tree subtracting vol
         void diff_negative(Octnode* current, const OCTVolume* vol);
         
-        // remove vertices associated with the current node
-        void remove_node_vertices(Octnode* current ) {
-            if ( !current->vertexSet.empty() ) {
-                std::cout << " removing " << current->vertexSet.size() << " vertices \n";
-                //char c;
-                //std::cin >> c;     
-            }       
-            while( !current->vertexSet.empty() ) {
-                std::set<unsigned int>::iterator first = current->vertexSet.begin();
-                unsigned int delId = *first;
-                current->removeIndex( delId );
-                g->removeVertex( delId );
-            }
-            assert( current->vertexSet.empty() );
-        }
+        /// remove vertices associated with the current node
+        void remove_node_vertices(Octnode* current );
     // DATA
         /// the root scale
         double root_scale;

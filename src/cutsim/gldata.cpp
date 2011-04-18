@@ -15,28 +15,21 @@
 namespace ocl
 {
 
-int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
+unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b) {
     return addVertex( GLVertex(x,y,z,r,g,b) );
 }
     
-int GLData::addVertex(GLVertex v) {
+unsigned int GLData::addVertex(GLVertex v) {
     // add vertex with empty polygon-list.
-    int idx = vertexArray.size();
+    unsigned int idx = vertexArray.size();
     vertexArray.append(v);
     vertexDataArray.append( VertexData() );
     assert( vertexArray.size() == vertexDataArray.size() );
     return idx; // return index of newly appended vertex
 }
 
-/*
-int GLData::addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c) {
-    int id = addVertex(x,y,z,r,g,b);
-    vertexDataArray[id].indexSwapCallBack = c;
-    return id;
-}*/
-
-int GLData::addVertex(float x, float y, float z, float r, float g, float b, Octnode* n) {
-    int id = addVertex(x,y,z,r,g,b);
+unsigned int GLData::addVertex(float x, float y, float z, float r, float g, float b, Octnode* n) {
+    unsigned int id = addVertex(x,y,z,r,g,b);
     vertexDataArray[id].node = n;
     return id;
 }

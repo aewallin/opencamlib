@@ -33,55 +33,16 @@
 
 namespace ocl
 {
-
-
-
-        
-        
-        // starting at root, find all leafs and run mc.
-        /*
-        std::vector<Triangle> MarchingCubes::mc_tree(Octree* tree) {
-            std::vector<Octnode*> leaf_nodes;
-            tree->get_leaf_nodes( leaf_nodes );
-            std::cout << " mc() got " << leaf_nodes.size() << " leaf nodes\n";
-            triangles.clear();
-            BOOST_FOREACH(Octnode* n, leaf_nodes) {
-                std::vector<Triangle> nodeTriangles = mc_node(n); //n->mc_triangles();
-                BOOST_FOREACH( Triangle t, nodeTriangles) {
-                    triangles.push_back(t);
-                }
-            }
-            return triangles;
-        }
-        */
-
-        
         // run mc on one Octnode
         std::vector<Triangle> MarchingCubes::mc_node(Octnode* node) {
             assert( node->childcount == 0 ); // don't call this on non-leafs!
-            //assert( !node->outside ); // outside nodes will never produce triangles.
-            
             std::vector<Triangle> tris;
-            //if ( this->outside) {
-            //    return tris; // outside nodes do not produce triangles
-            //} else if (mc_tris_valid) { // if triangles already calculated
-                //assert( !mc_tris.empty() ); // FIXME, fails after bb.overlaps() check was added to diff_negative()
-            //    return tris; // return empty
-            //}
-            
-            
             unsigned int edgeTableIndex = mc_edgeTableIndex(node);
             // the index into this table now tells us which edges have the vertices
             // for the new triangles
             // the lookup returns a 12-bit number, where each bit indicates wether 
             // the edge is cut by the isosurface
             unsigned int edges = edgeTable[edgeTableIndex];
-            
-            // we should return early (above) from these degenerate cases
-            // and not deal with them here
-            //assert( edges != 0 );
-            //assert( edges != 4096 );
-
             // calculate intersection points by linear interpolation
             // there are now 12 different cases:
             std::vector<Point> vertices = interpolated_vertices(node, edges);
@@ -93,9 +54,6 @@ namespace ocl
                                           vertices[ triTable[edgeTableIndex][i+2] ]  )
                                           );
             }
-
-            //this->mc_tris = tris;
-            //this->mc_tris_valid = true;
             return tris;
         }
         
@@ -103,13 +61,13 @@ namespace ocl
         std::vector<Point> MarchingCubes::interpolated_vertices(Octnode* node, unsigned int edges) {
             std::vector<Point> vertices(12);
             vertices[0] = *(node->vertex[0]); // intialize these to the node-vertex positions (?why?)
-            vertices[1] = *(node->vertex[0]);
-            vertices[2] = *(node->vertex[0]);
-            vertices[3] = *(node->vertex[0]);
-            vertices[4] = *(node->vertex[0]);
-            vertices[5] = *(node->vertex[0]);
-            vertices[6] = *(node->vertex[0]);
-            vertices[7] = *(node->vertex[0]);
+            vertices[1] = *(node->vertex[1]);
+            vertices[2] = *(node->vertex[2]);
+            vertices[3] = *(node->vertex[3]);
+            vertices[4] = *(node->vertex[4]);
+            vertices[5] = *(node->vertex[5]);
+            vertices[6] = *(node->vertex[6]);
+            vertices[7] = *(node->vertex[7]);
             if ( edges & 1 )
                 vertices[0] = interpolate( node, 0 , 1 );
             if ( edges & 2 )

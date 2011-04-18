@@ -59,7 +59,7 @@ class Octnode {
                         }
                     }
                 }
-                // if we get here, there was a parent all all children are valid
+                // if we get here, there was a parent and all children are valid
                 parent->setValid();
             }
         }
@@ -77,13 +77,14 @@ class Octnode {
         bool hasChild(int n) {
             return (this->child[n] != NULL);
         }
+        bool isLeaf() {return childcount==0;}
     // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;
         /// pointer to parent node
         Octnode* parent;
         /// number of children
-        bool isLeaf() {return childcount==0;}
+        
         unsigned int childcount;
         /// The eight corners of this node
         std::vector<Point*> vertex; 
@@ -93,8 +94,7 @@ class Octnode {
         bool outside;
         /// flag for inside node
         bool inside;
-        /// bool-array to indicate surface status of the faces
-        //std::vector<bool> surface; // flag for surface triangles FIXME!
+
         /// the center point of this node
         Point* center; // the centerpoint of this node
         /// the tree-dept of this node
@@ -115,20 +115,20 @@ class Octnode {
         
         void addIndex(unsigned int id) { 
             std::set<unsigned int>::iterator found = vertexSet.find( id );
-            assert( found == vertexSet.end() );
+            assert( found == vertexSet.end() ); // we should not have id
             
             vertexSet.insert(id); 
         }
         void swapIndex(unsigned int oldId, unsigned int newId) {
             std::set<unsigned int>::iterator found = vertexSet.find(oldId);
-            assert( found != vertexSet.end() );
+            assert( found != vertexSet.end() ); // we must have oldId
             
             vertexSet.erase(oldId);
             vertexSet.insert(newId);
         }
         void removeIndex(unsigned int id) {
             std::set<unsigned int>::iterator found = vertexSet.find( id );
-            assert( found != vertexSet.end() );
+            assert( found != vertexSet.end() ); // we must have id
             
             vertexSet.erase(id);
         }
@@ -142,17 +142,13 @@ class Octnode {
         
     protected:   
         
-
-         
-        /// interpolate a point between vertex idx1 and idx2. used by marching-cubes
-        Point interpolate(int idx1, int idx2);
         /// return center of child with index n
         Point* childcenter(int n); // return position of child centerpoint
 // DATA
         /// flag for telling isosurface extraction is valid for this node
         /// if false, the node needs updating.
         bool isosurface_valid;
-    // STATIC
+// STATIC
         /// the direction to the vertices, from the center 
         static Point direction[8];
         

@@ -43,11 +43,15 @@ SphereOCTVolume::SphereOCTVolume() {
     center = Point(0,0,0);
     radius = 1.0;
     calcBB();
+    invert = false;
 }
 
 double SphereOCTVolume::dist(Point& p ) const {
     double d = (center-p).norm();
-    return d-radius;
+    if (invert)
+        return -(d-radius);
+    else 
+        return d-radius;
 }
 
 /// set the bounding box values

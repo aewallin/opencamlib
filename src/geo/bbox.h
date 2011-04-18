@@ -37,10 +37,7 @@ class Bbox {
         Bbox(double b1, double b2, double b3, double b4, double b5, double b6);
         virtual ~Bbox() {};
         
-        /// the maximum point
-        Point maxpt; 
-        /// the minimum point
-        Point minpt; 
+
         /// index into maxpt and minpt returning a vector
         /// [minx maxx miny maxy minz maxz]
         double operator[](const unsigned int idx) const;
@@ -49,7 +46,7 @@ class Bbox {
         bool isInside(Point& p) const;
         
         /// return true if *this overlaps Bbox b
-        bool overlaps(const Bbox& b) const;
+        bool overlaps(const Bbox& other) const;
         
         /// reset the Bbox (sets initialized=false)
         void clear();
@@ -62,6 +59,12 @@ class Bbox {
         /// This enlarges the Bbox so that the Triangle is contained within it.
         /// Calls addPoint() for each vertex of the Triangle.
         void addTriangle(const Triangle& t);
+
+//DATA
+        /// the maximum point
+        Point maxpt; 
+        /// the minimum point
+        Point minpt; 
     private:
         /// false until one Point or one Triangle has been added
         bool initialized;

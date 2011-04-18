@@ -30,8 +30,6 @@
 #include "triangle.h"
 #include "bbox.h"
 #include "octnode.h"
-// #include "octree.h"
-
 #include "numeric.h"
 
 namespace ocl
@@ -43,27 +41,21 @@ namespace ocl
 /// (Note: there is no cpp file, all code is here in the .h file)
 class MarchingCubes {
     public:
-        MarchingCubes() { 
-        }
-        virtual ~MarchingCubes() {
-        }
-        
-
-        // run mc on one Octnode
+        MarchingCubes() {}
+        virtual ~MarchingCubes() { }
+        /// run mc on one Octnode, return triangles
         std::vector<Triangle> mc_node(Octnode* node);
+
+    protected:
         // generate the interpolated vertices required for triangle construction
         std::vector<Point> interpolated_vertices(Octnode* node, unsigned int edges) ;
         // use linear interpolation of the distance-field between vertices idx1 and idx2
         // to generate a new iso-surface point on the idx1-idx2 edge
         Point interpolate(Octnode* node, int idx1, int idx2);
-
         
-    protected:
         // based on the funcion values (positive or negative) at the corners of the node,
         // calculate the edgeTableIndex
-        unsigned int mc_edgeTableIndex(Octnode* node) ;
-        
-        std::vector<Triangle> triangles;
+        unsigned int mc_edgeTableIndex(Octnode* node);
         
         /// Marching-Cubes edge table
         static const unsigned int edgeTable[256];
