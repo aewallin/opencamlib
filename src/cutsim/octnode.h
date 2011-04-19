@@ -51,33 +51,38 @@ class Octnode {
         void setValid() {
             isosurface_valid = true;
             // try to propagate valid up the tree:
-            if (parent) {
-                for (int m=0;m<8;++m) {
-                    if ( parent->hasChild(m) ) {
-                        if ( ! (parent->child[m]->valid() ) ) {
-                            return;
-                        }
-                    }
-                }
-                // if we get here, there was a parent and all children are valid
-                parent->setValid();
-            }
+            if (parent) 
+                parent->setChildValid( idx );
         }
+        void setChildValid( unsigned int id ) {
+            // called by a child[id]
+            childStatus |= octant[id];
+            if (childStatus == 255) { // all children valid
+                setValid();
+            }
+                
+        }
+        inline void setChildInValid( unsigned int id ) {
+            childStatus &= ~octant[id];
+        }
+        
         void setInValid() { 
             isosurface_valid = false;
-            if ( parent && !parent->valid() ) // update parent status also
+            if ( parent && !parent->valid() )  {// update parent status also
                 parent->setInValid();
+                parent->setChildInValid(idx);
+            }
         }
-        bool valid() const {
+        inline bool valid() const {
             return isosurface_valid;
         }
-        bool surface() const { // surface nodes are neither inside nor outside
+        inline bool surface() const { // surface nodes are neither inside nor outside
             return ( !inside && !outside );
         }
-        bool hasChild(int n) {
+        inline bool hasChild(int n) {
             return (this->child[n] != NULL);
         }
-        bool isLeaf() {return childcount==0;}
+        inline bool isLeaf() {return childcount==0;}
     // DATA
         /// pointers to child nodes
         std::vector<Octnode*> child;
@@ -133,13 +138,9 @@ class Octnode {
             vertexSet.erase(id);
         }
         
-
         // the vertex indices that this node produces
         std::set<unsigned int> vertexSet;
 
-        
-
-        
     protected:   
         
         /// return center of child with index n
@@ -148,10 +149,12 @@ class Octnode {
         /// flag for telling isosurface extraction is valid for this node
         /// if false, the node needs updating.
         bool isosurface_valid;
+        char childStatus;
 // STATIC
         /// the direction to the vertices, from the center 
-        static Point direction[8];
-        
+        static const Point direction[8];
+        /// bit masts for the status
+        static const char octant[8];
 };
 
 } // end namespace

@@ -44,18 +44,18 @@ class MarchingCubes {
         MarchingCubes() {}
         virtual ~MarchingCubes() { }
         /// run mc on one Octnode, return triangles
-        std::vector<Triangle> mc_node(Octnode* node);
+        std::vector<Triangle> mc_node(const Octnode* node);
 
     protected:
-        // generate the interpolated vertices required for triangle construction
-        std::vector<Point> interpolated_vertices(Octnode* node, unsigned int edges) ;
-        // use linear interpolation of the distance-field between vertices idx1 and idx2
-        // to generate a new iso-surface point on the idx1-idx2 edge
-        Point interpolate(Octnode* node, int idx1, int idx2);
+        /// generate the interpolated vertices required for triangle construction
+        std::vector<Point> interpolated_vertices(const Octnode* node, unsigned int edges) ;
+        /// use linear interpolation of the distance-field between vertices idx1 and idx2
+        /// to generate a new iso-surface point on the idx1-idx2 edge
+        Point interpolate(const Octnode* node, int idx1, int idx2);
         
-        // based on the funcion values (positive or negative) at the corners of the node,
-        // calculate the edgeTableIndex
-        unsigned int mc_edgeTableIndex(Octnode* node);
+        /// based on the funcion values (positive or negative) at the corners of the node,
+        /// calculate the edgeTableIndex
+        unsigned int mc_edgeTableIndex(const Octnode* node);
         
         /// Marching-Cubes edge table
         static const unsigned int edgeTable[256];

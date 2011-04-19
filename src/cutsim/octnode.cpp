@@ -40,7 +40,7 @@ namespace ocl
 
 // this defines the position of each octree-vertex with relation to the center of the node
 // this also determines in which direction the center of a child node is
-Point Octnode::direction[8] = {
+const Point Octnode::direction[8] = {
                      Point( 1, 1,-1),   // 0
                      Point(-1, 1,-1),   // 1
                      Point(-1,-1,-1),   // 2
@@ -59,6 +59,16 @@ Point Octnode::direction[8] = {
 // 4:       0,2,3     0,1,2
 // 5:       4,6,7     4,5,6
 
+const char Octnode::octant[8] = {
+                    1,
+                    2,
+                    4,
+                    8,
+                    16,
+                    32,
+                    64,
+                    128
+                };
 
 Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsigned int nodedepth) {
     parent = nodeparent;
@@ -91,6 +101,7 @@ Octnode::Octnode(Octnode* nodeparent, unsigned int index, double nodescale, unsi
     isosurface_valid = false;
     evaluated = false;
     childcount = 0;
+    childStatus = 0;
 }
 
 // call delete on children, vertices, and center
@@ -158,16 +169,6 @@ void Octnode::evaluate(const OCTVolume* vol) {
 Point* Octnode::childcenter(int n) {
     return  new Point(*center + (0.5*scale * direction[n]));
 }
-
-
-// print out the boolean array of surface-flags
-/*
-void Octnode::print_surfaces() {
-    for (int n=0;n<6;++n)
-        std::cout << surface[n];
-    std::cout << "\n";
-}*/
-
 
 // string repr
 std::ostream& operator<<(std::ostream &stream, const Octnode &n) {

@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -18,107 +18,97 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-
-//#include <iostream>
-//#include <list>
-
-//#include <boost/foreach.hpp>
-
-//#include "point.h"
-//#include "triangle.h"
-//#include "bbox.h"
-//#include "octnode.h"
 #include "marching_cubes.h"
 
 namespace ocl
 {
-        // run mc on one Octnode
-        std::vector<Triangle> MarchingCubes::mc_node(Octnode* node) {
-            assert( node->childcount == 0 ); // don't call this on non-leafs!
-            std::vector<Triangle> tris;
-            unsigned int edgeTableIndex = mc_edgeTableIndex(node);
-            // the index into this table now tells us which edges have the vertices
-            // for the new triangles
-            // the lookup returns a 12-bit number, where each bit indicates wether 
-            // the edge is cut by the isosurface
-            unsigned int edges = edgeTable[edgeTableIndex];
-            // calculate intersection points by linear interpolation
-            // there are now 12 different cases:
-            std::vector<Point> vertices = interpolated_vertices(node, edges);
-            assert(vertices.size()==12);
-            // form triangles by lookup in triTable
-            for (unsigned int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
-                tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
-                                          vertices[ triTable[edgeTableIndex][i+1] ], 
-                                          vertices[ triTable[edgeTableIndex][i+2] ]  )
-                                          );
-            }
-            return tris;
-        }
+
+// run mc on one Octnode
+std::vector<Triangle> MarchingCubes::mc_node(const Octnode* node) {
+    assert( node->childcount == 0 ); // don't call this on non-leafs!
+    std::vector<Triangle> tris;
+    unsigned int edgeTableIndex = mc_edgeTableIndex(node);
+    // the index into this table now tells us which edges have the vertices
+    // for the new triangles
+    // the lookup returns a 12-bit number, where each bit indicates wether 
+    // the edge is cut by the isosurface
+    unsigned int edges = edgeTable[edgeTableIndex];
+    // calculate intersection points by linear interpolation
+    // there are now 12 different cases:
+    std::vector<Point> vertices = interpolated_vertices(node, edges);
+    assert(vertices.size()==12);
+    // form triangles by lookup in triTable
+    for (unsigned int i=0; triTable[edgeTableIndex][i] != -1 ; i+=3 ) {
+        tris.push_back( Triangle( vertices[ triTable[edgeTableIndex][i  ] ],
+                                  vertices[ triTable[edgeTableIndex][i+1] ], 
+                                  vertices[ triTable[edgeTableIndex][i+2] ]  )
+                                  );
+    }
+    return tris;
+}
         
-        // generate the interpolated vertices required for triangle construction
-        std::vector<Point> MarchingCubes::interpolated_vertices(Octnode* node, unsigned int edges) {
-            std::vector<Point> vertices(12);
-            vertices[0] = *(node->vertex[0]); // intialize these to the node-vertex positions (?why?)
-            vertices[1] = *(node->vertex[1]);
-            vertices[2] = *(node->vertex[2]);
-            vertices[3] = *(node->vertex[3]);
-            vertices[4] = *(node->vertex[4]);
-            vertices[5] = *(node->vertex[5]);
-            vertices[6] = *(node->vertex[6]);
-            vertices[7] = *(node->vertex[7]);
-            if ( edges & 1 )
-                vertices[0] = interpolate( node, 0 , 1 );
-            if ( edges & 2 )
-                vertices[1] = interpolate( node, 1 , 2 );
-            if ( edges & 4 )
-                vertices[2] = interpolate( node, 2 , 3 );
-            if ( edges & 8 )
-                vertices[3] = interpolate( node, 3 , 0 );
-            if ( edges & 16 )
-                vertices[4] = interpolate( node, 4 , 5 );
-            if ( edges & 32 )
-                vertices[5] = interpolate( node, 5 , 6 );
-            if ( edges & 64 )
-                vertices[6] = interpolate( node, 6 , 7 );
-            if ( edges & 128 )
-                vertices[7] = interpolate( node, 7 , 4 );
-            if ( edges & 256 )
-                vertices[8] = interpolate( node, 0 , 4 );
-            if ( edges & 512 )
-                vertices[9] = interpolate( node, 1 , 5 );
-            if ( edges & 1024 )
-                vertices[10] = interpolate( node, 2 , 6 );
-            if ( edges & 2048 )
-                vertices[11] = interpolate( node, 3 , 7 );
-            return vertices;
-        }
+// generate the interpolated vertices required for triangle construction
+std::vector<Point> MarchingCubes::interpolated_vertices(const Octnode* node, unsigned int edges) {
+    std::vector<Point> vertices(12);
+    vertices[0] = *(node->vertex[0]); // intialize these to the node-vertex positions (?why?)
+    vertices[1] = *(node->vertex[1]);
+    vertices[2] = *(node->vertex[2]);
+    vertices[3] = *(node->vertex[3]);
+    vertices[4] = *(node->vertex[4]);
+    vertices[5] = *(node->vertex[5]);
+    vertices[6] = *(node->vertex[6]);
+    vertices[7] = *(node->vertex[7]);
+    if ( edges & 1 )
+        vertices[0] = interpolate( node, 0 , 1 );
+    if ( edges & 2 )
+        vertices[1] = interpolate( node, 1 , 2 );
+    if ( edges & 4 )
+        vertices[2] = interpolate( node, 2 , 3 );
+    if ( edges & 8 )
+        vertices[3] = interpolate( node, 3 , 0 );
+    if ( edges & 16 )
+        vertices[4] = interpolate( node, 4 , 5 );
+    if ( edges & 32 )
+        vertices[5] = interpolate( node, 5 , 6 );
+    if ( edges & 64 )
+        vertices[6] = interpolate( node, 6 , 7 );
+    if ( edges & 128 )
+        vertices[7] = interpolate( node, 7 , 4 );
+    if ( edges & 256 )
+        vertices[8] = interpolate( node, 0 , 4 );
+    if ( edges & 512 )
+        vertices[9] = interpolate( node, 1 , 5 );
+    if ( edges & 1024 )
+        vertices[10] = interpolate( node, 2 , 6 );
+    if ( edges & 2048 )
+        vertices[11] = interpolate( node, 3 , 7 );
+    return vertices;
+}
         
-        // use linear interpolation of the distance-field between vertices idx1 and idx2
-        // to generate a new iso-surface point on the idx1-idx2 edge
-        Point MarchingCubes::interpolate(Octnode* node, int idx1, int idx2) {
-            // p = p1 - f1 (p2-p1)/(f2-f1)
-            assert( !isZero_tol( node->f[idx2] - node->f[idx1]  ) ); // sign of dist-field should change on the edge (avoid divide by zero)
-            return *(node->vertex[idx1]) - node->f[idx1]*( *(node->vertex[idx2])-(*(node->vertex[idx1])) ) * 
-                                            (1.0/(node->f[idx2] - node->f[idx1]));
-        }
+// use linear interpolation of the distance-field between vertices idx1 and idx2
+// to generate a new iso-surface point on the idx1-idx2 edge
+Point MarchingCubes::interpolate(const Octnode* node, int idx1, int idx2) {
+    // p = p1 - f1 (p2-p1)/(f2-f1)
+    assert( !isZero_tol( node->f[idx2] - node->f[idx1]  ) ); // sign of dist-field should change on the edge (avoid divide by zero)
+    return *(node->vertex[idx1]) - node->f[idx1]*( *(node->vertex[idx2])-(*(node->vertex[idx1])) ) * 
+                                    (1.0/(node->f[idx2] - node->f[idx1]));
+}
 
         
-        // based on the funcion values (positive or negative) at the corners of the node,
-        // calculate the edgeTableIndex
-        unsigned int MarchingCubes::mc_edgeTableIndex(Octnode* node) {
-            unsigned int edgeTableIndex = 0;
-            if (node->f[0] < 0.0 ) edgeTableIndex |= 1;
-            if (node->f[1] < 0.0 ) edgeTableIndex |= 2;
-            if (node->f[2] < 0.0 ) edgeTableIndex |= 4;
-            if (node->f[3] < 0.0 ) edgeTableIndex |= 8;
-            if (node->f[4] < 0.0 ) edgeTableIndex |= 16;
-            if (node->f[5] < 0.0 ) edgeTableIndex |= 32;
-            if (node->f[6] < 0.0 ) edgeTableIndex |= 64;
-            if (node->f[7] < 0.0 ) edgeTableIndex |= 128;
-            return edgeTableIndex;
-        }
+// based on the funcion values (positive or negative) at the corners of the node,
+// calculate the edgeTableIndex
+unsigned int MarchingCubes::mc_edgeTableIndex(const Octnode* node) {
+    unsigned int edgeTableIndex = 0;
+    if (node->f[0] < 0.0 ) edgeTableIndex |= 1;
+    if (node->f[1] < 0.0 ) edgeTableIndex |= 2;
+    if (node->f[2] < 0.0 ) edgeTableIndex |= 4;
+    if (node->f[3] < 0.0 ) edgeTableIndex |= 8;
+    if (node->f[4] < 0.0 ) edgeTableIndex |= 16;
+    if (node->f[5] < 0.0 ) edgeTableIndex |= 32;
+    if (node->f[6] < 0.0 ) edgeTableIndex |= 64;
+    if (node->f[7] < 0.0 ) edgeTableIndex |= 128;
+    return edgeTableIndex;
+}
 
 
 // this table stores indices into the triTable below, i.e. it tells

@@ -1,3 +1,23 @@
+/*  $Id$
+ * 
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  
+ *  This file is part of OpenCAMlib.
+ *
+ *  OpenCAMlib is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  OpenCAMlib is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef GL_DATA_H
 #define GL_DATA_H
 
@@ -43,40 +63,27 @@ struct GLVertex {
     GLfloat nx,ny,nz; // normal, 24-bytes offset
 };
 
-// additional data not needed for OpenGL rendering
-// but required for the isosurface or cutting-simulation algorithm.
-//typedef boost::function2< void, unsigned int, unsigned int> VoidIntIntCallBack;
+/// additional vertex data not needed for OpenGL rendering
+/// but required for the isosurface or cutting-simulation algorithm.
 struct VertexData {
     void str() {
         BOOST_FOREACH( GLuint pIdx, polygons ) {
             std::cout << pIdx << " ";
         }
     }
-    // Note: we want to access polygons from highest index to lowest, thus compare with "greater"
-    typedef std::set< unsigned int, std::greater<unsigned int> > PolygonSet;
-    
-    void addPolygon( unsigned int idx ) {
-        polygons.insert( idx );
-    }
-    void removePolygon(unsigned int idx ) {
-        polygons.erase( idx );
-    }
-    bool empty() {
-        return polygons.empty();
-    }
-    // TODO: octree-node pointer.
-    
+
+    inline void addPolygon( unsigned int idx ) { polygons.insert( idx ); }
+    inline void removePolygon(unsigned int idx ) { polygons.erase( idx ); }
+    inline bool empty() { return polygons.empty(); }
+
 // DATA
+    /// Note: we want to access polygons from highest index to lowest, thus compare with "greater"
+    typedef std::set< unsigned int, std::greater<unsigned int> > PolygonSet;
+    /// the polygons to which this vertex belongs.
     PolygonSet polygons;
     
-    // this function is called if the vertex indices change.
-    // intended use: each octree-node stores the indexes of the vertices it has produced
-    // to keep this data valid, each node is notified whenever GLData reorders vertices.
-    // the call is: void callBack( oldIndex, newIndex )
-    //VoidIntIntCallBack indexSwapCallBack;
+    /// the Octnode that created this vertex
     Octnode* node;
-    
-    //OctreeNode* node; // pointer to the octree-node that generated this vertex
 };
 
 
@@ -125,16 +132,6 @@ public:
     void removePolygon( unsigned int polygonIdx);
     /// return the number of polygons
     int indexCount() const { return indexArray.size(); }
-    
-    
-
-    template <class Data>
-    void updateBuffer(  QGLBuffer* buffer, Data& d) {
-        if (!buffer->bind())
-            assert(0);
-        buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
-        buffer->release();
-    }
     
     /// generate the VBOs
     void genVBO();
@@ -187,6 +184,15 @@ public:
     GLVertex pos;
     
 protected:
+    
+    template <class Data>
+    void updateBuffer(  QGLBuffer* buffer, Data& d) {
+        if (!buffer->bind())
+            assert(0);
+        buffer->allocate( d.data(), sizeof(typename Data::value_type)*d.size() );
+        buffer->release();
+    }
+    
     template <class Data>
     QGLBuffer* makeBuffer(  QGLBuffer::Type t, Data& d) {
         QGLBuffer* buffer = new QGLBuffer(t);
@@ -200,6 +206,7 @@ protected:
         buffer->release();
         return buffer;
     }
+    
     /// set type of drawing, e.g. GL_TRIANGLES, GL_QUADS
     void setType(GLenum t) {
         type = t;
@@ -208,6 +215,8 @@ protected:
     void setUsage(QGLBuffer::UsagePattern p ) {
         usagePattern = p;
     }
+    
+// DATA
     QGLBuffer* vertexBuffer;
     QGLBuffer* indexBuffer;
     /// number of vertices per polygon. 3 for GL_TRIANGLES, 4 for GL_QUADS
