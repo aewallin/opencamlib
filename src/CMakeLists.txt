@@ -247,13 +247,13 @@ set( OCL_CUTSIM_INCLUDE_FILES
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
+# ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
 
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
+# include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 if (BUILD_PY_LIB)
@@ -267,12 +267,15 @@ if (BUILD_PY_LIB)
         ocl_algo.cpp
         ocl.cpp
     )
+
+    MESSAGE(STATUS "linking ocl.so with boost: " ${Boost_LIBRARIES})
+    target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ${Boost_LIBRARIES})
+    # this makes the lib name ocl.so and not libocl.so
+    set_target_properties(ocl PROPERTIES PREFIX "") 
+
 endif (BUILD_PY_LIB)
 
-MESSAGE(STATUS "linking ocl.so with boost: " ${Boost_LIBRARIES})
-target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ocl_cutsim ${Boost_LIBRARIES})
-# this makes the lib name ocl.so and not libocl.so
-set_target_properties(ocl PROPERTIES PREFIX "") 
+
 
 
 
@@ -284,7 +287,7 @@ if (BUILD_CXX_LIB)
         ${OCL_GEO_SRC}
         ${OCL_CUTTER_SRC}
         ${OCL_ALGO_SRC}
-        ${OCL_CUTSIM_SRC}
+        # ${OCL_CUTSIM_SRC}
     )
     set_target_properties(libocl PROPERTIES PREFIX "") 
 endif (BUILD_CXX_LIB)

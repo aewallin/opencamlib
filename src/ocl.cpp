@@ -33,7 +33,7 @@ namespace bp = boost::python;
 
 void export_cutters();
 void export_geometry();
-void export_cutsim();
+// void export_cutsim(); // No python wrapping of cutsim, at least for now
 void export_algo();
 
 // this defines the python ocl module
@@ -50,7 +50,7 @@ BOOST_PYTHON_MODULE(ocl) {
 
     export_cutters(); // see ocl_cutters.cpp
 
-    export_cutsim(); // see ocl_cutsim.cpp
+    //export_cutsim(); // see ocl_cutsim.cpp
     
     export_algo(); // see ocl_algo.cpp
 
