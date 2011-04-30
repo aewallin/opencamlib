@@ -38,6 +38,8 @@
 #include "clsurface.h"
 #endif
 
+#include "tsp.h"
+
 /*
  *  Python wrapping of octree and related classes
  */
@@ -239,6 +241,13 @@ void export_algo() {
         .def("getVertices", &clsurf::CutterLocationSurface::getVertices)
         .def("getEdges", &clsurf::CutterLocationSurface::getEdges)
         .def("__str__", &clsurf::CutterLocationSurface::str)
+    ;
+    
+    bp::class_< tsp::TSPSolver >("TSPSolver")  
+        .def("addPoint", &tsp::TSPSolver::addPoint)
+        .def("run", &tsp::TSPSolver::run)
+        .def("getOutput", &tsp::TSPSolver::getOutput)
+        .def("reset", &tsp::TSPSolver::reset)
     ;
 #endif
 }

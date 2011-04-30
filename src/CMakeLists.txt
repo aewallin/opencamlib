@@ -231,6 +231,7 @@ set( OCL_INCLUDE_FILES
     # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.h
     ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram2.h
     ${OpenCamLib_SOURCE_DIR}/algo/facegrid.h
+    ${OpenCamLib_SOURCE_DIR}/algo/tsp.h
 )
 
 set( OCL_CUTSIM_INCLUDE_FILES
