@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -247,6 +247,7 @@ void export_algo() {
         .def("addPoint", &tsp::TSPSolver::addPoint)
         .def("run", &tsp::TSPSolver::run)
         .def("getOutput", &tsp::TSPSolver::getOutput)
+        .def("getLength", &tsp::TSPSolver::getLength)
         .def("reset", &tsp::TSPSolver::reset)
     ;
 #endif

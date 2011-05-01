@@ -1,3 +1,23 @@
+/*  $Id$
+ * 
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  
+ *  This file is part of OpenCAMlib.
+ *
+ *  OpenCAMlib is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  OpenCAMlib is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef TSP_H
 #define TSP_H
 
@@ -27,11 +47,13 @@ namespace tsp {
 // based on metric tsp example:
 // http://www.boost.org/doc/libs/1_46_1/libs/graph/test/metric_tsp_approx.cpp
 
+/*
 template<typename PointType>
 struct cmpPnt {
     bool operator()(const boost::simple_point<PointType>& l, const boost::simple_point<PointType>& r) const
     { return (l.x > r.x); }
 };
+*/
 
 //add edges to the graph (for each node connect it to all other nodes)
 template< typename VertexListGraph, 
@@ -82,7 +104,10 @@ class TSPSolver {
     
 public:
     TSPSolver () {}
-    virtual ~TSPSolver() {}
+    virtual ~TSPSolver() {
+        if (g)
+            delete g;
+    }
     void run() {
         // add a vertex for each point
         //BOOST_FOREACH(boost::simple_point<double> pnt, points) {
@@ -99,6 +124,7 @@ public:
         double len = 0.0;
         // Run the TSP approx, creating the visitor on the fly.
         boost::metric_tsp_approx(*g, boost::make_tsp_tour_len_visitor(*g, std::back_inserter(output), len, weight_map));
+        length = len;
         std::cout << "Number of points: " << boost::num_vertices(*g) << std::endl;
         std::cout << "Number of edges: " << boost::num_edges(*g) << std::endl;
         std::cout << "Length of tour: " << len << std::endl;
@@ -117,12 +143,17 @@ public:
     void reset() {
         output.clear();
         points.clear();
+        if (g)
+            delete g;
     }
-    void printOutput() {
+    void printOutput() const {
         int n=0;
         BOOST_FOREACH( Vertex v, output ) {
             std::cout << n++ << " : " << v << "\n" ;
         }
+    }
+    double getLength() const {
+        return length;
     }
     boost::python::list getOutput() const {
         boost::python::list plist;
@@ -138,235 +169,9 @@ protected:
     Container output;
     PointSet points;
     Graph* g;
-    
+    double length;
 };
 
-// Create a randomly generated point
-// scatter time execution
-/*
-void testScalability(unsigned numpts) {
-    using namespace boost;
-    using namespace std;
-    typedef adjacency_matrix<undirectedS, no_property,
-        property<edge_weight_t, double,
-        property<edge_index_t, int> > > Graph;
-    typedef graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef graph_traits <Graph>::edge_descriptor Edge;
-    typedef property_map<Graph, edge_weight_t>::type WeightMap;
-    typedef set<simple_point<double>, cmpPnt<double> > PointSet;
-    typedef vector< Vertex > Container;
-    boost::mt19937 rng(time(0));
-    uniform_real<> range(0.01, (numpts * 2));
-    variate_generator<boost::mt19937&, uniform_real<> >
-        pnt_gen(rng, range);
-    PointSet points;
-    simple_point<double> pnt;
-    while (points.size() < numpts) {
-        pnt.x = pnt_gen();
-        pnt.y = pnt_gen();
-        points.insert(pnt);
-    }
-    Graph g(numpts);
-    WeightMap weight_map(get(edge_weight, g));
-    vector<simple_point<double> > point_vec(points.begin(), points.end());
-    connectAllEuclidean(g, point_vec, weight_map, get(vertex_index, g), numpts);
-    Container c;
-    timer t;
-    double len = 0.0;
-    // Run the TSP approx, creating the visitor on the fly.
-    metric_tsp_approx(g, make_tsp_tour_len_visitor(g, back_inserter(c), len, weight_map));
-    cout << "Number of points: " << num_vertices(g) << endl;
-    cout << "Number of edges: " << num_edges(g) << endl;
-    cout << "Length of tour: " << len << endl;
-    cout << "Elapsed: " << t.elapsed() << endl;
-}
-*/
-
-/*
-template <typename PositionVec>
-void checkAdjList(PositionVec v)
-{
-    using namespace std;
-    using namespace boost;
-    typedef adjacency_list<listS, listS, undirectedS> Graph;
-    typedef graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef graph_traits <Graph>::edge_descriptor Edge;
-    typedef vector<Vertex> Container;
-    typedef map<Vertex, std::size_t> VertexIndexMap;
-    typedef map<Edge, double> EdgeWeightMap;
-    typedef associative_property_map<VertexIndexMap> VPropertyMap;
-    typedef associative_property_map<EdgeWeightMap> EWeightPropertyMap;
-    typedef graph_traits<Graph>::vertex_iterator VItr;
-    Container c;
-    EdgeWeightMap w_map;
-    VertexIndexMap v_map;
-    VPropertyMap v_pmap(v_map);
-    EWeightPropertyMap w_pmap(w_map);
-    Graph g(v.size());
-    //create vertex index map
-    VItr vi, ve;
-    int idx(0);
-    for (boost::tie(vi, ve) = vertices(g); vi != ve; ++vi) {
-        Vertex v(*vi);
-        v_pmap[v] = idx;
-        idx++;
-    }
-    connectAllEuclidean(g, v, w_pmap, v_pmap, v.size());
-    metric_tsp_approx_from_vertex(g,
-        *vertices(g).first,
-        w_pmap,
-        v_pmap,
-        tsp_tour_visitor<back_insert_iterator<Container > >
-        (back_inserter(c)));
-    cout << "adj_list" << endl;
-    for (Container::iterator itr = c.begin(); itr != c.end(); ++itr) {
-        cout << v_map[*itr] << " ";
-    }
-    cout << endl << endl;
-    c.clear();
-}
-*/
-
-/*
-static void usage() {
-    using namespace std;
-    cerr << "To run this program properly please place a "
-         << "file called graph.txt"
-         << endl << "into the current working directory." << endl
-         << "Each line of this file should be a coordinate specifying the"
-         << endl << "location of a vertex" << endl
-         << "For example: " << endl << "1,2" << endl << "20,4" << endl
-         << "15,7" << endl << endl;
-}
-*/
-
-/*
-int main(int argc, char* argv[])
-{
-    using namespace boost;
-    using namespace std;
-    typedef vector<simple_point<double> > PositionVec;
-    typedef adjacency_matrix<undirectedS, no_property,
-        property <edge_weight_t, double> > Graph;
-    typedef graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef graph_traits <Graph>::edge_descriptor Edge;
-    typedef vector<Vertex> Container;
-    typedef property_map<Graph, edge_weight_t>::type WeightMap;
-    typedef property_map<Graph, vertex_index_t>::type VertexMap;
-
-    // Make sure that the the we can parse the given file.
-    if(argc < 2) {
-        usage();
-        // return -1;
-        return 0;
-    }
-
-    // Open the graph file, failing if one isn't given on the command line.
-    ifstream fin(argv[1]);
-    if (!fin)
-    {
-        usage();
-        // return -1;
-        return 0;
-    }
-
-   string line;
-   PositionVec position_vec;
-
-   int n(0);
-   while (getline(fin, line))
-   {
-       simple_point<double> vertex;
-
-       size_t idx(line.find(","));
-       string xStr(line.substr(0, idx));
-       string yStr(line.substr(idx + 1, line.size() - idx));
-
-       vertex.x = lexical_cast<double>(xStr);
-       vertex.y = lexical_cast<double>(yStr);
-
-       position_vec.push_back(vertex);
-       n++;
-   }
-
-   fin.close();
-
-   Container c;
-   Graph g(position_vec.size());
-   WeightMap weight_map(get(edge_weight, g));
-   VertexMap v_map = get(vertex_index, g);
-
-   connectAllEuclidean(g, position_vec, weight_map, v_map, n);
-
-   metric_tsp_approx_tour(g, back_inserter(c));
-
-   for (vector<Vertex>::iterator itr = c.begin(); itr != c.end(); ++itr)
-   {
-       cout << *itr << " ";
-   }
-   cout << endl << endl;
-
-   c.clear();
-
-   checkAdjList(position_vec);
-
-   metric_tsp_approx_from_vertex(g, *vertices(g).first,
-       get(edge_weight, g), get(vertex_index, g),
-       tsp_tour_visitor<back_insert_iterator<vector<Vertex> > >
-       (back_inserter(c)));
-
-   for (vector<Vertex>::iterator itr = c.begin(); itr != c.end(); ++itr)
-   {
-       cout << *itr << " ";
-   }
-   cout << endl << endl;
-
-   c.clear();
-
-   double len(0.0);
-   try {
-       metric_tsp_approx(g, make_tsp_tour_len_visitor(g, back_inserter(c), len, weight_map));
-   }
-   catch (const bad_graph& e) {
-       cerr << "bad_graph: " << e.what() << endl;
-       return -1;
-   }
-
-   cout << "Number of points: " << num_vertices(g) << endl;
-   cout << "Number of edges: " << num_edges(g) << endl;
-   cout << "Length of Tour: " << len << endl;
-
-   int cnt(0);
-   pair<Vertex,Vertex> triangleEdge;
-   for (vector<Vertex>::iterator itr = c.begin(); itr != c.end();
-       ++itr, ++cnt) {
-       cout << *itr << " ";
-
-       if (cnt == 2)
-           triangleEdge.first = *itr;
-       if (cnt == 3)
-           triangleEdge.second = *itr;
-   }
-   cout << endl << endl;
-   c.clear();
-
-   testScalability(1000);
-
-   // if the graph is not fully connected then some of the
-   // assumed triangle-inequality edges may not exist
-   remove_edge(edge(triangleEdge.first, triangleEdge.second, g).first, g);
-
-    // Make sure that we can actually trap incomplete graphs.
-    bool caught = false;
-    try {
-        double len = 0.0;
-        metric_tsp_approx(g, make_tsp_tour_len_visitor(g, back_inserter(c), len, weight_map));
-    }
-    catch (const bad_graph& e) { caught = true; }
-    BOOST_ASSERT(caught);
-
-   return 0;
-}*/
 
 } // end tsp namespace
 
