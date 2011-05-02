@@ -125,11 +125,11 @@ public:
         // Run the TSP approx, creating the visitor on the fly.
         boost::metric_tsp_approx(*g, boost::make_tsp_tour_len_visitor(*g, std::back_inserter(output), len, weight_map));
         length = len;
-        std::cout << "Number of points: " << boost::num_vertices(*g) << std::endl;
-        std::cout << "Number of edges: " << boost::num_edges(*g) << std::endl;
-        std::cout << "Length of tour: " << len << std::endl;
-        std::cout << "vertices in tour: " << output.size() << std::endl;
-        std::cout << "Elapsed: " << t.elapsed() << std::endl;
+        //std::cout << "Number of points: " << boost::num_vertices(*g) << std::endl;
+        //std::cout << "Number of edges: " << boost::num_edges(*g) << std::endl;
+        //std::cout << "Length of tour: " << len << std::endl;
+        //std::cout << "vertices in tour: " << output.size() << std::endl;
+        //std::cout << "Elapsed: " << t.elapsed() << std::endl;
         
 
         //delete g;
