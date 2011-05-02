@@ -149,13 +149,13 @@ if __name__ == "__main__":
     tspname = ["u1060" , 224094] 
     tspname = ["u1432" , 152970] 
     tspname = ["u1817" , 57201] 
-    tspname = ["u2152" , 64253]  # pcb
+    
     tspname = ["u2319" , 234256] # grid
     tspname = ["vm1084" , 239297] 
      
     tspname = ["usa13509" , 19982859] # 86s
     tspname = ["vm1748" , 336556]
-
+    tspname = ["u2152" , 64253]  # pcb
     opt_len = tspname[1]
     
     tspfile = "tsplib/"+tspname[0]+".tsp.gz"

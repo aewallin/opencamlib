@@ -5,6 +5,7 @@ import vtk
 import datetime
 import math
 import gzip
+import csv
 
 def TSPLIBReader( filename ):
     """ read a .tsp format TSPLIB file, and return list of points """
@@ -123,18 +124,32 @@ if __name__ == "__main__":
         tsplist2.append(inst)
     tsp_sorted = sorted(tsplist2) 
     
-    Nmax=70  #60(1577)   65(2103)
-    for n in range(0,len(tsp_sorted)):
+    Nmax=65  #60(1577)   65(2103)
+    results=[]
+    for n in range(0,Nmax): # len(tsp_sorted)):
+        resultrow=[]
         tsp = ocl.TSPSolver()
         inst = tsp_sorted[n]
         for p in inst[3]:
             tsp.addPoint( p.x , p.y)
         start_time = time.time()
         tsp.run()
+        run_time = time.time() - start_time
         l = tsp.getLength()
         ratio = float(l)/float(inst[2])
-        print n," : ",inst[1],": ",ratio," l=",l," / ",inst[2], " / ",time.time() - start_time, "seconds"
-
+        print n," : ",inst[1],": ",ratio," l=",l," / ",inst[2], " / ",run_time, "seconds"
+        resultrow.append( inst[0] ) # length
+        resultrow.append( inst[2] ) # optimal
+        resultrow.append( l ) # found tour length
+        resultrow.append( ratio ) # found tour length
+        resultrow.append( run_time )
+        results.append(resultrow)
+    
+    # write time and length results to file
+    
+    writer = csv.writer(open('tsp_results.csv', 'wb'), delimiter=',',quotechar='|', quoting=csv.QUOTE_MINIMAL)
+    for row in results:
+        writer.writerow( row )
 
 
 
