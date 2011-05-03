@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -43,10 +43,11 @@ struct WeaveVertexProps {
 };
 
 /// properties of an edge in the weave
+/*
 struct WeaveEdgeProps {
     /// index? used?
     int index;
-};
+};*/
 
 typedef boost::adjacency_list<     boost::listS,    // out-edges stored in a std::list
                                    boost::vecS,     // vertex set stored in a std::vector
@@ -66,17 +67,25 @@ typedef boost::graph_traits< WeaveGraph >::out_edge_iterator OutEdgeIterator;
 typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyIterator;
 typedef boost::graph_traits< WeaveGraph >::vertices_size_type VertexSize;
 
+/// intersections between intervals are stored as a VertexPair
+/// pair.first is a vertex descriptor of the weave graph
+/// pair.second is the coordinate along the fiber of the intersection
 typedef std::pair< WeaveVertex, double > VertexPair;
 
-/// compare based on pair.second
+/// compare based on pair.second, the coordinate of the intersection
 struct VertexPairCompare {
     /// comparison operator
     bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
     { return lhs.second < rhs.second ;}
 };
 
-typedef std::set< VertexPair, VertexPairCompare >::iterator VertexPairIterator;                               
+/// intersections stored in this set (for rapid finding of neighbors etc)
+typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
 
+typedef VertexIntersectionSet::iterator VertexPairIterator;                               
+
+/// type for the planar embedding of the weave graph
+/// the planar_face_traverse boost graph library algorithm requires a planar embedding to work
 typedef std::vector< std::vector< WeaveEdge > > WeavePlanarEmbedding;
 
 } // end namespace

@@ -279,7 +279,6 @@ endif (BUILD_PY_LIB)
 
 
 
-
 # this is the C++ shared library
 if (BUILD_CXX_LIB)
     add_library(
@@ -287,9 +286,10 @@ if (BUILD_CXX_LIB)
         SHARED
         ${OCL_GEO_SRC}
         ${OCL_CUTTER_SRC}
-        ${OCL_ALGO_SRC}
+        # ${OCL_ALGO_SRC}
         # ${OCL_CUTSIM_SRC}
     )
+    target_link_libraries(libocl ocl_algo)
     set_target_properties(libocl PROPERTIES PREFIX "") 
 endif (BUILD_CXX_LIB)
 

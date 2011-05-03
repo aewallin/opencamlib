@@ -1,6 +1,6 @@
 /*  $Id:  $
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -28,7 +28,7 @@
 #include "ccpoint.h"
 #include "numeric.h"
 #include "fiber.h"
-// #include "weave_typedef.h"
+#include "weave2_typedef.h"
 
 #include "halfedgediagram2.h"
 
@@ -39,38 +39,59 @@ namespace ocl
 namespace weave2
 {
 
-struct W2VertexProps; 
-struct W2EdgeProps;
-struct W2FaceProps;
-typedef unsigned int W2Face;  
+/*
+struct VertexProps; 
+struct EdgeProps;
+struct FaceProps;
+typedef unsigned int Face;  
   
-// extra storage in graph:
+// the graph type for the weave
 typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
                        boost::listS,             // vertex set stored here
                        boost::bidirectionalS,    // bidirectional graph.
-                       W2VertexProps,              // vertex properties
-                       W2EdgeProps,                // edge properties
-                       W2FaceProps,                // face properties
+                       VertexProps,              // vertex properties
+                       EdgeProps,                // edge properties
+                       FaceProps,                // face properties
                        boost::no_property,       // graph properties
                        boost::listS             // edge storage
-                       > W2Graph;
+                       > WeaveGraph;
 
-typedef boost::graph_traits< W2Graph >::vertex_descriptor  W2Vertex;
-typedef boost::graph_traits< W2Graph >::vertex_iterator    W2VertexItr;
-typedef boost::graph_traits< W2Graph >::edge_descriptor    W2Edge;
-typedef boost::graph_traits< W2Graph >::edge_iterator      W2EdgeItr;
-typedef boost::graph_traits< W2Graph >::out_edge_iterator  W2OutEdgeItr;
-typedef boost::graph_traits< W2Graph >::adjacency_iterator W2AdjacencyItr;
-/// vertex properties of a vertex in the voronoi diagram
+typedef boost::graph_traits< WeaveGraph >::vertex_descriptor  Vertex;
+typedef boost::graph_traits< WeaveGraph >::vertex_iterator    VertexItr;
+typedef boost::graph_traits< WeaveGraph >::edge_descriptor    Edge;
+typedef boost::graph_traits< WeaveGraph >::edge_iterator      EdgeItr;
+typedef boost::graph_traits< WeaveGraph >::out_edge_iterator  OutEdgeItr;
+typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyItr;
+
+/// intersections between intervals are stored as a VertexPair
+/// pair.first is a vertex descriptor of the weave graph
+/// pair.second is the coordinate along the fiber of the intersection
+typedef std::pair< Vertex, double > VertexPair;
+
+/// compare based on pair.second, the coordinate of the intersection
+struct VertexPairCompare {
+    /// comparison operator
+    bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
+    { return lhs.second < rhs.second ;}
+};
+
+/// intersections stored in this set (for rapid finding of neighbors etc)
+typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
+
+typedef VertexIntersectionSet::iterator VertexPairIterator;    
+
+
 /// vertex type: CL-point, internal point, adjacent point
-enum W2VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+*/
 
-struct W2VertexProps {
-    W2VertexProps() {
+/// vertex properties
+struct VertexProps {
+    VertexProps() {
         init();
     }
     /// construct vertex at position p with type t
-    W2VertexProps( Point p, W2VertexType t) {
+    VertexProps( Point p, VertexType t) {
         position=p;
         type=t;
         init();
@@ -79,7 +100,7 @@ struct W2VertexProps {
         index = count;
         count++;
     }
-    W2VertexType type;
+    VertexType type;
 // HE data
     /// the position of the vertex
     Point position;
@@ -88,46 +109,53 @@ struct W2VertexProps {
     /// global vertex count
     static int count;
 };
-struct W2EdgeProps {
-    W2EdgeProps() {}
+int VertexProps::count = 0;
+
+/// edge properties
+struct EdgeProps {
+    EdgeProps() {}
     /// create edge with given next, twin, and face
-    W2EdgeProps(W2Edge n, W2Edge t, W2Face f) { 
+    EdgeProps(Edge n, Edge t, Face f) { 
         next = n;
         twin = t;
         face = f;
     }
     /// the next edge, counterclockwise, from this edge
-    W2Edge next; 
+    Edge next; 
     /// the twin edge
-    W2Edge twin;
+    Edge twin;
     /// the face to which this edge belongs
-    W2Face face; 
+    Face face; 
 };
+
 /// types of faces in the weave
-enum W2FaceType {INCIDENT, NONINCIDENT};
+enum FaceType {INCIDENT, NONINCIDENT};
+
 /// properties of a face in the weave
-struct W2FaceProps {
+struct FaceProps {
     /// create face with given edge, generator, and type
-    W2FaceProps( W2Edge e , Point gen, W2FaceType t) {
+    FaceProps( Edge e , Point gen, FaceType t) {
         edge = e;
         type = t;
     }
     /// face index
-    W2Face idx;
+    Face idx;
     /// one edge that bounds this face
-    W2Edge edge;
+    Edge edge;
     /// face type
-    W2FaceType type;
+    FaceType type;
 };
 
                  
-/// weave-graph, 2nd impl.
+/// weave-graph, 2nd impl. based on HEDIGraph
 class Weave2 {
     public:
         Weave2() {}
         virtual ~Weave2() {}
 
         /// add Fiber f to the graph
+        /// each fiber should be either in the X or Y-direction
+        /// FIXME: seprate addXFiber and addYFiber methods?
         void addFiber(Fiber& f) {
             if ( f.dir.xParallel() && !f.empty() ) {
                 xfibers.push_back(f);
@@ -137,6 +165,7 @@ class Weave2 {
                 assert(0); // fiber must be either x or y
             }
         }
+        
         /// from the list of fibers, build a graph
         void build() {
             // 1) add CL-points of X-fiber (if not already in graph)
@@ -155,10 +184,10 @@ class Weave2 {
                     assert( !xi.in_weave );
                     // add the interval end-points to the weave
                     Point p = xf.point(xi.lower);
-                    hedi::add_vertex( W2VertexProps(p, CL ), g ); 
+                    hedi::add_vertex( VertexProps(p, CL ), g ); 
                     // p, CL , xi, p.x ); // add_vertex( Point& position, VertexType t, Interval& i, double ipos)
                     p = xf.point(xi.upper);
-                    hedi::add_vertex( W2VertexProps(p, CL ), g ); 
+                    hedi::add_vertex( VertexProps(p, CL ), g ); 
                     // add_vertex( p, CL , xi, p.x );
                     // xi.intersections std::set of intersections with this interval.
 
@@ -167,34 +196,35 @@ class Weave2 {
                             BOOST_FOREACH( Interval& yi, yf.ints ) {
                                 double ymin = yf.point(yi.lower).y;
                                 double ymax = yf.point(yi.upper).y;
-                                if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) { // actual intersection btw x-interval and y-interval
+                                if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) { 
+                                    // there is an actual intersection btw x-interval and y-interval
                                     // X interval xi on fiber xf intersects with Y interval yi on fiber yf
                                     // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z )
                                     if (!yi.in_weave) { // add y-interval endpoints to weave
                                         Point p = yf.point(yi.lower);
-                                        hedi::add_vertex( W2VertexProps(p, CL ), g ); 
+                                        hedi::add_vertex( VertexProps(p, CL ), g ); 
                                         //add_vertex( p, CL , yi, p.y );
                                         p = yf.point(yi.upper);
-                                        hedi::add_vertex( W2VertexProps(p, CL ), g ); 
+                                        hedi::add_vertex( VertexProps(p, CL ), g ); 
                                         //add_vertex( p, CL , yi, p.y );
                                         yi.in_weave = true;
                                     }
                                     // 3) intersection point (this is always new, no need to check for existence??)
-                                    W2Vertex  v;
+                                    Vertex  v;
                                     v = hedi::add_vertex(g);
                                     Point v_position = Point( yf.p1.x, xf.p1.y , xf.p1.z) ;
                                     g[v].position = v_position;
                                     g[v].type = INT;
                                     
-                                    //xi.intersections.insert( VertexPair( v, v_position.x ) );
-                                    //yi.intersections.insert( VertexPair( v, v_position.y ) );
+                                    xi.intersections2.insert( VertexPair( v, v_position.x ) );
+                                    yi.intersections2.insert( VertexPair( v, v_position.y ) );
                                     
                                     // 4) add edges 
                                     // find the X-vertices above and below the new vertex v.
-                                    /*
+                                    
                                     VertexPair v_pair_x( v , v_position.x );
-                                    VertexPairIterator x_tmp = xi.intersections.lower_bound( v_pair_x );
-                                    assert(x_tmp != xi.intersections.end() );
+                                    VertexPairIterator x_tmp = xi.intersections2.lower_bound( v_pair_x );
+                                    assert(x_tmp != xi.intersections2.end() );
                                     VertexPairIterator x_above = x_tmp;
                                     VertexPairIterator x_below = x_tmp;
                                     ++x_above;
@@ -206,8 +236,8 @@ class Weave2 {
                                     
                                     // now do the same thing in the y-direction.
                                     VertexPair v_pair_y( v , v_position.y );
-                                    VertexPairIterator y_tmp = yi.intersections.lower_bound( v_pair_y );
-                                    assert(y_tmp != yi.intersections.end() );
+                                    VertexPairIterator y_tmp = yi.intersections2.lower_bound( v_pair_y );
+                                    assert(y_tmp != yi.intersections2.end() );
                                     VertexPairIterator y_above = y_tmp;
                                     VertexPairIterator y_below = y_tmp;
                                     ++y_above;
@@ -216,7 +246,7 @@ class Weave2 {
                                     boost::remove_edge( y_above->first, y_below->first, g);
                                     boost::add_edge( y_above->first , v , g );
                                     boost::add_edge( y_below->first , v , g );
-                                    */
+                                    
                                 }
                             } // end y interval loop
                         } // end if(potential intersection)
@@ -233,9 +263,9 @@ class Weave2 {
         /// retrun list of loops
         std::vector< std::vector<Point> > getLoops() const {
             std::vector< std::vector<Point> > loop_list;
-            BOOST_FOREACH( std::vector<W2Vertex> loop, loops ) {
+            BOOST_FOREACH( std::vector<Vertex> loop, loops ) {
                 std::vector<Point> point_list;
-                BOOST_FOREACH( W2Vertex v, loop ) {
+                BOOST_FOREACH( Vertex v, loop ) {
                     point_list.push_back( g[v].position );
                 }
                 loop_list.push_back(point_list);
@@ -247,16 +277,16 @@ class Weave2 {
         std::string str() const {
             std::ostringstream o;
             o << "Weave2\n";
-            //o << "  " << fibers.size() << " fibers\n";
             o << "  " << xfibers.size() << " X-fibers\n";
             o << "  " << yfibers.size() << " Y-fibers\n";
             return o.str();
         }
+        
         /// print out information about the graph
         void printGraph() const {
             std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
             std::cout << " number of edges: " << boost::num_edges( g ) << "\n";
-            W2VertexItr it_begin, it_end, itr;
+            VertexItr it_begin, it_end, itr;
             boost::tie( it_begin, it_end ) = boost::vertices( g );
             int n=0, n_cl=0, n_internal=0;
             for ( itr=it_begin ; itr != it_end ; ++itr ) {
@@ -271,17 +301,12 @@ class Weave2 {
             std::cout << "    internal-nodes: " << n_internal << "\n";
         }
         
-    // DATA
-
     protected:        
-        /// add vertex to weave
-        //void add_vertex( Point& position, W2VertexType t, Interval& i, double ipos);
-        
+// DATA
         /// the weave-graph
-        W2Graph g;
+        WeaveGraph g;
         /// output: list of loops in this weave
-        std::vector< std::vector<W2Vertex> > loops;
-        
+        std::vector< std::vector<Vertex> > loops;
         /// the X-fibers
         std::vector<Fiber> xfibers;
         /// the Y-fibers

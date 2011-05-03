@@ -127,6 +127,7 @@ void export_algo() {
         .def("setZ", &Waterline_py::setZ)
         .def("setSampling", &Waterline_py::setSampling)
         .def("run", &Waterline_py::run)
+        .def("run2", &Waterline_py::run2)
         .def("getLoops", &Waterline_py::py_getLoops)
         .def("setThreads", &Waterline_py::setThreads)
         .def("getThreads", &Waterline_py::getThreads)

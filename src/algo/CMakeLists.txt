@@ -1,6 +1,5 @@
-
 # CmakeLists.txt for OpenCAMLib src/algo directory
-# project(OpenCamLib)
+project(OpenCamLib_algorithms)
 
 cmake_minimum_required(VERSION 2.4)
 
@@ -15,13 +14,39 @@ endif (CMAKE_BUILD_TOOL MATCHES "make")
 # this branches into the cutters dir and compiles stuff there
 # ADD_SUBDIRECTORY( cutters )
 
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR} )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/geo )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/cutters )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/algo )
+MESSAGE(STATUS ${OpenCamLib_SOURCE_DIR})
+
+INCLUDE_DIRECTORIES( ../geo )
+INCLUDE_DIRECTORIES( ../cutters )
+INCLUDE_DIRECTORIES( .././ )
+INCLUDE_DIRECTORIES( ./ )
+
+set(OCL_ALGO_SRC
+    batchdropcutter.cpp
+    pointdropcutter.cpp
+    batchpushcutter.cpp
+    fiberpushcutter.cpp
+    
+    lineclfilter.cpp
+    pathdropcutter.cpp
+    adaptivepathdropcutter.cpp
+    
+    interval.cpp
+    fiber.cpp
+    waterline.cpp
+    adaptivewaterline.cpp
+    weave.cpp
+    
+    # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.cpp
+    voronoidiagram.cpp
+    facegrid.cpp
+    
+    numeric.cpp
+
+)
 
 #
-# this makes the ocl Python module
+# this builds a static ocl_algo target
 #
 
 add_library(

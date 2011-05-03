@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -24,11 +24,13 @@
 
 #include "ccpoint.h"
 #include "weave_typedef.h"
+#include "weave2_typedef.h"
 
 namespace ocl
 {
 
 /// interval for use by fiber and weave
+/// a parameter interval [upper, lower]
 class Interval {
     public:
         Interval();
@@ -67,7 +69,8 @@ class Interval {
         bool in_weave; 
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
-        std::set< VertexPair, VertexPairCompare > intersections; 
+        VertexIntersectionSet intersections; 
+        weave2::VertexIntersectionSet intersections2;
 };
 
 } // end namespace

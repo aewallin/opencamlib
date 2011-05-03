@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -30,7 +30,8 @@ namespace ocl
 {
 
 /// a fiber is an infinite line in space along which the cutter can be pushed
-/// into contact with a triangle. A Weave is built from many X-fibers and Y-fibers
+/// into contact with a triangle. A Weave is built from many X-fibers and Y-fibers.
+/// might be called a Dexel also in some papers/textbooks.
 class Fiber {
     public:
         Fiber() {ints.clear();}
@@ -43,8 +44,8 @@ class Fiber {
         bool contains(Interval& i) const;
         /// return true if Interval i is completely missing (no overlaps) from Fiber
         bool missing(Interval& i) const;
-        /// get rid of this (??)
-        void condense();  // REMOVE??
+       
+        //void condense();  // REMOVE??
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value

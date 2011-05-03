@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -93,10 +93,10 @@ void Waterline::run() {
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
     std::cout << "split()..." << std::flush;
-    std::vector<Weave> subweaves = w.split_components(); // split into components
+    std::vector<Weave> subweaves = w.split_components(); // split into connected components
     std::cout << "traverse()..." << std::flush;
     std::vector< std::vector<Point> > subweave_loops;
-    BOOST_FOREACH( Weave sw, subweaves ) {
+    BOOST_FOREACH( Weave sw, subweaves ) { // go through all connected components
         sw.face_traverse(); // traverse to find loops
         subweave_loops = sw.getLoops();
         BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
@@ -106,6 +106,7 @@ void Waterline::run() {
     std::cout << "done.\n" << std::flush;
 }
 
+// this will become the new faster version of the algorithm which uses Weave2
 void Waterline::run2() {
 #ifndef WIN32
     std::cout << "Weave2..." << std::flush;
@@ -116,9 +117,11 @@ void Waterline::run2() {
     BOOST_FOREACH( Fiber f, *( subOp[1]->getFibers() ) ) {
         w.addFiber(f);
     }
-    /*
+   
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
+    std::cout << "done.\n";
+    /*
     std::cout << "split()..." << std::flush;
     std::vector<Weave> subweaves = w.split_components(); // split into components
     std::cout << "traverse()..." << std::flush;
