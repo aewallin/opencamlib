@@ -69,46 +69,46 @@ namespace ocl
 /// For a general description of the half-edge data structure see e.g.:
 ///  - http://www.holmes3d.net/graphics/dcel/
 ///  - http://openmesh.org/index.php?id=228
-template <class OutEdgeList, 
-          class VertexList,
-          class Directed, 
-          class VertexProperties,
-          class EdgeProperties,
-          class FaceProperties,
-          class GraphProperties,
-          class EdgeList 
+template <class TOutEdgeList, 
+          class TVertexList,
+          class TDirected, 
+          class TVertexProperties,
+          class TEdgeProperties,
+          class TFaceProperties,
+          class TGraphProperties,
+          class TEdgeList 
           >
-class HEDIGraph : public boost::adjacency_list< OutEdgeList,           // out-edge storage
-                                                VertexList,            // vertex set storage
-                                                Directed,              // directed tag
-                                                VertexProperties,      // vertex properties
-                                                EdgeProperties,        // edge properties
-                                                GraphProperties,       // graph-properties (?)
-                                                EdgeList               // edge storage
+class HEDIGraph : public boost::adjacency_list< TOutEdgeList,           // out-edge storage
+                                                TVertexList,            // vertex set storage
+                                                TDirected,              // directed tag
+                                                TVertexProperties,      // vertex properties
+                                                TEdgeProperties,        // edge properties
+                                                TGraphProperties,       // graph-properties (?)
+                                                TEdgeList               // edge storage
                                                 > 
 {
     public:
         typedef unsigned int HEFace; 
-        typedef typename boost::adjacency_list< OutEdgeList,            
-                                                VertexList,            
-                                                Directed,   
-                                                VertexProperties,             
-                                                EdgeProperties,                
-                                                GraphProperties,
-                                                EdgeList
+        typedef typename boost::adjacency_list< TOutEdgeList,            
+                                                TVertexList,            
+                                                TDirected,   
+                                                TVertexProperties,             
+                                                TEdgeProperties,                
+                                                TGraphProperties,
+                                                TEdgeList
                                                 > BGLGraph;
         /// use base class operator[] for vertex and edge properties
         using BGLGraph::operator[]; 
         /// operator[] to access face properties
-        FaceProperties& operator[](HEFace f)  { 
+        TFaceProperties& operator[](HEFace f)  { 
             return faces[f]; 
         }
         /// const operator[] for accessing face properties
-        const FaceProperties& operator[](HEFace f) const  { 
+        const TFaceProperties& operator[](HEFace f) const  { 
             return faces[f]; 
         }
 //DATA
-        std::vector<FaceProperties> faces;
+        std::vector< TFaceProperties > faces;
 };
 
 // FIXME: why is the class outside the namespace but the functions are inside?

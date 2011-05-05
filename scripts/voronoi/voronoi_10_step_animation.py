@@ -5,6 +5,7 @@ import vtk
 import datetime
 import math
 import random
+import os
 
 def drawVertex(myscreen, p, vertexColor, rad=1):
     myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=rad, color=vertexColor ) )
@@ -143,7 +144,9 @@ class VD:
 
 def writeFrame( w2if, lwr, n ):
     w2if.Modified() 
-    lwr.SetFileName("frames/vd500_zoomout"+ ('%05d' % n)+".png")
+    current_dir = os.getcwd()
+    filename = current_dir + "/frames/vd500_zoomout"+ ('%05d' % n)+".png"
+    lwr.SetFileName( filename )
     lwr.Write()
     
 if __name__ == "__main__":  

@@ -126,7 +126,8 @@ if __name__ == "__main__":
     
     Nmax=65  #60(1577)   65(2103)
     results=[]
-    for n in range(0,Nmax): # len(tsp_sorted)):
+    #for n in range(0,Nmax): # len(tsp_sorted)):
+    for n in range(0, len(tsp_sorted)):
         resultrow=[]
         tsp = ocl.TSPSolver()
         inst = tsp_sorted[n]
