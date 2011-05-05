@@ -89,7 +89,7 @@ class HEDIGraph : public boost::adjacency_list< OutEdgeList,           // out-ed
 {
     public:
         typedef unsigned int HEFace; 
-        typedef boost::adjacency_list< OutEdgeList,            
+        typedef typename boost::adjacency_list< OutEdgeList,            
                                                 VertexList,            
                                                 Directed,   
                                                 VertexProperties,             
