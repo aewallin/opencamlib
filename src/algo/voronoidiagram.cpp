@@ -690,7 +690,7 @@ bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
         // VertexVector face_verts = hed.face_vertices(f);
         bool face_found=false;
         BOOST_FOREACH( HEVertex w, hedi::face_vertices(f,g) ) {
-            if ( w != v && g[w].type == IN && hedi::edge(w,v,g) ) 
+            if ( w != v && g[w].type == IN && hedi::has_edge(w,v,g) ) 
                 face_found = true;
         }
         if (!face_found)

@@ -110,7 +110,7 @@ void Waterline::run() {
 void Waterline::run2() {
 #ifndef WIN32
     std::cout << "Weave2..." << std::flush;
-    weave2::Weave2 w;
+    weave2::Weave w;
     BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
         w.addFiber(f);
     }

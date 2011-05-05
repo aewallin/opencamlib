@@ -50,7 +50,7 @@ void Weave::add_vertex( Point& position, WeaveVertexType t, Interval& i, double 
     WeaveVertex  v = boost::add_vertex(g);
     g[v].position = position;
     g[v].type = t;
-    i.intersections.insert( VertexPair( v, ipos) ); // ?? Interval depends on WeaveGraph
+    i.intersections.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
 }
 
 void Weave::print_embedding(WeavePlanarEmbedding& e) {
@@ -156,6 +156,7 @@ void Weave::build() {
             double xmin = xf.point(xi.lower).x;
             double xmax = xf.point(xi.upper).x;
             assert( !xi.in_weave );
+            xi.in_weave = true;
             // add the interval end-points to the weave
             Point p = xf.point(xi.lower);
             add_vertex( p, CL , xi, p.x ); // add_vertex( Point& position, VertexType t, Interval& i, double ipos)

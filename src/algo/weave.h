@@ -67,10 +67,8 @@ class Weave {
         void build_embedding(WeavePlanarEmbedding& e);
         
         /// add vertex to weave
+        /// sets position, type, and inserts the VertexPair into Interval::intersections
         void add_vertex( Point& position, WeaveVertexType t, Interval& i, double ipos);
-        
-        /// sort list fibers into X and Y Fiber lists xfibers and yfibers
-        //void sort_fibers(); 
         
         /// run a planarity test on the graph
         bool isPlanar() const;

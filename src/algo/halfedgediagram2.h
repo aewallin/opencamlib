@@ -111,6 +111,7 @@ class HEDIGraph : public boost::adjacency_list< OutEdgeList,           // out-ed
         std::vector<FaceProperties> faces;
 };
 
+// FIXME: why is the class outside the namespace but the functions are inside?
 namespace hedi  { // collect half-edge diagram functions here.
 
 /// add a blank vertex and return its descriptor
@@ -136,6 +137,7 @@ typename boost::graph_traits< Graph >::edge_descriptor add_edge(typename boost::
     return e;
 }
 
+/// make e1 the twin of e2 (and vice versa)
 template <class Graph>
 void twin_edges( typename boost::graph_traits< Graph >::edge_descriptor e1,
                  typename boost::graph_traits< Graph >::edge_descriptor e2,
@@ -304,15 +306,26 @@ typename boost::graph_traits< Graph >::edge_descriptor previous_edge(
 
 /// return true if v1-v2 edge exists
 template <class Graph>
-bool edge( typename boost::graph_traits< Graph >::vertex_descriptor v1, 
-           typename boost::graph_traits< Graph >::vertex_descriptor v2, 
-           Graph& g ) {
+bool has_edge( typename boost::graph_traits< Graph >::vertex_descriptor v1, 
+               typename boost::graph_traits< Graph >::vertex_descriptor v2, 
+               Graph& g ) {
     typedef typename boost::graph_traits< Graph >::edge_descriptor HEEdge;
     typedef typename std::pair<HEEdge, bool> EdgeBool;
     EdgeBool result = boost::edge(v1, v2, g );
     return result.second;
 }
 
+/// return v1-v2 edge descriptor
+template <class Graph>
+typename boost::graph_traits< Graph >::edge_descriptor edge( 
+           typename boost::graph_traits< Graph >::vertex_descriptor v1, 
+           typename boost::graph_traits< Graph >::vertex_descriptor v2, 
+           Graph& g ) {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor HEEdge;
+    typedef typename std::pair<HEEdge, bool> EdgeBool;
+    EdgeBool result = boost::edge(v1, v2, g );
+    return result.first;
+}
 
 /// return adjacent faces to the given vertex
 template <class Graph>
@@ -346,7 +359,7 @@ unsigned int num_edges(const Graph& g) {
     return boost::num_edges( g ); 
 }
 
-/// inserts given vertex and its twin into edge e
+/// inserts given vertex into edge e, and into the twin edge e_twin
 template <class Graph>
 void insert_vertex_in_edge(typename boost::graph_traits< Graph >::vertex_descriptor  v, 
                            typename boost::graph_traits< Graph >::edge_descriptor e, 
@@ -413,8 +426,42 @@ void insert_vertex_in_edge(typename boost::graph_traits< Graph >::vertex_descrip
     boost::remove_edge( twin, g);
 }
 
+
+/// inserts given vertex into edge e
+template <class Graph>
+void insert_vertex_in_half_edge(typename boost::graph_traits< Graph >::vertex_descriptor  v, 
+                           typename boost::graph_traits< Graph >::edge_descriptor e, 
+                           Graph& g) {
+    typedef typename boost::graph_traits< Graph >::edge_descriptor    HEEdge;
+    typedef typename boost::graph_traits< Graph >::vertex_descriptor  HEVertex;
+    // the vertex v is in the middle of edge e
+    //                    face
+    //                    e1   e2
+    // previous-> source  -> v -> target -> next
+    
+    HEVertex source = boost::source( e , g );
+    HEVertex target = boost::target( e , g);
+    unsigned int face = g[e].face;
+    HEEdge previous = previous_edge(e, g);
+    assert( g[previous].face == g[e].face );
+    HEEdge e1 = add_edge( source, v , g);
+    HEEdge e2 = add_edge( v, target , g);
+    // preserve the left/right face link
+    g[e1].face = face;
+    g[e2].face = face;
+    // next-pointers
+    g[previous].next = e1;
+    g[e1].next = e2;
+    g[e2].next = g[e].next;
+    // update the faces (required here?)
+    g.faces[face].edge = e1;
+    // finally, remove the old edge
+    boost::remove_edge( e   , g);
+    // NOTE: twinning is not done here, since the twin edge is not split...
+}
+
         
-        /// check that all edges belong to the correct face
+        /// check that all edges belong to the correct face, TODO: template this to make it a useful check
         /*
         bool checkFaces() {
             BOOST_FOREACH(FaceProps f, faces) {

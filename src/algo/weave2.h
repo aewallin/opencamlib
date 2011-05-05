@@ -39,52 +39,6 @@ namespace ocl
 namespace weave2
 {
 
-/*
-struct VertexProps; 
-struct EdgeProps;
-struct FaceProps;
-typedef unsigned int Face;  
-  
-// the graph type for the weave
-typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
-                       boost::listS,             // vertex set stored here
-                       boost::bidirectionalS,    // bidirectional graph.
-                       VertexProps,              // vertex properties
-                       EdgeProps,                // edge properties
-                       FaceProps,                // face properties
-                       boost::no_property,       // graph properties
-                       boost::listS             // edge storage
-                       > WeaveGraph;
-
-typedef boost::graph_traits< WeaveGraph >::vertex_descriptor  Vertex;
-typedef boost::graph_traits< WeaveGraph >::vertex_iterator    VertexItr;
-typedef boost::graph_traits< WeaveGraph >::edge_descriptor    Edge;
-typedef boost::graph_traits< WeaveGraph >::edge_iterator      EdgeItr;
-typedef boost::graph_traits< WeaveGraph >::out_edge_iterator  OutEdgeItr;
-typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyItr;
-
-/// intersections between intervals are stored as a VertexPair
-/// pair.first is a vertex descriptor of the weave graph
-/// pair.second is the coordinate along the fiber of the intersection
-typedef std::pair< Vertex, double > VertexPair;
-
-/// compare based on pair.second, the coordinate of the intersection
-struct VertexPairCompare {
-    /// comparison operator
-    bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
-    { return lhs.second < rhs.second ;}
-};
-
-/// intersections stored in this set (for rapid finding of neighbors etc)
-typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
-
-typedef VertexIntersectionSet::iterator VertexPairIterator;    
-
-
-/// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
-*/
-
 /// vertex properties
 struct VertexProps {
     VertexProps() {
@@ -148,10 +102,10 @@ struct FaceProps {
 
                  
 /// weave-graph, 2nd impl. based on HEDIGraph
-class Weave2 {
+class Weave {
     public:
-        Weave2() {}
-        virtual ~Weave2() {}
+        Weave() {}
+        virtual ~Weave() {}
 
         /// add Fiber f to the graph
         /// each fiber should be either in the X or Y-direction
@@ -181,38 +135,39 @@ class Weave2 {
                 BOOST_FOREACH( Interval& xi, xf.ints ) {
                     double xmin = xf.point(xi.lower).x;
                     double xmax = xf.point(xi.upper).x;
-                    assert( !xi.in_weave );
-                    // add the interval end-points to the weave
-                    Point p = xf.point(xi.lower);
-                    hedi::add_vertex( VertexProps(p, CL ), g ); 
-                    // p, CL , xi, p.x ); // add_vertex( Point& position, VertexType t, Interval& i, double ipos)
+                    assert( !xi.in_weave ); // this is the first time the x-interval is added!
+                    xi.in_weave = true;
+                    // add the X interval end-points to the weave
+                    Point p( xf.point(xi.lower) );
+                    Vertex v1 = add_vertex( p, CL , xi, p.x ); 
                     p = xf.point(xi.upper);
-                    hedi::add_vertex( VertexProps(p, CL ), g ); 
-                    // add_vertex( p, CL , xi, p.x );
-                    // xi.intersections std::set of intersections with this interval.
-
+                    Vertex v2 = add_vertex( p, CL , xi, p.x );
+                    Edge e1 = hedi::add_edge( v1, v2, g);
+                    Edge e2 = hedi::add_edge( v2, v1, g);
+                    hedi::twin_edges(e1, e2, g);
+                    g[e1].next = e2;
+                    g[e2].next = e1;
+                    
                     BOOST_FOREACH( Fiber& yf, yfibers ) { // loop through all y-fibers for all x-intervals
                         if ( (xmin <= yf.p1.x) && ( yf.p1.x <= xmax ) ) {// potential intersection between y-fiber and x-interval
                             BOOST_FOREACH( Interval& yi, yf.ints ) {
-                                double ymin = yf.point(yi.lower).y;
-                                double ymax = yf.point(yi.upper).y;
+                                double ymin = yf.point(yi.lower).y ;
+                                double ymax = yf.point(yi.upper).y ;
                                 if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) { 
                                     // there is an actual intersection btw x-interval and y-interval
                                     // X interval xi on fiber xf intersects with Y interval yi on fiber yf
                                     // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z )
                                     if (!yi.in_weave) { // add y-interval endpoints to weave
-                                        Point p = yf.point(yi.lower);
-                                        hedi::add_vertex( VertexProps(p, CL ), g ); 
-                                        //add_vertex( p, CL , yi, p.y );
+                                        Point p( yf.point(yi.lower) );
+                                        add_vertex( p, CL , yi, p.y );
                                         p = yf.point(yi.upper);
-                                        hedi::add_vertex( VertexProps(p, CL ), g ); 
-                                        //add_vertex( p, CL , yi, p.y );
+                                        add_vertex( p, CL , yi, p.y );
                                         yi.in_weave = true;
                                     }
                                     // 3) intersection point (this is always new, no need to check for existence??)
                                     Vertex  v;
                                     v = hedi::add_vertex(g);
-                                    Point v_position = Point( yf.p1.x, xf.p1.y , xf.p1.z) ;
+                                    Point v_position( yf.p1.x, xf.p1.y , xf.p1.z );
                                     g[v].position = v_position;
                                     g[v].type = INT;
                                     
@@ -221,31 +176,49 @@ class Weave2 {
                                     
                                     // 4) add edges 
                                     // find the X-vertices above and below the new vertex v.
-                                    
                                     VertexPair v_pair_x( v , v_position.x );
                                     VertexPairIterator x_tmp = xi.intersections2.lower_bound( v_pair_x );
                                     assert(x_tmp != xi.intersections2.end() );
                                     VertexPairIterator x_above = x_tmp;
                                     VertexPairIterator x_below = x_tmp;
-                                    ++x_above;
-                                    --x_below;
+                                    Vertex x_u = (++x_above)->first;
+                                    Vertex x_l = (--x_below)->first;
                                     // if x_above and x_below are already connected, we need to remove that edge.
-                                    boost::remove_edge( x_above->first, x_below->first, g);
-                                    boost::add_edge( x_above->first , v , g );
-                                    boost::add_edge( x_below->first , v , g );
+                                    assert( hedi::has_edge( x_l, x_u, g ) );
+                                    Edge e = hedi::edge( x_l, x_u, g);
                                     
+                                    //hedi::insert_vertex_in_edge(v, e, g);
+
                                     // now do the same thing in the y-direction.
                                     VertexPair v_pair_y( v , v_position.y );
                                     VertexPairIterator y_tmp = yi.intersections2.lower_bound( v_pair_y );
                                     assert(y_tmp != yi.intersections2.end() );
                                     VertexPairIterator y_above = y_tmp;
                                     VertexPairIterator y_below = y_tmp;
-                                    ++y_above;
-                                    --y_below;
-                                    // if y_above and y_below are already connected, we need to remove that edge.
-                                    boost::remove_edge( y_above->first, y_below->first, g);
-                                    boost::add_edge( y_above->first , v , g );
-                                    boost::add_edge( y_below->first , v , g );
+                                    //++y_above;
+                                    //--y_below;
+                                    Vertex y_u = (++y_above)->first;
+                                    Vertex y_l = (--y_below)->first;
+                                    
+                                    // if y_l and y_u are already connected, we need to remove that edge.
+                                    if ( hedi::has_edge( y_l, y_u, g ) ) {
+                                        assert( hedi::has_edge( y_u, y_l, g ) ); // twin must also exist
+                                        Edge e_lu = hedi::edge( y_l, y_u, g);
+                                        Edge e_ul = g[e_lu].twin;
+                                        Edge y_lu_next = g[e_lu].next;
+                                        Edge y_lu_prev = hedi::previous_edge(e_lu,g);
+                                        
+                                        Edge y_ul_next = g[e_ul].next;
+                                        Edge y_ul_prev = hedi::previous_edge(e_ul,g);
+                                        
+                                        boost::remove_edge( y_l, y_u, g);
+                                        boost::remove_edge( y_u, y_l, g);
+                                    }
+                                    Edge e_lv = hedi::add_edge( y_l, v, g);
+                                    
+                                    //boost::remove_edge( y_above->first, y_below->first, g);
+                                    //boost::add_edge( y_above->first , v , g );
+                                    //boost::add_edge( y_below->first , v , g );
                                     
                                 }
                             } // end y interval loop
@@ -256,6 +229,15 @@ class Weave2 {
             } // end X-fiber loop
              
         }
+        
+        /// add vertex to weave
+        /// sets position, type, and inserts the VertexPair into Interval::intersections
+        Vertex add_vertex( Point& position, VertexType type, Interval& interv, double ipos) {
+            Vertex  v = hedi::add_vertex(VertexProps( position, type ), g);
+            interv.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
+            return v;
+        }
+        
         
         /// run planar_face_traversal to get the waterline loops
         void face_traverse() { }
