@@ -92,6 +92,8 @@ if(Boost_FOUND)
     MESSAGE(STATUS "found Boost: " ${Boost_LIB_VERSION})
     MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
     MESSAGE(STATUS "boost-python lib is: " ${Boost_PYTHON_LIBRARY})
+    MESSAGE(STATUS "boost_LIBRARY_DIRS is: " ${Boost_LIBRARY_DIRS})
+    MESSAGE(STATUS "Boost_LIBRARIES is: " ${Boost_LIBRARIES})    
 endif()
 
 #
@@ -269,8 +271,9 @@ if (BUILD_PY_LIB)
         ocl.cpp
     )
 
-    MESSAGE(STATUS "linking ocl.so with boost: " ${Boost_LIBRARIES})
-    target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ${Boost_LIBRARIES})
+    MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
+    target_link_libraries(ocl ocl_cutters ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
+    # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
 
