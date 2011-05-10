@@ -38,12 +38,20 @@ void export_algo();
 
 // this defines the python ocl module
 BOOST_PYTHON_MODULE(ocl) {
-    bp::docstring_options doc_options(false, false);
-    //doc_options.disable_all();
-    //doc_options.disable_py_signatures();
-
+    bp::docstring_options doc_options();
+    // these functions set the docstring options
     
-
+    //void disable_user_defined();
+    void enable_user_defined();
+    //void disable_signatures();
+    void enable_signatures();
+    //void disable_py_signatures();
+    void enable_py_signatures();
+    //void disable_cpp_signatures();
+    void enable_cpp_signatures();
+    //void disable_all();
+    //void enable_all();
+    
     bp::def("__doc__", ocl_docstring);
 
     export_geometry(); // see ocl_geometry.cpp
