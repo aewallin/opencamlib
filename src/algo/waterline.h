@@ -56,10 +56,11 @@ class Waterline : public Operation {
         }
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
-        void run();
-        void run2();
+        virtual void run();
+        virtual void run2();
         
     protected:
+        virtual void weave2_process(); 
         /// initialization
         void init_fibers();
         /// x and y-coordinates for fiber generation

@@ -54,8 +54,9 @@ class AdaptiveWaterline : public Waterline {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
-        
+        void run2();
     protected:
+        void weave2_awl_process(); 
         /// adaptive waterline algorithm
         void adaptive_sampling_run();
         /// x-direction adaptive sampling

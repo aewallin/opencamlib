@@ -36,6 +36,7 @@ set(OCL_ALGO_SRC
     waterline.cpp
     adaptivewaterline.cpp
     weave.cpp
+    weave2.cpp
     
     # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.cpp
     voronoidiagram.cpp

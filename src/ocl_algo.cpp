@@ -144,6 +144,7 @@ void export_algo() {
         .def("setSampling", &AdaptiveWaterline_py::setSampling)
         .def("setMinSampling", &AdaptiveWaterline_py::setMinSampling)
         .def("run", &AdaptiveWaterline_py::run)
+        .def("run2", &AdaptiveWaterline_py::run2)
         .def("getLoops", &AdaptiveWaterline_py::py_getLoops)
         .def("setThreads", &AdaptiveWaterline_py::setThreads)
         .def("getThreads", &AdaptiveWaterline_py::getThreads)

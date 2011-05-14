@@ -22,7 +22,7 @@ if __name__ == "__main__":
     s.addTriangle(t) # a one-triangle STLSurf
     zheights=[-0.3, -0.2, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.26, 0.27, 0.28, 0.29 ]  # the z-coordinates for the waterlines
     zheights=[-0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2,  0.28 ]
-    zheights=[ -0.05, 0.0, 0.05, 0.1, 0.15, 0.2,  0.28 ]
+    zheights=[ -0.05, 0.0, 0.05, 0.1, 0.15, 0.2, 0.28]
     cutter_diams = [0.6] # run the thing for all these cutter diameters
     length = 5
     loops = []

@@ -113,6 +113,11 @@ void Waterline::run2() {
     subOp[0]->run();
     subOp[1]->run();
     
+    weave2_process();
+#endif
+}
+
+void Waterline::weave2_process() {
     std::cout << "Weave2..." << std::flush;
     weave2::Weave w;
     BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
@@ -133,23 +138,8 @@ void Waterline::run2() {
     BOOST_FOREACH( std::vector<Point> loop, weave_loops ) {
         this->loops.push_back( loop );
     }
-    std::cout << "DONE get_loops()\n";    
-    /*
-    std::cout << "split()..." << std::flush;
-    std::vector<Weave> subweaves = w.split_components(); // split into components
-    std::cout << "traverse()..." << std::flush;
-    std::vector< std::vector<Point> > subweave_loops;
-    BOOST_FOREACH( Weave sw, subweaves ) {
-        sw.face_traverse(); // traverse to find loops
-        subweave_loops = sw.getLoops();
-        BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
-            this->loops.push_back( loop );
-        }
-    }*/
-    //std::cout << "done.\n" << std::flush;
-#endif
+    std::cout << "DONE get_loops()\n";   
 }
-
 
 void Waterline::init_fibers() {
     std::cout << " Waterline::init_fibers()\n";

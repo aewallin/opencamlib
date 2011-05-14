@@ -37,6 +37,7 @@
 #include "adaptivewaterline.h"
 
 #include "weave.h"
+#include "weave2.h"
 #include "fiberpushcutter.h"
 
 
@@ -69,6 +70,12 @@ AdaptiveWaterline::~AdaptiveWaterline() {
 
 void AdaptiveWaterline::run() {
     adaptive_sampling_run();
+    weave_process();
+}
+
+void AdaptiveWaterline::run2() {
+    adaptive_sampling_run();
+    weave2_awl_process();
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {
@@ -104,8 +111,6 @@ void AdaptiveWaterline::adaptive_sampling_run() {
     yfibers.push_back(ystart_f);
     std::cout << " YFiber adaptive sample \n";
     yfiber_adaptive_sample( linespan, 0.0, 1.0, ystart_f, ystop_f);
-    
-    weave_process();
     
 }
 
@@ -185,6 +190,30 @@ bool AdaptiveWaterline::flat(Point start_cl, Point mid_cl, Point stop_cl)  const
     v2.normalize();
     double dotprod =  v1.dot(v2) ;
     return (dotprod>cosLimit);
+}
+
+void AdaptiveWaterline::weave2_awl_process() {
+    std::cout << "AWL::weave2_process() Weave2..." << std::flush;
+    weave2::Weave w;
+    BOOST_FOREACH( Fiber f, xfibers ) {
+        w.addFiber(f);
+    }
+    BOOST_FOREACH( Fiber f, yfibers ) {
+        w.addFiber(f);
+    }
+   
+    std::cout << "build()..." << std::flush;
+    w.build(); // build weave from fibers
+    std::cout << "done.\n";
+    std::cout << "face traverse()\n";
+    w.face_traverse();
+    std::cout << "DONE face traverse()\n";
+    std::cout << "get_loops()\n";
+    std::vector< std::vector<Point> > weave_loops = w.getLoops();
+    BOOST_FOREACH( std::vector<Point> loop, weave_loops ) {
+        this->loops.push_back( loop );
+    }
+    std::cout << "DONE get_loops()\n";  
 }
 
 // create weave from fibers, split into components, traverse to find toolpath loops

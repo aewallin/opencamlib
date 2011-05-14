@@ -171,6 +171,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/weave2.cpp
     
     # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/voronoidiagram.cpp
