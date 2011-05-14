@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -88,7 +88,8 @@ void Weave::build() {
             hedi::twin_edges(e1, e2, g); // twinning not really used here...
             g[e1].next = e2;
             g[e2].next = e1;
-            
+            g[e1].prev = e2;
+            g[e2].prev = e1;
             
             BOOST_FOREACH( Fiber& yf, yfibers ) { // loop through all y-fibers for all x-intervals
                 if ( (xmin <= yf.p1.x) && ( yf.p1.x <= xmax ) ) {// potential intersection between y-fiber and x-interval
@@ -138,9 +139,9 @@ void Weave::build() {
                             Edge xe_lu = hedi::edge( x_l, x_u, g);
                             Edge xe_ul = hedi::edge( x_u, x_l, g);
                             Edge xe_lu_next = g[xe_lu].next;
-                            Edge xe_lu_prev = hedi::previous_edge( xe_lu, g );
+                            Edge xe_lu_prev = g[xe_lu].prev; // hedi::previous_edge( xe_lu, g );
                             Edge xe_ul_next = g[xe_ul].next;
-                            Edge xe_ul_prev = hedi::previous_edge( xe_ul, g );
+                            Edge xe_ul_prev = g[xe_ul].prev; // hedi::previous_edge( xe_ul, g );
                             
                             // now do the same thing in the y-direction.
                             VertexPair v_pair_y( v , v_position.y );
@@ -163,10 +164,10 @@ void Weave::build() {
                                 Edge ye_ul = hedi::edge( y_u, y_l, g);
                                 
                                 Edge ye_lu_next = g[ye_lu].next;
-                                Edge ye_lu_prev = hedi::previous_edge( ye_lu, g );
+                                Edge ye_lu_prev = g[ye_lu].prev; // hedi::previous_edge( ye_lu, g );
                                 
                                 Edge ye_ul_next = g[ye_ul].next;
-                                Edge ye_ul_prev = hedi::previous_edge( ye_ul, g );
+                                Edge ye_ul_prev = g[ye_ul].prev; // hedi::previous_edge( ye_ul, g );
                                 
                                 // and now eight new edges to add
                                 Edge xl_v = hedi::add_edge(x_l, v  , g);
@@ -197,19 +198,19 @@ void Weave::build() {
                                 if (ye_ul_next == ye_lu)
                                     ye_ul_next = yl_v;
                                 
-                                // now set next/prev edges (there are 12 of these to do)
-                                g[xe_lu_prev].next = xl_v;
-                                g[xl_v].next = v_yl;
-                                g[v_yl].next = ye_ul_next;
-                                g[ye_lu_prev].next = yl_v;
-                                g[yl_v].next = v_xu;
-                                g[v_xu].next = xe_lu_next;
-                                g[xe_ul_prev].next = xu_v;
-                                g[xu_v].next = v_yu;
-                                g[v_yu].next = ye_lu_next;
-                                g[ye_ul_prev].next = yu_v;
-                                g[yu_v].next = v_xl;
-                                g[v_xl].next = xe_ul_next;
+                                // now set next/prev edges (there are 2*12=24 of these to do)
+                                g[xe_lu_prev].next = xl_v;  g[xl_v].prev = xe_lu_prev;
+                                g[xl_v].next = v_yl;        g[v_yl].prev = xl_v;
+                                g[v_yl].next = ye_ul_next;  g[ye_ul_next].prev = v_yl;
+                                g[ye_lu_prev].next = yl_v;  g[yl_v].prev = ye_lu_prev;
+                                g[yl_v].next = v_xu;        g[v_xu].prev = yl_v;
+                                g[v_xu].next = xe_lu_next;  g[xe_lu_next].prev = v_xu;
+                                g[xe_ul_prev].next = xu_v;  g[xu_v].prev = xe_ul_prev;
+                                g[xu_v].next = v_yu;        g[v_yu].prev = xu_v;
+                                g[v_yu].next = ye_lu_next;  g[ye_lu_next].prev = v_yu;
+                                g[ye_ul_prev].next = yu_v;  g[yu_v].prev = ye_ul_prev;
+                                g[yu_v].next = v_xl;        g[v_xl].prev = yu_v;
+                                g[v_xl].next = xe_ul_next;  g[xe_ul_next].prev = v_xl;
 
                                 
                                 // now it should be safe to delete the old edges
@@ -246,8 +247,23 @@ void Weave::build() {
                                 Edge ye_lu_prev = v_yl;
                                 Edge ye_ul_next = yl_v;
                                 Edge ye_ul_prev = v_yu;
-                                // now set the 12 links 
-                                g[xe_lu_prev].next = xl_v;
+                                
+                                
+                                // now set next/prev edges (there are 2*12=24 of these to do)
+                                g[xe_lu_prev].next = xl_v;  g[xl_v].prev = xe_lu_prev;
+                                g[xl_v].next = v_yl;        g[v_yl].prev = xl_v;
+                                g[v_yl].next = ye_ul_next;  g[ye_ul_next].prev = v_yl;
+                                g[ye_lu_prev].next = yl_v;  g[yl_v].prev = ye_lu_prev;
+                                g[yl_v].next = v_xu;        g[v_xu].prev = yl_v;
+                                g[v_xu].next = xe_lu_next;  g[xe_lu_next].prev = v_xu;
+                                g[xe_ul_prev].next = xu_v;  g[xu_v].prev = xe_ul_prev;
+                                g[xu_v].next = v_yu;        g[v_yu].prev = xu_v;
+                                g[v_yu].next = ye_lu_next;  g[ye_lu_next].prev = v_yu;
+                                g[ye_ul_prev].next = yu_v;  g[yu_v].prev = ye_ul_prev;
+                                g[yu_v].next = v_xl;        g[v_xl].prev = yu_v;
+                                g[v_xl].next = xe_ul_next;  g[xe_ul_next].prev = v_xl;
+                                
+                                /*g[xe_lu_prev].next = xl_v;
                                 g[xl_v].next = v_yl;
                                 g[v_yl].next = ye_ul_next;
                                 g[ye_lu_prev].next = yl_v;
@@ -259,6 +275,7 @@ void Weave::build() {
                                 g[ye_ul_prev].next = yu_v;
                                 g[yu_v].next = v_xl;
                                 g[v_xl].next = xe_ul_next;
+                                */
                                 // delete the old edges
                                 boost::remove_edge( x_l, x_u, g);
                                 boost::remove_edge( x_u, x_l, g);

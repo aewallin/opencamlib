@@ -1,4 +1,4 @@
-/*  $Id:  $
+/*  $Id$
  * 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -21,8 +21,6 @@
 #define WEAVE2_H
 
 #include <vector>
-
-// #include <boost/graph/adjacency_list.hpp> // graph class
 
 #include "point.h"
 #include "ccpoint.h"
@@ -74,7 +72,9 @@ struct EdgeProps {
         face = f;
     }
     /// the next edge, counterclockwise, from this edge
-    Edge next; 
+    Edge next;
+    /// previous edge, to make Weave::build() faster, since we avoid calling hedi::previous_edge() 
+    Edge prev;
     /// the twin edge
     Edge twin;
     /// the face to which this edge belongs
