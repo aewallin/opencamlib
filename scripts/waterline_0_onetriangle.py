@@ -32,7 +32,7 @@ if __name__ == "__main__":
         for diam in cutter_diams:
             
             cutter = ocl.CylCutter( diam , length )
-            #cutter = ocl.BallCutter( diam , length )
+            cutter = ocl.BallCutter( diam , length )
             #cutter = ocl.BullCutter( diam , diam/5, length )
             #cutter = ocl.ConeCutter( diam , math.pi/5, length )
             wl = ocl.Waterline()

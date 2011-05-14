@@ -109,6 +109,10 @@ void Waterline::run() {
 // this will become the new faster version of the algorithm which uses Weave2
 void Waterline::run2() {
 #ifndef WIN32
+    this->init_fibers();
+    subOp[0]->run();
+    subOp[1]->run();
+    
     std::cout << "Weave2..." << std::flush;
     weave2::Weave w;
     BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
@@ -121,6 +125,15 @@ void Waterline::run2() {
     std::cout << "build()..." << std::flush;
     w.build(); // build weave from fibers
     std::cout << "done.\n";
+    std::cout << "face traverse()\n";
+    w.face_traverse();
+    std::cout << "DONE face traverse()\n";
+    std::cout << "get_loops()\n";
+    std::vector< std::vector<Point> > weave_loops = w.getLoops();
+    BOOST_FOREACH( std::vector<Point> loop, weave_loops ) {
+        this->loops.push_back( loop );
+    }
+    std::cout << "DONE get_loops()\n";    
     /*
     std::cout << "split()..." << std::flush;
     std::vector<Weave> subweaves = w.split_components(); // split into components
@@ -133,7 +146,7 @@ void Waterline::run2() {
             this->loops.push_back( loop );
         }
     }*/
-    std::cout << "done.\n" << std::flush;
+    //std::cout << "done.\n" << std::flush;
 #endif
 }
 

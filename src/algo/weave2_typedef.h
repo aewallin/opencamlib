@@ -45,9 +45,9 @@ struct FaceProps;
 typedef unsigned int Face;  
   
 // the graph type for the weave
-typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
-                       boost::listS,             // vertex set stored here
-                       boost::bidirectionalS,    // bidirectional graph.
+typedef HEDIGraph<     boost::listS,             // out-edges stored here
+                       boost::vecS,             // vertex set stored here
+                       boost::bidirectionalS,    // undirecgted or bidirectional graph?
                        VertexProps,              // vertex properties
                        EdgeProps,                // edge properties
                        FaceProps,                // face properties
