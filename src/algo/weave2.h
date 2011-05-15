@@ -23,8 +23,8 @@
 #include <vector>
 
 #include "point.h"
-#include "ccpoint.h"
-#include "numeric.h"
+
+//#include "numeric.h"
 #include "fiber.h"
 #include "weave2_typedef.h"
 
@@ -65,38 +65,26 @@ struct VertexProps {
 /// edge properties
 struct EdgeProps {
     EdgeProps() {}
-    /// create edge with given next, twin, and face
-    EdgeProps(Edge n, Edge t, Face f) { 
-        next = n;
-        twin = t;
-        face = f;
-    }
     /// the next edge, counterclockwise, from this edge
     Edge next;
     /// previous edge, to make Weave::build() faster, since we avoid calling hedi::previous_edge() 
     Edge prev;
     /// the twin edge
     Edge twin;
-    /// the face to which this edge belongs
-    Face face; 
+
 };
 
-/// types of faces in the weave
-enum FaceType {INCIDENT, NONINCIDENT};
 
 /// properties of a face in the weave
 struct FaceProps {
     /// create face with given edge, generator, and type
-    FaceProps( Edge e , Point gen, FaceType t) {
+    FaceProps( Edge e ) {
         edge = e;
-        type = t;
     }
     /// face index
     Face idx;
     /// one edge that bounds this face
     Edge edge;
-    /// face type
-    FaceType type;
 };
 
                  
@@ -119,33 +107,7 @@ class Weave {
         Vertex add_vertex( Point& position, VertexType type, Interval& interv, double ipos);
 
         /// run planar_face_traversal to get the waterline loops
-        void face_traverse() { 
-            std::cout << " traversing graph with " << clVertices.size() << " cl-points\n";
-            // traverse the graph putting loops of vertices into the loops variable
-            // std::vector< std::vector<Vertex> > loops;
-            while ( !clVertices.empty() ) {
-                std::vector<Vertex> loop;
-                Vertex current = *(clVertices.begin());
-                Vertex first = current;
-                do {
-                    assert( g[current].type == CL );
-                    loop.push_back(current);
-                    clVertices.erase(current);
-                    // find the edge to follow
-                    std::vector<Edge> outEdges = hedi::out_edges(current, g);
-                    if (outEdges.size() != 1 )
-                        std::cout << " outEdges.size() = " << outEdges.size() << "\n";
-                    assert( outEdges.size() == 1 );
-                    // traverse to the next cl-point using next
-                    Edge currentEdge = outEdges[0];
-                    do { // following next, find a CL point 
-                        current = hedi::target( currentEdge, g);
-                        currentEdge = g[currentEdge].next;
-                    } while ( g[current].type != CL );
-                } while (current!=first); // end the loop when we arrive at the start
-                loops.push_back(loop);
-            }
-        }
+        void face_traverse();
         
         /// retrun list of loops
         std::vector< std::vector<Point> > getLoops() const {

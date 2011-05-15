@@ -71,7 +71,7 @@ if __name__ == "__main__":
     awl.setCutter(cutter)
     awl.setZ(zh)
     awl.setSampling(0.1)
-    awl.setMinSampling(0.001)
+    awl.setMinSampling(0.01)
     #wl.setThreads(5)
     t_before = time.time() 
     awl.run2()
