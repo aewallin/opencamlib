@@ -120,7 +120,7 @@ class Weave {
                 loop_list.push_back(point_list);
             }
             return loop_list;
-        } 
+        }
         
         /// string representation
         std::string str() const {
@@ -132,8 +132,8 @@ class Weave {
         }
         
         /// print out information about the graph
-        /*
-        // this causes a build error when both face and vertex descriptors have the same type
+        
+        // this can cause a build error when both face and vertex descriptors have the same type
         // i.e. unsigned int (?)
         // operator[] below "g[*itr].type" then looks for FaceProps.type which does not exist...
         void printGraph() const {
@@ -152,7 +152,7 @@ class Weave {
             std::cout << " counted " << n << " vertices\n";
             std::cout << "          CL-nodes: " << n_cl << "\n";
             std::cout << "    internal-nodes: " << n_internal << "\n";
-        }*/
+        }
         
     protected:        
 // DATA

@@ -46,7 +46,7 @@ typedef unsigned int Face;
   
 // the graph type for the weave
 typedef HEDIGraph<     boost::listS,             // out-edges stored here
-                       boost::vecS,             // vertex set stored here
+                       boost::listS,             // vertex set stored here
                        boost::bidirectionalS,    // undirecgted or bidirectional graph?
                        VertexProps,              // vertex properties
                        EdgeProps,                // edge properties
