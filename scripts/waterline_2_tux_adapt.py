@@ -54,7 +54,7 @@ if __name__ == "__main__":
     wl.setSTL(s)
     wl.setCutter(cutter)
     wl.setZ(zh)
-    wl.setSampling(0.1)
+    wl.setSampling(0.02)
     #wl.setThreads(5)
     t_before = time.time() 
     wl.run2()

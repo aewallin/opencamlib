@@ -27,10 +27,10 @@ if __name__ == "__main__":
     length = 5
     loops = []
     cutter = ocl.CylCutter( 1 , 1 )   
-
+    
+    t_total = time.time() 
     for zh in zheights:
         for diam in cutter_diams:
-            
             cutter = ocl.CylCutter( diam , length )
             cutter = ocl.BallCutter( diam , length )
             #cutter = ocl.BullCutter( diam , diam/5, length )
@@ -43,13 +43,14 @@ if __name__ == "__main__":
             wl.setSampling(0.02)
             wl.setThreads(1)
             t_before = time.time() 
-            wl.run2()
+            wl.run()
             t_after = time.time()
             calctime = t_after-t_before
             print " Waterline done in ", calctime," s"
             cutter_loops = wl.getLoops()
             for l in cutter_loops:
                 loops.append(l)
+    print " ALL Waterlines done in ", time.time()-t_total," s"
     #print loops
     print "All waterlines done. Got", len(loops)," loops in total."
     # draw the loops
