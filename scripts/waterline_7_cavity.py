@@ -25,6 +25,10 @@ def drawLoops(myscreen, loops, loopcolor):
                 previous=p
             n=n+1
         print "rendered loop ",nloop, " with ", len(lop), " points"
+        if len(lop) == 2:
+            for p in lop:
+                print p
+                myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z),radius=0.1,color=camvtk.green) )
         nloop = nloop+1
         
 
@@ -35,6 +39,7 @@ if __name__ == "__main__":
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     #stl = camvtk.STLSurf("../stl/porche.stl")
     stl = camvtk.STLSurf("../stl/ktoolcav.stl")
+    stl = camvtk.STLSurf("../stl/ktoolcor.stl")
     #myscreen.addActor(stl)
     #stl.SetWireframe() # render tux as wireframe
     #stl.SetSurface() # render tux as surface
@@ -42,14 +47,15 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput() # get polydata from vtk-surface
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s) #put triangles on ocl-surface
-    s.rotate(-math.pi/2,0,0)
+    s.rotate(-math.pi/2,math.pi,0)
     stl2 = camvtk.STLSurf(triangleList= s.getTriangles() )
     myscreen.addActor(stl2) 
     stl2.SetSurface()
     stl2.SetColor(camvtk.cyan)
     print "STL surface read,", s.size(), "triangles"
     zh=-0.5
-    zheights=[ -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05]
+    zheights=[ -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05] # for cavity
+    zheights=[ -0.1, 0.0, 0.1, 0.2, 0.3, 0.4 , 0.5, 0.6, 0.7] # for core
     diam = 0.3
     length = 5
     loops = []
