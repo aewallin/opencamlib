@@ -136,7 +136,7 @@ bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) c
 
 bool MillingCutter::singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const {
     bool result = false;
-    if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+ this->getLength()) ) ) { // p.z is within cutter
+    if ( ( p.z > f.p1.z ) && ( p.z <= (f.p1.z+ this->getLength()) ) ) { // p.z is within cutter
         Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
         double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
         double h = p.z - f.p1.z;
@@ -322,7 +322,7 @@ bool MillingCutter::shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1,
 bool MillingCutter::horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result=false;
     double h = p1.z - f.p1.z; // height of edge above fiber
-    if ( (h >= 0.0) ) {
+    if ( (h > 0.0) ) {
         if ( isZero_tol( p2.z-p1.z ) ) { // this is the horizontal-edge special case
             double eff_radius = this->width( h ); // the cutter acts as a cylinder with eff_radius 
             // contact this cylinder/circle against edge in xy-plane
