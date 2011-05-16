@@ -44,6 +44,8 @@ class STLSurf {
         void addTriangle(const Triangle& t);
         /// return number of triangles in surface
         unsigned int size() const;
+        /// call Triangle::rotate on all triangles
+        void rotate(double xr,double yr, double zr);
         /// list of Triangles in this surface
         std::list<Triangle> tris; 
         /// bounding-box

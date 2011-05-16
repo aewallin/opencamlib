@@ -137,6 +137,12 @@ double Bbox::operator[](const unsigned int idx) const{
     return -1;
 }
 
+std::ostream &operator<<(std::ostream &stream, const Bbox b) {
+  stream << " Bbox \n";
+  stream << " min= "<< b.minpt <<"\n";
+  stream << " max= "<< b.maxpt <<"\n";
+  return stream;
+}
 
 } // end namespace
 // end of file volume.cpp

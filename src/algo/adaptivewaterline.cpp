@@ -64,8 +64,19 @@ AdaptiveWaterline::AdaptiveWaterline() {
 }
 
 AdaptiveWaterline::~AdaptiveWaterline() {
-    delete subOp[1];
-    delete subOp[0];
+    std::cout << "~AdaptiveWaterline()\n";
+    subOp.clear();
+    /*
+    BOOST_FOREACH( Operation* op, subOp) {
+        if ( op)  {
+            std::cout << " deleting " << op << "\n";
+            delete op;
+            op = 0;
+        }
+    }*/
+    
+    //delete subOp[1];
+    //delete subOp[0];
 }
 
 void AdaptiveWaterline::run() {

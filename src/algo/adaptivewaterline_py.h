@@ -31,6 +31,10 @@ namespace ocl
 class AdaptiveWaterline_py : public AdaptiveWaterline {
     public:
         AdaptiveWaterline_py() : AdaptiveWaterline() {}
+        ~AdaptiveWaterline_py() {
+            std::cout << "~AdaptiveWaterline_py()\n";
+        }
+        
         /// return loop as a list of lists to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;

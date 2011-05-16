@@ -118,6 +118,7 @@ void export_geometry() {
         .def("addTriangle", &STLSurf_py::addTriangle)
         .def("__str__", &STLSurf_py::str)
         .def("size", &STLSurf_py::size)
+        .def("rotate", &STLSurf_py::rotate)
         .def("getBounds", &STLSurf_py::getBounds)
         .def("getTriangles", &STLSurf_py::getTriangles)
         .def_readonly("tris", &STLSurf_py::tris)

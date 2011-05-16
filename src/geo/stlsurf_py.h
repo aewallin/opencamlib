@@ -37,7 +37,7 @@ class STLSurf_py : public STLSurf {
         boost::python::list getTriangles() const {
             boost::python::list tlist;
             BOOST_FOREACH(Triangle t, tris) {
-                tlist.append(t);
+                tlist.append(Triangle_py(t));
             }
             return tlist;
         };

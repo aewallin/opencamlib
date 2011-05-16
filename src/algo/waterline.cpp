@@ -57,8 +57,18 @@ Waterline::Waterline() {
 }
 
 Waterline::~Waterline() {
-    delete subOp[1];
-    delete subOp[0];
+    std::cout << "~Waterline()\n";
+    std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
+    subOp.clear();
+    /*BOOST_FOREACH( Operation* op, subOp) {
+        if ( op) {
+            std::cout << " deleting " << op << "\n";
+            delete op;
+            op = 0;
+        }
+    }*/
+    
+   // delete subOp[0];
 }
 
 void Waterline::run() {

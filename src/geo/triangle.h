@@ -48,6 +48,10 @@ class Triangle {
         /// and the plane. These vertices are used by CylCutter::edgePush()
         bool zslice_verts(Point& p1,Point& p2, const double zcut) const;
         
+        /// rotate triangle xrot radians around X-axis, yrot radians around Y-axis
+        /// and zrot radians around Z-axis
+        void rotate(double xrot, double yrot, double zrot);
+        
         /// Triangle string repr     
         friend std::ostream &operator<<(std::ostream &stream, const Triangle t);
         

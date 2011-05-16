@@ -59,7 +59,9 @@ class Bbox {
         /// This enlarges the Bbox so that the Triangle is contained within it.
         /// Calls addPoint() for each vertex of the Triangle.
         void addTriangle(const Triangle& t);
-
+        
+        friend std::ostream &operator<<(std::ostream& stream, const Bbox b);
+        
 //DATA
         /// the maximum point
         Point maxpt; 

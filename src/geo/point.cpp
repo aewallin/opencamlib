@@ -101,6 +101,36 @@ void Point::xyRotate(double angle) {
     xyRotate(cos(angle), sin(angle));
 }
 
+void Point::xRotate(double theta) {
+    matrixRotate(1, 0         , 0          ,
+                 0, cos(theta), -sin(theta),
+                 0, sin(theta), cos(theta)  );
+}
+
+void Point::yRotate(double theta) {
+    matrixRotate(cos(theta) , 0 , sin(theta) ,
+                          0 , 1 , 0          ,
+                 -sin(theta), 0 , cos(theta)  );
+}
+
+void Point::zRotate(double theta) {
+    matrixRotate(cos(theta), -sin(theta) , 0 ,
+                 sin(theta), cos(theta), 0,
+                 0, 0, 1  );
+}
+
+// http://en.wikipedia.org/wiki/Rotation_matrix
+void Point::matrixRotate(double a,double b, double c,
+                         double d,double e, double f,
+                         double g,double h, double i) {
+    // multiply point with matrix
+    double xr = a*x + b*y + c*z;
+    double yr = d*x + e*y + f*z;
+    double zr = g*x + h*y + i*z;
+    x=xr;
+    y=yr;
+    z=zr;
+}
 
 double Point::xyDistance(const Point &p) const
 {   

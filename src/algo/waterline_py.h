@@ -33,7 +33,9 @@ namespace ocl
 class Waterline_py : public Waterline {
     public:
         Waterline_py() : Waterline() {}
-        ~Waterline_py() {}
+        ~Waterline_py() {
+            std::cout << "~Waterline_py()\n";
+        }
         /// return loop as a list of lists to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;

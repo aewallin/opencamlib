@@ -58,6 +58,7 @@ Triangle::Triangle(const Triangle &t) {
 
 /// calculate bounding box values
 void Triangle::calcBB() {
+    bb.clear();
     bb.addTriangle( *this );
 }
 
@@ -125,6 +126,16 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
         return false;
     }
     
+}
+
+void Triangle::rotate(double xr, double yr, double zr) {
+    for (int n=0;n<3;++n) {
+        p[n].xRotate(xr);
+        p[n].yRotate(yr);
+        p[n].zRotate(zr);
+    }
+    calcNormal();
+    calcBB();
 }
 
 std::ostream &operator<<(std::ostream &stream, const Triangle t) {

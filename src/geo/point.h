@@ -77,6 +77,16 @@ class Point {
         /// rotate point in xy-plane bu angle theta (radians or degrees??)
         void xyRotate(double angle);
         
+        /// rotate around x-axis
+        void xRotate(double theta);
+        /// rotate around y-axis
+        void yRotate(double theta);
+        /// rotate around z-axis
+        void zRotate(double theta);
+        void matrixRotate(double a,double b, double c,
+                          double d,double e, double f,
+                          double g,double h, double i);
+                          
         /// distance from Point to infinite line through p1 and p2. In the XY plane.
         double xyDistanceToLine(const Point &p1, const Point &p2) const;
         

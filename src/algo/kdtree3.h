@@ -108,7 +108,7 @@ class KDTree {
         } // for Y-fibers
         /// build the kd-tree based on a list of input objects
         void build(const std::list<BBObj>& list){
-            //std::cout << "KDTree::build() list.size()= " << list.size() << " \n";
+            std::cout << "KDTree::build() list.size()= " << list.size() << " \n";
             root = build_node( &list, 0, NULL ); 
         }
         /// search for overlap with input Bbox bb, return found objects
@@ -142,7 +142,8 @@ class KDTree {
             }
             Spread3* spr = calc_spread(tris); // calculate spread in order to know how to cut
             double cutvalue = spr->start + spr->val/2; // cut in the middle
-            if ( (tris->size() <= bucketSize) || (spr->val == 0.0)) {  // then return a bucket/leaf node
+            //std::cout << " cutvalue= " << cutvalue << "\n";
+            if ( (tris->size() <= bucketSize) ||  isZero_tol( spr->val ) ) {  // then return a bucket/leaf node
                 //std::cout << "KDNode::build_node BUCKET list.size()=" << tris->size() << "\n";
                 KDNode3<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
                 bucket = new KDNode3<BBObj>(spr->d, cutvalue , par , NULL, NULL, tris, dep);
@@ -159,17 +160,38 @@ class KDTree {
                 else
                     lolist->push_back(t);
             } 
+            
+            /*
             if (hilist->empty() || lolist->empty()) {// an error ??
                 std::cout << "kdtree: hilist.size()==0! or lolist.size()==0! \n";
+                std::cout << "kdtree: tris->size()= " << tris->size()<< "\n";
+                std::cout << "kdtree: hilist.size()= " << hilist->size()<< "\n";
+                std::cout << "kdtree: lolist.size()= " << lolist->size()<< "\n";
+                BOOST_FOREACH(BBObj t, *tris) {
+                    std::cout << t << "\n";
+                    std::cout << t.bb << "\n";
+                }
+                std::cout << "kdtree: spr->d= " << spr->d << "\n";
+                std::cout << "kdtree: cutvalue= " << cutvalue << "\n";
                 assert(0);
-            }
-            // cereate the current node  dim     value    parent  hi   lo   trilist  depth
+            }*/
+            
+            
+            // create the current node  dim     value    parent  hi   lo   trilist  depth
             KDNode3<BBObj> *node = new KDNode3<BBObj>(spr->d, cutvalue, par, NULL,NULL,NULL, dep);
             // create the child-nodes through recursion
             //                    list    depth   parent
-            node->hi = build_node(hilist, dep+1, node); 
-            node->lo = build_node(lolist, dep+1, node); 
-            
+            if (!hilist->empty())
+                node->hi = build_node(hilist, dep+1, node); 
+            //else
+                //std::cout << "hilist empty!\n";
+                
+            if (!lolist->empty()) {
+                node->lo = build_node(lolist, dep+1, node); 
+            } else {
+                //std::cout << "lolist empty!\n";
+            }
+             
             lolist->clear();
             hilist->clear();
             delete spr;
@@ -177,7 +199,8 @@ class KDTree {
             delete hilist;
             
             return node; // return a new node
-        };                 
+        };
+        
         /// calculate the spread of list *tris                        
         Spread3* calc_spread(const std::list<BBObj> *tris) {
             std::vector<double> maxval( 6 );
@@ -188,6 +211,7 @@ class KDTree {
                 return NULL;
             } else {
                 // find out the maximum spread
+                //std::cout << "calc_spread()...\n";
                 bool first=true;
                 BOOST_FOREACH(BBObj t, *tris) { // check each triangle
                     for (unsigned int m=0;m<dimensions.size();++m) {
@@ -212,9 +236,12 @@ class KDTree {
                                        maxval[dimensions[m]]-minval[dimensions[m]], 
                                        minval[dimensions[m]] ) );  
                 }// priority-queue could also be used ??  
+                assert( !spreads.empty() );
+                //std::cout << " spreads.size()=" << spreads.size() << "\n";
                 std::sort(spreads.begin(), spreads.end(), Spread3::spread_compare); // sort the list
                 Spread3* s= new Spread3(*spreads[0]); // this is the one we want to return
                 while(!spreads.empty()) delete spreads.back(), spreads.pop_back(); // delete the others
+                //std::cout << "calc_spread() done\n";
                 return s; // select the biggest spread and return
             } // end tris->size != 0
         } // end spread();
@@ -236,16 +263,20 @@ class KDTree {
                 if ( node->cutval > bb[maxdim] ) { // search only lo
                     search_node(tris, bb, node->lo );
                 } else { // need to search both child nodes
-                    search_node(tris, bb, node->hi );
-                    search_node(tris, bb, node->lo );
+                    if (node->hi)
+                        search_node(tris, bb, node->hi );
+                    if (node->lo)
+                        search_node(tris, bb, node->lo );
                 }
             } else { // cutting along a max-dimension: 1,3,5
                 unsigned int mindim = node->dim-1;
                 if ( node->cutval < bb[mindim] ) { // search only hi
                     search_node(tris, bb, node->hi);
                 } else { // need to search both child nodes
-                    search_node(tris, bb, node->hi);
-                    search_node(tris, bb, node->lo);
+                    if (node->hi)
+                        search_node(tris, bb, node->hi);
+                    if (node->lo)
+                        search_node(tris, bb, node->lo);
                 }
             }
             return; // Done. We get here after all the recursive calls above.

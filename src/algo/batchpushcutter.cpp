@@ -65,9 +65,9 @@ void BatchPushCutter::setSTL(const STLSurf &s) {
         std::cout << " ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
         assert(0);
     }
-    std::cout << "BPC::setSTL() root->build()";
+    std::cout << "BPC::setSTL() root->build()\n";
     root->build(s.tris);
-    std::cout << " done.\n";
+    std::cout << "BPC:: root->build() done.\n";
 }
 
 void BatchPushCutter::appendFiber(Fiber& f) {

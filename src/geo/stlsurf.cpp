@@ -21,6 +21,8 @@
 #include <list>
 #include <cassert>
 
+#include <boost/foreach.hpp>
+
 #include "point.h"
 #include "triangle.h"
 #include "stlsurf.h"
@@ -38,6 +40,19 @@ void STLSurf::addTriangle(const Triangle &t) {
     tris.push_back(t);
     bb.addTriangle(t);
     return;
+}
+
+void STLSurf::rotate(double xr, double yr, double zr) {
+    //std::cout << " before " << t << "\n";
+    bb.clear();
+    BOOST_FOREACH(Triangle& t, tris) {
+        //std::cout << " before " << t << "\n";
+        t.rotate(xr,yr,zr);
+        //std::cout << " after " << t << "\n";
+        //char c;
+        //std::cin >> c;
+        bb.addTriangle(t);
+    } 
 }
 
 unsigned int STLSurf::size() const {
