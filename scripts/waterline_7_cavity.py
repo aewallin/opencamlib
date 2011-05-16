@@ -38,8 +38,9 @@ if __name__ == "__main__":
     #stl = camvtk.STLSurf("../stl/demo.stl")
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     #stl = camvtk.STLSurf("../stl/porche.stl")
-    stl = camvtk.STLSurf("../stl/ktoolcav.stl")
-    stl = camvtk.STLSurf("../stl/ktoolcor.stl")
+    #stl = camvtk.STLSurf("../stl/ktoolcav.stl")
+    #stl = camvtk.STLSurf("../stl/ktoolcor.stl")
+    stl = camvtk.STLSurf("../stl/waterline1.stl")
     #myscreen.addActor(stl)
     #stl.SetWireframe() # render tux as wireframe
     #stl.SetSurface() # render tux as surface
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput() # get polydata from vtk-surface
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s) #put triangles on ocl-surface
-    s.rotate(-math.pi/2,math.pi,0)
+    #s.rotate(-math.pi/2,math.pi,0)
     stl2 = camvtk.STLSurf(triangleList= s.getTriangles() )
     myscreen.addActor(stl2) 
     stl2.SetSurface()
@@ -56,8 +57,9 @@ if __name__ == "__main__":
     zh=-0.5
     zheights=[ -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05] # for cavity
     zheights=[ -0.1, 0.0, 0.1, 0.2, 0.3, 0.4 , 0.5, 0.6, 0.7] # for core
-    diam = 0.3
-    length = 5
+    zheights=[ 10, 20, 30, 40, 50, 60] # for waterline1.stl
+    diam = 6
+    length = 100
     loops = []
 
     #cutter = ocl.CylCutter( diam , length )
@@ -79,6 +81,8 @@ if __name__ == "__main__":
     for l in cutter_loops:
         loops.append(l)
     """
+    sampling=1
+    minSampling=0.1
     
     aloops = []
     for zh in zheights:
@@ -86,8 +90,8 @@ if __name__ == "__main__":
         awl.setSTL(s)
         awl.setCutter(cutter)
         awl.setZ(zh)
-        awl.setSampling(0.05)
-        awl.setMinSampling(0.01)
+        awl.setSampling(sampling)
+        awl.setMinSampling(minSampling)
         #wl.setThreads(5)
         t_before = time.time() 
         awl.run2()
