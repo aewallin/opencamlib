@@ -39,47 +39,6 @@ VoronoiDiagram::~VoronoiDiagram() {
     delete fgrid; 
 }
 
-// sanity check
-/*
-bool VoronoiDiagram::isValid() {
-    if (!isDegreeThree() )
-        return false;
-    if (!face_count_equals_generator_count())
-        return false;
-    return true;
-}*/
-
-/*
-bool VoronoiDiagram::isDegreeThree() {
-    // the outermost init() vertices have special degree, all others == 6
-    BOOST_FOREACH(HEVertex v, hedi::vertices(g) ) {
-        if ( hedi::degree( v, g ) != 6 ) {
-            if ( (v != v01) && (v != v02) && (v != v03) )
-                return false;
-        }
-    }
-    return true;
-}*/
-
-
-/*
-bool VoronoiDiagram::face_count_equals_generator_count() {
-    // Euler formula for planar graphs
-    // v - e + f = 2
-    // in a half-edge diagram all edges occur twice, so:
-    // f = 2-v+e
-    int vertex_count = hedi::num_vertices(g);
-    int face_count = (vertex_count- 4)/2 + 3; // degree three graph
-    //int face_count = hed.num_faces();
-    if (face_count != gen_count) {
-        std::cout << " face_count_equals_generator_count() ERROR:\n";
-        std::cout << " num_vertices = " << vertex_count << "\n";
-        std::cout << " gen_count = " << gen_count << "\n";
-        std::cout << " face_count = " << face_count << "\n";
-    }
-    return ( face_count == gen_count );
-}*/
-
 // add one vertex at origo and three vertices at 'infinity' and their associated edges
 void VoronoiDiagram::init() {
     //std::cout << "VD init() \n";
@@ -155,7 +114,6 @@ void VoronoiDiagram::init() {
     assert( vdChecker.isValid(this) );
     //std::cout << " VD init() done.\n";
 }
-
 
 
 
@@ -443,42 +401,6 @@ int VoronoiDiagram::outVertexCount(HEFace f) {
     return outCount;
 }
 
-
-/*
-bool VoronoiDiagram::allIncidentFacesOK() {
-    // all incident faces should pass the sanity-check
-    BOOST_FOREACH( HEFace f, incident_faces ) {
-        if ( !faceVerticesConnected(  f, IN ) )
-            return false; // IN vertices should be connected
-        if ( !faceVerticesConnected(  f, OUT ) )  // OUT vertices should be connected
-            return false;
-        if ( !noUndecidedInFace( f ) )            // no UNDECIDED vertices should remain
-            return false;
-    }
-    return true;
-}*/
-
-// check that all vertices in q are of type IN
-/*
-bool VoronoiDiagram::allIn(const VertexVector& q) {
-    BOOST_FOREACH( HEVertex v, q) {
-        if ( g[v].type != IN )
-            return false;
-    }
-    return true;
-}*/
-
-// for the Face f, check that no vertices are of type UNDECIDED
-/*
-bool VoronoiDiagram::noUndecidedInFace(HEFace f) {
-    VertexVector face_verts = hedi::face_vertices(f, g);
-    BOOST_FOREACH( HEVertex v, face_verts ) {
-        if ( g[v].type == UNDECIDED )
-            return false;
-    }
-    return true;
-}*/
-
 // check that the vertices TYPE are connected
 bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) {
     VertexVector face_verts = hedi::face_vertices(f,g);
@@ -685,8 +607,6 @@ HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
     //assert( minimumH < 0 );
     return minimalVertex;
 }
-
-
 
 std::string VoronoiDiagram::str() const {
     std::ostringstream o;

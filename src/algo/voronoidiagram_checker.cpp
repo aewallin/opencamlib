@@ -18,18 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-//#include <vector>
-//#include <list>
-//#include <stack>
-//#include <queue>
-
-//#include "point.h"
 #include "voronoidiagram_checker.h"
-//#include "voronoidiagram_graph.h"
 #include "voronoidiagram.h"
-
-//#include "halfedgediagram2.h"
-//#include "facegrid.h"
 
 namespace ocl
 {
@@ -91,7 +81,7 @@ namespace ocl
                 return false;
         }
         return true;
-}
+    }
     
     
     /// check that all vertices in the input vector are of type IN

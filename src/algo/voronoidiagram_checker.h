@@ -20,18 +20,7 @@
 #ifndef VODI_CHECK_H
 #define VODI_CHECK_H
 
-//#include <vector>
-//#include <list>
-//#include <stack>
-//#include <queue>
-
-//#include "point.h"
 #include "voronoidiagram_graph.h"
-
-//#include "voronoidiagram.h"
-
-//#include "halfedgediagram2.h"
-//#include "facegrid.h"
 
 namespace ocl
 {
@@ -62,7 +51,6 @@ public:
     
 };
 
-
 } // end namespace
 #endif
-// end voronoidiagram.h
+// end voronoidiagram_checker.h

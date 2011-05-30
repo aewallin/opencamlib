@@ -71,16 +71,11 @@ class VoronoiDiagram {
 
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set_M(VertexVector& q, const Point& p);
-        
         EdgeVector find_edges(VertexVector& q, VoronoiVertexType vtype);
-
-        void printFaceVertexTypes(HEFace f);
-        void printVertices(VertexVector& q);
         int outVertexCount(HEFace f);
         int adjacentInCount(HEVertex v);
         FaceVector adjacentIncidentFaces(HEVertex v);
         bool incidentFacesHaveAdjacentInVertex(HEVertex v);
-        
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
         void markAdjecentFacesIncident(HEVertex v);
         void pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q);
@@ -96,25 +91,11 @@ class VoronoiDiagram {
         void remove_vertex_set(VertexVector& v0 , HEFace newface);
         /// set all vertices to UNDECIDED and all faces to NONINCIDENT
         void reset_labels();
-
-    // SANITY-CHEKS
-    /*
-        /// sanity-check for the diagram, calls other sanity-check functions
-        bool isValid();
-        /// check that number of faces equals the number of generators
-        bool face_count_equals_generator_count();
-        /// the diagram should be of degree three (at least with point generators)
-        bool isDegreeThree();
-        /// traverse the incident faces and check next-pointers
-        bool allIncidentFacesOK();
-        /// check that all vertices in the input vector are of type IN
-        bool allIn(const VertexVector& q);
-        /// check that no undecided vertices remain in the face
-        bool  noUndecidedInFace( HEFace f );
-
-    */
-    
-    
+        
+    // PRINT
+        void printFaceVertexTypes(HEFace f);
+        void printVertices(VertexVector& q);
+        
     // DATA
         /// the half-edge diagram of the vd
         HEGraph g;
