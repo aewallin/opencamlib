@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -26,18 +26,27 @@
 namespace ocl
 {
 
-/// \brief Voronoi diagram.
+/// \brief python wrapper for VoronoiDiagram
 ///
-/// the dual of a voronoi diagram is the delaunay diagram(triangulation).
-///  voronoi-faces are dual to delaunay-vertices.
-///  vornoi-vertices are dual to delaunay-faces 
-///  voronoi-edges are dual to delaunay-edges
 class VoronoiDiagram_py : public VoronoiDiagram {
     public:
         VoronoiDiagram_py() : VoronoiDiagram() {}
         /// create diagram with given far-radius and number of bins
         VoronoiDiagram_py(double far, unsigned int n_bins) 
             : VoronoiDiagram( far, n_bins) {}
+        
+        // for visualizing the closest face (returns it's generator)
+        Point getClosestFaceGenerator( const Point p ) {
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            return g[closest_face].generator;
+        }
+        
+        // for visualizing seed-vertex
+        Point getSeedVertex( const Point p ) {
+            HEFace closest_face = fgrid->grid_find_closest_face( p );
+            HEVertex v = findSeedVertex(closest_face, p);
+            return g[ v ].position;
+        }
         
         // for visualizing the delete-set
         boost::python::list getDeleteSet( Point p ) { // no const here(?)
@@ -58,6 +67,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             return out;
             
         }
+        /// visualizing the delete-edges
         boost::python::list getDeleteEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
@@ -78,6 +88,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             reset_labels();            
             return out;
         }
+        /// for visualizing the edges to be modified
         boost::python::list getModEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
@@ -98,21 +109,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             reset_labels();            
             return out;
         }
-        /*
-        boost::python::list getDelaunayEdges()  {
-            boost::python::list edge_list;
-            BOOST_FOREACH( HEEdge edge, dt->edges() ) {
-                    boost::python::list point_list; // the endpoints of each edge
-                    HEVertex v1 = dt->source( edge );
-                    HEVertex v2 = dt->target( edge );
-                    Point src = (*dt)[v1].position;
-                    Point tar = (*dt)[v2].position;
-                    point_list.append( src );
-                    point_list.append( tar );
-                    edge_list.append(point_list);
-            }
-            return edge_list;
-        }*/
+
         /// return list of generators to python
         boost::python::list getGenerators()  {
             boost::python::list plist;

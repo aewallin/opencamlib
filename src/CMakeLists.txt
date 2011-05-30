@@ -175,6 +175,7 @@ set(OCL_ALGO_SRC
     
     # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/voronoidiagram.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/voronoidiagram_checker.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/facegrid.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/numeric.cpp
@@ -231,6 +232,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/weave.h
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.h
     ${OpenCamLib_SOURCE_DIR}/algo/voronoidiagram.h
+    ${OpenCamLib_SOURCE_DIR}/algo/voronoidiagram_checker.h
     # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.h
     ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram2.h
     ${OpenCamLib_SOURCE_DIR}/algo/facegrid.h

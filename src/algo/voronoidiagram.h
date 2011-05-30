@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -27,73 +27,52 @@
 
 #include "point.h"
 #include "voronoidiagram_graph.h"
+#include "voronoidiagram_checker.h"
 #include "halfedgediagram2.h"
 #include "facegrid.h"
 
 namespace ocl
 {
 
-
+class VoronoiDiagramChecker;
 
 /// \brief Voronoi diagram.
 ///
+/// see http://en.wikipedia.org/wiki/Voronoi_diagram
+/// 
 /// the dual of a voronoi diagram is the delaunay diagram(triangulation).
 ///  voronoi-faces are dual to delaunay-vertices.
 ///  vornoi-vertices are dual to delaunay-faces 
 ///  voronoi-edges are dual to delaunay-edges
 class VoronoiDiagram {
     public:
+        /// ctor
         VoronoiDiagram() {}
         /// create diagram with given far-radius and number of bins
         VoronoiDiagram(double far, unsigned int n_bins);
-        virtual ~VoronoiDiagram() { 
-            delete fgrid; 
-        }
+        /// dtor
+        virtual ~VoronoiDiagram();
+        
         /// add a vertex generator at given position
-        void addVertexSite(Point p);
-        
-        /// return the dual graph
-        //HalfEdgeDiagram* getDelaunayTriangulation();
-        //void setDelaunayTriangulation() {
-            //if (dt != NULL)
-            //    delete dt;
-        //    dt = getDelaunayTriangulation();
-        //}
-        
-        // for visualizing the closest face
-        Point getClosestFaceGenerator( const Point p ) {
-            HEFace closest_face = fgrid->grid_find_closest_face( p );
-            return g[closest_face].generator;
-        }
-        // for visualizing seed-vertex
-        Point getSeedVertex( const Point p ) {
-            HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v = findSeedVertex(closest_face, p);
-            return g[ v ].position;
-        }
+        void addVertexSite(const Point& p);
 
         /// string repr
         std::string str() const;
         /// return the far radius
         double getFarRadius() const {return far_radius;}
         
+        friend class VoronoiDiagramChecker;
+        
     protected:
         /// initialize the diagram with three generators
         void init();
         /// among the vertices of f, find the one with the lowest detH value
         HEVertex findSeedVertex(HEFace f, const Point& p);
-        /// from sugihara-iri 1994 paper, examine vertices of each incident face
-        //void augment_vertex_set_B(VertexVector& v, Point& p);
-        /// naive algorithm, relies on correct detH sign
-        //void augment_vertex_set_RB(VertexVector& q, Point& p);
+
         /// breadth-first search based Tree-expansion algorithm
-        void augment_vertex_set_M(VertexVector& q, Point& p);
+        void augment_vertex_set_M(VertexVector& q, const Point& p);
         
         EdgeVector find_edges(VertexVector& q, VoronoiVertexType vtype);
-        
-        bool adjacentInVertexNotInFace( HEVertex w, HEFace f );
-        bool adjacentInVertexInFace( HEVertex w, HEFace f );
-        bool onOtherIncidentFace( HEVertex v, HEFace f );
 
         void printFaceVertexTypes(HEFace f);
         void printVertices(VertexVector& q);
@@ -103,16 +82,14 @@ class VoronoiDiagram {
         bool incidentFacesHaveAdjacentInVertex(HEVertex v);
         
         bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
-        VertexVector findRepairVerts(HEFace f, VoronoiVertexType Vtype);
-        void markAdjecentFacesIncident(std::stack<HEFace>& S, HEVertex v);
         void markAdjecentFacesIncident(HEVertex v);
         void pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q);
         
         
         /// add the new vertices  
-        void add_new_voronoi_vertices(VertexVector& v, Point& p);
+        void add_new_voronoi_vertices(VertexVector& v, const Point& p);
         /// split faces when adding new generator p
-        HEFace split_faces(Point& p);
+        HEFace split_faces(const Point& p);
         /// split the face
         void split_face(HEFace new_f, HEFace f);
         /// remove vertices in the set
@@ -121,6 +98,7 @@ class VoronoiDiagram {
         void reset_labels();
 
     // SANITY-CHEKS
+    /*
         /// sanity-check for the diagram, calls other sanity-check functions
         bool isValid();
         /// check that number of faces equals the number of generators
@@ -130,15 +108,17 @@ class VoronoiDiagram {
         /// traverse the incident faces and check next-pointers
         bool allIncidentFacesOK();
         /// check that all vertices in the input vector are of type IN
-        bool allIn(VertexVector& q);
+        bool allIn(const VertexVector& q);
+        /// check that no undecided vertices remain in the face
         bool  noUndecidedInFace( HEFace f );
 
-        
+    */
+    
+    
     // DATA
         /// the half-edge diagram of the vd
         HEGraph g;
-        /// delaunay triangulation, i.e. the dual graph of the VD
-        //HalfEdgeDiagram* dt;
+
         /// a grid which allows fast nearest-neighbor search
         FaceGrid* fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
@@ -161,6 +141,8 @@ class VoronoiDiagram {
         /// temporary variable for in-vertices, out-vertices that need to be reset
         /// after each generator has been inserted
         VertexVector in_vertices;
+        /// sanity-checks on the diagram are done by this helper class
+        VoronoiDiagramChecker vdChecker;
 };
 
 

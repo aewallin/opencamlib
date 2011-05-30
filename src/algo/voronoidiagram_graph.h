@@ -1,6 +1,6 @@
 /*  $Id: voronoidiagram.cpp 664 2011-02-13 17:37:33Z anders.e.e.wallin $
  * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -32,14 +32,16 @@
 
 namespace ocl {
 
+// this file contains typedefs used by voronoidiagram.h
+
 struct VertexProps; 
 struct EdgeProps;
 struct FaceProps;
-//struct HEEdge;
-// class FaceGrid;
+
 
 typedef unsigned int HEFace;    
-// extra storage in graph:
+
+// the type of graph with which we construct the voronoi-diagram
 typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
                        boost::listS,             // vertex set stored here
                        boost::bidirectionalS,    // bidirectional graph.
@@ -47,16 +49,9 @@ typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::l
                        EdgeProps,                // edge properties
                        FaceProps,                // face properties
                        boost::no_property,       // graph properties
-                       boost::listS             // edge storage
+                       boost::listS              // edge storage
                        > HEGraph;
-                       
-/*        typedef boost::adjacency_list< boost::listS,            // out-edges stored in a std::list
-                               boost::listS,            // vertex set stored here
-                               boost::bidirectionalS,   // bidirectional graph.
-                               VertexProps,             // vertex properties
-                               EdgeProps                // edge properties
-                               > HEGraph; */
-                               
+
 typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
 typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
 typedef boost::graph_traits< HEGraph >::edge_descriptor    HEEdge;
@@ -70,9 +65,15 @@ typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
 
 // typedef std::vector< std::vector< HEEdge > > HEPlanarEmbedding;
 
+/// voronoi-vertices can be of these four different types
+/// as we incrementally construct the diagram the type is updated as follows:
+/// OUT-vertices will not be deleted
+/// IN-vertices will be deleted
+/// UNDECIDED-vertices have not been examied yet
+/// NEW-vertices are constructed on OUT-IN edges
 enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
 
-/// vertex properties of a vertex in the voronoi diagram
+/// properties of a vertex in the voronoi diagram
 struct VertexProps {
     VertexProps() {
         init();
@@ -108,7 +109,7 @@ struct VertexProps {
         return ( abs(this->H) < abs(other.H) );
     }
     /// set the J values
-    void set_J(Point& pi, Point& pj, Point& pkin) { 
+    void set_J(const Point& pi, const Point& pj, const Point& pkin) { 
         // 1) i-j-k should come in CCW order
         Point pi_,pj_,pk_;
         if ( pi.isRight(pj,pkin) ) {
@@ -185,7 +186,8 @@ struct VertexProps {
 };
 
 /// properties of an edge in the voronoi diagram
-// HEEdge, HEFace
+/// each edge stores a pointer to the next HEEdge 
+/// and the HEFace to which this HEEdge belongs
 struct EdgeProps {
     EdgeProps() {}
     /// create edge with given next, twin, and face
@@ -206,7 +208,7 @@ struct EdgeProps {
 enum VoronoiFaceType {INCIDENT, NONINCIDENT};
 
 /// properties of a face in the voronoi diagram
-// HEFace, HEEdge
+/// each face stores one edge on the boundary of the face
 struct FaceProps {
     /// create face with given edge, generator, and type
     FaceProps( HEEdge e , Point gen, VoronoiFaceType t) {
@@ -227,6 +229,9 @@ struct FaceProps {
 };
 
 
+// these containers are used instead of iterators when accessing
+// adjacent vertices, edges, faces.
+// it may be faster to rewrite the code so it uses iterators, as does the BGL.
 typedef std::vector<HEVertex> VertexVector;
 typedef std::vector<HEFace> FaceVector;
 typedef std::vector<HEEdge> EdgeVector;  
