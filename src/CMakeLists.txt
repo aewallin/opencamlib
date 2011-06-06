@@ -78,11 +78,11 @@ include_directories(${Python_Includes})
 # run get_revision.py which generates revision.h needed by ocl.revision()
 
 execute_process(
-     COMMAND python get_revision.py
+     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/get_revision.py
 )
 MESSAGE(STATUS "running get_revision.py to generate revision.h")
 
-
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 
 # find BOOST and boost-python
@@ -190,7 +190,7 @@ set( OCL_CUTSIM_SRC
 )
 
 set( OCL_INCLUDE_FILES
-    ${OpenCamLib_SOURCE_DIR}/revision.h
+    ${CMAKE_CURRENT_BINARY_DIR}/revision.h
     
     ${OpenCamLib_SOURCE_DIR}/geo/arc.h
     ${OpenCamLib_SOURCE_DIR}/geo/bbox.h
@@ -480,5 +480,15 @@ ENDIF(DOXYGEN_FOUND)
 endif (BUILD_DOC)
 
 
-
-
+# "make package" stuff
+set(CPACK_GENERATOR "DEB")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "opencamlib@googlegroups.com")
+set(CPACK_PACKAGE_NAME "opencamlib")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib")
+set(CPACK_DEBIAN_PACKAGE_SECTION "science")
+set(CPACK_DEBIAN_PACKAGE_VERSION "")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, libboost-python-dev, libgomp1" )
+SET(CPACK_PACKAGE_VERSION_MAJOR "11")
+SET(CPACK_PACKAGE_VERSION_MINOR "06")
+SET(CPACK_PACKAGE_VERSION_PATCH "0")
+include(CPack)
