@@ -20,37 +20,6 @@ INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/geo )
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/cutters )
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/algo )
 
-#INCLUDE_DIRECTORIES( ../geo )
-#INCLUDE_DIRECTORIES( ../cutters )
-#INCLUDE_DIRECTORIES( .././ )
-#INCLUDE_DIRECTORIES( ./ )
-
-# set(OCL_ALGO_SRC
-#    batchdropcutter.cpp
-#    pointdropcutter.cpp
-#    batchpushcutter.cpp
-#    fiberpushcutter.cpp
-#    
-#    lineclfilter.cpp
-#    pathdropcutter.cpp
-#    adaptivepathdropcutter.cpp
-#    
-#    interval.cpp
-#    fiber.cpp
-#    waterline.cpp
-#    adaptivewaterline.cpp
-#    weave.cpp
-#    weave2.cpp
-    
-    # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.cpp
-#    voronoidiagram.cpp
-#    voronoidiagram_checker.cpp
-#    facegrid.cpp
-    
-#    numeric.cpp
-
-# )
-
 #
 # this builds a static ocl_algo target
 #

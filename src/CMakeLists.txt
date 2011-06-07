@@ -76,11 +76,11 @@ execute_process(
 include_directories(${Python_Includes})
 
 # run get_revision.py which generates revision.h needed by ocl.revision()
-
-execute_process(
-     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/get_revision.py
-)
 MESSAGE(STATUS "running get_revision.py to generate revision.h")
+execute_process(
+     # we pass the SRC directory as a parameter to the python script
+     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/get_revision.py ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
