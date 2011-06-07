@@ -1,11 +1,9 @@
 import commands
 # import subprocess
 import sys
-# import getopt
 import os
 
 f = open("revision.h", "w")
-# print sys.argv
 
 # change directory to src/ 
 os.chdir(sys.argv[1])
