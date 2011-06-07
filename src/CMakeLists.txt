@@ -156,24 +156,27 @@ set(OCL_CUTTER_SRC
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.cpp
 )
 
+set(OCL_DROPCUTTER_SRC
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
+)
+
 set(OCL_ALGO_SRC
-    ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.cpp
-    ${OpenCamLib_SOURCE_DIR}/algo/pointdropcutter.cpp
+    
+    
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/lineclfilter.cpp
-    ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.cpp
-    ${OpenCamLib_SOURCE_DIR}/algo/adaptivepathdropcutter.cpp
-    
+
     ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave2.cpp
-    
-    # ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.cpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/numeric.cpp
 
@@ -215,9 +218,15 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.h
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.h
-
+    
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.h
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.h
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.h
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.h
+    
+    
     ${OpenCamLib_SOURCE_DIR}/algo/operation.h
-    ${OpenCamLib_SOURCE_DIR}/algo/batchdropcutter.h
+    
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/brent_zero.h
@@ -228,16 +237,15 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/kdtree3.h
     ${OpenCamLib_SOURCE_DIR}/algo/lineclfilter.h
     ${OpenCamLib_SOURCE_DIR}/algo/numeric.h
-    ${OpenCamLib_SOURCE_DIR}/algo/pathdropcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.h
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.h
     ${OpenCamLib_SOURCE_DIR}/algo/weave.h
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.h
     
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/voronoidiagram_graph.hpp
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/voronoidiagram.hpp
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/voronoidiagram_checker.hpp
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/facegrid.hpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_graph.hpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.hpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.hpp
 
     ${OpenCamLib_SOURCE_DIR}/algo/halfedgediagram.hpp
     
@@ -259,6 +267,7 @@ ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  ) 
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/voronoi  ) 
+ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
 # ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
 
 # include dirs
@@ -266,6 +275,7 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/voronoi )
+include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 # include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
@@ -282,7 +292,7 @@ if (BUILD_PY_LIB)
     )
 
     MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(ocl ocl_cutters ocl_voronoi ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
+    target_link_libraries(ocl ocl_dropcutter ocl_cutters ocl_voronoi ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
@@ -299,10 +309,12 @@ if (BUILD_CXX_LIB)
         SHARED
         ${OCL_GEO_SRC}
         ${OCL_CUTTER_SRC}
-        # ${OCL_ALGO_SRC}
+        ${OCL_VORONOI_SRC}
+        ${OCL_ALGO_SRC}
+        ${OCL_DROPCUTTER_SRC}
         # ${OCL_CUTSIM_SRC}
     )
-    target_link_libraries(libocl ocl_algo)
+    # target_link_libraries(libocl ocl_algo)
     set_target_properties(libocl PROPERTIES PREFIX "") 
 endif (BUILD_CXX_LIB)
 
