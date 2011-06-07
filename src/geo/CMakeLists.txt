@@ -11,6 +11,7 @@ INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR} )
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/cutters )
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/algo )
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/geo )
+INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/common )
 
 #
 # this makes the ocl Python module
