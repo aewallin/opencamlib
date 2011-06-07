@@ -180,9 +180,9 @@ set(OCL_ALGO_SRC
 )
 
 set(OCL_VORONOI_SRC
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/voronoidiagram.cpp
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/voronoidiagram_checker.cpp
-    ${OpenCamLib_SOURCE_DIR}/algo/voronoi/facegrid.cpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.cpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.cpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.cpp
 )
 
 
@@ -258,14 +258,14 @@ set( OCL_CUTSIM_INCLUDE_FILES
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo/voronoi  ) 
+ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/voronoi  ) 
 # ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
 
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/algo/voronoi )
+include_directories( ${OpenCamLib_SOURCE_DIR}/voronoi )
 # include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
