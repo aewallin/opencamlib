@@ -28,15 +28,9 @@
 #include <ctime>
 
 #include <boost/assert.hpp>
-//#include <boost/lexical_cast.hpp>
-//#include <boost/random.hpp>
-//#include <boost/timer.hpp>
-//#include <boost/integer_traits.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
-//#include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/simple_point.hpp>
 #include <boost/graph/metric_tsp_approx.hpp>
-// #include <boost/graph/graphviz.hpp>
 
 #include <boost/python.hpp>
 
@@ -44,16 +38,8 @@ namespace ocl {
 
 namespace tsp {
 
-// based on metric tsp example:
+// loosely based on metric tsp example:
 // http://www.boost.org/doc/libs/1_46_1/libs/graph/test/metric_tsp_approx.cpp
-
-/*
-template<typename PointType>
-struct cmpPnt {
-    bool operator()(const boost::simple_point<PointType>& l, const boost::simple_point<PointType>& r) const
-    { return (l.x > r.x); }
-};
-*/
 
 //add edges to the graph (for each node connect it to all other nodes)
 template< typename VertexListGraph, 
@@ -64,7 +50,6 @@ void connectAllEuclidean(VertexListGraph& g,
                         const PointContainer& points,  // vector of (x,y) points
                         WeightMap wmap,            // Property maps passed by value
                         const VertexIndexMap vmap) // Property maps passed by value
-                        //int /*sz*/) // not used??
 {
     using namespace boost;
     using namespace std;
@@ -148,10 +133,8 @@ public:
         }
         return plist;
     }
-        
     
 protected:
-
     Container output;
     PointSet points;
     Graph* g;

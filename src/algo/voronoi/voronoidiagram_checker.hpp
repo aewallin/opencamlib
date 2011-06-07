@@ -20,7 +20,7 @@
 #ifndef VODI_CHECK_H
 #define VODI_CHECK_H
 
-#include "voronoidiagram_graph.h"
+#include "voronoidiagram_graph.hpp"
 
 namespace ocl
 {

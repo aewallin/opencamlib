@@ -1,4 +1,4 @@
-/*  $Id: $
+/*  $Id$
  * 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
@@ -495,4 +495,4 @@ void remove_vertex(typename boost::graph_traits< Graph >::vertex_descriptor v, G
 
 } // end ocl namespace
 #endif
-// end halfedgediagram2.h
+// end halfedgediagram.hpp

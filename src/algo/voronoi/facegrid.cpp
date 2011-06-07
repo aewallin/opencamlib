@@ -19,7 +19,7 @@
 */
 
 
-#include "facegrid.h"
+#include "facegrid.hpp"
 
 namespace ocl
 {

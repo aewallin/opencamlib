@@ -21,7 +21,7 @@
 #define VODI_PY_H
 
 
-#include "voronoidiagram.h"
+#include "voronoidiagram.hpp"
 
 namespace ocl
 {
@@ -67,7 +67,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             return out;
             
         }
-        /// visualizing the delete-edges
+        /// for visualizing the delete-edges
         boost::python::list getDeleteEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );

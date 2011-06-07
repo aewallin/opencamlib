@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "voronoidiagram_checker.h"
-#include "voronoidiagram.h"
+#include "voronoidiagram_checker.hpp"
+#include "voronoidiagram.hpp"
 
 namespace ocl
 {

@@ -71,7 +71,7 @@ Waterline::~Waterline() {
    // delete subOp[0];
 }
 
-void Waterline::run() {
+void Waterline::run_old() {
     this->init_fibers(); // create fibers and push them to bpc_x and bpc_y
     // bpc_x->setThreads(nthreads);
     // bpc_y->setThreads(nthreads);
@@ -117,14 +117,12 @@ void Waterline::run() {
 }
 
 // this will become the new faster version of the algorithm which uses Weave2
-void Waterline::run2() {
-#ifndef WIN32
+void Waterline::run() {
     this->init_fibers();
     subOp[0]->run();
     subOp[1]->run();
     
     weave2_process();
-#endif
 }
 
 void Waterline::weave2_process() {

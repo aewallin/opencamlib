@@ -20,18 +20,7 @@
 #ifndef WEAVE2_TYPEDEF_H
 #define WEAVE2_TYPEDEF_H
 
-//#include <vector>
-
-// #include <boost/graph/adjacency_list.hpp> // graph class
-
-//#include "point.h"
-//#include "ccpoint.h"
-//#include "numeric.h"
-//#include "fiber.h"
-// #include "weave_typedef.h"
-
-#include "halfedgediagram2.h"
-
+#include "halfedgediagram.hpp"
 
 namespace ocl
 {

@@ -31,14 +31,14 @@
 #include "lineclfilter_py.h"    
 #include "numeric.h"
 #ifndef WIN32
-#include "voronoidiagram_py.h"  
+#include "voronoidiagram_py.hpp"  
 #endif
 #include "zigzag.h"
 #ifndef WIN32
 #include "clsurface.h"
 #endif
 
-#include "tsp.h"
+#include "tsp.h" // fixme: contains python
 
 /*
  *  Python wrapping of octree and related classes
@@ -127,7 +127,7 @@ void export_algo() {
         .def("setZ", &Waterline_py::setZ)
         .def("setSampling", &Waterline_py::setSampling)
         .def("run", &Waterline_py::run)
-        .def("run2", &Waterline_py::run2)
+        .def("run_old", &Waterline_py::run_old) // remove
         .def("getLoops", &Waterline_py::py_getLoops)
         .def("setThreads", &Waterline_py::setThreads)
         .def("getThreads", &Waterline_py::getThreads)
@@ -144,7 +144,7 @@ void export_algo() {
         .def("setSampling", &AdaptiveWaterline_py::setSampling)
         .def("setMinSampling", &AdaptiveWaterline_py::setMinSampling)
         .def("run", &AdaptiveWaterline_py::run)
-        .def("run2", &AdaptiveWaterline_py::run2)
+        .def("run_old", &AdaptiveWaterline_py::run_old) // slow, remove eventually
         .def("getLoops", &AdaptiveWaterline_py::py_getLoops)
         .def("setThreads", &AdaptiveWaterline_py::setThreads)
         .def("getThreads", &AdaptiveWaterline_py::getThreads)

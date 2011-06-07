@@ -23,13 +23,9 @@
 #include <vector>
 
 #include "point.h"
-
-//#include "numeric.h"
 #include "fiber.h"
 #include "weave2_typedef.h"
-
-#include "halfedgediagram2.h"
-
+#include "halfedgediagram.hpp"
 
 namespace ocl
 {
@@ -89,6 +85,7 @@ struct FaceProps {
 
                  
 /// weave-graph, 2nd impl. based on HEDIGraph
+/// see http://www.anderswallin.net/2011/05/weave-notes/
 class Weave {
     public:
         Weave() {}

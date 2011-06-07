@@ -15,6 +15,10 @@ http://groups.google.com/group/opencamlib-svn
 
 IRC-channel #cam on irc.freenode.net
 
+It's probably a good idea to try to adhere to some coding standard. Maybe this one:
+http://www.possibility.com/Cpp/CppCodingStandard.html
+
+
 2. BUILDING and INSTALLING (on unix/debian-like systems)
 cd into the /src directory, then run
  $> cmake .

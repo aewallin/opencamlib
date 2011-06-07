@@ -79,12 +79,12 @@ AdaptiveWaterline::~AdaptiveWaterline() {
     //delete subOp[0];
 }
 
-void AdaptiveWaterline::run() {
+void AdaptiveWaterline::run_old() {
     adaptive_sampling_run();
     weave_process();
 }
 
-void AdaptiveWaterline::run2() {
+void AdaptiveWaterline::run() {
     adaptive_sampling_run();
     weave2_awl_process();
 }

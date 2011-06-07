@@ -26,7 +26,7 @@
 
 #include <boost/multi_array.hpp> // for bucketing in FaceGrid
 
-#include "voronoidiagram_graph.h"
+#include "voronoidiagram_graph.hpp"
 #include "point.h"
 
 namespace ocl

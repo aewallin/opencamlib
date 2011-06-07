@@ -20,7 +20,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "voronoidiagram.h"
+#include "voronoidiagram.hpp"
 #include "numeric.h"
 
 namespace ocl

@@ -57,7 +57,7 @@ class Waterline : public Operation {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         virtual void run();
-        virtual void run2();
+        virtual void run_old(); // this uses the old and slow Weave
         
     protected:
         virtual void weave2_process(); 
