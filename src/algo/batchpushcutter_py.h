@@ -24,7 +24,7 @@
 #include <boost/python.hpp>
 
 #include "batchpushcutter.h"
-#include "kdtree3.h" 
+//#include "kdtree3.h" 
 
 namespace ocl
 {

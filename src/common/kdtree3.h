@@ -27,6 +27,9 @@
 #include <boost/foreach.hpp>
 
 #include "kdnode3.h"
+#include "bbox.h"
+#include "millingcutter.h"
+#include "clpoint.h"
 
 namespace ocl
 {

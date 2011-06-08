@@ -249,7 +249,7 @@ class CutterLocationSurface : public Operation {
     // PYTHON
         boost::python::list getVertices() const {
             boost::python::list plist;
-            BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
+            BOOST_FOREACH( Vertex v, hedi::vertices(g) ) {
                 plist.append( g[v].position );
             }
             return plist;

@@ -20,19 +20,15 @@
 
 #include <boost/python.hpp>
 
-#include "batchdropcutter_py.h" 
+
 #include "batchpushcutter_py.h"  
-#include "pathdropcutter_py.h"  
-#include "adaptivepathdropcutter_py.h"  
 #include "fiber_py.h"           
 #include "weave_py.h"           
 #include "waterline_py.h"      
 #include "adaptivewaterline_py.h"  
 #include "lineclfilter_py.h"    
 #include "numeric.h"
-#ifndef WIN32
-#include "voronoidiagram_py.hpp"  
-#endif
+
 #include "zigzag.h"
 #ifndef WIN32
 #include "clsurface.h"
@@ -62,21 +58,7 @@ void export_algo() {
         .def("getOutput", &ZigZag::getOutput)
         .def("__str__", &ZigZag::str)
     ;
-    bp::class_<BatchDropCutter>("BatchDropCutter_base")
-    ;
-    bp::class_<BatchDropCutter_py, bp::bases<BatchDropCutter> >("BatchDropCutter")
-        .def("run", &BatchDropCutter_py::run)
-        .def("getCLPoints", &BatchDropCutter_py::getCLPoints_py)
-        .def("setSTL", &BatchDropCutter_py::setSTL)
-        .def("setCutter", &BatchDropCutter_py::setCutter)
-        .def("setThreads", &BatchDropCutter_py::setThreads)
-        .def("getThreads", &BatchDropCutter_py::getThreads)
-        .def("appendPoint", &BatchDropCutter_py::appendPoint)
-        .def("getTrianglesUnderCutter", &BatchDropCutter_py::getTrianglesUnderCutter)
-        .def("getCalls", &BatchDropCutter_py::getCalls)
-        .def("getBucketSize", &BatchDropCutter_py::getBucketSize)
-        .def("setBucketSize", &BatchDropCutter_py::setBucketSize)
-    ;
+
     bp::class_<BatchPushCutter>("BatchPushCutter_base")
     ;
     bp::class_<BatchPushCutter_py, bp::bases<BatchPushCutter> >("BatchPushCutter")
@@ -166,33 +148,7 @@ void export_algo() {
         .def("getLoops", &Weave_py::py_getLoops)
         .def("__str__", &Weave_py::str)
     ;
-    bp::class_<PathDropCutter>("PathDropCutter_base")
-    ;
-    bp::class_<PathDropCutter_py , bp::bases<PathDropCutter> >("PathDropCutter")
-        .def("run", &PathDropCutter_py::run)
-        .def("getCLPoints", &PathDropCutter_py::getCLPoints_py)
-        .def("setCutter", &PathDropCutter_py::setCutter)
-        .def("setSTL", &PathDropCutter_py::setSTL)
-        .def("setSampling", &PathDropCutter_py::setSampling)
-        .def("setPath", &PathDropCutter_py::setPath)
-        .def("getZ", &PathDropCutter_py::getZ)
-        .def("setZ", &PathDropCutter_py::setZ)
-    ;
-    bp::class_<AdaptivePathDropCutter>("AdaptivePathDropCutter_base")
-    ;
-    bp::class_<AdaptivePathDropCutter_py , bp::bases<AdaptivePathDropCutter> >("AdaptivePathDropCutter")
-        .def("run", &AdaptivePathDropCutter_py::run)
-        .def("getCLPoints", &AdaptivePathDropCutter_py::getCLPoints_py)
-        .def("setCutter", &AdaptivePathDropCutter_py::setCutter)
-        .def("setSTL", &AdaptivePathDropCutter_py::setSTL)
-        .def("setSampling", &AdaptivePathDropCutter_py::setSampling)
-        .def("setMinSampling", &AdaptivePathDropCutter_py::setMinSampling)
-        .def("setCosLimit", &AdaptivePathDropCutter_py::setCosLimit)
-        .def("getSampling", &AdaptivePathDropCutter_py::getSampling)
-        .def("setPath", &AdaptivePathDropCutter_py::setPath)
-        .def("getZ", &AdaptivePathDropCutter_py::getZ)
-        .def("setZ", &AdaptivePathDropCutter_py::setZ)
-    ;
+
     bp::class_<LineCLFilter>("LineCLFilter_base")
     ;
     bp::class_<LineCLFilter_py, bp::bases<LineCLFilter> >("LineCLFilter")
@@ -202,37 +158,6 @@ void export_algo() {
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
 #ifndef WIN32
-    bp::class_<VoronoiDiagram >("VoronoiDiagram_base")
-    ;
-    bp::class_< VoronoiDiagram_py, bp::bases<VoronoiDiagram> >("VoronoiDiagram")
-        .def(bp::init<double, unsigned int>())
-        .def("addVertexSite",  &VoronoiDiagram_py::addVertexSite)
-        .def("getGenerators",  &VoronoiDiagram_py::getGenerators)
-        .def("getEdgesGenerators",  &VoronoiDiagram_py::getEdgesGenerators)
-        .def("getVoronoiVertices",  &VoronoiDiagram_py::getVoronoiVertices)
-        .def("getFarVoronoiVertices",  &VoronoiDiagram_py::getFarVoronoiVertices)
-        .def("getFarRadius",  &VoronoiDiagram_py::getFarRadius)
-        .def("getVoronoiEdges",  &VoronoiDiagram_py::getVoronoiEdges)
-        //.def("setDelaunayTriangulation",  &VoronoiDiagram_py::setDelaunayTriangulation)
-        //.def("getDelaunayEdges",  &VoronoiDiagram_py::getDelaunayEdges)
-        .def("getClosestFaceGenerator",  &VoronoiDiagram_py::getClosestFaceGenerator)
-        .def("getSeedVertex",  &VoronoiDiagram_py::getSeedVertex)
-        .def("getDeleteSet",  &VoronoiDiagram_py::getDeleteSet)
-        .def("getDeleteEdges",  &VoronoiDiagram_py::getDeleteEdges)
-        .def("getModEdges",  &VoronoiDiagram_py::getModEdges)
-        .def("__str__", &VoronoiDiagram_py::str)
-    ;
-    bp::enum_<VoronoiVertexType>("VoronoiVertexType")
-        .value("OUT", OUT)   
-        .value("IN", IN)
-        .value("UNDECIDED", UNDECIDED)
-        .value("NEW", NEW)
-    ;
-    bp::enum_<VoronoiFaceType>("VoronoiFaceType")
-        .value("INCIDENT", INCIDENT)
-        .value("NONINCIDENT", NONINCIDENT)
-    ;
-    
     bp::class_< clsurf::CutterLocationSurface >("CutterLocationSurface")  
         .def(bp::init<double>())
         .def("run", &clsurf::CutterLocationSurface::run)

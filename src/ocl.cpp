@@ -35,6 +35,8 @@ void export_cutters();
 void export_geometry();
 // void export_cutsim(); // No python wrapping of cutsim, at least for now
 void export_algo();
+void export_dropcutter();
+void export_voronoi();
 
 // this defines the python ocl module
 BOOST_PYTHON_MODULE(ocl) {
@@ -61,7 +63,8 @@ BOOST_PYTHON_MODULE(ocl) {
     //export_cutsim(); // see ocl_cutsim.cpp
     
     export_algo(); // see ocl_algo.cpp
-
+    export_dropcutter(); // see ocl_dropcutter.cpp
+    export_voronoi(); // see ocl_voronoi.cpp
 }
 
 

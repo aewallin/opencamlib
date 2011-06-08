@@ -294,6 +294,8 @@ if (BUILD_PY_LIB)
         ocl_geometry.cpp
         #ocl_cutsim.cpp
         ocl_algo.cpp
+        ocl_dropcutter.cpp
+        ocl_voronoi.cpp
         ocl.cpp
     )
 

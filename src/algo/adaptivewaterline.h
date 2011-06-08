@@ -37,7 +37,7 @@ class STLSurf;
 class KDNode2;
 class Triangle;
 class MillingCutter;
-//class Span;
+class Span;
 
 /// \brief a Waterline toolpath follows the shape of the model at a constant z-height in the xy-plane
 
