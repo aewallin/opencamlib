@@ -44,7 +44,60 @@ class Line:
         self.c = c
         self.k = k # offset to left or right of line
 
+# from Held 1991, page 94->
+#
+# bisectors are of the form
+# line, parabola, ellipse, hyperbola
+#     x(t) = x1 - x2 - x3*t +/- x4 sqrt( square(x5+x6*t) - square(x7+x8*t) )
+#     y(t) = y1 - y2 - y3*t +/- y4 sqrt( square(y5+y6*t) - square(y7+y8*t) ) 
+# line/line: line
+# circle/line: parabola
+# circle/circle: ellipse/hyperbola
+# !only valid if no parallel lines and no concentric arcs
+#
+# line:   (a, b, c, k)     
+#         a1 x + b1 y + c1 + k1 t = 0 and a*a + b*b = 1
+#         k= +/- 1 indicates offset to right/left
+#
+# circle: (xc, yc, r, lambda) 
+#         (x(t) - xc1)^2 + (y(t)-yc1)^2 = (r1+k1*t)^2
+#        lambda=-1 for CCW arc and +1 otherwise 
+#         k +1 enlarging circle, k -1 shrinking circle
+#
+# for a bisector we store only four parameters (alfa1, alfa2, alfa3, alfa4)
+#
+# line/line
+#    delta = a1*b2 - a2*b1
+#    alfa1= (b1*d2-b2*d1)/delta
+#    alfa2= (a2*d1-a1*d2)/delta
+#    alfa3= b2-b1
+#    alfa4= a1-a2 
+#   bisector-params:
+#    x1 = alfa1, x3 = -alfa3, x2 = x4 = x5 = x6 = x7 = x8 = 0
+#    y1 = alfa2, y3 = -alfa4, y2=y4=y5=y6=y7=y8 = 0 
+#
+# circle/line
+#     
+#    alfa1= a2
+#    alfa2= b2
+#    alfa3= a2*xc1 + b2*yc1+d2
+#    alfa4= r1
+#   params: 
+#    x1 = xc1, x2 = alfa1*alfa3, x3 = -alfa1, x3 = alfa2, x5 = alfa4, x6 = lambda1, x7 = alfa3, x8 = -1
+#    y1 = yc1, y2 = alfa2*alfa3, y3 = -alfa2, y4 = alfa1, y5 = alfa4, y6 = lambda1, y7 = alfa3, y8 = -1 
+#
+# circle / circle
+#    d= sqrt( square(xc1-xc2) + square(yc1-yc2) ) 
+#    alfa1= (xc2-xc1)/d
+#    alfa2= (yc2-yc1)/d
+#    alfa3= (r2*r2-r1*r1-d*d)/2d
+#    alfa4= (lambda2*r2-lambda1*r1)/d 
+#   params:
+#    x1 = xc1, x2 = alfa1*alfa3, x3 = alfa1*alfa4, x4 = alfa2, x5 = r1, x6 = lambda1, x7 = alfa3, x8 = alfa4
+#    y1 = yc1, y2 = alfa2*alfa3, y3 = alfa2*alfa4, y4 = alfa1, y5 = r1, y6 = lambda1, y7 = alfa3, y8 = alfa4 
+
 class LineLine:
+    """ line/line bisector is a line """
     def __init__(self,l1,l2):
         self.delta= l1.a*l2.b-l2.a*l1.b
         self.alfa1 = (l1.b*l2.c-l2.b*l1.c) / self.delta
@@ -195,7 +248,7 @@ def drawBisector(myscreen, bis):
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    myscreen.camera.SetPosition(0.01, 0,  1000 ) # 1200 for far view, 300 for circle view
+    myscreen.camera.SetPosition(0.01, 0,  1000 ) 
     myscreen.camera.SetFocalPoint(0, 0, 0)
     myscreen.camera.SetClippingRange(-100,3000)
     camvtk.drawOCLtext(myscreen)
@@ -206,18 +259,27 @@ if __name__ == "__main__":
 
     c1 = Circle(c=ocl.Point(100,30), r=100, cw=1)
     c2 = Circle(c=ocl.Point(20,30), r=60, cw=1)
+    
     drawCircle(myscreen, c1, camvtk.cyan)
     drawCircle(myscreen, c2, camvtk.cyan)
     c1c2 = CircleCircle(c1,c2)
     bicc = Bisector( c1c2 )
     drawBisector( myscreen, bicc )
     
+    c1a = Circle(c=ocl.Point(100,30), r=100, cw=-1)
+    c2a  = Circle(c=ocl.Point(20,30), r=60, cw=1)
+    c1c2alt = CircleCircle(c1a,c2a)
+    biccalt = Bisector( c1c2alt )
+    drawBisector( myscreen, biccalt )
+
+    
+    
     l1 = Line( math.cos(1),   math.sin(1)   , 1 , -1)
     l2 = Line( math.cos(0.1), math.sin(0.1) , -1, 1)
     drawLine(myscreen, l1, camvtk.yellow )
     drawLine(myscreen, l2, camvtk.yellow )
     
-    l1l2 = LineLine(l1,l2)
+    l1l2 = LineLine( l1, l2)
     bill = Bisector( l1l2 )
     drawBisector( myscreen, bill )
     
