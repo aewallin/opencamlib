@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;&quot;$(PYTHON_INCLUDE)&quot;;../src/algo;../src/cutsim;../src/cutters;../src/geo;./"
+				AdditionalIncludeDirectories="&quot;$(BOOST_FOR_OPENCAMLIB)&quot;;&quot;$(PYTHON_INCLUDE)&quot;;../src/algo;../src/cutsim;../src/cutters;../src/geo;./;../src/common;../src/voronoi;../src/dropcutter"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;OPENCAMLIB_EXPORTS;__BOOST_PYTHON_NO_LIB__;BOOST_PYTHON_STATIC_LIB=1;BOOST_LIB_DIAGNOSTIC;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -178,7 +178,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\algo\adaptivepathdropcutter.cpp"
+				RelativePath="..\src\dropcutter\adaptivepathdropcutter.cpp"
 				>
 			</File>
 			<File
@@ -194,7 +194,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\batchdropcutter.cpp"
+				RelativePath="..\src\dropcutter\batchdropcutter.cpp"
 				>
 			</File>
 			<File
@@ -258,7 +258,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\lineclfilter.cpp"
+				RelativePath="..\src\common\lineclfilter.cpp"
 				>
 			</File>
 			<File
@@ -266,7 +266,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\numeric.cpp"
+				RelativePath="..\src\common\numeric.cpp"
 				>
 			</File>
 			<File
@@ -278,11 +278,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\ocl_cutsim.cpp"
+				RelativePath="..\src\ocl_cutters.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ocl_cutters.cpp"
+				RelativePath="..\src\ocl_dropcutter.cpp"
 				>
 			</File>
 			<File
@@ -290,11 +290,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\cutsim\octnode.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\cutsim\octree.cpp"
+				RelativePath="..\src\ocl_voronoi.cpp"
 				>
 			</File>
 			<File
@@ -306,7 +302,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\pathdropcutter.cpp"
+				RelativePath="..\src\dropcutter\pathdropcutter.cpp"
 				>
 			</File>
 			<File
@@ -314,7 +310,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\pointdropcutter.cpp"
+				RelativePath="..\src\dropcutter\pointdropcutter.cpp"
 				>
 			</File>
 			<File
@@ -345,6 +341,10 @@
 				RelativePath="..\src\algo\weave.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\algo\weave2.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -352,7 +352,11 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\src\algo\adaptivepathdropcutter.h"
+				RelativePath="..\src\dropcutter\adaptivepathdropcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\dropcutter\adaptivepathdropcutter_py.h"
 				>
 			</File>
 			<File
@@ -364,7 +368,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\dropcutter\batchdropcutter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\algo\batchdropcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\dropcutter\batchdropcutter_py.h"
 				>
 			</File>
 			<File
@@ -436,6 +448,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\common\lineclfilter.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\algo\lineclfilter.h"
 				>
 			</File>
@@ -448,7 +464,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\numeric.h"
+				RelativePath="..\src\common\numeric.h"
 				>
 			</File>
 			<File
@@ -476,7 +492,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\pathdropcutter.h"
+				RelativePath="..\src\dropcutter\pathdropcutter.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\dropcutter\pathdropcutter_py.h"
 				>
 			</File>
 			<File
@@ -488,7 +508,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\algo\pointdropcutter.h"
+				RelativePath="..\src\dropcutter\pointdropcutter.h"
 				>
 			</File>
 			<File
@@ -516,11 +536,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\geo\triangle.h"
+				RelativePath="..\src\triangle.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\triangle.h"
+				RelativePath="..\src\geo\triangle.h"
 				>
 			</File>
 			<File

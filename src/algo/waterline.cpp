@@ -32,9 +32,7 @@
 #include "weave.h"
 #include "batchpushcutter.h"
 
-#ifndef WIN32
 #include "weave2.h"
-#endif
 
 namespace ocl
 {

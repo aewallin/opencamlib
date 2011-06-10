@@ -20,10 +20,7 @@
 
 #include <boost/python.hpp>
 
-
-#ifndef WIN32
 #include "voronoidiagram_py.hpp"  
-#endif
 
 /*
  *  Python wrapping of voronoi diagram
