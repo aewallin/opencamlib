@@ -59,6 +59,11 @@ class Waterline : public Operation {
         virtual void run();
         virtual void run_old(); // this uses the old and slow Weave
         
+        /// returns a vector< vector< Point > > with the resulting waterline loops
+        std::vector< std::vector<Point> >  getLoops() const {
+			return loops;
+		}
+        
     protected:
         virtual void weave2_process(); 
         /// initialization
