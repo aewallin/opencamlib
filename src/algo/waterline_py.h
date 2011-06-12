@@ -49,7 +49,7 @@ class Waterline_py : public Waterline {
             return loop_list;
         }
         /// return a list of yfibers to python
-        boost::python::list getXFibers() const {
+        boost::python::list py_getXFibers() const {
             boost::python::list flist;
             std::vector<Fiber> xfibers = *( subOp[0]->getFibers() );
             BOOST_FOREACH( Fiber f, xfibers ) {
@@ -59,7 +59,7 @@ class Waterline_py : public Waterline {
             return flist;
         }
         /// return a list of yfibers to python
-        boost::python::list getYFibers() const {
+        boost::python::list py_getYFibers() const {
             boost::python::list flist;
             std::vector<Fiber> yfibers = *( subOp[1]->getFibers() );
             BOOST_FOREACH( Fiber f, yfibers ) {
