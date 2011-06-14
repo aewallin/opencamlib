@@ -1,4 +1,7 @@
 # python stl file tools
+# originally from Julian Todd / FreeSteel
+# public domain code.
+
 import re
 import struct
 import math

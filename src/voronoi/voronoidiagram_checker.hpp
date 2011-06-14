@@ -26,6 +26,7 @@ namespace ocl
 {
 class VoronoiDiagram;
 
+/// this class provides sanity-checks for the VoronoiDiagram class
 class VoronoiDiagramChecker {
 public:
     VoronoiDiagramChecker() {}

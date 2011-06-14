@@ -18,8 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef KDNODE3_H
-#define KDNODE3_H
+#ifndef KDNODE_H
+#define KDNODE_H
 
 #include <iostream>
 #include <list>
@@ -32,16 +32,16 @@ namespace ocl
 /// A k-d tree is used for searching for triangles overlapping with the cutter.
 ///
 template < class BBObj > 
-class KDNode3 {
+class KDNode {
     public:
         /// Create a node which partitions(cuts) along dimension d, at 
         /// cut value cv, with child-nodes hi_c and lo_c.
         /// If this is a bucket-node containing triangles, 
         /// they are in the list tris
         /// depth indicates the depth of the node in the tree
-        KDNode3(int d, double cv, KDNode3<BBObj> *parentNode,                        // parent node
-                                  KDNode3<BBObj> *hi_child,                        // hi-child
-                                  KDNode3<BBObj> *lo_child,                        // lo-child
+        KDNode(int d, double cv,  KDNode<BBObj> *parentNode,                        // parent node
+                                  KDNode<BBObj> *hi_child,                        // hi-child
+                                  KDNode<BBObj> *lo_child,                        // lo-child
                                   const std::list< BBObj >* tlist,     // list of tris, if bucket
                                   int nodeDepth)                           // depth of node
                                   {
@@ -60,7 +60,7 @@ class KDNode3 {
                 }
             }
         }
-        virtual ~KDNode3() {
+        virtual ~KDNode() {
             // std::cout << " ~KDNode3()\n";
             if (hi)
                 delete hi;
@@ -86,11 +86,11 @@ class KDNode3 {
         /// Child node lo contains triangles with lower values.
         double cutval;
         /// parent-node
-        KDNode3* parent; 
+        KDNode* parent; 
         /// Child-node hi.
-        KDNode3* hi; 
+        KDNode* hi; 
         /// Child-node lo.
-        KDNode3* lo; 
+        KDNode* lo; 
         /// A list of triangles, if this is a bucket-node (NULL for internal nodes)
         std::list< BBObj >* tris;
         /// flag to indicate leaf in the tree. Leafs or bucket-nodes contain triangles in the list tris.
@@ -100,4 +100,4 @@ class KDNode3 {
 
 } // end namespace
 #endif
-// end file kdnode3.h
+// end file kdnode.h

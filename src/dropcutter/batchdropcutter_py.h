@@ -25,7 +25,7 @@
 #include <boost/foreach.hpp> 
 
 #include "batchdropcutter.h"
-#include "kdtree3.h" 
+//#include "kdtree3.h" 
 
 namespace ocl
 {

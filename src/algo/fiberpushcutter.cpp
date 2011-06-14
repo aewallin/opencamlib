@@ -29,7 +29,7 @@
 #include "point.h"
 #include "triangle.h"
 #include "fiberpushcutter.h"
-#include "kdtree3.h"
+//#include "kdtree3.h"
 
 namespace ocl
 {

@@ -231,7 +231,7 @@ struct FaceProps {
 
 // these containers are used instead of iterators when accessing
 // adjacent vertices, edges, faces.
-// it may be faster to rewrite the code so it uses iterators, as does the BGL.
+// FIXME: it may be faster to rewrite the code so it uses iterators, as does the BGL.
 typedef std::vector<HEVertex> VertexVector;
 typedef std::vector<HEFace> FaceVector;
 typedef std::vector<HEEdge> EdgeVector;  

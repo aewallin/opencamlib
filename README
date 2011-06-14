@@ -35,32 +35,61 @@ and
  $> make doc-pdf
 this should create the ocl manual named "ocl-manual.pdf" in the src/doc directory
 
+using cmake and cpack it is possible to build a .deb package with
+ $> make package
+
+2.1 Out-of-source build
+After downloading the source with svn, create a build directory
+ $> mkdir bld
+cd into the directory, and run cmake on ../src
+ $> cd bld
+ $> cmake ../src
+now you can run "make", "make install", or "make package" in the /bld directory
+which does not write .o files and other build-files into /src
+The build directory /bld can be wiped clean ("rm -rf *") and cmake run again if/when you want a clean build.
+
 3. ORGANIZATION OF FILES
 (generate this with 'tree -dL 2')
 
-.
-|-- cpp_examples                c++ example use of opencamlib
-|   `-- point                   minimal example of ocl::Point
-|-- debian                      files for building a debian package
-|-- lib                         useful python libraries
-|-- scripts                     python scripts that test or demonstrate use of ocl
-|   |-- issues                  scripts that relate to issues on google-code
-|   `-- offset-ellipse          offset-ellipse examples
-|-- src                         source root dir, python-bindings        
-|   |-- algo                    algorithms
-|   |-- attic                   old source files and experimental unused code
-|   |-- cutsim                  cutting simulation
-|   |-- cutters                 cutter-classes
-|   |-- doc                     documentation
-|   `-- geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
-|-- stl                         STL files for testing
-`-- Windows                     Visual-studio project for building on windows
+├── cpp_examples                c++ example use of opencamlib
+│   ├── cutsim1
+│   ├── cutsim2
+│   ├── point                   minimal example of ocl::Point
+│   ├── qt_opengl
+│   ├── qt_opengl_vbo
+│   ├── qt_vbo2
+│   ├── qt_vbo3
+│   ├── qt_vtk_renderwindow
+│   ├── renderwindowUI
+│   └── vbo
+├── debian                      files for building a debian package
+├── doc                         documentation (not much here yet!)
+├── lib                         useful python helper libraries
+├── scripts                     python scripts that test or demonstrate use of ocl
+│   ├── cutsim                  cutting simulation tests (old?)
+│   ├── issues
+│   ├── ocode                   old linear octree code
+│   ├── offset-ellipse          relates to BullCutter drop- and push-cutter
+│   ├── old
+│   └── voronoi                 vd scripts/tests
+├── src
+│   ├── algo                    algorithms under development
+│   ├── attic                   old deprecated code
+│   ├── common                  common algorithms and data-structures
+│   ├── cutsim                  cutting simulation
+│   ├── cutters                 cutter-classes
+│   ├── dropcutter              drop-cutter algorithms and operations
+│   ├── geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
+│   └── voronoi
+├── stl                         STL files for testing
+└── Windows                     Visual-studio project for building on windows
+
 
 the Id svn keyword is set like this:
 svn propset svn:keywords 'Id' filename.cpp 
 
 
-3. Ubuntu 10.04LTS install and build
+3. Ubuntu 10.04LTS-> install and build
 - install 64-bit Ubuntu 10.04LTS
 - run update manager and install all suggested updates. reboot.
 - using synaptic or apt-get, install the following packages(and their dependencies)

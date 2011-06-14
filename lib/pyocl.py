@@ -1,6 +1,9 @@
 """@camvtk docstring
 This module provides helper classes for testing and debugging OCL
 This module is part of OpenCAMLib (ocl), a toolpath-generation library.
+
+Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+Published under the GNU General Public License, see http://www.gnu.org/licenses/
 """
 
 #import vtk

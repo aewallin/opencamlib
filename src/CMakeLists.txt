@@ -230,8 +230,8 @@ set( OCL_INCLUDE_FILES
     
     ${OpenCamLib_SOURCE_DIR}/common/operation.h
     ${OpenCamLib_SOURCE_DIR}/common/brent_zero.h
-    ${OpenCamLib_SOURCE_DIR}/common/kdnode3.h
-    ${OpenCamLib_SOURCE_DIR}/common/kdtree3.h
+    ${OpenCamLib_SOURCE_DIR}/common/kdnode.h
+    ${OpenCamLib_SOURCE_DIR}/common/kdtree.h
     ${OpenCamLib_SOURCE_DIR}/common/numeric.h
     ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.h
     ${OpenCamLib_SOURCE_DIR}/common/clfilter.h

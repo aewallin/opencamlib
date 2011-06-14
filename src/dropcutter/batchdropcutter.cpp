@@ -28,7 +28,7 @@
 #include "point.h"
 #include "triangle.h"
 #include "batchdropcutter.h"
-#include "kdtree3.h"
+//#include "kdtree3.h"
 
 namespace ocl
 {

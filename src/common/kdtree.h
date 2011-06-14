@@ -18,15 +18,15 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef KDTREE3_H
-#define KDTREE3_H
+#ifndef KDTREE_H
+#define KDTREE_H
 
 #include <iostream>
 #include <list>
 
 #include <boost/foreach.hpp>
 
-#include "kdnode3.h"
+#include "kdnode.h"
 #include "bbox.h"
 #include "millingcutter.h"
 #include "clpoint.h"
@@ -43,10 +43,10 @@ class MillingCutter;
 ///
 /// simple struct-like class for storing the "spread" or maximum 
 /// extent of a list of triangles. Used by the kd-tree algorithm.
-class Spread3 {
+class Spread {
     public:
         /// constructor
-        Spread3(int dim, double v, double s) {
+        Spread(int dim, double v, double s) {
             d = dim;
             val = v;
             start = s;
@@ -59,7 +59,7 @@ class Spread3 {
         double start;
         /// comparison of Spread objects. Used for finding the largest spread
         /// along which the next partition/cut is made.
-        static bool spread_compare(Spread3 *x, Spread3 *y) {
+        static bool spread_compare(Spread *x, Spread *y) {
             if (x->val > y->val)
                 return true;
             else
@@ -132,10 +132,10 @@ class KDTree {
         std::string str() const;
         
     protected:
-        /// build and return a KDNode3 containing list *tris at depth dep.
-        KDNode3<BBObj>* build_node(     const std::list<BBObj> *tris,  // triangles 
+        /// build and return a KDNode containing list *tris at depth dep.
+        KDNode<BBObj>* build_node(     const std::list<BBObj> *tris,  // triangles 
                                         int dep,                       // depth of node
-                                        KDNode3<BBObj> *par)   {       // parent node
+                                        KDNode<BBObj> *par)   {       // parent node
             //std::cout << "KDNode::build_node list.size()=" << tris->size() << "\n";
             
             if (tris->size() == 0 ) { //this is a fatal error.
@@ -143,13 +143,13 @@ class KDTree {
                 assert(0);
                 return 0;
             }
-            Spread3* spr = calc_spread(tris); // calculate spread in order to know how to cut
+            Spread* spr = calc_spread(tris); // calculate spread in order to know how to cut
             double cutvalue = spr->start + spr->val/2; // cut in the middle
             //std::cout << " cutvalue= " << cutvalue << "\n";
             if ( (tris->size() <= bucketSize) ||  isZero_tol( spr->val ) ) {  // then return a bucket/leaf node
                 //std::cout << "KDNode::build_node BUCKET list.size()=" << tris->size() << "\n";
-                KDNode3<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
-                bucket = new KDNode3<BBObj>(spr->d, cutvalue , par , NULL, NULL, tris, dep);
+                KDNode<BBObj> *bucket;   //  dim   cutv   parent   hi    lo   triangles depth
+                bucket = new KDNode<BBObj>(spr->d, cutvalue , par , NULL, NULL, tris, dep);
                 assert( bucket->isLeaf );
                 delete spr;
                 return bucket; // this is the leaf/end of the recursion-tree
@@ -181,7 +181,7 @@ class KDTree {
             
             
             // create the current node  dim     value    parent  hi   lo   trilist  depth
-            KDNode3<BBObj> *node = new KDNode3<BBObj>(spr->d, cutvalue, par, NULL,NULL,NULL, dep);
+            KDNode<BBObj> *node = new KDNode<BBObj>(spr->d, cutvalue, par, NULL,NULL,NULL, dep);
             // create the child-nodes through recursion
             //                    list    depth   parent
             if (!hilist->empty())
@@ -205,7 +205,7 @@ class KDTree {
         };
         
         /// calculate the spread of list *tris                        
-        Spread3* calc_spread(const std::list<BBObj> *tris) {
+        Spread* calc_spread(const std::list<BBObj> *tris) {
             std::vector<double> maxval( 6 );
             std::vector<double> minval( 6 );
             if ( tris->empty() ) {
@@ -233,16 +233,16 @@ class KDTree {
                         }
                     }
                 } 
-                std::vector<Spread3*> spreads;// calculate the spread along each dimension
+                std::vector<Spread*> spreads;// calculate the spread along each dimension
                 for (unsigned int m=0;m<dimensions.size();++m) {   // dim,  spread, start
-                    spreads.push_back( new Spread3(dimensions[m] , 
+                    spreads.push_back( new Spread(dimensions[m] , 
                                        maxval[dimensions[m]]-minval[dimensions[m]], 
                                        minval[dimensions[m]] ) );  
                 }// priority-queue could also be used ??  
                 assert( !spreads.empty() );
                 //std::cout << " spreads.size()=" << spreads.size() << "\n";
-                std::sort(spreads.begin(), spreads.end(), Spread3::spread_compare); // sort the list
-                Spread3* s= new Spread3(*spreads[0]); // this is the one we want to return
+                std::sort(spreads.begin(), spreads.end(), Spread::spread_compare); // sort the list
+                Spread* s= new Spread(*spreads[0]); // this is the one we want to return
                 while(!spreads.empty()) delete spreads.back(), spreads.pop_back(); // delete the others
                 //std::cout << "calc_spread() done\n";
                 return s; // select the biggest spread and return
@@ -252,7 +252,7 @@ class KDTree {
         
         /// search kd-tree starting at *node, looking for overlap with bb, and placing
         /// found objects in *tris
-        void search_node( std::list<BBObj> *tris, const Bbox& bb, KDNode3<BBObj> *node) {
+        void search_node( std::list<BBObj> *tris, const Bbox& bb, KDNode<BBObj> *node) {
             if (node->isLeaf ) { // we found a bucket node, so add all triangles and return.
             
                 BOOST_FOREACH( BBObj t, *(node->tris) ) {
@@ -288,7 +288,7 @@ class KDTree {
         /// bucket size of tree
         unsigned int bucketSize;
         /// pointer to root KDNode
-        KDNode3<BBObj>* root;
+        KDNode<BBObj>* root;
         /// the dimensions in this kd-tree
         std::vector<int> dimensions;
 };

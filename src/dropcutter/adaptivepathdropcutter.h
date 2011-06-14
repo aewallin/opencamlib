@@ -38,7 +38,7 @@ namespace ocl
 class MillingCutter;
 class STLSurf;
 class Triangle;
-class KDNode;
+
 
 ///
 /// \brief path drop cutter finish Path generation

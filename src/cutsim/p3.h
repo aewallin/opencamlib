@@ -6,6 +6,9 @@
 
 namespace ocl {
 
+/// simple 3D point-class
+/// ocl normally uses double as the coordinate type
+/// but for the cutting simulation single-precision float might be sufficient and faster
 template <class Scalar>
 class  P3 {
 public:
@@ -22,24 +25,25 @@ public:
     Scalar x;
     Scalar y;
     Scalar z;
-    //friend QDataStream& operator<< ( QDataStream & stream, typename const P3<Scalar> & point );
+    
     P3<Scalar>& operator+=( const P3<Scalar>& p) {
         x+=p.x;
         y+=p.y;
         z+=p.z;
         return *this;
     }
-    //template <class Scalar>
+    
     const P3<Scalar> operator+( const P3<Scalar> &p) const {
         return P3<Scalar>(*this) += p;
     }
+    
     P3<Scalar>& operator-=( const P3<Scalar>& p) {
         x-=p.x;
         y-=p.y;
         z-=p.z;
         return *this;
     }
-    //template <class Scalar>
+    
     const P3<Scalar> operator-( const P3<Scalar> &p) const {
         return P3<Scalar>(*this) -= p;
     }
@@ -99,6 +103,6 @@ public:
 
 };
 
-} // end namespace
+} // end ocl namespace
 
 #endif

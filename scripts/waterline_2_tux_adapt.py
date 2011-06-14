@@ -32,8 +32,8 @@ if __name__ == "__main__":
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
-    #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/waterline1.stl")
+    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    #stl = camvtk.STLSurf("../stl/waterline1.stl")
     myscreen.addActor(stl)
     stl.SetWireframe() # render tux as wireframe
     #stl.SetSurface() # render tux as surface
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     wl.setSampling(0.5)
     #wl.setThreads(5)
     t_before = time.time() 
-    wl.run2()
+    wl.run()
     t_after = time.time()
     calctime = t_after-t_before
     print " Waterline done in ", calctime," s"
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     awl.setMinSampling(0.01)
     #wl.setThreads(5)
     t_before = time.time() 
-    awl.run2()
+    awl.run()
     t_after = time.time()
     calctime = t_after-t_before
     print " AdaptiveWaterline done in ", calctime," s"
