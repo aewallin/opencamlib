@@ -59,7 +59,7 @@ if(NOT DEFINED PROCESSOR_COUNT)
     list(LENGTH procs PROCESSOR_COUNT)
   endif()
   MESSAGE(STATUS "Number of processors on this system " ${PROCESSOR_COUNT} )
-  # FIXME: how do we make cmake/make use all the processors...
+  # FIXME: how do we have cmake/make use all the processors?
 endif()
 
 
@@ -120,10 +120,11 @@ if (BUILD_CUTSIM)
     endif(OPENGL_FOUND)
     
     FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
+    message(STATUS " qmake = ${QT_QMAKE_EXECUTABLE}") 
     INCLUDE(${QT_USE_FILE})
     MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
     
-    set (MOC_HEADERS  # these hearders need Qt MOCing
+    set (MOC_HEADERS  # these headers need Qt MOCing
         ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.h
     )
     
