@@ -229,7 +229,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.h
     
     
-    ${OpenCamLib_SOURCE_DIR}/common/operation.h
+    
     ${OpenCamLib_SOURCE_DIR}/common/brent_zero.h
     ${OpenCamLib_SOURCE_DIR}/common/kdnode.h
     ${OpenCamLib_SOURCE_DIR}/common/kdtree.h
@@ -238,6 +238,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/common/clfilter.h
     ${OpenCamLib_SOURCE_DIR}/common/halfedgediagram.hpp
     
+    ${OpenCamLib_SOURCE_DIR}/algo/operation.h
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.h
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.h
