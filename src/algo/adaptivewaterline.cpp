@@ -79,14 +79,9 @@ AdaptiveWaterline::~AdaptiveWaterline() {
     //delete subOp[0];
 }
 
-void AdaptiveWaterline::run_old() {
-    adaptive_sampling_run();
-    weave_process();
-}
-
 void AdaptiveWaterline::run() {
     adaptive_sampling_run();
-    weave2_awl_process();
+    weave2_process();
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {
@@ -170,6 +165,7 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
     }
 }
 
+// flat predicate to determine when we subdivide
 bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
     if ( start.size() != stop.size() ) // start, mid, and stop need to have same size()
         return false;
@@ -202,58 +198,6 @@ bool AdaptiveWaterline::flat(Point start_cl, Point mid_cl, Point stop_cl)  const
     double dotprod =  v1.dot(v2) ;
     return (dotprod>cosLimit);
 }
-
-void AdaptiveWaterline::weave2_awl_process() {
-    std::cout << "AWL::weave2_process() Weave2..." << std::flush;
-    weave2::Weave w;
-    BOOST_FOREACH( Fiber f, xfibers ) {
-        w.addFiber(f);
-    }
-    BOOST_FOREACH( Fiber f, yfibers ) {
-        w.addFiber(f);
-    }
-   
-    std::cout << "build()..." << std::flush;
-    w.build(); // build weave from fibers
-    std::cout << "done.\n";
-    std::cout << "face traverse()\n";
-    w.face_traverse();
-    std::cout << "DONE face traverse()\n";
-    std::cout << "get_loops()\n";
-    std::vector< std::vector<Point> > weave_loops = w.getLoops();
-    BOOST_FOREACH( std::vector<Point> loop, weave_loops ) {
-        this->loops.push_back( loop );
-    }
-    std::cout << "DONE get_loops()\n";  
-}
-
-// create weave from fibers, split into components, traverse to find toolpath loops
-void AdaptiveWaterline::weave_process() {
-    std::cout << "Weave..." << std::flush;
-    Weave w;
-    BOOST_FOREACH( Fiber f, xfibers ) {
-        w.addFiber(f);
-    }
-    BOOST_FOREACH( Fiber f, yfibers ) {
-        w.addFiber(f);
-    }
-    std::cout << "build()..." << std::flush;
-    w.build(); // build weave from fibers
-    std::cout << "split()..." << std::flush;
-    std::vector<Weave> subweaves = w.split_components(); // split into components
-    std::cout << "traverse()..." << std::flush;
-    std::vector< std::vector<Point> > subweave_loops;
-    std::cout << " got " << subweaves.size() << " sub-weaves \n";
-    BOOST_FOREACH( Weave sw, subweaves ) {
-        sw.face_traverse(); // traverse to find loops
-        subweave_loops = sw.getLoops();
-        BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
-            this->loops.push_back( loop );
-        }
-    }
-    std::cout << "done.\n" << std::flush;
-}      
-
 
 }// end namespace
 // end file adaptivewaterline.cpp

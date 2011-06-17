@@ -57,16 +57,16 @@ class Waterline : public Operation {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         virtual void run();
-        virtual void run_old(); // this uses the old and slow Weave
         
         /// returns a vector< vector< Point > > with the resulting waterline loops
         std::vector< std::vector<Point> >  getLoops() const {
-			return loops;
-		}
+            return loops;
+        }
         
     protected:
-        virtual void weave2_process(); 
-        /// initialization
+        /// from xfibers and yfibers, build the weave, run face-traverse, and write toolpaths to loops
+        void weave2_process(); 
+        /// initialization of fibers
         void init_fibers();
         /// x and y-coordinates for fiber generation
         std::vector<double> generate_range( double start, double end, int N) const;
@@ -76,6 +76,12 @@ class Waterline : public Operation {
         double zh;
         /// the results of this operation, a list of loops
         std::vector< std::vector<Point> >  loops; // change to CLPoint ?
+        
+        /// x-fibers for this operation
+        std::vector<Fiber> xfibers;
+        /// y-fibers for this operation
+        std::vector<Fiber> yfibers;
+        
 };
 
 

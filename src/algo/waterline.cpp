@@ -69,56 +69,16 @@ Waterline::~Waterline() {
    // delete subOp[0];
 }
 
-void Waterline::run_old() {
-    this->init_fibers(); // create fibers and push them to bpc_x and bpc_y
-    // bpc_x->setThreads(nthreads);
-    // bpc_y->setThreads(nthreads);
 
-    // run the X-direction and Y-direction in parallel using OpenMP tasks
-    // see: http://wikis.sun.com/display/openmp/Using+the+Tasking+Feature
-    // see: http://docs.sun.com/source/819-0501/2_nested.html
-    //omp_set_num_threads(8);
-    //omp_set_nested(1);
-    // #pragma omp parallel 
-    //{
-    //    #pragma omp single nowait
-    //    {
-    //        #pragma omp task
-            { subOp[0]->run(); }
-    //        #pragma omp task
-            { subOp[1]->run(); }
-    //    }
-    //}
-    
-    std::cout << "Weave..." << std::flush;
-    Weave w;
-    BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
-        w.addFiber(f);
-    }
-    BOOST_FOREACH( Fiber f, *( subOp[1]->getFibers() ) ) {
-        w.addFiber(f);
-    }
-    std::cout << "build()..." << std::flush;
-    w.build(); // build weave from fibers
-    std::cout << "split()..." << std::flush;
-    std::vector<Weave> subweaves = w.split_components(); // split into connected components
-    std::cout << "traverse()..." << std::flush;
-    std::vector< std::vector<Point> > subweave_loops;
-    BOOST_FOREACH( Weave sw, subweaves ) { // go through all connected components
-        sw.face_traverse(); // traverse to find loops
-        subweave_loops = sw.getLoops();
-        BOOST_FOREACH( std::vector<Point> loop, subweave_loops ) {
-            this->loops.push_back( loop );
-        }
-    }
-    std::cout << "done.\n" << std::flush;
-}
 
 // this will become the new faster version of the algorithm which uses Weave2
 void Waterline::run() {
     this->init_fibers();
-    subOp[0]->run();
+    subOp[0]->run(); // these two are independent, so could/should run in parallel
     subOp[1]->run();
+    
+    xfibers = *( subOp[0]->getFibers() );
+    yfibers = *( subOp[1]->getFibers() );
     
     weave2_process();
 }
@@ -126,10 +86,10 @@ void Waterline::run() {
 void Waterline::weave2_process() {
     std::cout << "Weave2..." << std::flush;
     weave2::Weave w;
-    BOOST_FOREACH( Fiber f, *( subOp[0]->getFibers() ) ) {
+    BOOST_FOREACH( Fiber f, xfibers ) {
         w.addFiber(f);
     }
-    BOOST_FOREACH( Fiber f, *( subOp[1]->getFibers() ) ) {
+    BOOST_FOREACH( Fiber f, yfibers ) {
         w.addFiber(f);
     }
    
@@ -146,6 +106,8 @@ void Waterline::weave2_process() {
     }
     std::cout << "DONE get_loops()\n";   
 }
+
+
 
 void Waterline::init_fibers() {
     std::cout << " Waterline::init_fibers()\n";

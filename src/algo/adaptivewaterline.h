@@ -54,9 +54,14 @@ class AdaptiveWaterline : public Waterline {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         void run();
-        void run_old();
+        
+        virtual void setSampling(double s) {
+            sampling=s;
+            min_sampling = sampling/10.0; // default to this when setMinSampling is not called
+        }
+        
+        
     protected:
-        void weave2_awl_process(); 
         /// adaptive waterline algorithm
         void adaptive_sampling_run();
         /// x-direction adaptive sampling
@@ -67,14 +72,9 @@ class AdaptiveWaterline : public Waterline {
         bool flat( Fiber& start, Fiber& mid, Fiber& stop ) const;
         /// flatness predicate for cl-points. checks for angle metween start-mid-stop
         bool flat(Point start_cl, Point mid_cl, Point stop_cl) const;
-        /// build weave and run face_traverse to get loops
-        void weave_process();
 
     // DATA
-        /// x-fibers for this operation
-        std::vector<Fiber> xfibers;
-        /// y-fibers for this operation
-        std::vector<Fiber> yfibers;
+
         /// minimum x-coordinate
         double minx;
         /// maximum x-coordinate
