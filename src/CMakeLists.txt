@@ -176,7 +176,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
-    ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
+
     ${OpenCamLib_SOURCE_DIR}/algo/weave2.cpp
     
     
@@ -245,8 +245,8 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/interval.h
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.h
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.h
-    ${OpenCamLib_SOURCE_DIR}/algo/weave.h
-    ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.h
+    ${OpenCamLib_SOURCE_DIR}/algo/weave2.h
+    ${OpenCamLib_SOURCE_DIR}/algo/weave2_typedef.h
     
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_graph.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp

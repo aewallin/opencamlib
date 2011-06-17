@@ -29,7 +29,7 @@
 #include "triangle.h"
 #include "waterline.h"
 
-#include "weave.h"
+
 #include "batchpushcutter.h"
 
 #include "weave2.h"

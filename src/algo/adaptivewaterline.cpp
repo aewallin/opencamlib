@@ -36,7 +36,6 @@
 
 #include "adaptivewaterline.h"
 
-#include "weave.h"
 #include "weave2.h"
 #include "fiberpushcutter.h"
 

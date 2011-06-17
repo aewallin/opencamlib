@@ -23,7 +23,7 @@
 
 #include "batchpushcutter_py.h"  
 #include "fiber_py.h"           
-#include "weave_py.h"           
+//#include "weave_py.h"           
 #include "waterline_py.h"      
 #include "adaptivewaterline_py.h"  
 #include "lineclfilter_py.h"    
@@ -131,6 +131,7 @@ void export_algo() {
         .def("getXFibers", &AdaptiveWaterline_py::getXFibers)
         .def("getYFibers", &AdaptiveWaterline_py::getYFibers)
     ;
+    /*
     bp::class_<Weave>("Weave_base")
     ;
     bp::class_<Weave_py, bp::bases<Weave> >("Weave")
@@ -145,7 +146,7 @@ void export_algo() {
         .def("getEdges", &Weave_py::getEdges)
         .def("getLoops", &Weave_py::py_getLoops)
         .def("__str__", &Weave_py::str)
-    ;
+    ;*/
 
     bp::class_<LineCLFilter>("LineCLFilter_base")
     ;
