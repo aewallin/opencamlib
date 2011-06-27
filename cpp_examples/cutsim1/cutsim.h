@@ -35,24 +35,34 @@ public:
         ocl::Point octree_center(0,0,0);
         unsigned int max_depth = 7;
         tree = new ocl::Octree(10.0, max_depth, octree_center );
-        //std::cout << " tree before init: " << tree->str() << "\n";
+        std::cout << " tree before init: " << tree->str() << "\n";
+        
+        std::cout << "running init(3) on the octree. this splits the cube three times. \n";
+        std::cout << "we go from 1 cube -> 8 -> 64 -> 512 cubes \n";
         tree->init(3u);
         tree->debug=false;
-        //std::cout << " tree after init: " << tree->str() << "\n";
-        ocl::PlaneVolume px_plus(true, 0u, -7);
-        ocl::PlaneVolume px_minus(false, 0u, 7);
-        ocl::PlaneVolume py_plus(true, 1u, -7);
-        ocl::PlaneVolume py_minus(false, 1u, 7);
-        ocl::PlaneVolume pz_plus(true, 2u, -7);
-        ocl::PlaneVolume pz_minus(false, 2u, 7);
+        std::cout << " tree after init: " << tree->str() << "\n";
+        ocl::CubeVolume cube;
+        cube.side = 3.5;
+        cube.calcBB();
         
-        tree->diff_negative( &px_plus  );
-        tree->diff_negative( &px_minus );
-        tree->diff_negative( &py_plus  );
-        tree->diff_negative( &py_minus );
-        tree->diff_negative( &pz_plus  );
-        tree->diff_negative( &pz_minus );
+        //ocl::PlaneVolume px_plus(true, 0u, -7);
+        //ocl::PlaneVolume px_minus(false, 0u, 7);
         
+        //ocl::PlaneVolume py_plus(true, 1u, -7);
+        //ocl::PlaneVolume py_minus(false, 1u, 7);
+        
+        //ocl::PlaneVolume pz_plus(true, 2u, -7);
+        //ocl::PlaneVolume pz_minus(false, 2u, 7);
+        
+        tree->diff_negative( &cube);
+        //tree->diff_negative( &px_plus  );
+        //tree->diff_negative( &px_minus );
+        //tree->diff_negative( &py_plus  );
+        //tree->diff_negative( &py_minus );
+        //tree->diff_negative( &pz_plus  );
+        //tree->diff_negative( &pz_minus );
+        std::cout << " tree after stock-cut: " << tree->str() << "\n";
         mc = new ocl::MarchingCubes();
     } 
     void setGLData(ocl::GLData* gldata) {
@@ -114,9 +124,9 @@ public:
         //std::cout << " mc() got " << tris.size() << " triangles\n";
     }
     
-    std::vector<ocl::Triangle> getTris() {
-        return tris;
-    }
+    //std::vector<ocl::Triangle> getTris() {
+    //    return tris;
+    //}
     
 public slots:
     void cut() { // demo slot of doing a cutting operation on the tree with a volume.

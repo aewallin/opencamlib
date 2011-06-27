@@ -1,4 +1,4 @@
-project(OCL_CUTSIM2_EXAMPLE)
+project(ocl_cutsim2_example)
 
 cmake_minimum_required(VERSION 2.4)
 
@@ -30,17 +30,16 @@ endif()
 
 find_library(OCL_LIBRARY 
             NAMES ocl
-            PATHS /usr/local/lib/opencamlib
+            PATHS /usr/local/lib/opencamlib /usr/lib/opencamlib
             DOC "The opencamlib library"
 )
 
 find_library(CUTSIM_LIBRARY 
             NAMES cutsim
-            PATHS /usr/local/lib/opencamlib
+            PATHS /usr/local/lib/opencamlib /usr/lib/opencamlib
             DOC "The ocl cutsim library"
 )
 
-#find_package(ocl REQUIRED)
 MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 MESSAGE(STATUS "CUTSIM_LIBRARY is now: " ${CUTSIM_LIBRARY})
 
@@ -48,18 +47,10 @@ set (MOC_HEADERS cutsim.h )
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 
 
-set(OCL_TST_SRC
-    ${OCL_CUTSIM2_EXAMPLE_SOURCE_DIR}/main.cpp
-    ${MOC_OUTFILES}
-)
+set( OCL_TST_SRC ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp ${MOC_OUTFILES} )
 
-# add_library(glwidget SHARED glwidget.cpp gldata.cpp ${MOC_OUTFILES})
-# target_link_libraries(glwidget  ${OPENGL_LIBRARIES})
-
-add_executable(
-    cutsim2
-    ${OCL_TST_SRC}
-)
-target_link_libraries(cutsim2 ${OCL_LIBRARY} ${CUTSIM_LIBRARY} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${OPENGL_LIBRARIES})
+add_executable( ${PROJECT_NAME} ${OCL_TST_SRC} )
+target_link_libraries( ${PROJECT_NAME} ${OCL_LIBRARY} ${CUTSIM_LIBRARY} ${QT_LIBRARIES} ${Boost_LIBRARIES} ${OPENGL_LIBRARIES})
 
 
+install( TARGETS ${PROJECT_NAME} DESTINATION bin )

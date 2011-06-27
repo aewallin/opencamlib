@@ -78,22 +78,34 @@ bool SphereOCTVolume::isInside(Point& p) const
 //************* Cube **************/
 
 /// cube at center with side length side
-CubeOCTVolume::CubeOCTVolume()
-{
+CubeVolume::CubeVolume() {
     center = Point(0,0,0);
     side = 1.234;
 }
 
 /// set bbox values
-void CubeOCTVolume::calcBB()
-{
+void CubeVolume::calcBB() {
+    bb.clear();
     Point maxpt = Point(center.x + side/2, center.y + side/2, center.z + side/2);
     Point minpt = Point(center.x - side/2, center.y - side/2, center.z - side/2);
     bb.addPoint( maxpt );
     bb.addPoint( minpt );
 }
 
-bool CubeOCTVolume::isInside(Point& p) const
+double CubeVolume::dist(Point& p) const {
+    double m;
+    m = p.x;
+    if ( fabs(m) < fabs(p.y) ) 
+        m = p.y;
+    if (fabs(m) < fabs(p.z) )
+        m = p.z;
+    // m is now the maximum coordinate
+    return -(m-side);
+    
+    //return 0;
+}
+
+bool CubeVolume::isInside(Point& p) const
 {
     bool x,y,z;
     x = ( (p.x >= (center.x-side/2)) && (p.x <= (center.x+side/2)) );
@@ -550,23 +562,23 @@ void PlaneVolume::calcBB() {
     Point minp;
     double bignum = 1e6;
     maxp = Point(bignum,bignum,bignum);
-    minp = Point( -bignum,-bignum,-bignum);
-    bb.addPoint( maxp  );
+    minp = Point( -bignum,-bignum,-bignum );
+    bb.addPoint( maxp );
     bb.addPoint( minp );
 }
 
 double PlaneVolume::dist(Point& p) const {
-    if (axis==0) {
+    if (axis==0u) {
         if (sign)
             return p.x - position;
         else
             return -(p.x - position);
-    } else if (axis==1) {
+    } else if (axis==1u) {
         if (sign)
             return p.y - position;
         else
             return -(p.y - position);
-    } else if (axis==2) {
+    } else if (axis==2u) {
         if (sign)
             return p.z - position;
         else

@@ -81,10 +81,10 @@ class SphereOCTVolume: public OCTVolume {
 };
 
 /// cube at center with side-length side
-class CubeOCTVolume: public OCTVolume {
+class CubeVolume: public OCTVolume {
     public:
         /// default constructor
-        CubeOCTVolume();
+        CubeVolume();
         /// center point of cube
         Point center;
         /// side length of cube
@@ -92,7 +92,8 @@ class CubeOCTVolume: public OCTVolume {
         bool isInside(Point& p) const;
         /// update bounding-box
         void calcBB();
-        double dist(Point& p) const {return -1;}
+        double dist(Point& p) const;
+        // {return -1;}
 };
 
 /// cylinder volume
