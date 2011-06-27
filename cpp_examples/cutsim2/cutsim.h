@@ -98,14 +98,9 @@ public:
     }
     void updateGL() {
         // traverse the octree and update the GLData correspondingly
-        //ocl::Octnode* root = tree->getRoot();
         tree->updateGL();
     }
-    
 
-    
-
-    
 public slots:
     void cut() { // demo slot of doing a cutting operation on the tree with a volume.
         std::cout << " cut! called \n";

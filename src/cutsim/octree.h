@@ -105,7 +105,8 @@ class Octree {
         void setIsoSurf(MarchingCubes* m) {mc = m;}
         bool debug;
     protected:
-    
+        
+        // run isosurface-algorithm on current Octnode, and push gl-data to GLData
         void updateGL(Octnode* current);
         
         /// recursively traverse the tree subtracting vol

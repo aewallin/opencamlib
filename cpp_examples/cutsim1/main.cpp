@@ -1,21 +1,20 @@
 #include <QApplication>
 
-#include <functional>
-#include <boost/bind.hpp>
-#include "glwidget.h"
-#include "gldata.h"
-//#include "randomsource.h"
+
+
+#include <opencamlib/glwidget.h>
+#include <opencamlib/gldata.h>
+
 
 #include "cutsim.h"
 
-//int OctreeNode::count =0;
 
 int main( int argc, char **argv ) {
     QApplication app( argc, argv );
     
-    GLWidget *w = new GLWidget();
+    ocl::GLWidget *w = new ocl::GLWidget();
     
-    GLData* g = w->addObject();
+    ocl::GLData* g = w->addObject();
     Cutsim cs;
     QObject::connect( w, SIGNAL(sig()), &cs, SLOT(cut()) );
     

@@ -37,7 +37,7 @@ find_library(OCL_LIBRARY
 find_library(CUTSIM_LIBRARY 
             NAMES cutsim
             PATHS /usr/local/lib/opencamlib
-            DOC "The cutsim library"
+            DOC "The ocl cutsim library"
 )
 
 #find_package(ocl REQUIRED)

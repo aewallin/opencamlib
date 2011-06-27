@@ -198,6 +198,9 @@ set( OCL_CUTSIM_SRC
     ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.cpp
     ${OpenCamLib_SOURCE_DIR}/cutsim/octree.cpp
     ${OpenCamLib_SOURCE_DIR}/cutsim/marching_cubes.cpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.cpp 
+    ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.cpp 
+        
 )
 
 set( OCL_INCLUDE_FILES
@@ -323,7 +326,6 @@ if (BUILD_CXX_LIB)
         ${OCL_ALGO_SRC}
         ${OCL_DROPCUTTER_SRC}
         ${OCL_COMMON_SRC}
-        # ${OCL_CUTSIM_SRC}
     )
     # target_link_libraries(libocl ocl_algo)
     set_target_properties(libocl PROPERTIES PREFIX "") 
@@ -333,8 +335,10 @@ endif (BUILD_CXX_LIB)
 if(BUILD_CUTSIM)
     qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
     add_library(cutsim SHARED 
-        ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.cpp 
-        ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.cpp 
+        # ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.cpp 
+        # ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.cpp 
+        ${OCL_CUTSIM_SRC}
+        
         ${MOC_OUTFILES}
     )
     target_link_libraries(cutsim  ${OPENGL_LIBRARIES})
