@@ -93,7 +93,7 @@ class CubeVolume: public OCTVolume {
         /// update bounding-box
         void calcBB();
         double dist(Point& p) const;
-        // {return -1;}
+        bool invert;
 };
 
 /// cylinder volume
