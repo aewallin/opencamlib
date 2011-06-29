@@ -26,8 +26,8 @@
 /// the corresponding GLData surface which is used for rendering
 class Cutsim : public QObject {
     Q_OBJECT
-public:
 
+public:
     // std::cout << ocl::revision() << "\n";
     // std::cout << " Experimental C++ cutting simulation.\n";
     // Octree(root_scale, max_depth, cp)
@@ -39,17 +39,29 @@ public:
         
         std::cout << "running init(3) on the octree. this splits the cube three times. \n";
         std::cout << "we go from 1 cube -> 8 -> 64 -> 512 cubes \n";
-        tree->init(5u);
-        tree->debug=true;
+        tree->init(3u);
+        tree->debug=false;
         std::cout << " tree after init: " << tree->str() << "\n";
-        
         ocl::CubeVolume cube;
-        cube.side = 4.0;
-        cube.invert = false;
+        cube.side = 3.5;
         cube.calcBB();
         
+        //ocl::PlaneVolume px_plus(true, 0u, -7);
+        //ocl::PlaneVolume px_minus(false, 0u, 7);
+        
+        //ocl::PlaneVolume py_plus(true, 1u, -7);
+        //ocl::PlaneVolume py_minus(false, 1u, 7);
+        
+        //ocl::PlaneVolume pz_plus(true, 2u, -7);
+        //ocl::PlaneVolume pz_minus(false, 2u, 7);
+        
         tree->diff_negative( &cube);
-
+        //tree->diff_negative( &px_plus  );
+        //tree->diff_negative( &px_minus );
+        //tree->diff_negative( &py_plus  );
+        //tree->diff_negative( &py_minus );
+        //tree->diff_negative( &pz_plus  );
+        //tree->diff_negative( &pz_minus );
         std::cout << " tree after stock-cut: " << tree->str() << "\n";
         mc = new ocl::MarchingCubes();
     } 
@@ -62,11 +74,9 @@ public:
     }
     void updateGL() {
         // traverse the octree and update the GLData correspondingly
-        std::cout << " tree->updateGL() \n";
-        std::cout << " tree before updateGL(): " << tree->str() << "\n";
-        tree->updateGL();
+        ocl::Octnode* root = tree->getRoot();
+        updateGL(root);
     }
-    /*
     void updateGL(ocl::Octnode* current) {
         // starting at current, update the isosurface
         if ( current->isLeaf() && current->surface() && !current->valid() ) { 
@@ -103,9 +113,8 @@ public:
                 }
             }
         }
-    } */
+    }
     
-    /*
     void surf() {
         // run mc on all nodes
         // std::vector<Triangle> mc_node(const Octnode* node);
@@ -113,7 +122,7 @@ public:
         tree->updateGL();
         //tris = mc->mc_tree( tree ); // this gets ALL triangles from the tree and stores them here.
         //std::cout << " mc() got " << tris.size() << " triangles\n";
-    }*/
+    }
     
     //std::vector<ocl::Triangle> getTris() {
     //    return tris;
@@ -123,10 +132,13 @@ public slots:
     void cut() { // demo slot of doing a cutting operation on the tree with a volume.
         std::cout << " cut! called \n";
         ocl::SphereOCTVolume s;
-        s.radius = 1;
-        s.center = ocl::Point(3,3,3);
+        s.radius = 3;
+        s.center = ocl::Point(7,7,7);
         s.calcBB();
+        //std::cout << " before diff: " << tree->str() << "\n";
         tree->diff_negative( &s );
+        //std::cout << " AFTER diff: " << tree->str() << "\n";
+
         updateGL();
     }
 private:

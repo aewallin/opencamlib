@@ -60,11 +60,10 @@ public:
         unsigned int max_depth = 7;
         tree = new ocl::Octree(10.0, max_depth, octree_center );
         std::cout << " tree before init: " << tree->str() << "\n";
-        tree->init(3u);
+        tree->init(2u);
         tree->debug=false;
         std::cout << " tree after init: " << tree->str() << "\n";
         
-        /*
         ocl::SphereOCTVolume stock_sphere;
         stock_sphere.radius = 7;
         stock_sphere.center = ocl::Point(0,0,0);
@@ -72,19 +71,22 @@ public:
         stock_sphere.invert = true;
         
         tree->diff_negative( &stock_sphere );
+        
+        std::cout << " tree after pane-cut: " << tree->str() << "\n";
+        
+        /*
+        ocl::SphereOCTVolume s;
+        s.radius = 2;
+        s.center = ocl::Point(4,4,4);
+        s.calcBB();
+        std::cout << " before diff: " << tree->str() << "\n";
+        tree->diff_negative( &s );
+        std::cout << " AFTER diff: " << tree->str() << "\n";
         */
-        ocl::CubeVolume cube;
-        cube.side = 11.0;
-        cube.invert = true;
-        cube.calcBB();
-        tree->diff_negative( &cube);
-        
-        
-        std::cout << " tree after sphere-cut: " << tree->str() << "\n";
         
         mc = new ocl::MarchingCubes();
         tree->setIsoSurf(mc);
-
+        //tree->debug=true;
     } 
     void setGLData(ocl::GLData* gldata) {
         // this is the GLData that corresponds to the tree
@@ -97,7 +99,6 @@ public:
     void updateGL() {
         // traverse the octree and update the GLData correspondingly
         tree->updateGL();
-        std::cout << " updateGL() \n";
     }
 
 public slots:

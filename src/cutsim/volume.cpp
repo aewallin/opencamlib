@@ -81,7 +81,6 @@ bool SphereOCTVolume::isInside(Point& p) const
 CubeVolume::CubeVolume() {
     center = Point(0,0,0);
     side = 1.234;
-    invert = false;
 }
 
 /// set bbox values
@@ -94,15 +93,20 @@ void CubeVolume::calcBB() {
 }
 
 double CubeVolume::dist(Point& p) const {
-    // from: http://reocities.com/SiliconValley/port/3456/isosurf/isosurfaces.html
-    double d =  std::max( square(p.x)-square(side/2), std::max( square(p.y)-square(side/2), square(p.z)-square(side/2) ) );
-    if (invert)
-        return -d;
-    else
-        return d;
+    double m;
+    m = p.x;
+    if ( fabs(m) < fabs(p.y) ) 
+        m = p.y;
+    if (fabs(m) < fabs(p.z) )
+        m = p.z;
+    // m is now the maximum coordinate
+    return -(m-side);
+    
+    //return 0;
 }
 
-bool CubeVolume::isInside(Point& p) const {
+bool CubeVolume::isInside(Point& p) const
+{
     bool x,y,z;
     x = ( (p.x >= (center.x-side/2)) && (p.x <= (center.x+side/2)) );
     y = ( (p.y >= (center.y-side/2)) && (p.y <= (center.y+side/2)) );
