@@ -37,7 +37,9 @@
 namespace ocl
 {
 
-
+/// a vertex/point in 3D, with (x,y,z) coordinates of type GLfloat
+/// normal is (nx,ny,nz)
+/// color is (r,g,b)
 struct GLVertex {
     GLVertex() : x(0), y(0), z(0), r(0), g(0), b(0) {}
     GLVertex(GLfloat x, GLfloat y, GLfloat z) 
@@ -77,70 +79,90 @@ struct VertexData {
     inline bool empty() { return polygons.empty(); }
 
 // DATA
+    /// The set of polygons. Each polygon has an uint index which is stored here.
     /// Note: we want to access polygons from highest index to lowest, thus compare with "greater"
     typedef std::set< unsigned int, std::greater<unsigned int> > PolygonSet;
-    /// the polygons to which this vertex belongs.
+    /// the polygons to which this vertex belongs. i.e. for each vertex we store in this set all the polygons to which it belongs.
     PolygonSet polygons;
     
-    /// the Octnode that created this vertex
+    /// the Octnode that created this vertex. 
+    /// This allows the Octnode to delete the vertex if required (e.g. the Octnode is cut)
     Octnode* node;
+    // (an alternative callback-mechanism would be to store a function-pointer or similar)
 };
 
 
 
 
 // the "secret sauce" paper suggests the following primitives
+//   http://www.cs.berkeley.edu/~jrs/meshpapers/SchaeferWarren2.pdf
+//   or
+//   http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.13.2631
 //
-// - add vertex  DONE
+// - add vertex  
 //   add vertex with empty polygon list and pointer to octree-node
 //
 // - remove vertex (also removes associated polygons)
 //   process list of polygons, from highest to lowest. call remove_polygon on each poly.
-//   overwrite with last vertex. shorten list. request each poly to re-number
+//   overwrite with last vertex. shorten list. request each poly to re-number.
 // 
 // - add polygon DONE
 //   append new polygon to end of list, request each vertex to add new polygon to list.
 //
-// - remove_polygon( polygonIndex ) DONE
+// - remove_polygon( polygonIndex ) 
 //   i) for each vertex: request remove this polygons index from list
 //   ii) then remove polygon from polygon-list: overwrite with last polygon, then shorten list.
 //   iii) process each vertex in the moved polygon, request renumber on each vert for this poly
 //
 // data structure:
-// vertex: index, pos(x,y,z), polygons(id1,id2,...), Node-pointer(to octree)
-// polygon: index, vertex-list
+//  vertex-table: index, pos(x,y,z)  , polygons(id1,id2,...), Node-pointer to octree 
+// polygon-table: index, vertex-list
 //
 
 /// a GLData object holds data which is drawn by OpenGL using VBOs
 class GLData {
 public:
-    /// add a vertex, return its index
-    unsigned int addVertex(float x, float y, float z, float r, float g, float b);
-    unsigned int addVertex(GLVertex v);
-
-    //int addVertex(float x, float y, float z, float r, float g, float b, VoidIntIntCallBack c);
-    void setNormal(unsigned int vertexIdx, float x, float y, float z) {
-        vertexArray[vertexIdx].setNormal(x,y,z);
+    GLData() {
+        // some reasonable defaults...
+        type = GL_TRIANGLES;
+        polyVerts = 3;
+        polygonMode_face = GL_FRONT_AND_BACK;
+        polygonMode_mode = GL_LINE;
+        usagePattern = QGLBuffer::StaticDraw;
     }
+    /// add a vertex with given position and color, return its index
+    unsigned int addVertex(float x, float y, float z, float r, float g, float b);
+    /// add vertex
+    unsigned int addVertex(GLVertex v);
+    /// add vertex, give position, color, Octnode*
     unsigned int addVertex(float x, float y, float z, float r, float g, float b, Octnode* n);
     
-    /// remove vertex at given index
+    /// for a given vertex, set the normal
+    void setNormal(unsigned int vertexIdx, float nx, float ny, float nz) {
+        vertexArray[vertexIdx].setNormal(nx,ny,nz);
+    }
+    
+    /// remove vertex with given index
     void removeVertex( unsigned int vertexIdx );
     /// add a polygon, return its index
     int addPolygon( std::vector<GLuint>& verts);
     /// remove polygon at given index
     void removePolygon( unsigned int polygonIdx);
     /// return the number of polygons
-    int indexCount() const { return indexArray.size(); }
+    int polygonCount() const { return indexArray.size(); }
     
     /// generate the VBOs
     void genVBO();
+    /// update VBO
     void updateVBO();
-    /// set polygon type to triangles
+    
+    /// set polygon type to Triangles
     void setTriangles() {setType(GL_TRIANGLES); polyVerts=3;}
-    /// set polygon type to quads
+    /// set polygon type to Quads
     void setQuads() {setType(GL_QUADS); polyVerts=4;}
+    /// set type to Points
     void setPoints() {setType(GL_POINTS); polyVerts=1;}
+    
     void setUsageStaticDraw() {usagePattern = QGLBuffer::StaticDraw;}
     void setUsageDynamicDraw() {usagePattern = QGLBuffer::DynamicDraw;}
     /// bind the vertex and index buffers
@@ -162,6 +184,7 @@ public:
     //                GL_QUADS,
     //                GL_POLYGON 
     GLenum type;
+    
     // usagePattern is set to one of:
     //    QGLBuffer::StreamDraw         The data will be set once and used a few times for drawing operations. Under OpenGL/ES 1.1 this is identical to StaticDraw.
     //    QGLBuffer::StreamRead         The data will be set once and used a few times for reading data back from the GL server. Not supported under OpenGL/ES.
@@ -174,6 +197,12 @@ public:
     //    QGLBuffer::DynamicCopy        The data will be modified repeatedly and used many times for reading data back from the GL server for use in further drawing operations. Not supported under OpenGL/ES
     QGLBuffer::UsagePattern usagePattern;
     
+    GLenum polygonMode_face; // face = GL_FRONT | GL_BACK  | GL_FRONT_AND_BACK
+    GLenum polygonMode_mode; // mode = GL_POINT, GL_LINE, GL_FILL
+    
+    
+        
+    
     typedef GLVertex vertex_type;
     static const GLenum index_type = GL_UNSIGNED_INT;
     static const GLenum coordinate_type = GL_FLOAT;
@@ -181,6 +210,7 @@ public:
     static const unsigned int color_offset = 12;
     static const unsigned int normal_offset = 24;
     /// translation to be applied before drawing
+    // fixme: use translation matrix instead.
     GLVertex pos;
     
 protected:
@@ -217,17 +247,20 @@ protected:
     }
     
 // DATA
+    /// vertex data buffer
     QGLBuffer* vertexBuffer;
+    /// index data buffer
     QGLBuffer* indexBuffer;
-    /// number of vertices per polygon. 3 for GL_TRIANGLES, 4 for GL_QUADS
+    /// number of vertices per polygon. 1 for GL_POINTS, 3 for GL_TRIANGLES, 4 for GL_QUADS
     int polyVerts; 
     
-    // vertices stored in this array. this array is bound to the OpenGL buffer
-    // and used directly for drawing as the OpenGL vertex, color, and normal array.
+    /// vertices stored in this array. this array is bound to the OpenGL buffer
+    /// and used directly for drawing as the OpenGL vertex position, color, and normal array.
     QVarLengthArray<GLVertex> vertexArray;
-    // extran vertex data is stored here. this data is not needed for OpenGL drawing.
+    /// extra vertex data is stored here. this data is not needed for OpenGL drawing.
+    /// but it is required for the isosurface-algorithms (marching-cubes / dual contouring)
     QVarLengthArray<VertexData> vertexDataArray;
-    // this is the index array for drawing polygons. used by OpenGL glDrawElements
+    /// this is the index array for drawing polygons. used by OpenGL glDrawElements
     QVarLengthArray<GLuint> indexArray;
 };
 

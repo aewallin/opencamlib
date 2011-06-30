@@ -177,10 +177,16 @@ void GLWidget::paintGL()  {
         //glLoadIdentity();
         //glTranslatef( g->pos.x, g->pos.y , g->pos.z ); 
         
-        if ( !g->bind() )
+        // apply a transformation-matrix here !?
+        
+        if ( !g->bind() ) // bind the vbo
             assert(0);
-            
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ); // this draws polygons in wireframe mode
+        
+        // void glPolygonMode(GLenum  face,  GLenum  mode);
+        // face = GL_FRONT | GL_BACK  | GL_FRONT_AND_BACK
+        // mode = GL_POINT, GL_LINE, GL_FILL
+        glPolygonMode( g->polygonMode_face, g->polygonMode_mode ); 
+        
         
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_VERTEX_ARRAY);
@@ -191,8 +197,8 @@ void GLWidget::paintGL()  {
         glColorPointer(3, GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::color_offset)); // color is offset 12-bytes from position
         glNormalPointer( GLData::coordinate_type, sizeof( GLData::vertex_type ), BUFFER_OFFSET(GLData::normal_offset));
         
-        //              mode       idx-count     type         indices*/offset
-        glDrawElements( g->type , g->indexCount() , GLData::index_type, 0);
+        //              mode       idx-count             type             indices*/offset
+        glDrawElements( g->type , g->polygonCount() , GLData::index_type, 0);
          
         glDisableClientState(GL_VERTEX_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
@@ -202,7 +208,7 @@ void GLWidget::paintGL()  {
     }
     
     
-    // calculate and display FPS
+    // calculate and display FPS (FIXME: does not work)
     int msecs =  - QTime::currentTime().msecsTo( _lastFrameTime );
     if (msecs == 0)
         msecs = 1;

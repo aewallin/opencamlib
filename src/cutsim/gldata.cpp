@@ -132,6 +132,8 @@ void GLData::release() {
     vertexBuffer->release();
     indexBuffer->release();
 }
+
+// ? replace with transformation-matrix
 void GLData::setPosition(float x, float y, float z) {
     pos = GLVertex(x,y,z);
 }

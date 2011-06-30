@@ -43,7 +43,7 @@
 namespace ocl
 {
 
-#define PI 3.14159265
+// #define PI 3.14159265
 
 #define BUFFER_OFFSET(i) ((GLbyte *)NULL + (i))
 
@@ -61,6 +61,7 @@ class GLWidget : public QGLWidget {
         GLData* addObject();
         QTimer* timer;
     signals:
+        // a test/dummy signal, emitted when the user presses "c"
         void sig();
 
     protected:
@@ -119,6 +120,7 @@ class GLWidget : public QGLWidget {
             updateGL();
         }
         
+        // generate a VBO for each GLData object
         void genVBO() {
             BOOST_FOREACH(GLData* g, glObjects) {
                 g->genVBO();
@@ -130,14 +132,24 @@ class GLWidget : public QGLWidget {
         void timeOutSlot() { timeOut(); }
   
     private:
-        P3<float> _eye; // camera position
-        P3<float> _up; // camera up-vector
-        P3<float> _center; // camera look-at point
-        P3<float> _diry; // rotation/pan y-axis
-        P3<float> _dirx; // rotation/pan y-axis
-        float _fovy; // field of vision in y-dir
+        /// camera position
+        P3<float> _eye;
+        /// camera up-vector 
+        P3<float> _up; 
+        /// camera look-at point
+        P3<float> _center;
+        /// rotation/pan y-axis 
+        P3<float> _diry; 
+        /// rotation/pan y-axis
+        P3<float> _dirx;
+        /// field of vision in y-dir 
+        float _fovy;
+        /// position of near clipping plane 
         float z_near;
+        /// position of far clipping plane
         float z_far;
+        
+        /// these are the GLData objects which will be drawn in the OpenGL scene
         std::vector<GLData*> glObjects;
 
         QPoint _oldMousePos;
