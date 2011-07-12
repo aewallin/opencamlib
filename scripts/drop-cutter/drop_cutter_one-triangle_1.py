@@ -73,7 +73,8 @@ if __name__ == "__main__":
     print "done."   
     
     tx = camvtk.Text()
-    tx.SetPos( (myscreen.width-200, myscreen.height-30) )
+    tx.SetPos( (myscreen.width-200, myscreen.height-130) )
+    tx.SetText("opencamlib\ndrop-cutter")
     myscreen.addActor( tx )
     
     w2if = vtk.vtkWindowToImageFilter()

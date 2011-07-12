@@ -51,7 +51,7 @@ if __name__ == "__main__":
     for p in clpoints:
         bdc.appendPoint(p)
         
-    bdc.dropCutter4()
+    bdc.run()
    
     print "done."
     clpoints = bdc.getCLPoints()

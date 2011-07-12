@@ -67,7 +67,7 @@ if __name__ == "__main__":
         myscreen.render()
         lwr.SetFileName("frame"+ ('%03d' % n)+".png")
         w2if.Modified() 
-        #lwr.Write()
+        #lwr.Write() #uncomment to write screenshots to disk
 
     myscreen.iren.Start()
     raw_input("Press Enter to terminate") 
