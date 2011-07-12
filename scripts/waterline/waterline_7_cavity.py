@@ -105,7 +105,7 @@ if __name__ == "__main__":
     drawLoops(myscreen, aloops, camvtk.red)
     
     print "done."
-    myscreen.camera.SetPosition(15, 13, 7)
+    myscreen.camera.SetPosition(185, 153, 167)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     camvtk.drawArrows(myscreen,center=(0,-4,0))
     camvtk.drawOCLtext(myscreen)

@@ -16,7 +16,7 @@ def waterline_time(zheights, diam, length,s,sampling):
         wl.setSampling(sampling)
         wl.setThreads(1)
         
-        wl.run2()
+        wl.run()
 
         cutter_loops = wl.getLoops()
         for l in cutter_loops:
