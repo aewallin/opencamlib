@@ -230,6 +230,9 @@ bool MillingCutter::generalFacetPush(double normal_length,
                                                         + u*(t.p[1].x-t.p[0].x)+v*(t.p[2].x-t.p[0].x) );
         if ( tval < 0.0 || tval > 1.0  ) {
             std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";
+            //std::cout << " cutter: " << *this << "\n";
+            std::cout << " triangle: " << t << "\n";
+            std::cout << " fiber: " << fib << "\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
         i.updateUpper( tval  , cc );

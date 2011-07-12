@@ -57,7 +57,7 @@ if __name__ == "__main__":
     f.printInts()  
     print "vertexPush"
     cc = ocl.CCPoint()
-    cutter.vertexPush(f,i,t)
+    cutter.pushCutter(f,i,t)
     print i
     f.addInterval(i)
     print "AFTER vertexPush"

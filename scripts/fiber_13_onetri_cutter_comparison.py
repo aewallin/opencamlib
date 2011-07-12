@@ -53,9 +53,10 @@ def yfiber(yvals,t,zh,myscreen,cutter,color):
         f2 = ocl.Point(1.5,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        cutter.vertexPush(f,i,t)
-        cutter.facetPush(f,i,t)
-        cutter.edgePush(f,i,t)
+        #cutter.vertexPush(f,i,t)
+        #cutter.facetPush(f,i,t)
+        #cutter.edgePush(f,i,t)
+        cutter.pushCutter(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, color)
 
@@ -65,9 +66,10 @@ def xfiber(xvals,t,zh,myscreen,cutter,color):
         f2 = ocl.Point(x,1.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
-        cutter.vertexPush(f,i,t)
-        cutter.facetPush(f,i,t)
-        cutter.edgePush(f,i,t)
+        #cutter.vertexPush(f,i,t)
+        #cutter.facetPush(f,i,t)
+        #cutter.edgePush(f,i,t)
+        cutter.pushCutter(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, color)
 

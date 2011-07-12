@@ -36,7 +36,7 @@ if __name__ == "__main__":
     s.addTriangle(t) # a one-triangle STLSurf
     
     # alternatively, run on the tux model
-    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
     #myscreen.addActor(stl)
     #stl.SetWireframe() # render tux as wireframe
     #stl.SetSurface() # render tux as surface

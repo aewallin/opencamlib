@@ -45,31 +45,34 @@ def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):
 
 def yfiber(yvals,s,zh,myscreen):
     for y in yvals:
-        f1 = ocl.Point(-0.5,y,zh) # start point of fiber
-        f2 = ocl.Point(1.5,y,zh)  # end point of fiber
+        f1 = ocl.Point(-20,y,zh) # start point of fiber
+        f2 = ocl.Point(+20,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         for t in s.getTriangles():
             i = ocl.Interval()
-            cutter.vertexPush(f,i,t)
-            cutter.facetPush(f,i,t)
-            cutter.edgePush(f,i,t)
+            #cutter.vertexPush(f,i,t)
+            #cutter.facetPush(f,i,t)
+            #cutter.edgePush(f,i,t)
+            cutter.pushCutter(f,i,t)
             f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.red)
 
 def xfiber(xvals,s,zh,myscreen):
     for x in xvals:
-        f1 = ocl.Point(x,-0.5,zh) # start point of fiber
-        f2 = ocl.Point(x,1.5,zh)  # end point of fiber
+        f1 = ocl.Point(x,-20,zh) # start point of fiber
+        f2 = ocl.Point(x,+20,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         for t in s.getTriangles():
             i = ocl.Interval()
-            cutter.vertexPush(f,i,t)
-            cutter.facetPush(f,i,t)
-            cutter.edgePush(f,i,t)
+            #cutter.vertexPush(f,i,t)
+            #cutter.facetPush(f,i,t)
+            #cutter.edgePush(f,i,t)
+            cutter.pushCutter(f,i,t)
             f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.lblue)
         
 if __name__ == "__main__":  
+    print ocl.revision() 
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     stl = camvtk.STLSurf("../stl/demo.stl")
@@ -83,7 +86,7 @@ if __name__ == "__main__":
     
     cutter = ocl.CylCutter(0.3, 6)
     print "lengt=", cutter.getLength()
-    print "fiber..."
+    print "fiber...",
     range=30
     Nmax = 200
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
@@ -95,7 +98,7 @@ if __name__ == "__main__":
     zvals=[]
     #for n in xrange(0,zNmax):
     #    zvals.append(zmin+n*dz)
-    zvals.append(0.2)
+    zvals.append(0.1)
     #zvals = [ float(n-float(zNmax)/2)/zNmax*range for n in xrange(0,zNmax+1)]
     #print zvals
     #exit()

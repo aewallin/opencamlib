@@ -75,7 +75,7 @@ if __name__ == "__main__":
             bpc.appendFiber(f)
             
     # run
-    bpc.pushCutter3()
+    bpc.run()
     clpoints = bpc.getCLPoints()
     fibers = bpc.getFibers()
     print " got ",len(fibers)," fibers from bpc"

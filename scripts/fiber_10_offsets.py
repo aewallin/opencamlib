@@ -20,10 +20,10 @@ def waterline(cutter, s, zh, tol = 0.1 ):
     bpc.setSTL(s)
     bpc.setCutter(cutter)
     bounds = s.getBounds()
-    xmin= bounds[0] - 2*cutter.radius
-    xmax= bounds[1] + 2*cutter.radius
-    ymin= bounds[2] - 2*cutter.radius
-    ymax= bounds[3] + 2*cutter.radius
+    xmin= bounds[0] - 2*cutter.radius()
+    xmax= bounds[1] + 2*cutter.radius()
+    ymin= bounds[2] - 2*cutter.radius()
+    ymax= bounds[3] + 2*cutter.radius()
     Nx= int( (xmax-xmin)/tol )
     Ny= int( (ymax-ymin)/tol )
     xvals = generateRange(xmin,xmax,Nx)
@@ -38,7 +38,7 @@ def waterline(cutter, s, zh, tol = 0.1 ):
         f2 = ocl.Point(x,ymax,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         bpc.appendFiber(f)
-    bpc.pushCutter3()
+    bpc.run()
     fibers = bpc.getFibers() # get fibers
     w = ocl.Weave()
     for f in fibers:
@@ -81,8 +81,9 @@ if __name__ == "__main__":
     zh=1.9
     cutter_diams = generateRange(0.1, 6, 5)
     loops = []
+    length = 20 # cutter length
     for diam in cutter_diams:
-        cutter = ocl.CylCutter( diam )
+        cutter = ocl.CylCutter( diam, length )
         cutter_loops = waterline(cutter, s, zh, 0.05 )
         for l in cutter_loops:
             loops.append(l)

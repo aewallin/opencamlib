@@ -24,7 +24,8 @@
 #include <boost/python.hpp>
 
 #include "batchpushcutter.h"
-//#include "kdtree3.h" 
+
+#include "fiber_py.h"
 
 namespace ocl
 {
@@ -84,7 +85,7 @@ class BatchPushCutter_py : public BatchPushCutter {
         boost::python::list getFibers_py() const {
             boost::python::list flist;
             BOOST_FOREACH(Fiber f, *fibers) {
-                flist.append(f);
+                flist.append( Fiber_py(f) );
             }
             return flist;
         };

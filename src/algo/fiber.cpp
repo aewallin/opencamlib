@@ -111,7 +111,8 @@ void Fiber::printInts() const {
 }
 
 std::ostream& operator<<(std::ostream &stream, const Fiber& f) {
-  stream << " fiber dir=" << f.dir << " and " << f.ints.size() << " intervals "; 
+  stream << " fiber dir=" << f.dir << " and " << f.ints.size() << " intervals\n"; 
+  stream << " fiber.p1=" << f.p1 << " fiber.p2 " << f.p2 ; 
   return stream;
 }
 
