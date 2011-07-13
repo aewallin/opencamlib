@@ -98,8 +98,6 @@ class Weave {
         
         /// from the list of fibers, build a graph
         void build();
-        
-
 
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
@@ -120,7 +118,7 @@ class Weave {
         /// also adds the CL-vertex to clVertices, a list of cl-verts to be processed during face_traverse()
         Vertex add_cl_vertex( Point& position, Interval& interv, double ipos);
         
-        
+        /// given a vertex in the graph, find it's upper and lower neighbor vertices
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
          
 // DATA

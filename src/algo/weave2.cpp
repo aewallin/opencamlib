@@ -75,16 +75,15 @@ Vertex Weave::add_cl_vertex( Point& position, Interval& ival, double ipos) {
     return v;
 }
 
-// given a vertex pair, find the vertex above and below the given vertex
+// given a VertexPair and an Interval, in the Interval find the Vertex above and below the given vertex
 std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Interval& ival) { 
-    //VertexPair v_pair_x( v , v_position.x );
-    VertexPairIterator x_tmp = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
-    assert(x_tmp != ival.intersections2.end() ); // we must find a lower_bound
-    VertexPairIterator x_above = x_tmp;
-    VertexPairIterator x_below = --x_tmp;
+    VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
+    assert( itr != ival.intersections2.end() ); // we must find a lower_bound
+    VertexPairIterator v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
+    VertexPairIterator v_below = --itr; // this is the vertex below the give vertex
     std::pair<Vertex,Vertex> out;
-    out.first = x_above->first; // vertex above v (xu)
-    out.second = x_below->first; // vertex below v (xl)
+    out.first = v_above->first; // vertex above v (xu)
+    out.second = v_below->first; // vertex below v (xl)
     return out;
 }
                             
