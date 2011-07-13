@@ -39,43 +39,64 @@ void Weave::addFiber(Fiber& f) {
     }
 }
 
+// traverse the graph putting loops of vertices into the loops variable
+// this figure illustrates next-pointers: http://www.anderswallin.net/wp-content/uploads/2011/05/weave2_zoom.png
 void Weave::face_traverse() { 
     std::cout << " traversing graph with " << clVertices.size() << " cl-points\n";
-    // traverse the graph putting loops of vertices into the loops variable
-    // std::vector< std::vector<Vertex> > loops;
-    while ( !clVertices.empty() ) {
-        std::vector<Vertex> loop;
+    while ( !clVertices.empty() ) { // while unprocessed cl-vertices remain
+        std::vector<Vertex> loop; // start on a new loop
         Vertex current = *(clVertices.begin());
         Vertex first = current;
-        do {
-            assert( g[current].type == CL );
+        
+        do { // traverse around the loop
+            assert( g[current].type == CL ); // we only want cl-points in the loop
             loop.push_back(current);
-            clVertices.erase(current);
-            // find the edge to follow
-            std::vector<Edge> outEdges = hedi::out_edges(current, g);
-            if (outEdges.size() != 1 )
-                std::cout << " outEdges.size() = " << outEdges.size() << "\n";
-            assert( outEdges.size() == 1 );
-            // traverse to the next cl-point using next
-            Edge currentEdge = outEdges[0];
+            clVertices.erase(current); // remove from list of unprocesser cl-verts
+            std::vector<Edge> outEdges = hedi::out_edges(current, g); // find the edge to follow
+            //if (outEdges.size() != 1 )
+            //    std::cout << " outEdges.size() = " << outEdges.size() << "\n";
+            assert( outEdges.size() == 1 ); // cl-points are allways at ends of intervals, so they have only one out-edge
+            Edge currentEdge = outEdges[0]; 
             do { // following next, find a CL point 
                 current = hedi::target( currentEdge, g);
                 currentEdge = g[currentEdge].next;
             } while ( g[current].type != CL );
         } while (current!=first); // end the loop when we arrive at the start
-        loops.push_back(loop);
+        
+        loops.push_back(loop); // add the processed loop to the master list of all loops
     }
 }
         
-
-Vertex Weave::add_vertex( Point& position, VertexType type, Interval& interv, double ipos) {
-    Vertex  v = hedi::add_vertex(VertexProps( position, type ), g);
-    interv.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
+// add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
+Vertex Weave::add_cl_vertex( Point& position, Interval& ival, double ipos) {
+    Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
+    ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
     clVertices.insert(v);
     return v;
 }
 
-/// from the list of fibers, build a graph
+// given a vertex pair, find the vertex above and below the given vertex
+std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Interval& ival) { 
+    //VertexPair v_pair_x( v , v_position.x );
+    VertexPairIterator x_tmp = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
+    assert(x_tmp != ival.intersections2.end() ); // we must find a lower_bound
+    VertexPairIterator x_above = x_tmp;
+    VertexPairIterator x_below = --x_tmp;
+    std::pair<Vertex,Vertex> out;
+    out.first = x_above->first; // vertex above v (xu)
+    out.second = x_below->first; // vertex below v (xl)
+    return out;
+}
+                            
+// from the list of fibers, build a graph
+// FIXME: the problem here is that from N x-fibers and N y-fibers
+// this builds a graph with roughly N*N vertices/edges. This consumes a lot of RAM even
+// for small parts, and unacceptably much RAM for large parts.
+// a smarter build() would keep track of the important faces of the planar graph
+// (faces that produce toolpath-loops)
+// vertices/edges belonging to non-toolpath-producing faces could then be deleted
+// and the RAM consumption should be limited to N+N (i.e. the length/perimeter of the part/toolpath
+// in contrast to the area for the naive implementation)
 void Weave::build() {
     // 1) add CL-points of X-fiber (if not already in graph)
     // 2) add CL-points of Y-fiber (if not already in graph)
@@ -96,9 +117,9 @@ void Weave::build() {
             xi.in_weave = true;
             // add the X interval end-points to the weave
             Point p1( xf.point(xi.lower) );
-            Vertex xv1 = add_vertex( p1, CL , xi, p1.x ); 
+            Vertex xv1 = add_cl_vertex( p1, xi, p1.x ); 
             Point p2( xf.point(xi.upper) );
-            Vertex xv2 = add_vertex( p2, CL , xi, p2.x );
+            Vertex xv2 = add_cl_vertex( p2, xi, p2.x );
             Edge e1 = hedi::add_edge( xv1, xv2, g);
             Edge e2 = hedi::add_edge( xv2, xv1, g);
 
@@ -119,62 +140,38 @@ void Weave::build() {
                             // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z )
                             if (!yi.in_weave) { // add y-interval endpoints to weave
                                 Point p1( yf.point(yi.lower) );
-                                add_vertex( p1, CL , yi, p1.y );
+                                add_cl_vertex( p1, yi, p1.y );
                                 Point p2( yf.point(yi.upper) );
-                                add_vertex( p2, CL , yi, p2.y );
+                                add_cl_vertex( p2, yi, p2.y );
                                 yi.in_weave = true;
                             }
-                            // 3) intersection point (this is always new, no need to check for existence??)
-                            Vertex v = hedi::add_vertex(g);
+                            // 3) intersection point, of type INT
                             Point v_position( yf.p1.x, xf.p1.y , xf.p1.z );
-                            g[v].position = v_position;
-                            g[v].type = INT;
-                            
+                            Vertex v = hedi::add_vertex( VertexProps( v_position, INT ), g);
                             
                             // 4) add edges 
-                            // find the X-vertices above and below the new vertex v.
-                            VertexPair v_pair_x( v , v_position.x );
-                            //std::cout << " search for X-neigbors to " << v << "("<<v_position.x << ") \n";
-                            VertexPairIterator x_tmp = xi.intersections2.lower_bound( v_pair_x ); // returns first that is not less than argument (equal or greater)
-                            //assert(x_tmp != xi.intersections2.end() ); // we must find a lower_bound
-                            //std::cout << " lower_bound is " << x_tmp->first << " at " << x_tmp->second << "\n";
-                            VertexPairIterator x_above = x_tmp;
-                            VertexPairIterator x_below = --x_tmp;
-                            //std::cout << " x-above is " << x_above->first << " at " << x_above->second << "\n";
-                            //std::cout << " x-below is " << x_below->first << " at " << x_below->second << "\n";
-                            Vertex x_u = x_above->first; // vertex above v
-                            Vertex x_l = x_below->first; // vertex below v
-                            // if x_above and x_below should be already connected
-                            //assert( hedi::has_edge( x_l, x_u, g ) );
-                            //assert( hedi::has_edge( x_u, x_l, g ) );
+                            
+                            // find x-neighbors
+                            Vertex x_u, x_l;
+                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x) , xi); 
                             
                             // these original edges will eventually be deleted!
                             Edge xe_lu = hedi::edge( x_l, x_u, g);
                             Edge xe_ul = hedi::edge( x_u, x_l, g);
                             Edge xe_lu_next = g[xe_lu].next;
-                            Edge xe_lu_prev = g[xe_lu].prev; // hedi::previous_edge( xe_lu, g );
+                            Edge xe_lu_prev = g[xe_lu].prev; 
                             Edge xe_ul_next = g[xe_ul].next;
-                            Edge xe_ul_prev = g[xe_ul].prev; // hedi::previous_edge( xe_ul, g );
+                            Edge xe_ul_prev = g[xe_ul].prev; 
                             
-                            // now do the same thing in the y-direction.
-                            VertexPair v_pair_y( v , v_position.y );
-                            VertexPairIterator y_tmp = yi.intersections2.lower_bound( v_pair_y );
-                            //assert(y_tmp != yi.intersections2.end() );
-                            VertexPairIterator y_above = y_tmp;
-                            VertexPairIterator y_below = --y_tmp;
-                            Vertex y_u = y_above->first;
-                            Vertex y_l = y_below->first;
-                            //std::cout << " search for Y-neigbors to " << v << "("<< v_position.y << ") \n";
-                            //std::cout << " y-above is " << y_above->first << " at " << y_above->second << "\n";
-                            //std::cout << " y-below is " << y_below->first << " at " << y_below->second << "\n";
-
+                            // find y-neighbors
+                            Vertex y_u, y_l;
+                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y) , yi); 
+                            
                             // the next/prev data we need
-                            Edge ye_lu_next ;
-                            Edge ye_lu_prev ;
-                            Edge ye_ul_next ;
-                            Edge ye_ul_prev ;
-                            Edge ye_lu;
-                            Edge ye_ul;
+                            Edge ye_lu, ye_ul;
+                            Edge ye_lu_next, ye_lu_prev ;
+                            Edge ye_ul_next, ye_ul_prev ;
+             
                             bool y_lu_edge = hedi::has_edge( y_l, y_u, g ); // flag indicating existing y_l - y_u edge 
                             // the case where y_l and y_u are alread already connected.
                             if ( y_lu_edge ) {
@@ -250,12 +247,53 @@ void Weave::build() {
                 } // end if(potential intersection)
             } // end y fiber loop
         } // x interval loop
-       
     } // end X-fiber loop
-     
+}
+
+std::vector< std::vector<Point> > Weave::getLoops() const {
+    std::vector< std::vector<Point> > loop_list;
+    BOOST_FOREACH( std::vector<Vertex> loop, loops ) {
+        std::vector<Point> point_list;
+        BOOST_FOREACH( Vertex v, loop ) {
+            point_list.push_back( g[v].position );
+        }
+        loop_list.push_back(point_list);
+    }
+    return loop_list;
+}
+
+
+// this can cause a build error when both face and vertex descriptors have the same type
+// i.e. unsigned int (?)
+// operator[] below "g[*itr].type" then looks for FaceProps.type which does not exist...
+void Weave::printGraph() const {
+    std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
+    std::cout << " number of edges: " << boost::num_edges( g ) << "\n";
+    VertexItr it_begin, it_end, itr;
+    boost::tie( it_begin, it_end ) = boost::vertices( g );
+    int n=0, n_cl=0, n_internal=0;
+    for ( itr=it_begin ; itr != it_end ; ++itr ) {
+        if ( g[*itr].type == CL )
+            ++n_cl;
+        else
+            ++n_internal;
+        ++n;
+    }
+    std::cout << " counted " << n << " vertices\n";
+    std::cout << "          CL-nodes: " << n_cl << "\n";
+    std::cout << "    internal-nodes: " << n_internal << "\n";
 }
         
- 
+// string representation
+std::string Weave::str() const {
+    std::ostringstream o;
+    o << "Weave2\n";
+    o << "  " << xfibers.size() << " X-fibers\n";
+    o << "  " << yfibers.size() << " Y-fibers\n";
+    return o.str();
+}
+        
+
 } // end weave2 namespace
 
 } // end ocl namespace

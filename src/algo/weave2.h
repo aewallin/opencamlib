@@ -99,59 +99,30 @@ class Weave {
         /// from the list of fibers, build a graph
         void build();
         
-        /// add vertex to weave
-        /// sets position, type, and inserts the VertexPair into Interval::intersections
-        Vertex add_vertex( Point& position, VertexType type, Interval& interv, double ipos);
+
 
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
         
         /// retrun list of loops
-        std::vector< std::vector<Point> > getLoops() const {
-            std::vector< std::vector<Point> > loop_list;
-            BOOST_FOREACH( std::vector<Vertex> loop, loops ) {
-                std::vector<Point> point_list;
-                BOOST_FOREACH( Vertex v, loop ) {
-                    point_list.push_back( g[v].position );
-                }
-                loop_list.push_back(point_list);
-            }
-            return loop_list;
-        }
+        std::vector< std::vector<Point> > getLoops() const;
         
         /// string representation
-        std::string str() const {
-            std::ostringstream o;
-            o << "Weave2\n";
-            o << "  " << xfibers.size() << " X-fibers\n";
-            o << "  " << yfibers.size() << " Y-fibers\n";
-            return o.str();
-        }
+        std::string str() const;
         
         /// print out information about the graph
+        void printGraph() const;
         
-        // this can cause a build error when both face and vertex descriptors have the same type
-        // i.e. unsigned int (?)
-        // operator[] below "g[*itr].type" then looks for FaceProps.type which does not exist...
-        void printGraph() const {
-            std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
-            std::cout << " number of edges: " << boost::num_edges( g ) << "\n";
-            VertexItr it_begin, it_end, itr;
-            boost::tie( it_begin, it_end ) = boost::vertices( g );
-            int n=0, n_cl=0, n_internal=0;
-            for ( itr=it_begin ; itr != it_end ; ++itr ) {
-                if ( g[*itr].type == CL )
-                    ++n_cl;
-                else
-                    ++n_internal;
-                ++n;
-            }
-            std::cout << " counted " << n << " vertices\n";
-            std::cout << "          CL-nodes: " << n_cl << "\n";
-            std::cout << "    internal-nodes: " << n_internal << "\n";
-        }
+    protected:       
+    
+        /// add CL vertex to weave
+        /// sets position, type, and inserts the VertexPair into Interval::intersections
+        /// also adds the CL-vertex to clVertices, a list of cl-verts to be processed during face_traverse()
+        Vertex add_cl_vertex( Point& position, Interval& interv, double ipos);
         
-    protected:        
+        
+        std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
+         
 // DATA
         /// the weave-graph
         WeaveGraph g;
