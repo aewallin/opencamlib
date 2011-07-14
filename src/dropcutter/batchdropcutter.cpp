@@ -91,7 +91,6 @@ void BatchDropCutter::dropCutter2() {
     nCalls = 0;
     std::list<Triangle> *triangles_under_cutter;
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
-        triangles_under_cutter->clear();
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             cutter->dropCutter(cl,t);
@@ -113,7 +112,6 @@ void BatchDropCutter::dropCutter3() {
     boost::progress_display show_progress( clpoints->size() );
     std::list<Triangle> *triangles_under_cutter;
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
-        triangles_under_cutter->clear();
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
         BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
             if (cutter->overlaps(cl,t)) {
