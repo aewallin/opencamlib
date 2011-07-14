@@ -24,8 +24,8 @@
 #include <iostream>
 #include <list>
 
-#include "bbox.h"
-#include "cylcutter.h"
+#include "bbox.hpp"
+#include "cylcutter.hpp"
 
 namespace ocl
 {

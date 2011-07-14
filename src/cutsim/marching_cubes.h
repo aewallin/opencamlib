@@ -26,11 +26,11 @@
 
 #include <boost/foreach.hpp>
 
-#include "point.h"
-#include "triangle.h"
-#include "bbox.h"
+#include "point.hpp"
+#include "triangle.hpp"
+#include "bbox.hpp"
 #include "octnode.h"
-#include "numeric.h"
+#include "numeric.hpp"
 
 namespace ocl
 {

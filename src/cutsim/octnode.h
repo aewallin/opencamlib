@@ -25,10 +25,10 @@
 #include <list>
 #include <set>
 
-#include "point.h"
+#include "point.hpp"
 #include "volume.h"
-#include "triangle.h"
-#include "bbox.h"
+#include "triangle.hpp"
+#include "bbox.hpp"
 
 namespace ocl
 {

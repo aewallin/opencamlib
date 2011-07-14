@@ -28,9 +28,9 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#include "point.h"
-#include "triangle.h"
-#include "bbox.h"
+#include "point.hpp"
+#include "triangle.hpp"
+#include "bbox.hpp"
 #include "gldata.h"
 #include "marching_cubes.h"
 

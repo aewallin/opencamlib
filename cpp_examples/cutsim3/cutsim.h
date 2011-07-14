@@ -33,15 +33,14 @@
 #include <boost/timer.hpp>
 
 
-#include <opencamlib/point.h>
-#include <opencamlib/triangle.h>
-#include <opencamlib/numeric.h>
+#include <opencamlib/point.hpp>
+#include <opencamlib/triangle.hpp>
+#include <opencamlib/numeric.hpp>
+
 #include <opencamlib/octree.h>
 #include <opencamlib/octnode.h>
-
 #include <opencamlib/volume.h>
 #include <opencamlib/marching_cubes.h>
-
 #include <opencamlib/gldata.h>
 
 /// a Cutsim stores an Octree stock model, uses an iso-surface extraction

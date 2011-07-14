@@ -23,12 +23,12 @@
 // uncomment to disable assert() calls
 // #define NDEBUG
 
-#include "point.h"
-#include "triangle.h"
-#include "millingcutter.h"
-#include "cylcutter.h"
+#include "point.hpp"
+#include "triangle.hpp"
+#include "millingcutter.hpp"
+#include "cylcutter.hpp"
 
-#include "numeric.h"
+#include "numeric.hpp"
 #include "volume.h"
 
 namespace ocl

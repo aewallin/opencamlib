@@ -26,9 +26,9 @@
 
 #include <boost/foreach.hpp>
 
-#include "point.h"
-#include "triangle.h"
-#include "numeric.h"
+#include "point.hpp"
+#include "triangle.hpp"
+#include "numeric.hpp"
 #include "octnode.h"
 #include "volume.h"
 
