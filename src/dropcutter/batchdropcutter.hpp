@@ -27,7 +27,7 @@
 
 #include "clpoint.h"
 #include "millingcutter.h"
-#include "kdtree.h"
+#include "kdtree.hpp"
 #include "operation.hpp"
 
 namespace ocl

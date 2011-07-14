@@ -27,7 +27,7 @@
 
 #include "point.h"
 #include "fiber.hpp"
-#include "kdtree.h"
+#include "kdtree.hpp"
 #include "operation.hpp"
 
 namespace ocl

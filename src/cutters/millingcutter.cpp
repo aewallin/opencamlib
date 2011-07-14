@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 
 #include "millingcutter.h"
-#include "numeric.h"
+#include "numeric.hpp"
 
 namespace ocl
 {

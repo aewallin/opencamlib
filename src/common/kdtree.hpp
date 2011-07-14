@@ -26,7 +26,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "kdnode.h"
+#include "kdnode.hpp"
 #include "bbox.h"
 #include "millingcutter.h"
 #include "clpoint.h"

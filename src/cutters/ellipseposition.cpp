@@ -27,7 +27,7 @@
 #include "point.h"
 #include "ellipseposition.h"
 #include "ellipse.h"
-#include "numeric.h"
+#include "numeric.hpp"
 namespace ocl
 {
 

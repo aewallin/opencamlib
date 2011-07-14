@@ -25,8 +25,8 @@
 
 #include "point.h"
 #include "ellipse.h"
-#include "numeric.h"
-#include "brent_zero.h"
+#include "numeric.hpp"
+#include "brent_zero.hpp"
 #include "fiber.hpp"
 
 namespace ocl

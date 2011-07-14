@@ -19,7 +19,7 @@
 */
 
 #include "compositecutter.h"
-#include "numeric.h"
+#include "numeric.hpp"
 #include "cylcutter.h"
 #include "ballcutter.h"
 #include "bullcutter.h"

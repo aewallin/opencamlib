@@ -75,12 +75,7 @@ execute_process(
 )
 include_directories(${Python_Includes})
 
-# run get_revision.py which generates revision.h needed by ocl.revision()
-MESSAGE(STATUS "running get_revision.py to generate revision.h")
-execute_process(
-     # we pass the SRC directory as a parameter to the python script
-     COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/get_revision.py ${CMAKE_CURRENT_SOURCE_DIR}
-)
+
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
@@ -203,9 +198,7 @@ set( OCL_CUTSIM_SRC
         
 )
 
-set( OCL_INCLUDE_FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/revision.h
-    
+set( OCL_INCLUDE_FILES  
     ${OpenCamLib_SOURCE_DIR}/geo/arc.h
     ${OpenCamLib_SOURCE_DIR}/geo/bbox.h
     ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.h
@@ -226,12 +219,10 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
     ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.h
     
-    ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.h
-    ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.h
-    ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.h
-    ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.h
-    
-    
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
     
     ${OpenCamLib_SOURCE_DIR}/common/brent_zero.h
     ${OpenCamLib_SOURCE_DIR}/common/kdnode.h
@@ -250,6 +241,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
     
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_graph.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp
@@ -258,7 +250,7 @@ set( OCL_INCLUDE_FILES
 
     
     
-    ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
+    
 )
 
 set( OCL_CUTSIM_INCLUDE_FILES

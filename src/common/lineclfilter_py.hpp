@@ -1,6 +1,6 @@
 /*  $Id$
  * 
- *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+ *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -18,31 +18,30 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef LINE_CL_FILTER_H
-#define LINE_CL_FILTER_H
+#ifndef LINE_CL_FILTER_PY_H
+#define LINE_CL_FILTER_PY_H
 
-#include "clfilter.h"
+#include <boost/python.hpp>
+
+#include "lineclfilter.hpp"
 
 namespace ocl
 {  
-
-/// LineCLFilter takes a sequence of cutter-location (CL) points
-/// as input and produces another sequence as output.
-///
-/// The number of CL-points is reduced by finding co-linear points, 
-/// to within a set tolerance, and deleting redundant ones.
-///
-class LineCLFilter : public CLFilter  { 
+/// python wrapper for lineclfilter
+class LineCLFilter_py : public LineCLFilter {
     public:
-        LineCLFilter();
-        ~LineCLFilter(){}; 
-        void addCLPoint(const CLPoint& p); 
-        void setTolerance(const double tol);
-        void run();
+        LineCLFilter_py() : LineCLFilter() {};
+        /// return a list of CL-points to python
+        boost::python::list getCLPoints() {
+            // return points to python
+            boost::python::list plist;
+            BOOST_FOREACH(CLPoint p, clpoints) {
+                plist.append(p);
+            }
+            return plist;
+        };
 };
-
-
 
 } // end namespace
 #endif
-// end file lineclfilter.h
+// end file lineclfilter_py.h

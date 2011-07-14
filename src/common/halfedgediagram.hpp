@@ -27,7 +27,8 @@
 #include <boost/foreach.hpp> 
 
 #include "point.h"
-#include "numeric.h"
+#include "numeric.hpp"
+
 namespace ocl
 {
     

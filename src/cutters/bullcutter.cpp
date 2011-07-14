@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 
 #include "bullcutter.h"
-#include "numeric.h"
+#include "numeric.hpp"
 #include "ellipse.h"
 
 namespace ocl

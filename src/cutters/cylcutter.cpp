@@ -22,7 +22,7 @@
 
 #include "cylcutter.h"
 #include "bullcutter.h" // for offsetCutter()
-#include "numeric.h"
+#include "numeric.hpp"
 
 namespace ocl
 {

@@ -26,8 +26,8 @@
 //#include "weave_py.h"           
 #include "waterline_py.hpp"      
 #include "adaptivewaterline_py.hpp"  
-#include "lineclfilter_py.h"    
-#include "numeric.h"
+#include "lineclfilter_py.hpp"    
+#include "numeric.hpp"
 
 #include "zigzag.hpp"
 #ifndef WIN32

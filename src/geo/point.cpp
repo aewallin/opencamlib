@@ -24,7 +24,7 @@
 
 #include "point.h"
 #include "triangle.h"
-#include "numeric.h"
+#include "numeric.hpp"
 
 namespace ocl
 {

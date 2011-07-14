@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "millingcutter.h"
-#include "numeric.h"
+#include "numeric.hpp"
 
 namespace ocl
 {

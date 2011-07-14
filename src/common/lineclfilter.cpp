@@ -18,7 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "lineclfilter.h"
+#include "lineclfilter.hpp"
 #include "point.h"
 #include "clpoint.h"
 
