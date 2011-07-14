@@ -89,7 +89,7 @@ void BatchDropCutter::dropCutter2() {
             " cl-points and " << surf->tris.size() << " triangles.\n";
     std::cout.flush();
     nCalls = 0;
-    std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
+    std::list<Triangle> *triangles_under_cutter;
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
@@ -97,8 +97,9 @@ void BatchDropCutter::dropCutter2() {
             cutter->dropCutter(cl,t);
             ++nCalls;
         }
+        delete triangles_under_cutter;
     }
-    delete triangles_under_cutter;
+    
     std::cout << "done. " << nCalls << " dropCutter() calls.\n";
     std::cout.flush();
     return;
@@ -110,7 +111,7 @@ void BatchDropCutter::dropCutter3() {
             " cl-points and " << surf->tris.size() << " triangles.\n";
     nCalls = 0;
     boost::progress_display show_progress( clpoints->size() );
-    std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
+    std::list<Triangle> *triangles_under_cutter;
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter->clear();
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
@@ -123,8 +124,9 @@ void BatchDropCutter::dropCutter3() {
             }
         }
         ++show_progress;
+        delete triangles_under_cutter;
     }
-    delete triangles_under_cutter;
+    
     std::cout << "done. " << nCalls << " dropCutter() calls.\n";
     return;
 }

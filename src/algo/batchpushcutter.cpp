@@ -103,7 +103,6 @@ void BatchPushCutter::pushCutter2() {
     std::list<Triangle>* overlap_triangles;
     boost::progress_display show_progress( fibers->size() );
     BOOST_FOREACH(Fiber& f, *fibers) {
-        overlap_triangles=new std::list<Triangle>();
         CLPoint cl;
         if (x_direction) {
             cl.x = 0;
@@ -162,7 +161,6 @@ void BatchPushCutter::pushCutter3() {
                 std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
         }
 #endif  
-        tris = new std::list<Triangle>();
         CLPoint cl;
         if ( x_direction ) {
             cl.x=0;
@@ -182,6 +180,7 @@ void BatchPushCutter::pushCutter3() {
                 cutter->pushCutter(fiberr[n],*i,*it);  
                 fiberr[n].addInterval(*i); 
                 ++calls;
+                delete i;
             //}
         }
         delete( tris );

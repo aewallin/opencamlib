@@ -117,6 +117,9 @@ void AdaptiveWaterline::adaptive_sampling_run() {
     std::cout << " YFiber adaptive sample \n";
     yfiber_adaptive_sample( linespan, 0.0, 1.0, ystart_f, ystop_f);
     
+    delete line;
+    delete linespan;
+    
 }
 
 
