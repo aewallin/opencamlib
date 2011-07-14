@@ -25,7 +25,7 @@
 #include <string>
 #include <list>
 
-#include "batchdropcutter.h"
+#include "batchdropcutter.hpp"
 #include "path.h"
 #include "operation.hpp"
 

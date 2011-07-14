@@ -20,9 +20,9 @@
 
 #include <boost/python.hpp>
 
-#include "batchdropcutter_py.h" 
-#include "pathdropcutter_py.h"  
-#include "adaptivepathdropcutter_py.h"  
+#include "batchdropcutter_py.hpp" 
+#include "pathdropcutter_py.hpp"  
+#include "adaptivepathdropcutter_py.hpp"  
 
 
 /*

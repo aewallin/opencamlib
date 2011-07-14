@@ -22,8 +22,8 @@
 
 #include "millingcutter.h"
 #include "clpoint.h"
-#include "pointdropcutter.h"
-#include "adaptivepathdropcutter.h"
+#include "pointdropcutter.hpp"
+#include "adaptivepathdropcutter.hpp"
 
 namespace ocl
 {

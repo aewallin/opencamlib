@@ -18,31 +18,43 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef PATHDROPCUTTER_PY_H
-#define PATHDROPCUTTER_PY_H
+#ifndef BDC_PY_H
+#define BDC_PY_H
 
-#include <boost/python.hpp> // py
-#include <boost/foreach.hpp> // py
+#include <boost/python.hpp> 
+#include <boost/foreach.hpp> 
 
-#include "pathdropcutter.h"
+#include "batchdropcutter.hpp"
 
 namespace ocl
 {
 
-/// Python wrapper for PathDropCutter
-class PathDropCutter_py : public PathDropCutter {
+/// Python wrapper for BatchDropCutter
+class BatchDropCutter_py : public BatchDropCutter {
     public:
-        PathDropCutter_py() : PathDropCutter() {};
-        /// return a list of CL-points to python
+        BatchDropCutter_py() : BatchDropCutter() {};
+        /// return CL-points to Python
         boost::python::list getCLPoints_py() {
             boost::python::list plist;
-            BOOST_FOREACH(CLPoint p, clpoints) {
+            BOOST_FOREACH(CLPoint p, *clpoints) {
                 plist.append(p);
             }
             return plist;
         };
+        /// return triangles under cutter to Python. Not for CAM-algorithms, 
+        /// more for visualization and demonstration.
+        boost::python::list getTrianglesUnderCutter(CLPoint& cl, MillingCutter& cutter) {
+            boost::python::list trilist;
+            std::list<Triangle> *triangles_under_cutter = new std::list<Triangle>();
+            triangles_under_cutter = root->search_cutter_overlap( &cutter , &cl);
+            BOOST_FOREACH(Triangle t, *triangles_under_cutter) {
+                trilist.append(t);
+            }
+            delete triangles_under_cutter;
+            return trilist;
+        };
 };
 
 } // end namespace
+
 #endif
-// end file pathdropcutter_py.h

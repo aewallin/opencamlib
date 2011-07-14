@@ -27,8 +27,8 @@
 
 #include <boost/foreach.hpp>
 
-#include "pathdropcutter.h"
-#include "pointdropcutter.h"
+#include "pathdropcutter.hpp"
+#include "pointdropcutter.hpp"
 #include "path.h"
 #include "clpoint.h"
 

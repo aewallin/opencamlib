@@ -23,7 +23,7 @@
 
 #include <boost/python.hpp>
 
-#include "adaptivepathdropcutter.h"
+#include "adaptivepathdropcutter.hpp"
 
 namespace ocl
 {

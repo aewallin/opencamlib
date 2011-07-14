@@ -27,7 +27,7 @@
 
 #include "point.h"
 #include "triangle.h"
-#include "pointdropcutter.h"
+#include "pointdropcutter.hpp"
 
 
 namespace ocl
@@ -81,4 +81,4 @@ void PointDropCutter::pointDropCutter1(CLPoint& clp) {
 }
 
 }// end namespace
-// end file batchdropcutter.cpp
+// end file pointdropcutter.cpp

@@ -22,7 +22,7 @@
 
 #include "millingcutter.h"
 #include "clpoint.h"
-#include "pathdropcutter.h"
+#include "pathdropcutter.hpp"
 
 namespace ocl
 {
