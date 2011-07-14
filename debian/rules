@@ -25,7 +25,6 @@ build: build-stamp
 build-stamp: configure-stamp  
 	dh_testdir
 	$(MAKE) -j4 -C src all
-	$(MAKE) -j4 -C src doc
 	touch $@
 
 
