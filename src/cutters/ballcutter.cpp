@@ -20,7 +20,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "ballcutter.h"
+#include "ballcutter.hpp"
 
 namespace ocl
 {

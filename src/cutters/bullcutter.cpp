@@ -20,9 +20,9 @@
 
 #include <boost/foreach.hpp>
 
-#include "bullcutter.h"
+#include "bullcutter.hpp"
 #include "numeric.hpp"
-#include "ellipse.h"
+//#include "ellipse.hpp"
 
 namespace ocl
 {

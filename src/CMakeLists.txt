@@ -210,26 +210,26 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/geo/triangle.h
     ${OpenCamLib_SOURCE_DIR}/geo/point.h
     
-    ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.h
-    ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.h
+    ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.hpp
     
     ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
     ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
     ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
     ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
     
-    ${OpenCamLib_SOURCE_DIR}/common/brent_zero.h
-    ${OpenCamLib_SOURCE_DIR}/common/kdnode.h
-    ${OpenCamLib_SOURCE_DIR}/common/kdtree.h
-    ${OpenCamLib_SOURCE_DIR}/common/numeric.h
-    ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.h
-    ${OpenCamLib_SOURCE_DIR}/common/clfilter.h
+    ${OpenCamLib_SOURCE_DIR}/common/brent_zero.hpp
+    ${OpenCamLib_SOURCE_DIR}/common/kdnode.hpp
+    ${OpenCamLib_SOURCE_DIR}/common/kdtree.hpp
+    ${OpenCamLib_SOURCE_DIR}/common/numeric.hpp
+    ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.hpp
+    ${OpenCamLib_SOURCE_DIR}/common/clfilter.hpp
     ${OpenCamLib_SOURCE_DIR}/common/halfedgediagram.hpp
     
     ${OpenCamLib_SOURCE_DIR}/algo/operation.hpp

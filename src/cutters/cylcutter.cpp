@@ -20,8 +20,8 @@
 
 #include <boost/foreach.hpp>
 
-#include "cylcutter.h"
-#include "bullcutter.h" // for offsetCutter()
+#include "cylcutter.hpp"
+#include "bullcutter.hpp" // for offsetCutter()
 #include "numeric.hpp"
 
 namespace ocl

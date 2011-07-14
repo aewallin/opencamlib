@@ -28,7 +28,7 @@
 
 #include "kdnode.hpp"
 #include "bbox.h"
-#include "millingcutter.h"
+#include "millingcutter.hpp"
 #include "clpoint.h"
 
 namespace ocl

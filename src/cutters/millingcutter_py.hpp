@@ -23,7 +23,7 @@
 
 #include <boost/python.hpp>
 
-#include "millingcutter.h"
+#include "millingcutter.hpp"
 
 namespace ocl
 {

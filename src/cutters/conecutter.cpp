@@ -20,8 +20,8 @@
 
 #include <boost/foreach.hpp>
 
-#include "conecutter.h"
-#include "compositecutter.h" // for offsetCutter()
+#include "conecutter.hpp"
+#include "compositecutter.hpp" // for offsetCutter()
 #include "numeric.hpp"
 
 namespace ocl

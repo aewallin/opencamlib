@@ -28,7 +28,7 @@
     #include <omp.h>
 #endif
 
-#include "millingcutter.h"
+#include "millingcutter.hpp"
 #include "point.h"
 #include "triangle.h"
 #include "line.h"

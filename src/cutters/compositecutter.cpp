@@ -18,12 +18,12 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "compositecutter.h"
+#include "compositecutter.hpp"
 #include "numeric.hpp"
-#include "cylcutter.h"
-#include "ballcutter.h"
-#include "bullcutter.h"
-#include "conecutter.h"
+#include "cylcutter.hpp"
+#include "ballcutter.hpp"
+#include "bullcutter.hpp"
+#include "conecutter.hpp"
 
 namespace ocl
 {

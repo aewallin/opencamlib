@@ -25,8 +25,8 @@
 #include "clpoint.h"            // no python
 #include "triangle_py.h"        // new-style python wrapper-class
 #include "stlsurf_py.h"         // new-style wrapper
-#include "ellipse.h"           // no python
-#include "ellipseposition.h"
+#include "ellipse.hpp"           // no python
+#include "ellipseposition.hpp"
 #include "bbox.h"               // no python
 #include "path_py.h"            // new-style wrapper
 #include "stlreader.h"          // no python

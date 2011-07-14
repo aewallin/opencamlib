@@ -25,8 +25,8 @@
 #include <cassert>
 
 #include "point.h"
-#include "ellipseposition.h"
-#include "ellipse.h"
+#include "ellipseposition.hpp"
+#include "ellipse.hpp"
 #include "numeric.hpp"
 namespace ocl
 {

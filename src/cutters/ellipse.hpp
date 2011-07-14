@@ -23,7 +23,7 @@
 
 #include <list>
 #include "point.h"
-#include "ellipseposition.h"
+#include "ellipseposition.hpp"
 
 namespace ocl
 {

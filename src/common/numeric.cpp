@@ -18,11 +18,11 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <iostream>
 #include <cmath> // for fabs()
 #include <cassert>
 
-
-#include "ellipse.h"
+#include "point.h"
 
 #define OCL_REV_STRING "OpenCamLib github/master"
 

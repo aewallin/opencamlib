@@ -18,40 +18,45 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BALL_CUTTER_H
-#define BALL_CUTTER_H
+#ifndef BULL_CUTTER_H
+#define BULL_CUTTER_H
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "millingcutter.h"
-#include "numeric.hpp"
+#include "millingcutter.hpp"
+#include "ellipse.hpp"
 
 namespace ocl
 {
 
-/// \brief Ball or Spherical MillingCutter (ball-nose endmill)
+/// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
 ///
-class BallCutter : public MillingCutter {
+/// defined by the cutter diameter and by the corner radius
+///
+class BullCutter : public MillingCutter {
     public:
-        BallCutter();
-        /// create a BallCutter with diameter d (radius d/2) and length l
-        explicit BallCutter(double d, double l);
-        /// offset of Ball is Ball
-        MillingCutter* offsetCutter(double d) const {return  new BallCutter(diameter+2*d, length+d);}
+        BullCutter();
+        /// Create bull-cutter with diamter d, corner radius r, and length l.
+        BullCutter(double diameter, double radius, double length);
+        /// offset of Bull is Bull
+        MillingCutter* offsetCutter(double offset) const;
         /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, BallCutter c);
+        friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
         std::string str() const;
+        
     protected:
-        CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
+        
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
-        /// calculate CC-point and update Interval i
-        bool calcCCandUpdateInterval( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
-        double height(double r) const {return radius - sqrt( square(radius) - square(r) );}
-        double width(double h) const {return ( h >= radius ) ? radius : sqrt( square(radius) - square(radius-h) ); }
+        CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
+        double height(double r) const;
+        double width(double h) const; 
+        /// radius of cylindrical part of cutter
+        double radius1;
+        /// tube radius of torus
+        double radius2;
 };
 
 } // end namespace
 #endif
-// end ballcutter.h

@@ -18,44 +18,38 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BULL_CUTTER_H
-#define BULL_CUTTER_H
+#ifndef CYL_CUTTER_H
+#define CYL_CUTTER_H
 
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "millingcutter.h"
-#include "ellipse.h"
+#include "millingcutter.hpp"
+#include "bullcutter.hpp"
 
 namespace ocl
 {
 
-/// \brief Bull-nose or Toroidal MillingCutter (filleted endmill)
 ///
-/// defined by the cutter diameter and by the corner radius
+/// \brief Cylindrical MillingCutter (flat-endmill)
 ///
-class BullCutter : public MillingCutter {
+/// defined by one parameter, the cutter diameter
+class CylCutter : public MillingCutter {
     public:
-        BullCutter();
-        /// Create bull-cutter with diamter d, corner radius r, and length l.
-        BullCutter(double diameter, double radius, double length);
-        /// offset of Bull is Bull
-        MillingCutter* offsetCutter(double offset) const;
+        CylCutter();
+        /// create CylCutter with diameter d and length l
+        explicit CylCutter(double d, double l);
+        /// offset of Cylinder is BullCutter
+        MillingCutter* offsetCutter(double d) const {return new BullCutter(diameter+2*d, d, length+d);}
         /// string repr
-        friend std::ostream& operator<<(std::ostream &stream, BullCutter c);
+        friend std::ostream& operator<<(std::ostream &stream, CylCutter c);        
         std::string str() const;
-        
     protected:
-        
-        bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
+        inline bool vertexPushTriangleSlice() const {return true;}
         CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
-        double height(double r) const;
-        double width(double h) const; 
-        /// radius of cylindrical part of cutter
-        double radius1;
-        /// tube radius of torus
-        double radius2;
+        double height(double r) const {return ( r <= radius ) ? 0.0 : -1.0;}
+        double width(double h) const {return radius;} 
 };
 
 } // end namespace
