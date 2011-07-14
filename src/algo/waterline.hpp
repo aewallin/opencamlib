@@ -26,18 +26,14 @@
 #include <vector>
 
 #include "point.h"
-#include "fiber.h"
-#include "batchpushcutter.h"
-#include "operation.h"
+#include "fiber.hpp"
+#include "batchpushcutter.hpp"
+#include "operation.hpp"
 
 
 namespace ocl
 {
 
-class STLSurf;
-class KDNode2;
-class Triangle;
-class MillingCutter;
 
 /// \brief a Waterline toolpath follows the shape of the model at a constant z-height in the xy-plane
 
@@ -75,7 +71,7 @@ class Waterline : public Operation {
         /// the z-height for this Waterline
         double zh;
         /// the results of this operation, a list of loops
-        std::vector< std::vector<Point> >  loops; // change to CLPoint ?
+        std::vector< std::vector<Point> >  loops; 
         
         /// x-fibers for this operation
         std::vector<Fiber> xfibers;

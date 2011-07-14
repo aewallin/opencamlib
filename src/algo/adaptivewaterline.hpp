@@ -27,16 +27,12 @@
 
 #include <boost/foreach.hpp>
 
-#include "waterline.h"
-#include "fiber.h"
+#include "waterline.hpp"
+#include "fiber.hpp"
 
 namespace ocl
 {
 
-class STLSurf;
-class KDNode2;
-class Triangle;
-class MillingCutter;
 class Span;
 
 /// \brief a Waterline toolpath follows the shape of the model at a constant z-height in the xy-plane

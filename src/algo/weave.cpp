@@ -18,7 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "weave2.h"
+#include "weave.hpp"
 
 
 namespace ocl

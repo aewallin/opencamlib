@@ -23,8 +23,7 @@
 #include <vector>
 
 #include "point.h"
-#include "ccpoint.h"
-#include "interval.h"
+#include "interval.hpp"
 
 namespace ocl
 {
@@ -45,7 +44,6 @@ class Fiber {
         /// return true if Interval i is completely missing (no overlaps) from Fiber
         bool missing(Interval& i) const;
        
-        //void condense();  // REMOVE??
         /// t-value corresponding to Point p
         double tval(Point& p) const;
         /// Point corresponding to t-value

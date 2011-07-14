@@ -177,7 +177,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
 
-    ${OpenCamLib_SOURCE_DIR}/algo/weave2.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
     
     
 
@@ -241,15 +241,15 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/common/clfilter.h
     ${OpenCamLib_SOURCE_DIR}/common/halfedgediagram.hpp
     
-    ${OpenCamLib_SOURCE_DIR}/algo/operation.h
-    ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.h
-    ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.h
-    ${OpenCamLib_SOURCE_DIR}/algo/fiber.h
-    ${OpenCamLib_SOURCE_DIR}/algo/interval.h
-    ${OpenCamLib_SOURCE_DIR}/algo/waterline.h
-    ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.h
-    ${OpenCamLib_SOURCE_DIR}/algo/weave2.h
-    ${OpenCamLib_SOURCE_DIR}/algo/weave2_typedef.h
+    ${OpenCamLib_SOURCE_DIR}/algo/operation.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/fiber.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/interval.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/waterline.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/weave.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
     
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_graph.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp
@@ -258,7 +258,7 @@ set( OCL_INCLUDE_FILES
 
     
     
-    ${OpenCamLib_SOURCE_DIR}/algo/tsp.h
+    ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
 )
 
 set( OCL_CUTSIM_INCLUDE_FILES

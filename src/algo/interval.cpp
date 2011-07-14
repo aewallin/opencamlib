@@ -18,7 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "interval.h"
+#include "interval.hpp"
 
 namespace ocl
 {

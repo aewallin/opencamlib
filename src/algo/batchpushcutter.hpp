@@ -26,9 +26,9 @@
 #include <vector>
 
 #include "point.h"
-#include "fiber.h"
+#include "fiber.hpp"
 #include "kdtree.h"
-#include "operation.h"
+#include "operation.hpp"
 
 namespace ocl
 {

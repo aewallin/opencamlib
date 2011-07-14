@@ -23,9 +23,9 @@
 
 #include <boost/python.hpp>
 
-#include "batchpushcutter.h"
+#include "batchpushcutter.hpp"
 
-#include "fiber_py.h"
+#include "fiber_py.hpp"
 
 namespace ocl
 {

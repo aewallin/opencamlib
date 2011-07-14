@@ -20,7 +20,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "fiber.h"
+#include "fiber.hpp"
 
 namespace ocl
 {

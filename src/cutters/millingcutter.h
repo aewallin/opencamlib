@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "stlsurf.h"
-#include "fiber.h"
+#include "fiber.hpp"
 #include "point.h"
 #include "clpoint.h"
 #include "ccpoint.h"

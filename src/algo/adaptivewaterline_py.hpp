@@ -18,24 +18,23 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WATERLINE_PY_H
-#define WATERLINE_PY_H
+#ifndef ADAPTIVEWATERLINE_PY_H
+#define ADAPTIVEWATERLINE_PY_H
 
-#include <boost/python.hpp>
-#include <boost/foreach.hpp>
-
-#include "waterline.h"
+#include "adaptivewaterline.hpp"
+#include "fiber_py.hpp"
 
 namespace ocl
 {
 
-/// Python wrapper for Waterline
-class Waterline_py : public Waterline {
+/// \brief python wrapper for AdaptiveWaterline
+class AdaptiveWaterline_py : public AdaptiveWaterline {
     public:
-        Waterline_py() : Waterline() {}
-        ~Waterline_py() {
-            std::cout << "~Waterline_py()\n";
+        AdaptiveWaterline_py() : AdaptiveWaterline() {}
+        ~AdaptiveWaterline_py() {
+            std::cout << "~AdaptiveWaterline_py()\n";
         }
+        
         /// return loop as a list of lists to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;
@@ -48,27 +47,28 @@ class Waterline_py : public Waterline {
             }
             return loop_list;
         }
-        /// return a list of yfibers to python
-        boost::python::list py_getXFibers() const {
+        /// return a list of xfibers to python
+        boost::python::list getXFibers() const {
             boost::python::list flist;
-            std::vector<Fiber> xfibers = *( subOp[0]->getFibers() );
             BOOST_FOREACH( Fiber f, xfibers ) {
-                Fiber_py f2(f);
-                flist.append(f2);
+                if (!f.empty()) {
+                    Fiber_py f2(f);
+                    flist.append(f2);
+                }
             }
             return flist;
         }
         /// return a list of yfibers to python
-        boost::python::list py_getYFibers() const {
+        boost::python::list getYFibers() const {
             boost::python::list flist;
-            std::vector<Fiber> yfibers = *( subOp[1]->getFibers() );
             BOOST_FOREACH( Fiber f, yfibers ) {
-                Fiber_py f2(f);
-                flist.append(f2);
+                if (!f.empty()){
+                    Fiber_py f2(f);
+                    flist.append(f2);
+                }
             }
             return flist;
         }
-        
 };
 
 } // end namespace

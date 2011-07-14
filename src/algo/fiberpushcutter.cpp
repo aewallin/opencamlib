@@ -28,8 +28,7 @@
 #include "millingcutter.h"
 #include "point.h"
 #include "triangle.h"
-#include "fiberpushcutter.h"
-//#include "kdtree3.h"
+#include "fiberpushcutter.hpp"
 
 namespace ocl
 {

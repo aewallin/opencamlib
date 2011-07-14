@@ -27,7 +27,7 @@
 
 #include "batchdropcutter.h"
 #include "path.h"
-#include "operation.h"
+#include "operation.hpp"
 
 namespace ocl
 {

@@ -27,12 +27,9 @@
 #include "millingcutter.h"
 #include "point.h"
 #include "triangle.h"
-#include "waterline.h"
-
-
-#include "batchpushcutter.h"
-
-#include "weave2.h"
+#include "waterline.hpp"
+#include "batchpushcutter.hpp"
+#include "weave.hpp"
 
 namespace ocl
 {
@@ -55,23 +52,13 @@ Waterline::Waterline() {
 }
 
 Waterline::~Waterline() {
-    std::cout << "~Waterline()\n";
     std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
     subOp.clear();
-    /*BOOST_FOREACH( Operation* op, subOp) {
-        if ( op) {
-            std::cout << " deleting " << op << "\n";
-            delete op;
-            op = 0;
-        }
-    }*/
-    
-   // delete subOp[0];
 }
 
 
-
-// this will become the new faster version of the algorithm which uses Weave2
+// run the batchpuschutter sub-operations to get x- and y-fibers
+// pass the fibers to weave, and process the weave to get waterline-loops
 void Waterline::run() {
     this->init_fibers();
     subOp[0]->run(); // these two are independent, so could/should run in parallel
@@ -84,27 +71,26 @@ void Waterline::run() {
 }
 
 void Waterline::weave2_process() {
-    std::cout << "Weave2..." << std::flush;
-    weave2::Weave w;
+    std::cout << "Weave...\n" << std::flush;
+    weave2::Weave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
-        w.addFiber(f);
+        weave.addFiber(f);
     }
     BOOST_FOREACH( Fiber f, yfibers ) {
-        w.addFiber(f);
+        weave.addFiber(f);
     }
    
-    std::cout << "build()..." << std::flush;
-    w.build(); // build weave from fibers
+    std::cout << "Weave::build()..." << std::flush;
+    weave.build(); 
     std::cout << "done.\n";
-    std::cout << "face traverse()\n";
-    w.face_traverse();
-    std::cout << "DONE face traverse()\n";
-    std::cout << "get_loops()\n";
-    std::vector< std::vector<Point> > weave_loops = w.getLoops();
-    BOOST_FOREACH( std::vector<Point> loop, weave_loops ) {
-        this->loops.push_back( loop );
-    }
-    std::cout << "DONE get_loops()\n";   
+    
+    std::cout << "Weave::face traverse()...";
+    weave.face_traverse();
+    std::cout << "done.\n";
+
+    std::cout << "Weave::get_loops()...";
+    loops = weave.getLoops();
+    std::cout << "done.\n";   
 }
 
 

@@ -23,8 +23,8 @@
 #include <vector>
 
 #include "point.h"
-#include "fiber.h"
-#include "weave2_typedef.h"
+#include "fiber.hpp"
+#include "weave_typedef.hpp"
 #include "halfedgediagram.hpp"
 
 namespace ocl

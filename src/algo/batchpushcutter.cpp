@@ -28,8 +28,7 @@
 #include "millingcutter.h"
 #include "point.h"
 #include "triangle.h"
-#include "batchpushcutter.h"
-//#include "kdtree.h"
+#include "batchpushcutter.hpp"
 
 namespace ocl
 {
@@ -65,9 +64,9 @@ void BatchPushCutter::setSTL(const STLSurf &s) {
         std::cout << " ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
         assert(0);
     }
-    std::cout << "BPC::setSTL() root->build()\n";
+    std::cout << "BPC::setSTL() root->build()...";
     root->build(s.tris);
-    std::cout << "BPC:: root->build() done.\n";
+    std::cout << "done.\n";
 }
 
 void BatchPushCutter::appendFiber(Fiber& f) {

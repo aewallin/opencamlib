@@ -21,20 +21,20 @@
 #include <boost/python.hpp>
 
 
-#include "batchpushcutter_py.h"  
-#include "fiber_py.h"           
+#include "batchpushcutter_py.hpp"  
+#include "fiber_py.hpp"           
 //#include "weave_py.h"           
-#include "waterline_py.h"      
-#include "adaptivewaterline_py.h"  
+#include "waterline_py.hpp"      
+#include "adaptivewaterline_py.hpp"  
 #include "lineclfilter_py.h"    
 #include "numeric.h"
 
-#include "zigzag.h"
+#include "zigzag.hpp"
 #ifndef WIN32
-#include "clsurface.h"
+#include "clsurface.hpp"
 #endif
 
-#include "tsp.h" // fixme: contains python
+#include "tsp.hpp" // fixme: contains python
 
 /*
  *  Python wrapping of octree and related classes

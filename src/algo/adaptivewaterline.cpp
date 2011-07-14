@@ -34,10 +34,9 @@
 #include "line.h"
 #include "path.h"
 
-#include "adaptivewaterline.h"
-
-#include "weave2.h"
-#include "fiberpushcutter.h"
+#include "adaptivewaterline.hpp"
+#include "weave.hpp"
+#include "fiberpushcutter.hpp"
 
 
 namespace ocl
@@ -63,24 +62,13 @@ AdaptiveWaterline::AdaptiveWaterline() {
 }
 
 AdaptiveWaterline::~AdaptiveWaterline() {
-    std::cout << "~AdaptiveWaterline()\n";
+    std::cout << "~AdaptiveWaterline(): subOp.size()= " << subOp.size() <<"\n";
     subOp.clear();
-    /*
-    BOOST_FOREACH( Operation* op, subOp) {
-        if ( op)  {
-            std::cout << " deleting " << op << "\n";
-            delete op;
-            op = 0;
-        }
-    }*/
-    
-    //delete subOp[1];
-    //delete subOp[0];
 }
 
 void AdaptiveWaterline::run() {
     adaptive_sampling_run();
-    weave2_process();
+    weave2_process(); // in base-class Waterline
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {

@@ -23,7 +23,7 @@
 #include <boost/foreach.hpp>
 #include <boost/python.hpp>
 
-#include "fiber.h"
+#include "fiber.hpp"
 
 namespace ocl
 {

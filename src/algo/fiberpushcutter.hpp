@@ -26,16 +26,12 @@
 #include <vector>
 
 #include "point.h"
-#include "fiber.h"
-#include "kdtree.h"
-#include "operation.h"
+#include "fiber.hpp"
+#include "operation.hpp"
 
 namespace ocl
 {
 
-class STLSurf;
-class Triangle;
-class MillingCutter;
 
 ///
 /// \brief run push-cutter on a single input fiber

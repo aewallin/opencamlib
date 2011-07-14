@@ -27,7 +27,7 @@
 #include "ellipse.h"
 #include "numeric.h"
 #include "brent_zero.h"
-#include "fiber.h"
+#include "fiber.hpp"
 
 namespace ocl
 {
