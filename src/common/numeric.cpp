@@ -22,7 +22,7 @@
 #include <cmath> // for fabs()
 #include <cassert>
 
-#include "point.h"
+#include "point.hpp"
 
 #define OCL_REV_STRING "OpenCamLib github/master"
 

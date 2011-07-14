@@ -25,8 +25,8 @@
     #include <omp.h>
 #endif
 
-#include "point.h"
-#include "triangle.h"
+#include "point.hpp"
+#include "triangle.hpp"
 #include "pointdropcutter.hpp"
 
 

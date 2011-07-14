@@ -22,8 +22,8 @@
 
 #include <list>
 
-#include "triangle.h"
-#include "bbox.h"
+#include "triangle.hpp"
+#include "bbox.hpp"
 
 namespace ocl
 {

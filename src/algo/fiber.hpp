@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "point.h"
+#include "point.hpp"
 #include "interval.hpp"
 
 namespace ocl

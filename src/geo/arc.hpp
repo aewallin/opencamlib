@@ -20,7 +20,7 @@
 #ifndef ARC_H
 #define ARC_H
 
-#include "point.h"
+#include "point.hpp"
 #include "numeric.hpp"
 
 namespace ocl

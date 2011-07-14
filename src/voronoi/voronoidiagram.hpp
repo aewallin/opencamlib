@@ -22,7 +22,7 @@
 
 #include <queue>
 
-#include "point.h"
+#include "point.hpp"
 #include "voronoidiagram_graph.hpp"
 #include "voronoidiagram_checker.hpp"
 #include "halfedgediagram.hpp"

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "clpoint.h"
+#include "clpoint.hpp"
 
 namespace ocl
 {

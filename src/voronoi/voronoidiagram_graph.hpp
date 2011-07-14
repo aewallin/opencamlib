@@ -25,7 +25,7 @@
 
 #include <boost/graph/adjacency_list.hpp>
 
-#include "point.h"
+#include "point.hpp"
 #include "halfedgediagram.hpp"
 
 

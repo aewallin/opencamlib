@@ -25,7 +25,7 @@
 #include <stack>
 #include <queue>
 
-#include "point.h"
+#include "point.hpp"
 #include "halfedgediagram.hpp"
 
 

@@ -26,7 +26,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/foreach.hpp> 
 
-#include "point.h"
+#include "point.hpp"
 #include "numeric.hpp"
 
 namespace ocl

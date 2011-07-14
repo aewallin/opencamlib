@@ -22,8 +22,8 @@
 #include <cassert>
 #include <sstream>
 
-#include "point.h"
-#include "triangle.h"
+#include "point.hpp"
+#include "triangle.hpp"
 #include "numeric.hpp"
 
 namespace ocl

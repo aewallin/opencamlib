@@ -20,9 +20,9 @@
 
 #include <cassert>
 
-#include "bbox.h"
-#include "point.h"
-#include "triangle.h"
+#include "bbox.hpp"
+#include "point.hpp"
+#include "triangle.hpp"
 
 namespace ocl
 {

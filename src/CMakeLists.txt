@@ -199,16 +199,16 @@ set( OCL_CUTSIM_SRC
 )
 
 set( OCL_INCLUDE_FILES  
-    ${OpenCamLib_SOURCE_DIR}/geo/arc.h
-    ${OpenCamLib_SOURCE_DIR}/geo/bbox.h
-    ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.h
-    ${OpenCamLib_SOURCE_DIR}/geo/clpoint.h
-    ${OpenCamLib_SOURCE_DIR}/geo/line.h
-    ${OpenCamLib_SOURCE_DIR}/geo/path.h
-    ${OpenCamLib_SOURCE_DIR}/geo/stlreader.h
-    ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.h
-    ${OpenCamLib_SOURCE_DIR}/geo/triangle.h
-    ${OpenCamLib_SOURCE_DIR}/geo/point.h
+    ${OpenCamLib_SOURCE_DIR}/geo/arc.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/bbox.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/clpoint.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/line.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/path.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/stlreader.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/triangle.hpp
+    ${OpenCamLib_SOURCE_DIR}/geo/point.hpp
     
     ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.hpp
     ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.hpp

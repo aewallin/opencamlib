@@ -25,7 +25,7 @@
 #include <string>
 #include <list>
 
-#include "clpoint.h"
+#include "clpoint.hpp"
 
 namespace ocl
 {  

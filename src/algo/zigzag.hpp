@@ -26,7 +26,7 @@
 #include <vector>
 #include <cassert>
 
-#include "point.h"
+#include "point.hpp"
 
 namespace ocl
 {

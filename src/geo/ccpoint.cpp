@@ -20,7 +20,7 @@
 
 #include <sstream> // for str()
 
-#include "ccpoint.h"
+#include "ccpoint.hpp"
 
 namespace ocl
 {

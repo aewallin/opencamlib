@@ -24,7 +24,7 @@
 // #define NDEBUG
 #include <cassert>
 
-#include "point.h"
+#include "point.hpp"
 #include "ellipseposition.hpp"
 #include "ellipse.hpp"
 #include "numeric.hpp"

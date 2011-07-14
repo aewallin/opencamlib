@@ -24,8 +24,8 @@
 #include <cstring>
 #include <list>
 
-#include "stlreader.h"
-#include "stlsurf.h"
+#include "stlreader.hpp"
+#include "stlsurf.hpp"
 
 namespace ocl
 {

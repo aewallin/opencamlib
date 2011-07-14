@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include "point.h"
+#include "point.hpp"
 #include "fiber.hpp"
 #include "kdtree.hpp"
 #include "operation.hpp"

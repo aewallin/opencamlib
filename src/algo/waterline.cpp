@@ -25,8 +25,8 @@
 #endif
 
 #include "millingcutter.hpp"
-#include "point.h"
-#include "triangle.h"
+#include "point.hpp"
+#include "triangle.hpp"
 #include "waterline.hpp"
 #include "batchpushcutter.hpp"
 #include "weave.hpp"

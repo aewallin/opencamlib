@@ -21,7 +21,8 @@
 #define LINE_H
 
 #include <iostream>
-#include "point.h"
+
+#include "point.hpp"
 
 namespace ocl
 {

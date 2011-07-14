@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "stlsurf.h"
+#include "stlsurf.hpp"
 #include "fiber.hpp"
-#include "point.h"
-#include "clpoint.h"
-#include "ccpoint.h"
+#include "point.hpp"
+#include "clpoint.hpp"
+#include "ccpoint.hpp"
 
 namespace ocl
 {

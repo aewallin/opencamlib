@@ -25,7 +25,7 @@
 #include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
-#include "path.h"
+#include "path.hpp"
 
 
 

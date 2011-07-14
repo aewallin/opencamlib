@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "point.h"
+#include "point.hpp"
 #include "fiber.hpp"
 #include "weave_typedef.hpp"
 #include "halfedgediagram.hpp"

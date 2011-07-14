@@ -22,8 +22,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "triangle.h"
-#include "point.h"
+#include "triangle.hpp"
 #include "numeric.hpp"
 
 namespace ocl

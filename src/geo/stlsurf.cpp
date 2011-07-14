@@ -23,9 +23,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "point.h"
-#include "triangle.h"
-#include "stlsurf.h"
+#include "stlsurf.hpp"
 
 namespace ocl
 {

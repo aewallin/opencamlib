@@ -26,7 +26,7 @@
 #include <list>
 
 #include "batchdropcutter.hpp"
-#include "path.h"
+#include "path.hpp"
 #include "operation.hpp"
 
 namespace ocl

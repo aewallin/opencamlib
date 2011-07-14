@@ -21,7 +21,7 @@
 #include <boost/foreach.hpp>
 
 #include "millingcutter.hpp"
-#include "clpoint.h"
+#include "clpoint.hpp"
 #include "pointdropcutter.hpp"
 #include "adaptivepathdropcutter.hpp"
 

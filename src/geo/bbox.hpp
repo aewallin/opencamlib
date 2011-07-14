@@ -21,7 +21,7 @@
 #ifndef BBOX_H
 #define BBOX_H
 
-#include "point.h"
+#include "point.hpp"
 
 namespace ocl
 {

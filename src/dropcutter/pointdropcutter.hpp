@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-#include "clpoint.h"
+#include "clpoint.hpp"
 #include "millingcutter.hpp"
 #include "kdtree.hpp"
 #include "operation.hpp"

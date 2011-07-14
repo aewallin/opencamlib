@@ -20,16 +20,16 @@
 
 #include <boost/python.hpp>
 
-#include "point.h"              // contains no python-specific code
-#include "ccpoint.h"            // no python
-#include "clpoint.h"            // no python
-#include "triangle_py.h"        // new-style python wrapper-class
-#include "stlsurf_py.h"         // new-style wrapper
+#include "point.hpp"              // contains no python-specific code
+#include "ccpoint.hpp"            // no python
+#include "clpoint.hpp"            // no python
+#include "triangle_py.hpp"        // new-style python wrapper-class
+#include "stlsurf_py.hpp"         // new-style wrapper
 #include "ellipse.hpp"           // no python
 #include "ellipseposition.hpp"
-#include "bbox.h"               // no python
-#include "path_py.h"            // new-style wrapper
-#include "stlreader.h"          // no python
+#include "bbox.hpp"               // no python
+#include "path_py.hpp"            // new-style wrapper
+#include "stlreader.hpp"          // no python
 
 /*
  *  Python wrapping

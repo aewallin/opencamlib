@@ -22,7 +22,8 @@
 #define ELLIPSE_H
 
 #include <list>
-#include "point.h"
+
+#include "point.hpp"
 #include "ellipseposition.hpp"
 
 namespace ocl

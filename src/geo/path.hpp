@@ -22,9 +22,9 @@
 
 #include <list>
 
-#include "point.h"
-#include "line.h"
-#include "arc.h"
+#include "point.hpp"
+#include "line.hpp"
+#include "arc.hpp"
 
 namespace ocl
 {

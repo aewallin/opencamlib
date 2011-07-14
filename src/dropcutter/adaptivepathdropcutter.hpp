@@ -29,8 +29,8 @@
 
 #include "pathdropcutter.hpp"
 #include "pointdropcutter.hpp"
-#include "path.h"
-#include "clpoint.h"
+#include "path.hpp"
+#include "clpoint.hpp"
 
 namespace ocl
 {

@@ -19,7 +19,7 @@
 */
 
 #include <cmath>
-#include "arc.h"
+#include "arc.hpp"
 
 namespace ocl
 {

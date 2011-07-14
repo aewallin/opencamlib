@@ -23,9 +23,9 @@
 #include <string>
 #include <iostream>
 
-#include "point.h"
-#include "ccpoint.h"
-#include "triangle.h"
+#include "point.hpp"
+#include "ccpoint.hpp"
+#include "triangle.hpp"
 
 namespace ocl
 {

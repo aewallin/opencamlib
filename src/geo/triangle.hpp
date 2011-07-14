@@ -22,8 +22,8 @@
 
 #include <vector>
 
-#include "point.h"
-#include "bbox.h"
+#include "point.hpp"
+#include "bbox.hpp"
 
 namespace ocl
 {

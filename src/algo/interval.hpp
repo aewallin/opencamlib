@@ -22,7 +22,7 @@
 
 #include <vector>
 
-#include "ccpoint.h"
+#include "ccpoint.hpp"
 #include "weave_typedef.hpp"
 
 namespace ocl

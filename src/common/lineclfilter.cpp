@@ -19,8 +19,8 @@
 */
 
 #include "lineclfilter.hpp"
-#include "point.h"
-#include "clpoint.h"
+#include "point.hpp"
+#include "clpoint.hpp"
 
 namespace ocl
 {

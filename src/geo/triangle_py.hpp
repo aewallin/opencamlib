@@ -17,51 +17,53 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef STLSURF_PY_H
-#define STLSURF_PY_H
+#ifndef TRIANGLE_PY_H
+#define TRIANGLE_PY_H
+
+#include <sstream>
 
 #include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
-#include "stlsurf.h"
+#include "triangle.hpp"
 
 namespace ocl
 {
-    
-/// STLSurf python wrapper
-class STLSurf_py : public STLSurf {
+
+///
+/// \brief python wrapper for Triangle
+///
+class Triangle_py : public Triangle {
     public:
         /// default constructor
-        STLSurf_py() : STLSurf() {};
-        /// return list of all triangles to python
-        boost::python::list getTriangles() const {
-            boost::python::list tlist;
-            BOOST_FOREACH(Triangle t, tris) {
-                tlist.append(Triangle_py(t));
-            }
-            return tlist;
-        };
-        
-        /// return bounds in a list to python
-        boost::python::list getBounds() const {
-            boost::python::list bounds;
-            bounds.append( bb.minpt.x );
-            bounds.append( bb.maxpt.x );
-            bounds.append( bb.minpt.y );
-            bounds.append( bb.maxpt.y );
-            bounds.append( bb.minpt.z );
-            bounds.append( bb.maxpt.z );
-            return bounds;
-        };
-        
-        /// string output
+        Triangle_py() : Triangle() {};
+        /// construct from three points
+        Triangle_py( const Point& p0, 
+                     const Point& p1,
+                     const Point& p2) : Triangle(p0,p1,p2) {};
+        /// copy constructor
+        Triangle_py( const Triangle_py& t) : Triangle(t) {};
+        /// cast-down constructor
+        Triangle_py( const Triangle& t) : Triangle(t) {};
+                     
+        /// string repr
         std::string str() const {
             std::ostringstream o;
             o << *this;
             return o.str();
         };
+        
+        /// Returns a list of the vertices to Python
+        boost::python::list getPoints() const {
+            boost::python::list plist;
+            BOOST_FOREACH(Point vertex, p) {
+                plist.append(vertex);
+            }
+            return plist;
+        };
+        
 };
 
 } // end namespace
 #endif
-// end file stlsurf_py.h
+// end file triangle_py.h
