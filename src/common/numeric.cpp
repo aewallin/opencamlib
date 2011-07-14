@@ -23,7 +23,8 @@
 
 
 #include "ellipse.h"
-#include "revision.h"
+
+#define OCL_REV_STRING "OpenCamLib github/master"
 
 #ifdef WIN32
     bool isnan(double x){return false;}

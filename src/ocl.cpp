@@ -21,10 +21,6 @@
 #include <boost/python.hpp>
 #include <boost/python/docstring_options.hpp>
 
-// #include "revision.h"
-
-
-
 std::string ocl_docstring() {
     return "OpenCAMLib docstring";
 }
