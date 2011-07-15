@@ -132,9 +132,10 @@ bool ConeCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
     bool result = false;
     if ( generalFacetPush( 0, 0, 0, fib, i, t) ) // TIP
         result = true;
+                   //   normal_length, center_height, xy_normal_length, fiber, interval, triangle
     if ( generalFacetPush( 0, this->center_height, this->xy_normal_length , fib, i ,t) ) // BASE
         result = true;
-        
+
     return result;
 }
 

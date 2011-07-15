@@ -79,7 +79,7 @@ if __name__ == "__main__":
     Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = -0.72082
+    zmin = -0.22082
     zmax = 0.3115
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)

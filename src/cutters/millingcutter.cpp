@@ -209,8 +209,7 @@ bool MillingCutter::generalFacetPush(double normal_length,
     double f = -t.p[0].z - normal_length*normal.z + fib.p1.z + center_height; 
     // note: the xy_normal does not have a z-component, so omitted here.
     
-    double u;
-    double v;
+    double u, v; // u and v are coordinates of the cc-point within the triangle facet
     // a,b,e depend on the fiber:
     if ( fib.p1.y == fib.p2.y ) { // XFIBER
         a = t.p[1].y - t.p[0].y;
@@ -225,7 +224,7 @@ bool MillingCutter::generalFacetPush(double normal_length,
         // v0x + u*(v1x-v0x) + v*(v2x-v0x) + r2*nx + r1*xy_n.x = p1x + t*(p2x-p1x) 
         // =>
         // t = 1/(p2x-p1x) * ( v0x + r2*nx + r1*xy_n.x - p1x +  u*(v1x-v0x) + v*(v2x-v0x)       )
-        assert( !isZero_tol( fib.p2.x - fib.p1.x )  );
+        assert( !isZero_tol( fib.p2.x - fib.p1.x )  ); // guard against division by zero
         double tval = (1.0/( fib.p2.x - fib.p1.x )) * ( t.p[0].x + normal_length*normal.x + xy_normal_length*xy_normal.x - fib.p1.x 
                                                         + u*(t.p[1].x-t.p[0].x)+v*(t.p[2].x-t.p[0].x) );
         if ( tval < 0.0 || tval > 1.0  ) {
@@ -235,8 +234,7 @@ bool MillingCutter::generalFacetPush(double normal_length,
             std::cout << " fiber: " << fib << "\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
-        i.updateUpper( tval  , cc );
-        i.updateLower( tval  , cc );
+        i.update( tval, cc); 
         result = true;
     } else if (fib.p1.x == fib.p2.x) { // YFIBER
         a = t.p[1].x - t.p[0].x;
