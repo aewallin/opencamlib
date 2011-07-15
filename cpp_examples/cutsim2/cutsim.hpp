@@ -29,21 +29,18 @@
 #include <vector>
 #include <ctime>
 
-//#include <functional>
 #include <boost/bind.hpp>
 #include <boost/timer.hpp>
 
+#include <opencamlib/point.hpp>
+#include <opencamlib/triangle.hpp>
+#include <opencamlib/numeric.hpp>
+#include <opencamlib/octree.hpp>
+#include <opencamlib/octnode.hpp>
 
-#include <opencamlib/point.h>
-#include <opencamlib/triangle.h>
-#include <opencamlib/numeric.h>
-#include <opencamlib/octree.h>
-#include <opencamlib/octnode.h>
-
-#include <opencamlib/volume.h>
-#include <opencamlib/marching_cubes.h>
-
-#include <opencamlib/gldata.h>
+#include <opencamlib/volume.hpp>
+#include <opencamlib/marching_cubes.hpp>
+#include <opencamlib/gldata.hpp>
 
 /// a Cutsim stores an Octree stock model, uses an iso-surface extraction
 /// algorithm to generate surface triangles, and communicates with

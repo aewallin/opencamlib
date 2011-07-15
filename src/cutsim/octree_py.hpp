@@ -24,8 +24,8 @@
 #include <boost/python.hpp>
 #include <boost/foreach.hpp>
 
-#include "octree.h"
-#include "triangle_py.h"
+#include "octree.hpp"
+#include "triangle_py.hpp"
 
 namespace ocl
 {

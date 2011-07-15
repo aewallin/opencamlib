@@ -27,9 +27,9 @@
 #include "point.hpp"
 #include "triangle.hpp"
 #include "numeric.hpp"
-#include "octree.h"
-#include "octnode.h"
-#include "volume.h"
+#include "octree.hpp"
+#include "octnode.hpp"
+#include "volume.hpp"
 
 namespace ocl
 {

@@ -23,7 +23,7 @@
 
 #include <boost/python.hpp>
 
-#include "volume.h"
+#include "volume.hpp"
 
 namespace ocl
 {

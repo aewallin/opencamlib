@@ -18,7 +18,7 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "marching_cubes.h"
+#include "marching_cubes.hpp"
 
 namespace ocl
 {

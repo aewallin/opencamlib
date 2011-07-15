@@ -29,7 +29,7 @@
 #include "point.hpp"
 #include "triangle.hpp"
 #include "bbox.hpp"
-#include "octnode.h"
+#include "octnode.hpp"
 #include "numeric.hpp"
 
 namespace ocl

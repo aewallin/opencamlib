@@ -23,7 +23,7 @@
 
 #include <boost/python.hpp>
 
-#include "octnode.h"
+#include "octnode.hpp"
 
 namespace ocl
 {

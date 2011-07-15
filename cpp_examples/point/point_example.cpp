@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cmath>
 
-#include <opencamlib/point.h>
-#include <opencamlib/numeric.h>
+#include <opencamlib/point.hpp>
+#include <opencamlib/numeric.hpp>
 
 int main() {
     std::cout << ocl::revision() << "\n";

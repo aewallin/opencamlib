@@ -3,15 +3,11 @@
 #include <functional>
 #include <boost/bind.hpp>
 
-#include <opencamlib/gldata.h>
-#include <opencamlib/glwidget.h>
-// #include "glwidget.h"
-// #include "gldata.h"
-//#include "randomsource.h"
+#include <opencamlib/gldata.hpp>
+#include <opencamlib/glwidget.hpp>
 
-#include "cutsim.h"
+#include "cutsim.hpp"
 
-//int OctreeNode::count =0;
 
 int main( int argc, char **argv ) {
     QApplication app( argc, argv );

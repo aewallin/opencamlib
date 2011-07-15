@@ -25,7 +25,7 @@
 #include <QObject>
 #include <QTimer>
 
-#include "glwidget.h"
+#include "glwidget.hpp"
 
 namespace ocl
 {

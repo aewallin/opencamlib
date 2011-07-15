@@ -6,7 +6,7 @@
 #include <opencamlib/gldata.h>
 
 
-#include "cutsim.h"
+#include "cutsim.hpp"
 
 
 int main( int argc, char **argv ) {

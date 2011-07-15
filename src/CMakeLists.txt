@@ -120,7 +120,7 @@ if (BUILD_CUTSIM)
     MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
     
     set (MOC_HEADERS  # these headers need Qt MOCing
-        ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.h
+        ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.hpp
     )
     
     
@@ -160,22 +160,13 @@ set(OCL_DROPCUTTER_SRC
 )
 
 set(OCL_ALGO_SRC
-    
-    
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.cpp
-    
-   
-
     ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
-
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
-    
-    
-
 )
 
 set(OCL_VORONOI_SRC
@@ -247,20 +238,16 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.hpp
-
-    
-    
-    
 )
 
 set( OCL_CUTSIM_INCLUDE_FILES
-    ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.h
-    ${OpenCamLib_SOURCE_DIR}/cutsim/octree.h
-    ${OpenCamLib_SOURCE_DIR}/cutsim/volume.h
-    ${OpenCamLib_SOURCE_DIR}/cutsim/marching_cubes.h
-    ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.h
-    ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.h
-    ${OpenCamLib_SOURCE_DIR}/cutsim/p3.h
+    ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/octree.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/volume.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/marching_cubes.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.hpp
+    ${OpenCamLib_SOURCE_DIR}/cutsim/p3.hpp
 )
 
 # this branches into the dirs and compiles stuff there
@@ -327,10 +314,7 @@ endif (BUILD_CXX_LIB)
 if(BUILD_CUTSIM)
     qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
     add_library(cutsim SHARED 
-        # ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.cpp 
-        # ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.cpp 
         ${OCL_CUTSIM_SRC}
-        
         ${MOC_OUTFILES}
     )
     target_link_libraries(cutsim  ${OPENGL_LIBRARIES})

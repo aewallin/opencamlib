@@ -32,7 +32,7 @@
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
 
-#include "octnode.h"
+#include "octnode.hpp"
 
 namespace ocl
 {

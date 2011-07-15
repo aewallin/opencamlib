@@ -31,8 +31,8 @@
 #include "point.hpp"
 #include "triangle.hpp"
 #include "bbox.hpp"
-#include "gldata.h"
-#include "marching_cubes.h"
+#include "gldata.hpp"
+#include "marching_cubes.hpp"
 
 namespace ocl
 {

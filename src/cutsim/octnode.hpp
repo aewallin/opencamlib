@@ -26,7 +26,7 @@
 #include <set>
 
 #include "point.hpp"
-#include "volume.h"
+#include "volume.hpp"
 #include "triangle.hpp"
 #include "bbox.hpp"
 

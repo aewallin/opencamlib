@@ -37,8 +37,8 @@
 #include <set>
 #include <vector>
 
-#include "gldata.h"
-#include "p3.h"
+#include "gldata.hpp"
+#include "p3.hpp"
 
 namespace ocl
 {

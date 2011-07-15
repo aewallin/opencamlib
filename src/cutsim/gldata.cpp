@@ -23,7 +23,7 @@
 #include <set>
 #include <vector>
 
-#include "gldata.h"
+#include "gldata.hpp"
 
 namespace ocl
 {

@@ -43,7 +43,7 @@ find_library(CUTSIM_LIBRARY
 MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 MESSAGE(STATUS "CUTSIM_LIBRARY is now: " ${CUTSIM_LIBRARY})
 
-set (MOC_HEADERS cutsim.h )
+set (MOC_HEADERS cutsim.hpp )
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 
 

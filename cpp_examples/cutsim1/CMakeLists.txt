@@ -41,7 +41,7 @@ find_library(OCL_CUTSIM_LIBRARY
 )
 MESSAGE(STATUS "OCL_CUTSIM_LIBRARY is now: " ${OCL_CUTSIM_LIBRARY})
 
-set (MOC_HEADERS cutsim.h)
+set (MOC_HEADERS cutsim.hpp)
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
 
 set( OCL_TST_SRC ${${PROJECT_NAME}_SOURCE_DIR}/main.cpp )

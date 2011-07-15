@@ -29,7 +29,7 @@
 #include "cylcutter.hpp"
 
 #include "numeric.hpp"
-#include "volume.h"
+#include "volume.hpp"
 
 namespace ocl
 {
