@@ -100,7 +100,7 @@ svn propset svn:keywords 'Id' filename.cpp
 -- subversion
 -- doxygen
 -- texlive-latex-base
--- libboost1.40-all-dev
+-- libboost-all-dev
 - checkout ocl from svn
 -- instructions: http://code.google.com/p/opencamlib/source/checkout
 - in the /src directory, first run "cmake ." then "make" and then "sudo make install"
