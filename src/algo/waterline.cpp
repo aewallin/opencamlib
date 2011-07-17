@@ -93,7 +93,28 @@ void Waterline::weave2_process() {
     std::cout << "done.\n";   
 }
 
+void Waterline::weave2_process2() {
+    std::cout << "Weave...\n" << std::flush;
+    weave2::Weave weave;
+    BOOST_FOREACH( Fiber f, xfibers ) {
+        weave.addFiber(f);
+    }
+    BOOST_FOREACH( Fiber f, yfibers ) {
+        weave.addFiber(f);
+    }
+   
+    std::cout << "Weave::build()..." << std::flush;
+    weave.build2(); 
+    std::cout << "done.\n";
+    
+    std::cout << "Weave::face traverse()...";
+    weave.face_traverse();
+    std::cout << "done.\n";
 
+    std::cout << "Weave::get_loops()...";
+    loops = weave.getLoops();
+    std::cout << "done.\n";   
+}
 
 void Waterline::init_fibers() {
     std::cout << " Waterline::init_fibers()\n";

@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -69,6 +68,11 @@ AdaptiveWaterline::~AdaptiveWaterline() {
 void AdaptiveWaterline::run() {
     adaptive_sampling_run();
     weave2_process(); // in base-class Waterline
+}
+
+void AdaptiveWaterline::run2() {
+    adaptive_sampling_run();
+    weave2_process2(); // in base-class Waterline
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {
