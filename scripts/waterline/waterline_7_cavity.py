@@ -94,7 +94,7 @@ if __name__ == "__main__":
         awl.setMinSampling(minSampling)
         #wl.setThreads(5)
         t_before = time.time() 
-        awl.run2()
+        awl.run()
         t_after = time.time()
         calctime = t_after-t_before
         print " AdaptiveWaterline done in ", calctime," s"

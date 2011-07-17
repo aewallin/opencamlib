@@ -67,7 +67,7 @@ void Weave::face_traverse() {
 }
         
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
-Vertex Weave::add_cl_vertex( Point& position, Interval& ival, double ipos) {
+Vertex Weave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
     Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
     ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
     clVertices.insert(v);
@@ -144,102 +144,16 @@ void Weave::build() {
                                 yi.in_weave = true;
                             }
                             // 3) intersection point, of type INT
+                            
+                            Vertex v = boost::graph_traits<WeaveGraph>::null_vertex();
                             Point v_position( yf.p1.x, xf.p1.y , xf.p1.z );
-                            Vertex v = hedi::add_vertex( VertexProps( v_position, INT ), g);
-                            
-                            // 4) add edges 
-                            
-                            // find x-neighbors
+                            // find neighbors to v
                             Vertex x_u, x_l;
-                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x) , xi); 
-                            
-                            // these original edges will eventually be deleted!
-                            Edge xe_lu = hedi::edge( x_l, x_u, g);
-                            Edge xe_ul = hedi::edge( x_u, x_l, g);
-                            Edge xe_lu_next = g[xe_lu].next;
-                            Edge xe_lu_prev = g[xe_lu].prev; 
-                            Edge xe_ul_next = g[xe_ul].next;
-                            Edge xe_ul_prev = g[xe_ul].prev; 
-                            
-                            // find y-neighbors
+                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi );
                             Vertex y_u, y_l;
-                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y) , yi); 
+                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
                             
-                            // the next/prev data we need
-                            Edge ye_lu, ye_ul;
-                            Edge ye_lu_next, ye_lu_prev ;
-                            Edge ye_ul_next, ye_ul_prev ;
-             
-                            bool y_lu_edge = hedi::has_edge( y_l, y_u, g ); // flag indicating existing y_l - y_u edge 
-                            // the case where y_l and y_u are alread already connected.
-                            if ( y_lu_edge ) {
-                                //assert( hedi::has_edge( y_u, y_l, g ) ); // twin must also exist
-                                ye_lu = hedi::edge( y_l, y_u, g);
-                                ye_ul = hedi::edge( y_u, y_l, g);
-                                ye_lu_next = g[ye_lu].next;
-                                ye_lu_prev = g[ye_lu].prev; // hedi::previous_edge( ye_lu, g );
-                                ye_ul_next = g[ye_ul].next;
-                                ye_ul_prev = g[ye_ul].prev; // hedi::previous_edge( ye_ul, g );
-                            } 
-                            // and now eight new edges to add
-                            Edge xl_v = hedi::add_edge(x_l, v  , g);
-                            Edge v_yl = hedi::add_edge(v  , y_l, g);
-                            Edge yl_v = hedi::add_edge(y_l, v  , g);
-                            Edge v_xu = hedi::add_edge(v  , x_u, g);
-                            Edge xu_v = hedi::add_edge(x_u, v  , g);
-                            Edge v_yu = hedi::add_edge(v  , y_u, g);
-                            Edge yu_v = hedi::add_edge(y_u, v  , g);
-                            Edge v_xl = hedi::add_edge(v  , x_l, g);
-                            // checks for special cases:
-                            if (xe_lu_prev == xe_ul) // xl hairpin
-                                xe_lu_prev = v_xl;
-                            if (xe_lu_next == xe_ul) // xu hairpin
-                                xe_lu_next = xu_v;
-                            if (xe_ul_prev == xe_lu)
-                                xe_ul_prev = v_xu;
-                            if (xe_ul_next == xe_lu)
-                                xe_ul_next = xl_v;
-                            if ( y_lu_edge ) {
-                                // the same checks for the y-edge
-                                if (ye_lu_prev == ye_ul)
-                                    ye_lu_prev = v_yl;
-                                if (ye_lu_next == ye_ul)
-                                    ye_lu_next = yu_v;
-                                if (ye_ul_prev == ye_lu)
-                                    ye_ul_prev = v_yu;
-                                if (ye_ul_next == ye_lu)
-                                    ye_ul_next = yl_v;
-                            } else { // we should form a y-hairpin
-                                ye_lu_next = yu_v;
-                                ye_lu_prev = v_yl;
-                                ye_ul_next = yl_v;
-                                ye_ul_prev = v_yu;
-                            }
-                            // now set next/prev edges (there are 2*12=24 of these to do)
-                            g[xe_lu_prev].next = xl_v;  g[xl_v].prev = xe_lu_prev;
-                            g[xl_v].next = v_yl;        g[v_yl].prev = xl_v;
-                            g[v_yl].next = ye_ul_next;  g[ye_ul_next].prev = v_yl;
-                            g[ye_lu_prev].next = yl_v;  g[yl_v].prev = ye_lu_prev;
-                            g[yl_v].next = v_xu;        g[v_xu].prev = yl_v;
-                            g[v_xu].next = xe_lu_next;  g[xe_lu_next].prev = v_xu;
-                            g[xe_ul_prev].next = xu_v;  g[xu_v].prev = xe_ul_prev;
-                            g[xu_v].next = v_yu;        g[v_yu].prev = xu_v;
-                            g[v_yu].next = ye_lu_next;  g[ye_lu_next].prev = v_yu;
-                            g[ye_ul_prev].next = yu_v;  g[yu_v].prev = ye_ul_prev;
-                            g[yu_v].next = v_xl;        g[v_xl].prev = yu_v;
-                            g[v_xl].next = xe_ul_next;  g[xe_ul_next].prev = v_xl;
-                            // delete the old edges
-                            boost::remove_edge( x_l, x_u, g);
-                            boost::remove_edge( x_u, x_l, g);
-                            if ( y_lu_edge ) {
-                                boost::remove_edge( y_l, y_u, g);
-                                boost::remove_edge( y_u, y_l, g);
-                            }
-                            
-                            // finally add new intersection vertex to the interval sets
-                            xi.intersections2.insert( VertexPair( v, v_position.x ) );
-                            yi.intersections2.insert( VertexPair( v, v_position.y ) );
-
+                            add_int_vertex(v_position,x_l,x_u,y_l,y_u,xi,yi);
                         } // end intersection case
                     } // end y interval loop
                 } // end if(potential intersection)
@@ -362,13 +276,13 @@ void Weave::build2() {
                             {
                                 add_int_vertex( v_position,
                                                 x_l, x_u, y_l, y_u,
-                                                forw_it,
+                                                *forw_it,
                                                 yi );
                             } else if( first_fullint_vertex_up ) {
                                 first_fullint_vertex_up = false;
                                 add_int_vertex( v_position,
                                                 x_l, x_u, y_l, y_u,
-                                                forw_it,
+                                                *forw_it,
                                                 yi );
                             }
                         } // end intersection-case
@@ -399,13 +313,13 @@ void Weave::build2() {
                             {
                                 add_int_vertex( v_position,
                                                 x_l, x_u, y_l, y_u,
-                                                rev_it,
+                                                *rev_it,
                                                 yi );
                             } else if( first_fullint_vertex_down ) {
                                 first_fullint_vertex_down = false;
                                 add_int_vertex( v_position,
                                                 x_l, x_u, y_l, y_u,
-                                                rev_it,
+                                                *rev_it,
                                                 yi );
                             }
                         }
@@ -420,13 +334,13 @@ void Weave::build2() {
 }
 
 // add an internal vertex to the weave
-void Weave::add_int_vertex( Point& v_position, // position of new vertex
+void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
                              Vertex& x_l, // the x-lower vertex
                              Vertex& x_u, // the x-upper vertex
                              Vertex& y_l, // y-lower
                              Vertex& y_u, // y-upper
-                             std::vector<Interval>::iterator forw_it, // the x-interval
-                             Interval& yi ) // the y-interval
+                             Interval& x_int,  // the x-interval
+                             Interval& y_int ) // the y-interval
 {
     Vertex v = hedi::add_vertex( VertexProps( v_position, INT ), g);
     Edge xe_lu = hedi::edge( x_l, x_u, g);
@@ -509,8 +423,8 @@ void Weave::add_int_vertex( Point& v_position, // position of new vertex
         boost::remove_edge( y_u, y_l, g );
     } 
     // finally add new intersection vertex to the interval sets
-    forw_it->intersections2.insert( VertexPair( v, v_position.x ) ); // x-interval
-    yi.intersections2.insert( VertexPair( v, v_position.y ) ); // y-interval
+    x_int.intersections2.insert( VertexPair( v, v_position.x ) ); // x-interval
+    y_int.intersections2.insert( VertexPair( v, v_position.y ) ); // y-interval
 }
 
 std::vector< std::vector<Point> > Weave::getLoops() const {

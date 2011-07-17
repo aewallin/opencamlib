@@ -119,16 +119,18 @@ class Weave {
         /// add CL vertex to weave
         /// sets position, type, and inserts the VertexPair into Interval::intersections
         /// also adds the CL-vertex to clVertices, a list of cl-verts to be processed during face_traverse()
-        Vertex add_cl_vertex( Point& position, Interval& interv, double ipos);
+        Vertex add_cl_vertex( const Point& position, Interval& interv, double ipos);
         
         /// add INT vertex to weave
+        /// the new vertex at v_position has neighbor vertices x_lower and x_upper in the x-direction on interval xi
+        /// and y_lower, y_upper in the y-direction of interval yi
         /// Create new edges and delete old ones
-        void add_int_vertex(    Point& v_position,
+        void add_int_vertex(    const Point& v_position,
                                 Vertex& x_l, 
                                 Vertex& x_u, 
                                 Vertex& y_l,
                                 Vertex& y_u,
-                                std::vector<Interval>::iterator forw_it,
+                                Interval& xi,
                                 Interval& yi );
 
         
