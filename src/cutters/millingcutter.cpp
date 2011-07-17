@@ -235,8 +235,7 @@ bool MillingCutter::generalFacetPush(double normal_length,
             std::cout << " fiber: " << fib << "\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
-        i.updateUpper( tval  , cc );
-        i.updateLower( tval  , cc );
+        i.update( tval, cc );
         result = true;
     } else if (fib.p1.x == fib.p2.x) { // YFIBER
         a = t.p[1].x - t.p[0].x;
