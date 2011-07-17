@@ -17,8 +17,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef WEAVE2_H
-#define WEAVE2_H
+#ifndef WEAVE_HPP
+#define WEAVE_HPP
 
 #include <vector>
 
@@ -98,6 +98,9 @@ class Weave {
         
         /// from the list of fibers, build a graph
         void build();
+        
+        /// new smarter version of build() 
+        void build2();
 
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
@@ -117,6 +120,17 @@ class Weave {
         /// sets position, type, and inserts the VertexPair into Interval::intersections
         /// also adds the CL-vertex to clVertices, a list of cl-verts to be processed during face_traverse()
         Vertex add_cl_vertex( Point& position, Interval& interv, double ipos);
+        
+        /// add INT vertex to weave
+        /// Create new edges and delete old ones
+        void add_int_vertex(    Point& v_position,
+                                Vertex& x_l, 
+                                Vertex& x_u, 
+                                Vertex& y_l,
+                                Vertex& y_u,
+                                std::vector<Interval>::iterator forw_it,
+                                Interval& yi );
+
         
         /// given a vertex in the graph, find it's upper and lower neighbor vertices
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
@@ -138,4 +152,4 @@ class Weave {
 
 } // end ocl namespace
 #endif
-// end file weave2.h
+// end file weave.hpp

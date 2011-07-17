@@ -22,13 +22,12 @@
 #include <cmath> // for fabs()
 #include <cassert>
 
+#include "numeric.hpp"
 #include "point.hpp"
 
 #define OCL_REV_STRING "OpenCamLib github/master"
 
-#ifdef WIN32
-    bool isnan(double x){return false;}
-#endif
+
 
 namespace ocl
 {

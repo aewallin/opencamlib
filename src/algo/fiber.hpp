@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -17,8 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef FIBER_H
-#define FIBER_H
+#ifndef FIBER_HPP
+#define FIBER_HPP
 
 #include <vector>
 

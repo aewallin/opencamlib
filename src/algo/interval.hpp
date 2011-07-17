@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -17,16 +16,19 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef INTERVAL_H
-#define INTERVAL_H
+#ifndef INTERVAL_HPP
+#define INTERVAL_HPP
 
 #include <vector>
 
 #include "ccpoint.hpp"
 #include "weave_typedef.hpp"
+//#include "fiber.hpp"
 
 namespace ocl
 {
+
+class Fiber;
 
 /// interval for use by fiber and weave
 /// a parameter interval [upper, lower]
@@ -66,6 +68,12 @@ class Interval {
         
         /// flag for use by Weave::build()
         bool in_weave; 
+        
+        /// last y-fiber crossing this interval
+        /// only used for an x interval
+        std::vector<Fiber>::iterator last_fiber_crossing;
+
+        
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
         weave2::VertexIntersectionSet intersections2;
