@@ -68,6 +68,8 @@ def clColor(cc):
         col = orange
     elif cc.type == ocl.CCType.EDGE_CONE:
         col = pink
+    elif cc.type == ocl.CCType.EDGE_CONE_BASE:
+        col = cyan
     elif cc.type == ocl.CCType.NONE:
         col = white  
     elif cc.type == ocl.CCType.ERROR:
