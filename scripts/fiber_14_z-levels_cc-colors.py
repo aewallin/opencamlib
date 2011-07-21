@@ -52,8 +52,9 @@ if __name__ == "__main__":
     #b = ocl.Point(1,0.5,0.0)    
     #c = ocl.Point(0.1,0.1,-2.0)
     
-    a = ocl.Point(0,1,0.3)
-    b = ocl.Point(1,0.5,0.3)    
+    ztri = 0.8
+    a = ocl.Point(0,1,ztri)
+    b = ocl.Point(1,0.5,ztri)    
     c = ocl.Point(0.2,0.2,0.1)
     
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -63,7 +64,7 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
-    angle = math.pi/4
+    angle = math.pi/3
     diameter=0.3
     length=5
     #cutter = ocl.BallCutter(diameter, length)
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     zmin = -0.22082
-    zmax = 0.3115
+    zmax = ztri
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]

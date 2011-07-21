@@ -363,15 +363,9 @@ bool MillingCutter::calcCCandUpdateInterval( double t, double u, const Point& q,
 } 
 
 bool MillingCutter::pushCutter(const Fiber& f, Interval& i, const Triangle& t) const {
-    //std::cout << " vertexPush() ";
     bool v = vertexPush(f,i,t); 
-    //std::cout << " done.\n";
-    //std::cout << " facetPush() ";
     bool fa = facetPush(f,i,t);
-    //std::cout << " done.\n";
-    //std::cout << " edgePush() ";
     bool e = edgePush(f,i,t);
-    //std::cout << " done.\n";
     return v || fa || e;
 }
 
@@ -390,11 +384,11 @@ bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
     }*/
     
     if (cl.below(t)) {
-        facet = facetDrop(cl,t);
-        if (!facet) {
+        facet = facetDrop(cl,t); // if we make contact with the facet...
+        if (!facet) {            // ...then we will not hit an edge/vertex, so don't check for that
             vertex = vertexDrop(cl,t);
             if ( cl.below(t) ) {
-                edge = edgeDrop(cl,t);
+                edge = edgeDrop(cl,t); 
             }
         }
     }

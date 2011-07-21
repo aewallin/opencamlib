@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -18,8 +17,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CONE_CUTTER_H
-#define CONE_CUTTER_H
+#ifndef CONE_CUTTER_HPP
+#define CONE_CUTTER_HPP
 
 #include <iostream>
 #include <string>
@@ -49,7 +48,7 @@ class ConeCutter : public MillingCutter {
         std::string str() const;
         
     protected:
-        CC_CLZ_Pair singleEdgeDropCanonical( const Point& u1, const Point& u2) const;
+        std::pair<double,double> singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
         
         bool facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const;
             
@@ -57,13 +56,12 @@ class ConeCutter : public MillingCutter {
         
         bool circle_CC( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
 
-        
         double height(double r) const;
         double width(double h) const;
         /// the half-angle of the cone, in radians
         double angle;
 };
 
-} // end namespace
+} // end ocl namespace
 #endif
 // end conecutter.hpp

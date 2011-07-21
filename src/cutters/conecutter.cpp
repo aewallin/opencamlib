@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -35,8 +34,10 @@ ConeCutter::ConeCutter(double d, double a, double l) {
     diameter = d;
     radius = d/2.0;
     angle = a;
+    assert( angle > 0.0 );
     length = radius/tan(angle) + l;
     center_height = radius/tan(angle);
+    assert( center_height > 0.0 );
     xy_normal_length = radius;
     normal_length = 0.0;
 }
@@ -154,12 +155,12 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
 
 
     
-    // this is where the ITO cone pierces the plane
+    // this is where the ITO cone pierces the z-plane of the fiber
     // edge-line: p1+t*(p2-p1) = zheight
     // => t = (zheight - p1)/ (p2-p1)  
     double t_tip = (f.p1.z - p1.z) / (p2.z-p1.z);
-    if (t_tip < 0.0 )
-        t_tip = 0.0;
+    //if (t_tip < 0.0 )
+    //    t_tip = 0.0;
     Point p_tip = p1 + t_tip*(p2-p1);
     assert( isZero_tol( abs(p_tip.z-f.p1.z) ) ); // p_tip should be in plane of fiber
     
@@ -167,13 +168,15 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     double t_base = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);
     Point p_base = p1 + t_base*(p2-p1);
     p_base.z = f.p1.z; // project to plane of fiber
+    assert( isZero_tol( abs(p_base.z-f.p1.z) ) );// p_base should be in plane of fiber
+    
     //std::cout << "(t0, t1) (" << t0 << " , " << t1 << ") \n";
     double L = (p_base-p_tip).xyNorm(); 
     
     if ( L <= radius ) { // this is where the ITO-slice is a circle
         // find intersection points, if any, between the fiber and the circle
         // fiber is f.p1 - f.p2
-        // circle is centered at p_base and radius
+        // circle is centered at p_base 
         double d = p_base.xyDistanceToLine(f.p1, f.p2);
         if ( d <= radius ) {
             // we know there is an intersection point.
@@ -199,16 +202,16 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
                 if ( circle_CC( t_tang, p1, p2, f, i) )
                     result = true;
             } else {
-                // two intersection points
+                // two intersection points with the base-circle
                 double x_pos = (  det*dy + sign(dy)* dx * sqrt( discr ) ) / square(dr);
                 double y_pos = ( -det*dx + abs(dy)  * sqrt( discr ) ) / square(dr); 
-                Point p_pos(x_pos+p_base.x, y_pos+p_base.y);
-                double t_pos = f.tval( p_pos );
+                Point cl_pos(x_pos+p_base.x, y_pos+p_base.y);
+                double t_pos = f.tval( cl_pos );
                 // the same with "-" sign:
                 double x_neg = (  det*dy - sign(dy) * dx * sqrt( discr ) ) / square(dr);
                 double y_neg = ( -det*dx - abs(dy)  * sqrt( discr ) ) / square(dr); 
-                Point p_neg(x_neg+p_base.x, y_neg+p_base.y);
-                double t_neg = f.tval( p_neg );
+                Point cl_neg(x_neg+p_base.x, y_neg+p_base.y);
+                double t_neg = f.tval( cl_neg );
                 if ( circle_CC( t_pos, p1, p2, f, i) ) 
                     result = true;
                 if ( circle_CC( t_neg, p1, p2, f, i) ) 
@@ -219,6 +222,8 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     } else {
         // ITO-slice is cone + half-circle        
         // lines from p_tip to tangent points
+        std::cout << " shallow case \n";
+        assert(0);
         assert( L > radius );
         // http://mathworld.wolfram.com/CircleTangentLine.html
         // circle centered at x0, y0, radius a
