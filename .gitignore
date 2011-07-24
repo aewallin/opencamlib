@@ -1,0 +1,17 @@
+# ignore objects, anywhere in the tree.
+*.o
+*.so
+*.a
+
+
+#ignore the stuff cmake creates
+CMakeFiles/
+*.cmake
+CMakeCache.txt
+*Makefile
+install_manifest.txt
+
+#ignore the Doxygen generated files
+doc/
+
+
