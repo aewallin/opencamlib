@@ -95,6 +95,7 @@ void export_geometry() {
         .value("EDGE_CYL",EDGE_CYL)
         .value("EDGE_BALL",EDGE_BALL)
         .value("EDGE_CONE",EDGE_CONE)
+        .value("EDGE_CONE_BASE",EDGE_CONE_BASE)
         .value("EDGE_HORIZ_CYL",EDGE_HORIZ_CYL)
         .value("EDGE_HORIZ_TOR",EDGE_HORIZ_TOR)
         .value("EDGE_POS",EDGE_POS)

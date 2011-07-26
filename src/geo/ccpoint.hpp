@@ -33,7 +33,7 @@ enum CCType {NONE,
              VERTEX, VERTEX_CYL, 
              EDGE, EDGE_HORIZ, EDGE_SHAFT,
              EDGE_HORIZ_CYL, EDGE_HORIZ_TOR, EDGE_BALL, 
-             EDGE_POS, EDGE_NEG,  EDGE_CYL, EDGE_CONE,
+             EDGE_POS, EDGE_NEG,  EDGE_CYL, EDGE_CONE, EDGE_CONE_BASE,
              FACET, FACET_TIP, FACET_CYL, 
              ERROR};
 

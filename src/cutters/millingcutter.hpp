@@ -38,6 +38,7 @@ class Triangle;
 class STLSurf;
 
 typedef std::pair< double, double > CC_CLZ_Pair;
+typedef std::pair< double, double > DoublePair;
 
 ///
 /// \brief MillingCutter is a base-class for all milling cutters
@@ -86,7 +87,10 @@ class MillingCutter {
         /// NOTE: should not really be used for real work, demo/debug only
         bool dropCutterSTL(CLPoint &cl, const STLSurf &s) const;
         
-        /// push cutter against triangle using vertexPush, facetPush, and edgePush
+        /// push cutter along Fiber f against Triangle t by calling vertexPush, facetPush, and edgePush
+        /// Interval i will be updated so that it contains the interval where the cutter
+        /// would violate/gouge the Triangle.
+        /// Return true if contact was made with the Triangle
         bool pushCutter(const Fiber& f, Interval& i, const Triangle& t) const;
         
         /// return a string representation of the MillingCutter
@@ -96,11 +100,13 @@ class MillingCutter {
     
     // PUSH-CUTTER
         /// push the cutter along Fiber f into contact with the vertices of Triangle t
-        /// updates Interval i with the interfering interval.
+        /// updates Interval i with the interfering/gouging interval.
         /// calls singleVertexPush() on the three vertices of Triangle t
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        // why do we need this?
         bool generalFacetPush(double normal_length,
                                      double center_height,
                                      double xy_normal_length,
@@ -108,11 +114,11 @@ class MillingCutter {
                                      Interval& i,  
                                      const Triangle& t) 
                                      const;
-                                         
+
         /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
         /// calls singleEdgePush() on all three edges of Triangle t.
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
-        
+
         /// push cutter against a single vertex p
         bool singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const;
         /// this is normally false, but true for the CylCutter
@@ -124,11 +130,22 @@ class MillingCutter {
         bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         
         /// push-cutter horizontal edge case
+        /// horizontal are much simpler than the general case.
+        /// we can consider the cutter circular with an effective radius of this->width(h)
         bool horizEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
-        /// push-cutter cylindrical shaft case
+        
+        /// push-cutter cylindrical shaft case.
+        /// This is called when the contact is above the sphere/toroid/cone shaped lower part of the cutter
         bool shaftEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
-        /// when horizEdgePush and shaftEdgePush fail we must call this general edge-push function
-        virtual bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {return false;}
+        
+        /// when horizEdgePush and shaftEdgePush fail we must call this general edge-push function.
+        /// here we do not assume that the p1-p2 edge is oriented in a special direction
+        virtual bool generalEdgePush(const Fiber& f, 
+                                     Interval& i,  
+                                     const Point& p1, 
+                                     const Point& p2) const {
+            return false;
+        }
         
         /// CCPoint calculation and interval update
         bool calcCCandUpdateInterval( double t, double ccv, const Point& q, const Point& p1, const Point& p2, 
@@ -140,7 +157,10 @@ class MillingCutter {
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         /// edge-drop in the 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis 
         /// returns x-coordinate of cc-point and cl.z as a CC_CLZ_Pair
-        virtual CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const {return CC_CLZ_Pair( 0.0, 0.0);}
+        virtual std::pair<double,double> singleEdgeDropCanonical(const Point& u1, 
+                                                                 const Point& u2) const {
+            return std::pair<double,double>(0.0,0.0); // dummy return value, better to throw an exception or assert?
+        }
     
     // HEIGHT / WIDTH
         /// return the height of the cutter at radius r. redefine in subclass.
