@@ -167,6 +167,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     // this is where the ITO cone base exits the plane
     double t_base = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);
     Point p_base = p1 + t_base*(p2-p1);
+    Point p_base_z(p_base);
     p_base.z = f.p1.z; // project to plane of fiber
     assert( isZero_tol( abs(p_base.z-f.p1.z) ) );// p_base should be in plane of fiber
     
@@ -279,14 +280,16 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
          */
 
         //Determine the distance from point 0 to point 2
-        double a = ( square(radius) - square(r_tang) + square(dist * dist) ) / (2.0 * dist);
-
+        //double a = ( square(radius) - square(r_tang) + square( dist ) ) / (2.0 * dist);
+        
+        double a = ( square(r_tang) - square(radius) + square(dist) ) / (2.0 * dist);
+        assert( a >= 0.0 );
         //Determine the coordinates of point 2
         Point v2 = p_base + (a/dist)*d;
         //( p_basex0_ + (d.X * a / dist), y0_ + (d.Y * a / dist) , f.p1.z);
 
         //Determine the distance from point 2 to either of the intersection points
-        double h = sqrt( square(radius) - square(a * a) );
+        double h = sqrt( square(radius) - square(a) );
 
         //Now determine the offsets of the intersection points from point 2
         Point ofs( -d.y * (h / dist), d.x * (h / dist) );
@@ -294,7 +297,8 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         // now we know the tangent-points
         Point tang1 = v2 + ofs;
         Point tang2 = v2 - ofs;
-        
+        assert( isZero_tol( fabs(tang1.z - f.p1.z) ) );
+        assert( isZero_tol( fabs(tang2.z - f.p1.z) ) );
         // the fiber now needs to be intersected with
         // -the base-circle (done above)
         // -line tang1-p_tip
@@ -304,19 +308,21 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         if ( xy_line_line_intersection( f.p1, f.p2, u1, tang1, p_tip, t1) ) {
             if ( (t1>0.0) && (t1<1.0) ) {
                 // now find the cc-point...
-                CCPoint cc_tmp = p_base + t1*(p_tip-p_base);
-                cc_tmp.z_projectOntoEdge(p1,p2);
+                CCPoint cc_tmp = p_base_z + t1*(p_tip-p_base_z);
+                //cc_tmp.z_projectOntoEdge(p1,p2);
                 cc_tmp.type = EDGE_CONE;
-                i.update_ifCCinEdgeAndTrue( u1, cc_tmp, p1, p2, (true) );
+                if( i.update_ifCCinEdgeAndTrue( u1, cc_tmp, p1, p2, (true) ) )
+                    result = true;
             }
         }
         double u2,t2;
         if ( xy_line_line_intersection( f.p1, f.p2, u2, tang2, p_tip, t2) ) {
             if ( (t1>0.0) && (t1<1.0) ) {
-                CCPoint cc_tmp = p_base + t2*(p_tip-p_base);
-                cc_tmp.z_projectOntoEdge(p1,p2);
+                CCPoint cc_tmp = p_base_z + t2*(p_tip-p_base_z);
+                //cc_tmp.z_projectOntoEdge(p1,p2);
                 cc_tmp.type = EDGE_CONE;
-                i.update_ifCCinEdgeAndTrue( u2, cc_tmp, p1, p2, (true) );
+                if( i.update_ifCCinEdgeAndTrue( u2, cc_tmp, p1, p2, (true) ) )
+                    result = true;
             }
         }
         
