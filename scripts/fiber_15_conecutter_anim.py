@@ -4,6 +4,7 @@ import time
 import vtk
 import datetime
 import math
+import os
 
 def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):
     inter = f.getInts()
@@ -25,37 +26,47 @@ def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):
 # ocl.CCType.EDGE_HORIZ:     col = orange
 # ocl.CCType.EDGE_SHAFT:     col = mag
 
-def yfiber(yvals,t,zh,myscreen):
+def yfiber(cutter,yvals,t,zh,myscreen):
     for y in yvals:
-        f1 = ocl.Point(-0.5,y,zh) # start point of fiber
-        f2 = ocl.Point(1.5,y,zh)  # end point of fiber
+        f1 = ocl.Point(-5.5,y,zh) # start point of fiber
+        f2 = ocl.Point(5.5,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
         cutter.pushCutter(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.red)
 
-def xfiber(xvals,t,zh,myscreen):
+def xfiber(cutter,xvals,t,zh,myscreen):
     for x in xvals:
-        f1 = ocl.Point(x,-0.5,zh) # start point of fiber
-        f2 = ocl.Point(x,1.5,zh)  # end point of fiber
+        f1 = ocl.Point(x,-5.5,zh) # start point of fiber
+        f2 = ocl.Point(x,5.5,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         i = ocl.Interval()
         cutter.pushCutter(f,i,t)
         f.addInterval(i)
         drawFiber_clpts(myscreen, f, camvtk.lblue)
 
-if __name__ == "__main__":  
+def drawScreen(a,b,c,filename,write_flag):  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    
-    ztri = 0.3 # this is the shallow case
+    z_hi = a.z
+    if b.z > z_hi:
+        z_hi = b.z
+    if c.z > z_hi:
+        z_hi = c.z
+
+    z_lo = a.z
+    if b.z < z_lo:
+        z_lo = b.z
+    if c.z < z_lo:
+        z_lo = c.z
+    #z_hi = 0.3 # this is the shallow case
     #ztri = 0.8 # this produces the steep case where we hit the circular rim
     
-    ztri_lo = 0.1
-    a = ocl.Point(0,1,ztri)
-    b = ocl.Point(1,0.5,ztri)    
-    c = ocl.Point(0.2,0.2,ztri_lo)
+    #z_lo = 0.1
+    #a = ocl.Point(0,1,ztri)
+    #b = ocl.Point(1,0.5,ztri)    
+    #c = ocl.Point(0.2,0.2,ztri_lo)
     
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
@@ -64,7 +75,7 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
-    angle = math.pi/3
+    angle = math.pi/5
     diameter=0.3
     length=5
     #cutter = ocl.BallCutter(diameter, length)
@@ -80,19 +91,19 @@ if __name__ == "__main__":
     Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = ztri_lo - 0.2
-    zmax = ztri
+    zmin = z_lo - 0.3
+    zmax = z_hi
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     for n in xrange(0,zNmax):
         zvals.append(zmin+n*dz)
     for zh in zvals:
-        yfiber(yvals,t,zh,myscreen)
-        xfiber(xvals,t,zh,myscreen)
+        yfiber(cutter,yvals,t,zh,myscreen)
+        xfiber(cutter,xvals,t,zh,myscreen)
     print "done."
-    myscreen.camera.SetPosition(-1, -1, 3)
-    myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
+    myscreen.camera.SetPosition(-2, -1, 3)
+    myscreen.camera.SetFocalPoint(1.0, 0.0, -0.5)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    
@@ -100,6 +111,30 @@ if __name__ == "__main__":
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
     lwr.SetInput( w2if.GetOutput() )
-
-    myscreen.iren.Start()
+    w2if.Modified()
+    lwr.SetFileName(filename)
+    if write_flag:
+        lwr.Write()
+        print "wrote ",filename
+    
+    #myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
+
+if __name__ == "__main__":  
+    ztri = 0.3 # this is the shallow case
+    #ztri = 0.8 # this produces the steep case where we hit the circular rim
+    ztri_lo = 0.1
+    Nmax = 300
+    thetamax = 2*math.pi
+    for n in xrange(0,Nmax):
+        theta=thetamax/Nmax
+        a = ocl.Point(0,1,ztri)
+        a.xRotate(theta*n)
+        b = ocl.Point(1,0.0,0)    
+        b.xRotate(theta*n)
+        c = ocl.Point(0.2,0.0,ztri)
+        c.xRotate(theta*n)
+        current_dir = os.getcwd()
+        filename = current_dir + "/frames/conecutter_"+ ('%05d' % n)+".png"
+        drawScreen(a,b,c,filename, 1)
+

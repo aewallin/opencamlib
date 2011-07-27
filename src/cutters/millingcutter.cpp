@@ -251,6 +251,7 @@ bool MillingCutter::generalFacetPush(double normal_length,
                                                         + u*(t.p[1].y-t.p[0].y)+v*(t.p[2].y-t.p[0].y) );
         if ( tval < 0.0 || tval > 1.0  ) {
             std::cout << "MillingCutter::facetPush() tval= " << tval << " error!?\n";
+            std::cout << " (most probably a user error, the fiber is too short compared to the STL model?)\n";
         } 
         assert( tval > 0.0 && tval < 1.0 );
         i.update( tval, cc );

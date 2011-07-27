@@ -194,29 +194,31 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             //  y = -det*dx +/- abs(dy)  * sqrt( r^2 dr^2 - det^2 )   / dr^2
             
             double discr = square(radius) * square(dr) - square(det);
-            assert( discr > 0.0 ); // this means we have an intersection
-            if ( discr == 0.0 ) { // tangent case
-                double x_tang =  ( det*dy  )/ square(dr);
-                double y_tang = -( det*dx  )/ square(dr);
-                Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
-                double t_tang = f.tval( p_tang );
-                if ( circle_CC( t_tang, p1, p2, f, i) )
-                    result = true;
-            } else {
-                // two intersection points with the base-circle
-                double x_pos = (  det*dy + sign(dy)* dx * sqrt( discr ) ) / square(dr);
-                double y_pos = ( -det*dx + abs(dy)  * sqrt( discr ) ) / square(dr); 
-                Point cl_pos(x_pos+p_base.x, y_pos+p_base.y);
-                double t_pos = f.tval( cl_pos );
-                // the same with "-" sign:
-                double x_neg = (  det*dy - sign(dy) * dx * sqrt( discr ) ) / square(dr);
-                double y_neg = ( -det*dx - abs(dy)  * sqrt( discr ) ) / square(dr); 
-                Point cl_neg(x_neg+p_base.x, y_neg+p_base.y);
-                double t_neg = f.tval( cl_neg );
-                if ( circle_CC( t_pos, p1, p2, f, i) ) 
-                    result = true;
-                if ( circle_CC( t_neg, p1, p2, f, i) ) 
-                    result = true;
+            if (discr > 0.0 ) {
+                assert( discr > 0.0 ); // this means we have an intersection
+                if ( discr == 0.0 ) { // tangent case
+                    double x_tang =  ( det*dy  )/ square(dr);
+                    double y_tang = -( det*dx  )/ square(dr);
+                    Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
+                    double t_tang = f.tval( p_tang );
+                    if ( circle_CC( t_tang, p1, p2, f, i) )
+                        result = true;
+                } else {
+                    // two intersection points with the base-circle
+                    double x_pos = (  det*dy + sign(dy)* dx * sqrt( discr ) ) / square(dr);
+                    double y_pos = ( -det*dx + abs(dy)  * sqrt( discr ) ) / square(dr); 
+                    Point cl_pos(x_pos+p_base.x, y_pos+p_base.y);
+                    double t_pos = f.tval( cl_pos );
+                    // the same with "-" sign:
+                    double x_neg = (  det*dy - sign(dy) * dx * sqrt( discr ) ) / square(dr);
+                    double y_neg = ( -det*dx - abs(dy)  * sqrt( discr ) ) / square(dr); 
+                    Point cl_neg(x_neg+p_base.x, y_neg+p_base.y);
+                    double t_neg = f.tval( cl_neg );
+                    if ( circle_CC( t_pos, p1, p2, f, i) ) 
+                        result = true;
+                    if ( circle_CC( t_neg, p1, p2, f, i) ) 
+                        result = true;
+                }
             }
         }
         
@@ -243,13 +245,6 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         // three cases: no intersection point
         //              one intersection point
         //              two intersection points
-        //static public IntersectionObject CircleToCircleIntersection(float x0_, float y0_, float r0_, 
-        //                                                    float x1_, float y1_, float r1_)
-        
-        //double a, dist, h;
-        //Vector2 d, 
-        //r = new Vector2(), 
-        //v2 = new Vector2();
 
         //d is the distance between the circle centers
         Point d = p_mid - p_base; 
@@ -321,7 +316,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         }
         double u2,t2;
         if ( xy_line_line_intersection( f.p1, f.p2, u2, tang2, p_tip, t2) ) {
-            if ( (t1>0.0) && (t1<1.0) ) {
+            if ( (t2>0.0) && (t2<1.0) ) {
                 CCPoint cc_tmp = p_base + t2*(p_tip-p_base);
                 cc_tmp.z_projectOntoEdge(p1,p2);
                 cc_tmp.type = EDGE_CONE;
