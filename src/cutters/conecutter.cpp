@@ -174,7 +174,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     //std::cout << "(t0, t1) (" << t0 << " , " << t1 << ") \n";
     double L = (p_base-p_tip).xyNorm(); 
     
-    if ( L <= radius ){ // this is where the ITO-slice is a circle
+    //if ( L <= radius ){ // this is where the ITO-slice is a circle
         // find intersection points, if any, between the fiber and the circle
         // fiber is f.p1 - f.p2
         // circle is centered at p_base 
@@ -219,8 +219,8 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
                     result = true;
             }
         }
-        //return result;
-    }
+        
+    //} // circle-case
     
     if ( L > radius ) {
         // ITO-slice is cone + "half-circle"        
@@ -236,6 +236,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         
         // tangent point at intersection of base-circle with this circle:
         Point p_mid = 0.5*( p_base + p_tip );
+        p_mid.z = f.p1.z;
         double r_tang = L/2;
         
         // circle-circle intersection to find tangent-points
@@ -255,7 +256,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         d.z = 0;
         //distance between the circles
         double dist = d.xyNorm();
-
+        
         //Check for equality and infinite intersections exist
         if ( isZero_tol( dist )  && isZero_tol( fabs(radius - r_tang) ) ) {
             return result;
@@ -280,9 +281,12 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
          */
 
         //Determine the distance from point 0 to point 2
-        //double a = ( square(radius) - square(r_tang) + square( dist ) ) / (2.0 * dist);
-        
-        double a = ( square(r_tang) - square(radius) + square(dist) ) / (2.0 * dist);
+        // law of cosines (http://en.wikipedia.org/wiki/Law_of_cosines)
+        // rt^2 = d^2 + r^2 -2*d*r*cos(gamma)
+        // so cos(gamma) = (rt^2-d^2-r^2)/ -(2*d*r)
+        // and the sought distance is
+        // a = r*cos(gamma) = (-rt^2+d^2+r^2)/ (2*d) 
+        double a = ( -square(r_tang) + square(radius) + square(dist) ) / (2.0 * dist);
         assert( a >= 0.0 );
         //Determine the coordinates of point 2
         Point v2 = p_base + (a/dist)*d;
@@ -308,8 +312,8 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         if ( xy_line_line_intersection( f.p1, f.p2, u1, tang1, p_tip, t1) ) {
             if ( (t1>0.0) && (t1<1.0) ) {
                 // now find the cc-point...
-                CCPoint cc_tmp = p_base_z + t1*(p_tip-p_base_z);
-                //cc_tmp.z_projectOntoEdge(p1,p2);
+                CCPoint cc_tmp = p_base + t1*(p_tip-p_base);
+                cc_tmp.z_projectOntoEdge(p1,p2);
                 cc_tmp.type = EDGE_CONE;
                 if( i.update_ifCCinEdgeAndTrue( u1, cc_tmp, p1, p2, (true) ) )
                     result = true;
@@ -318,8 +322,8 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         double u2,t2;
         if ( xy_line_line_intersection( f.p1, f.p2, u2, tang2, p_tip, t2) ) {
             if ( (t1>0.0) && (t1<1.0) ) {
-                CCPoint cc_tmp = p_base_z + t2*(p_tip-p_base_z);
-                //cc_tmp.z_projectOntoEdge(p1,p2);
+                CCPoint cc_tmp = p_base + t2*(p_tip-p_base);
+                cc_tmp.z_projectOntoEdge(p1,p2);
                 cc_tmp.type = EDGE_CONE;
                 if( i.update_ifCCinEdgeAndTrue( u2, cc_tmp, p1, p2, (true) ) )
                     result = true;

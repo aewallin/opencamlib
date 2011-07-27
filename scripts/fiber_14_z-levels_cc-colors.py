@@ -52,7 +52,8 @@ if __name__ == "__main__":
     #b = ocl.Point(1,0.5,0.0)    
     #c = ocl.Point(0.1,0.1,-2.0)
     
-    ztri = 0.3
+    ztri = 0.3 # this is the shallow case
+    #ztri = 0.8 # this produces the steep case where we hit the circular rim
     a = ocl.Point(0,1,ztri)
     b = ocl.Point(1,0.5,ztri)    
     c = ocl.Point(0.2,0.2,0.1)
