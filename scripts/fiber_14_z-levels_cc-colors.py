@@ -12,9 +12,10 @@ def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):
         if not i.empty():
             ip1 = f.point( i.lower )
             ip2 = f.point( i.upper )
+            ballradius = 0.002
             #myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=fibercolor) )
-            myscreen.addActor( camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z),radius=0.005, color=camvtk.clColor( i.lower_cc) ) )
-            myscreen.addActor( camvtk.Sphere(center=(ip2.x,ip2.y,ip2.z),radius=0.005, color=camvtk.clColor( i.upper_cc) ) )
+            myscreen.addActor( camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z),radius=ballradius, color=camvtk.clColor( i.lower_cc) ) )
+            myscreen.addActor( camvtk.Sphere(center=(ip2.x,ip2.y,ip2.z),radius=ballradius, color=camvtk.clColor( i.upper_cc) ) )
             #cc1 = i.lower_cc
             #cc2 = i.upper_cc
             #myscreen.addActor( camvtk.Sphere(center=(cc1.x,cc1.y,cc1.z),radius=0.005, color=camvtk.pink ) )
@@ -57,6 +58,12 @@ if __name__ == "__main__":
     b = ocl.Point(1,0.5,ztri)    
     c = ocl.Point(0.2,0.2,ztri_lo)
     
+    a = ocl.Point(0,1,0.3)
+    #myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
+    b = ocl.Point(1,0.5,0.3)    
+    #myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
+    c = ocl.Point(0,0,0)
+    
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
@@ -76,10 +83,11 @@ if __name__ == "__main__":
     print "cutter= ", cutter
     print "length=", cutter.getLength()
     print "fiber..."
-    range=2
-    Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    fiberrange=2
+    Nmax = 300
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
+    """
     zmin = ztri_lo - 0.2
     zmax = ztri
     zNmax = 20
@@ -87,7 +95,19 @@ if __name__ == "__main__":
     zvals=[]
     for n in xrange(0,zNmax):
         zvals.append(zmin+n*dz)
-    for zh in zvals:
+    """
+    
+    zheights=[]
+    Nmax=50
+    zmin=-0.45
+    zmax= 0.28
+    dz = (zmax-zmin)/float(Nmax-1)
+    z = zmin
+    for n in xrange(Nmax):
+        zheights.append(z)
+        z=z+dz
+    
+    for zh in zheights:
         yfiber(yvals,t,zh,myscreen)
         xfiber(xvals,t,zh,myscreen)
     print "done."

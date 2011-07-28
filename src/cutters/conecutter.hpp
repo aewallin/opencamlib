@@ -55,7 +55,14 @@ class ConeCutter : public MillingCutter {
         bool generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;
         
         bool circle_CC( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const;
-
+        bool cone_CC(const Point& tang, 
+                         const Point& tip, 
+                         const Point& base, 
+                         const Point& p1, 
+                         const Point& p2,
+                         const Fiber& f, 
+                         Interval& i) const; 
+                         
         double height(double r) const;
         double width(double h) const;
         /// the half-angle of the cone, in radians

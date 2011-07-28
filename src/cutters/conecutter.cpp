@@ -197,6 +197,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             if (discr > 0.0 ) {
                 assert( discr > 0.0 ); // this means we have an intersection
                 if ( discr == 0.0 ) { // tangent case
+                    std::cout << " TANGENT CASE... \n";
                     double x_tang =  ( det*dy  )/ square(dr);
                     double y_tang = -( det*dx  )/ square(dr);
                     Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
@@ -205,7 +206,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
                         result = true;
                 } else {
                     // two intersection points with the base-circle
-                    double x_pos = (  det*dy + sign(dy)* dx * sqrt( discr ) ) / square(dr);
+                    double x_pos = (  det*dy + sign(dy) * dx * sqrt( discr ) ) / square(dr);
                     double y_pos = ( -det*dx + abs(dy)  * sqrt( discr ) ) / square(dr); 
                     Point cl_pos(x_pos+p_base.x, y_pos+p_base.y);
                     double t_pos = f.tval( cl_pos );
@@ -270,10 +271,7 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
 
         // here we know we have two solutions.
         
-        /* v2 is the point where the line through the circle
-         * intersection points crosses the line between the circle
-         * centers.  
-         */
+        
 
         //Determine the distance from point 0 to point 2
         // law of cosines (http://en.wikipedia.org/wiki/Law_of_cosines)
@@ -283,8 +281,8 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         // a = r*cos(gamma) = (-rt^2+d^2+r^2)/ (2*d) 
         double a = ( -square(r_tang) + square(radius) + square(dist) ) / (2.0 * dist);
         assert( a >= 0.0 );
-        //Determine the coordinates of point 2
-        Point v2 = p_base + (a/dist)*d;
+
+        Point v2 = p_base + (a/dist)*d; // v2 is the point where the line through the circle intersection points crosses the line between the circle centers.  
         //( p_basex0_ + (d.X * a / dist), y0_ + (d.Y * a / dist) , f.p1.z);
 
         //Determine the distance from point 2 to either of the intersection points
@@ -296,47 +294,44 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         // now we know the tangent-points
         Point tang1 = v2 + ofs;
         Point tang2 = v2 - ofs;
-        assert( isZero_tol( fabs(tang1.z - f.p1.z) ) );
-        assert( isZero_tol( fabs(tang2.z - f.p1.z) ) );
-        // the fiber now needs to be intersected with
-        // -the base-circle (done above)
-        // -line tang1-p_tip
-        // -line tang2-p_tip
-        
-        double u1,t1;
-        if ( xy_line_line_intersection( f.p1, f.p2, u1, tang1, p_tip, t1) ) {
-            if ( (t1>0.0) && (t1<1.0) ) {
-                // now find the cc-point...
-                CCPoint cc_tmp = p_base + t1*(p_tip-p_base);
-                cc_tmp.z_projectOntoEdge(p1,p2);
-                cc_tmp.type = EDGE_CONE;
-                if( i.update_ifCCinEdgeAndTrue( u1, cc_tmp, p1, p2, (true) ) )
-                    result = true;
-            }
-        }
-        double u2,t2;
-        if ( xy_line_line_intersection( f.p1, f.p2, u2, tang2, p_tip, t2) ) {
-            if ( (t2>0.0) && (t2<1.0) ) {
-                CCPoint cc_tmp = p_base + t2*(p_tip-p_base);
-                cc_tmp.z_projectOntoEdge(p1,p2);
-                cc_tmp.type = EDGE_CONE;
-                if( i.update_ifCCinEdgeAndTrue( u2, cc_tmp, p1, p2, (true) ) )
-                    result = true;
-            }
-        }
-        
+
+        if ( cone_CC( tang1, p_tip, p_base, p1, p2, f, i ) ) 
+            result = true;
+        if ( cone_CC( tang2, p_tip, p_base, p1, p2, f, i ) ) 
+            result = true;
+   
     } // end circle+cone case
     
     return result;
 }
 
+// test for intersection with the fiber and a tip-tang line
+// if there is an intersection in tip-tang, calculate the cc-point and update the interval
+bool ConeCutter::cone_CC(const Point& tang, 
+                         const Point& tip, 
+                         const Point& base, 
+                         const Point& p1, 
+                         const Point& p2,
+                         const Fiber& f, 
+                         Interval& i) const {
+    double u2,t2;
+    if ( xy_line_line_intersection( f.p1, f.p2, u2, tang, tip, t2) ) {
+        if ( (t2>0.0) && (t2<1.0) ) {
+            CCPoint cc_tmp = base + t2*(tip-base);
+            cc_tmp.z_projectOntoEdge(p1,p2);
+            cc_tmp.type = EDGE_CONE;
+            return i.update_ifCCinEdgeAndTrue( u2, cc_tmp, p1, p2, (true) ) ;
+        }
+    }
+    return false;
+}
 
 // t is a position along the fiber
 // p1-p2 is the edge
 // Interval& i is updated
 bool ConeCutter::circle_CC( double t, const Point& p1, const Point& p2, const Fiber& f, Interval& i) const {
     // cone base circle is center_height above fiber
-    double t_cc = (f.p1.z+center_height - p1.z) / (p2.z-p1.z); 
+    double t_cc = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);  // t-parameter of the cc-point, center_height above fiber
     CCPoint cc_tmp = p1 + t_cc*(p2-p1); // cc-point on the edge
     cc_tmp.type = EDGE_CONE_BASE;
     return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, (true) );

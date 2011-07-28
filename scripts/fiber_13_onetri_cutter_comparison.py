@@ -113,9 +113,9 @@ if __name__ == "__main__":
     Nmax = 50
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    zmin = -0.3
+    zmin = -0.1
     zmax = 0.25
-    zNmax = 10
+    zNmax =5
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     for n in xrange(0,zNmax):
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         oneCutterWaterline(myscreen, cutter1, zh, camvtk.yellow)
         oneCutterWaterline(myscreen, cutter2, zh, camvtk.cyan)
         oneCutterWaterline(myscreen, cutter3, zh, camvtk.mag)
-        #oneCutterWaterline(myscreen, cutter4, zh, camvtk.mag)
+        oneCutterWaterline(myscreen, cutter4, zh, camvtk.mag)
         #yfiber(yvals,t,zh,myscreen)
         #xfiber(xvals,t,zh,myscreen)
     
