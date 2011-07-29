@@ -4,6 +4,7 @@ import time
 import vtk
 import datetime
 import math
+import os
 
 def calcWaterline(zh, cutter,s):
     wl = ocl.Waterline()
@@ -72,14 +73,14 @@ def drawLoops(myscreen, loops, loopColor=camvtk.yellow):
                 myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zofz),radius=0.0005, color=camvtk.pink ) )
         nloop = nloop+1
 
-if __name__ == "__main__":  
+def drawScreen(a,b,c,filename,write_flag):  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    a = ocl.Point(0,1,0.3)
+    #a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
-    b = ocl.Point(1,0.5,0.3)    
+    #b = ocl.Point(1,0.5,0.3)    
     myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
-    c = ocl.Point(-0.1,0.3,0.0)
+    #c = ocl.Point(-0.1,0.3,0.0)
     myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
@@ -101,8 +102,8 @@ if __name__ == "__main__":
         zheights.append(z)
         z=z+dz
         
-    #zheights=[]
-    zheights.append(0.20)
+    zheights=[]
+    zheights.append(-0.25)
     #zheights=[ -0.35,  -0.25,  -0.15,  -0.05, 0.05,  0.15,   0.25]
     #zheights=[ 0.1]
     
@@ -139,5 +140,36 @@ if __name__ == "__main__":
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    
-    myscreen.iren.Start()
+    
+    w2if = vtk.vtkWindowToImageFilter()
+    w2if.SetInput(myscreen.renWin)
+    lwr = vtk.vtkPNGWriter()
+    lwr.SetInput( w2if.GetOutput() )
+    w2if.Modified()
+    lwr.SetFileName(filename)
+    if write_flag:
+        lwr.Write()
+        print "wrote ",filename
+    
+    time.sleep(1)
+    #myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
+    
+    
+if __name__ == "__main__":  
+    ztri = 0.3 # this is the shallow case
+    #ztri = 0.8 # this produces the steep case where we hit the circular rim
+    ztri_lo = 0.1
+    Nmax = 300
+    ymax = 0.5
+    dy = ymax/float(Nmax)
+    current_dir = os.getcwd()
+    for n in xrange(0,Nmax):
+        a = ocl.Point(0,1,0.3)
+        b = ocl.Point(1,0.5,0.3) 
+        c = ocl.Point(-0.1,n*dy,0.0)
+        
+        filename = current_dir + "/frames/conecutter_"+ ('%05d' % n)+".png"
+        time.sleep(1)
+        drawScreen(a,b,c,filename, 1)
+        

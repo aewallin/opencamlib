@@ -59,7 +59,8 @@ class BatchPushCutter : public Operation {
 
         
         /// run push-cutter
-        void run() {this->pushCutter3();}
+        //void run() {this->pushCutter3();}
+        void run() {this->pushCutter1();}
         
         std::vector<Fiber>* getFibers() const {return fibers;}
         

@@ -41,9 +41,10 @@ CylCutter::CylCutter(double d, double l) {
     center_height = 0.0;
 }
 
-// drop-cutter vertexDrop is handled by the base-class
-// drop-cutter facetDrop is handled by the base-class
+// drop-cutter vertexDrop is handled by the base-class method in MillingCutter
+// drop-cutter facetDrop is handled by the base-class method in MillingCutter
 
+// we handle the edge-drop here.
 CC_CLZ_Pair CylCutter::singleEdgeDropCanonical(const Point& u1, const Point& u2) const {
     // along the x-axis the cc-point is at x-coord s:
     double s = sqrt( square( radius ) - square( u1.y ) );

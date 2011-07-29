@@ -194,16 +194,17 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             //  y = -det*dx +/- abs(dy)  * sqrt( r^2 dr^2 - det^2 )   / dr^2
             
             double discr = square(radius) * square(dr) - square(det);
-            if (discr > 0.0 ) {
-                assert( discr > 0.0 ); // this means we have an intersection
+            if (discr >= 0.0 ) {
                 if ( discr == 0.0 ) { // tangent case
-                    std::cout << " TANGENT CASE... \n";
+                    //std::cout << " TANGENT case " << "\n";
                     double x_tang =  ( det*dy  )/ square(dr);
                     double y_tang = -( det*dx  )/ square(dr);
                     Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
                     double t_tang = f.tval( p_tang );
-                    if ( circle_CC( t_tang, p1, p2, f, i) )
+                    if ( circle_CC( t_tang, p1, p2, f, i) ) {
                         result = true;
+                        //std::cout << " TANGENT case " << t_tang << "\n";
+                    }
                 } else {
                     // two intersection points with the base-circle
                     double x_pos = (  det*dy + sign(dy) * dx * sqrt( discr ) ) / square(dr);
@@ -215,10 +216,14 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
                     double y_neg = ( -det*dx - abs(dy)  * sqrt( discr ) ) / square(dr); 
                     Point cl_neg(x_neg+p_base.x, y_neg+p_base.y);
                     double t_neg = f.tval( cl_neg );
-                    if ( circle_CC( t_pos, p1, p2, f, i) ) 
+                    if ( circle_CC( t_pos, p1, p2, f, i) ) {
                         result = true;
-                    if ( circle_CC( t_neg, p1, p2, f, i) ) 
+                        //std::cout << " T_POS case " << t_pos << "\n";
+                    }
+                    if ( circle_CC( t_neg, p1, p2, f, i) ) {
                         result = true;
+                        //std::cout << " T_NEG case " << t_neg << "\n";
+                    }
                 }
             }
         }
@@ -248,12 +253,13 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         //              two intersection points
 
         //d is the distance between the circle centers
-        Point d = p_mid - p_base; 
-        d.z = 0;
+        Point pd = p_mid - p_base; 
+        pd.z = 0;
         //distance between the circles
-        double dist = d.xyNorm();
+        double dist = pd.xyNorm();
         
         //Check for equality and infinite intersections exist
+        /*
         if ( isZero_tol( dist )  && isZero_tol( fabs(radius - r_tang) ) ) {
             return result;
         }
@@ -268,38 +274,43 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             // (y0_ - y1_) / (r0_ + r1_) * r0_ + y1_
             return result;
         }
+        */
+        bool case1 = ( isZero_tol( dist )  && isZero_tol( fabs(radius - r_tang) ) );
+        bool case2 = (dist > (radius + r_tang) );  //no solution. circles do not intersect
+        bool case3 = ( dist < fabs(radius - r_tang));   //no solution. one circle is contained in the other
+        bool case4 = ( isZero_tol( dist - (radius+r_tang) ) );  // tangent case
+        if (case1 || case2 || case3 || case4 ) {
+            
+        } else {
+            // here we know we have two solutions.
 
-        // here we know we have two solutions.
-        
-        
+            //Determine the distance from point 0 to point 2
+            // law of cosines (http://en.wikipedia.org/wiki/Law_of_cosines)
+            // rt^2 = d^2 + r^2 -2*d*r*cos(gamma)
+            // so cos(gamma) = (rt^2-d^2-r^2)/ -(2*d*r)
+            // and the sought distance is
+            // a = r*cos(gamma) = (-rt^2+d^2+r^2)/ (2*d) 
+            double a = ( -square(r_tang) + square(radius) + square(dist) ) / (2.0 * dist);
+            assert( a >= 0.0 );
 
-        //Determine the distance from point 0 to point 2
-        // law of cosines (http://en.wikipedia.org/wiki/Law_of_cosines)
-        // rt^2 = d^2 + r^2 -2*d*r*cos(gamma)
-        // so cos(gamma) = (rt^2-d^2-r^2)/ -(2*d*r)
-        // and the sought distance is
-        // a = r*cos(gamma) = (-rt^2+d^2+r^2)/ (2*d) 
-        double a = ( -square(r_tang) + square(radius) + square(dist) ) / (2.0 * dist);
-        assert( a >= 0.0 );
+            Point v2 = p_base + (a/dist)*pd; // v2 is the point where the line through the circle intersection points crosses the line between the circle centers.  
+            //( p_basex0_ + (d.X * a / dist), y0_ + (d.Y * a / dist) , f.p1.z);
 
-        Point v2 = p_base + (a/dist)*d; // v2 is the point where the line through the circle intersection points crosses the line between the circle centers.  
-        //( p_basex0_ + (d.X * a / dist), y0_ + (d.Y * a / dist) , f.p1.z);
+            //Determine the distance from point 2 to either of the intersection points
+            double h = sqrt( square(radius) - square(a) );
 
-        //Determine the distance from point 2 to either of the intersection points
-        double h = sqrt( square(radius) - square(a) );
+            //Now determine the offsets of the intersection points from point 2
+            Point ofs( -pd.y * (h / dist), pd.x * (h / dist) );
 
-        //Now determine the offsets of the intersection points from point 2
-        Point ofs( -d.y * (h / dist), d.x * (h / dist) );
+            // now we know the tangent-points
+            Point tang1 = v2 + ofs;
+            Point tang2 = v2 - ofs;
 
-        // now we know the tangent-points
-        Point tang1 = v2 + ofs;
-        Point tang2 = v2 - ofs;
-
-        if ( cone_CC( tang1, p_tip, p_base, p1, p2, f, i ) ) 
-            result = true;
-        if ( cone_CC( tang2, p_tip, p_base, p1, p2, f, i ) ) 
-            result = true;
-   
+            if ( cone_CC( tang1, p_tip, p_base, p1, p2, f, i ) ) 
+                result = true;
+            if ( cone_CC( tang2, p_tip, p_base, p1, p2, f, i ) ) 
+                result = true;
+        }
     } // end circle+cone case
     
     return result;
@@ -314,13 +325,13 @@ bool ConeCutter::cone_CC(const Point& tang,
                          const Point& p2,
                          const Fiber& f, 
                          Interval& i) const {
-    double u2,t2;
-    if ( xy_line_line_intersection( f.p1, f.p2, u2, tang, tip, t2) ) {
-        if ( (t2>0.0) && (t2<1.0) ) {
-            CCPoint cc_tmp = base + t2*(tip-base);
+    double u,t;
+    if ( xy_line_line_intersection( f.p1, f.p2, u, tang, tip, t) ) {
+        if ( (t>=0.0) && (t<=1.0) ) {
+            CCPoint cc_tmp = base + t*(tip-base);
             cc_tmp.z_projectOntoEdge(p1,p2);
             cc_tmp.type = EDGE_CONE;
-            return i.update_ifCCinEdgeAndTrue( u2, cc_tmp, p1, p2, (true) ) ;
+            return i.update_ifCCinEdgeAndTrue( u, cc_tmp, p1, p2, (true) ) ;
         }
     }
     return false;

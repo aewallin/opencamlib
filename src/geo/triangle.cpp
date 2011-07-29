@@ -74,7 +74,7 @@ Point Triangle::upNormal() const {
     return (n.z < 0) ? -1.0* n : n; 
 }
 
-bool Triangle::zslice_verts(Point& p1, Point& p2, const double zcut) const {
+bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
     if ( (zcut <= this->bb.minpt.z) || ((zcut >= this->bb.maxpt.z)) )
         return false; // no zslice
     // find out how many vertices are below zcut

@@ -116,7 +116,7 @@ class Weave {
         /// add CL vertex to weave
         /// sets position, type, and inserts the VertexPair into Interval::intersections
         /// also adds the CL-vertex to clVertices, a list of cl-verts to be processed during face_traverse()
-        Vertex add_cl_vertex( Point& position, Interval& interv, double ipos);
+        Vertex add_cl_vertex( Point position, Interval& interv, double ipos);
         
         /// given a vertex in the graph, find it's upper and lower neighbor vertices
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);

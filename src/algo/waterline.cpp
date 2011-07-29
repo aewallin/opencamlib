@@ -60,7 +60,7 @@ Waterline::~Waterline() {
 // run the batchpuschutter sub-operations to get x- and y-fibers
 // pass the fibers to weave, and process the weave to get waterline-loops
 void Waterline::run() {
-    this->init_fibers();
+    init_fibers();
     subOp[0]->run(); // these two are independent, so could/should run in parallel
     subOp[1]->run();
     

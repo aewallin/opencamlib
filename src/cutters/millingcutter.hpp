@@ -107,7 +107,7 @@ class MillingCutter {
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         // why do we need this?
-        bool generalFacetPush(double normal_length,
+        bool generalFacetPush(       double normal_length,
                                      double center_height,
                                      double xy_normal_length,
                                      const Fiber& fib, 

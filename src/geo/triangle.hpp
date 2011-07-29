@@ -46,7 +46,7 @@ class Triangle {
         /// return true if Triangle is sliced by a z-plane at z=zcut
         /// modify p1 and p2 so that they are intesections of the triangle edges
         /// and the plane. These vertices are used by CylCutter::edgePush()
-        bool zslice_verts(Point& p1,Point& p2, const double zcut) const;
+        bool zslice_verts(Point& p1, Point& p2, double zcut) const;
         
         /// rotate triangle xrot radians around X-axis, yrot radians around Y-axis
         /// and zrot radians around Z-axis

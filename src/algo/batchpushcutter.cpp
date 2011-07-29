@@ -153,14 +153,14 @@ void BatchPushCutter::pushCutter3() {
     
     #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)
     //#pragma omp parallel for shared( calls, fiberr) private(n,i,tris,it,it_end)
-    for (n=0; n<Nmax; ++n) {
+    for (n=0; n<Nmax; ++n) { // loop through all fibers
 #ifdef _OPENMP
         if ( n== 0 ) { // first iteration
             if (omp_get_thread_num() == 0 ) 
                 std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
         }
 #endif  
-        CLPoint cl;
+        CLPoint cl; // cl-point on the fiber
         if ( x_direction ) {
             cl.x=0;
             cl.y=fiberr[n].p1.y;
@@ -172,7 +172,7 @@ void BatchPushCutter::pushCutter3() {
         }
         tris = root->search_cutter_overlap(cutter, &cl);
         it_end = tris->end();
-        for ( it=tris->begin() ; it!=it_end ; ++it) {
+        for ( it=tris->begin() ; it!=it_end ; ++it) { // loop through the found overlapping triangles
             //if ( bb->overlaps( it->bb ) ) {
                 // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
                 i = new Interval();

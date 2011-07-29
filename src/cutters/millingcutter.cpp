@@ -136,7 +136,7 @@ bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) c
 
 bool MillingCutter::singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const {
     bool result = false;
-    if ( ( p.z > f.p1.z ) && ( p.z <= (f.p1.z+ this->getLength()) ) ) { // p.z is within cutter
+    if ( ( p.z >= f.p1.z ) && ( p.z <= (f.p1.z+ this->getLength()) ) ) { // p.z is within cutter
         Point pq = p.xyClosestPoint(f.p1, f.p2); // closest point on fiber
         double q = (p-pq).xyNorm(); // distance in XY-plane from fiber to p
         double h = p.z - f.p1.z;
