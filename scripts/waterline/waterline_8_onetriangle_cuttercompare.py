@@ -6,13 +6,13 @@ import datetime
 import math
 
 def calcWaterline(zh, cutter,s):
-    wl = ocl.Waterline()
-    #wl = ocl.AdaptiveWaterline()
+    #wl = ocl.Waterline()
+    wl = ocl.AdaptiveWaterline()
     wl.setSTL(s)
     wl.setCutter(cutter)
     wl.setZ(zh)
-    wl.setSampling(0.02)
-    wl.setThreads(2)
+    wl.setSampling(0.01)
+    wl.setThreads(4)
     t_before = time.time() 
     wl.run()
     t_after = time.time()
@@ -46,7 +46,7 @@ def drawFiber(myscreen, f, fibercolor=camvtk.red):
 
 def drawLoops(myscreen, loops, loopColor=camvtk.yellow):
     nloop=0
-    zofz = 0.01
+    zofz = 0.00
     for lop in loops:
         n = 0
         N = len(lop)
@@ -64,7 +64,7 @@ def drawLoops(myscreen, loops, loopColor=camvtk.yellow):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z+zofz),p2=(p.x,p.y,p.z+zofz),color=loopColor) )
                 previous=p
             n=n+1
-        zofz = zofz +0.01
+        zofz = zofz +0.00
         print "rendered loop ",nloop, " with ", len(lop), " points at zofz=",zofz
         if len(lop)==2:
             for p in lop:
@@ -92,9 +92,9 @@ if __name__ == "__main__":
     zheights=[ -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2,  0.25, 0.28]
     
     zheights=[]
-    Nmax=20
+    Nmax=30
     zmin=-0.5
-    zmax= -0.05
+    zmax= 0.30
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
     for n in xrange(Nmax):
@@ -102,7 +102,13 @@ if __name__ == "__main__":
         z=z+dz
         
     #zheights=[]
-    zheights.append(0.20)
+    """
+    zheights.append(0.29)
+    zheights.append(0.28)
+    zheights.append(0.27)
+    zheights.append(0.26)
+    zheights.append(0.25)
+    """
     #zheights=[ -0.35,  -0.25,  -0.15,  -0.05, 0.05,  0.15,   0.25]
     #zheights=[ 0.1]
     
@@ -114,16 +120,16 @@ if __name__ == "__main__":
     cutter4 = ocl.ConeCutter( diam , math.pi/5, length )
     
     for zh in zheights:
-        #loops = calcWaterline(zh, cutter1, s)
-        #drawLoops(myscreen, loops[0], camvtk.yellow)
+        loops = calcWaterline(zh, cutter1, s)
+        drawLoops(myscreen, loops[0], camvtk.red)
         
         #loops = calcWaterline(zh, cutter2, s)
         #drawLoops(myscreen, loops[0], camvtk.green)
         #loops = calcWaterline(zh, cutter3, s)
         #drawLoops(myscreen, loops[0], camvtk.yellow)
         
-        loops = calcWaterline(zh, cutter4, s)
-        drawLoops(myscreen, loops[0], camvtk.pink)
+        #loops = calcWaterline(zh, cutter4, s)
+        #drawLoops(myscreen, loops[0], camvtk.pink)
         
         #for f in loops[1]:
         #    drawFiber(myscreen, f, camvtk.red)

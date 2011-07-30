@@ -108,10 +108,10 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter( diam , length )
     #cutter = ocl.BullCutter( diam , diam/5, length )
     #cutter = ocl.ConeCutter(diam, math.pi/3, length)
-    #cutter =  ocl.CylConeCutter(diam/3,diam,math.pi/9)
+    cutter =  ocl.CylConeCutter(diam/3,diam,math.pi/9)
     #cutter = ocl.BallConeCutter(diam/3,diam,math.pi/9)
     #cutter = ocl.BullConeCutter(diam/2, diam/10, diam, math.pi/10)
-    cutter = ocl.ConeConeCutter(diam/2,math.pi/3,diam,math.pi/6)
+    #cutter = ocl.ConeConeCutter(diam/2,math.pi/3,diam,math.pi/6)
     
     
     ptsy_all = []
@@ -149,9 +149,9 @@ if __name__ == "__main__":
     
     print "All waterlines done. Got", len(loops)," loops in total."
     # draw the loops
-    drawLoops(myscreen, loops, camvtk.yellow)
-    drawLoops(myscreen, ptsy_all, camvtk.red)
-    drawLoops(myscreen, ptsx_all, camvtk.green)
+    drawLoops(myscreen, loops, camvtk.cyan)
+    drawLoops(myscreen, ptsy_all, camvtk.pink)
+    drawLoops(myscreen, ptsx_all, camvtk.lblue)
     
     print "done."
     myscreen.camera.SetPosition(15, 13, 7)

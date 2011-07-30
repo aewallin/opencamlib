@@ -151,27 +151,18 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
     // the shaped of the pierced area is either a circle if the edge is steep
     // or a 'half-circle' + cone shape if the edge is shallow (ice-cream cone...)
     // we can now intersect this 2D shape with the fiber and get the CL-points.
-    // how to get the CC-point? (point on edge closest to z-axis of cutter? closest to CL?)
 
-
-    
     // this is where the ITO cone pierces the z-plane of the fiber
     // edge-line: p1+t*(p2-p1) = zheight
     // => t = (zheight - p1)/ (p2-p1)  
     double t_tip = (f.p1.z - p1.z) / (p2.z-p1.z);
-    //if (t_tip < 0.0 )
-    //    t_tip = 0.0;
     Point p_tip = p1 + t_tip*(p2-p1);
     assert( isZero_tol( abs(p_tip.z-f.p1.z) ) ); // p_tip should be in plane of fiber
     
     // this is where the ITO cone base exits the plane
     double t_base = (f.p1.z+center_height - p1.z) / (p2.z-p1.z);
     Point p_base = p1 + t_base*(p2-p1);
-    Point p_base_z(p_base);
     p_base.z = f.p1.z; // project to plane of fiber
-    assert( isZero_tol( abs(p_base.z-f.p1.z) ) );// p_base should be in plane of fiber
-    
-    //std::cout << "(t0, t1) (" << t0 << " , " << t1 << ") \n";
     double L = (p_base-p_tip).xyNorm(); 
     
     //if ( L <= radius ){ // this is where the ITO-slice is a circle
@@ -196,34 +187,30 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             double discr = square(radius) * square(dr) - square(det);
             if (discr >= 0.0 ) {
                 if ( discr == 0.0 ) { // tangent case
-                    //std::cout << " TANGENT case " << "\n";
                     double x_tang =  ( det*dy  )/ square(dr);
                     double y_tang = -( det*dx  )/ square(dr);
                     Point p_tang(x_tang+p_base.x, y_tang+p_base.y); // translate back from (0,0) system!
                     double t_tang = f.tval( p_tang );
                     if ( circle_CC( t_tang, p1, p2, f, i) ) {
                         result = true;
-                        //std::cout << " TANGENT case " << t_tang << "\n";
                     }
                 } else {
                     // two intersection points with the base-circle
                     double x_pos = (  det*dy + sign(dy) * dx * sqrt( discr ) ) / square(dr);
-                    double y_pos = ( -det*dx + abs(dy)  * sqrt( discr ) ) / square(dr); 
+                    double y_pos = ( -det*dx + fabs(dy)  * sqrt( discr ) ) / square(dr); 
                     Point cl_pos(x_pos+p_base.x, y_pos+p_base.y);
                     double t_pos = f.tval( cl_pos );
                     // the same with "-" sign:
                     double x_neg = (  det*dy - sign(dy) * dx * sqrt( discr ) ) / square(dr);
-                    double y_neg = ( -det*dx - abs(dy)  * sqrt( discr ) ) / square(dr); 
+                    double y_neg = ( -det*dx - fabs(dy)  * sqrt( discr ) ) / square(dr); 
                     Point cl_neg(x_neg+p_base.x, y_neg+p_base.y);
                     double t_neg = f.tval( cl_neg );
-                    if ( circle_CC( t_pos, p1, p2, f, i) ) {
+                    if ( circle_CC( t_pos, p1, p2, f, i) ) 
                         result = true;
-                        //std::cout << " T_POS case " << t_pos << "\n";
-                    }
-                    if ( circle_CC( t_neg, p1, p2, f, i) ) {
+
+                    if ( circle_CC( t_neg, p1, p2, f, i) ) 
                         result = true;
-                        //std::cout << " T_NEG case " << t_neg << "\n";
-                    }
+
                 }
             }
         }
@@ -255,26 +242,9 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
         //d is the distance between the circle centers
         Point pd = p_mid - p_base; 
         pd.z = 0;
-        //distance between the circles
-        double dist = pd.xyNorm();
+        double dist = pd.xyNorm(); //distance between the circles
         
-        //Check for equality and infinite intersections exist
-        /*
-        if ( isZero_tol( dist )  && isZero_tol( fabs(radius - r_tang) ) ) {
-            return result;
-        }
-        if (dist > (radius + r_tang) ) { //no solution. circles do not intersect
-            return result;
-        }
-        if ( dist < fabs(radius - r_tang))  { //no solution. one circle is contained in the other
-            return result;
-        }
-        if ( isZero_tol( dist - (radius+r_tang) ) ) { // tangent case
-            // (x0_ - x1_) / (r0_ + r1_) * r0_ + x1_  
-            // (y0_ - y1_) / (r0_ + r1_) * r0_ + y1_
-            return result;
-        }
-        */
+        //Check for special cases which do not lead to solutions we want
         bool case1 = ( isZero_tol( dist )  && isZero_tol( fabs(radius - r_tang) ) );
         bool case2 = (dist > (radius + r_tang) );  //no solution. circles do not intersect
         bool case3 = ( dist < fabs(radius - r_tang));   //no solution. one circle is contained in the other
@@ -294,18 +264,13 @@ bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, 
             assert( a >= 0.0 );
 
             Point v2 = p_base + (a/dist)*pd; // v2 is the point where the line through the circle intersection points crosses the line between the circle centers.  
-            //( p_basex0_ + (d.X * a / dist), y0_ + (d.Y * a / dist) , f.p1.z);
-
-            //Determine the distance from point 2 to either of the intersection points
+            //Determine the distance from v2 to either of the intersection points
             double h = sqrt( square(radius) - square(a) );
-
             //Now determine the offsets of the intersection points from point 2
             Point ofs( -pd.y * (h / dist), pd.x * (h / dist) );
-
             // now we know the tangent-points
             Point tang1 = v2 + ofs;
             Point tang2 = v2 - ofs;
-
             if ( cone_CC( tang1, p_tip, p_base, p1, p2, f, i ) ) 
                 result = true;
             if ( cone_CC( tang2, p_tip, p_base, p1, p2, f, i ) ) 

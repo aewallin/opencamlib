@@ -97,9 +97,9 @@ if __name__ == "__main__":
     """
     
     zheights=[]
-    Nmax=10
+    Nmax=30
     zmin=-0.5
-    zmax= -0.05
+    zmax= 0.3
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
     for n in xrange(Nmax):
