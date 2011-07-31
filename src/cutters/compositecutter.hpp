@@ -42,7 +42,7 @@ class CompositeCutter : public MillingCutter {
         /// add a MillingCutter to this CompositeCutter
         /// the cutter is valid from the previous radius out to the given radius
         /// and its axial offset is given by zoffset
-        void addCutter(MillingCutter& c, double radius, double zoff);
+        void addCutter(MillingCutter& c, double radius, double height, double zoff);
         
 
         
@@ -55,19 +55,27 @@ class CompositeCutter : public MillingCutter {
     protected:   
         /// convert input radius r to cutter index
         unsigned int radius_to_index(double r) const;
+        unsigned int height_to_index(double h) const;
+        
         /// return true if radius=r belongs to cutter n
         bool validRadius(unsigned int n, double r) const;
+        bool validHeight(unsigned int n, double h) const;
 
         double height(double r) const;
-        double width(double h) const {return 0.0;}
+        double width(double h) const;
         
         /// return true if cl.cc is within the radial range of cutter n
         /// for cutter n the valid radial distance from cl is
         /// between radiusvec[n-1] and radiusvec[n]
         bool ccValid(int n, CLPoint& cl) const;
              
-        /// vector that holds the radiuses of the different cutters
+        /// vector that holds the radiuses of the different cutters.
+        /// cutter[0] is valid from r=0 to  r=radiusvec[0]
+        /// cutter[1] is valid from r=radiusvec[0] to r=radiusvec[1]
+        /// etc
         std::vector<double> radiusvec; // vector of radiuses
+        
+        std::vector<double> heightvec; // vector of heights
         /// vector of the axial offsets 
         std::vector<double> zoffset; // vector of z-offset values for the cutters
         /// vector of cutters in this CompositeCutter

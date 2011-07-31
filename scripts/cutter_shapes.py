@@ -108,11 +108,13 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter( diam , length )
     #cutter = ocl.BullCutter( diam , diam/5, length )
     #cutter = ocl.ConeCutter(diam, math.pi/3, length)
-    cutter =  ocl.CylConeCutter(diam/3,diam,math.pi/9)
+    cutter =  ocl.CylConeCutter(diam/float(3),diam,math.pi/float(9))
     #cutter = ocl.BallConeCutter(diam/3,diam,math.pi/9)
     #cutter = ocl.BullConeCutter(diam/2, diam/10, diam, math.pi/10)
     #cutter = ocl.ConeConeCutter(diam/2,math.pi/3,diam,math.pi/6)
     
+    print cutter
+    raw_input("Press Enter to terminate") 
     
     ptsy_all = []
     ptsx_all = []
