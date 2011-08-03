@@ -76,6 +76,8 @@ double CompositeCutter::height(double r) const {
 // return the width of the cutter at height h. 
 double CompositeCutter::width(double h) const {
     unsigned int idx = height_to_index(h);
+    // std::cout << "CompositeCutter::width( " << h << " ) idx=" << idx << " zoffset= " << zoffset[idx] << "\n";
+    // std::cout << " width  =  " << cutter[idx]->width( h - zoffset[idx] ) << "\n";
     return cutter[idx]->width( h - zoffset[idx] );
 }
 
@@ -84,6 +86,9 @@ unsigned int CompositeCutter::height_to_index(double h) const {
         if ( validHeight(n,h) )
             return n;
     }
+    // return the last cutter if we get here...
+    return cutter.size()-1;
+
     assert(0);
     return 0;
 }
@@ -173,6 +178,17 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
+bool CompositeCutter::facetPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    // run facetPush for each cutter, retain valid results, and return union of all
+    
+    return false;
+}
+
+bool CompositeCutter::edgePush(const Fiber& f, Interval& i, const Triangle& t) const {
+    return false;
+}
+
+
 MillingCutter* CompositeCutter::offsetCutter(double d) const {
     std::cout << " ERROR: not implemented.\n";
     assert(0);
@@ -205,6 +221,7 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
     double cone_height = (diam2/2.0)/tan(angle) + cone_offset;
     addCutter( *cyl, diam1/2.0, cyl_height, 0.0 );
     addCutter( *cone, diam2/2.0, cone_height, cone_offset );
+    length = cyl_height + cone_height + 10; // Arbitrary 10 here!
 }
 
 BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {

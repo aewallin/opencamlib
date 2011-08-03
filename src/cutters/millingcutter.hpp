@@ -104,9 +104,17 @@ class MillingCutter {
         /// calls singleVertexPush() on the three vertices of Triangle t
         virtual bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         
+        /// push cutter against a single vertex p
+        bool singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const;
+        /// this is normally false, but true for the CylCutter
+        /// a special case for vertexPush
+        virtual inline bool vertexPushTriangleSlice() const {return false;}
+        
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
+        /// calls generalFacetPush()
         virtual bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
-        // why do we need this?
+        
+        /// push cutter with given normal/center/xy_length into contact with Triangle facet
         bool generalFacetPush(       double normal_length,
                                      double center_height,
                                      double xy_normal_length,
@@ -115,16 +123,11 @@ class MillingCutter {
                                      const Triangle& t) 
                                      const;
 
-        /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i
+        /// push cutter along Fiber f into contact with edges of Triangle t, update Interval i.
         /// calls singleEdgePush() on all three edges of Triangle t.
+        /// return true if a contact with an edge was found
         virtual bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
 
-        /// push cutter against a single vertex p
-        bool singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const;
-        /// this is normally false, but true for the CylCutter
-        /// a special case for vertexPush
-        virtual inline bool vertexPushTriangleSlice() const {return false;}
-        
         /// push cutter along fiber against a single edge p1-p2
         /// calls horizEdgePush(), shaftEdgePush(), and generalEdgePush()
         bool singleEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const;

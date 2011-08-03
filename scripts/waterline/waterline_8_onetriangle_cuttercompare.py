@@ -92,7 +92,7 @@ if __name__ == "__main__":
     zheights=[ -0.35, -0.3, -0.25, -0.2, -0.15, -0.1, -0.05, 0.0, 0.05, 0.1, 0.15, 0.2,  0.25, 0.28]
     
     zheights=[]
-    Nmax=30
+    Nmax=10
     zmin=-0.5
     zmax= 0.30
     dz = (zmax-zmin)/float(Nmax-1)
@@ -118,9 +118,10 @@ if __name__ == "__main__":
     cutter2 = ocl.BallCutter( diam , length )
     cutter3 = ocl.BullCutter( diam , diam/5, length )
     cutter4 = ocl.ConeCutter( diam , math.pi/5, length )
+    cutter5 =  ocl.CylConeCutter(diam/float(3),diam,math.pi/float(9))
     
     for zh in zheights:
-        loops = calcWaterline(zh, cutter1, s)
+        loops = calcWaterline(zh, cutter5, s)
         drawLoops(myscreen, loops[0], camvtk.red)
         
         #loops = calcWaterline(zh, cutter2, s)

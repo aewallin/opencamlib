@@ -83,7 +83,7 @@ if __name__ == "__main__":
     print "length=", cutter.getLength()
     print "fiber..."
     fiberrange=5
-    Nmax = 500
+    Nmax = 100
     yvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
     xvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
     """

@@ -48,11 +48,19 @@ class CompositeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(double d) const;
         
+        /// CompositeCutter can not use the base-class facetDrop, intstead we here
+        /// call facetDrop() on each cutter in turn, and pick the valid CC/CL point 
+        /// as the result for the CompositeCutter
         bool facetDrop(CLPoint &cl, const Triangle &t) const;
+        /// call edgeDrop on each cutter and pick the correct (highest valid CL-point) result
         bool edgeDrop(CLPoint &cl, const Triangle &t) const;
         
         std::string str() const;
     protected:   
+        
+        bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
+        bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
+        
         /// convert input radius r to cutter index
         unsigned int radius_to_index(double r) const;
         unsigned int height_to_index(double h) const;
@@ -74,7 +82,9 @@ class CompositeCutter : public MillingCutter {
         /// cutter[1] is valid from r=radiusvec[0] to r=radiusvec[1]
         /// etc
         std::vector<double> radiusvec; // vector of radiuses
-        
+        /// vector for cutter heights
+        /// cutter[0] is valid in h = [0, heihgtvec[0] ]
+        /// cutter[1] is valid in h = [ heightvec[0], heihgtvec[1] ]
         std::vector<double> heightvec; // vector of heights
         /// vector of the axial offsets 
         std::vector<double> zoffset; // vector of z-offset values for the cutters
