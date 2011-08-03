@@ -75,8 +75,10 @@ class CompositeCutter : public MillingCutter {
         /// return true if cl.cc is within the radial range of cutter n
         /// for cutter n the valid radial distance from cl is
         /// between radiusvec[n-1] and radiusvec[n]
-        bool ccValid(int n, CLPoint& cl) const;
-             
+        bool ccValidRadius(unsigned int n, CLPoint& cl) const;
+        
+        bool ccValidHeight(unsigned int n, CCPoint& cc, const Fiber& f) const;
+        
         /// vector that holds the radiuses of the different cutters.
         /// cutter[0] is valid from r=0 to  r=radiusvec[0]
         /// cutter[1] is valid from r=radiusvec[0] to r=radiusvec[1]

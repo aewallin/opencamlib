@@ -18,6 +18,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+// #include <boost/foreach.hpp>
+
 #include "compositecutter.hpp"
 #include "numeric.hpp"
 #include "cylcutter.hpp"
@@ -48,24 +50,7 @@ void CompositeCutter::addCutter(MillingCutter& c, double r, double h, double zof
     // update length also?
 }
 
-bool CompositeCutter::ccValid(int n, CLPoint& cl) const {
-    if (cl.cc->type == NONE)
-        return false;
-    double d = cl.xyDistance(*cl.cc);
-    double lolimit;
-    double hilimit;
-    if (n==0)
-        lolimit = - 1E-6;
-    else
-        lolimit = radiusvec[n-1] - 1E-6;
-    hilimit = radiusvec[n]+1e-6; // FIXME: really ugly solution this one...
-    if (d<lolimit)
-        return false;
-    else if (d>hilimit)
-        return false;
-    else
-        return true;
-}
+
 
 // this allows vertexDrop in the base-class to work as for other cutters
 double CompositeCutter::height(double r) const {
@@ -87,8 +72,8 @@ unsigned int CompositeCutter::height_to_index(double h) const {
             return n;
     }
     // return the last cutter if we get here...
-    return cutter.size()-1;
-
+    // return cutter.size()-1;
+    std::cout << " Error, height= " << h << " has no index \n";
     assert(0);
     return 0;
 }
@@ -101,6 +86,33 @@ unsigned int CompositeCutter::radius_to_index(double r) const {
     }
     assert(0);
     return 0;
+}
+
+bool CompositeCutter::ccValidRadius(unsigned int n, CLPoint& cl) const {
+    if (cl.cc->type == NONE)
+        return false;
+    double d = cl.xyDistance(*cl.cc);
+    double lolimit;
+    double hilimit;
+    if (n==0)
+        lolimit = - 1E-6;
+    else
+        lolimit = radiusvec[n-1] - 1E-6;
+    hilimit = radiusvec[n]+1e-6; // FIXME: really ugly solution this one...
+    if (d<lolimit)
+        return false;
+    else if (d>hilimit)
+        return false;
+    else
+        return true;
+}
+
+bool CompositeCutter::ccValidHeight(unsigned int n, CCPoint& cc, const Fiber& f) const {
+    //if (  ((cc.z-f.p1.z) >= 0.0)  && (n == height_to_index(cc.z-f.p1.z)) )
+    if (  n == height_to_index(cc.z-f.p1.z) )
+        return true;
+    else
+        return false;
 }
 
 // return true if height h belongs to cutter n
@@ -119,6 +131,7 @@ bool CompositeCutter::validHeight(unsigned int n, double h) const {
 
 
 bool CompositeCutter::validRadius(unsigned int n, double r) const {
+    assert( r >= 0.0 );
     double lolimit, hilimit;
     if (n==0)
         lolimit = -1E-6;
@@ -141,7 +154,7 @@ bool CompositeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
         CCPoint* cc_tmp;
         if ( cutter[n]->facetDrop(cl_tmp, t) ) {
             assert( cl_tmp.cc != 0);
-            if ( ccValid(n,cl_tmp) ) { // cc-point is valid
+            if ( ccValidRadius(n,cl_tmp) ) { // cc-point is valid
                 cc_tmp = new CCPoint(*cl_tmp.cc);
                 if (cl.liftZ( cl_tmp.z - zoffset[n] )) { // we need to lift the cutter
                     cc_tmp->type = FACET;
@@ -163,7 +176,7 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         CCPoint* cc_tmp;
         if ( cutter[n]->edgeDrop(cl_tmp,t) ) { // drop sub-cutter against edge
-            if ( ccValid(n,cl_tmp) ) { // check if cc-point is valid
+            if ( ccValidRadius(n,cl_tmp) ) { // check if cc-point is valid
                 cc_tmp = new CCPoint(*cl_tmp.cc);
                 if (cl.liftZ( cl_tmp.z - zoffset[n] ) ) { // we need to lift the cutter
                     cc_tmp->type = EDGE;
@@ -178,14 +191,57 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
+// push each cutter against facet
+//  if the cc-point is valid (at correct height), store interval data
+// push all interval data into the original interval
 bool CompositeCutter::facetPush(const Fiber& f, Interval& i, const Triangle& t) const {
     // run facetPush for each cutter, retain valid results, and return union of all
+    bool result = false;
+    std::vector< std::pair<double, CCPoint> > contacts;
+    for (unsigned int n=0; n<cutter.size(); ++n) {
+        Interval ci;
+        Fiber cf(f);
+        cf.p1.z = f.p1.z + zoffset[n];
+        cf.p2.z = f.p2.z + zoffset[n]; // raised/lowered fiber to push along
+        if ( cutter[n]->facetPush(cf,ci,t) ) {
+            if ( ccValidHeight( n, ci.upper_cc, f ) )
+                contacts.push_back( std::pair<double,CCPoint>(ci.upper, ci.upper_cc) );
+            if ( ccValidHeight( n, ci.lower_cc, f ) )
+                contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
+        }
+    }
     
-    return false;
+    for( unsigned int n=0; n<contacts.size(); ++n ) {
+        i.update( contacts[n].first, contacts[n].second );
+        result = true;
+    }
+    return result;
 }
 
+
+
 bool CompositeCutter::edgePush(const Fiber& f, Interval& i, const Triangle& t) const {
-    return false;
+    bool result = false;
+    std::vector< std::pair<double, CCPoint> > contacts;
+    for (unsigned int n=0; n<cutter.size(); ++n) {
+        Interval ci; // interval for this cutter
+        Fiber cf(f); // fiber for this cutter
+        cf.p1.z = f.p1.z + zoffset[n];
+        cf.p2.z = f.p2.z + zoffset[n]; // raised/lowered fiber to push along
+        if ( cutter[n]->edgePush(cf,ci,t) ) {
+            if ( ccValidHeight( n, ci.upper_cc, f ) )
+                contacts.push_back( std::pair<double,CCPoint>(ci.upper, ci.upper_cc) );
+            if ( ccValidHeight( n, ci.lower_cc, f ) )
+                contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
+        }
+    }
+    
+    for( unsigned int n=0; n<contacts.size(); ++n ) {
+        i.update( contacts[n].first, contacts[n].second );
+        result = true;
+    }
+    
+    return result;
 }
 
 
@@ -211,16 +267,23 @@ std::string CompositeCutter::str() const {
 //********   actual Composite-cutters  ******************************* */
 
    
-//  only constructors required, drop-cutter calls handled by base-class
+//  only constructors required, drop-cutter and push-cutter calls handled by base-class
 
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
     MillingCutter* cyl = new CylCutter(diam1, 1 );
     MillingCutter* cone = new ConeCutter(diam2, angle);
+    MillingCutter* shaft = new CylCutter(diam2, 20 ); // FIXME: dummy height
+    
     double cone_offset= - (diam1/2)/tan(angle);
     double cyl_height = 0.0;
     double cone_height = (diam2/2.0)/tan(angle) + cone_offset;
-    addCutter( *cyl, diam1/2.0, cyl_height, 0.0 );
-    addCutter( *cone, diam2/2.0, cone_height, cone_offset );
+    //addCutter( *cyl, diam1/2.0, cyl_height, 0.0 );
+    //addCutter( *cone, diam2/2.0, cone_height, cone_offset );
+    //addCutter( *shaft, diam2/2.0, (diam2/2.0)/tan(angle) + 10 , cone_height );
+    
+    // dummy test
+    addCutter( *shaft, diam2/2.0, (diam2/2.0)/tan(angle) + 10 , 0.0 );
+    
     length = cyl_height + cone_height + 10; // Arbitrary 10 here!
 }
 

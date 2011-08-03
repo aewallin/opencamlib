@@ -78,7 +78,7 @@ if __name__ == "__main__":
     #cutter = ocl.BullCutter(diameter, diameter/4, length)
     cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
-    
+    cutter =  ocl.CylConeCutter(diameter/float(3),diameter,math.pi/float(9))
     print "cutter= ", cutter
     print "length=", cutter.getLength()
     print "fiber..."
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     
     zheights=[]
     Nmax=30
-    zmin=-0.5
+    zmin=-0.85
     zmax= 0.3
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         zheights.append(z)
         z=z+dz
     #zheights= []
-    zheights.append(-0.25)
+    #zheights.append(-0.25)
     
     print len(zheights)," to do: ",
     n=0
