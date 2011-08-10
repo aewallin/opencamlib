@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/* 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -236,7 +235,7 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     // the new vertex on face f connects new_source -> new_target
     HEEdge current_edge = g[f].edge;                             
     assert( f == g[current_edge].face );
-    HEEdge start_edge = current_edge;
+    //HEEdge start_edge = current_edge;
     VoronoiVertexType currentType = OUT;
     VoronoiVertexType nextType  = NEW;
     HEEdge new_previous;

@@ -18,7 +18,9 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-// #include <boost/foreach.hpp>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include "compositecutter.hpp"
 #include "numeric.hpp"
@@ -270,8 +272,8 @@ std::string CompositeCutter::str() const {
 //  only constructors required, drop-cutter and push-cutter calls handled by base-class
 
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
-    MillingCutter* cyl = new CylCutter(diam1, 1 );
-    MillingCutter* cone = new ConeCutter(diam2, angle);
+    //MillingCutter* cyl = new CylCutter(diam1, 1 );
+    //MillingCutter* cone = new ConeCutter(diam2, angle);
     MillingCutter* shaft = new CylCutter(diam2, 20 ); // FIXME: dummy height
     
     double cone_offset= - (diam1/2)/tan(angle);

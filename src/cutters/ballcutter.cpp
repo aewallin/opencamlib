@@ -1,5 +1,4 @@
-/*  $Id$ 
- * 
+/*
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -17,6 +16,10 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #include <boost/foreach.hpp>
 
@@ -125,8 +128,8 @@ std::string BallCutter::str() const {
 }
 
 std::ostream& operator<<(std::ostream &stream, BallCutter c) {
-  stream << "BallCutter(d=" << c.diameter << ", r=" << c.radius << ", L=" << c.length << ")";
-  return stream;
+	stream << "BallCutter(d=" << c.diameter << ", r=" << c.radius << ", L=" << c.length << ")";
+	return stream;
 }
 
 } // end namespace

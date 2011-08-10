@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/* 
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -28,10 +27,67 @@ namespace ocl
 namespace weave2
 {
 
-struct VertexProps; 
-struct EdgeProps;
-struct FaceProps;
-typedef unsigned int Face;  
+
+
+typedef boost::adjacency_list_traits<boost::listS, 
+                                     boost::listS, 
+                                     boost::bidirectionalS, 
+                                     boost::listS >::edge_descriptor Edge;
+
+/// vertex type: CL-point, internal point, adjacent point
+enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+
+/// vertex properties
+struct VertexProps {
+    VertexProps() {
+        init();
+    }
+    /// construct vertex at position p with type t
+    VertexProps( Point p, VertexType t) {
+        position=p;
+        type=t;
+        init();
+    }
+    void init() {
+        index = count;
+        count++;
+    }
+    VertexType type;
+// HE data
+    /// the position of the vertex
+    Point position;
+    /// index of vertex
+    int index;
+    /// global vertex count
+    static int count;
+};
+
+/// edge properties
+struct EdgeProps {
+    EdgeProps() {}
+    /// the next edge, counterclockwise, from this edge
+    Edge next;
+    /// previous edge, to make Weave::build() faster, since we avoid calling hedi::previous_edge() 
+    Edge prev;
+    /// the twin edge
+    Edge twin;
+};
+
+typedef unsigned int Face; 
+
+/// properties of a face in the weave
+struct FaceProps {
+    /// create face with given edge, generator, and type
+    FaceProps( Edge e ) {
+        edge = e;
+    }
+    /// face index
+    Face idx;
+    /// one edge that bounds this face
+    Edge edge;
+};
+
+ 
   
 // the graph type for the weave
 typedef HEDIGraph<     boost::listS,             // out-edges stored here
@@ -46,7 +102,7 @@ typedef HEDIGraph<     boost::listS,             // out-edges stored here
 
 typedef boost::graph_traits< WeaveGraph >::vertex_descriptor  Vertex;
 typedef boost::graph_traits< WeaveGraph >::vertex_iterator    VertexItr;
-typedef boost::graph_traits< WeaveGraph >::edge_descriptor    Edge;
+// typedef boost::graph_traits< WeaveGraph >::edge_descriptor    Edge;
 typedef boost::graph_traits< WeaveGraph >::edge_iterator      EdgeItr;
 typedef boost::graph_traits< WeaveGraph >::out_edge_iterator  OutEdgeItr;
 typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyItr;
@@ -69,8 +125,8 @@ typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
 typedef VertexIntersectionSet::iterator VertexPairIterator;    
 
 
-/// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+
+
 
 
 

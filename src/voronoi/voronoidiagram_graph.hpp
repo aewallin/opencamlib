@@ -1,5 +1,4 @@
-/*  $Id: voronoidiagram.cpp 664 2011-02-13 17:37:33Z anders.e.e.wallin $
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -18,8 +17,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VODI_G_H
-#define VODI_G_H
+#ifndef VODI_G_HPP
+#define VODI_G_HPP
 
 #include <vector>
 
@@ -33,38 +32,11 @@
 namespace ocl {
 
 // this file contains typedefs used by voronoidiagram.h
-
+/*
 struct VertexProps; 
 struct EdgeProps;
 struct FaceProps;
-
-
-typedef unsigned int HEFace;    
-
-// the type of graph with which we construct the voronoi-diagram
-typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
-                       boost::listS,             // vertex set stored here
-                       boost::bidirectionalS,    // bidirectional graph.
-                       VertexProps,              // vertex properties
-                       EdgeProps,                // edge properties
-                       FaceProps,                // face properties
-                       boost::no_property,       // graph properties
-                       boost::listS              // edge storage
-                       > HEGraph;
-
-typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
-typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
-typedef boost::graph_traits< HEGraph >::edge_descriptor    HEEdge;
-typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
-typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
-typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
-typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
-
-
-
-
-// typedef std::vector< std::vector< HEEdge > > HEPlanarEmbedding;
-
+*/
 /// voronoi-vertices can be of these four different types
 /// as we incrementally construct the diagram the type is updated as follows:
 /// OUT-vertices will not be deleted
@@ -185,6 +157,13 @@ struct VertexProps {
     static int count;
 };
 
+typedef boost::adjacency_list_traits<boost::listS, 
+                                     boost::listS, 
+                                     boost::bidirectionalS, 
+                                     boost::listS >::edge_descriptor HEEdge;
+typedef unsigned int HEFace;    
+                        
+
 /// properties of an edge in the voronoi diagram
 /// each edge stores a pointer to the next HEEdge 
 /// and the HEFace to which this HEEdge belongs
@@ -227,6 +206,27 @@ struct FaceProps {
     /// face type
     VoronoiFaceType type;
 };
+
+
+
+// the type of graph with which we construct the voronoi-diagram
+typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
+                       boost::listS,             // vertex set stored here
+                       boost::bidirectionalS,    // bidirectional graph.
+                       VertexProps,              // vertex properties
+                       EdgeProps,                // edge properties
+                       FaceProps,                // face properties
+                       boost::no_property,       // graph properties
+                       boost::listS              // edge storage
+                       > HEGraph;
+
+typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
+typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
+
+typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
+typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
+typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
+typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
 
 
 // these containers are used instead of iterators when accessing

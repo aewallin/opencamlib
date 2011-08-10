@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -17,8 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef WEAVE2_H
-#define WEAVE2_H
+#ifndef WEAVE_HPP
+#define WEAVE_HPP
 
 #include <vector>
 
@@ -33,55 +32,7 @@ namespace ocl
 namespace weave2
 {
 
-/// vertex properties
-struct VertexProps {
-    VertexProps() {
-        init();
-    }
-    /// construct vertex at position p with type t
-    VertexProps( Point p, VertexType t) {
-        position=p;
-        type=t;
-        init();
-    }
-    void init() {
-        index = count;
-        count++;
-    }
-    VertexType type;
-// HE data
-    /// the position of the vertex
-    Point position;
-    /// index of vertex
-    int index;
-    /// global vertex count
-    static int count;
-};
 
-/// edge properties
-struct EdgeProps {
-    EdgeProps() {}
-    /// the next edge, counterclockwise, from this edge
-    Edge next;
-    /// previous edge, to make Weave::build() faster, since we avoid calling hedi::previous_edge() 
-    Edge prev;
-    /// the twin edge
-    Edge twin;
-
-};
-
-
-/// properties of a face in the weave
-struct FaceProps {
-    /// create face with given edge, generator, and type
-    FaceProps( Edge e ) {
-        edge = e;
-    }
-    /// face index
-    Face idx;
-    /// one edge that bounds this face
-    Edge edge;
-};
 
                  
 /// weave-graph, 2nd impl. based on HEDIGraph

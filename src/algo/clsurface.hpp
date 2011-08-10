@@ -35,34 +35,6 @@ namespace ocl
 namespace clsurf
 {
 
-struct VertexProps; 
-struct EdgeProps;
-struct FaceProps;
-typedef unsigned int Face;  
-  
-// extra storage in graph:
-typedef HEDIGraph<     boost::listS,             // out-edge storage
-                       boost::listS,             // vertex set storage
-                       boost::bidirectionalS,    // bidirectional graph.
-                       VertexProps,              // vertex properties
-                       EdgeProps,                // edge properties
-                       FaceProps,                // face properties
-                       boost::no_property,       // graph properties
-                       boost::listS             // edge storage
-                       > CLSGraph;
-
-typedef boost::graph_traits< CLSGraph >::vertex_descriptor  Vertex;
-typedef boost::graph_traits< CLSGraph >::vertex_iterator    VertexItr;
-typedef boost::graph_traits< CLSGraph >::edge_descriptor    Edge;
-typedef boost::graph_traits< CLSGraph >::edge_iterator      EdgeItr;
-typedef boost::graph_traits< CLSGraph >::out_edge_iterator  OutEdgeItr;
-typedef boost::graph_traits< CLSGraph >::adjacency_iterator AdjacencyItr;
-
-typedef std::vector<Vertex> VertexVector;
-typedef std::vector<Face> FaceVector;
-typedef std::vector<Edge> EdgeVector;  
-
-
 struct VertexProps {
     VertexProps() {
         init();
@@ -87,6 +59,13 @@ struct VertexProps {
 };
 
 int VertexProps::count = 0;
+
+typedef boost::adjacency_list_traits<boost::listS, 
+                                     boost::listS, 
+                                     boost::bidirectionalS, 
+                                     boost::listS >::edge_descriptor Edge;
+
+typedef unsigned int Face;  
 
 struct EdgeProps {
     EdgeProps() {}
@@ -120,6 +99,33 @@ struct FaceProps {
     /// face type
     //W2FaceType type;
 };
+
+
+  
+// extra storage in graph:
+typedef HEDIGraph<     boost::listS,             // out-edge storage
+                       boost::listS,             // vertex set storage
+                       boost::bidirectionalS,    // bidirectional graph.
+                       VertexProps,              // vertex properties
+                       EdgeProps,                // edge properties
+                       FaceProps,                // face properties
+                       boost::no_property,       // graph properties
+                       boost::listS             // edge storage
+                       > CLSGraph;
+
+typedef boost::graph_traits< CLSGraph >::vertex_descriptor  Vertex;
+typedef boost::graph_traits< CLSGraph >::vertex_iterator    VertexItr;
+//typedef boost::graph_traits< CLSGraph >::edge_descriptor    Edge;
+typedef boost::graph_traits< CLSGraph >::edge_iterator      EdgeItr;
+typedef boost::graph_traits< CLSGraph >::out_edge_iterator  OutEdgeItr;
+typedef boost::graph_traits< CLSGraph >::adjacency_iterator AdjacencyItr;
+
+typedef std::vector<Vertex> VertexVector;
+typedef std::vector<Face> FaceVector;
+typedef std::vector<Edge> EdgeVector;  
+
+
+
 
 
 /// \brief cutter location surface.

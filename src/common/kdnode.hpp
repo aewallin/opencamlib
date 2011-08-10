@@ -22,6 +22,9 @@
 #define KDNODE_H
 
 #include <iostream>
+#include <sstream>
+#include <string>
+
 #include <list>
 
 namespace ocl
