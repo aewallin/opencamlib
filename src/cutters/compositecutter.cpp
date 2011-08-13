@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -270,6 +269,12 @@ std::string CompositeCutter::str() const {
 
    
 //  only constructors required, drop-cutter and push-cutter calls handled by base-class
+
+CompCylCutter::CompCylCutter(double diam2, double clength) {
+    MillingCutter* shaft = new CylCutter(diam2, clength ); 
+    addCutter( *shaft, diam2/2.0, clength , 0.0 );    
+    length = clength;
+}
 
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
     //MillingCutter* cyl = new CylCutter(diam1, 1 );

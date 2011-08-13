@@ -67,6 +67,11 @@ void export_cutters() {
     bp::class_<ConeCutter, bp::bases<MillingCutter> >("ConeCutter")
         .def(bp::init<double, double, double>())
     ;
+    
+    bp::class_<CompCylCutter, bp::bases<MillingCutter> >("CompCylCutter")
+        .def(bp::init<double, double>())
+    ;
+    
     bp::class_<CylConeCutter, bp::bases<MillingCutter> >("CylConeCutter")
         .def(bp::init<double, double, double>())
     ;

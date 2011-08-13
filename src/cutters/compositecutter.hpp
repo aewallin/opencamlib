@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -92,6 +91,13 @@ class CompositeCutter : public MillingCutter {
         std::vector<double> zoffset; // vector of z-offset values for the cutters
         /// vector of cutters in this CompositeCutter
         std::vector<MillingCutter*> cutter; // vector of pointers to cutters
+};
+
+/// a composite cutter for testing, consisting only of a cylindrical cutter
+class CompCylCutter : public CompositeCutter {
+    public:
+        CompCylCutter() {}
+        CompCylCutter(double diam, double length);
 };
 
 /// \brief CompositeCutter with a cylindrical/flat central part of diameter diam1

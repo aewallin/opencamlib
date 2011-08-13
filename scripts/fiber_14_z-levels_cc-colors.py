@@ -13,6 +13,7 @@ def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):
             ip1 = f.point( i.lower )
             ip2 = f.point( i.upper )
             ballradius = 0.002
+            ballradius = 0.005
             #myscreen.addActor( camvtk.Line(p1=(ip1.x,ip1.y,ip1.z),p2=(ip2.x,ip2.y,ip2.z), color=fibercolor) )
             myscreen.addActor( camvtk.Sphere(center=(ip1.x,ip1.y,ip1.z),radius=ballradius, color=camvtk.clColor( i.lower_cc) ) )
             myscreen.addActor( camvtk.Sphere(center=(ip2.x,ip2.y,ip2.z),radius=ballradius, color=camvtk.clColor( i.upper_cc) ) )
@@ -76,9 +77,12 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter(diameter, length)
     #cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, diameter/4, length)
-    cutter = ocl.ConeCutter(diameter, angle, length)
+    #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
-    cutter =  ocl.CylConeCutter(diameter/float(3),diameter,math.pi/float(9))
+    #cutter =  ocl.CylConeCutter(diameter/float(3),diameter,math.pi/float(9))
+    
+    cutter = ocl.CompCylCutter(diameter, length)
+    
     print "cutter= ", cutter
     print "length=", cutter.getLength()
     print "fiber..."
