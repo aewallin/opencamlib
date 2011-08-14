@@ -74,14 +74,18 @@ if __name__ == "__main__":
     angle = math.pi/5
     diameter=0.6
     length=25
-    #cutter = ocl.BallCutter(diameter, length)
+    cutter = ocl.BallCutter(diameter, length)
     #cutter = ocl.CylCutter(diameter, length)
     #cutter = ocl.BullCutter(diameter, diameter/4, length)
     #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
-    #cutter =  ocl.CylConeCutter(diameter/float(3),diameter,math.pi/float(9))
     
-    cutter = ocl.CompCylCutter(diameter, length)
+    #cutter = ocl.CompCylCutter(diameter, length)
+    #cutter = ocl.CompBallCutter(diameter, length)
+    
+    #cutter =  ocl.CylConeCutter(diameter/float(3), diameter, math.pi/float(9))
+    cutter =  ocl.BallConeCutter(diameter/float(3), diameter, math.pi/float(5))
+    
     
     print "cutter= ", cutter
     print "length=", cutter.getLength()

@@ -69,6 +69,27 @@ CC_CLZ_Pair CylCutter::singleEdgeDropCanonical(const Point& u1, const Point& u2)
     return CC_CLZ_Pair( cc_u, cl_z);
 }
 
+// general purpose vertexPush, delegates to this->width(h) 
+bool CylCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    bool result = false;
+    BOOST_FOREACH( const Point& p, t.p) {
+        if (this->singleVertexPush(f,i,p, VERTEX) )
+            result = true;
+    }
+
+    Point p1, p2;
+    if ( t.zslice_verts(p1, p2, f.p1.z) ) {
+        p1.z = f.p1.z; // z-coord should be very close to f.p1.z, but set it exactly anyway.
+        p2.z = f.p1.z;
+        if ( this->singleVertexPush(f,i,p1, VERTEX_CYL) )
+            result = true;
+        if (this->singleVertexPush(f,i,p2, VERTEX_CYL))
+            result = true;
+    }
+    
+    return result;
+}
+
 std::string CylCutter::str() const {
     std::ostringstream o;
     o << *this;

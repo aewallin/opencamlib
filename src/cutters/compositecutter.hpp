@@ -57,6 +57,7 @@ class CompositeCutter : public MillingCutter {
         std::string str() const;
     protected:   
         
+        bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool facetPush(const Fiber& f, Interval& i, const Triangle& t) const;
         bool edgePush(const Fiber& f, Interval& i, const Triangle& t) const;
         
@@ -98,6 +99,13 @@ class CompCylCutter : public CompositeCutter {
     public:
         CompCylCutter() {}
         CompCylCutter(double diam, double length);
+};
+
+/// for testing, a single ballcutter
+class CompBallCutter : public CompositeCutter {
+    public:
+        CompBallCutter() {}
+        CompBallCutter(double diam, double length);
 };
 
 /// \brief CompositeCutter with a cylindrical/flat central part of diameter diam1

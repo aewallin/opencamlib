@@ -46,8 +46,7 @@ class CylCutter : public MillingCutter {
         friend std::ostream& operator<<(std::ostream &stream, CylCutter c);        
         std::string str() const;
     protected:
-        // this swithces on triangle slicing in MillingCutter::pushCutter 
-        inline bool vertexPushTriangleSlice() const {return true;}
+        bool vertexPush(const Fiber& f, Interval& i, const Triangle& t) const;
         CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
         double height(double r) const {return ( r <= radius ) ? 0.0 : -1.0;}
         double width(double h) const {return radius;} 

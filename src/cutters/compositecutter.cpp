@@ -73,7 +73,7 @@ unsigned int CompositeCutter::height_to_index(double h) const {
             return n;
     }
     // return the last cutter if we get here...
-    // return cutter.size()-1;
+    return cutter.size()-1;
     std::cout << " Error, height= " << h << " has no index \n";
     assert(0);
     return 0;
@@ -192,6 +192,29 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
+bool CompositeCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
+    bool result = false;
+    std::vector< std::pair<double, CCPoint> > contacts;
+    for (unsigned int n=0; n<cutter.size(); ++n) {
+        Interval ci;
+        Fiber cf(f);
+        cf.p1.z = f.p1.z + zoffset[n];
+        cf.p2.z = f.p2.z + zoffset[n]; // raised/lowered fiber to push along
+        if ( cutter[n]->vertexPush(cf,ci,t) ) {
+            if ( ccValidHeight( n, ci.upper_cc, f ) )
+                contacts.push_back( std::pair<double,CCPoint>(ci.upper, ci.upper_cc) );
+            if ( ccValidHeight( n, ci.lower_cc, f ) )
+                contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
+        }
+    }
+    
+    for( unsigned int n=0; n<contacts.size(); ++n ) {
+        i.update( contacts[n].first, contacts[n].second );
+        result = true;
+    }
+    return result;
+}
+
 // push each cutter against facet
 //  if the cc-point is valid (at correct height), store interval data
 // push all interval data into the original interval
@@ -270,68 +293,92 @@ std::string CompositeCutter::str() const {
    
 //  only constructors required, drop-cutter and push-cutter calls handled by base-class
 
+// TESTING
 CompCylCutter::CompCylCutter(double diam2, double clength) {
     MillingCutter* shaft = new CylCutter(diam2, clength ); 
     addCutter( *shaft, diam2/2.0, clength , 0.0 );    
     length = clength;
 }
 
+// TESTING
+CompBallCutter::CompBallCutter(double diam2, double clength) {
+    MillingCutter* shaft = new BallCutter(diam2, clength ); 
+    addCutter( *shaft, diam2/2.0, clength , 0.0 );    
+    length = clength;
+}
+
+
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
-    //MillingCutter* cyl = new CylCutter(diam1, 1 );
-    //MillingCutter* cone = new ConeCutter(diam2, angle);
+    MillingCutter* cyl = new CylCutter(diam1, 1 );
+    MillingCutter* cone = new ConeCutter(diam2, angle);
     MillingCutter* shaft = new CylCutter(diam2, 20 ); // FIXME: dummy height
     
     double cone_offset= - (diam1/2)/tan(angle);
     double cyl_height = 0.0;
     double cone_height = (diam2/2.0)/tan(angle) + cone_offset;
-    //addCutter( *cyl, diam1/2.0, cyl_height, 0.0 );
-    //addCutter( *cone, diam2/2.0, cone_height, cone_offset );
-    //addCutter( *shaft, diam2/2.0, (diam2/2.0)/tan(angle) + 10 , cone_height );
     
-    // dummy test
-    addCutter( *shaft, diam2/2.0, (diam2/2.0)/tan(angle) + 10 , 0.0 );
-    
+    addCutter( *cyl, diam1/2.0, cyl_height, 0.0 );
+    addCutter( *cone, diam2/2.0, cone_height, cone_offset );
+    addCutter( *shaft, diam2/2.0, (diam2/2.0)/tan(angle) + 20 , cone_height );
     length = cyl_height + cone_height + 10; // Arbitrary 10 here!
 }
 
+
 BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
-    MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero  FIXME: length
+    MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero 
     MillingCutter* c2 = new ConeCutter(diam2, angle);
-    double cone_offset = - ( (diam1/2.0)/sin(angle) - diam1/2.0);
-    double rcontact = (diam1/2.0)*cos(angle);
-    double height1 = 0;
-    double height2 = 0;
+    MillingCutter* shaft = new CylCutter(diam2, 20); // FIXME: length
     
+    double radius1 = diam1/2.0;
+    double radius2 = diam2/2.0;
+    double rcontact = radius1*cos(angle);
+    double height1 = radius1 - sqrt( square(radius1)-square(rcontact) );
+    double cone_offset = - ( (rcontact)/tan(angle) - height1 );
+    double height2 = radius2/tan(angle) + cone_offset;
+    double shaft_offset = height2;
+    
+    // cutter, radivec, heightvec, zoffset
     addCutter( *c1, rcontact, height1, 0.0 );
     addCutter( *c2, diam2/2.0, height2, cone_offset );
+    addCutter( *shaft, diam2/2.0, height2+20, shaft_offset );
+    length = 30;
 }
 
 BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, double angle) {
-    MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero FIXME: length
+    MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero 
     MillingCutter* c2 = new ConeCutter(diam2, angle);
+    MillingCutter* shaft = new CylCutter(diam2, 20);
+    
     double h1 = radius1*sin(angle); // the contact point is this much down from the toroid-ring
     double rad = sqrt( square(radius1) - square(h1) );
     double rcontact = (diam1/2.0) - radius1 + rad; // radius of the contact-ring
     double cone_offset= - ( rcontact/tan(angle) - (radius1-h1));
-    double height1 = 0;
-    double height2 = 0;
+    double height1 = radius1 - h1;
+    double height2 = (diam2/2.0)/tan(angle) + cone_offset;
+    double shaft_offset = height2;
     
     addCutter( *c1, rcontact, height1, 0.0 );
     addCutter( *c2, diam2/2.0, height2, cone_offset );
+    addCutter( *shaft, diam2/2.0, height2+20, shaft_offset );
+    length=30;
 }
 
 ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double angle2)
 {
     MillingCutter* c1 = new ConeCutter(diam1, angle1); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle2);
-    double h1 = (diam1/2.0)/tan(angle1); 
-    double h2 = (diam1/2.0)/tan(angle2);
-    double cone_offset= - ( h2-h1);
-    double height1 = 0;
-    double height2 = 0;
+    MillingCutter* shaft = new CylCutter(diam2, 20);
+    
+    double height1 = (diam1/2.0)/tan(angle1); 
+    double tmp = (diam1/2.0)/tan(angle2);
+    double cone_offset= - ( tmp-height1);
+    double height2 = (diam2/2.0)/tan(angle2) + cone_offset;
+    double shaft_offset = height2;
     
     addCutter( *c1, diam1/2.0, height1, 0.0 );
     addCutter( *c2, diam2/2.0, height2, cone_offset );
+    addCutter( *shaft, diam2/2.0, height2+20, shaft_offset );
+    length=30;
 }
 
 } // end namespace

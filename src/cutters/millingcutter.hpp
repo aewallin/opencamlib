@@ -106,9 +106,6 @@ class MillingCutter {
         
         /// push cutter against a single vertex p
         bool singleVertexPush(const Fiber& f, Interval& i, const Point& p, CCType cctyp) const;
-        /// this is normally false, but true for the CylCutter
-        /// a special case for vertexPush
-        virtual inline bool vertexPushTriangleSlice() const {return false;}
         
         /// push cutter along Fiber f into contact with facet of Triangle t, and update Interval i
         /// calls generalFacetPush()
