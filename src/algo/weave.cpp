@@ -156,12 +156,37 @@ void Weave::build() {
     } // end X-fiber loop
 }
 
+// a third try
+void Weave::build3() {
+    BOOST_FOREACH( Fiber& xf, xfibers ) {
+        assert( !xf.empty() );
+        BOOST_FOREACH( Interval& xi, xf.ints ) {
+            add_interval(xf,xi);  // lower(CL) <----> upper(CL)
+        }
+    }
+//    BOOST_FOREACH( Fiber& yf, yfibers) {
+        
+//    }
+}
+
+void Weave::add_interval(Fiber& xf, Interval& xi) {
+    Point p1( xf.point(xi.lower) );
+    Vertex xv1 = add_cl_vertex( p1, xi, p1.x ); 
+    Point p2( xf.point(xi.upper) );
+    Vertex xv2 = add_cl_vertex( p2, xi, p2.x );
+    Edge e1 = hedi::add_edge( xv1, xv2, g);
+    Edge e2 = hedi::add_edge( xv2, xv1, g);
+    g[e1].next = e2;
+    g[e2].next = e1;
+    g[e1].prev = e2;
+    g[e2].prev = e1;
+}
+
 // this is the new smarter build() which uses less RAM
 void Weave::build2() {
     BOOST_FOREACH( Fiber& xf, xfibers ) {
         assert( !xf.empty() );
-        BOOST_FOREACH( Interval& xi, xf.ints ) {
-            // add each X interval to the weave
+        BOOST_FOREACH( Interval& xi, xf.ints ) { // add each X interval to the weave
             Point p1( xf.point(xi.lower) );
             Vertex xv1 = add_cl_vertex( p1, xi, p1.x ); 
             Point p2( xf.point(xi.upper) );
@@ -178,7 +203,7 @@ void Weave::build2() {
             it_yfib = yfibers.begin(); end_yfib = yfibers.end();
             bool last_fiber_crossing_found = false;
             while( (!last_fiber_crossing_found) && (it_yfib<end_yfib) ) {
-                if( p2.x < it_yfib->p1.x ) {
+                if( p2.x < it_yfib->p1.x ) { //p2 = xi.upper
                     last_fiber_crossing_found = true;
                     xi.last_fiber_crossing = --it_yfib;
                 } else
@@ -209,7 +234,7 @@ void Weave::build2() {
 
             bool first_xfiber_found = false;
             bool last_xfiber_found = false;
-            //Is it possible that an y-interval doesn't cross any x-fiber ??
+            // Is it possible that an y-interval doesn't cross any x-fiber ??
             while( !first_xfiber_found ) {
                 if( it_xfib->p1.y > ymin )
                     first_xfiber_found = true;
@@ -268,16 +293,10 @@ void Weave::build2() {
                                                                           (g[y_l].type == CL) ||
                                                                           (g[y_u].type == CL)) ) )
                             {
-                                add_int_vertex( v_position,
-                                                x_l, x_u, y_l, y_u,
-                                                *forw_it,
-                                                yi );
+                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *forw_it, yi );
                             } else if( first_fullint_vertex_up ) {
                                 first_fullint_vertex_up = false;
-                                add_int_vertex( v_position,
-                                                x_l, x_u, y_l, y_u,
-                                                *forw_it,
-                                                yi );
+                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *forw_it, yi );
                             }
                         } // end intersection-case
                         forw_it++;
@@ -305,16 +324,10 @@ void Weave::build2() {
                                                                          (g[y_l].type == CL) ||
                                                                          (g[y_u].type == CL)) ) )
                             {
-                                add_int_vertex( v_position,
-                                                x_l, x_u, y_l, y_u,
-                                                *rev_it,
-                                                yi );
+                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *rev_it, yi );
                             } else if( first_fullint_vertex_down ) {
                                 first_fullint_vertex_down = false;
-                                add_int_vertex( v_position,
-                                                x_l, x_u, y_l, y_u,
-                                                *rev_it,
-                                                yi );
+                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *rev_it, yi );
                             }
                         }
                         rev_it++;
@@ -423,7 +436,7 @@ void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
     if( y_lu_edge ) { // delete old y-edges
         boost::remove_edge( y_l, y_u, g );
         boost::remove_edge( y_u, y_l, g );
-    } 
+    }
     // finally add new intersection vertex to the interval sets
     x_int.intersections2.insert( VertexPair( v, v_position.x ) ); // x-interval
     y_int.intersections2.insert( VertexPair( v, v_position.y ) ); // y-interval

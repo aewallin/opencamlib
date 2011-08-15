@@ -100,7 +100,9 @@ class Weave {
         
         /// new smarter version of build() 
         void build2();
-
+        void build3();
+        void add_interval(Fiber& xf, Interval& xi);
+        
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
         
