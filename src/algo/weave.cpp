@@ -66,13 +66,7 @@ void Weave::face_traverse() {
     }
 }
         
-// add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
-Vertex Weave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
-    Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
-    ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
-    clVertices.insert(v);
-    return v;
-}
+
 
 // given a VertexPair and an Interval, in the Interval find the Vertex above and below the given vertex
 std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Interval& ival) { 
@@ -331,6 +325,14 @@ void Weave::build2() {
             } // end while( it_xfib<end_xfib )
         }//end of foreach y-interval
     }// end of foreach y-fiber
+}
+
+// add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
+Vertex Weave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
+    Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
+    ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
+    clVertices.insert(v);
+    return v;
 }
 
 // add an internal vertex to the weave
