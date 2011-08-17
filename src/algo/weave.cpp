@@ -30,8 +30,10 @@ int VertexProps::count = 0;
 
 void Weave::addFiber(Fiber& f) {
     if ( f.dir.xParallel() && !f.empty() ) {
+        xfiberSet.insert(f);
         xfibers.push_back(f);
     } else if ( f.dir.yParallel() && !f.empty() ) {
+        yfiberSet.insert(f);
         yfibers.push_back(f);
     } else if (!f.empty()) {
         assert(0); // fiber must be either x or y
@@ -41,16 +43,16 @@ void Weave::addFiber(Fiber& f) {
 // traverse the graph putting loops of vertices into the loops variable
 // this figure illustrates next-pointers: http://www.anderswallin.net/wp-content/uploads/2011/05/weave2_zoom.png
 void Weave::face_traverse() { 
-    std::cout << " traversing graph with " << clVertices.size() << " cl-points\n";
-    while ( !clVertices.empty() ) { // while unprocessed cl-vertices remain
+    std::cout << " traversing graph with " << clVertexSet.size() << " cl-points\n";
+    while ( !clVertexSet.empty() ) { // while unprocessed cl-vertices remain
         std::vector<Vertex> loop; // start on a new loop
-        Vertex current = *(clVertices.begin());
+        Vertex current = *(clVertexSet.begin());
         Vertex first = current;
         
         do { // traverse around the loop
             assert( g[current].type == CL ); // we only want cl-points in the loop
             loop.push_back(current);
-            clVertices.erase(current); // remove from list of unprocesser cl-verts
+            clVertexSet.erase(current); // remove from set of unprocesser cl-verts
             std::vector<Edge> outEdges = hedi::out_edges(current, g); // find the edge to follow
             //if (outEdges.size() != 1 )
             //    std::cout << " outEdges.size() = " << outEdges.size() << "\n";
@@ -158,6 +160,20 @@ void Weave::build() {
 
 // a third try
 void Weave::build3() {
+    
+    // 1) loop-through each x-interval:
+    // -find CL-adjacent and 2-CL-adjacent y-interval crossings
+    //    store into crossSet
+    //
+    // 2) loop-thorugh each y-interval:
+    //  - find crossings and store into crossSet
+    //
+    // 3) loop through xinterval crossSet
+    // - add INT-vertex, remove from crossSet (both xinterval and yinterval crossSet)
+    // 4) loop trough yinterval crossSet
+    // - add remaining INT-vertices
+    
+    
     BOOST_FOREACH( Fiber& xf, xfibers ) {
         assert( !xf.empty() );
         BOOST_FOREACH( Interval& xi, xf.ints ) {
@@ -344,7 +360,7 @@ void Weave::build2() {
 Vertex Weave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
     Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
     ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
-    clVertices.insert(v);
+    clVertexSet.insert(v);
     return v;
 }
 

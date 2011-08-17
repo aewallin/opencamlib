@@ -82,6 +82,20 @@ struct FaceProps {
     Edge edge;
 };
 
+// comparison functor for x-fibers
+struct XFiberCompare {
+    /// comparison operator
+    bool operator() (const Fiber& lhs, const Fiber& rhs) const
+    { return lhs.p1.y < rhs.p1.y ;} // sort X-fibers by their y-coordinate
+};
+
+// comparison functor for y-fibers
+struct YFiberCompare {
+    /// comparison operator
+    bool operator() (const Fiber& lhs, const Fiber& rhs) const
+    { return lhs.p1.x < rhs.p1.x ;} // sort Y-fibers by their x-coordinate
+};
+
                  
 /// weave-graph, 2nd impl. based on HEDIGraph
 /// see http://www.anderswallin.net/2011/05/weave-notes/
@@ -147,8 +161,12 @@ class Weave {
         std::vector<Fiber> xfibers;
         /// the Y-fibers
         std::vector<Fiber> yfibers;
+        
+        std::set<Fiber, XFiberCompare> xfiberSet;
+        std::set<Fiber, YFiberCompare> yfiberSet;
+        
         /// set of CL-points
-        std::set<Vertex> clVertices;
+        std::set<Vertex> clVertexSet;
 };
 
 } // end weave2 namespace
