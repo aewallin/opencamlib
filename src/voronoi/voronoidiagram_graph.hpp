@@ -28,15 +28,9 @@
 #include "halfedgediagram.hpp"
 
 
-
+// this file contains typedefs used by voronoidiagram.h
 namespace ocl {
 
-// this file contains typedefs used by voronoidiagram.h
-/*
-struct VertexProps; 
-struct EdgeProps;
-struct FaceProps;
-*/
 /// voronoi-vertices can be of these four different types
 /// as we incrementally construct the diagram the type is updated as follows:
 /// OUT-vertices will not be deleted
@@ -157,6 +151,8 @@ struct VertexProps {
     static int count;
 };
 
+// use traits-class here so that EdgePros can store data of type HEEdge
+// typedef of the VD-graph follows below. 
 typedef boost::adjacency_list_traits<boost::listS, 
                                      boost::listS, 
                                      boost::bidirectionalS, 
@@ -219,10 +215,11 @@ typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::l
                        boost::no_property,       // graph properties
                        boost::listS              // edge storage
                        > HEGraph;
+// NOTE: if these listS etc. arguments ever change, they must be updated
+// above where we do: adjacency_list_traits
 
 typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;
 typedef boost::graph_traits< HEGraph >::vertex_iterator    HEVertexItr;
-
 typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
 typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
 typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
@@ -237,5 +234,5 @@ typedef std::vector<HEFace> FaceVector;
 typedef std::vector<HEEdge> EdgeVector;  
 
 
-}
+} // end ocl namespace
 #endif
