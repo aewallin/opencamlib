@@ -55,9 +55,9 @@ void VoronoiDiagram::init() {
 
     // the locations of the initial generators:
     double gen_mutliplier = 3;
-    gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
-    gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
-    gen1 = Point( 0,-gen_mutliplier*far_radius);
+    Point gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
+    Point gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
+    Point gen1 = Point( 0,-gen_mutliplier*far_radius);
     g[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
         
     // add face 1: v0-v1-v2

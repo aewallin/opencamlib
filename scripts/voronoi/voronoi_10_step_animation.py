@@ -147,7 +147,7 @@ def writeFrame( w2if, lwr, n ):
     current_dir = os.getcwd()
     filename = current_dir + "/frames/vd500_zoomout"+ ('%05d' % n)+".png"
     lwr.SetFileName( filename )
-    lwr.Write()
+    #lwr.Write()
     
 if __name__ == "__main__":  
     print ocl.revision()

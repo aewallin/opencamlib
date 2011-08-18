@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -108,10 +107,6 @@ class VoronoiDiagram {
         /// special initial vertex
         HEVertex v03;
         
-        // initial generators
-        Point gen1;
-        Point gen2;
-        Point gen3;
         /// the number of generators
         int gen_count;
         /// temporary variable for incident faces

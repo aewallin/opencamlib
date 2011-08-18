@@ -44,8 +44,6 @@ void export_voronoi() {
         .def("getFarVoronoiVertices",  &VoronoiDiagram_py::getFarVoronoiVertices)
         .def("getFarRadius",  &VoronoiDiagram_py::getFarRadius)
         .def("getVoronoiEdges",  &VoronoiDiagram_py::getVoronoiEdges)
-        //.def("setDelaunayTriangulation",  &VoronoiDiagram_py::setDelaunayTriangulation)
-        //.def("getDelaunayEdges",  &VoronoiDiagram_py::getDelaunayEdges)
         .def("getClosestFaceGenerator",  &VoronoiDiagram_py::getClosestFaceGenerator)
         .def("getSeedVertex",  &VoronoiDiagram_py::getSeedVertex)
         .def("getDeleteSet",  &VoronoiDiagram_py::getDeleteSet)
