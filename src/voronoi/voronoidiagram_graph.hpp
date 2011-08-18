@@ -67,6 +67,20 @@ namespace ocl {
  *  V4: generators(Li, Lj, pi1)  edges(E2, E3, E4)  E3-E4 tangent at V4
  *  V5: generators(pi, Lj, Lk) edges (E3, E3, E4)
  *  V6: generators(Li, Lj, Lk) edges(E4, E4, E4)
+ * 
+ * 
+ * bisector formulas
+ * x = x1 - x2 - x3*t +/- x4 * sqrt( square(x5+x6*t) - square(x7+x8*t) )
+ * (same formula for y-coordinate)
+ * line (line/line)
+ * parabola (circle/line)
+ * hyperbola (circle/circle)
+ * ellipse (circle/circle)
+ * 
+ * line: a1*x + b1*y + c + k*t = 0  (t is amount of offset) k=+1 offset left of line, k=-1 right of line
+ * with a*a + b*b = 1
+ * 
+ * circle: square(x-xc) + square(y-yc) = square(r+k*t)  k=+1 for enlarging circle, k=-1 shrinking
  */
  
 
@@ -76,7 +90,7 @@ namespace ocl {
 /// IN-vertices will be deleted
 /// UNDECIDED-vertices have not been examied yet
 /// NEW-vertices are constructed on OUT-IN edges
-enum VoronoiVertexType {OUT, IN, UNDECIDED, NEW };
+enum VoronoiVertexStatus {OUT, IN, UNDECIDED, NEW };
 
 /// properties of a vertex in the voronoi diagram
 struct VertexProps {
@@ -84,9 +98,9 @@ struct VertexProps {
         init();
     }
     /// construct vertex at position p with type t
-    VertexProps( Point p, VoronoiVertexType t) {
+    VertexProps( Point p, VoronoiVertexStatus st) {
         position=p;
-        type=t;
+        status=st;
         init();
     }
     void init() {
@@ -96,7 +110,7 @@ struct VertexProps {
     }
     void reset() {
         in_queue = false;
-        type = UNDECIDED;
+        status = UNDECIDED;
     }
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
     void set_position() {
@@ -110,6 +124,7 @@ struct VertexProps {
         H = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
         return H;
     }
+    // this allows sorting points
     bool operator<(const VertexProps& other) const {
         return ( abs(this->H) < abs(other.H) );
     }
@@ -169,8 +184,9 @@ struct VertexProps {
         return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
     }
 // VD DATA
-    /// vertex type
-    VoronoiVertexType type;
+    /// vertex status. when the incremental algorithm runs
+    /// vertices are marked: undecided, in, out, or new
+    VoronoiVertexStatus status;
     /// the reference point for J-calculations
     Point pk;
     /// J2 determinant
@@ -179,6 +195,7 @@ struct VertexProps {
     double J3;
     /// J4 determinant
     double J4;
+    // determinant value
     double H;
     bool in_queue;
 // HE data
@@ -219,16 +236,16 @@ struct EdgeProps {
 };
 
 /// types of faces in the voronoi diagram
-enum VoronoiFaceType {INCIDENT, NONINCIDENT};
+enum VoronoiFaceStatus {INCIDENT, NONINCIDENT};
 
 /// properties of a face in the voronoi diagram
 /// each face stores one edge on the boundary of the face
 struct FaceProps {
     /// create face with given edge, generator, and type
-    FaceProps( HEEdge e , Point gen, VoronoiFaceType t) {
+    FaceProps( HEEdge e , Point gen, VoronoiFaceStatus t) {
         edge = e;
         generator = gen;
-        type = t;
+        status = t;
     }
     /// operator for sorting faces
     bool operator<(const FaceProps& f) const {return (this->idx<f.idx);}
@@ -238,8 +255,8 @@ struct FaceProps {
     HEEdge edge;
     /// the generator for this face
     Point generator;
-    /// face type
-    VoronoiFaceType type;
+    /// face status (either incident or nonincident)
+    VoronoiFaceStatus status;
 };
 
 

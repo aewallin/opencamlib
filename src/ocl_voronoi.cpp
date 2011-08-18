@@ -51,13 +51,13 @@ void export_voronoi() {
         .def("getModEdges",  &VoronoiDiagram_py::getModEdges)
         .def("__str__", &VoronoiDiagram_py::str)
     ;
-    bp::enum_<VoronoiVertexType>("VoronoiVertexType")
+    bp::enum_<VoronoiVertexStatus>("VoronoiVertexStatus")
         .value("OUT", OUT)   
         .value("IN", IN)
         .value("UNDECIDED", UNDECIDED)
         .value("NEW", NEW)
     ;
-    bp::enum_<VoronoiFaceType>("VoronoiFaceType")
+    bp::enum_<VoronoiFaceStatus>("VoronoiFaceStatus")
         .value("INCIDENT", INCIDENT)
         .value("NONINCIDENT", NONINCIDENT)
     ;

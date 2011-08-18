@@ -1,5 +1,4 @@
-/*  $Id:  $
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -87,7 +86,7 @@ namespace ocl
     /// check that all vertices in the input vector are of type IN
     bool VoronoiDiagramChecker::allIn(VoronoiDiagram* vd, const VertexVector& q) {
         BOOST_FOREACH( HEVertex v, q) {
-            if ( vd->g[v].type != IN )
+            if ( vd->g[v].status != IN )
                 return false;
         }
         return true;
@@ -97,7 +96,7 @@ namespace ocl
     bool  VoronoiDiagramChecker::noUndecidedInFace( VoronoiDiagram* vd, HEFace f ) {
         VertexVector face_verts = hedi::face_vertices(f, vd->g);
         BOOST_FOREACH( HEVertex v, face_verts ) {
-            if ( vd->g[v].type == UNDECIDED )
+            if ( vd->g[v].status == UNDECIDED )
                 return false;
         }
         return true;

@@ -129,7 +129,7 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     // 2) among the vertices on the closest_face
     //    find the seed, which has the lowest detH
     HEVertex v_seed = findSeedVertex(closest_face, p);
-    g[v_seed].type = IN;
+    g[v_seed].status = IN;
     VertexVector v0;
     v0.push_back(v_seed); 
     
@@ -167,11 +167,11 @@ void VoronoiDiagram::reset_labels() {
         g[v].reset();
     }
     in_vertices.clear();
-    g[v01].type = OUT; // the outer vertices are special.
-    g[v02].type = OUT;
-    g[v03].type = OUT;
+    g[v01].status = OUT; // the outer vertices are special.
+    g[v02].status = OUT;
+    g[v03].status = OUT;
     BOOST_FOREACH(HEFace f, incident_faces ) { 
-        g[f].type = NONINCIDENT; 
+        g[f].status = NONINCIDENT; 
     }
     incident_faces.clear();
 }
@@ -187,7 +187,7 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
         HEVertex current_source = hedi::source( current_edge , g);
         BOOST_FOREACH( HEEdge edge, hedi::out_edges( current_target, g ) ) { // loop through potential "next" candidates
             HEVertex out_target = hedi::target( edge , g);
-            if ( g[out_target].type == NEW ) { // the next vertex along the face should be "NEW"
+            if ( g[out_target].status == NEW ) { // the next vertex along the face should be "NEW"
                 if ( out_target != current_source ) { // but not where we came from
                     g[current_edge].next = edge; // this is the edge we want to take
                     
@@ -223,7 +223,7 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
     }
     // it should now be safe to delete v0
     BOOST_FOREACH( HEVertex v, v0 ) { 
-        assert( g[v].type == IN );
+        assert( g[v].status == IN );
         hedi::delete_vertex(v,g); // this also removes edges connecting to v
     }
 }
@@ -236,8 +236,8 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     HEEdge current_edge = g[f].edge;                             
     assert( f == g[current_edge].face );
     //HEEdge start_edge = current_edge;
-    VoronoiVertexType currentType = OUT;
-    VoronoiVertexType nextType  = NEW;
+    VoronoiVertexStatus currentType = OUT;
+    VoronoiVertexStatus nextType  = NEW;
     HEEdge new_previous;
     HEEdge new_next;
     HEEdge twin_next;
@@ -247,8 +247,8 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
         HEVertex current_vertex = hedi::target( current_edge , g);
         HEEdge next_edge = g[current_edge].next;
         HEVertex next_vertex = hedi::target( next_edge , g);
-        if ( g[current_vertex].type == currentType ) {
-            if ( g[next_vertex].type == nextType ) {
+        if ( g[current_vertex].status == currentType ) {
+            if ( g[next_vertex].status == nextType ) {
                 new_source = next_vertex;
                 new_previous = next_edge;
                 twin_next = g[next_edge].next;
@@ -265,8 +265,8 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
         HEVertex current_vertex = hedi::target( current_edge , g);
         HEEdge next_edge = g[current_edge].next;
         HEVertex next_vertex = hedi::target( next_edge , g);
-        if ( g[current_vertex].type == currentType ) {
-            if ( g[next_vertex].type == nextType ) {
+        if ( g[current_vertex].status == currentType ) {
+            if ( g[next_vertex].status == nextType ) {
                 new_target = next_vertex;
                 new_next = g[next_edge].next;
                 twin_previous = next_edge;
@@ -295,14 +295,14 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     //assert( isDegreeThree() );
 }
 
-EdgeVector VoronoiDiagram::find_edges(VertexVector& inVertices, VoronoiVertexType vtype) {
+EdgeVector VoronoiDiagram::find_edges(VertexVector& inVertices, VoronoiVertexStatus vtype) {
     assert( !inVertices.empty() );
     EdgeVector output; // new vertices generated on these edges
     BOOST_FOREACH( HEVertex v, inVertices ) {                                   
-        assert( g[v].type == IN ); // all verts in v0 are IN
+        assert( g[v].status == IN ); // all verts in v0 are IN
         BOOST_FOREACH( HEEdge edge, hedi::out_edges( v , g) ) {
             HEVertex adj_vertex = hedi::target( edge , g);
-            if ( g[adj_vertex].type == vtype ) 
+            if ( g[adj_vertex].status == vtype ) 
                 output.push_back(edge); // this is an IN-vtype edge
         }
     }
@@ -318,11 +318,11 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) 
     
     for( unsigned int m=0; m<q_edges.size(); ++m )  {  // create new vertices on all edges q_edges[]
         HEVertex q = hedi::add_vertex(g);
-        g[q].type = NEW;
+        g[q].status = NEW;
         in_vertices.push_back(q);
-        HEFace face = g[q_edges[m]].face;     assert(  g[face].type == INCIDENT);
+        HEFace face = g[q_edges[m]].face;     assert(  g[face].status == INCIDENT);
         HEEdge twin = g[q_edges[m]].twin;
-        HEFace twin_face = g[twin].face;      assert( g[twin_face].type == INCIDENT);
+        HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
         g[q].set_J( g[face].generator  , g[twin_face].generator  , p); 
         g[q].set_position();
         
@@ -383,29 +383,22 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) 
     }
 }
 
-
-
-
-
-
-
-
 int VoronoiDiagram::outVertexCount(HEFace f) {
     int outCount = 0;
     VertexVector face_verts = hedi::face_vertices(f, g);
     BOOST_FOREACH( HEVertex v, face_verts ) {
-        if (g[v].type == OUT )
+        if (g[v].status == OUT )
             ++outCount;
     }
     return outCount;
 }
 
 // check that the vertices TYPE are connected
-bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) {
+bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype ) {
     VertexVector face_verts = hedi::face_vertices(f,g);
     VertexVector type_verts;
     BOOST_FOREACH( HEVertex v, face_verts ) {
-        if ( g[v].type == Vtype )
+        if ( g[v].status == Vtype )
             type_verts.push_back(v);
     }
     assert( !type_verts.empty() );
@@ -420,8 +413,8 @@ bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexType Vtype ) 
     while (!done) { 
         HEVertex src = hedi::source( currentEdge, g );
         HEVertex trg = hedi::target( currentEdge, g );
-        if ( g[src].type != Vtype ) { // seach ?? - Vtype
-            if ( g[trg].type == Vtype ) {
+        if ( g[src].status != Vtype ) { // seach ?? - Vtype
+            if ( g[trg].status == Vtype ) {
                 // we have found ?? - Vtype
                 startEdges.push_back( currentEdge );
             }
@@ -443,7 +436,7 @@ void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
     VertexVector face_verts = hedi::face_vertices(f,g);    
     unsigned count=1;
     BOOST_FOREACH( HEVertex v, face_verts ) {
-        std::cout << g[v].index  << "(" << g[v].type  << ")";
+        std::cout << g[v].index  << "(" << g[v].status  << ")";
         if (count != face_verts.size() )
             std::cout << "-";
         count++;
@@ -461,7 +454,7 @@ void VoronoiDiagram::printVertices(VertexVector& q) {
 void VoronoiDiagram::pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q) {
     VertexVector adj_verts = hedi::adjacent_vertices(v,g);
     BOOST_FOREACH( HEVertex w, adj_verts ) {
-        if ( g[w].type == UNDECIDED ) {
+        if ( g[w].status == UNDECIDED ) {
             if ( !g[w].in_queue ) { 
                 Q.push(w); // push adjacent undecided verts for testing.
                 g[w].in_queue=true;
@@ -474,7 +467,7 @@ int VoronoiDiagram::adjacentInCount(HEVertex v) {
     VertexVector adj_v = hedi::adjacent_vertices(v,g);
     int in_count=0;
     BOOST_FOREACH( HEVertex w, adj_v) {
-        if ( g[w].type == IN )
+        if ( g[w].status == IN )
             in_count++;
     }
     return in_count;
@@ -484,7 +477,7 @@ FaceVector VoronoiDiagram::adjacentIncidentFaces(HEVertex v) {
     assert( adj_faces.size() == 3 );
     FaceVector inc_faces;
     BOOST_FOREACH( HEFace f, adj_faces ) {
-        if ( g[f].type == INCIDENT )
+        if ( g[f].status == INCIDENT )
             inc_faces.push_back( f );
     }
     assert( !inc_faces.empty() );
@@ -498,7 +491,7 @@ bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
         // VertexVector face_verts = hed.face_vertices(f);
         bool face_found=false;
         BOOST_FOREACH( HEVertex w, hedi::face_vertices(f,g) ) {
-            if ( w != v && g[w].type == IN && hedi::has_edge(w,v,g) ) 
+            if ( w != v && g[w].status == IN && hedi::has_edge(w,v,g) ) 
                 face_found = true;
         }
         if (!face_found)
@@ -520,19 +513,19 @@ void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
     pushAdjacentVertices( v0[0] , Q);
     while( !Q.empty() ) {
         HEVertex v = Q.front();
-        assert( g[v].type == UNDECIDED );
+        assert( g[v].status == UNDECIDED );
         // add to v0 if detH<0 and passes tests. otherwise OUT
         double h = g[v].detH( p );
         if ( h < 0.0 ) { // try to mark IN
             // (C4) v should not be adjacent to two or more IN vertices
             // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
             if ( (adjacentInCount(v) >= 2) || (!incidentFacesHaveAdjacentInVertex(v)) ) {
-                assert( g[v].type == UNDECIDED );
-                g[v].type = OUT;
+                assert( g[v].status == UNDECIDED );
+                g[v].status = OUT;
                 //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
                 in_vertices.push_back( v );
             } else {
-                g[v].type = IN;
+                g[v].status = IN;
                 //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
                 in_vertices.push_back( v );
                 v0.push_back( v );
@@ -542,8 +535,8 @@ void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
         } else { // mark OUT
             //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
             assert( h >= 0.0 );
-            assert( g[v].type == UNDECIDED );
-            g[v].type = OUT;
+            assert( g[v].status == UNDECIDED );
+            g[v].status = OUT;
             in_vertices.push_back( v );
         }
         Q.pop(); // delete from queue
@@ -565,12 +558,12 @@ void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
 
 // used by augment_M
 void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
-    assert( g[v].type == IN );
+    assert( g[v].status == IN );
     FaceVector new_adjacent_faces = hedi::adjacent_faces( v, g ); 
     assert( new_adjacent_faces.size()==3 );
     BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
-        if ( g[adj_face].type  != INCIDENT ) {
-            g[adj_face].type = INCIDENT; 
+        if ( g[adj_face].status  != INCIDENT ) {
+            g[adj_face].status = INCIDENT; 
             incident_faces.push_back(adj_face);
         }
     }
@@ -586,7 +579,7 @@ HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
     double h;
     bool first = true;
     BOOST_FOREACH( HEVertex q, face_verts) {
-        if ( g[q].type != OUT ) {
+        if ( g[q].status != OUT ) {
             h = g[q].detH( p ); 
             //std::cout << "  detH = " << h << " ! \n";
             if ( first || (h<minimumH) ) {

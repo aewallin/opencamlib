@@ -67,12 +67,12 @@ class VoronoiDiagram {
 
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set_M(VertexVector& q, const Point& p);
-        EdgeVector find_edges(VertexVector& q, VoronoiVertexType vtype);
+        EdgeVector find_edges(VertexVector& q, VoronoiVertexStatus vtype);
         int outVertexCount(HEFace f);
         int adjacentInCount(HEVertex v);
         FaceVector adjacentIncidentFaces(HEVertex v);
         bool incidentFacesHaveAdjacentInVertex(HEVertex v);
-        bool faceVerticesConnected( HEFace f, VoronoiVertexType Vtype );
+        bool faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype );
         void markAdjecentFacesIncident(HEVertex v);
         void pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q);
         

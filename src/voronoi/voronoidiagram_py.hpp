@@ -53,14 +53,14 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v_seed = findSeedVertex(closest_face, p);
-            g[v_seed].type = IN;
+            g[v_seed].status = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
             augment_vertex_set_M(v0, p);
             BOOST_FOREACH( HEVertex v, v0) {
                 boost::python::list vert;
                 vert.append( g[ v ].position );
-                vert.append( g[ v ].type );
+                vert.append( g[ v ].status );
                 out.append( vert );
             }
             reset_labels();            
@@ -72,7 +72,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v_seed = findSeedVertex(closest_face, p);
-            g[v_seed].type = IN;
+            g[v_seed].status = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
             augment_vertex_set_M(v0, p);
@@ -93,7 +93,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v_seed = findSeedVertex(closest_face, p);
-            g[v_seed].type = IN;
+            g[v_seed].status = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
             augment_vertex_set_M(v0, p);
