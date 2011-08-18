@@ -66,6 +66,8 @@ class Fiber {
         /// string repr
         friend std::ostream& operator<<(std::ostream &stream, const Fiber &f);
         
+		bool operator==( Fiber& other ) { if( (this->p1 == other.p1) && (this->p2 == other.p2) ) return true; else return false; }
+
     // DATA
         /// start point
         Point p1;

@@ -81,7 +81,7 @@ void Waterline::weave2_process() {
     }
    
     std::cout << "Weave::build()..." << std::flush;
-    weave.build(); 
+    weave.build2(); 
     std::cout << "done.\n";
     
     std::cout << "Weave::face traverse()...";

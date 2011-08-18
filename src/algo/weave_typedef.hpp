@@ -69,7 +69,7 @@ typedef VertexIntersectionSet::iterator VertexPairIterator;
 
 
 /// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT };
 
 
 

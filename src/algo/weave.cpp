@@ -71,11 +71,17 @@ void Weave::face_traverse() {
 
 
 // given a VertexPair and an Interval, in the Interval find the Vertex above and below the given vertex
-std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Interval& ival) { 
+std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality ) { 
     VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
     assert( itr != ival.intersections2.end() ); // we must find a lower_bound
-    VertexPairIterator v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
-    VertexPairIterator v_below = --itr; // this is the vertex below the give vertex
+    VertexPairIterator v_above; // lower_bound returns one beyond the give key, i.e. what we want
+    if( above_equality ) v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
+    else
+	{
+		v_above = ++itr;
+		--itr;
+	}
+	VertexPairIterator v_below = --itr; // this is the vertex below the give vertex
     std::pair<Vertex,Vertex> out;
     out.first = v_above->first; // vertex above v (xu)
     out.second = v_below->first; // vertex below v (xl)
@@ -145,9 +151,9 @@ void Weave::build() {
                             Point v_position( yf.p1.x, xf.p1.y , xf.p1.z );
                             // find neighbors to v
                             Vertex x_u, x_l;
-                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi );
+                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi, true );
                             Vertex y_u, y_l;
-                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
+                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi, true );
                             
                             add_int_vertex(v_position,x_l,x_u,y_l,y_u,xi,yi);
                         } // end intersection case
@@ -199,161 +205,370 @@ void Weave::add_interval(Fiber& xf, Interval& xi) {
 }
 
 // this is the new smarter build() which uses less RAM
-void Weave::build2() {
-    BOOST_FOREACH( Fiber& xf, xfibers ) {
-        assert( !xf.empty() );
-        BOOST_FOREACH( Interval& xi, xf.ints ) { // add each X interval to the weave
-            Point p1( xf.point(xi.lower) );
-            Vertex xv1 = add_cl_vertex( p1, xi, p1.x ); 
-            Point p2( xf.point(xi.upper) );
-            Vertex xv2 = add_cl_vertex( p2, xi, p2.x );
-            Edge e1 = hedi::add_edge( xv1, xv2, g);
-            Edge e2 = hedi::add_edge( xv2, xv1, g);
-            g[e1].next = e2;
-            g[e2].next = e1;
-            g[e1].prev = e2;
-            g[e2].prev = e1;
-            
-            // now set xi.last_fiber_crossing for this interval
-            std::vector<Fiber>::iterator it_yfib, end_yfib;
-            it_yfib = yfibers.begin(); end_yfib = yfibers.end();
-            bool last_fiber_crossing_found = false;
-            while( (!last_fiber_crossing_found) && (it_yfib<end_yfib) ) {
-                if( p2.x < it_yfib->p1.x ) { //p2 = xi.upper
-                    last_fiber_crossing_found = true;
-                    xi.last_fiber_crossing = --it_yfib;
-                } else
-                it_yfib++;
-            }
-            if( !last_fiber_crossing_found ) 
-                xi.last_fiber_crossing = --it_yfib;
-        } // end xfiber.ints loop
-    } // end xfibers loop
-    
-    // now add y-intervals to the weave
-    std::vector<Fiber>::iterator yf;
-    for( yf = yfibers.begin(); yf != yfibers.end(); yf++ ) { // go thorugh each fiber
-        BOOST_FOREACH( Interval& yi, yf->ints ) { // go through each interval
-            double ymin = yf->point(yi.lower).y;
-            double ymax = yf->point(yi.upper).y;
-            // Add y-interval endpoints to the weave
-            Point p1( yf->point(yi.lower) );
-            add_cl_vertex( p1, yi, p1.y );
-            Point p2( yf->point(yi.upper) );
-            add_cl_vertex( p2, yi, p2.y );
+void Weave::build2()
+{
+	add_vertices_x();
+	add_vertices_y();
 
-            std::vector<Fiber>::iterator it_xfib, end_xfib;
-            std::vector<Fiber>::reverse_iterator rev_it_xfib, rev_end_xfib;
+	BOOST_FOREACH( Fiber& xf, xfibers )
+	{
+		std::vector<Interval>::iterator xi;
+		for( xi = xf.ints.begin(); xi < xf.ints.end(); xi++ )
+		{
+			std::set<std::vector<Fiber>::iterator>::const_iterator current, prev;
 
-            it_xfib = xfibers.begin();
-            rev_it_xfib = xfibers.rbegin();
+			current = xi->intersections_fibers.begin();
+			prev = current++;
 
-            bool first_xfiber_found = false;
-            bool last_xfiber_found = false;
-            // Is it possible that an y-interval doesn't cross any x-fiber ??
-            while( !first_xfiber_found ) {
-                if( it_xfib->p1.y > ymin )
-                    first_xfiber_found = true;
-                else
-                    it_xfib++;
-            }
+			for( ; current != xi->intersections_fibers.end(); current++ )
+			{
+				if( (*current - *prev) > 1 )
+				{
+					std::vector<Interval>::iterator yi = find_interval_crossing_x( xf, *(*prev + 1) );
+					add_vertex( xf, *(*prev + 1), xi , yi, FULLINT );
 
-            while( !last_xfiber_found ) {
-                if( rev_it_xfib->p1.y < ymax )
-                    last_xfiber_found = true;
-                else
-                    rev_it_xfib++;
-            }
-            end_xfib = rev_it_xfib.base() - 1; 
+					if( (*current - *prev) > 2 )
+					{
+						yi = find_interval_crossing_x( xf, *(*current - 1) );
+						add_vertex( xf, *(*current - 1), xi, yi, FULLINT );
+					}
+				}
 
-            int xfibers_size = end_xfib-it_xfib;
-            int xfibers_size_half = xfibers_size/2;
-            end_xfib = 1 + it_xfib + ( xfibers_size_half );
-            rev_end_xfib = 1 + rev_it_xfib + (xfibers_size_half - 1);
-            if( (xfibers_size_half*2) != xfibers_size ) 
-                rev_end_xfib++;
+				prev = current;
+			}
+		}
+	}
 
-            bool first_fullint_vertex_up, first_fullint_vertex_down;
-            first_fullint_vertex_up = true; first_fullint_vertex_down = true;
+	BOOST_FOREACH( Fiber& yf, yfibers )
+	{
+		std::vector<Interval>::iterator yi;
+		for( yi = yf.ints.begin(); yi < yf.ints.end(); yi++ )
+		{
+			std::set<std::vector<Fiber>::iterator>::iterator current, prev;
 
-            while( it_xfib<end_xfib ) {
-                bool forw_inter_found, rev_inter_found;
-                forw_inter_found = false; rev_inter_found = false;
+			current = yi->intersections_fibers.begin();
+			prev = current++;
 
-                std::vector<Interval>::iterator forw_it, forw_end;
-                std::vector<Interval>::iterator rev_it, rev_end;
-                forw_it = it_xfib->ints.begin(); forw_end = it_xfib->ints.end();
-                rev_it = rev_it_xfib->ints.begin(); rev_end = rev_it_xfib->ints.end();
+			for( ; current != yi->intersections_fibers.end(); current++ )
+			{
+				if( (*current - *prev) > 1 )
+				{
+					std::vector<Interval>::iterator xi = find_interval_crossing_y( *(*prev + 1), yf );
+					add_vertex( *(*prev + 1), yf, xi , yi, FULLINT );
 
-                if( first_fullint_vertex_up ) {
-                    while( (!forw_inter_found) && (forw_it<forw_end) ) {
-                        if( (it_xfib->point(forw_it->lower).x <= yf->p1.x) && 
-                            (it_xfib->point(forw_it->upper).x >= yf->p1.x) ) //Intersection found
-                        {
-                            forw_inter_found = true;
+					if( (*current - *prev) > 2 )
+					{
+						xi = find_interval_crossing_y( *(*current - 1), yf );
+						add_vertex( *(*current - 1), yf, xi, yi, FULLINT );
+					}
+				}
 
-                            Vertex v = boost::graph_traits<WeaveGraph>::null_vertex();
-                            Point v_position( yf->p1.x, it_xfib->p1.y , it_xfib->p1.z );
-                            
-                            // find neighbors to v
-                            Vertex x_u, x_l;
-                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), *forw_it );
-                            Vertex y_u, y_l;
-                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
+				prev = current;
+			}
+		}
+	}
 
-                            if( ((yf != forw_it->last_fiber_crossing) && ((g[x_l].type == CL) ||
-                                                                          (g[y_l].type == CL) ||
-                                                                          (g[y_u].type == CL)) )
-                                ||
-                                ((yf == forw_it->last_fiber_crossing) && ((g[x_u].type == CL) ||
-                                                                          (g[y_l].type == CL) ||
-                                                                          (g[y_u].type == CL)) ) )
-                            {
-                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *forw_it, yi );
-                            } else if( first_fullint_vertex_up ) {
-                                first_fullint_vertex_up = false;
-                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *forw_it, yi );
-                            }
-                        } // end intersection-case
-                        forw_it++;
-                    }// end while !forw_inter_found
-                }// end if first_fullint_vertex_up
+	add_all_edges();
+}
 
-                if( (rev_it_xfib<rev_end_xfib) && first_fullint_vertex_down ) {
-                    while( (!rev_inter_found) && (rev_it<rev_end) ) {
-                        if( (rev_it_xfib->point(rev_it->lower).x <= yf->p1.x) && 
-                            (rev_it_xfib->point(rev_it->upper).x >= yf->p1.x) ) //Intersection found
-                        {
-                            rev_inter_found = true;
-                            Vertex v = boost::graph_traits<WeaveGraph>::null_vertex();
-                            Point v_position( yf->p1.x, rev_it_xfib->p1.y , rev_it_xfib->p1.z );
-                            Vertex x_u, x_l;
-                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), *rev_it );
-                            Vertex y_u, y_l;
-                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
+void Weave::add_vertices_x()
+{
+	std::vector<Fiber>::iterator xf;
+	for( xf = xfibers.begin(); xf < xfibers.end(); xf++ )
+	{
+		std::vector<Interval>::iterator xi;
+		for( xi = xf->ints.begin(); xi < xf->ints.end(); xi++ )
+		{
+			Point lower( xf->point( xi->lower ) );
+			add_cl_vertex( lower, *xi, lower.x );
+			Point upper( xf->point( xi->upper ) );
+			add_cl_vertex( upper, *xi, upper.x );
 
-                            if( ((yf != rev_it->last_fiber_crossing) && ((g[x_l].type == CL) ||
-                                                                         (g[y_l].type == CL) ||
-                                                                         (g[y_u].type == CL)) )
-                                ||
-                                ((yf == rev_it->last_fiber_crossing) && ((g[x_u].type == CL) ||
-                                                                         (g[y_l].type == CL) ||
-                                                                         (g[y_u].type == CL)) ) )
-                            {
-                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *rev_it, yi );
-                            } else if( first_fullint_vertex_down ) {
-                                first_fullint_vertex_down = false;
-                                add_int_vertex( v_position, x_l, x_u, y_l, y_u, *rev_it, yi );
-                            }
-                        }
-                        rev_it++;
-                    }// end while (!rev_inter_found) && (rev_it<rev_end)
-                }// end if
-                
-                it_xfib++; rev_it_xfib++;
-            } // end while( it_xfib<end_xfib )
-        }//end of foreach y-interval
-    }// end of foreach y-fiber
+			std::vector<Fiber>::iterator yf = yfibers.begin();
+			std::vector<Interval>::iterator yi;
+
+			// find first and last fiber crossing this interval
+			while( !crossing_x( *yf, yi, *xi, *xf ) ) yf++;
+			add_vertex( *xf, *yf, xi, yi, INT );
+			xi->intersections_fibers.insert( yf );
+			yi->intersections_fibers.insert( xf );
+
+			while( (yf<yfibers.end()) && crossing_x( *yf, yi, *xi, *xf ) ) yf++;
+			add_vertex( *xf, *(--yf), xi, yi, INT );
+			xi->intersections_fibers.insert( yf );
+			yi->intersections_fibers.insert( xf );
+		}// end foreach x-interval
+	}// end foreach x-fiber
+}
+
+void Weave::add_vertices_y()
+{
+	std::vector<Fiber>::iterator yf;
+	for( yf = yfibers.begin(); yf < yfibers.end(); yf++ )
+	{
+		std::vector<Interval>::iterator yi;
+		for( yi = yf->ints.begin(); yi < yf->ints.end(); yi++ )
+		{
+			Point lower( yf->point( yi->lower ) );
+			add_cl_vertex( lower, *yi, lower.y );
+			Point upper( yf->point( yi->upper ) );
+			add_cl_vertex( upper, *yi, upper.y );
+
+			std::vector<Fiber>::iterator xf = xfibers.begin();
+			std::vector<Interval>::iterator xi;
+
+			// find first and last fiber crossing this interval
+			while( !crossing_y( *xf, xi, *yi, *yf ) ) xf++;
+			if( add_vertex( *xf, *yf, xi, yi, INT ) )
+			{
+				xi->intersections_fibers.insert( yf );
+				yi->intersections_fibers.insert( xf );
+			}
+
+			while( (xf<xfibers.end()) && crossing_y( *xf, xi, *yi, *yf ) ) xf++;
+			if( add_vertex( *(--xf), *yf, xi, yi, INT ) )
+			{
+				xi->intersections_fibers.insert( yf );
+				yi->intersections_fibers.insert( xf );
+			}
+		}// end foreach x-interval
+	}// end foreach x-fiber
+}
+
+//crossing_x fiber
+bool Weave::crossing_x( Fiber& yf, std::vector<Interval>::iterator& yi, Interval& xi, Fiber& xf )
+{
+	//if the FIBER crosses the xi interval
+	if( (yf.p1.x >= xf.point( xi.lower ).x) && (yf.p1.x <= xf.point( xi.upper ).x) )
+	{
+		//for all the intervals of this y-fiber...
+		std::vector<Interval>::iterator it;
+		for( it = yf.ints.begin(); it < yf.ints.end(); it++ )
+		{
+			//find the first INTERVAL which crosses our xi interval
+			if( (yf.point( it->lower ).y <= xf.p1.y) && (yf.point( it->upper ).y >= xf.p1.y) )
+			{
+				//save the y-interval iterator
+				//and return true because we found an interval
+				yi = it;
+				return true;
+			}
+		}
+
+		//return false, there is no y-interval on this y-fiber crossing our xi interval 
+		return false;
+	}
+	//this y-fiber doesn't cross our xi interval
+	else return false;
+}
+
+//crossing_y fiber
+bool Weave::crossing_y( Fiber& xf, std::vector<Interval>::iterator& xi, Interval& yi, Fiber& yf )
+{
+	if( (xf.p1.y >= yf.point( yi.lower ).y) && (xf.p1.y <= yf.point( yi.upper ).y) )
+	{
+		std::vector<Interval>::iterator it;
+		for( it = xf.ints.begin(); it < xf.ints.end(); it++ )
+		{
+			if( (xf.point( it->lower ).x <= yf.p1.x) && (xf.point( it->upper ).x >= yf.p1.x) )
+			{
+				xi = it;
+				return true;
+			}
+		}
+
+		return false;
+	}
+	else return false;
+}
+
+//find_interval_crossing_x
+std::vector<Interval>::iterator Weave::find_interval_crossing_x( Fiber& xf, Fiber& yf )
+{
+	std::vector<Interval>::iterator yi, xi;
+
+	yi = yf.ints.begin();
+	while( (yi<yf.ints.end()) && !crossing_y( xf, xi, *yi, yf ) ) yi++;
+
+	return yi;
+}
+
+//crossing_y interval
+std::vector<Interval>::iterator Weave::find_interval_crossing_y( Fiber& xf, Fiber& yf )
+{
+	std::vector<Interval>::iterator xi, yi;
+
+	xi = xf.ints.begin();
+	while( (xi<xf.ints.end()) && !crossing_x( yf, yi, *xi, xf ) ) xi++;
+
+	return xi;
+}
+
+//add_vertex
+bool Weave::add_vertex(	Fiber& xf, Fiber& yf,
+					   std::vector<Interval>::iterator xi, std::vector<Interval>::iterator yi,
+						enum VertexType type )
+{
+	//test if vertex exists
+	BOOST_FOREACH( std::vector<Fiber>::iterator it_xf, yi->intersections_fibers )
+	{
+		if( *it_xf == xf )
+			return false;
+	}
+
+	Point v_position( yf.p1.x, xf.p1.y, xf.p1.z );
+	Vertex v = hedi::add_vertex( VertexProps( v_position, type, xi, yi ), g);
+
+	xi->intersections2.insert( VertexPair( v, v_position.x ) );
+	yi->intersections2.insert( VertexPair( v, v_position.y ) );
+
+	return true;
+}
+
+//add_all_edges
+void Weave::add_all_edges()
+{
+	std::vector<Vertex> vertices = hedi::vertices( g );
+
+	std::cout << "There are " << vertices.size() << " vertices.\n";
+	BOOST_FOREACH( Vertex& vertex, vertices )
+	{
+		if( (g[vertex].type == INT) )
+		{
+			std::vector<Vertex>				adjacent_vertices;
+			std::vector<Vertex>::iterator	adj_itr;
+			std::vector<Edge>				in_edges, out_edges;
+			std::vector<Edge>::iterator		in_edge_itr, out_edge_itr;
+
+			Vertex x_u, x_l, y_u, y_l;
+			boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.x), *(g[vertex].xi), false );
+			boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.y), *(g[vertex].yi), false );
+			
+			adjacent_vertices.push_back( x_l );
+			adjacent_vertices.push_back( y_u );
+			adjacent_vertices.push_back( x_u );
+			adjacent_vertices.push_back( y_l );
+
+			for( adj_itr=adjacent_vertices.begin(); adj_itr<adjacent_vertices.end(); adj_itr++ )
+			{
+				Edge in, out;
+
+				if( hedi::has_edge( *adj_itr, vertex, g ) )
+				{
+					in = hedi::edge( *adj_itr, vertex, g );
+					out = hedi::edge( vertex, *adj_itr, g );
+					in_edges.push_back( in );
+					out_edges.push_back( out );
+				}
+				else
+				{
+					in = hedi::add_edge( *adj_itr, vertex, g );
+					out = hedi::add_edge( vertex, *adj_itr, g );
+					in_edges.push_back( in );
+					out_edges.push_back( out );
+				}
+
+				if( g[*adj_itr].type == CL )
+				{
+					g[in].prev = out;
+					g[out].next = in;
+				}
+			}
+
+			for(	in_edge_itr = in_edges.begin(),	out_edge_itr = out_edges.begin();
+					in_edge_itr < in_edges.end(),	out_edge_itr < out_edges.end();
+					in_edge_itr++,					out_edge_itr++ )
+			{
+				if( in_edge_itr == in_edges.begin() )
+				{
+					g[*in_edge_itr].next = *(out_edge_itr+1);
+					g[*out_edge_itr].prev = *(in_edges.end()-1);
+				}
+				else if( in_edge_itr == (in_edges.end() - 1) )
+				{
+					g[*in_edge_itr].next = *(out_edges.begin());
+					g[*out_edge_itr].prev = *(in_edge_itr-1);
+				}
+				else
+				{
+					g[*in_edge_itr].next = *(out_edge_itr+1);
+					g[*out_edge_itr].prev = *(in_edge_itr-1);
+				}
+			}
+		}
+		else if( g[vertex].type == FULLINT )
+		{
+			std::vector<Vertex> adjacent_vertices;
+			Vertex x_u, x_l, y_u, y_l;
+			boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.x), *(g[vertex].xi), false );
+			boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.y), *(g[vertex].yi), false );
+
+			if( g[x_l].type == INT ) adjacent_vertices.push_back( x_l );
+			if( g[y_u].type == INT ) adjacent_vertices.push_back( y_u );
+			if( g[x_u].type == INT ) adjacent_vertices.push_back( x_u );
+			if( g[y_l].type == INT ) adjacent_vertices.push_back( y_l );
+			
+			if( adjacent_vertices.size() == 1 )
+			{
+				Edge in, out;
+				std::vector<Vertex>::iterator adj_itr = adjacent_vertices.begin();
+
+				if( hedi::has_edge( *adj_itr, vertex, g ) )
+				{
+					in  = hedi::edge( *adj_itr, vertex, g );
+					out = hedi::edge( vertex, *adj_itr, g );
+				}
+				else
+				{
+					in  = hedi::add_edge( *adj_itr, vertex, g );
+					out = hedi::add_edge( vertex, *adj_itr, g );
+				}
+				
+				g[in].next = out;
+				g[out].prev = in;
+			}
+			else
+			{
+				std::vector<Vertex>::iterator adj_itr;
+				std::vector<Edge> out_edges, in_edges;
+				std::vector<Edge>::iterator edge_itr;
+
+				for( adj_itr=adjacent_vertices.begin(); adj_itr<adjacent_vertices.end(); adj_itr++ )
+				{
+					if( !hedi::has_edge( *adj_itr, vertex, g ) )
+					{	
+						in_edges.push_back( hedi::add_edge( *adj_itr, vertex, g ) );
+						out_edges.push_back( hedi::add_edge( vertex, *adj_itr, g ) );
+					}
+					else
+					{
+						in_edges.push_back( hedi::edge( *adj_itr, vertex, g ) );
+						out_edges.push_back( hedi::edge( vertex, *adj_itr, g ) );
+					}
+				}
+
+				for( unsigned int i=0; i<in_edges.size(); i++ )
+				{
+					if( i == (in_edges.size() - 1) )
+					{
+						g[in_edges[i] ].next = out_edges[ 0 ];
+						g[out_edges[i]].prev =  in_edges[i-1];
+					}
+					else if( i == 0 )
+					{
+						g[in_edges[i] ].next = out_edges[i+1];
+						g[out_edges[i]].prev =  in_edges[in_edges.size()-1];
+					}
+					else
+					{
+						g[in_edges[i] ].next = out_edges[i+1];
+						g[out_edges[i]].prev =  in_edges[i-1];
+					}
+				}
+			}
+
+		}
+	}
 }
 
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices

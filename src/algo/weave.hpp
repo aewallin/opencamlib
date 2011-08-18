@@ -38,11 +38,19 @@ struct VertexProps {
         init();
     }
     /// construct vertex at position p with type t
-    VertexProps( Point p, VertexType t) {
+	VertexProps( Point p, VertexType t, std::vector<Interval>::iterator x, std::vector<Interval>::iterator y )
+	: xi( x ), yi( y ) {
         position=p;
         type=t;
         init();
     }
+
+	VertexProps( Point p, VertexType t ) {
+		position = p;
+		type = t;
+		init();
+	}
+
     void init() {
         index = count;
         count++;
@@ -55,6 +63,10 @@ struct VertexProps {
     int index;
     /// global vertex count
     static int count;
+	// x interval
+	std::vector<Interval>::iterator xi;
+	// y interval
+	std::vector<Interval>::iterator yi;
 };
 
 /// edge properties
@@ -117,6 +129,17 @@ class Weave {
         void build3();
         void add_interval(Fiber& xf, Interval& xi);
         
+		void add_vertices_x();
+        void add_vertices_y();
+		bool crossing_x( Fiber& yf, std::vector<Interval>::iterator& yi, Interval& xi, Fiber& xf );
+		bool crossing_y( Fiber& xf, std::vector<Interval>::iterator& xi, Interval& yi, Fiber& yf );
+		std::vector<Interval>::iterator find_interval_crossing_x( Fiber& xf, Fiber& yf );
+		std::vector<Interval>::iterator find_interval_crossing_y( Fiber& xf, Fiber& yf );
+		bool add_vertex(	Fiber& xf, Fiber& yf,
+							std::vector<Interval>::iterator xi, std::vector<Interval>::iterator yi,
+							enum VertexType type );
+		void add_all_edges();
+
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
         
@@ -150,7 +173,7 @@ class Weave {
 
         
         /// given a vertex in the graph, find it's upper and lower neighbor vertices
-        std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
+        std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality );
          
 // DATA
         /// the weave-graph

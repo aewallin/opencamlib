@@ -68,10 +68,8 @@ class Interval {
         /// flag for use by Weave::build()
         bool in_weave; 
         
-        /// last y-fiber crossing this interval
-        /// only used for an x interval
-        std::vector<Fiber>::iterator last_fiber_crossing;
-
+		/// fibers
+		std::set<std::vector<Fiber>::iterator> intersections_fibers;
         
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
