@@ -24,8 +24,7 @@
 #include "ccpoint.hpp"
 #include "weave_typedef.hpp"
 
-namespace ocl
-{
+namespace ocl {
 
 class Fiber;
 
@@ -68,12 +67,12 @@ class Interval {
         /// flag for use by Weave::build()
         bool in_weave; 
         
-		/// fibers
-		std::set<std::vector<Fiber>::iterator> intersections_fibers;
+        /// fibers
+        std::set<std::vector<Fiber>::iterator> intersections_fibers;
         
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
-        weave2::VertexIntersectionSet intersections2;
+        weave::VertexIntersectionSet intersections2;
 };
 
 } // end namespace

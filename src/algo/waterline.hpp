@@ -61,9 +61,9 @@ class Waterline : public Operation {
         
     protected:
         /// from xfibers and yfibers, build the weave, run face-traverse, and write toolpaths to loops
-        void weave2_process();
+        void weave_process();
         // experimental, uses Weave::build2() 
-        void weave2_process2(); 
+        void weave_process2(); 
         /// initialization of fibers
         void init_fibers();
         /// x and y-coordinates for fiber generation

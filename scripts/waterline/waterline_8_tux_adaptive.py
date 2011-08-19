@@ -34,6 +34,8 @@ if __name__ == "__main__":
         #wl.setThreads(5)
         t_before = time.time() 
         wl.run2()
+        #wl.run()
+
         t_after = time.time()
         calctime = t_after-t_before
         print " Waterline done in ", calctime," s"

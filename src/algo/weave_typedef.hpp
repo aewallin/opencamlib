@@ -21,11 +21,9 @@
 
 #include "halfedgediagram.hpp"
 
-namespace ocl
-{
+namespace ocl {
 
-namespace weave2
-{
+namespace weave {
 
 struct VertexProps; 
 struct EdgeProps;
@@ -73,7 +71,7 @@ enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT };
 
 
 
-} // end weave2 namespace
+} // end weave namespace
 
 } // end ocl namespace
 #endif

@@ -67,12 +67,12 @@ void Waterline::run() {
     xfibers = *( subOp[0]->getFibers() );
     yfibers = *( subOp[1]->getFibers() );
     
-    weave2_process();
+    weave_process();
 }
 
-void Waterline::weave2_process() {
+void Waterline::weave_process() {
     std::cout << "Weave...\n" << std::flush;
-    weave2::Weave weave;
+    weave::Weave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
     }
@@ -81,7 +81,7 @@ void Waterline::weave2_process() {
     }
    
     std::cout << "Weave::build()..." << std::flush;
-    weave.build2(); 
+    weave.build(); 
     std::cout << "done.\n";
     
     std::cout << "Weave::face traverse()...";
@@ -93,9 +93,9 @@ void Waterline::weave2_process() {
     std::cout << "done.\n";   
 }
 
-void Waterline::weave2_process2() {
+void Waterline::weave_process2() {
     std::cout << "Weave...\n" << std::flush;
-    weave2::Weave weave;
+    weave::Weave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
     }

@@ -67,12 +67,12 @@ AdaptiveWaterline::~AdaptiveWaterline() {
 
 void AdaptiveWaterline::run() {
     adaptive_sampling_run();
-    weave2_process(); // in base-class Waterline
+    weave_process(); // in base-class Waterline
 }
 
 void AdaptiveWaterline::run2() {
     adaptive_sampling_run();
-    weave2_process2(); // in base-class Waterline
+    weave_process2(); // in base-class Waterline
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {
