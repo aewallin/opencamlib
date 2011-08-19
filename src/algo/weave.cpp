@@ -175,7 +175,8 @@ void Weave::build2() {
     std::cout << " build2() add_vertices_y() ... " << std::flush ;
     add_vertices_y();
     std::cout << " done.\n" << std::flush ;
-
+    
+    std::cout << " build2() looping over xfibers ... " << std::flush ;
     BOOST_FOREACH( Fiber& xf, xfibers ) {
         std::vector<Interval>::iterator xi;
         for( xi = xf.ints.begin(); xi < xf.ints.end(); xi++ ) {
@@ -196,7 +197,9 @@ void Weave::build2() {
             }
         }
     }
-
+    std::cout << " done.\n" << std::flush ;
+    
+    std::cout << " build2() looping over yfibers ... " << std::flush ;
     BOOST_FOREACH( Fiber& yf, yfibers ) {
         std::vector<Interval>::iterator yi;
         for( yi = yf.ints.begin(); yi < yf.ints.end(); yi++ ) {
@@ -216,8 +219,11 @@ void Weave::build2() {
             }
         }
     }
+    std::cout << " done.\n" << std::flush ;
     
+    std::cout << " build2() add_all_edges()... " << std::flush ;
     add_all_edges();
+    std::cout << " done.\n" << std::flush ;
 }
 
 void Weave::add_vertices_x() {
