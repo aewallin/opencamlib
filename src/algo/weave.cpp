@@ -30,10 +30,8 @@ int VertexProps::count = 0;
 
 void Weave::addFiber(Fiber& f) {
     if ( f.dir.xParallel() && !f.empty() ) {
-        //xfiberSet.insert(f);
         xfibers.push_back(f);
     } else if ( f.dir.yParallel() && !f.empty() ) {
-        //yfiberSet.insert(f);
         yfibers.push_back(f);
     } else if (!f.empty()) {
         assert(0); // fiber must be either x or y
@@ -164,25 +162,19 @@ void Weave::build() {
     } // end X-fiber loop
 }
 
-/*
-
-void Weave::add_interval(Fiber& xf, Interval& xi) {
-    Point p1( xf.point(xi.lower) );
-    Vertex xv1 = add_cl_vertex( p1, xi, p1.x ); 
-    Point p2( xf.point(xi.upper) );
-    Vertex xv2 = add_cl_vertex( p2, xi, p2.x );
-    Edge e1 = hedi::add_edge( xv1, xv2, g);
-    Edge e2 = hedi::add_edge( xv2, xv1, g);
-    g[e1].next = e2;
-    g[e2].next = e1;
-    g[e1].prev = e2;
-    g[e2].prev = e1;
-}*/
-
 // this is the new smarter build() which uses less RAM
 void Weave::build2() {
+    // this adds all CL-vertices from x-intervals
+    // it also populates the xi.intersections_fibers set of intersecting y-fibers
+    // also add the first-crossing vertex and the last-crossing vertex
+    
+    std::cout << " build2() add_vertices_x() ... " ;
     add_vertices_x();
+    std::cout << " done.\n";
+    // the same for y-intervals, add all CL-points, and intersections to the set.
+    std::cout << " build2() add_vertices_y() ... " ;
     add_vertices_y();
+    std::cout << " done.\n";
 
     BOOST_FOREACH( Fiber& xf, xfibers ) {
         std::vector<Interval>::iterator xi;
@@ -191,9 +183,10 @@ void Weave::build2() {
             current = xi->intersections_fibers.begin();
             prev = current++;
             for( ; current != xi->intersections_fibers.end(); current++ ) {
+                // for each x-interval, loop through the intersecting y-fibers
                 if( (*current - *prev) > 1 ) {
                     std::vector<Interval>::iterator yi = find_interval_crossing_x( xf, *(*prev + 1) );
-                    add_vertex( xf, *(*prev + 1), xi , yi, FULLINT );
+                    add_vertex( xf, *(*prev + 1), xi , yi, FULLINT ); 
                     if( (*current - *prev) > 2 ) {
                         yi = find_interval_crossing_x( xf, *(*current - 1) );
                         add_vertex( xf, *(*current - 1), xi, yi, FULLINT );
@@ -236,20 +229,19 @@ void Weave::add_vertices_x() {
             add_cl_vertex( lower, *xi, lower.x );
             Point upper( xf->point( xi->upper ) );
             add_cl_vertex( upper, *xi, upper.x );
-
+            
+            // find first and last fiber crossing this interval
             std::vector<Fiber>::iterator yf = yfibers.begin();
             std::vector<Interval>::iterator yi;
-
-            // find first and last fiber crossing this interval
-            while( !crossing_x( *yf, yi, *xi, *xf ) ) 
+            while( !crossing_x( *yf, yi, *xi, *xf ) ) // first crossing 
                 yf++;
-            add_vertex( *xf, *yf, xi, yi, INT );
+            add_vertex( *xf, *yf, xi, yi, INT ); // the first crossing vertex
             xi->intersections_fibers.insert( yf );
             yi->intersections_fibers.insert( xf );
 
-            while( (yf<yfibers.end()) && crossing_x( *yf, yi, *xi, *xf ) ) 
+            while( (yf<yfibers.end()) && crossing_x( *yf, yi, *xi, *xf ) ) // last crossing 
                 yf++;
-            add_vertex( *xf, *(--yf), xi, yi, INT );
+            add_vertex( *xf, *(--yf), xi, yi, INT ); // the last crossing vertex
             xi->intersections_fibers.insert( yf );
             yi->intersections_fibers.insert( xf );
         }// end foreach x-interval
@@ -270,7 +262,7 @@ void Weave::add_vertices_y() {
             // find first and last fiber crossing this interval
             while ( !crossing_y( *xf, xi, *yi, *yf ) ) 
                 xf++;
-            if( add_vertex( *xf, *yf, xi, yi, INT ) ) {
+            if( add_vertex( *xf, *yf, xi, yi, INT ) ) { // add_vertex returns false if vertex already exists
                 xi->intersections_fibers.insert( yf );
                 yi->intersections_fibers.insert( xf );
             }

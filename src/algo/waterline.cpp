@@ -103,7 +103,7 @@ void Waterline::weave_process2() {
         weave.addFiber(f);
     }
    
-    std::cout << "Weave::build()..." << std::flush;
+    std::cout << "Weave::build2()..." << std::flush;
     weave.build2(); 
     std::cout << "done.\n";
     
