@@ -168,13 +168,13 @@ void Weave::build2() {
     // it also populates the xi.intersections_fibers set of intersecting y-fibers
     // also add the first-crossing vertex and the last-crossing vertex
     
-    std::cout << " build2() add_vertices_x() ... " ;
+    std::cout << " build2() add_vertices_x() ... " << std::flush ;
     add_vertices_x();
-    std::cout << " done.\n";
+    std::cout << " done.\n" << std::flush ;
     // the same for y-intervals, add all CL-points, and intersections to the set.
-    std::cout << " build2() add_vertices_y() ... " ;
+    std::cout << " build2() add_vertices_y() ... " << std::flush ;
     add_vertices_y();
-    std::cout << " done.\n";
+    std::cout << " done.\n" << std::flush ;
 
     BOOST_FOREACH( Fiber& xf, xfibers ) {
         std::vector<Interval>::iterator xi;
