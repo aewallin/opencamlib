@@ -225,28 +225,35 @@ void Weave::add_vertices_x() {
     for( xf = xfibers.begin(); xf < xfibers.end(); xf++ ) {
         std::vector<Interval>::iterator xi;
         for( xi = xf->ints.begin(); xi < xf->ints.end(); xi++ ) {
-            Point lower( xf->point( xi->lower ) );
-            add_cl_vertex( lower, *xi, lower.x );
-            Point upper( xf->point( xi->upper ) );
-            add_cl_vertex( upper, *xi, upper.x );
-            
             // find first and last fiber crossing this interval
             std::vector<Fiber>::iterator yf = yfibers.begin();
             std::vector<Interval>::iterator yi;
-            while( !crossing_x( *yf, yi, *xi, *xf ) ) // first crossing 
-                yf++;
-            add_vertex( *xf, *yf, xi, yi, INT ); // the first crossing vertex
-            xi->intersections_fibers.insert( yf );
-            yi->intersections_fibers.insert( xf );
 
             bool is_crossing = crossing_x( *yf, yi, *xi, *xf );
-            while( (yf<yfibers.end()) && is_crossing ) {// last crossing 
+            while( (yf<yfibers.end()) && !is_crossing ) {// first crossing 
                 yf++;
                 if( yf<yfibers.end() ) is_crossing = crossing_x( *yf, yi, *xi, *xf );
             }
-            add_vertex( *xf, *(--yf), xi, yi, INT ); // the last crossing vertex
-            xi->intersections_fibers.insert( yf );
-            yi->intersections_fibers.insert( xf );
+
+            if( yf < yfibers.end() ) {
+                Point lower( xf->point( xi->lower ) );
+                add_cl_vertex( lower, *xi, lower.x );
+                Point upper( xf->point( xi->upper ) );
+                add_cl_vertex( upper, *xi, upper.x );
+
+                add_vertex( *xf, *yf, xi, yi, INT ); // the first crossing vertex
+                xi->intersections_fibers.insert( yf );
+                yi->intersections_fibers.insert( xf );
+
+                is_crossing = crossing_x( *yf, yi, *xi, *xf );
+                while( (yf<yfibers.end()) && is_crossing ) {// last crossing 
+                    yf++;
+                    if( yf<yfibers.end() ) is_crossing = crossing_x( *yf, yi, *xi, *xf );
+                }
+                add_vertex( *xf, *(--yf), xi, yi, INT ); // the last crossing vertex
+                xi->intersections_fibers.insert( yf );
+                yi->intersections_fibers.insert( xf );
+            }
         }// end foreach x-interval
     }// end foreach x-fiber
 }
@@ -256,28 +263,36 @@ void Weave::add_vertices_y() {
     for( yf = yfibers.begin(); yf < yfibers.end(); yf++ ) {
         std::vector<Interval>::iterator yi;
         for( yi = yf->ints.begin(); yi < yf->ints.end(); yi++ ) {
-            Point lower( yf->point( yi->lower ) );
-            add_cl_vertex( lower, *yi, lower.y );
-            Point upper( yf->point( yi->upper ) );
-            add_cl_vertex( upper, *yi, upper.y );
             std::vector<Fiber>::iterator xf = xfibers.begin();
             std::vector<Interval>::iterator xi;
+            
             // find first and last fiber crossing this interval
-            while ( !crossing_y( *xf, xi, *yi, *yf ) ) 
-                xf++;
-            if( add_vertex( *xf, *yf, xi, yi, INT ) ) { // add_vertex returns false if vertex already exists
-                xi->intersections_fibers.insert( yf );
-                yi->intersections_fibers.insert( xf );
-            }
-
             bool is_crossing = crossing_y( *xf, xi, *yi, *yf );
-            while ( (xf<xfibers.end()) && is_crossing ) { 
+            while ( (xf<xfibers.end()) && !is_crossing ) {
                 xf++;
                 if( xf<xfibers.end() ) is_crossing = crossing_y( *xf, xi, *yi, *yf );
             }
-            if( add_vertex( *(--xf), *yf, xi, yi, INT ) ) {
-                xi->intersections_fibers.insert( yf );
-                yi->intersections_fibers.insert( xf );
+
+            if( xf < xfibers.end() ) {
+                Point lower( yf->point( yi->lower ) );
+                add_cl_vertex( lower, *yi, lower.y );
+                Point upper( yf->point( yi->upper ) );
+                add_cl_vertex( upper, *yi, upper.y );
+
+                if( add_vertex( *xf, *yf, xi, yi, INT ) ) { // add_vertex returns false if vertex already exists
+                    xi->intersections_fibers.insert( yf );
+                    yi->intersections_fibers.insert( xf );
+                }
+
+                bool is_crossing = crossing_y( *xf, xi, *yi, *yf );
+                while ( (xf<xfibers.end()) && is_crossing ) { 
+                    xf++;
+                    if( xf<xfibers.end() ) is_crossing = crossing_y( *xf, xi, *yi, *yf );
+                }
+                if( add_vertex( *(--xf), *yf, xi, yi, INT ) ) {
+                    xi->intersections_fibers.insert( yf );
+                    yi->intersections_fibers.insert( xf );
+                }
             }
         }// end foreach x-interval
     }// end foreach x-fiber
