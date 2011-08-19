@@ -86,7 +86,7 @@ class VoronoiDiagram {
         /// remove vertices in the set
         void remove_vertex_set(VertexVector& v0 , HEFace newface);
         /// set all vertices to UNDECIDED and all faces to NONINCIDENT
-        void reset_labels();
+        void reset_status();
         
     // PRINT
         void printFaceVertexTypes(HEFace f);

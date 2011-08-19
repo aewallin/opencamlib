@@ -113,13 +113,15 @@ struct VertexProps {
         status = UNDECIDED;
     }
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
+    /// Eq.(24) from Sugihara&Iri 1994
     void set_position() {
         double w = J4;
-        double x = - J2/w+pk.x;
-        double y = J3/w+pk.y;
+        double x = -J2/w + pk.x;
+        double y =  J3/w + pk.y;
         position =  Point(x,y);
     }
-    /// based on precalculated J2, J3, J4, calculate the H determinant for Point pl
+    /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
+    /// Eq.(20) from Sugihara&Iri 1994
     double detH(const Point& pl) {
         H = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
         return H;
@@ -169,17 +171,20 @@ struct VertexProps {
         J2 = detH_J2( pi__, pj__, pk__);
         J3 = detH_J3( pi__, pj__, pk__);
         J4 = detH_J4( pi__, pj__, pk__);
-        //assert( J4 > 0.0 );
+        assert( J4 != 0.0 ); // we need to divide by J4 later, so it better not be zero...
     }
     /// calculate J2
+    /// Eq(21) from Sugihara&Iri 1994
     double detH_J2(Point& pi, Point& pj, Point& pk) {
         return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
     }
     /// calculate J3
+    /// Eq(22) from Sugihara&Iri 1994
     double detH_J3(Point& pi, Point& pj, Point& pk) {
         return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
     }
     /// calculate J4
+    /// Eq(23) from Sugihara&Iri 1994
     double detH_J4(Point& pi, Point& pj, Point& pk) {
         return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
     }
@@ -195,7 +200,7 @@ struct VertexProps {
     double J3;
     /// J4 determinant
     double J4;
-    // determinant value
+    // determinant value, i.e. inCircle predicate
     double H;
     bool in_queue;
 // HE data

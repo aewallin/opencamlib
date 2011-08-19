@@ -111,12 +111,11 @@ void VoronoiDiagram::init() {
     g[e7].twin = e6;
     
     assert( vdChecker.isValid(this) );
-    //std::cout << " VD init() done.\n";
 }
 
 
 
-// comments relate to Sugihara-Iri paper
+// comments relate to Sugihara-Iri 1994 paper
 // this is roughly "algorithm A" from the paper, page 15/50
 void VoronoiDiagram::addVertexSite(const Point& p) {
     // only add vertices within the far_radius circle
@@ -134,8 +133,8 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     v0.push_back(v_seed); 
     
     // 3) augment the vertex set to be deleted
-    //    vertex set must remain a tree
-    //    must not delete cycles
+    //    - vertex set must remain a tree
+    //    - must not delete cycles
     augment_vertex_set_M(v0, p); 
     
     // 4) add new vertices on all edges that connect v0 IN edges to OUT edges
@@ -148,7 +147,7 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     remove_vertex_set(v0, newface);
     
     // 7) reset IN/OUT/UNDECIDED for verts, and INCIDENT/NONINCIDENT for faces
-    reset_labels();
+    reset_status();
 
     assert( vdChecker.isValid(this) );
 }
@@ -162,7 +161,7 @@ HEFace VoronoiDiagram::split_faces(const Point& p) {
     return newface;
 }
 
-void VoronoiDiagram::reset_labels() {
+void VoronoiDiagram::reset_status() {
     BOOST_FOREACH( HEVertex v, in_vertices ) {
         g[v].reset();
     }

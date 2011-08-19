@@ -63,7 +63,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
                 vert.append( g[ v ].status );
                 out.append( vert );
             }
-            reset_labels();            
+            reset_status();            
             return out;
             
         }
@@ -85,7 +85,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
                 edge.append( g[ trg ].position );
                 out.append( edge );
             }
-            reset_labels();            
+            reset_status();            
             return out;
         }
         /// for visualizing the edges to be modified
@@ -106,7 +106,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
                 edge.append( g[ trg ].position );
                 out.append( edge );
             }
-            reset_labels();            
+            reset_status();            
             return out;
         }
 
