@@ -239,8 +239,11 @@ void Weave::add_vertices_x() {
             xi->intersections_fibers.insert( yf );
             yi->intersections_fibers.insert( xf );
 
-            while( (yf<yfibers.end()) && crossing_x( *yf, yi, *xi, *xf ) ) // last crossing 
+            bool is_crossing = crossing_x( *yf, yi, *xi, *xf );
+            while( (yf<yfibers.end()) && is_crossing ) {// last crossing 
                 yf++;
+                if( yf<yfibers.end() ) is_crossing = crossing_x( *yf, yi, *xi, *xf );
+            }
             add_vertex( *xf, *(--yf), xi, yi, INT ); // the last crossing vertex
             xi->intersections_fibers.insert( yf );
             yi->intersections_fibers.insert( xf );
@@ -267,8 +270,11 @@ void Weave::add_vertices_y() {
                 yi->intersections_fibers.insert( xf );
             }
 
-            while ( (xf<xfibers.end()) && crossing_y( *xf, xi, *yi, *yf ) ) 
+            bool is_crossing = crossing_y( *xf, xi, *yi, *yf );
+            while ( (xf<xfibers.end()) && is_crossing ) { 
                 xf++;
+                if( xf<xfibers.end() ) is_crossing = crossing_y( *xf, xi, *yi, *yf );
+            }
             if( add_vertex( *(--xf), *yf, xi, yi, INT ) ) {
                 xi->intersections_fibers.insert( yf );
                 yi->intersections_fibers.insert( xf );
