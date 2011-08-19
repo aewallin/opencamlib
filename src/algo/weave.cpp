@@ -181,19 +181,21 @@ void Weave::build2() {
         std::vector<Interval>::iterator xi;
         for( xi = xf.ints.begin(); xi < xf.ints.end(); xi++ ) {
             std::set<std::vector<Fiber>::iterator>::const_iterator current, prev;
-            current = xi->intersections_fibers.begin();
-            prev = current++;
-            for( ; current != xi->intersections_fibers.end(); current++ ) {
-                // for each x-interval, loop through the intersecting y-fibers
-                if( (*current - *prev) > 1 ) {
-                    std::vector<Interval>::iterator yi = find_interval_crossing_x( xf, *(*prev + 1) );
-                    add_vertex( xf, *(*prev + 1), xi , yi, FULLINT ); 
-                    if( (*current - *prev) > 2 ) {
-                        yi = find_interval_crossing_x( xf, *(*current - 1) );
-                        add_vertex( xf, *(*current - 1), xi, yi, FULLINT );
+            if( !xi->intersections_fibers.empty() ) {
+                current = xi->intersections_fibers.begin();
+                prev = current++;
+                for( ; current != xi->intersections_fibers.end(); current++ ) {
+                    // for each x-interval, loop through the intersecting y-fibers
+                    if( (*current - *prev) > 1 ) {
+                        std::vector<Interval>::iterator yi = find_interval_crossing_x( xf, *(*prev + 1) );
+                        add_vertex( xf, *(*prev + 1), xi , yi, FULLINT ); 
+                        if( (*current - *prev) > 2 ) {
+                            yi = find_interval_crossing_x( xf, *(*current - 1) );
+                            add_vertex( xf, *(*current - 1), xi, yi, FULLINT );
+                        }
                     }
+                    prev = current;
                 }
-                prev = current;
             }
         }
     }
@@ -204,18 +206,20 @@ void Weave::build2() {
         std::vector<Interval>::iterator yi;
         for( yi = yf.ints.begin(); yi < yf.ints.end(); yi++ ) {
             std::set<std::vector<Fiber>::iterator>::iterator current, prev;
-            current = yi->intersections_fibers.begin();
-            prev = current++;
-            for( ; current != yi->intersections_fibers.end(); current++ ) {
-                if( (*current - *prev) > 1 ) {
-                    std::vector<Interval>::iterator xi = find_interval_crossing_y( *(*prev + 1), yf );
-                    add_vertex( *(*prev + 1), yf, xi , yi, FULLINT );
-                    if( (*current - *prev) > 2 ) {
-                        xi = find_interval_crossing_y( *(*current - 1), yf );
-                        add_vertex( *(*current - 1), yf, xi, yi, FULLINT );
+            if( !yi->intersections_fibers.empty() ) {
+                current = yi->intersections_fibers.begin();
+                prev = current++;
+                for( ; current != yi->intersections_fibers.end(); current++ ) {
+                    if( (*current - *prev) > 1 ) {
+                        std::vector<Interval>::iterator xi = find_interval_crossing_y( *(*prev + 1), yf );
+                        add_vertex( *(*prev + 1), yf, xi , yi, FULLINT );
+                        if( (*current - *prev) > 2 ) {
+                            xi = find_interval_crossing_y( *(*current - 1), yf );
+                            add_vertex( *(*current - 1), yf, xi, yi, FULLINT );
+                        }
                     }
+                    prev = current;
                 }
-                prev = current;
             }
         }
     }
