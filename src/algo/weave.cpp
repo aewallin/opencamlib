@@ -193,7 +193,7 @@ void Weave::build2() {
         std::vector<Interval>::iterator xi;
         for( xi = xf.ints.begin(); xi < xf.ints.end(); xi++ ) {
             std::set<std::vector<Fiber>::iterator>::const_iterator current, prev;
-            if( !xi->intersections_fibers.empty() ) {
+            if( xi->intersections_fibers.size() > 1 ) {
                 current = xi->intersections_fibers.begin();
                 prev = current++;
                 for( ; current != xi->intersections_fibers.end(); current++ ) {
