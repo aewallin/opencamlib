@@ -23,7 +23,7 @@
 
 #include "batchpushcutter_py.hpp"  
 #include "fiber_py.hpp"           
-//#include "weave_py.h"           
+#include "weave_py.hpp"           
 #include "waterline_py.hpp"      
 #include "adaptivewaterline_py.hpp"  
 #include "lineclfilter_py.hpp"    
@@ -132,22 +132,35 @@ void export_algo() {
         .def("getXFibers", &AdaptiveWaterline_py::getXFibers)
         .def("getYFibers", &AdaptiveWaterline_py::getYFibers)
     ;
-    /*
-    bp::class_<Weave>("Weave_base")
+    
+    bp::enum_<weave::VertexType>("WeaveVertexType")
+        .value("CL", weave::CL)
+        .value("CL_DONE",weave::CL_DONE)
+        .value("ADJ",weave::ADJ)
+        .value("TWOADJ",weave::TWOADJ)
+        .value("INT",weave::INT)
+        .value("FULLINT",weave::FULLINT)
     ;
-    bp::class_<Weave_py, bp::bases<Weave> >("Weave")
-        .def("addFiber", &Weave_py::addFiber)
-        .def("build", &Weave_py::build)
-        .def("printGraph", &Weave_py::printGraph)
-        .def("face_traverse", &Weave_py::face_traverse)
-        .def("split_components", &Weave_py::split_components)
-        .def("get_components", &Weave_py::get_components)
-        .def("getCLPoints", &Weave_py::getCLPoints)
-        .def("getIPoints", &Weave_py::getIPoints)
-        .def("getEdges", &Weave_py::getEdges)
-        .def("getLoops", &Weave_py::py_getLoops)
-        .def("__str__", &Weave_py::str)
-    ;*/
+    
+    
+    
+    bp::class_<weave::Weave>("Weave_base")
+    ;
+    bp::class_<weave::Weave_py, bp::bases<weave::Weave> >("Weave")
+        .def("addFiber", &weave::Weave_py::addFiber)
+        .def("build", &weave::Weave_py::build)
+        .def("build2", &weave::Weave_py::build2)
+        .def("printGraph", &weave::Weave_py::printGraph)
+        .def("face_traverse", &weave::Weave_py::face_traverse)
+        //.def("split_components", &weave::Weave_py::split_components)
+        //.def("get_components", &weave::Weave_py::get_components)
+        .def("getCLVertices", &weave::Weave_py::getCLVertices)
+        .def("getINTVertices", &weave::Weave_py::getINTVertices)
+        .def("getVertices", &weave::Weave_py::getVertices)
+        .def("getEdges", &weave::Weave_py::getEdges)
+        .def("getLoops", &weave::Weave_py::py_getLoops)
+        .def("__str__", &weave::Weave_py::str)
+    ;
 
     bp::class_<LineCLFilter>("LineCLFilter_base")
     ;
