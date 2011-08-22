@@ -389,7 +389,7 @@ void Weave::add_all_edges()
 
     std::cout << "There are " << vertices.size() << " vertices.\n";
     BOOST_FOREACH( Vertex& vertex, vertices ) {
-        if( (g[vertex].type == INT) ) {
+        if( (g[vertex].type == INT) || (g[vertex].type == FULLINT) ) {
             std::vector<Vertex>                adjacent_vertices;
             std::vector<Vertex>::iterator    adj_itr;
             std::vector<Edge>                in_edges, out_edges;
@@ -443,7 +443,7 @@ void Weave::add_all_edges()
                 }
             }
         }
-        else if( g[vertex].type == FULLINT ) {
+        /*else if( g[vertex].type == FULLINT ) {
             std::vector<Vertex> adjacent_vertices;
             Vertex x_u, x_l, y_u, y_l;
             boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.x), *(g[vertex].xi), false );
@@ -501,7 +501,7 @@ void Weave::add_all_edges()
                 }
             }
 
-        }
+        }*/
     }
 }
 
