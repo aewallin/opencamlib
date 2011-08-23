@@ -94,17 +94,17 @@ def getWeaveRAM(Nmax,weave2_flag):
     return out
     
 if __name__ == "__main__":  
-    writer = csv.writer( open('weave2ram_5.csv','wb'), delimiter=',')
+    writer = csv.writer( open('weave2ram_6.csv','wb'), delimiter=',')
     
     #Nmax=400
-    Nmaxlist = [6400]
+    Nmaxlist = [100,200,400,800, 1600, 3200]
 
     for Nmax in Nmaxlist:
-        #mb = getWeaveRAM(Nmax,0)
+        mb = getWeaveRAM(Nmax,0)
         mb2 = getWeaveRAM(Nmax,1)
-        print mb2
-        #print mb[0], " :=> ", mb[1], " MB"
-        #writer.writerow(mb+mb2)
+        #print mb2
+        print mb[0], " :=> ", mb[1], " MB"
+        writer.writerow(mb+mb2)
         gc.collect()
 
     raw_input("Press Enter to terminate") 

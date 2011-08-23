@@ -112,7 +112,14 @@ struct YFiberCompare {
 class Weave {
     public:
         Weave() {}
-        virtual ~Weave() {}
+        virtual ~Weave() {
+            VertexItr vi, vi_end, next;
+            boost::tie( vi, vi_end ) = boost::vertices( g );
+            for ( next=vi ; vi != vi_end ; vi=next ) {
+                ++next; // move next out of the way so it is not invalidated on the next line
+                hedi::delete_vertex( *vi, g);
+            }
+        }
 
         /// add Fiber f to the graph
         /// each fiber should be either in the X or Y-direction
