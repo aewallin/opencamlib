@@ -4,7 +4,53 @@ import time
 import vtk
 import datetime
 import math
-        
+
+def drawLoops(myscreen,loops,loopColor):
+    # draw the loops
+    nloop = 0
+    for lop in loops:
+        n = 0
+        N = len(lop)
+        first_point=ocl.Point(-1,-1,5)
+        previous=ocl.Point(-1,-1,5)
+        for p in lop:
+            if n==0: # don't draw anything on the first iteration
+                previous=p 
+                first_point = p
+            elif n== (N-1): # the last point
+                myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopColor) ) # the normal line
+                # and a line from p to the first point
+                myscreen.addActor( camvtk.Line(p1=(p.x,p.y,p.z),p2=(first_point.x,first_point.y,first_point.z),color=loopColor) )
+            else:
+                myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopColor) )
+                previous=p
+            n=n+1
+        print "rendered loop ",nloop, " with ", len(lop), " points"
+        nloop = nloop+1
+
+def getLoops(s,zh,diam):
+    t_before = time.time() 
+    length = 5
+    loops = []
+    #cutter = ocl.CylCutter( diam , length )
+    cutter = ocl.BallCutter( diam , length )
+    #cutter = ocl.BullCutter( diam , diam/5, length )
+    #wl = ocl.AdaptiveWaterline()
+    wl = ocl.Waterline()
+    wl.setSTL(s)
+    wl.setCutter(cutter)
+    wl.setZ(zh)
+    wl.setSampling(0.05)
+    #wl.setThreads(5)
+    
+    wl.run()
+    t_after = time.time()
+    calctime = t_after-t_before
+    print " Waterline done in ", calctime," s"
+    return wl.getLoops()
+
+
+    
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
@@ -18,53 +64,14 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print "STL surface read,", s.size(), "triangles"
-    zh=1.75145
-    cutter_diams = [0.5, 1.1, 1.4]
-    length = 5
-    loops = []
-    for diam in cutter_diams:
-        #cutter = ocl.CylCutter( diam , length )
-        cutter = ocl.BallCutter( diam , length )
-        #cutter = ocl.BullCutter( diam , diam/5, length )
-        wl = ocl.AdaptiveWaterline()
-        wl.setSTL(s)
-        wl.setCutter(cutter)
-        wl.setZ(zh)
-        wl.setSampling(0.5)
-        #wl.setThreads(5)
-        t_before = time.time() 
-        wl.run2()
-        #wl.run()
 
-        t_after = time.time()
-        calctime = t_after-t_before
-        print " Waterline done in ", calctime," s"
-        cutter_loops = wl.getLoops()
-        for l in cutter_loops:
-            loops.append(l)
+    #zh = 1.0
+    diam = 0.5
+    zheights=[0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6]
+    for zh in zheights:
+        cutter_loops = getLoops(s,zh,diam)
+        drawLoops(myscreen,cutter_loops,camvtk.red)
 
-    print "All waterlines done. Got", len(loops)," loops in total."
-    # draw the loops
-    nloop = 0
-    for lop in loops:
-        n = 0
-        N = len(lop)
-        first_point=ocl.Point(-1,-1,5)
-        previous=ocl.Point(-1,-1,5)
-        for p in lop:
-            if n==0: # don't draw anything on the first iteration
-                previous=p 
-                first_point = p
-            elif n== (N-1): # the last point
-                myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) ) # the normal line
-                # and a line from p to the first point
-                myscreen.addActor( camvtk.Line(p1=(p.x,p.y,p.z),p2=(first_point.x,first_point.y,first_point.z),color=camvtk.yellow) )
-            else:
-                myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
-                previous=p
-            n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
-        nloop = nloop+1
     
     print "done."
     myscreen.camera.SetPosition(15, 13, 7)

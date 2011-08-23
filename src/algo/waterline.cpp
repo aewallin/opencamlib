@@ -67,7 +67,7 @@ void Waterline::run() {
     xfibers = *( subOp[0]->getFibers() );
     yfibers = *( subOp[1]->getFibers() );
     
-    weave_process();
+    weave_process2();
 }
 
 void Waterline::weave_process() {

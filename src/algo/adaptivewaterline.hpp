@@ -51,7 +51,7 @@ class AdaptiveWaterline : public Waterline {
         void run();
         
         // experimental use of Weave::build2()
-        void run2();
+        //void run2();
         
         virtual void setSampling(double s) {
             sampling=s;
