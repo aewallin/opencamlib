@@ -20,20 +20,21 @@
 #define WEAVE2_TYPEDEF_H
 
 #include "halfedgediagram.hpp"
+#include "interval.hpp"
 
 namespace ocl {
 
 namespace weave {
 
 
-
+// we use the traits-class here so that EdgeProps can have Edge as a member
 typedef boost::adjacency_list_traits<boost::listS, 
                                      boost::listS, 
                                      boost::bidirectionalS, 
                                      boost::listS >::edge_descriptor Edge;
 
 /// vertex type: CL-point, internal point, adjacent point
-enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT };
+enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT};
 
 /// vertex properties
 struct VertexProps {
@@ -46,6 +47,14 @@ struct VertexProps {
         type=t;
         init();
     }
+    /// construct vertex at position p with type t
+    VertexProps( Point p, VertexType t, std::vector<Interval>::iterator x, std::vector<Interval>::iterator y )
+    : xi( x ), yi( y ) {
+        position=p;
+        type=t;
+        init();
+    }
+    
     void init() {
         index = count;
         count++;
@@ -58,6 +67,12 @@ struct VertexProps {
     int index;
     /// global vertex count
     static int count;
+    
+    // x interval
+    std::vector<Interval>::iterator xi;
+    // y interval
+    std::vector<Interval>::iterator yi;
+    
 };
 
 /// edge properties
@@ -124,7 +139,7 @@ typedef VertexIntersectionSet::iterator VertexPairIterator;
 
 
 
-enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT };
+// enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT };
 
 
 

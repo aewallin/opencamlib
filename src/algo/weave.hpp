@@ -30,6 +30,7 @@ namespace ocl {
 
 namespace weave {
 
+/*
     VertexProps( Point p, VertexType t, std::vector<Interval>::iterator x, std::vector<Interval>::iterator y )
     : xi( x ), yi( y ) {
         position=p;
@@ -41,11 +42,10 @@ namespace weave {
         position = p;
         type = t;
 
-    // x interval
-    std::vector<Interval>::iterator xi;
-    // y interval
-    std::vector<Interval>::iterator yi;
 
+*/
+
+/*
 
 // comparison functor for x-fibers
 struct XFiberCompare {
@@ -60,6 +60,7 @@ struct YFiberCompare {
     bool operator() (const Fiber& lhs, const Fiber& rhs) const
     { return lhs.p1.x < rhs.p1.x ;} // sort Y-fibers by their x-coordinate
 };
+*/
 
                  
 /// weave-graph, 2nd impl. based on HEDIGraph

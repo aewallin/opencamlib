@@ -20,9 +20,11 @@
 #define INTERVAL_HPP
 
 #include <vector>
+//#include <pair>
 
 #include "ccpoint.hpp"
-#include "weave_typedef.hpp"
+//#include "weave_typedef.hpp"
+#include "halfedgediagram.hpp"
 
 namespace ocl {
 
@@ -72,7 +74,27 @@ class Interval {
         
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
-        weave::VertexIntersectionSet intersections2;
+        
+        typedef boost::adjacency_list_traits<boost::listS, 
+                                     boost::listS, 
+                                     boost::bidirectionalS, 
+                                     boost::listS >::vertex_descriptor WeaveVertex;
+        typedef std::pair< WeaveVertex, double > VertexPair;
+
+        /// compare based on pair.second, the coordinate of the intersection
+        struct VertexPairCompare {
+            /// comparison operator
+            bool operator() (const VertexPair& lhs, const VertexPair& rhs) const
+            { return lhs.second < rhs.second ;}
+        };
+
+        /// intersections stored in this set (for rapid finding of neighbors etc)
+        typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
+
+        //typedef VertexIntersectionSet::iterator VertexPairIterator;    
+
+        
+        VertexIntersectionSet intersections2;
 };
 
 } // end namespace
