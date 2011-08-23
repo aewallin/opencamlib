@@ -53,6 +53,7 @@ class Waterline : public Operation {
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
         virtual void run();
+        virtual void run2();
         
         /// returns a vector< vector< Point > > with the resulting waterline loops
         std::vector< std::vector<Point> >  getLoops() const {
@@ -63,7 +64,8 @@ class Waterline : public Operation {
     protected:
         /// from xfibers and yfibers, build the weave, run face-traverse, and write toolpaths to loops
         void weave_process();
-
+        void weave_process2();
+        
         /// initialization of fibers
         void init_fibers();
         /// x and y-coordinates for fiber generation

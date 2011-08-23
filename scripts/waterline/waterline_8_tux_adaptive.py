@@ -58,16 +58,17 @@ if __name__ == "__main__":
     t_before = time.time() 
     diam = 0.5
     zheights=[0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6]
-    
-    #wl = ocl.Waterline()
+    zheights=[float(1.0)]
     wl = ocl.Waterline()
+    #wl = ocl.AdaptiveWaterline()
     wl.setSTL(s)
     length= 10
     cutter = ocl.BallCutter( diam , length )
     wl.setCutter(cutter)
-    wl.setSampling(0.1)
+    wl.setSampling(0.025)
     
     for zh in zheights:
+        print "calculating Waterline at z= ", zh
         cutter_loops = getLoops(wl,zh,diam)
         drawLoops(myscreen,cutter_loops,camvtk.red)
     t_after = time.time()

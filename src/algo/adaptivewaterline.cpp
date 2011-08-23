@@ -70,6 +70,11 @@ void AdaptiveWaterline::run() {
     weave_process(); // in base-class Waterline
 }
 
+void AdaptiveWaterline::run2() {
+    adaptive_sampling_run();
+    weave_process2(); // in base-class Waterline
+}
+
 void AdaptiveWaterline::adaptive_sampling_run() {
     minx = surf->bb.minpt.x - 2*cutter->getRadius();
     maxx = surf->bb.maxpt.x + 2*cutter->getRadius();

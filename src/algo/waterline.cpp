@@ -58,6 +58,17 @@ Waterline::~Waterline() {
 
 // run the batchpuschutter sub-operations to get x- and y-fibers
 // pass the fibers to weave, and process the weave to get waterline-loops
+void Waterline::run2() {
+    init_fibers();
+    subOp[0]->run(); // these two are independent, so could/should run in parallel
+    subOp[1]->run();
+    
+    xfibers = *( subOp[0]->getFibers() );
+    yfibers = *( subOp[1]->getFibers() );
+    
+    weave_process2();
+}
+
 void Waterline::run() {
     init_fibers();
     subOp[0]->run(); // these two are independent, so could/should run in parallel
@@ -69,6 +80,7 @@ void Waterline::run() {
     weave_process();
 }
 
+
 void Waterline::reset() {
     xfibers.clear();
     yfibers.clear();
@@ -77,6 +89,29 @@ void Waterline::reset() {
 }
 
 void Waterline::weave_process() {
+    std::cout << "Weave...\n" << std::flush;
+    weave::Weave weave;
+    BOOST_FOREACH( Fiber f, xfibers ) {
+        weave.addFiber(f);
+    }
+    BOOST_FOREACH( Fiber f, yfibers ) {
+        weave.addFiber(f);
+    }
+   
+    std::cout << "Weave::build2()..." << std::flush;
+    weave.build(); 
+    std::cout << "done.\n";
+    
+    std::cout << "Weave::face traverse()...";
+    weave.face_traverse();
+    std::cout << "done.\n";
+
+    std::cout << "Weave::get_loops()...";
+    loops = weave.getLoops();
+    std::cout << "done.\n";   
+}
+
+void Waterline::weave_process2() {
     std::cout << "Weave...\n" << std::flush;
     weave::Weave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
