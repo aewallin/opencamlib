@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -17,16 +16,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef INTERVAL_H
-#define INTERVAL_H
+#ifndef INTERVAL_HPP
+#define INTERVAL_HPP
 
 #include <vector>
 
 #include "ccpoint.hpp"
 #include "weave_typedef.hpp"
 
-namespace ocl
-{
+namespace ocl {
+
+class Fiber;
 
 /// interval for use by fiber and weave
 /// a parameter interval [upper, lower]
@@ -41,7 +41,7 @@ class Interval {
         void updateUpper(const double t, CCPoint& p);
         /// update lower with t, and corresponding cc-point p
         void updateLower(const double t, CCPoint& p);
-        /// call bot updateUpper() and updateLower() with the given (t,p) pair
+        /// call both updateUpper() and updateLower() with the given (t,p) pair
         void update(const double t, CCPoint& p);
         /// update interval with t_cl and cc_tmp if cc_tmp is in the p1-p2 edge and condition==true
         bool update_ifCCinEdgeAndTrue( double t_cl, CCPoint& cc_tmp, const Point& p1, const Point& p2, bool condition);
@@ -66,9 +66,13 @@ class Interval {
         
         /// flag for use by Weave::build()
         bool in_weave; 
+        
+        /// fibers
+        std::set<std::vector<Fiber>::iterator> intersections_fibers;
+        
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
-        weave2::VertexIntersectionSet intersections2;
+        weave::VertexIntersectionSet intersections2;
 };
 
 } // end namespace

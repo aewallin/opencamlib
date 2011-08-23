@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -67,12 +66,19 @@ void Waterline::run() {
     xfibers = *( subOp[0]->getFibers() );
     yfibers = *( subOp[1]->getFibers() );
     
-    weave2_process();
+    weave_process();
 }
 
-void Waterline::weave2_process() {
+void Waterline::reset() {
+    xfibers.clear();
+    yfibers.clear();
+    subOp[0]->reset();
+    subOp[1]->reset();
+}
+
+void Waterline::weave_process() {
     std::cout << "Weave...\n" << std::flush;
-    weave2::Weave weave;
+    weave::Weave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
     }
@@ -80,8 +86,8 @@ void Waterline::weave2_process() {
         weave.addFiber(f);
     }
    
-    std::cout << "Weave::build()..." << std::flush;
-    weave.build(); 
+    std::cout << "Weave::build2()..." << std::flush;
+    weave.build2(); 
     std::cout << "done.\n";
     
     std::cout << "Weave::face traverse()...";
@@ -92,8 +98,6 @@ void Waterline::weave2_process() {
     loops = weave.getLoops();
     std::cout << "done.\n";   
 }
-
-
 
 void Waterline::init_fibers() {
     std::cout << " Waterline::init_fibers()\n";
@@ -118,7 +122,7 @@ void Waterline::init_fibers() {
         subOp[1]->appendFiber( f );
     }
 
-}        
+}
 
 // return a double-vector [ start , ... , end ] with N elements
 // for generating fibers.

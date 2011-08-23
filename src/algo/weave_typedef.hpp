@@ -1,4 +1,4 @@
-/* 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -21,11 +21,9 @@
 
 #include "halfedgediagram.hpp"
 
-namespace ocl
-{
+namespace ocl {
 
-namespace weave2
-{
+namespace weave {
 
 
 
@@ -126,11 +124,11 @@ typedef VertexIntersectionSet::iterator VertexPairIterator;
 
 
 
+enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT };
 
 
 
-
-} // end weave2 namespace
+} // end weave namespace
 
 } // end ocl namespace
 #endif

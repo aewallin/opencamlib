@@ -22,6 +22,15 @@
 
 #include <string>
 
+#include "point.hpp"
+
+#ifdef _MSC_VER
+    #include <float.h>  // for _isnan() on VC++
+    #define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
+#elif defined WIN32
+    bool isnan(double x){return false;}
+#endif
+
 
 namespace ocl
 {
@@ -87,6 +96,6 @@ double xyVectorToDiangle(double x, double y);
 std::string revision();
 
 
-} // end namespace
+} // end ocl namespace
 #endif
-// end file numeric.h
+// end file numeric.hpp

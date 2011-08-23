@@ -26,13 +26,40 @@
 #include "weave_typedef.hpp"
 #include "halfedgediagram.hpp"
 
-namespace ocl
-{
+namespace ocl {
 
-namespace weave2
-{
+namespace weave {
+
+    VertexProps( Point p, VertexType t, std::vector<Interval>::iterator x, std::vector<Interval>::iterator y )
+    : xi( x ), yi( y ) {
+        position=p;
+        type=t;
+        init();
+    }
+
+    VertexProps( Point p, VertexType t ) {
+        position = p;
+        type = t;
+
+    // x interval
+    std::vector<Interval>::iterator xi;
+    // y interval
+    std::vector<Interval>::iterator yi;
 
 
+// comparison functor for x-fibers
+struct XFiberCompare {
+    /// comparison operator
+    bool operator() (const Fiber& lhs, const Fiber& rhs) const
+    { return lhs.p1.y < rhs.p1.y ;} // sort X-fibers by their y-coordinate
+};
+
+// comparison functor for y-fibers
+struct YFiberCompare {
+    /// comparison operator
+    bool operator() (const Fiber& lhs, const Fiber& rhs) const
+    { return lhs.p1.x < rhs.p1.x ;} // sort Y-fibers by their x-coordinate
+};
 
                  
 /// weave-graph, 2nd impl. based on HEDIGraph
@@ -40,7 +67,14 @@ namespace weave2
 class Weave {
     public:
         Weave() {}
-        virtual ~Weave() {}
+        virtual ~Weave() {
+            VertexItr vi, vi_end, next;
+            boost::tie( vi, vi_end ) = boost::vertices( g );
+            for ( next=vi ; vi != vi_end ; vi=next ) {
+                ++next; // move next out of the way so it is not invalidated on the next line
+                hedi::delete_vertex( *vi, g);
+            }
+        }
 
         /// add Fiber f to the graph
         /// each fiber should be either in the X or Y-direction
@@ -49,6 +83,22 @@ class Weave {
         
         /// from the list of fibers, build a graph
         void build();
+        
+        /// new smarter version of build() 
+        void build2();
+
+        //void add_interval(Fiber& xf, Interval& xi);
+        
+        void add_vertices_x();
+        void add_vertices_y();
+        bool crossing_x( Fiber& yf, std::vector<Interval>::iterator& yi, Interval& xi, Fiber& xf );
+        bool crossing_y( Fiber& xf, std::vector<Interval>::iterator& xi, Interval& yi, Fiber& yf );
+        std::vector<Interval>::iterator find_interval_crossing_x( Fiber& xf, Fiber& yf );
+        std::vector<Interval>::iterator find_interval_crossing_y( Fiber& xf, Fiber& yf );
+        bool add_vertex(    Fiber& xf, Fiber& yf,
+                            std::vector<Interval>::iterator xi, std::vector<Interval>::iterator yi,
+                            enum VertexType type );
+        void add_all_edges();
 
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
@@ -67,10 +117,23 @@ class Weave {
         /// add CL vertex to weave
         /// sets position, type, and inserts the VertexPair into Interval::intersections
         /// also adds the CL-vertex to clVertices, a list of cl-verts to be processed during face_traverse()
-        Vertex add_cl_vertex( Point position, Interval& interv, double ipos);
+        Vertex add_cl_vertex( const Point& position, Interval& interv, double ipos);
         
-        /// given a vertex in the graph, find it's upper and lower neighbor vertices
-        std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
+        /// add INT vertex to weave
+        /// the new vertex at v_position has neighbor vertices x_lower and x_upper in the x-direction on interval xi
+        /// and y_lower, y_upper in the y-direction of interval yi
+        /// Create new edges and delete old ones
+        void add_int_vertex(    const Point& v_position,
+                                Vertex& x_l, 
+                                Vertex& x_u, 
+                                Vertex& y_l,
+                                Vertex& y_u,
+                                Interval& xi,
+                                Interval& yi );
+
+        
+        /// given a vertex in the graph, find its upper and lower neighbor vertices
+        std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality );
          
 // DATA
         /// the weave-graph
@@ -81,12 +144,13 @@ class Weave {
         std::vector<Fiber> xfibers;
         /// the Y-fibers
         std::vector<Fiber> yfibers;
+        
         /// set of CL-points
-        std::set<Vertex> clVertices;
+        std::set<Vertex> clVertexSet;
 };
 
-} // end weave2 namespace
+} // end weave namespace
 
 } // end ocl namespace
 #endif
-// end file weave2.h
+// end file weave.hpp

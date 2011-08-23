@@ -97,6 +97,8 @@ class Operation {
         /// run push-cutter type algorithm on input Fiber
         virtual void run(Fiber& f) {assert(0);}
         
+        virtual void reset() {}
+        
         /// return CL-points
         virtual std::vector<CLPoint> getCLPoints() {
             std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 

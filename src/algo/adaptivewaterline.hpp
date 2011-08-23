@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -18,8 +17,8 @@
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ADAPTIVEWATERLINE_H
-#define ADAPTIVEWATERLINE_H
+#ifndef ADAPTIVEWATERLINE_HPP
+#define ADAPTIVEWATERLINE_HPP
 
 #include <iostream>
 #include <string>
