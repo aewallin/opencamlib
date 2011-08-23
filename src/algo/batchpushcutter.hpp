@@ -62,7 +62,7 @@ class BatchPushCutter : public Operation {
         void run() {this->pushCutter3();}
         
         std::vector<Fiber>* getFibers() const {return fibers;}
-        
+        void reset();
     protected:
         /// 1st version of algorithm
         void pushCutter1();

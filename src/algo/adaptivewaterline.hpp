@@ -50,9 +50,6 @@ class AdaptiveWaterline : public Waterline {
         /// be called before a call to run()
         void run();
         
-        // experimental use of Weave::build2()
-        //void run2();
-        
         virtual void setSampling(double s) {
             sampling=s;
             min_sampling = sampling/10.0; // default to this when setMinSampling is not called

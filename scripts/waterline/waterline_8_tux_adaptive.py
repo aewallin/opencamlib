@@ -28,21 +28,10 @@ def drawLoops(myscreen,loops,loopColor):
         print "rendered loop ",nloop, " with ", len(lop), " points"
         nloop = nloop+1
 
-def getLoops(s,zh,diam):
+def getLoops(wl,zh,diam):
     t_before = time.time() 
-    length = 5
-    loops = []
-    #cutter = ocl.CylCutter( diam , length )
-    cutter = ocl.BallCutter( diam , length )
-    #cutter = ocl.BullCutter( diam , diam/5, length )
-    #wl = ocl.AdaptiveWaterline()
-    wl = ocl.Waterline()
-    wl.setSTL(s)
-    wl.setCutter(cutter)
+    wl.reset()
     wl.setZ(zh)
-    wl.setSampling(0.05)
-    #wl.setThreads(5)
-    
     wl.run()
     t_after = time.time()
     calctime = t_after-t_before
@@ -57,8 +46,8 @@ if __name__ == "__main__":
     #stl = camvtk.STLSurf("../../stl/demo.stl")
     stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
-    stl.SetWireframe() # render tux as wireframe
-    #stl.SetSurface() # render tux as surface
+    #stl.SetWireframe() # render tux as wireframe
+    stl.SetSurface() # render tux as surface
     stl.SetColor(camvtk.cyan)
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
@@ -66,12 +55,24 @@ if __name__ == "__main__":
     print "STL surface read,", s.size(), "triangles"
 
     #zh = 1.0
+    t_before = time.time() 
     diam = 0.5
     zheights=[0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4, 2.6]
+    
+    #wl = ocl.Waterline()
+    wl = ocl.AdaptiveWaterline()
+    wl.setSTL(s)
+    length= 10
+    cutter = ocl.BallCutter( diam , length )
+    wl.setCutter(cutter)
+    wl.setSampling(0.1)
+    
     for zh in zheights:
-        cutter_loops = getLoops(s,zh,diam)
+        cutter_loops = getLoops(wl,zh,diam)
         drawLoops(myscreen,cutter_loops,camvtk.red)
-
+    t_after = time.time()
+    calctime = t_after-t_before
+    print " TOTAL Waterline time is: ", calctime," s"
     
     print "done."
     myscreen.camera.SetPosition(15, 13, 7)
