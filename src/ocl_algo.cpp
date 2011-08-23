@@ -157,6 +157,7 @@ void export_algo() {
         .def("getCLVertices", &weave::Weave_py::getCLVertices)
         .def("getINTVertices", &weave::Weave_py::getINTVertices)
         .def("getVertices", &weave::Weave_py::getVertices)
+        .def("numVertices", &weave::Weave_py::numVertices)
         .def("getEdges", &weave::Weave_py::getEdges)
         .def("getLoops", &weave::Weave_py::py_getLoops)
         .def("__str__", &weave::Weave_py::str)

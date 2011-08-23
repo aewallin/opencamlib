@@ -34,7 +34,16 @@ class Weave_py : public Weave {
             Weave_py() : Weave() {};
     // PYTHON
 
-        
+        int numVertices() const {
+            //boost::python::list plist;
+            //VertexItr it_begin, it_end, itr;
+            //boost::tie( it_begin, it_end ) = boost::vertices( g );
+            //for ( itr=it_begin ; itr != it_end ; ++itr ) {
+            //    if ( g[*itr].type == t )
+            //        plist.append( g[*itr].position );
+            //}
+            return boost::num_vertices(g); //plist;
+        };
         boost::python::list getVertices(VertexType t) const {
             boost::python::list plist;
             VertexItr it_begin, it_end, itr;

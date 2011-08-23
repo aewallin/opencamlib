@@ -4,6 +4,7 @@ import time
 import vtk
 import datetime
 import math
+import procmemory
 
 def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
     pts = weave.getVertices( vertexType )
@@ -74,8 +75,13 @@ if __name__ == "__main__":
         w.addFiber(f)
     print "done."
     print "Weave build()...",
-    #w.build()
-    w.build2()
+    mem1 = procmemory.resident()
+    print "before ", mem1
+    w.build()
+    #w.build2()
+    mem2 = procmemory.resident()
+    print "after ", float(mem2)/float(1024*1024), " MB"
+    print " build() memory: ",float(mem2-mem1)/float(1024*1024)," MB"
     print "done"
     print "face_traverse..."
     w.face_traverse()
