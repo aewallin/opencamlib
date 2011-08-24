@@ -50,7 +50,7 @@ public:
     bool  noUndecidedInFace( VoronoiDiagram* vd, HEFace f );
   
     bool faceVerticesConnected(VoronoiDiagram* vd, HEFace f, VoronoiVertexStatus Vtype );
-      
+    bool incidentFaceVerticesConnected( VoronoiDiagram* vd, VoronoiVertexStatus Vtype );
 };
 
 } // end namespace

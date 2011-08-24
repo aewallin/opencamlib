@@ -102,7 +102,7 @@ namespace ocl
         return true;
     }
         
-// check that the vertices TYPE are connected
+// check that for HEFace f the vertices TYPE are connected
 bool VoronoiDiagramChecker::faceVerticesConnected( VoronoiDiagram* vd, HEFace f, VoronoiVertexStatus Vtype ) {
     VertexVector face_verts = hedi::face_vertices(f,vd->g);
     VertexVector type_verts;
@@ -139,6 +139,33 @@ bool VoronoiDiagramChecker::faceVerticesConnected( VoronoiDiagram* vd, HEFace f,
     else 
         return true;
 }
+
+bool VoronoiDiagramChecker::incidentFaceVerticesConnected( VoronoiDiagram* vd, VoronoiVertexStatus Vtype ) {
+    // sanity check: IN-vertices for each face should be connected
+    BOOST_FOREACH( HEFace f, vd->incident_faces ) {
+        if ( !faceVerticesConnected( vd, f, IN ) ) {
+            std::cout << " VoronoiDiagramChecker::incidentFaceVerticesConnected() ERROR, IN-vertices not connected.\n";
+            std::cout << " printing all incident faces for debug: \n";
+            BOOST_FOREACH( HEFace f, vd->incident_faces ) {
+                vd->printFaceVertexTypes( f );
+            } 
+            return false;
+        }
+        //assert( vdChecker.faceVerticesConnected( this, f, IN ) );
+    }
+    return true;
+}
+    
+/* OLD CODE NOT USED ANYMORE
+int VoronoiDiagram::outVertexCount(HEFace f) {
+    int outCount = 0;
+    VertexVector face_verts = hedi::face_vertices(f, g);
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        if (g[v].status == OUT )
+            ++outCount;
+    }
+    return outCount;
+}*/
 
 
 } // end namespace

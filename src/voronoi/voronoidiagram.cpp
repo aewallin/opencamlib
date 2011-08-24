@@ -152,6 +152,153 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     assert( vdChecker.isValid(this) );
 }
 
+// evaluate H on all face vertices and return vertex with the lowest H
+HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
+    VertexVector face_verts = hedi::face_vertices(f,g);                 
+    assert( face_verts.size() >= 3 ); 
+    double minimumH; // safe, because we expect the min H to be negative...
+    HEVertex minimalVertex;
+    double h;
+    bool first = true;
+    BOOST_FOREACH( HEVertex q, face_verts) { // go thorugh all the vertices and find the one with smallest detH
+        if ( g[q].status != OUT ) {
+            h = g[q].detH( p );  // replace with INPredicate(PointGen) INPredicate(LineGen) (?)
+            if ( first || (h<minimumH) ) {
+                minimumH = h;
+                minimalVertex = q;
+                first = false;
+            }
+        }
+    }
+    
+    if (!(minimumH < 0) ) {
+        std::cout << " VD find_seed_vertex() WARNING\n";
+        std::cout << " WARNING: searching for seed when inserting " << p  << "  \n";
+        std::cout << " WARNING: closest face is  " << f << " with generator " << g[f].generator  << " \n";
+        std::cout << " WARNING: minimal vd-vertex " << g[minimalVertex].index << " has deth= " << g[minimalVertex].detH( p ) << "\n";
+    }
+    //assert( minimumH < 0 );
+    return minimalVertex;
+}
+
+// from the "one million" paper, growing the v0-tree of "IN" vertices by "breadth-first search"
+void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
+    assert(v0.size()==1);
+    std::queue<HEVertex> Q; // FIXME: a priority_queue could/should be used here instead.
+    // this woiuld allways examine and decide on the vertex with largest detH, 
+    // since that vertex has the most reliable detH sign.
+    modified_vertices.push_back( v0[0] );
+    markAdjecentFacesIncident( v0[0] );
+    pushAdjacentVertices( v0[0] , Q);
+    while( !Q.empty() ) {
+        HEVertex v = Q.front();
+        assert( g[v].status == UNDECIDED );
+        // mark IN and add to v0 if detH<0 and passes tests. otherwise OUT
+        double h = g[v].detH( p ); // replace with INPredicate(PointGen) INPredicate(LineGen)
+        if ( h < 0.0 ) { // try to mark IN
+            // (C4) v should not be adjacent to two or more IN vertices (this would result in a loop/cycle!)
+            // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
+            if ( (adjacentInCount(v) >= 2) || (!incidentFacesHaveAdjacentInVertex(v)) ) {
+                assert( g[v].status == UNDECIDED );
+                g[v].status = OUT;
+                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
+                modified_vertices.push_back( v );
+            } else {
+                g[v].status = IN;
+                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
+                modified_vertices.push_back( v );
+                v0.push_back( v );
+                markAdjecentFacesIncident( v );
+                pushAdjacentVertices( v , Q);
+            }
+        } else { // detH was positive, so mark OUT
+            //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
+            assert( h >= 0.0 );
+            assert( g[v].status == UNDECIDED );
+            g[v].status = OUT;
+            modified_vertices.push_back( v );
+        }
+        Q.pop(); // delete from queue
+    }
+    
+    // sanity-check: for all incident_faces the IN-vertices should be connected
+    assert( vdChecker.incidentFaceVerticesConnected( this,  IN ) );
+}
+
+// the set v0 are IN vertices that should be removed
+// generate new voronoi-vertices on all edges connecting v0 to OUT-vertices
+void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) {
+    assert( !v0.empty() );
+    EdgeVector q_edges = find_edges(v0, OUT); // new vertices generated on these IN-OUT edges
+    assert( !q_edges.empty() );
+    
+    for( unsigned int m=0; m<q_edges.size(); ++m )  {  // create new vertices on all edges q_edges[]
+        HEVertex q = hedi::add_vertex(g);
+        g[q].status = NEW;
+        modified_vertices.push_back(q);
+        HEFace face = g[q_edges[m]].face;     assert(  g[face].status == INCIDENT);
+        HEEdge twin = g[q_edges[m]].twin;
+        HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
+        g[q].set_J( g[face].generator  , g[twin_face].generator  , p); 
+        g[q].set_position();
+        
+        // check new vertex position, should lie between endpoints of q_edges[m]
+        HEVertex trg = hedi::target(q_edges[m], g);
+        HEVertex src = hedi::source(q_edges[m], g);
+        Point trgP = g[trg].position;
+        Point srcP = g[src].position;
+        Point newP = g[q].position;
+        if (( trgP - srcP ).xyNorm() <= 0 ) {
+            /*
+            std::cout << "add_new_voronoi_vertices() WARNING ( trgP - srcP ).xyNorm()= " << ( trgP - srcP ).xyNorm() << "\n";
+            std::cout << " src = " << srcP << "\n";
+            std::cout << " trg= " << trgP << "\n";
+            */
+            //std::cout << "add_new_voronoi_vertices() WARNING zero-length edge! \n";
+            g[q].position = srcP;
+        } else {
+            assert( ( trgP - srcP ).xyNorm() > 0.0 ); // edge has finite length
+            assert( ( trgP - srcP ).dot( trgP - srcP ) > 0.0 ); // length squared
+            double t = ((newP - srcP).dot( trgP - srcP )) / ( trgP - srcP ).dot( trgP - srcP ) ;
+            bool warn = false;
+            //double t_orig=t;
+            if (t < 0.0) {
+                warn = true;
+                t=0.0;
+            } else if (t> 1.0) {
+                warn = true;
+                t=1.0;
+            }
+            if ( warn ) {
+                //std::cout << "add_new_voronoi_vertices() WARNING positioning vertex outside edge! t_orig= " << t_orig << "\n";
+                // CORRECT the position....
+                g[q].position = srcP + t*( trgP-srcP);
+                t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+                //std::cout << "add_new_voronoi_vertices() CORRECTED t= " << t << "\n";
+            }
+            assert( t >= 0.0 );
+            assert( t <= 1.0 );
+            
+            double dtl = g[q].position.xyDistanceToLine(srcP, trgP);
+            if (dtl > 1e-3* ( trgP - srcP ).xyNorm() ) {
+                //std::cout << "add_new_voronoi_vertices() WARNING new point far from edge!\n";
+                //std::cout << "add_new_voronoi_vertices() WARNING edge length= " << ( trgP - srcP ).xyNorm()  << "\n";
+                //std::cout << "add_new_voronoi_vertices() WARNING distance to edge= " << dtl  << "\n";
+                t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+                g[q].position = srcP + t*( trgP-srcP);
+                //newP = hed[q].position;
+                dtl = g[q].position.xyDistanceToLine(srcP, trgP);
+                //std::cout << "add_new_voronoi_vertices() WARNING corrected distance to edge= " << dtl  << "\n";
+            }
+            assert( dtl < 1e-3* ( trgP - srcP ).xyNorm() );
+        }
+
+        hedi::insert_vertex_in_edge( q, q_edges[m] , g);
+        // sanity check on new vertex
+        assert( g[q].position.xyNorm() < 6.1*far_radius); // see init() for placement of the three initial vertices
+    }
+}
+
 HEFace VoronoiDiagram::split_faces(const Point& p) {
     HEFace newface =  hedi::add_face( FaceProps( HEEdge(), p, NONINCIDENT ), g );
     fgrid->add_face( g[newface] );
@@ -161,19 +308,7 @@ HEFace VoronoiDiagram::split_faces(const Point& p) {
     return newface;
 }
 
-void VoronoiDiagram::reset_status() {
-    BOOST_FOREACH( HEVertex v, modified_vertices ) {
-        g[v].reset();
-    }
-    modified_vertices.clear();
-    g[v01].status = OUT; // the outer vertices are special.
-    g[v02].status = OUT;
-    g[v03].status = OUT;
-    BOOST_FOREACH(HEFace f, incident_faces ) { 
-        g[f].status = NONINCIDENT; 
-    }
-    incident_faces.clear();
-}
+
 
 // remove vertices in the set v0
 void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
@@ -225,6 +360,21 @@ void VoronoiDiagram::remove_vertex_set(VertexVector& v0 , HEFace newface) {
         assert( g[v].status == IN );
         hedi::delete_vertex(v,g); // this also removes edges connecting to v
     }
+}
+
+// reset status of modified_vertices and incident_faces
+void VoronoiDiagram::reset_status() {
+    BOOST_FOREACH( HEVertex v, modified_vertices ) {
+        g[v].reset();
+    }
+    modified_vertices.clear();
+    g[v01].status = OUT; // the outer vertices are special.
+    g[v02].status = OUT;
+    g[v03].status = OUT;
+    BOOST_FOREACH(HEFace f, incident_faces ) { 
+        g[f].status = NONINCIDENT; 
+    }
+    incident_faces.clear();
 }
 
 // split the face f into one part which is newface, and the other part is the old f
@@ -308,131 +458,6 @@ EdgeVector VoronoiDiagram::find_edges(VertexVector& inVertices, VoronoiVertexSta
     return output;
 }
 
-// the set v0 are IN vertices that should be removed
-// generate new voronoi-vertices on all edges connecting v0 to OUT-vertices
-void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) {
-    assert( !v0.empty() );
-    EdgeVector q_edges = find_edges(v0, OUT); // new vertices generated on these IN-OUT edges
-    assert( !q_edges.empty() );
-    
-    for( unsigned int m=0; m<q_edges.size(); ++m )  {  // create new vertices on all edges q_edges[]
-        HEVertex q = hedi::add_vertex(g);
-        g[q].status = NEW;
-        modified_vertices.push_back(q);
-        HEFace face = g[q_edges[m]].face;     assert(  g[face].status == INCIDENT);
-        HEEdge twin = g[q_edges[m]].twin;
-        HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
-        g[q].set_J( g[face].generator  , g[twin_face].generator  , p); 
-        g[q].set_position();
-        
-        // check new vertex position, should lie between endpoints of q_edges[m]
-        HEVertex trg = hedi::target(q_edges[m], g);
-        HEVertex src = hedi::source(q_edges[m], g);
-        Point trgP = g[trg].position;
-        Point srcP = g[src].position;
-        Point newP = g[q].position;
-        if (( trgP - srcP ).xyNorm() <= 0 ) {
-            /*
-            std::cout << "add_new_voronoi_vertices() WARNING ( trgP - srcP ).xyNorm()= " << ( trgP - srcP ).xyNorm() << "\n";
-            std::cout << " src = " << srcP << "\n";
-            std::cout << " trg= " << trgP << "\n";
-            */
-            //std::cout << "add_new_voronoi_vertices() WARNING zero-length edge! \n";
-            g[q].position = srcP;
-        } else {
-            assert( ( trgP - srcP ).xyNorm() > 0.0 ); // edge has finite length
-            assert( ( trgP - srcP ).dot( trgP - srcP ) > 0.0 ); // length squared
-            double t = ((newP - srcP).dot( trgP - srcP )) / ( trgP - srcP ).dot( trgP - srcP ) ;
-            bool warn = false;
-            //double t_orig=t;
-            if (t < 0.0) {
-                warn = true;
-                t=0.0;
-            } else if (t> 1.0) {
-                warn = true;
-                t=1.0;
-            }
-            if ( warn ) {
-                //std::cout << "add_new_voronoi_vertices() WARNING positioning vertex outside edge! t_orig= " << t_orig << "\n";
-                // CORRECT the position....
-                g[q].position = srcP + t*( trgP-srcP);
-                t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
-                //std::cout << "add_new_voronoi_vertices() CORRECTED t= " << t << "\n";
-            }
-            assert( t >= 0.0 );
-            assert( t <= 1.0 );
-            
-            double dtl = g[q].position.xyDistanceToLine(srcP, trgP);
-            if (dtl > 1e-3* ( trgP - srcP ).xyNorm() ) {
-                //std::cout << "add_new_voronoi_vertices() WARNING new point far from edge!\n";
-                //std::cout << "add_new_voronoi_vertices() WARNING edge length= " << ( trgP - srcP ).xyNorm()  << "\n";
-                //std::cout << "add_new_voronoi_vertices() WARNING distance to edge= " << dtl  << "\n";
-                t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
-                g[q].position = srcP + t*( trgP-srcP);
-                //newP = hed[q].position;
-                dtl = g[q].position.xyDistanceToLine(srcP, trgP);
-                //std::cout << "add_new_voronoi_vertices() WARNING corrected distance to edge= " << dtl  << "\n";
-            }
-            assert( dtl < 1e-3* ( trgP - srcP ).xyNorm() );
-        }
-
-        hedi::insert_vertex_in_edge( q, q_edges[m] , g);
-        // sanity check on new vertex
-        assert( g[q].position.xyNorm() < 6.1*far_radius); // see init() for placement of the three initial vertices
-    }
-}
-
-int VoronoiDiagram::outVertexCount(HEFace f) {
-    int outCount = 0;
-    VertexVector face_verts = hedi::face_vertices(f, g);
-    BOOST_FOREACH( HEVertex v, face_verts ) {
-        if (g[v].status == OUT )
-            ++outCount;
-    }
-    return outCount;
-}
-
-// check that the vertices TYPE are connected
-/*
-bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype ) {
-    VertexVector face_verts = hedi::face_vertices(f,g);
-    VertexVector type_verts;
-    BOOST_FOREACH( HEVertex v, face_verts ) {
-        if ( g[v].status == Vtype )
-            type_verts.push_back(v); // build a vector of all Vtype vertices
-    }
-    assert( !type_verts.empty() );
-    if (type_verts.size()==1) // set of 1 is allways connected
-        return true;
-    
-    // check that type_verts are connected
-    HEEdge currentEdge = g[f].edge;
-    HEVertex endVertex = hedi::source(currentEdge, g); // stop when target here
-    EdgeVector startEdges;
-    bool done = false;
-    while (!done) { 
-        HEVertex src = hedi::source( currentEdge, g );
-        HEVertex trg = hedi::target( currentEdge, g );
-        if ( g[src].status != Vtype ) { // seach ?? - Vtype
-            if ( g[trg].status == Vtype ) {
-                // we have found ?? - Vtype
-                startEdges.push_back( currentEdge );
-            }
-        }
-        currentEdge = g[currentEdge].next;
-        if ( trg == endVertex ) {
-            done = true;
-        }
-    }
-    assert( !startEdges.empty() );
-    if ( startEdges.size() != 1 ) // when the Vtype vertices are connected, there is exactly one startEdge
-        return false;
-    else 
-        return true;
-}
-
-*/
-
 void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
     std::cout << " Face " << f << ": ";
     VertexVector face_verts = hedi::face_vertices(f,g);    
@@ -502,59 +527,7 @@ bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
     return all_found;
 }
 
-// from the "one million" paper, growing the v0-tree of "IN" vertices by "breadth-first search"
-void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
-    assert(v0.size()==1);
-    std::queue<HEVertex> Q; // FIXME: a priority_queue could/should be used here instead.
-    // this woiuld allways examine and decide on the vertex with largest detH, 
-    // since that vertex has the most reliable detH sign.
-    modified_vertices.push_back( v0[0] );
-    markAdjecentFacesIncident( v0[0] );
-    pushAdjacentVertices( v0[0] , Q);
-    while( !Q.empty() ) {
-        HEVertex v = Q.front();
-        assert( g[v].status == UNDECIDED );
-        // mark IN and add to v0 if detH<0 and passes tests. otherwise OUT
-        double h = g[v].detH( p ); // replace with INPredicate(PointGen) INPredicate(LineGen)
-        if ( h < 0.0 ) { // try to mark IN
-            // (C4) v should not be adjacent to two or more IN vertices (this would result in a loop/cycle!)
-            // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
-            if ( (adjacentInCount(v) >= 2) || (!incidentFacesHaveAdjacentInVertex(v)) ) {
-                assert( g[v].status == UNDECIDED );
-                g[v].status = OUT;
-                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
-                modified_vertices.push_back( v );
-            } else {
-                g[v].status = IN;
-                //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
-                modified_vertices.push_back( v );
-                v0.push_back( v );
-                markAdjecentFacesIncident( v );
-                pushAdjacentVertices( v , Q);
-            }
-        } else { // detH was positive, so mark OUT
-            //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
-            assert( h >= 0.0 );
-            assert( g[v].status == UNDECIDED );
-            g[v].status = OUT;
-            modified_vertices.push_back( v );
-        }
-        Q.pop(); // delete from queue
-    }
-    
-    // sanity check: IN-vertices for each face should be connected
-    BOOST_FOREACH( HEFace f, incident_faces ) {
-        if ( !vdChecker.faceVerticesConnected( this, f, IN ) ) {
-            std::cout << " augment_vertex_set_M() ERROR, IN-vertices not connected.\n";
-            std::cout << " printing all incident faces for debug: \n";
-            BOOST_FOREACH( HEFace f, incident_faces ) {
-                printFaceVertexTypes( f );
-            } 
-        }
-        assert( vdChecker.faceVerticesConnected( this, f, IN ) );
 
-    }
-}
 
 // IN-Vertex v has three adjacent faces, mark nonincident faces incident
 // and push them to incident_faces
@@ -570,34 +543,7 @@ void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
     }
 }
 
-// evaluate H on all face vertices and return vertex with the lowest H
-HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
-    VertexVector face_verts = hedi::face_vertices(f,g);                 
-    assert( face_verts.size() >= 3 ); 
-    double minimumH; // safe, because we expect the min H to be negative...
-    HEVertex minimalVertex;
-    double h;
-    bool first = true;
-    BOOST_FOREACH( HEVertex q, face_verts) { // go thorugh all the vertices and find the one with smallest detH
-        if ( g[q].status != OUT ) {
-            h = g[q].detH( p );  // replace with INPredicate(PointGen) INPredicate(LineGen) (?)
-            if ( first || (h<minimumH) ) {
-                minimumH = h;
-                minimalVertex = q;
-                first = false;
-            }
-        }
-    }
-    
-    if (!(minimumH < 0) ) {
-        std::cout << " VD find_seed_vertex() WARNING\n";
-        std::cout << " WARNING: searching for seed when inserting " << p  << "  \n";
-        std::cout << " WARNING: closest face is  " << f << " with generator " << g[f].generator  << " \n";
-        std::cout << " WARNING: minimal vd-vertex " << g[minimalVertex].index << " has deth= " << g[minimalVertex].detH( p ) << "\n";
-    }
-    //assert( minimumH < 0 );
-    return minimalVertex;
-}
+
 
 std::string VoronoiDiagram::str() const {
     std::ostringstream o;

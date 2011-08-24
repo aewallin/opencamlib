@@ -64,15 +64,15 @@ class VoronoiDiagram {
         void init();
         /// among the vertices of f, find the one with the lowest detH value
         HEVertex findSeedVertex(HEFace f, const Point& p);
-
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set_M(VertexVector& q, const Point& p);
+        /// find all IN-VTYPE edges adjacent to q-verts
         EdgeVector find_edges(VertexVector& q, VoronoiVertexStatus vtype);
-        int outVertexCount(HEFace f);
+
         int adjacentInCount(HEVertex v);
         FaceVector adjacentIncidentFaces(HEVertex v);
         bool incidentFacesHaveAdjacentInVertex(HEVertex v);
-        //bool faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype );
+
         void markAdjecentFacesIncident(HEVertex v);
         void pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q);
         
