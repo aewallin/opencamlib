@@ -127,7 +127,7 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     
     // 2) among the vertices on the closest_face
     //    find the seed, which has the lowest detH
-    HEVertex v_seed = findSeedVertex(closest_face, p);
+    HEVertex v_seed = find_seed_vertex(closest_face, p);
     g[v_seed].status = IN;
     VertexVector v0;
     v0.push_back(v_seed); 
@@ -153,7 +153,7 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
 }
 
 // evaluate H on all face vertices and return vertex with the lowest H
-HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
+HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
     VertexVector face_verts = hedi::face_vertices(f,g);                 
     assert( face_verts.size() >= 3 ); 
     double minimumH; // safe, because we expect the min H to be negative...
@@ -229,7 +229,7 @@ void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
 // generate new voronoi-vertices on all edges connecting v0 to OUT-vertices
 void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) {
     assert( !v0.empty() );
-    EdgeVector q_edges = find_edges(v0, OUT); // new vertices generated on these IN-OUT edges
+    EdgeVector q_edges = find_in_out_edges(v0); //, OUT); // new vertices generated on these IN-OUT edges
     assert( !q_edges.empty() );
     
     for( unsigned int m=0; m<q_edges.size(); ++m )  {  // create new vertices on all edges q_edges[]
@@ -441,21 +441,83 @@ void VoronoiDiagram::split_face(HEFace newface, HEFace f) {
     g[e_twin].twin = e_new;
     g[e_new].twin = e_twin;
     
-    //assert( isDegreeThree() );
 }
 
-EdgeVector VoronoiDiagram::find_edges(VertexVector& inVertices, VoronoiVertexStatus vtype) {
+// given a list inVertices of "IN" vertices, find the adjacent IN-OUT edges 
+EdgeVector VoronoiDiagram::find_in_out_edges(VertexVector& inVertices) { 
     assert( !inVertices.empty() );
     EdgeVector output; // new vertices generated on these edges
     BOOST_FOREACH( HEVertex v, inVertices ) {                                   
         assert( g[v].status == IN ); // all verts in v0 are IN
         BOOST_FOREACH( HEEdge edge, hedi::out_edges( v , g) ) {
             HEVertex adj_vertex = hedi::target( edge , g);
-            if ( g[adj_vertex].status == vtype ) 
-                output.push_back(edge); // this is an IN-vtype edge
+            if ( g[adj_vertex].status == OUT ) 
+                output.push_back(edge); // this is an IN-OUT edge
         }
     }
     return output;
+}
+
+void VoronoiDiagram::pushAdjacentVertices( HEVertex v, std::queue<HEVertex>& Q) {
+    BOOST_FOREACH( HEVertex w, hedi::adjacent_vertices(v,g) ) {
+        if ( g[w].status == UNDECIDED ) {
+            if ( !g[w].in_queue ) { 
+                Q.push(w); // push adjacent undecided verts for testing.
+                g[w].in_queue=true;
+            }
+        }
+    }
+}
+
+int VoronoiDiagram::adjacentInCount(HEVertex v) {
+    int in_count=0;
+    BOOST_FOREACH( HEVertex w, hedi::adjacent_vertices(v,g) ) {
+        if ( g[w].status == IN )
+            in_count++;
+    }
+    return in_count;
+}
+
+FaceVector VoronoiDiagram::adjacentIncidentFaces(HEVertex v) {
+    FaceVector adj_faces = hedi::adjacent_faces(v,g);
+    assert( adj_faces.size() == 3 );
+    FaceVector inc_faces;
+    BOOST_FOREACH( HEFace f, adj_faces ) {
+        if ( g[f].status == INCIDENT )
+            inc_faces.push_back( f );
+    }
+    assert( !inc_faces.empty() );
+    return inc_faces;
+}
+
+bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
+    bool all_found = true;
+    BOOST_FOREACH( HEFace f, adjacentIncidentFaces(v) ) { // check each face f
+        // v should be adjacent to an IN vertex on the face
+        bool face_found=false;
+        BOOST_FOREACH( HEVertex w, hedi::face_vertices(f,g) ) {
+            if ( w != v && g[w].status == IN && hedi::has_edge(w,v,g) ) 
+                face_found = true;
+        }
+        if (!face_found)
+            all_found=false;
+    }
+    return all_found;
+}
+
+
+// IN-Vertex v has three adjacent faces, mark nonincident faces incident
+// and push them to incident_faces
+void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
+    assert( g[v].status == IN );
+    FaceVector new_adjacent_faces = hedi::adjacent_faces( v, g ); 
+    assert( new_adjacent_faces.size()==3 );
+    BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
+        if ( g[adj_face].status  != INCIDENT ) {
+            g[adj_face].status = INCIDENT; 
+            incident_faces.push_back(adj_face);
+        }
+    }
 }
 
 void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
@@ -477,73 +539,6 @@ void VoronoiDiagram::printVertices(VertexVector& q) {
     }
     std::cout << std::endl;
 }
-
-void VoronoiDiagram::pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q) {
-    VertexVector adj_verts = hedi::adjacent_vertices(v,g);
-    BOOST_FOREACH( HEVertex w, adj_verts ) {
-        if ( g[w].status == UNDECIDED ) {
-            if ( !g[w].in_queue ) { 
-                Q.push(w); // push adjacent undecided verts for testing.
-                g[w].in_queue=true;
-            }
-        }
-    }
-}
-
-int VoronoiDiagram::adjacentInCount(HEVertex v) {
-    VertexVector adj_v = hedi::adjacent_vertices(v,g);
-    int in_count=0;
-    BOOST_FOREACH( HEVertex w, adj_v) {
-        if ( g[w].status == IN )
-            in_count++;
-    }
-    return in_count;
-}
-FaceVector VoronoiDiagram::adjacentIncidentFaces(HEVertex v) {
-    FaceVector adj_faces = hedi::adjacent_faces(v,g);
-    assert( adj_faces.size() == 3 );
-    FaceVector inc_faces;
-    BOOST_FOREACH( HEFace f, adj_faces ) {
-        if ( g[f].status == INCIDENT )
-            inc_faces.push_back( f );
-    }
-    assert( !inc_faces.empty() );
-    return inc_faces;
-}
-
-bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
-    bool all_found = true;
-    BOOST_FOREACH( HEFace f, adjacentIncidentFaces(v) ) { // check each face f
-        // v should be adjacent to an IN vertex on the face
-        // VertexVector face_verts = hed.face_vertices(f);
-        bool face_found=false;
-        BOOST_FOREACH( HEVertex w, hedi::face_vertices(f,g) ) {
-            if ( w != v && g[w].status == IN && hedi::has_edge(w,v,g) ) 
-                face_found = true;
-        }
-        if (!face_found)
-            all_found=false;
-    }
-    return all_found;
-}
-
-
-
-// IN-Vertex v has three adjacent faces, mark nonincident faces incident
-// and push them to incident_faces
-void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
-    assert( g[v].status == IN );
-    FaceVector new_adjacent_faces = hedi::adjacent_faces( v, g ); 
-    assert( new_adjacent_faces.size()==3 );
-    BOOST_FOREACH( HEFace adj_face, new_adjacent_faces ) {
-        if ( g[adj_face].status  != INCIDENT ) {
-            g[adj_face].status = INCIDENT; 
-            incident_faces.push_back(adj_face);
-        }
-    }
-}
-
-
 
 std::string VoronoiDiagram::str() const {
     std::ostringstream o;

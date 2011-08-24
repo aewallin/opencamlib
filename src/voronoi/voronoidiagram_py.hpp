@@ -44,7 +44,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         // for visualizing seed-vertex
         Point getSeedVertex( const Point p ) {
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v = findSeedVertex(closest_face, p);
+            HEVertex v = find_seed_vertex(closest_face, p);
             return g[ v ].position;
         }
         
@@ -52,7 +52,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         boost::python::list getDeleteSet( Point p ) { // no const here(?)
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v_seed = findSeedVertex(closest_face, p);
+            HEVertex v_seed = find_seed_vertex(closest_face, p);
             g[v_seed].status = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
@@ -71,12 +71,12 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         boost::python::list getDeleteEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v_seed = findSeedVertex(closest_face, p);
+            HEVertex v_seed = find_seed_vertex(closest_face, p);
             g[v_seed].status = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
             augment_vertex_set_M(v0, p);
-            EdgeVector del = find_edges(v0, IN);
+            EdgeVector del = find_in_in_edges(v0);
             BOOST_FOREACH( HEEdge e, del) {
                 boost::python::list edge;
                 HEVertex src = hedi::source(e,g);
@@ -92,12 +92,12 @@ class VoronoiDiagram_py : public VoronoiDiagram {
         boost::python::list getModEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
-            HEVertex v_seed = findSeedVertex(closest_face, p);
+            HEVertex v_seed = find_seed_vertex(closest_face, p);
             g[v_seed].status = IN;
             VertexVector v0;
             v0.push_back(v_seed); 
             augment_vertex_set_M(v0, p);
-            EdgeVector del = find_edges(v0, OUT);
+            EdgeVector del = find_in_out_edges(v0);
             BOOST_FOREACH( HEEdge e, del) {
                 boost::python::list edge;
                 HEVertex src = hedi::source(e,g);
@@ -169,6 +169,21 @@ class VoronoiDiagram_py : public VoronoiDiagram {
                     edge_list.append(point_list);
             }
             return edge_list;
+        }
+    
+        // for animation/visualization only, not needed in main algorithm
+        EdgeVector find_in_in_edges(VertexVector& inVertices) { //, VoronoiVertexStatus vtype) {
+            assert( !inVertices.empty() );
+            EdgeVector output; // new vertices generated on these edges
+            BOOST_FOREACH( HEVertex v, inVertices ) {                                   
+                assert( g[v].status == IN ); // all verts in v0 are IN
+                BOOST_FOREACH( HEEdge edge, hedi::out_edges( v , g) ) {
+                    HEVertex adj_vertex = hedi::target( edge , g);
+                    if ( g[adj_vertex].status == IN ) 
+                        output.push_back(edge); // this is an IN-IN edge
+                }
+            }
+            return output;
         }
 
         
