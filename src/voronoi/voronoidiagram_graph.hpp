@@ -320,4 +320,7 @@ typedef std::vector<HEEdge> EdgeVector;
  * OR the former circle is outside the later circle.
  * edge is branch of hyperbolic curve whose foci are pci and pcj
  * 
+ * 
+ * Similar new list of vertex-types?
+ * 
 */

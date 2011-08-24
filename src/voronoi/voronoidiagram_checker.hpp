@@ -48,7 +48,9 @@ public:
 
     /// check that no undecided vertices remain in the face
     bool  noUndecidedInFace( VoronoiDiagram* vd, HEFace f );
-    
+  
+    bool faceVerticesConnected(VoronoiDiagram* vd, HEFace f, VoronoiVertexStatus Vtype );
+      
 };
 
 } // end namespace

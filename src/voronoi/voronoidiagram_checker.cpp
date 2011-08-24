@@ -72,9 +72,9 @@ namespace ocl
     bool VoronoiDiagramChecker::allIncidentFacesOK(VoronoiDiagram* vd) {
         // all incident faces should pass the sanity-check
         BOOST_FOREACH( HEFace f, vd->incident_faces ) {
-            if ( !vd->faceVerticesConnected(  f, IN ) )
+            if ( !faceVerticesConnected( vd, f, IN ) )
                 return false; // IN vertices should be connected
-            if ( !vd->faceVerticesConnected(  f, OUT ) )  // OUT vertices should be connected
+            if ( !faceVerticesConnected( vd, f, OUT ) )  // OUT vertices should be connected
                 return false;
             if ( !noUndecidedInFace(vd, f ) )            // no UNDECIDED vertices should remain
                 return false;
@@ -102,7 +102,43 @@ namespace ocl
         return true;
     }
         
+// check that the vertices TYPE are connected
+bool VoronoiDiagramChecker::faceVerticesConnected( VoronoiDiagram* vd, HEFace f, VoronoiVertexStatus Vtype ) {
+    VertexVector face_verts = hedi::face_vertices(f,vd->g);
+    VertexVector type_verts;
+    BOOST_FOREACH( HEVertex v, face_verts ) {
+        if ( vd->g[v].status == Vtype )
+            type_verts.push_back(v); // build a vector of all Vtype vertices
+    }
+    assert( !type_verts.empty() );
+    if (type_verts.size()==1) // set of 1 is allways connected
+        return true;
     
+    // check that type_verts are connected
+    HEEdge currentEdge = vd->g[f].edge;
+    HEVertex endVertex = hedi::source(currentEdge, vd->g); // stop when target here
+    EdgeVector startEdges;
+    bool done = false;
+    while (!done) { 
+        HEVertex src = hedi::source( currentEdge, vd->g );
+        HEVertex trg = hedi::target( currentEdge, vd->g );
+        if ( vd->g[src].status != Vtype ) { // seach ?? - Vtype
+            if ( vd->g[trg].status == Vtype ) {
+                // we have found ?? - Vtype
+                startEdges.push_back( currentEdge );
+            }
+        }
+        currentEdge = vd->g[currentEdge].next;
+        if ( trg == endVertex ) {
+            done = true;
+        }
+    }
+    assert( !startEdges.empty() );
+    if ( startEdges.size() != 1 ) // when the Vtype vertices are connected, there is exactly one startEdge
+        return false;
+    else 
+        return true;
+}
 
 
 } // end namespace

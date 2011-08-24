@@ -162,10 +162,10 @@ HEFace VoronoiDiagram::split_faces(const Point& p) {
 }
 
 void VoronoiDiagram::reset_status() {
-    BOOST_FOREACH( HEVertex v, in_vertices ) {
+    BOOST_FOREACH( HEVertex v, modified_vertices ) {
         g[v].reset();
     }
-    in_vertices.clear();
+    modified_vertices.clear();
     g[v01].status = OUT; // the outer vertices are special.
     g[v02].status = OUT;
     g[v03].status = OUT;
@@ -318,7 +318,7 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) 
     for( unsigned int m=0; m<q_edges.size(); ++m )  {  // create new vertices on all edges q_edges[]
         HEVertex q = hedi::add_vertex(g);
         g[q].status = NEW;
-        in_vertices.push_back(q);
+        modified_vertices.push_back(q);
         HEFace face = g[q_edges[m]].face;     assert(  g[face].status == INCIDENT);
         HEEdge twin = g[q_edges[m]].twin;
         HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
@@ -393,12 +393,13 @@ int VoronoiDiagram::outVertexCount(HEFace f) {
 }
 
 // check that the vertices TYPE are connected
+/*
 bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype ) {
     VertexVector face_verts = hedi::face_vertices(f,g);
     VertexVector type_verts;
     BOOST_FOREACH( HEVertex v, face_verts ) {
         if ( g[v].status == Vtype )
-            type_verts.push_back(v);
+            type_verts.push_back(v); // build a vector of all Vtype vertices
     }
     assert( !type_verts.empty() );
     if (type_verts.size()==1) // set of 1 is allways connected
@@ -429,6 +430,8 @@ bool VoronoiDiagram::faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype 
     else 
         return true;
 }
+
+*/
 
 void VoronoiDiagram::printFaceVertexTypes(HEFace f) {
     std::cout << " Face " << f << ": ";
@@ -499,63 +502,62 @@ bool VoronoiDiagram::incidentFacesHaveAdjacentInVertex(HEVertex v) {
     return all_found;
 }
 
-// from the "one million" paper, growing the tree by breadth-first search
+// from the "one million" paper, growing the v0-tree of "IN" vertices by "breadth-first search"
 void VoronoiDiagram::augment_vertex_set_M(VertexVector& v0, const Point& p) {
     assert(v0.size()==1);
-    std::queue<HEVertex> Q;
-    // a priority_queue could/should be used here instead.
+    std::queue<HEVertex> Q; // FIXME: a priority_queue could/should be used here instead.
     // this woiuld allways examine and decide on the vertex with largest detH, 
     // since that vertex has the most reliable detH sign.
-    in_vertices.push_back( v0[0] );
+    modified_vertices.push_back( v0[0] );
     markAdjecentFacesIncident( v0[0] );
-    assert( Q.empty() );
     pushAdjacentVertices( v0[0] , Q);
     while( !Q.empty() ) {
         HEVertex v = Q.front();
         assert( g[v].status == UNDECIDED );
-        // add to v0 if detH<0 and passes tests. otherwise OUT
-        double h = g[v].detH( p );
+        // mark IN and add to v0 if detH<0 and passes tests. otherwise OUT
+        double h = g[v].detH( p ); // replace with INPredicate(PointGen) INPredicate(LineGen)
         if ( h < 0.0 ) { // try to mark IN
-            // (C4) v should not be adjacent to two or more IN vertices
+            // (C4) v should not be adjacent to two or more IN vertices (this would result in a loop/cycle!)
             // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
             if ( (adjacentInCount(v) >= 2) || (!incidentFacesHaveAdjacentInVertex(v)) ) {
                 assert( g[v].status == UNDECIDED );
                 g[v].status = OUT;
                 //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " IN_COUNT>=2 \n";
-                in_vertices.push_back( v );
+                modified_vertices.push_back( v );
             } else {
                 g[v].status = IN;
                 //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h<0)\n";
-                in_vertices.push_back( v );
+                modified_vertices.push_back( v );
                 v0.push_back( v );
                 markAdjecentFacesIncident( v );
                 pushAdjacentVertices( v , Q);
             }
-        } else { // mark OUT
+        } else { // detH was positive, so mark OUT
             //std::cout << " v " << hed[v].index << " decision is " << hed[v].type << " (h>0)\n";
             assert( h >= 0.0 );
             assert( g[v].status == UNDECIDED );
             g[v].status = OUT;
-            in_vertices.push_back( v );
+            modified_vertices.push_back( v );
         }
         Q.pop(); // delete from queue
     }
     
+    // sanity check: IN-vertices for each face should be connected
     BOOST_FOREACH( HEFace f, incident_faces ) {
-        if ( !faceVerticesConnected( f, IN ) ) {
+        if ( !vdChecker.faceVerticesConnected( this, f, IN ) ) {
             std::cout << " augment_vertex_set_M() ERROR, IN-vertices not connected.\n";
             std::cout << " printing all incident faces for debug: \n";
             BOOST_FOREACH( HEFace f, incident_faces ) {
                 printFaceVertexTypes( f );
             } 
         }
-        assert( faceVerticesConnected( f, IN ) );
+        assert( vdChecker.faceVerticesConnected( this, f, IN ) );
+
     }
-    //std::cout << " augment_M done:\n";
-    //printVertices(v0);
 }
 
-// used by augment_M
+// IN-Vertex v has three adjacent faces, mark nonincident faces incident
+// and push them to incident_faces
 void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
     assert( g[v].status == IN );
     FaceVector new_adjacent_faces = hedi::adjacent_faces( v, g ); 
@@ -568,8 +570,7 @@ void VoronoiDiagram::markAdjecentFacesIncident( HEVertex v) {
     }
 }
 
-// evaluate H on all face vertices and return
-// vertex with the lowest H
+// evaluate H on all face vertices and return vertex with the lowest H
 HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
     VertexVector face_verts = hedi::face_vertices(f,g);                 
     assert( face_verts.size() >= 3 ); 
@@ -577,10 +578,9 @@ HEVertex VoronoiDiagram::findSeedVertex(HEFace f, const Point& p) {
     HEVertex minimalVertex;
     double h;
     bool first = true;
-    BOOST_FOREACH( HEVertex q, face_verts) {
+    BOOST_FOREACH( HEVertex q, face_verts) { // go thorugh all the vertices and find the one with smallest detH
         if ( g[q].status != OUT ) {
-            h = g[q].detH( p ); 
-            //std::cout << "  detH = " << h << " ! \n";
+            h = g[q].detH( p );  // replace with INPredicate(PointGen) INPredicate(LineGen) (?)
             if ( first || (h<minimumH) ) {
                 minimumH = h;
                 minimalVertex = q;

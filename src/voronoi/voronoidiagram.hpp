@@ -72,7 +72,7 @@ class VoronoiDiagram {
         int adjacentInCount(HEVertex v);
         FaceVector adjacentIncidentFaces(HEVertex v);
         bool incidentFacesHaveAdjacentInVertex(HEVertex v);
-        bool faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype );
+        //bool faceVerticesConnected( HEFace f, VoronoiVertexStatus Vtype );
         void markAdjecentFacesIncident(HEVertex v);
         void pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q);
         
@@ -113,7 +113,7 @@ class VoronoiDiagram {
         FaceVector incident_faces;
         /// temporary variable for in-vertices, out-vertices that need to be reset
         /// after each generator has been inserted
-        VertexVector in_vertices;
+        VertexVector modified_vertices;
         /// sanity-checks on the diagram are done by this helper class
         VoronoiDiagramChecker vdChecker;
 };
