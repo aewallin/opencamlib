@@ -88,6 +88,8 @@ class VoronoiDiagram {
         /// set all modified vertices to UNDECIDED and all faces to NONINCIDENT
         void reset_status();
         
+
+        
     // PRINT ETC
         void printFaceVertexTypes(HEFace f);
         void printVertices(VertexVector& q);

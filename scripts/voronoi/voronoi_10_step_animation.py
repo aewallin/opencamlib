@@ -86,11 +86,16 @@ class VD:
         for p in self.verts:
             myscreen.removeActor(p)
         self.verts = []
-        for p in vd.getVoronoiVertices():
-            p=self.scale*p
+        for pt in vd.getVoronoiVertices():
+            p=self.scale*pt[0]
             actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.000005, color=self.vertexColor )
             self.verts.append(actor)
             myscreen.addActor( actor )
+            #draw clearance-disk
+            cir_actor = camvtk.Circle( center=(p.x,p.y,p.z), radius=pt[1]*self.scale, color=self.vertexColor )
+            self.verts.append(cir_actor)
+            myscreen.addActor(cir_actor)
+            
         myscreen.render() 
         
     def setEdgesPolydata(self, vd):
@@ -166,7 +171,7 @@ if __name__ == "__main__":
     scale=1000
     myscreen.render()
     random.seed(42)
-    far = 0.0002
+    far = 0.2
     # far = 0.000002 generator 52 face_count crash
     # far = 0.000010 crashes at n=192
     
@@ -198,9 +203,9 @@ if __name__ == "__main__":
     n=1
     t_before = time.time() 
     delay = 1.5 # 0.533
-    delay = 0.1 # 0.533
-    ren = [1,2,3,4,5,59,60,61,62]
-    ren = [16,17]
+    #delay = 0.1 # 0.533
+    #ren = [1,2,3,4,5,59,60,61,62]
+    #ren = [16,17]
     ren = range(0,Nmax)
     nf=0
     for p in plist:

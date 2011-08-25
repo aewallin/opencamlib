@@ -123,7 +123,10 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list plist;
             BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
                 if ( hedi::degree( v, g ) == 6 ) {
-                    plist.append( g[v].position );
+                    boost::python::list point_data;
+                    point_data.append( g[v].position );
+                    point_data.append( g[v].r );
+                    plist.append( point_data );
                 }
             }
             return plist;

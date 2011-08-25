@@ -92,6 +92,8 @@ namespace ocl {
 /// NEW-vertices are constructed on OUT-IN edges
 enum VoronoiVertexStatus {OUT, IN, UNDECIDED, NEW };
 
+
+
 /// properties of a vertex in the voronoi diagram
 struct VertexProps {
     VertexProps() {
@@ -107,11 +109,47 @@ struct VertexProps {
         index = count;
         count++;
         in_queue = false;
+        r_valid = false;
     }
     void reset() {
         in_queue = false;
         status = UNDECIDED;
     }
+    
+    double clearance() {
+        return r;
+    }
+    
+    // distance from vornoi-vertex to point-generator
+    double distance( const Point& p ) {
+        return (p-position).xyNorm(); 
+    }
+    
+    // update clearance-disk with point-generator p
+    bool update_r( const Point& p ) {
+        return update_r( distance(p) );
+    }
+    bool inside_r(const Point& p) {
+        assert( r_valid );
+        return (distance(p) < r);
+    }
+    // update clearance-disk-radius with new value if: 
+    // - not initialized
+    // - rNew < r
+    bool update_r(double rNew) {
+        if (!r_valid) {
+            r=rNew;
+            r_valid=true;
+            return true;
+        } else {
+            if (rNew < r) {
+                r=rNew;
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
     /// Eq.(24) from Sugihara&Iri 1994
     void set_position() {
@@ -127,9 +165,10 @@ struct VertexProps {
         return H;
     }
     // this allows sorting points
+    /*
     bool operator<(const VertexProps& other) const {
         return ( abs(this->H) < abs(other.H) );
-    }
+    }*/
     /// set the J values
     void set_J(const Point& pi, const Point& pj, const Point& pkin) { 
         // 1) i-j-k should come in CCW order
@@ -210,6 +249,9 @@ struct VertexProps {
     int index;
     /// global vertex count
     static int count;
+    /// radius of clearance-disk for this vertex
+    double r;
+    bool r_valid;
 };
 
 // use traits-class here so that EdgePros can store data of type HEEdge
@@ -285,6 +327,7 @@ typedef boost::graph_traits< HEGraph >::edge_iterator      HEEdgeItr;
 typedef boost::graph_traits< HEGraph >::out_edge_iterator  HEOutEdgeItr;
 typedef boost::graph_traits< HEGraph >::adjacency_iterator HEAdjacencyItr;
 typedef boost::graph_traits< HEGraph >::vertices_size_type HEVertexSize;
+
 
 
 // these containers are used instead of iterators when accessing
