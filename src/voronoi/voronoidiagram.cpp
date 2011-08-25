@@ -198,7 +198,7 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
         std::cout << " WARNING: minimal vd-vertex " << g[minimalVertex].index << " has deth= " << g[minimalVertex].detH( p ) << "\n";
     }
     std::cout << " RETURN: " << g[minimalVertex].index << " viol= " << g[minimalVertex].r-g[minimalVertex].distance(p) << " detH= " << g[minimalVertex].detH(p) << "\n"; 
-    //assert( minimumH < 0 );
+    assert( minimumH < 0 );
     return minimalVertex;
 }
 
@@ -215,7 +215,7 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
     BOOST_FOREACH( HEVertex v, face_verts) { // go thorugh all the vertices and find the one with smallest detH
         if ( g[v].status != OUT ) { // known OUT-vertices cannot be seeds
             viol = g[v].r - g[v].distance( p );
-            std::cout << g[v].index << " viol= " << viol << " detH= " << g[v].detH(p) << "\n";
+            std::cout << g[v].index << " g[v].distance( p )= " << g[v].distance( p ) << " r="<< g[v].r << " viol= " << viol << " detH= " << g[v].detH(p) << "\n";
             if ( first )  {
                 maxViolation = viol;
                 minimalVertex = v;

@@ -122,7 +122,7 @@ struct VertexProps {
     
     // distance from vornoi-vertex to point-generator
     double distance( const Point& p ) {
-        return (p-position).xyNorm(); 
+        return square(p.x-position.x) + square(p.y-position.y); 
     }
     
     // update clearance-disk with point-generator p
