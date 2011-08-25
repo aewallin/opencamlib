@@ -32,7 +32,7 @@ def getLoops(wl,zh,diam):
     t_before = time.time() 
     wl.reset()
     wl.setZ(zh)
-    wl.run()
+    wl.run2()
     t_after = time.time()
     calctime = t_after-t_before
     print " Waterline done in ", calctime," s"
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     length= 10
     cutter = ocl.BallCutter( diam , length )
     wl.setCutter(cutter)
-    wl.setSampling(0.025)
+    wl.setSampling(0.014)
     
     for zh in zheights:
         print "calculating Waterline at z= ", zh

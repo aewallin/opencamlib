@@ -214,9 +214,14 @@ void Weave::build2() {
     std::cout << " done.\n" << std::flush ;
     
     std::cout << " build2() looping over yfibers ... " << std::flush ;
+    std::cout << yfibers.size() << " fibers to loop over \n"<< std::flush ; 
+    int ny = 0;
     BOOST_FOREACH( Fiber& yf, yfibers ) {
+        std::cout << " fiber nr: " << ny++ << " has " << yf.ints.size() << " intervals\n" << std::flush ;
         std::vector<Interval>::iterator yi;
+        int ny_int=0;
         for( yi = yf.ints.begin(); yi < yf.ints.end(); yi++ ) {
+            std::cout << "  interval nr: " << ny_int++ << " has yi->intersections_fibers.size()= " << yi->intersections_fibers.size() << "\n" << std::flush;
             std::set<std::vector<Fiber>::iterator>::iterator current, prev;
             if( yi->intersections_fibers.size() > 1 ) {
                 current = yi->intersections_fibers.begin();
