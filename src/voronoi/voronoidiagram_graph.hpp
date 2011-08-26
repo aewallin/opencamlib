@@ -95,7 +95,8 @@ enum VoronoiVertexStatus {OUT, IN, UNDECIDED, NEW };
 
 
 /// properties of a vertex in the voronoi diagram
-struct VertexProps {
+class VertexProps {
+public:
     VertexProps() {
         init();
     }
@@ -109,47 +110,31 @@ struct VertexProps {
         index = count;
         count++;
         in_queue = false;
-        r_valid = false;
     }
     void reset() {
         in_queue = false;
         status = UNDECIDED;
     }
     
-    double clearance() {
-        return r;
+    // set the generators and position the vertex
+    void set_generators(const Point& pi, const Point& pj, const Point& pkin) {
+        set_J(pi,pj,pkin);
+        set_position();
     }
-    
-    // distance from vornoi-vertex to point-generator
-    double distance( const Point& p ) {
-        return square(p.x-position.x) + square(p.y-position.y); 
+    /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
+    /// Eq.(20) from Sugihara&Iri 1994
+    double detH(const Point& pl) const {
+        return J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
     }
-    
-    // update clearance-disk with point-generator p
-    bool update_r( const Point& p ) {
-        return update_r( distance(p) );
-    }
-    bool inside_r(const Point& p) {
-        assert( r_valid );
-        return (distance(p) < r);
-    }
-    // update clearance-disk-radius with new value if: 
-    // - not initialized
-    // - rNew < r
-    bool update_r(double rNew) {
-        if (!r_valid) {
-            r=rNew;
-            r_valid=true;
-            return true;
-        } else {
-            if (rNew < r) {
-                r=rNew;
-                return true;
-            }
-        }
-        return false;
-    }
-    
+    /// index of vertex
+    int index;
+    /// vertex status. when the incremental algorithm runs
+    /// vertices are marked: undecided, in, out, or new
+    VoronoiVertexStatus status;
+    bool in_queue;
+    /// the position of the vertex
+    Point position;
+protected:
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
     /// Eq.(24) from Sugihara&Iri 1994
     void set_position() {
@@ -158,12 +143,7 @@ struct VertexProps {
         double y =  J3/w + pk.y;
         position =  Point(x,y);
     }
-    /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
-    /// Eq.(20) from Sugihara&Iri 1994
-    double detH(const Point& pl) {
-        H = J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
-        return H;
-    }
+
     // this allows sorting points
     /*
     bool operator<(const VertexProps& other) const {
@@ -214,23 +194,24 @@ struct VertexProps {
     }
     /// calculate J2
     /// Eq(21) from Sugihara&Iri 1994
+    /// see also Eq(4.6.4), page 256, of Okabe et al book
     double detH_J2(Point& pi, Point& pj, Point& pk) {
         return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
     }
     /// calculate J3
     /// Eq(22) from Sugihara&Iri 1994
+    /// see also Eq(4.6.5), page 257, of Okabe et al book
     double detH_J3(Point& pi, Point& pj, Point& pk) {
         return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
     }
     /// calculate J4
     /// Eq(23) from Sugihara&Iri 1994
+    /// see also Eq(4.6.6), page 257, of Okabe et al book
     double detH_J4(Point& pi, Point& pj, Point& pk) {
         return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
     }
 // VD DATA
-    /// vertex status. when the incremental algorithm runs
-    /// vertices are marked: undecided, in, out, or new
-    VoronoiVertexStatus status;
+
     /// the reference point for J-calculations
     Point pk;
     /// J2 determinant
@@ -239,19 +220,14 @@ struct VertexProps {
     double J3;
     /// J4 determinant
     double J4;
-    // determinant value, i.e. inCircle predicate
-    double H;
-    bool in_queue;
+
+
 // HE data
-    /// the position of the vertex
-    Point position;
-    /// index of vertex
-    int index;
+
+
     /// global vertex count
     static int count;
-    /// radius of clearance-disk for this vertex
-    double r;
-    bool r_valid;
+
 };
 
 // use traits-class here so that EdgePros can store data of type HEEdge

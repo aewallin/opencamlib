@@ -51,6 +51,10 @@ public:
   
     bool faceVerticesConnected(VoronoiDiagram* vd, HEFace f, VoronoiVertexStatus Vtype );
     bool incidentFaceVerticesConnected( VoronoiDiagram* vd, VoronoiVertexStatus Vtype );
+    
+    bool detH_is_negative( VoronoiDiagram* vd, const Point& p, HEFace f, HEVertex minimalVertex );
+    
+    
 };
 
 } // end namespace

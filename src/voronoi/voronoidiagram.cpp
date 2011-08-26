@@ -57,23 +57,8 @@ void VoronoiDiagram::init() {
     Point gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
     Point gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
     Point gen1 = Point( 0,-gen_mutliplier*far_radius);
-    g[v0].set_J( gen1, gen2, gen3 ); // this sets J2,J3,J4 and pk, so that detH(pl) can be called later
+    g[v0].set_generators( gen1, gen2, gen3 ); 
     
-    // set clearance-disks for vertices
-    g[v0].update_r( gen1 ); g[v0].update_r( gen2 ); g[v0].update_r( gen3 );
-    //g[v01].update_r( gen1 ); g[v01].update_r( gen2 ); g[v01].update_r( gen3 );
-    //g[v02].update_r( gen1 ); g[v02].update_r( gen2 ); g[v02].update_r( gen3 );
-    //g[v03].update_r( gen1 ); g[v03].update_r( gen2 ); g[v03].update_r( gen3 );
-    
-    // set small clearance disks, so that these are not removed.
-    g[v01].update_r( far_radius / 100.0 );
-    g[v02].update_r( far_radius / 100.0 );
-    g[v03].update_r( far_radius / 100.0 );
-    
-    std::cout << " v0 " << g[v0].position << "r " << g[v0].r << "\n";
-    std::cout << " v01 " << g[v01].position << "r " << g[v01].r << "\n";
-    std::cout << " v02 " << g[v02].position << "r " << g[v02].r << "\n";
-    std::cout << " v03 " << g[v03].position << "r " << g[v03].r << "\n";
     // add face 1: v0-v1-v2 which encloses gen3
     HEEdge e1 =  hedi::add_edge( v0 , v01 , g);   
     HEEdge e2 =  hedi::add_edge( v01, v02 , g);
@@ -172,17 +157,12 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
 HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
     VertexVector face_verts = hedi::face_vertices(f,g);
     assert( face_verts.size() >= 3 );
-    double minimumH; // safe, because we expect the min H to be negative...
+    double minimumH; 
     HEVertex minimalVertex;
-    double h;
     bool first = true;
     BOOST_FOREACH( HEVertex q, face_verts) { // go thorugh all the vertices and find the one with smallest detH
         if ( g[q].status != OUT ) {
-            h = g[q].detH( p ); // replace with INPredicate(PointGen) INPredicate(LineGen) (?)
-            assert( g[q].r_valid );
-            double viol = g[q].r - g[q].distance( p );
-            std::cout << g[q].index << " viol= " << viol << " detH= " << g[q].detH(p) << "\n";
-            
+            double h = g[q].detH( p ); 
             if ( first || (h<minimumH) ) {
                 minimumH = h;
                 minimalVertex = q;
@@ -190,48 +170,10 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
             }
         }
     }
-    
-    if (!(minimumH < 0) ) {
-        std::cout << " VD find_seed_vertex() WARNING\n";
-        std::cout << " WARNING: searching for seed when inserting " << p << " \n";
-        std::cout << " WARNING: closest face is " << f << " with generator " << g[f].generator << " \n";
-        std::cout << " WARNING: minimal vd-vertex " << g[minimalVertex].index << " has deth= " << g[minimalVertex].detH( p ) << "\n";
-    }
-    std::cout << " RETURN: " << g[minimalVertex].index << " viol= " << g[minimalVertex].r-g[minimalVertex].distance(p) << " detH= " << g[minimalVertex].detH(p) << "\n"; 
-    assert( minimumH < 0 );
+    assert( vdChecker.detH_is_negative( this, p, f, minimalVertex ) );
+
     return minimalVertex;
 }
-
-
-// evaluate radius on all face vertices and return vertex with the lowest radius
-/*
-HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
-    VertexVector face_verts = hedi::face_vertices(f,g);                 
-    assert( face_verts.size() >= 3 ); 
-    HEVertex minimalVertex;
-    double maxViolation;
-    double viol;
-    bool first = true;
-    BOOST_FOREACH( HEVertex v, face_verts) { // go thorugh all the vertices and find the one with smallest detH
-        if ( g[v].status != OUT ) { // known OUT-vertices cannot be seeds
-            viol = g[v].r - g[v].distance( p );
-            std::cout << g[v].index << " g[v].distance( p )= " << g[v].distance( p ) << " r="<< g[v].r << " viol= " << viol << " detH= " << g[v].detH(p) << "\n";
-            if ( first )  {
-                maxViolation = viol;
-                minimalVertex = v;
-                first = false;
-            }
-            if (viol > maxViolation)  {
-                maxViolation = viol;
-                minimalVertex = v;
-            }
-        }
-    }
-    std::cout << "RETURN: " << g[minimalVertex].index << " viol= " << maxViolation << "\n";
-    
-    assert( maxViolation > 0);
-    return minimalVertex;
-}*/
 
 
 // from the "one million" paper, growing the v0-tree of "IN" vertices by "breadth-first search"
@@ -293,16 +235,9 @@ void VoronoiDiagram::add_new_voronoi_vertices(VertexVector& v0, const Point& p) 
         HEFace face = g[q_edges[m]].face;     assert(  g[face].status == INCIDENT);
         HEEdge twin = g[q_edges[m]].twin;
         HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
-        g[q].set_J( g[face].generator  , g[twin_face].generator  , p); 
-        g[q].set_position();
+        g[q].set_generators( g[face].generator  , g[twin_face].generator  , p); 
+        // g[q].set_position();
         
-        // new minimal-radius approach:
-        assert( g[q].r_valid == false );
-        g[q].update_r( p );
-        g[q].update_r( g[face].generator );
-        g[q].update_r( g[twin_face].generator );
-        assert( g[q].r_valid == true );
-
         // check new vertex position, should lie between endpoints of q_edges[m]
         HEVertex trg = hedi::target(q_edges[m], g);
         HEVertex src = hedi::source(q_edges[m], g);

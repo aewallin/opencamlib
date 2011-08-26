@@ -57,6 +57,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             VertexVector v0;
             v0.push_back(v_seed); 
             augment_vertex_set_M(v0, p);
+            v0.erase( v0.begin() ); // remove the seed vertex, as it is already visualized
             BOOST_FOREACH( HEVertex v, v0) {
                 boost::python::list vert;
                 vert.append( g[ v ].position );
@@ -123,10 +124,10 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list plist;
             BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
                 if ( hedi::degree( v, g ) == 6 ) {
-                    boost::python::list point_data;
-                    point_data.append( g[v].position );
-                    point_data.append( g[v].r );
-                    plist.append( point_data );
+                    //boost::python::list point_data;
+                    //point_data.append(  );
+                    //point_data.append( g[v].r );
+                    plist.append( g[v].position );
                 }
             }
             return plist;

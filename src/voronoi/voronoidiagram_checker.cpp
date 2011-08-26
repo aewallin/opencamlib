@@ -155,6 +155,19 @@ bool VoronoiDiagramChecker::incidentFaceVerticesConnected( VoronoiDiagram* vd, V
     }
     return true;
 }
+
+bool VoronoiDiagramChecker::detH_is_negative( VoronoiDiagram* vd, const Point& p, HEFace f, HEVertex minimalVertex ) {
+    double minimumH = vd->g[minimalVertex].detH(p);
+    if (!(minimumH < 0) ) {
+        std::cout << " VD find_seed_vertex() WARNING\n";
+        std::cout << " WARNING: searching for seed when inserting " << p << " \n";
+        std::cout << " WARNING: closest face is " << f << " with generator " << vd->g[f].generator << " \n";
+        std::cout << " WARNING: minimal vd-vertex " << vd->g[minimalVertex].index << " has detH= " << minimumH  << "\n";
+    }
+    
+    return (minimumH < 0 );
+}
+    
     
 /* OLD CODE NOT USED ANYMORE
 int VoronoiDiagram::outVertexCount(HEFace f) {

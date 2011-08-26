@@ -87,15 +87,16 @@ class VD:
             myscreen.removeActor(p)
         self.verts = []
         for pt in vd.getVoronoiVertices():
-            p=self.scale*pt[0]
+            p=self.scale*pt
             actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.000005, color=self.vertexColor )
             self.verts.append(actor)
             myscreen.addActor( actor )
             #draw clearance-disk
+            """
             cir_actor = camvtk.Circle( center=(p.x,p.y,p.z), radius=math.sqrt(pt[1])*self.scale, color=self.vertexColor )
             self.verts.append(cir_actor)
             myscreen.addActor(cir_actor)
-            
+            """
         myscreen.render() 
         
     def setEdgesPolydata(self, vd):

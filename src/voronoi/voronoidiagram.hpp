@@ -68,7 +68,7 @@ class VoronoiDiagram {
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set_M(VertexVector& q, const Point& p);
         /// find all IN-VTYPE edges adjacent to q-verts
-        EdgeVector find_in_out_edges(VertexVector& q); //, VoronoiVertexStatus vtype);
+        EdgeVector find_in_out_edges(VertexVector& q); 
 
         int adjacentInCount(HEVertex v);
         FaceVector adjacentIncidentFaces(HEVertex v);
