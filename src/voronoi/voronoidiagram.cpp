@@ -25,7 +25,7 @@
 namespace ocl
 {
 
-int VertexProps::count = 0;
+
 
 VoronoiDiagram::VoronoiDiagram(double far, unsigned int n_bins) {
     fgrid = new FaceGrid(far, n_bins);
@@ -43,10 +43,10 @@ void VoronoiDiagram::init() {
     double far_multiplier = 6;
     // add init vertices
     HEVertex v0;
-    VertexProps v0prop(Point(0,0), UNDECIDED);
-    VertexProps v1prop(Point(0, far_multiplier*far_radius), OUT);
-    VertexProps v2prop(Point( cos(-5*PI/6)*far_multiplier*far_radius, sin(-5*PI/6)*far_multiplier*far_radius), OUT);
-    VertexProps v3prop(Point( cos(-PI/6)*far_multiplier*far_radius, sin(-PI/6)*far_multiplier*far_radius), OUT);
+    VoronoiVertex v0prop(Point(0,0), UNDECIDED);
+    VoronoiVertex v1prop(Point(0, far_multiplier*far_radius), OUT);
+    VoronoiVertex v2prop(Point( cos(-5*PI/6)*far_multiplier*far_radius, sin(-5*PI/6)*far_multiplier*far_radius), OUT);
+    VoronoiVertex v3prop(Point( cos(-PI/6)*far_multiplier*far_radius, sin(-PI/6)*far_multiplier*far_radius), OUT);
     v0  = hedi::add_vertex( v0prop, g );
     v01 = hedi::add_vertex( v1prop, g );
     v02 = hedi::add_vertex( v2prop, g );

@@ -26,7 +26,7 @@
 
 #include "point.hpp"
 #include "halfedgediagram.hpp"
-
+#include "voronoivertex.hpp"
 
 // this file contains typedefs used by voronoidiagram.h
 namespace ocl {
@@ -83,152 +83,6 @@ namespace ocl {
  * circle: square(x-xc) + square(y-yc) = square(r+k*t)  k=+1 for enlarging circle, k=-1 shrinking
  */
  
-
-/// voronoi-vertices can be of these four different types
-/// as we incrementally construct the diagram the type is updated as follows:
-/// OUT-vertices will not be deleted
-/// IN-vertices will be deleted
-/// UNDECIDED-vertices have not been examied yet
-/// NEW-vertices are constructed on OUT-IN edges
-enum VoronoiVertexStatus {OUT, IN, UNDECIDED, NEW };
-
-
-
-/// properties of a vertex in the voronoi diagram
-class VertexProps {
-public:
-    VertexProps() {
-        init();
-    }
-    /// construct vertex at position p with type t
-    VertexProps( Point p, VoronoiVertexStatus st) {
-        position=p;
-        status=st;
-        init();
-    }
-    void init() {
-        index = count;
-        count++;
-        in_queue = false;
-    }
-    void reset() {
-        in_queue = false;
-        status = UNDECIDED;
-    }
-    
-    // set the generators and position the vertex
-    void set_generators(const Point& pi, const Point& pj, const Point& pkin) {
-        set_J(pi,pj,pkin);
-        set_position();
-    }
-    /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
-    /// Eq.(20) from Sugihara&Iri 1994
-    double detH(const Point& pl) const {
-        return J2*(pl.x-pk.x) - J3*(pl.y-pk.y) + 0.5*J4*(square(pl.x-pk.x) + square(pl.y-pk.y));
-    }
-    /// index of vertex
-    int index;
-    /// vertex status. when the incremental algorithm runs
-    /// vertices are marked: undecided, in, out, or new
-    VoronoiVertexStatus status;
-    bool in_queue;
-    /// the position of the vertex
-    Point position;
-protected:
-    /// based on previously calculated J2, J3, and J4, set the position of the vertex
-    /// Eq.(24) from Sugihara&Iri 1994
-    void set_position() {
-        double w = J4;
-        double x = -J2/w + pk.x;
-        double y =  J3/w + pk.y;
-        position =  Point(x,y);
-    }
-
-    // this allows sorting points
-    /*
-    bool operator<(const VertexProps& other) const {
-        return ( abs(this->H) < abs(other.H) );
-    }*/
-    /// set the J values
-    void set_J(const Point& pi, const Point& pj, const Point& pkin) { 
-        // 1) i-j-k should come in CCW order
-        Point pi_,pj_,pk_;
-        if ( pi.isRight(pj,pkin) ) {
-            pi_ = pj;
-            pj_ = pi;
-            pk_ = pkin;
-        } else {
-            pi_ = pi;
-            pj_ = pj;
-            pk_ = pkin;
-        }
-        assert( !pi_.isRight(pj_,pk_) );
-        // 2) point pk should have the largest angle 
-        // largest angle is opposite longest side.
-        Point pi__,pj__,pk__;
-        pi__ = pi_;                          
-        pj__ = pj_;                          
-        pk__ = pk_;
-        double longest_side = (pi_ - pj_).xyNorm();
-        if (  (pj_ - pk_).xyNorm() > longest_side ) {
-            longest_side = (pj_ - pk_).xyNorm(); //j-k is longest, so i should be new k
-            pk__ = pi_;                         // old  i-j-k 
-            pi__ = pj_;                         // new  k-i-j
-            pj__ = pk_;
-        }
-        if ( (pi_ - pk_).xyNorm() > longest_side ) { // i-k is longest, so j should be new k                    
-            pk__ = pj_;                          // old  i-j-k
-            pj__ = pi_;                          // new  j-k-i
-            pi__ = pk_;
-        }
-        
-        assert( !pi__.isRight(pj__,pk__) );
-        assert( (pi__ - pj__).xyNorm() >=  (pj__ - pk__).xyNorm() );
-        assert( (pi__ - pj__).xyNorm() >=  (pk__ - pi__).xyNorm() );
-        
-        this->pk = pk__;
-        J2 = detH_J2( pi__, pj__, pk__);
-        J3 = detH_J3( pi__, pj__, pk__);
-        J4 = detH_J4( pi__, pj__, pk__);
-        assert( J4 != 0.0 ); // we need to divide by J4 later, so it better not be zero...
-    }
-    /// calculate J2
-    /// Eq(21) from Sugihara&Iri 1994
-    /// see also Eq(4.6.4), page 256, of Okabe et al book
-    double detH_J2(Point& pi, Point& pj, Point& pk) {
-        return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
-    }
-    /// calculate J3
-    /// Eq(22) from Sugihara&Iri 1994
-    /// see also Eq(4.6.5), page 257, of Okabe et al book
-    double detH_J3(Point& pi, Point& pj, Point& pk) {
-        return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
-    }
-    /// calculate J4
-    /// Eq(23) from Sugihara&Iri 1994
-    /// see also Eq(4.6.6), page 257, of Okabe et al book
-    double detH_J4(Point& pi, Point& pj, Point& pk) {
-        return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
-    }
-// VD DATA
-
-    /// the reference point for J-calculations
-    Point pk;
-    /// J2 determinant
-    double J2;
-    /// J3 determinant
-    double J3;
-    /// J4 determinant
-    double J4;
-
-
-// HE data
-
-
-    /// global vertex count
-    static int count;
-
-};
 
 // use traits-class here so that EdgePros can store data of type HEEdge
 // typedef of the VD-graph follows below. 
@@ -288,7 +142,7 @@ struct FaceProps {
 typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::list
                        boost::listS,             // vertex set stored here
                        boost::bidirectionalS,    // bidirectional graph.
-                       VertexProps,              // vertex properties
+                       VoronoiVertex,              // vertex properties
                        EdgeProps,                // edge properties
                        FaceProps,                // face properties
                        boost::no_property,       // graph properties

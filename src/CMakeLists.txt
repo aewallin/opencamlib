@@ -171,6 +171,7 @@ set(OCL_ALGO_SRC
 
 set(OCL_VORONOI_SRC
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.cpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoivertex.cpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.cpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.cpp
 )
@@ -236,6 +237,7 @@ set( OCL_INCLUDE_FILES
     
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_graph.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp
+    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoivertex.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.hpp
     ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.hpp
 )
