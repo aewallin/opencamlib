@@ -168,7 +168,30 @@ bool VoronoiDiagramChecker::detH_is_negative( VoronoiDiagram* vd, const Point& p
     return (minimumH < 0 );
 }
     
-    
+bool VoronoiDiagramChecker::current_face_equals_next_face(VoronoiDiagram* vd, HEEdge e) {
+    if ( vd->g[e].face !=  vd->g[ vd->g[e].next ].face) {
+        std::cout << " VD remove_vertex_set() ERROR.\n";
+        std::cout << "current.face = " << vd->g[e].face << " IS NOT next_face = " << vd->g[ vd->g[e].next ].face << std::endl;
+        HEVertex c_trg = hedi::target( e , vd->g);
+        HEVertex c_src = hedi::source( e , vd->g);
+        HEVertex n_trg = hedi::target( vd->g[e].next , vd->g);
+        HEVertex n_src = hedi::source( vd->g[e].next , vd->g);
+        
+        std::cout << "current_edge = " << vd->g[c_src].index << " - " << vd->g[c_trg].index << "\n";
+        std::cout << "next_edge = " << vd->g[n_src].index << " - " << vd->g[n_trg].index << "\n";
+        
+        vd->printFaceVertexTypes( vd->g[e].face );
+        vd->printFaceVertexTypes( vd->g[ vd->g[e].next ].face );
+        
+        std::cout << " printing all incident faces for debug: \n";
+        BOOST_FOREACH( HEFace f, vd->incident_faces ) {
+            vd->printFaceVertexTypes( f );
+        } 
+        return false;
+    }
+    return true;
+}
+                    
 /* OLD CODE NOT USED ANYMORE
 int VoronoiDiagram::outVertexCount(HEFace f) {
     int outCount = 0;

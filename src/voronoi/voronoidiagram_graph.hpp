@@ -98,6 +98,10 @@ typedef unsigned int HEFace;
 /// and the HEFace to which this HEEdge belongs
 struct EdgeProps {
     EdgeProps() {}
+    EdgeProps(HEEdge n, HEFace f){
+        next = n;
+        face = f;
+    }
     /// create edge with given next, twin, and face
     EdgeProps(HEEdge n, HEEdge t, HEFace f){
         next = n;
@@ -132,6 +136,7 @@ struct FaceProps {
     HEEdge edge;
     /// the generator for this face
     Point generator;
+    VoronoiGenerator* gen;
     /// face status (either incident or nonincident)
     VoronoiFaceStatus status;
 };

@@ -25,6 +25,28 @@
 
 namespace ocl {
 
+// base-class for generators
+class VoronoiGenerator {
+    public:
+        VoronoiGenerator();
+        virtual ~VoronoiGenerator();
+        virtual Point get_apex(const Point& p) const = 0;
+    private:
+        
+};
+
+class PointGenerator : public VoronoiGenerator {
+    public:
+        PointGenerator(Point p) {
+            position = p;
+        }
+        Point get_apex(const Point& p) const {
+            return position;
+        }
+    private:
+        Point position;
+};
+
 /// voronoi-vertices can have one of these four different states
 /// as we incrementally construct the diagram the type is updated as follows:
 /// OUT-vertices will not be deleted
@@ -42,6 +64,7 @@ public:
     void init();
     void reset();
     void set_generators(const Point& pi, const Point& pj, const Point& pkin);
+    
     /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
     /// Eq.(20) from Sugihara&Iri 1994
     double detH(const Point& pl) const;

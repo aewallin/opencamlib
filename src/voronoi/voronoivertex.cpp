@@ -29,6 +29,7 @@ int VoronoiVertex::count = 0;
 
     VoronoiVertex::VoronoiVertex() {
         init();
+        status = UNDECIDED;
     }
     /// construct vertex at position p with type t
     VoronoiVertex::VoronoiVertex( Point p, VoronoiVertexStatus st) {
@@ -51,8 +52,12 @@ int VoronoiVertex::count = 0;
         set_J(pi,pj,pkin);
         set_position();
     }
-    /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
+    
+    /// based on precalculated J2, J3, J4, _pk, calculate the H determinant for input Point pl
     /// Eq.(20) from Sugihara&Iri 1994
+    /// H<0 means pl is inside the circle
+    /// H==0 on the edge of the circle
+    /// H>9 outside the circle
     double VoronoiVertex::detH(const Point& pl) const {
         return J2*(pl.x- _pk.x) - J3*(pl.y-_pk.y) + 0.5*J4*(square(pl.x-_pk.x) + square(pl.y-_pk.y));
     }
@@ -69,6 +74,7 @@ int VoronoiVertex::count = 0;
         return ( abs(this->H) < abs(other.H) );
     }*/
     /// set the J values
+    /// pi, pj, pk define the three PointGenerators that position this vertex
     void VoronoiVertex::set_J(const Point& pi, const Point& pj, const Point& pkin) { 
         // 1) i-j-k should come in CCW order
         Point pi_,pj_,pk_;
@@ -82,7 +88,7 @@ int VoronoiVertex::count = 0;
             pk_ = pkin;
         }
         assert( !pi_.isRight(pj_,pk_) );
-        // 2) point pk should have the largest angle 
+        // 2) point _pk should have the largest angle 
         // largest angle is opposite longest side.
         Point pi__,pj__,pk__;
         pi__ = pi_;                          
@@ -104,7 +110,7 @@ int VoronoiVertex::count = 0;
         assert( !pi__.isRight(pj__,pk__) );
         assert( (pi__ - pj__).xyNorm() >=  (pj__ - pk__).xyNorm() );
         assert( (pi__ - pj__).xyNorm() >=  (pk__ - pi__).xyNorm() );
-        
+        // storing J2,J3,J4, and _pk allows us to call detH() later 
         _pk = pk__;
         J2 = detH_J2( pi__, pj__, _pk);
         J3 = detH_J3( pi__, pj__, _pk);

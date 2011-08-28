@@ -20,6 +20,7 @@
 #define VODI_H
 
 #include <queue>
+#include <boost/tuple/tuple.hpp>
 
 #include "point.hpp"
 #include "voronoidiagram_graph.hpp"
@@ -48,10 +49,10 @@ class VoronoiDiagram {
         VoronoiDiagram(double far, unsigned int n_bins);
         /// dtor
         virtual ~VoronoiDiagram();
-        
         /// add a vertex generator at given position
         void addVertexSite(const Point& p);
-
+        int addPointGenerator( const Point& p );
+        
         /// string repr
         std::string str() const;
         /// return the far radius
@@ -66,28 +67,30 @@ class VoronoiDiagram {
         /// i.e. the one that is closest to the new generator Point p
         HEVertex find_seed_vertex(HEFace f, const Point& p);
         /// breadth-first search based Tree-expansion algorithm
-        void augment_vertex_set_M(VertexVector& q, const Point& p);
-        /// find all IN-VTYPE edges adjacent to q-verts
-        EdgeVector find_in_out_edges(VertexVector& q); 
+        void augment_vertex_set_M(HEVertex& v_seed, const Point& p);
+        /// find all IN-OUT edges adjacent to q-verts
+        EdgeVector find_in_out_edges(); 
 
         int adjacentInCount(HEVertex v);
         FaceVector adjacentIncidentFaces(HEVertex v);
         bool incidentFacesHaveAdjacentInVertex(HEVertex v);
 
         void markAdjecentFacesIncident(HEVertex v);
-        void pushAdjacentVertices(  HEVertex v , std::queue<HEVertex>& Q);
-
+        void pushAdjacentVertices( HEVertex v , std::queue<HEVertex>& Q);
+        void mark_vertex_in(HEVertex& v, std::queue<HEVertex>& Q); 
         /// add the new vertices  
-        void add_new_voronoi_vertices(VertexVector& v, const Point& p);
+        void add_new_voronoi_vertices( const Point& p);
         /// split faces when adding new generator p
         HEFace split_faces(const Point& p);
         /// split the face
         void split_face(HEFace new_f, HEFace f);
         /// remove vertices in the set
-        void remove_vertex_set(VertexVector& v0 , HEFace newface);
+        void remove_vertex_set( HEFace newface );
         /// set all modified vertices to UNDECIDED and all faces to NONINCIDENT
         void reset_status();
         
+        boost::tuple<HEEdge, HEVertex, HEEdge> find_new_vertex(HEFace f, VoronoiVertexStatus s1);
+
 
         
     // PRINT ETC
@@ -117,6 +120,7 @@ class VoronoiDiagram {
         /// temporary variable for in-vertices, out-vertices that need to be reset
         /// after each generator has been inserted
         VertexVector modified_vertices;
+        VertexVector v0;
 
 };
 

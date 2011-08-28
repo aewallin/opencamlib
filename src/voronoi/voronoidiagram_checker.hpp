@@ -54,6 +54,7 @@ public:
     
     bool detH_is_negative( VoronoiDiagram* vd, const Point& p, HEFace f, HEVertex minimalVertex );
     
+    bool current_face_equals_next_face(VoronoiDiagram* vd, HEEdge e); 
     
 };
 

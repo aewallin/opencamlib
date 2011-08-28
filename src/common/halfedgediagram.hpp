@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -17,8 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef HEDI2_H
-#define HEDI2_H
+#ifndef HEDI_H
+#define HEDI_H
 
 #include <vector>
 #include <list>
@@ -135,6 +134,19 @@ typename boost::graph_traits< Graph >::edge_descriptor add_edge(typename boost::
     typename boost::graph_traits< Graph >::edge_descriptor e;
     bool b;
     boost::tie( e , b ) = boost::add_edge( v1, v2, g);
+    return e;
+}
+
+/// add an edge with given properties between vertices v1-v2
+template <class Graph, class EdgeProperty>
+typename boost::graph_traits< Graph >::edge_descriptor add_edge( 
+                                                       typename boost::graph_traits< Graph >::vertex_descriptor v1, 
+                                                       typename boost::graph_traits< Graph >::vertex_descriptor v2, 
+                                                       const EdgeProperty& prop,
+                                                       Graph& g) {
+    typename boost::graph_traits< Graph >::edge_descriptor e;
+    bool b;
+    boost::tie( e , b ) = boost::add_edge( v1, v2, prop, g);
     return e;
 }
 
