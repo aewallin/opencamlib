@@ -49,9 +49,12 @@ class VoronoiDiagram {
         VoronoiDiagram(double far, unsigned int n_bins);
         /// dtor
         virtual ~VoronoiDiagram();
+        
         /// add a vertex generator at given position
-        void addVertexSite(const Point& p);
-        int addPointGenerator( const Point& p );
+        int addVertexSite(const Point& p);
+        void addLineSite(int idx1, int idx2);
+        
+        //int addPointGenerator( const Point& p );
         
         /// string repr
         std::string str() const;
@@ -66,8 +69,12 @@ class VoronoiDiagram {
         /// among the vertices of f, find the one with the lowest detH value
         /// i.e. the one that is closest to the new generator Point p
         HEVertex find_seed_vertex(HEFace f, const Point& p);
+        HEVertex find_seed_vertex(HEVertex start, HEVertex end);
+        
         /// breadth-first search based Tree-expansion algorithm
         void augment_vertex_set(HEVertex& v_seed, const Point& p);
+        void augment_vertex_set(HEVertex& v_seed, HEVertex start, HEVertex end);
+        
         /// find all IN-OUT edges adjacent to q-verts
         EdgeVector find_in_out_edges(); 
 
@@ -92,14 +99,14 @@ class VoronoiDiagram {
         boost::tuple<HEEdge, HEVertex, HEEdge> find_new_vertex(HEFace f, VoronoiVertexStatus s1);
 
         void check_vertex_on_edge(HEVertex q, HEEdge e);
+        Point get_apex_point(HEVertex start, HEVertex end, HEVertex q); 
         
     // PRINT ETC
         void printFaceVertexTypes(HEFace f);
         void printVertices(VertexVector& q);
         /// sanity-checks on the diagram are done by this helper class
         VoronoiDiagramChecker vdChecker;
-        
-        
+
     // DATA
         /// the half-edge diagram of the vd
         HEGraph g;
@@ -107,12 +114,8 @@ class VoronoiDiagram {
         FaceGrid* fgrid; // for grid-search
         /// the voronoi diagram is constructed for sites within a circle with radius far_radius
         double far_radius;
-        /// special initial vertex
-        HEVertex v01;
-        /// special initial vertex
-        HEVertex v02;
-        /// special initial vertex
-        HEVertex v03;
+        /// special initial/outer vertices
+        HEVertex out_verts[3];
         /// the number of generators
         int gen_count;
         /// temporary variable for incident faces
@@ -120,6 +123,7 @@ class VoronoiDiagram {
         /// temporary variable for in-vertices, out-vertices that need to be reset
         /// after each generator has been inserted
         VertexVector modified_vertices;
+        /// IN-vertices, i.e. to-be-deleted
         VertexVector v0;
 
 };

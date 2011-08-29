@@ -38,7 +38,7 @@ public:
     bool face_count_equals_generator_count(VoronoiDiagram* vd);
     
     /// the diagram should be of degree three (at least with point generators)
-    bool isDegreeThree(VoronoiDiagram* vd);
+    bool vertex_degree_ok(VoronoiDiagram* vd);
     
     /// traverse the incident faces and check next-pointers
     bool allIncidentFacesOK(VoronoiDiagram* vd);

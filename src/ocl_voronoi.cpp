@@ -1,5 +1,4 @@
-/*  $Id: $
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -38,6 +37,7 @@ void export_voronoi() {
     bp::class_< VoronoiDiagram_py, bp::bases<VoronoiDiagram> >("VoronoiDiagram")
         .def(bp::init<double, unsigned int>())
         .def("addVertexSite",  &VoronoiDiagram_py::addVertexSite)
+        .def("addLineSite",  &VoronoiDiagram_py::addLineSite)
         .def("getGenerators",  &VoronoiDiagram_py::getGenerators)
         .def("getEdgesGenerators",  &VoronoiDiagram_py::getEdgesGenerators)
         .def("getVoronoiVertices",  &VoronoiDiagram_py::getVoronoiVertices)

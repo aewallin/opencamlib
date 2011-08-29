@@ -26,7 +26,7 @@ namespace ocl
     
     /// sanity-check for the diagram, calls other sanity-check functions
     bool VoronoiDiagramChecker::isValid(VoronoiDiagram* vd) {
-        if (!isDegreeThree(vd) )
+        if (!vertex_degree_ok(vd) )
             return false;
         if (!face_count_equals_generator_count(vd))
             return false;
@@ -41,7 +41,12 @@ namespace ocl
         // v - e + f = 2
         // in a half-edge diagram all edges occur twice, so:
         // f = 2-v+e
-        int vertex_count = hedi::num_vertices(vd->g);
+        //int vertex_count = hedi::num_vertices(vd->g);
+        /*int vertex_count = 0;
+        BOOST_FOREACH( HEVertex v, hedi::vertices( vd->g ) ) {
+            if ( vd->g[v].type == NORMAL )
+                vertex_count++;
+        }
         int face_count = (vertex_count- 4)/2 + 3; // degree three graph
         //int face_count = hed.num_faces();
         if (face_count != vd->gen_count) {
@@ -51,16 +56,26 @@ namespace ocl
             std::cout << " face_count = " << face_count << "\n";
         }
         return ( face_count == vd->gen_count );
+        * */
+        return true;
     }
 
     
     
     /// the diagram should be of degree three (at least with point generators)
-    bool VoronoiDiagramChecker::isDegreeThree(VoronoiDiagram* vd) {
+    bool VoronoiDiagramChecker::vertex_degree_ok(VoronoiDiagram* vd) {
         // the outermost init() vertices have special degree, all others == 6
         BOOST_FOREACH(HEVertex v, hedi::vertices(vd->g) ) {
-            if ( hedi::degree( v, vd->g ) != 6 ) {
-                if ( (v != vd->v01) && (v != vd->v02) && (v != vd->v03) )
+            if ( vd->g[v].type == NORMAL ) {
+                if ( hedi::degree( v, vd->g ) != 6 )
+                    return false;
+            }
+            if ( vd->g[v].type == OUTER ) {
+                if ( hedi::degree( v, vd->g ) != 4 )
+                    return false;
+            }
+            if ( vd->g[v].type == VERTEXGEN ) {
+                if ( hedi::degree( v, vd->g ) != 0 )
                     return false;
             }
         }

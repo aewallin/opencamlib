@@ -40,19 +40,21 @@ VoronoiDiagram::~VoronoiDiagram() {
 
 // add one vertex at origo and three vertices at 'infinity' and their associated edges
 void VoronoiDiagram::init() {
-
     // add init vertices
     HEVertex v0  = hedi::add_vertex( VoronoiVertex() , g );
     double far_multiplier = 6;
-    v01 = hedi::add_vertex( VoronoiVertex(Point(             0                 , -3.0*far_radius*far_multiplier    ), OUT) , g );
-    v02 = hedi::add_vertex( VoronoiVertex(Point(  +3.0*sqrt(3.0)*far_radius*far_multiplier/2.0, +3.0*far_radius*far_multiplier/2.0), OUT), g );
-    v03 = hedi::add_vertex( VoronoiVertex(Point(  -3.0*sqrt(3.0)*far_radius*far_multiplier/2.0, +3.0*far_radius*far_multiplier/2.0), OUT), g );
-    
+    HEVertex v01 = hedi::add_vertex( VoronoiVertex(Point(             0                 , -3.0*far_radius*far_multiplier    )               , OUT, OUTER) , g );
+    HEVertex v02 = hedi::add_vertex( VoronoiVertex(Point(  +3.0*sqrt(3.0)*far_radius*far_multiplier/2.0, +3.0*far_radius*far_multiplier/2.0), OUT, OUTER), g );
+    HEVertex v03 = hedi::add_vertex( VoronoiVertex(Point(  -3.0*sqrt(3.0)*far_radius*far_multiplier/2.0, +3.0*far_radius*far_multiplier/2.0), OUT, OUTER), g );
+    out_verts[0]=v01; out_verts[1]=v02; out_verts[2]=v03;
     // the locations of the initial generators:
     Point gen1 = Point( 0, 3.0*far_radius);
     Point gen2 = Point( -3.0*sqrt(3.0)*far_radius/2.0, -3.0*far_radius/2.0 );
     Point gen3 = Point( +3.0*sqrt(3.0)*far_radius/2.0, -3.0*far_radius/2.0 );
     g[v0].set_generators( gen1, gen2, gen3 ); 
+    HEVertex g1 = hedi::add_vertex( VoronoiVertex( gen1 , OUT, VERTEXGEN), g);
+    HEVertex g2 = hedi::add_vertex( VoronoiVertex( gen2 , OUT, VERTEXGEN), g);
+    HEVertex g3 = hedi::add_vertex( VoronoiVertex( gen3 , OUT, VERTEXGEN), g);
     
     // add face 1: v0-v1-v2 which encloses gen3
     HEEdge e1 =  hedi::add_edge( v0 , v01 , g);   
@@ -66,6 +68,7 @@ void VoronoiDiagram::init() {
     g[e1].next = e2;
     g[e2].next = e3;
     g[e3].next = e1;
+    g[g3].face = f1;
     
     // add face 2: v0-v2-v3 which encloses gen1
     HEEdge e4 = hedi::add_edge( v0, v02  , g );   
@@ -79,6 +82,7 @@ void VoronoiDiagram::init() {
     g[e4].next = e5;
     g[e5].next = e6;
     g[e6].next = e4;
+    g[g1].face = f2;
     
     // add face 3: v0-v3-v1 which encloses gen2
     HEEdge e7 = hedi::add_edge( v0 , v03 , g);   
@@ -92,6 +96,7 @@ void VoronoiDiagram::init() {
     g[e7].next = e8;
     g[e8].next = e9;
     g[e9].next = e7;
+    g[g2].face = f3;
     
     // twin edges
     g[e1].twin = e9;
@@ -107,14 +112,117 @@ void VoronoiDiagram::init() {
     assert( vdChecker.isValid(this) );
 }
 
-// return index of point so that it can be used as endpoint of line-segment later
-int addPointGenerator( const Point& p ) {
-    return 0;
+
+
+void VoronoiDiagram::addLineSite(int idx1, int idx2) {
+    // find the vertices corresponding to idx1 and idx2
+    HEVertex start, end;
+    bool start_found=false;
+    bool end_found=false;
+    BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
+        if ( g[v].index == idx1 ) {
+            start = v;
+            start_found = true;
+        }
+        if (g[v].index == idx2) {
+            end = v;
+            end_found = true;
+        }
+    }
+    assert( start_found );
+    assert( end_found );
+    std::cout << " start = " << g[start].index << " at " << g[start].position << "\n";
+    std::cout << " end   = " << g[end].index   << " at " << g[end].position << "\n";
+    HEVertex seed1 = find_seed_vertex(start,end);
+    HEVertex seed2 = find_seed_vertex(end,start);
+    std::cout << " seed1   = " << g[seed1].index   << " at " << g[seed1].position << "\n";
+    std::cout << " seed2   = " << g[seed2].index   << " at " << g[seed2].position << "\n";
+    //std::pair<HEVertex, HEVertex>
+    augment_vertex_set(seed1, start, end);
+    std::cout << " v0.size() = " << v0.size() << "\n";
+    
+}
+
+HEVertex VoronoiDiagram::find_seed_vertex(HEVertex start, HEVertex end) {
+    // find the seed-vertex
+    assert( g[start].type == VERTEXGEN );
+    assert( g[end].type == VERTEXGEN );
+    HEFace start_face = g[start].face;
+    
+    VertexVector face_verts = hedi::face_vertices(start_face,g);
+    assert( face_verts.size() >= 3 );
+    double minimumH; 
+    HEVertex minimalVertex;
+    bool first = true;
+    BOOST_FOREACH( HEVertex q, face_verts) { // go thorugh all the vertices and find the one with smallest detH
+        if ( g[q].status != OUT ) {
+            Point apex_point = get_apex_point( start, end, q);
+            // find the closest point to q on the start-end line segment
+            double h = g[q].detH( apex_point ); // closest to start-end line segment 
+            if ( first || (h<minimumH) ) {
+                minimumH = h;
+                minimalVertex = q;
+                first = false;
+            }
+        }
+    }
+    //assert( vdChecker.detH_is_negative( this, p, f, minimalVertex ) );
+    return minimalVertex;
+    
+    //return start;
+}
+
+void VoronoiDiagram::augment_vertex_set(HEVertex& v_seed, HEVertex start, HEVertex end) {
+    std::queue<HEVertex> Q; // FIXME: a priority_queue could/should be used here instead.
+    mark_vertex_in( v_seed, Q);
+    modified_vertices.push_back( v_seed );
+    while( !Q.empty() ) {
+        HEVertex v = Q.front();      assert( g[v].status == UNDECIDED );
+        // mark IN and add to v0 if detH<0 and passes tests. otherwise OUT
+        Point apex_point = get_apex_point(start,end,v);
+        double h = g[v].detH( apex_point ); // replace with INPredicate(PointGen) INPredicate(LineGen)
+        if ( h < 0.0 ) { // try to mark IN
+            // (C4) v should not be adjacent to two or more IN vertices (this would result in a loop/cycle!)
+            // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
+            if ( (adjacentInCount(v) >= 2) || (!incidentFacesHaveAdjacentInVertex(v)) ) 
+                g[v].status = OUT;
+            else
+                mark_vertex_in( v, Q);
+        } else { // detH was positive, so mark OUT
+            g[v].status = OUT;
+        }
+        modified_vertices.push_back( v );
+        Q.pop(); // delete from queue
+    }
+    // sanity-check: for all incident_faces the IN-vertices should be connected
+    assert( vdChecker.incidentFaceVerticesConnected( this,  IN ) );
+}
+
+
+// return the closest point to q on the start-end line-segment
+Point VoronoiDiagram::get_apex_point(HEVertex start, HEVertex end, HEVertex q) {
+    Point p1 = g[start].position;
+    Point p2 = g[end].position;
+    Point pq = g[q].position;
+    
+    Point p1pq = pq-p1;
+    Point p1p2 = p2-p1;
+    double t = p1pq.dot(p1p2) / p1p2.dot(p1p2);
+    if (t<0)
+        return p1;
+    if (t>1)
+        return p2;
+    else {
+        return p1 + t*p1p2;
+    }
+     
+    //return pq;
 }
 
 // comments relate to Sugihara-Iri 1994 paper
 // this is roughly "algorithm A" from the paper, page 15/50
-void VoronoiDiagram::addVertexSite(const Point& p) {
+int VoronoiDiagram::addVertexSite(const Point& p) {
+    HEVertex new_vert = hedi::add_vertex( VoronoiVertex(p, OUT, VERTEXGEN), g);
     assert( p.xyNorm() < far_radius );     // only add vertices within the far_radius circle
     gen_count++;
     HEFace closest_face = fgrid->grid_find_closest_face( p );
@@ -123,8 +231,10 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     add_new_voronoi_vertices( p );    
     HEFace newface = split_faces( p );
     remove_vertex_set( newface );
+    g[new_vert].face = newface;
     reset_status();
     assert( vdChecker.isValid(this) );
+    return g[new_vert].index;
 }
 
 // evaluate H on all face vertices and return vertex with the lowest H
@@ -198,6 +308,8 @@ void VoronoiDiagram::add_new_voronoi_vertices( const Point& p ) {
         HEEdge twin = g[q_edges[m]].twin;
         HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
         g[q].set_generators( g[face].generator  , g[twin_face].generator  , p); 
+        // Point,Point,Point
+        // should be: Generator*, Generator*, Generator*
         
         check_vertex_on_edge(q, q_edges[m]);
 
@@ -301,9 +413,9 @@ void VoronoiDiagram::reset_status() {
         g[v].reset();
     }
     modified_vertices.clear();
-    g[v01].status = OUT; // the outer vertices are special.
-    g[v02].status = OUT;
-    g[v03].status = OUT;
+    g[out_verts[0]].status = OUT; // the outer vertices are special.
+    g[out_verts[1]].status = OUT;
+    g[out_verts[2]].status = OUT;
     BOOST_FOREACH(HEFace f, incident_faces ) { 
         g[f].status = NONINCIDENT; 
     }

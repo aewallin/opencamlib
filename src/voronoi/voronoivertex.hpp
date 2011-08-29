@@ -54,6 +54,10 @@ class PointGenerator : public VoronoiGenerator {
 /// UNDECIDED-vertices have not been examied yet
 /// NEW-vertices are constructed on OUT-IN edges
 enum VoronoiVertexStatus {OUT, IN, UNDECIDED, NEW };
+// OUTER vertices are special vertices added in init(), should have degree==4
+// VERTEXGEN are vertex generators, should have degree==0
+// NORMAL are normal voronoi-vertices, should have degree==6  (degree 3 graph with double-edges)
+enum VoronoiVertexType {OUTER, VERTEXGEN, NORMAL};
 
 /// properties of a vertex in the voronoi diagram
 class VoronoiVertex {
@@ -61,10 +65,10 @@ public:
     VoronoiVertex();
     /// construct vertex at position p with type t
     VoronoiVertex( Point p, VoronoiVertexStatus st);
+    VoronoiVertex( Point p, VoronoiVertexStatus st, VoronoiVertexType t);
     void init();
     void reset();
-    void set_generators(const Point& pi, const Point& pj, const Point& pkin);
-    
+    void set_generators(const Point& pi, const Point& pj, const Point& pk);
     /// based on precalculated J2, J3, J4, calculate the H determinant for input Point pl
     /// Eq.(20) from Sugihara&Iri 1994
     double detH(const Point& pl) const;
@@ -73,9 +77,14 @@ public:
     /// vertex status. when the incremental algorithm runs
     /// vertices are marked: undecided, in, out, or new
     VoronoiVertexStatus status;
+    VoronoiVertexType type;
     bool in_queue;
     /// the position of the vertex
     Point position;
+    
+    typedef unsigned int HEFace; 
+    HEFace face; // the face associated with this vertex, if type==VETEXGEN
+    
 protected:
     /// based on previously calculated J2, J3, and J4, set the position of the vertex
     /// Eq.(24) from Sugihara&Iri 1994
@@ -105,6 +114,7 @@ protected:
     double J4;
     /// global vertex count
     static int count;
+    
 };
 
 

@@ -30,11 +30,19 @@ int VoronoiVertex::count = 0;
     VoronoiVertex::VoronoiVertex() {
         init();
         status = UNDECIDED;
+        type = NORMAL;
     }
     /// construct vertex at position p with type t
     VoronoiVertex::VoronoiVertex( Point p, VoronoiVertexStatus st) {
         position=p;
         status=st;
+        type = NORMAL;
+        init();
+    }
+    VoronoiVertex::VoronoiVertex( Point p, VoronoiVertexStatus st, VoronoiVertexType t) {
+        position=p;
+        status=st;
+        type=t;
         init();
     }
     void VoronoiVertex::init() {
