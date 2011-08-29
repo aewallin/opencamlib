@@ -153,7 +153,7 @@ typedef HEDIGraph<     boost::listS,             // out-edges stored in a std::l
                        boost::no_property,       // graph properties
                        boost::listS              // edge storage
                        > HEGraph;
-// NOTE: if these listS etc. arguments ever change, they must be updated
+// NOTE: if these listS etc. arguments ever change, they must also be updated
 // above where we do: adjacency_list_traits
 
 typedef boost::graph_traits< HEGraph >::vertex_descriptor  HEVertex;

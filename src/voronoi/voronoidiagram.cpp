@@ -40,18 +40,18 @@ VoronoiDiagram::~VoronoiDiagram() {
 
 // add one vertex at origo and three vertices at 'infinity' and their associated edges
 void VoronoiDiagram::init() {
-    double far_multiplier = 6;
+
     // add init vertices
     HEVertex v0  = hedi::add_vertex( VoronoiVertex() , g );
-    v01 = hedi::add_vertex( VoronoiVertex(Point(0, far_multiplier*far_radius), OUT) , g );
-    v02 = hedi::add_vertex( VoronoiVertex(Point( cos(-5*PI/6)*far_multiplier*far_radius, sin(-5*PI/6)*far_multiplier*far_radius), OUT), g );
-    v03 = hedi::add_vertex( VoronoiVertex(Point( cos(-PI/6)*far_multiplier*far_radius, sin(-PI/6)*far_multiplier*far_radius), OUT), g );
-
+    double far_multiplier = 6;
+    v01 = hedi::add_vertex( VoronoiVertex(Point(             0                 , -3.0*far_radius*far_multiplier    ), OUT) , g );
+    v02 = hedi::add_vertex( VoronoiVertex(Point(  +3.0*sqrt(3.0)*far_radius*far_multiplier/2.0, +3.0*far_radius*far_multiplier/2.0), OUT), g );
+    v03 = hedi::add_vertex( VoronoiVertex(Point(  -3.0*sqrt(3.0)*far_radius*far_multiplier/2.0, +3.0*far_radius*far_multiplier/2.0), OUT), g );
+    
     // the locations of the initial generators:
-    double gen_mutliplier = 3;
-    Point gen2 = Point(cos(PI/6)*gen_mutliplier*far_radius, sin(PI/6)*gen_mutliplier*far_radius);
-    Point gen3 = Point(cos(5*PI/6)*gen_mutliplier*far_radius, sin(5*PI/6)*gen_mutliplier*far_radius);
-    Point gen1 = Point( 0,-gen_mutliplier*far_radius);
+    Point gen1 = Point( 0, 3.0*far_radius);
+    Point gen2 = Point( -3.0*sqrt(3.0)*far_radius/2.0, -3.0*far_radius/2.0 );
+    Point gen3 = Point( +3.0*sqrt(3.0)*far_radius/2.0, -3.0*far_radius/2.0 );
     g[v0].set_generators( gen1, gen2, gen3 ); 
     
     // add face 1: v0-v1-v2 which encloses gen3
@@ -119,7 +119,7 @@ void VoronoiDiagram::addVertexSite(const Point& p) {
     gen_count++;
     HEFace closest_face = fgrid->grid_find_closest_face( p );
     HEVertex v_seed = find_seed_vertex( closest_face, p );    
-    augment_vertex_set_M(v_seed, p); 
+    augment_vertex_set(v_seed, p); 
     add_new_voronoi_vertices( p );    
     HEFace newface = split_faces( p );
     remove_vertex_set( newface );
@@ -149,7 +149,7 @@ HEVertex VoronoiDiagram::find_seed_vertex(HEFace f, const Point& p) {
 }
 
 // from the "one million" paper, growing the v0-tree of "IN" vertices by "breadth-first search"
-void VoronoiDiagram::augment_vertex_set_M(HEVertex& v_seed, const Point& p) {
+void VoronoiDiagram::augment_vertex_set(HEVertex& v_seed, const Point& p) {
     std::queue<HEVertex> Q; // FIXME: a priority_queue could/should be used here instead.
     // this woiuld allways examine and decide on the vertex with largest detH, 
     // since that vertex has the most reliable detH sign.
@@ -199,62 +199,66 @@ void VoronoiDiagram::add_new_voronoi_vertices( const Point& p ) {
         HEFace twin_face = g[twin].face;      assert( g[twin_face].status == INCIDENT);
         g[q].set_generators( g[face].generator  , g[twin_face].generator  , p); 
         
-        // check new vertex position, should lie between endpoints of q_edges[m]
-        HEVertex trg = hedi::target(q_edges[m], g);
-        HEVertex src = hedi::source(q_edges[m], g);
-        Point trgP = g[trg].position;
-        Point srcP = g[src].position;
-        Point newP = g[q].position;
-        if (( trgP - srcP ).xyNorm() <= 0 ) {
-            /*
-            std::cout << "add_new_voronoi_vertices() WARNING ( trgP - srcP ).xyNorm()= " << ( trgP - srcP ).xyNorm() << "\n";
-            std::cout << " src = " << srcP << "\n";
-            std::cout << " trg= " << trgP << "\n";
-            */
-            //std::cout << "add_new_voronoi_vertices() WARNING zero-length edge! \n";
-            g[q].position = srcP;
-        } else {
-            assert( ( trgP - srcP ).xyNorm() > 0.0 ); // edge has finite length
-            assert( ( trgP - srcP ).dot( trgP - srcP ) > 0.0 ); // length squared
-            double t = ((newP - srcP).dot( trgP - srcP )) / ( trgP - srcP ).dot( trgP - srcP ) ;
-            bool warn = false;
-            //double t_orig=t;
-            if (t < 0.0) {
-                warn = true;
-                t=0.0;
-            } else if (t> 1.0) {
-                warn = true;
-                t=1.0;
-            }
-            if ( warn ) {
-                //std::cout << "add_new_voronoi_vertices() WARNING positioning vertex outside edge! t_orig= " << t_orig << "\n";
-                // CORRECT the position....
-                g[q].position = srcP + t*( trgP-srcP);
-                t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
-                //std::cout << "add_new_voronoi_vertices() CORRECTED t= " << t << "\n";
-            }
-            assert( t >= 0.0 );
-            assert( t <= 1.0 );
-            
-            double dtl = g[q].position.xyDistanceToLine(srcP, trgP);
-            if (dtl > 1e-3* ( trgP - srcP ).xyNorm() ) {
-                //std::cout << "add_new_voronoi_vertices() WARNING new point far from edge!\n";
-                //std::cout << "add_new_voronoi_vertices() WARNING edge length= " << ( trgP - srcP ).xyNorm()  << "\n";
-                //std::cout << "add_new_voronoi_vertices() WARNING distance to edge= " << dtl  << "\n";
-                t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
-                g[q].position = srcP + t*( trgP-srcP);
-                //newP = hed[q].position;
-                dtl = g[q].position.xyDistanceToLine(srcP, trgP);
-                //std::cout << "add_new_voronoi_vertices() WARNING corrected distance to edge= " << dtl  << "\n";
-            }
-            assert( dtl < 1e-3* ( trgP - srcP ).xyNorm() );
-        }
+        check_vertex_on_edge(q, q_edges[m]);
 
-        // edge q_edges[m]:   IN <-> q NEW <-> OUT
         hedi::insert_vertex_in_edge( q, q_edges[m] , g);
-        // sanity check on new vertex
-        assert( g[q].position.xyNorm() < 6.1*far_radius); // see init() for placement of the three initial vertices
     }
+}
+
+// check that vertex q is positioned on the edge e
+void VoronoiDiagram::check_vertex_on_edge(HEVertex q, HEEdge e) {
+
+    // sanity check on new vertex
+    if (!(g[q].position.xyNorm() < 18*far_radius)) {
+        std::cout << "WARNING check_vertex_on_edge() new vertex outside far_radius! \n";
+        std::cout << g[q].position << " norm=" << g[q].position.xyNorm() << " 6.1*far_radius=" << 6.1*far_radius << "\n"; //"WARNING check_vertex_on_edge() new vertex outside far_radius! \n";
+    }
+    assert( g[q].position.xyNorm() < 18*far_radius);
+    
+    HEVertex trg = hedi::target(e, g);
+    HEVertex src = hedi::source(e, g);
+    Point trgP = g[trg].position;
+    Point srcP = g[src].position;
+    Point newP = g[q].position;
+    if (( trgP - srcP ).xyNorm() <= 0 ) {
+        std::cout << "WARNING check_vertex_on_edge() zero-length edge! \n";
+        g[q].position = srcP;
+    } else {
+        assert( ( trgP - srcP ).xyNorm() > 0.0 ); // edge has finite length
+        assert( ( trgP - srcP ).dot( trgP - srcP ) > 0.0 ); // length squared
+        double torig = ((newP - srcP).dot( trgP - srcP )) / ( trgP - srcP ).dot( trgP - srcP ) ;
+        bool warn = false;
+        double t(torig);
+        if (torig < 0.0) { // clamp the t-parameter to [0,1]
+            warn = true;
+            t=0.0;
+        } else if (torig> 1.0) {
+            warn = true;
+            t=1.0;
+        }
+        if ( warn ) {
+            std::cout << "WARNING: check_vertex_on_edge() t_old= " << torig << " CORRECTED t_new= " << t << "\n";
+            std::cout << "src= " << srcP << " new= " << newP << " trg= " << trgP << "\n";
+            g[q].position = srcP + t*( trgP-srcP);
+            t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+            
+        }
+        // now we are clamped:
+        assert( t >= 0.0 );
+        assert( t <= 1.0 );        
+        double dtl_orig = g[q].position.xyDistanceToLine(srcP, trgP);
+        double dtl(dtl_orig);
+        if (dtl_orig > 1e-3* ( trgP - srcP ).xyNorm() ) {
+            t = ( g[q].position - srcP).dot( trgP - srcP ) / ( trgP - srcP ).dot( trgP - srcP ) ;
+            g[q].position = srcP + t*( trgP-srcP);
+            dtl = g[q].position.xyDistanceToLine(srcP, trgP);
+            std::cout << "WARNING check_vertex_on_edge()  old_dtl= " << dtl_orig << " new_dtl= " << dtl  << "\n";
+        }
+        assert( dtl < 1e-3* ( trgP - srcP ).xyNorm() );
+    }
+    
+
+    
 }
 
 HEFace VoronoiDiagram::split_faces(const Point& p) {

@@ -81,19 +81,19 @@ protected:
     /// Eq.(24) from Sugihara&Iri 1994
     void set_position();
     /// set the J values
-    void set_J(const Point& pi, const Point& pj, const Point& pkin);
+    void set_J(const Point& pi, const Point& pj, const Point& pk);
     /// calculate J2
     /// Eq(21) from Sugihara&Iri 1994
     /// see also Eq(4.6.4), page 256, of Okabe et al book
-    double detH_J2(Point& pi, Point& pj, Point& pk);
+    double detH_J2(const Point& pi, const Point& pj);
     /// calculate J3
     /// Eq(22) from Sugihara&Iri 1994
     /// see also Eq(4.6.5), page 257, of Okabe et al book
-    double detH_J3(Point& pi, Point& pj, Point& pk);
+    double detH_J3(const Point& pi, const Point& pj);
     /// calculate J4
     /// Eq(23) from Sugihara&Iri 1994
     /// see also Eq(4.6.6), page 257, of Okabe et al book
-    double detH_J4(Point& pi, Point& pj, Point& pk);
+    double detH_J4(const Point& pi, const Point& pj);
 // private DATA
     /// the reference point for J-calculations
     Point _pk;

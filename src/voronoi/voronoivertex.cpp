@@ -48,8 +48,8 @@ int VoronoiVertex::count = 0;
     }
     
     // set the generators and position the vertex
-    void VoronoiVertex::set_generators(const Point& pi, const Point& pj, const Point& pkin) {
-        set_J(pi,pj,pkin);
+    void VoronoiVertex::set_generators(const Point& pi, const Point& pj, const Point& pk) {
+        set_J(pi,pj,pk);
         set_position();
     }
     
@@ -77,6 +77,7 @@ int VoronoiVertex::count = 0;
     /// pi, pj, pk define the three PointGenerators that position this vertex
     void VoronoiVertex::set_J(const Point& pi, const Point& pj, const Point& pkin) { 
         // 1) i-j-k should come in CCW order
+        
         Point pi_,pj_,pk_;
         if ( pi.isRight(pj,pkin) ) {
             pi_ = pj;
@@ -112,22 +113,29 @@ int VoronoiVertex::count = 0;
         assert( (pi__ - pj__).xyNorm() >=  (pk__ - pi__).xyNorm() );
         // storing J2,J3,J4, and _pk allows us to call detH() later 
         _pk = pk__;
-        J2 = detH_J2( pi__, pj__, _pk);
-        J3 = detH_J3( pi__, pj__, _pk);
-        J4 = detH_J4( pi__, pj__, _pk);
+        
+        J2 = detH_J2( pi__, pj__);
+        J3 = detH_J3( pi__, pj__);
+        J4 = detH_J4( pi__, pj__);
+        /*
+        _pk = pkin;
+        J2 = detH_J2( pi, pj, _pk);
+        J3 = detH_J3( pi, pj, _pk);
+        J4 = detH_J4( pi, pj, _pk);
+        */
         assert( J4 != 0.0 ); // we need to divide by J4 later, so it better not be zero...
     }
     // calculate J2
-    double VoronoiVertex::detH_J2(Point& pi, Point& pj, Point& pk) {
-        return (pi.y-pk.y)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.y-pk.y)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
+    double VoronoiVertex::detH_J2(const Point& pi, const Point& pj) {
+        return (pi.y- _pk.y)*(square(pj.x- _pk.x)+square(pj.y- _pk.y))/2 - (pj.y- _pk.y)*(square(pi.x- _pk.x)+square(pi.y- _pk.y))/2;
     }
     // calculate J3
-    double VoronoiVertex::detH_J3(Point& pi, Point& pj, Point& pk) {
-        return (pi.x-pk.x)*(square(pj.x-pk.x)+square(pj.y-pk.y))/2 - (pj.x-pk.x)*(square(pi.x-pk.x)+square(pi.y-pk.y))/2;
+    double VoronoiVertex::detH_J3(const Point& pi, const Point& pj) {
+        return (pi.x- _pk.x)*(square(pj.x- _pk.x)+square(pj.y- _pk.y))/2 - (pj.x- _pk.x)*(square(pi.x- _pk.x)+square(pi.y- _pk.y))/2;
     }
     // calculate J4
-    double VoronoiVertex::detH_J4(Point& pi, Point& pj, Point& pk) {
-        return (pi.x-pk.x)*(pj.y-pk.y) - (pj.x-pk.x)*(pi.y-pk.y);
+    double VoronoiVertex::detH_J4(const Point& pi, const Point& pj) {
+        return (pi.x- _pk.x)*(pj.y- _pk.y) - (pj.x- _pk.x)*(pi.y- _pk.y);
     }
 
 } // end ocl namespace

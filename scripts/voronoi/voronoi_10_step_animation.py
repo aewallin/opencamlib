@@ -45,6 +45,7 @@ class VD:
         self.vertexColor = camvtk.red
         self.edgeColor = camvtk.cyan
         self.vdtext  = camvtk.Text()
+        self.vertexRadius = scale/100
         self.vdtext.SetPos( (50, myscreen.height-150) )
         self.Ngen = 0
         self.vdtext_text = ""
@@ -79,7 +80,7 @@ class VD:
     def setFar(self, vd):
         for p in vd.getFarVoronoiVertices():
             p=self.scale*p
-            myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=4, color=camvtk.pink ) )
+            myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=self.vertexRadius, color=camvtk.pink ) )
         myscreen.render() 
     
     def setVertices(self, vd):
@@ -88,7 +89,7 @@ class VD:
         self.verts = []
         for pt in vd.getVoronoiVertices():
             p=self.scale*pt
-            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=0.000005, color=self.vertexColor )
+            actor = camvtk.Sphere( center=(p.x,p.y,p.z), radius=self.vertexRadius, color=self.vertexColor )
             self.verts.append(actor)
             myscreen.addActor( actor )
             #draw clearance-disk
@@ -154,12 +155,58 @@ def writeFrame( w2if, lwr, n ):
     filename = current_dir + "/frames/vd500_zoomout"+ ('%05d' % n)+".png"
     lwr.SetFileName( filename )
     #lwr.Write()
+
+def regularGridGenerators(far, Nmax):
+    # REGULAR GRID
+    rows = int(math.sqrt(Nmax))
+    print "rows= ",rows
+    gpos=[-0.7*far ,  1.4*far/float(rows-1) ]  # start, stride
+    plist = []
+    for n in range(rows):
+        for m in range(rows):
+            x=gpos[0]+gpos[1]*n
+            y=gpos[0]+gpos[1]*m
+            # rotation
+            alfa = 0
+            xt=x
+            yt=y
+            x = xt*math.cos(alfa)-yt*math.sin(alfa)
+            y = xt*math.sin(alfa)+yt*math.cos(alfa)
+            plist.append( ocl.Point(x,y) )
+    random.shuffle(plist)
+    return plist
+
+def randomGenerators(far, Nmax):
+    pradius = (1.0/math.sqrt(2))*far
+    plist=[]
+    for n in range(Nmax):
+        x=-pradius+2*pradius*random.random()
+        y=-pradius+2*pradius*random.random()
+        plist.append( ocl.Point(x,y) )
+    return plist
+    
+def circleGenerators(far, Nmax):
+    # POINTS ON A CIRCLE
+    #"""
+    #cpos=[50,50]
+    #npts = 100
+    dalfa= float(2*math.pi)/float(Nmax-1)
+    #dgamma= 10*2*math.pi/npts
+    #alfa=0
+    #ofs=10
+    plist=[]
+    radius=0.81234*far
+    for n in range(Nmax):
+        x=radius*math.cos(n*dalfa)
+        y=radius*math.sin(n*dalfa)
+        plist.append( ocl.Point(x,y) )
+    random.shuffle(plist)
+    return plist
+    
     
 if __name__ == "__main__":  
     print ocl.revision()
     myscreen = camvtk.VTKScreen()
-    
-    
     camvtk.drawOCLtext(myscreen)
     
     w2if = vtk.vtkWindowToImageFilter()
@@ -169,36 +216,28 @@ if __name__ == "__main__":
     #w2if.Modified()
     #lwr.SetFileName("tux1.png")
     
-    scale=1000
+    scale=1
     myscreen.render()
     random.seed(42)
-    far = 0.2
-    # far = 0.000002 generator 52 face_count crash
-    # far = 0.000010 crashes at n=192
+    far = 1
     
-    camPos = 1* (far/0.0001)
-    myscreen.camera.SetPosition(camPos/1000, camPos/1000, camPos) 
-    myscreen.camera.SetClippingRange(-2*camPos,2*camPos)
-    myscreen.camera.SetFocalPoint(0.051, 0, 0)
+    camPos = far
+    zmult = 5
+    myscreen.camera.SetPosition(camPos/float(1000), camPos/float(1000), zmult*camPos) 
+    myscreen.camera.SetClippingRange(-(zmult+1)*camPos,(zmult+1)*camPos)
+    myscreen.camera.SetFocalPoint(0.0, 0, 0)
     vd = ocl.VoronoiDiagram(far,1200)
     
     vod = VD(myscreen,vd,scale)
     #vod.setAll(vd)
     drawFarCircle(myscreen, scale*vd.getFarRadius(), camvtk.orange)
     
-    Nmax = 100
+    Nmax = 2000
     
-    plist=[]
-    plist.append( ocl.Point(0.7*far,0.7*far) )
-    plist.append( ocl.Point(0.7*far,-0.7*far) )
-    plist.append( ocl.Point(-0.7*far,0.7*far) )
-    plist.append( ocl.Point(-0.7*far,-0.7*far) )
-    for n in range(Nmax):
-        x=-far/2+far*random.random()
-        y=-far/2+far*random.random()
-        plist.append( ocl.Point(x,y) )
+    plist = randomGenerators(far, Nmax)
+    #plist = regularGridGenerators(far, Nmax)
+    #plist = circleGenerators(far, Nmax)
     
-
     #print plist[169]
     #exit()
     n=1
@@ -207,9 +246,12 @@ if __name__ == "__main__":
     delay = 0.1 # 0.533
     #ren = [1,2,3,4,5,59,60,61,62]
     #ren = [16,17]
-    ren = range(0,Nmax)
+    ren = range(0,Nmax,100)
     nf=0
-    for p in plist:
+    for p in plist: #[0:20]:
+        print "**********"
+        print "PYTHON: adding generator: ",n," at ",p
+        
         if n in ren:
             vod.setAll(vd)
             myscreen.render()
@@ -219,8 +261,9 @@ if __name__ == "__main__":
         
         #GENERATOR
         #"""
+        vertexRadius = float(far)/float(100)
         gp=scale*p
-        gen_actor = camvtk.Sphere( center=(gp.x,gp.y,gp.z), radius=far*60, color=camvtk.yellow )
+        gen_actor = camvtk.Sphere( center=(gp.x,gp.y,gp.z), radius=vertexRadius, color=camvtk.yellow )
         if n in ren:
             myscreen.addActor(gen_actor)
             myscreen.render()
@@ -228,23 +271,12 @@ if __name__ == "__main__":
             writeFrame( w2if, lwr, nf )
             nf=nf+1
         #"""
-        
-        #CLOSEST FACE
-        """
-        clp = scale*vd.getClosestFaceGenerator(p)
-        print " closest generator is ", clp
-        cl_actor = camvtk.Sphere( center=(clp.x,clp.y,clp.z), radius=far*50, color=camvtk.green )
-        if n in ren:
-            myscreen.addActor(cl_actor)
-            myscreen.render()
-            time.sleep(delay)
-        """
             
         #SEED
         #"""
         sv = scale*vd.getSeedVertex(p)
         print " seed vertex is ",sv
-        seed_actor = camvtk.Sphere( center=(sv.x,sv.y,sv.z), radius=far*60, color=camvtk.pink )
+        seed_actor = camvtk.Sphere( center=(sv.x,sv.y,sv.z), radius=vertexRadius, color=camvtk.pink )
         if n in ren:
             myscreen.addActor(seed_actor)
             myscreen.render()
@@ -252,7 +284,7 @@ if __name__ == "__main__":
             writeFrame( w2if, lwr, nf )
             nf=nf+1
         #"""
-        
+
         #DELETE-SET
         #"""
         delset = vd.getDeleteSet(p)
@@ -262,7 +294,7 @@ if __name__ == "__main__":
             for pd in delset:
                 pos = scale*pd[0]
                 type = pd[1]
-                p_actor = camvtk.Sphere( center=(pos.x,pos.y,pos.z), radius=far*60, color=camvtk.red )
+                p_actor = camvtk.Sphere( center=(pos.x,pos.y,pos.z), radius=vertexRadius, color=camvtk.red )
                 p_actors.append(p_actor)
             for a in p_actors:
                 myscreen.addActor(a)
@@ -297,13 +329,8 @@ if __name__ == "__main__":
             nf=nf+1
         #"""
         
-        #if n != 192:
-        print "**********"
-        print "PYTHON: adding generator: ",n," at ",p
-        print "**********"
-        #if n!=61:
-        vd.addVertexSite( p )
 
+        vd.addVertexSite( p )
         
         #w2if.Modified() 
         #lwr.SetFileName("frames/vd500_"+ ('%05d' % n)+".png")
@@ -316,9 +343,7 @@ if __name__ == "__main__":
             writeFrame( w2if, lwr, nf )
             nf=nf+1
         
-        
         if n in ren:
-            #myscreen.removeActor(cl_actor)
             myscreen.removeActor(gen_actor)
             myscreen.removeActor(seed_actor)
             for a in p_actors:
@@ -327,7 +352,7 @@ if __name__ == "__main__":
                 myscreen.removeActor(a)
         
         n=n+1
-        
+        #print "**********"
         
     t_after = time.time()
     calctime = t_after-t_before

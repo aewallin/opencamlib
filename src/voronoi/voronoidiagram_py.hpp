@@ -53,10 +53,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v_seed = find_seed_vertex(closest_face, p);
-            //g[v_seed].status = IN;
-            //VertexVector v0;
-            //v0.push_back(v_seed); 
-            augment_vertex_set_M(v_seed, p);
+            augment_vertex_set(v_seed, p);
             v0.erase( v0.begin() ); // remove the seed vertex, as it is already visualized
             BOOST_FOREACH( HEVertex v, v0) {
                 boost::python::list vert;
@@ -66,17 +63,13 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             }
             reset_status();            
             return out;
-            
         }
         /// for visualizing the delete-edges
         boost::python::list getDeleteEdges( Point p ) {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v_seed = find_seed_vertex(closest_face, p);
-            //g[v_seed].status = IN;
-            //VertexVector v0;
-            //v0.push_back(v_seed); 
-            augment_vertex_set_M(v_seed, p);
+            augment_vertex_set(v_seed, p);
             EdgeVector del = find_in_in_edges();
             BOOST_FOREACH( HEEdge e, del) {
                 boost::python::list edge;
@@ -94,10 +87,7 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list out;
             HEFace closest_face = fgrid->grid_find_closest_face( p );
             HEVertex v_seed = find_seed_vertex(closest_face, p);
-            //g[v_seed].status = IN;
-            //VertexVector v0;
-            //v0.push_back(v_seed); 
-            augment_vertex_set_M(v_seed, p);
+            augment_vertex_set(v_seed, p);
             EdgeVector del = find_in_out_edges();
             BOOST_FOREACH( HEEdge e, del) {
                 boost::python::list edge;
@@ -124,9 +114,6 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             boost::python::list plist;
             BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
                 if ( hedi::degree( v, g ) == 6 ) {
-                    //boost::python::list point_data;
-                    //point_data.append(  );
-                    //point_data.append( g[v].r );
                     plist.append( g[v].position );
                 }
             }
