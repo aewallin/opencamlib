@@ -357,20 +357,41 @@ if __name__ == "__main__":
         
         n=n+1
         #print "**********"
-        
+    print "********** Vertices done."
     t_after = time.time()
     calctime = t_after-t_before
     print "idx list is ", idx_list
     
-    vd.addLineSite( idx_list[0], idx_list[1] )
+    start_pt = idx_list[3]
+    end_pt = idx_list[1]
     
+    #
+    seed1 = vd.getSeedVertexLine( start_pt , end_pt )
+    seed2 = vd.getSeedVertexLine( end_pt, start_pt  )
+    #print " seed1 = ", seed1
+    #print " seed2 = ", seed2
+    delset = vd.getDeleteSetLine( start_pt, end_pt) 
     # draw segment endpoints
-    start = pt_dict[idx_list[0]]
-    end = pt_dict[idx_list[1]]
+    start = pt_dict[start_pt ]
+    end = pt_dict[end_pt]
+    drawVertex(myscreen, start, camvtk.yellow, rad=vertexRadius)
+    drawVertex(myscreen, end, camvtk.yellow, rad=vertexRadius)  
+    drawVertex(myscreen, seed1, camvtk.pink, rad=vertexRadius)  
+    drawVertex(myscreen, seed2, camvtk.pink, rad=vertexRadius)  
+    for p in delset:
+        drawVertex(myscreen, p, camvtk.red, rad=vertexRadius)  
+        
+    vd.addLineSite( start_pt, end_pt )
+    
+    """
     p1_actor = camvtk.Sphere( center=(start.x,start.y,start.z), radius=vertexRadius, color=camvtk.yellow )
     p2_actor = camvtk.Sphere( center=(end.x,end.y,end.z), radius=vertexRadius, color=camvtk.yellow )
     myscreen.addActor(p1_actor)
     myscreen.addActor(p2_actor)
+    
+    s1_actor = camvtk.Sphere( center=(seed1.x,end.y,end.z), radius=vertexRadius, color=camvtk.yellow )
+    myscreen.addActor(p1_actor)
+    """
     
     vod.setAll(vd)
     myscreen.render()

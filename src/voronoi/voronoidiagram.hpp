@@ -16,8 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef VODI_H
-#define VODI_H
+#ifndef VORONOI_DIAGRAM_H
+#define VORONOI_DIAGRAM_H
 
 #include <queue>
 #include <boost/tuple/tuple.hpp>
@@ -51,10 +51,8 @@ class VoronoiDiagram {
         virtual ~VoronoiDiagram();
         
         /// add a vertex generator at given position
-        int addVertexSite(const Point& p);
+        int add_vertex_site(const Point& p);
         void addLineSite(int idx1, int idx2);
-        
-        //int addPointGenerator( const Point& p );
         
         /// string repr
         std::string str() const;

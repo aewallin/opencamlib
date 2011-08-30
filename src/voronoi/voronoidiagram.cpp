@@ -139,8 +139,11 @@ void VoronoiDiagram::addLineSite(int idx1, int idx2) {
     std::cout << " seed2   = " << g[seed2].index   << " at " << g[seed2].position << "\n";
     //std::pair<HEVertex, HEVertex>
     augment_vertex_set(seed1, start, end);
-    std::cout << " v0.size() = " << v0.size() << "\n";
-    
+    std::cout << " v0.size() = " << v0.size() << ": \n";
+    BOOST_FOREACH(HEVertex v, v0) {
+        Point apex_point = get_apex_point( start, end, v);
+        std::cout << "  " << g[v].index << " : " << g[v].position  << ": detH= " << g[v].detH(apex_point) <<"\n";
+    }
 }
 
 HEVertex VoronoiDiagram::find_seed_vertex(HEVertex start, HEVertex end) {
@@ -180,7 +183,7 @@ void VoronoiDiagram::augment_vertex_set(HEVertex& v_seed, HEVertex start, HEVert
         HEVertex v = Q.front();      assert( g[v].status == UNDECIDED );
         // mark IN and add to v0 if detH<0 and passes tests. otherwise OUT
         Point apex_point = get_apex_point(start,end,v);
-        double h = g[v].detH( apex_point ); // replace with INPredicate(PointGen) INPredicate(LineGen)
+        double h = g[v].detH( apex_point ); 
         if ( h < 0.0 ) { // try to mark IN
             // (C4) v should not be adjacent to two or more IN vertices (this would result in a loop/cycle!)
             // (C5) for an incident face containing v: v is adjacent to an IN vertex on this face
@@ -221,7 +224,7 @@ Point VoronoiDiagram::get_apex_point(HEVertex start, HEVertex end, HEVertex q) {
 
 // comments relate to Sugihara-Iri 1994 paper
 // this is roughly "algorithm A" from the paper, page 15/50
-int VoronoiDiagram::addVertexSite(const Point& p) {
+int VoronoiDiagram::add_vertex_site(const Point& p) {
     HEVertex new_vert = hedi::add_vertex( VoronoiVertex(p, OUT, VERTEXGEN), g);
     assert( p.xyNorm() < far_radius );     // only add vertices within the far_radius circle
     gen_count++;

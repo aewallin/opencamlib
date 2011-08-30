@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -47,6 +46,60 @@ class VoronoiDiagram_py : public VoronoiDiagram {
             HEVertex v = find_seed_vertex(closest_face, p);
             return g[ v ].position;
         }
+        Point getSeedVertexLine( int idx1, int idx2 ) {
+            HEVertex start, end;
+            bool start_found=false;
+            bool end_found=false;
+            BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
+                if ( g[v].index == idx1 ) {
+                    start = v;
+                    start_found = true;
+                }
+                if (g[v].index == idx2) {
+                    end = v;
+                    end_found = true;
+                }
+            }
+            assert( start_found );
+            assert( end_found );
+            HEVertex seed1 = find_seed_vertex(start,end);
+            return g[seed1].position;
+        }
+        
+        // for visualizing the delete-set
+        boost::python::list getDeleteSetLine( int idx1, int idx2 ) { // no const here(?)
+            
+            HEVertex start, end;
+            bool start_found=false;
+            bool end_found=false;
+            BOOST_FOREACH( HEVertex v, hedi::vertices(g) ) {
+                if ( g[v].index == idx1 ) {
+                    start = v;
+                    start_found = true;
+                }
+                if (g[v].index == idx2) {
+                    end = v;
+                    end_found = true;
+                }
+            }
+            HEVertex seed1 = find_seed_vertex(start,end);
+            augment_vertex_set( seed1, start, end);
+            
+            //HEFace closest_face = fgrid->grid_find_closest_face( p );
+            //HEVertex v_seed = find_seed_vertex(closest_face, p);
+            //augment_vertex_set(v_seed, p);
+            v0.erase( v0.begin() ); // remove the seed vertex, as it is already visualized
+            boost::python::list out;
+            BOOST_FOREACH( HEVertex v, v0) {
+                //boost::python::list vert;
+                //vert.append( g[ v ].position );
+                //vert.append( g[ v ].status );
+                out.append( g[ v ].position );
+            }
+            reset_status();            
+            return out;
+        }
+        
         
         // for visualizing the delete-set
         boost::python::list getDeleteSet( Point p ) { // no const here(?)

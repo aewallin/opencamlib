@@ -36,7 +36,7 @@ void export_voronoi() {
     ;
     bp::class_< VoronoiDiagram_py, bp::bases<VoronoiDiagram> >("VoronoiDiagram")
         .def(bp::init<double, unsigned int>())
-        .def("addVertexSite",  &VoronoiDiagram_py::addVertexSite)
+        .def("addVertexSite",  &VoronoiDiagram_py::add_vertex_site)
         .def("addLineSite",  &VoronoiDiagram_py::addLineSite)
         .def("getGenerators",  &VoronoiDiagram_py::getGenerators)
         .def("getEdgesGenerators",  &VoronoiDiagram_py::getEdgesGenerators)
@@ -45,8 +45,10 @@ void export_voronoi() {
         .def("getFarRadius",  &VoronoiDiagram_py::getFarRadius)
         .def("getVoronoiEdges",  &VoronoiDiagram_py::getVoronoiEdges)
         .def("getClosestFaceGenerator",  &VoronoiDiagram_py::getClosestFaceGenerator)
-        .def("getSeedVertex",  &VoronoiDiagram_py::getSeedVertex)
-        .def("getDeleteSet",  &VoronoiDiagram_py::getDeleteSet)
+        .def("getSeedVertex",  &VoronoiDiagram_py::getSeedVertex) 
+        .def("getSeedVertexLine",  &VoronoiDiagram_py::getSeedVertexLine) 
+        .def("getDeleteSet",  &VoronoiDiagram_py::getDeleteSet) //getDeleteSetLine(
+        .def("getDeleteSetLine",  &VoronoiDiagram_py::getDeleteSetLine)
         .def("getDeleteEdges",  &VoronoiDiagram_py::getDeleteEdges)
         .def("getModEdges",  &VoronoiDiagram_py::getModEdges)
         .def("__str__", &VoronoiDiagram_py::str)

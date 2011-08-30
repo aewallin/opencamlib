@@ -232,7 +232,7 @@ if __name__ == "__main__":
     #vod.setAll(vd)
     drawFarCircle(myscreen, scale*vd.getFarRadius(), camvtk.orange)
     
-    Nmax = 2000
+    Nmax = 200
     
     plist = randomGenerators(far, Nmax)
     #plist = regularGridGenerators(far, Nmax)
