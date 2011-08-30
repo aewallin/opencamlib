@@ -62,12 +62,19 @@ namespace ocl {
  * 
  *  Voronoi vertices (see p177 of Okabe book):
  *  V1: generators(pi, pj, pk). edges(E1, E1, E1)
+ *     - compute using detH. This is also the circumcenter of the pi,pj,pk triangle
  *  V2: generators(pi, Lj, pj1) point, segment, segment's endpoint. edges(E1, E2, E3)   E1 and E3 are tangent at V2
+ *     - ? compute by mirroring pi in the separator and use detH
  *  V3: generators(Li, pj, pk) edges(E1, E3, E3)   E3-edges have common directrix(Li)
  *  V4: generators(Li, Lj, pi1)  edges(E2, E3, E4)  E3-E4 tangent at V4
  *  V5: generators(pi, Lj, Lk) edges (E3, E3, E4)
  *  V6: generators(Li, Lj, Lk) edges(E4, E4, E4)
- * 
+ *    - this is the incenter of a incircle inscribed by triangle Li,Lj,Lk (or sometiems excenter of excircle if V6 outside triangle?)
+ *    - The Cartesian coordinates of the incenter are a weighted average of the coordinates of the three vertices using the side 
+ *       lengths of the triangle as weights. (The weights are positive so the incenter lies inside the triangle as stated above.) 
+ *      If the three vertices are located at (xa,ya), (xb,yb), and (xc,yc), and the sides opposite these vertices have corresponding 
+ *      lengths a, b, and c, then the incenter is at   
+ *      (a x_a + b x_b + c x_c)/ (a+b+c) 
  * 
  * bisector formulas
  * x = x1 - x2 - x3*t +/- x4 * sqrt( square(x5+x6*t) - square(x7+x8*t) )
