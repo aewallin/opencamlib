@@ -56,8 +56,8 @@ void Weave::face_traverse() {
             loop.push_back(current);
             clVertexSet.erase(current); // remove from set of unprocesser cl-verts
             std::vector<Edge> outEdges = hedi::out_edges(current, g); // find the edge to follow
-            //if (outEdges.size() != 1 )
-            //    std::cout << " outEdges.size() = " << outEdges.size() << "\n";
+            if (outEdges.size() != 1 )
+                std::cout << " outEdges.size() = " << outEdges.size() << "\n";
             assert( outEdges.size() == 1 ); // cl-points are allways at ends of intervals, so they have only one out-edge
             Edge currentEdge = outEdges[0]; 
             do { // following next, find a CL point 
@@ -70,13 +70,7 @@ void Weave::face_traverse() {
     }
 }
         
-/*
-Vertex Weave::add_cl_vertex( Point position, Interval& ival, double ipos) {
-    Vertex v = hedi::add_vertex( VertexProps( position, CL ), g);
-    ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
-    clVertices.insert(v);
-    return v;
-}*/
+
 
 
 // given a VertexPair and an Interval, in the Interval find the Vertex above and below the given vertex
@@ -94,6 +88,18 @@ std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Inter
     std::pair<Vertex,Vertex> out;
     out.first = v_above->first; // vertex above v (xu)
     out.second = v_below->first; // vertex below v (xl)
+    return out;
+}
+
+std::pair<Vertex,Vertex> Weave::find_neighbor_vertices( VertexPair v_pair, Interval& ival) {
+    VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
+    assert( itr != ival.intersections2.end() ); // we must find a lower_bound
+    VertexPairIterator v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
+    VertexPairIterator v_below = --itr; // this is the vertex below the give vertex
+    std::pair<Vertex,Vertex> out;
+    out.first = v_above->first; // vertex above v (xu)
+    out.second = v_below->first; // vertex below v (xl)
+    assert( out.first != out.second );
     return out;
 }
                             
@@ -122,6 +128,7 @@ void Weave::build() {
             //std::cout << "x-fiber " << n_xfiber++ << "\n";
             double xmin = xf.point(xi.lower).x;
             double xmax = xf.point(xi.upper).x;
+            if ( (xmax-xmin) > 0) {
             assert( !xi.in_weave ); // this is the first time the x-interval is added!
             xi.in_weave = true;
             // add the X interval end-points to the weave
@@ -132,43 +139,70 @@ void Weave::build() {
             Edge e1 = hedi::add_edge( xv1, xv2, g);
             Edge e2 = hedi::add_edge( xv2, xv1, g);
 
-            //std::cout << " add_edge " << v1 << "("<< p1.x<< ") - " << v2 <<"("<< p2.x << ")\n";
+            //std::cout << " add_edge " << xv1 << "("<< p1.x<< ") - " << xv2 <<"("<< p2.x << ")\n";
             g[e1].next = e2;
             g[e2].next = e1;
             g[e1].prev = e2;
             g[e2].prev = e1;
-            
+            //int n_yfiber=0;
             BOOST_FOREACH( Fiber& yf, yfibers ) { // loop through all y-fibers for all x-intervals
-                if ( (xmin <= yf.p1.x) && ( yf.p1.x <= xmax ) ) {// potential intersection between y-fiber and x-interval
+                if ( (xmin < yf.p1.x) && ( yf.p1.x < xmax ) ) {// potential intersection between y-fiber and x-interval
                     BOOST_FOREACH( Interval& yi, yf.ints ) {
+                        //std::cout << "y-fiber " << n_yfiber++ << "\n";
                         double ymin = yf.point(yi.lower).y ;
                         double ymax = yf.point(yi.upper).y ;
-                        if ( (ymin <= xf.p1.y) && (xf.p1.y <= ymax) ) {
+                        if ( (ymin < xf.p1.y) && (xf.p1.y < ymax) ) {
                             // there is an actual intersection btw x-interval and y-interval
                             // X interval xi on fiber xf intersects with Y interval yi on fiber yf
                             // intersection is at ( yf.p1.x, xf.p1.y , xf.p1.z )
                             if (!yi.in_weave) { // add y-interval endpoints to weave
-                                Point p1( yf.point(yi.lower) );
-                                add_cl_vertex( p1, yi, p1.y );
-                                Point p2( yf.point(yi.upper) );
-                                add_cl_vertex( p2, yi, p2.y );
+                                Point yp1( yf.point(yi.lower) );
+                                add_cl_vertex( yp1, yi, yp1.y );
+                                Point yp2( yf.point(yi.upper) );
+                                add_cl_vertex( yp2, yi, yp2.y );
                                 yi.in_weave = true;
                             }
                             // 3) intersection point, of type INT
                             
                             Vertex v = boost::graph_traits<WeaveGraph>::null_vertex();
+                            
                             Point v_position( yf.p1.x, xf.p1.y , xf.p1.z );
-                            // find neighbors to v
+                            // find neighbor to v
                             Vertex x_u, x_l;
-                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi, true );
+                            
+                            //std::cout << " fins neighbor to x= " << v_position.x << "\n";
+                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi );
+                            //std::cout << "found: x_u , x_l : " << x_u << " , " << x_l << "\n";
                             Vertex y_u, y_l;
-                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi, true );
+                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
+                            
+                            //std::cout << "found: y_u , y_l : " << y_u << " , " << y_l << "\n";
                             
                             add_int_vertex(v_position,x_l,x_u,y_l,y_u,xi,yi);
                         } // end intersection case
                     } // end y interval loop
                 } // end if(potential intersection)
             } // end y fiber loop
+            
+            
+
+        
+            // now we've added an x-interval, we've gone through all the y-intervals
+            // if there isn't a single intersecting interval, then remove the x-interval as it is useless
+            assert( xi.intersections2.size() >= 2  );
+            if ( xi.intersections2.size() == 2 ) {
+                clVertexSet.erase(xv1);
+                clVertexSet.erase(xv2);
+                hedi::clear_vertex(xv1,g);
+                hedi::clear_vertex(xv2,g);
+                hedi::remove_vertex(xv1,g);
+                hedi::remove_vertex(xv2,g);
+            }
+        
+        } // end zero-length interval check
+//}*/
+
+            
         } // x interval loop
     } // end X-fiber loop
 }
@@ -522,6 +556,8 @@ void Weave::add_all_edges()
     }
 }
 
+
+
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
 Vertex Weave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
     Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
@@ -539,7 +575,10 @@ void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
                              Interval& x_int,  // the x-interval
                              Interval& y_int ) // the y-interval
 {
+    //std::cout << " add_int_vertex " << "\n";
     Vertex v = hedi::add_vertex( VertexProps( v_position, INT ), g);
+    assert( hedi::has_edge( x_l, x_u, g) );
+    assert( hedi::has_edge( x_u, x_l, g) );
     Edge xe_lu = hedi::edge( x_l, x_u, g);
     Edge xe_ul = hedi::edge( x_u, x_l, g);
     Edge xe_lu_next = g[xe_lu].next;
@@ -547,12 +586,8 @@ void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
     Edge xe_ul_next = g[xe_ul].next;
     Edge xe_ul_prev = g[xe_ul].prev; 
     
-                                // find y-neighbors
-                                //Vertex y_u, y_l;
-                                //boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y) , yi); 
-                                
+
     // the next/prev data we need
-    //Edge ye_lu, ye_ul;
     Edge ye_lu_next, ye_lu_prev ;
     Edge ye_ul_next, ye_ul_prev ;
     Edge ye_lu, ye_ul;
@@ -561,7 +596,7 @@ void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
     // the case where y_l and y_u are alread already connected.
 
     if ( y_lu_edge ) {
-        //assert( hedi::has_edge( y_u, y_l, g ) ); // twin must also exist
+        assert( hedi::has_edge( y_u, y_l, g ) ); // twin must also exist
         ye_lu = hedi::edge( y_l, y_u, g);
         ye_ul = hedi::edge( y_u, y_l, g);
         ye_lu_next = g[ye_lu].next;
@@ -617,10 +652,12 @@ void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
     g[ye_ul_prev].next = yu_v;  g[yu_v].prev = ye_ul_prev;
     g[yu_v].next = v_xl;        g[v_xl].prev = yu_v;
     g[v_xl].next = xe_ul_next;  g[xe_ul_next].prev = v_xl;
-    // delete the old edges
+    // delete the old x-edges
     boost::remove_edge( x_l, x_u, g);
     boost::remove_edge( x_u, x_l, g);
     if( y_lu_edge ) { // delete old y-edges
+        assert( hedi::has_edge( y_l, y_u, g) );
+        assert( hedi::has_edge( y_u, y_l, g) );
         boost::remove_edge( y_l, y_u, g);
         boost::remove_edge( y_u, y_l, g);
     }
@@ -629,24 +666,7 @@ void Weave::add_int_vertex(  const Point& v_position, // position of new vertex
     x_int.intersections2.insert( VertexPair( v, v_position.x ) );
     y_int.intersections2.insert( VertexPair( v, v_position.y ) );
 }
-/*
-                } // end y interval loop
-            } // end if(potential intersection)
-        } // end y fiber loop
-        
-        // now we've added an x-interval, we've gone through all the y-intervals
-        // if there isn't a single intersecting interval, then remove the x-interval as it is useless
-        if ( xi.intersections2.size() == 2 ) {
-            clVertices.erase(xv1);
-            clVertices.erase(xv2);
-            hedi::clear_vertex(xv1,g);
-            hedi::clear_vertex(xv2,g);
-            hedi::remove_vertex(xv1,g);
-            hedi::remove_vertex(xv2,g);
-        }
-        
-    } // end zero-length interval check
-}*/
+
 
 std::vector< std::vector<Point> > Weave::getLoops() const {
     std::vector< std::vector<Point> > loop_list;

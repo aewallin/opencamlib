@@ -135,7 +135,7 @@ class Weave {
         
         /// given a vertex in the graph, find its upper and lower neighbor vertices
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality );
-         
+        std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
 // DATA
         /// the weave-graph
         WeaveGraph g;

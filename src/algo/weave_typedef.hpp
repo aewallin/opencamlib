@@ -139,7 +139,6 @@ typedef VertexIntersectionSet::iterator VertexPairIterator;
 
 
 
-// enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT };
 
 
 
@@ -147,4 +146,4 @@ typedef VertexIntersectionSet::iterator VertexPairIterator;
 
 } // end ocl namespace
 #endif
-// end file weave2.h
+// end file weave_typedef.hpp
