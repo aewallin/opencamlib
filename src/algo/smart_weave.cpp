@@ -409,14 +409,6 @@ void SmartWeave::add_all_edges()
 
 
 
-
-
-
-
-
-        
-
-
 } // end weave namespace
 
 } // end ocl namespace

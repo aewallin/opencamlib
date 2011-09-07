@@ -23,7 +23,6 @@
 
 #include "simple_weave.hpp"
 
-
 namespace ocl
 {
 
@@ -146,15 +145,6 @@ void SimpleWeave::build() {
         } // x interval loop
     } // end X-fiber loop
 }
-                                
-
-
-
-
-
-
-
-
 
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
 Vertex SimpleWeave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
@@ -264,7 +254,6 @@ void SimpleWeave::add_int_vertex(  const Point& v_position, // position of new v
     x_int.intersections2.insert( VertexPair( v, v_position.x ) );
     y_int.intersections2.insert( VertexPair( v, v_position.y ) );
 }
-
 
 
 } // end weave namespace

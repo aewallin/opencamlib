@@ -21,25 +21,18 @@
 
 #include <vector>
 
-//#include "point.hpp"
-//#include "fiber.hpp"
-//#include "weave_typedef.hpp"
-//#include "halfedgediagram.hpp"
+
 #include "weave.hpp"
 
 namespace ocl {
 
 namespace weave {
 
-/// weave-graph, 2nd impl. based on HEDIGraph
-/// see http://www.anderswallin.net/2011/05/weave-notes/
+
 class SmartWeave : public Weave {
     public:
         SmartWeave() {}
-        
         virtual ~SmartWeave() {}
-        
-        /// from the list of fibers, build a graph
         void build();
     protected:       
         void add_vertices_x();
@@ -55,9 +48,6 @@ class SmartWeave : public Weave {
                             std::vector<Interval>::iterator yi,
                             enum VertexType type );
         void add_all_edges();
-
-        
-        /// given a vertex in the graph, find its upper and lower neighbor vertices
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality );
 };
 

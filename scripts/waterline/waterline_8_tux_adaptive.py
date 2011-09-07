@@ -65,7 +65,7 @@ if __name__ == "__main__":
     length= 10
     cutter = ocl.BallCutter( diam , length )
     wl.setCutter(cutter)
-    wl.setSampling(0.14)
+    wl.setSampling(0.0314)
     
     for zh in zheights:
         print "calculating Waterline at z= ", zh

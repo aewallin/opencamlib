@@ -23,53 +23,16 @@
 
 #include "weave.hpp"
 
-#include "point.hpp"
-#include "fiber.hpp"
-#include "weave_typedef.hpp"
-#include "halfedgediagram.hpp"
-
 namespace ocl {
 
 namespace weave {
 
-/// weave-graph, 2nd impl. based on HEDIGraph
-/// see http://www.anderswallin.net/2011/05/weave-notes/
 class SimpleWeave : public Weave {
     public:
         SimpleWeave() {}
         
-        virtual ~SimpleWeave() {} // this special descrutctor required because hedi inherits from BGL::adjacency_list. FIXME.
-
-        //void addFiber(Fiber& f);
-        
+        virtual ~SimpleWeave() {} 
         void build();
-        
-        /// new smarter version of build() 
-        //void build2();
-        
-        //void add_vertices_x();
-        //void add_vertices_y();
-        //bool crossing_x( Fiber& yf, std::vector<Interval>::iterator& yi, Interval& xi, Fiber& xf );
-        //bool crossing_y( Fiber& xf, std::vector<Interval>::iterator& xi, Interval& yi, Fiber& yf );
-        //std::vector<Interval>::iterator find_interval_crossing_x( Fiber& xf, Fiber& yf );
-        //std::vector<Interval>::iterator find_interval_crossing_y( Fiber& xf, Fiber& yf );
-        //bool add_vertex(    Fiber& xf, Fiber& yf,
-        //                    std::vector<Interval>::iterator xi, std::vector<Interval>::iterator yi,
-        //                    enum VertexType type );
-        //void add_all_edges();
-
-        /// run planar_face_traversal to get the waterline loops
-        //void face_traverse();
-        
-        /// retrun list of loops
-        //std::vector< std::vector<Point> > getLoops() const;
-        
-        /// string representation
-        //std::string str() const;
-        
-        /// print out information about the graph
-        //void printGraph() const;
-        
     protected:       
     
         /// add CL vertex to weave
@@ -91,20 +54,7 @@ class SimpleWeave : public Weave {
 
         
         /// given a vertex in the graph, find its upper and lower neighbor vertices
-        //std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality );
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
-// DATA
-        /// the weave-graph
-        //WeaveGraph g;
-        /// output: list of loops in this weave
-        //std::vector< std::vector<Vertex> > loops;
-        /// the X-fibers
-        //std::vector<Fiber> xfibers;
-        /// the Y-fibers
-        //std::vector<Fiber> yfibers;
-        
-        /// set of CL-points
-        //std::set<Vertex> clVertexSet;
 };
 
 } // end weave namespace
