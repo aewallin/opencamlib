@@ -28,7 +28,9 @@
 #include "triangle.hpp"
 #include "waterline.hpp"
 #include "batchpushcutter.hpp"
-#include "weave.hpp"
+// #include "weave.hpp"
+#include "simple_weave.hpp"
+#include "smart_weave.hpp"
 
 namespace ocl
 {
@@ -90,7 +92,7 @@ void Waterline::reset() {
 
 void Waterline::weave_process() {
     std::cout << "Weave...\n" << std::flush;
-    weave::Weave weave;
+    weave::SimpleWeave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
     }
@@ -98,7 +100,7 @@ void Waterline::weave_process() {
         weave.addFiber(f);
     }
    
-    std::cout << "Weave::build()..." << std::flush;
+    //std::cout << "Weave::build()..." << std::flush;
     weave.build(); 
     std::cout << "done.\n";
     
@@ -113,7 +115,7 @@ void Waterline::weave_process() {
 
 void Waterline::weave_process2() {
     std::cout << "Weave...\n" << std::flush;
-    weave::Weave weave;
+    weave::SmartWeave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
     }
@@ -121,8 +123,8 @@ void Waterline::weave_process2() {
         weave.addFiber(f);
     }
    
-    std::cout << "Weave::build2()..." << std::flush;
-    weave.build2(); 
+    //std::cout << "Weave::build2()..." << std::flush;
+    weave.build(); 
     std::cout << "done.\n";
     
     std::cout << "Weave::face traverse()...";

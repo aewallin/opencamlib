@@ -147,7 +147,7 @@ void export_algo() {
     ;
     
     
-    
+    /*
     bp::class_<weave::Weave>("Weave_base")
     ;
     bp::class_<weave::Weave_py, bp::bases<weave::Weave> >("Weave")
@@ -166,7 +166,8 @@ void export_algo() {
         .def("getLoops", &weave::Weave_py::py_getLoops)
         .def("__str__", &weave::Weave_py::str)
     ;
-
+    */
+    
     bp::class_<LineCLFilter>("LineCLFilter_base")
     ;
     bp::class_<LineCLFilter_py, bp::bases<LineCLFilter> >("LineCLFilter")

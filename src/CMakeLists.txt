@@ -167,6 +167,8 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/simple_weave.cpp
+    ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.cpp
 )
 
 
@@ -227,6 +229,8 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/waterline.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/simple_weave.hpp
+    ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
     
