@@ -169,11 +169,7 @@ set(OCL_ALGO_SRC
     ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
 )
 
-set(OCL_VORONOI_SRC
-    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.cpp
-    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.cpp
-    ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.cpp
-)
+
 set(OCL_COMMON_SRC
     ${OpenCamLib_SOURCE_DIR}/common/numeric.cpp
     ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.cpp
@@ -234,10 +230,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
     
-    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_graph.hpp
-    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram.hpp
-    ${OpenCamLib_SOURCE_DIR}/voronoi/voronoidiagram_checker.hpp
-    ${OpenCamLib_SOURCE_DIR}/voronoi/facegrid.hpp
+
 )
 
 set( OCL_CUTSIM_INCLUDE_FILES
@@ -254,7 +247,6 @@ set( OCL_CUTSIM_INCLUDE_FILES
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/voronoi  ) 
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/common  ) 
 # ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
@@ -263,7 +255,6 @@ ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/common  )
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/voronoi )
 include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 # include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
@@ -279,12 +270,12 @@ if (BUILD_PY_LIB)
         #ocl_cutsim.cpp
         ocl_algo.cpp
         ocl_dropcutter.cpp
-        ocl_voronoi.cpp
+        #ocl_voronoi.cpp
         ocl.cpp
     )
 
     MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters ocl_voronoi ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
@@ -301,7 +292,7 @@ if (BUILD_CXX_LIB)
         SHARED
         ${OCL_GEO_SRC}
         ${OCL_CUTTER_SRC}
-        ${OCL_VORONOI_SRC}
+        #${OCL_VORONOI_SRC}
         ${OCL_ALGO_SRC}
         ${OCL_DROPCUTTER_SRC}
         ${OCL_COMMON_SRC}
