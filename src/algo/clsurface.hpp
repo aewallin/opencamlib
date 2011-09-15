@@ -1,5 +1,4 @@
-/*  $Id$
- * 
+/*  
  *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
@@ -82,28 +81,24 @@ struct EdgeProps {
     /// the face to which this edge belongs
     Face face; 
 };
-/// types of faces in the weave
-//enum 2FaceType {INCIDENT, NONINCIDENT};
-/// properties of a face in the weave
+
+/// properties of a face 
 struct FaceProps {
     /// create face with given edge, generator, and type
     FaceProps() {}
     FaceProps( Edge e ) {
         edge = e;
-        //type = t;
     }
     /// face index
     Face idx;
     /// one edge that bounds this face
     Edge edge;
-    /// face type
-    //W2FaceType type;
 };
 
 
   
 // extra storage in graph:
-typedef HEDIGraph<     boost::listS,             // out-edge storage
+typedef hedi::HEDIGraph<     boost::listS,             // out-edge storage
                        boost::listS,             // vertex set storage
                        boost::bidirectionalS,    // bidirectional graph.
                        VertexProps,              // vertex properties
@@ -113,12 +108,16 @@ typedef HEDIGraph<     boost::listS,             // out-edge storage
                        boost::listS             // edge storage
                        > CLSGraph;
 
-typedef boost::graph_traits< CLSGraph >::vertex_descriptor  Vertex;
-typedef boost::graph_traits< CLSGraph >::vertex_iterator    VertexItr;
+
+typedef CLSGraph::Vertex Vertex;
+//typedef CLSGraph::Vertex VertexItr;
+
+//typedef boost::graph_traits< CLSGraph >::vertex_descriptor  Vertex;
+//typedef boost::graph_traits< CLSGraph >::vertex_iterator    VertexItr;
 //typedef boost::graph_traits< CLSGraph >::edge_descriptor    Edge;
-typedef boost::graph_traits< CLSGraph >::edge_iterator      EdgeItr;
-typedef boost::graph_traits< CLSGraph >::out_edge_iterator  OutEdgeItr;
-typedef boost::graph_traits< CLSGraph >::adjacency_iterator AdjacencyItr;
+//typedef boost::graph_traits< CLSGraph >::edge_iterator      EdgeItr;
+//typedef boost::graph_traits< CLSGraph >::out_edge_iterator  OutEdgeItr;
+//typedef boost::graph_traits< CLSGraph >::adjacency_iterator AdjacencyItr;
 
 typedef std::vector<Vertex> VertexVector;
 typedef std::vector<Face> FaceVector;
@@ -167,29 +166,33 @@ class CutterLocationSurface : public Operation {
             //    b  e1   a
             //    e2      e4
             //    c   e3  d
-            Vertex a = hedi::add_vertex( VertexProps( Point(far,far,0) ), g);
-            Vertex b = hedi::add_vertex( VertexProps( Point(-far,far,0) ), g);
-            Vertex c = hedi::add_vertex( VertexProps( Point(-far,-far,0) ), g);
-            Vertex d = hedi::add_vertex( VertexProps( Point(far,-far,0) ), g);
-            Face f_outer= hedi::add_face( FaceProps(), g);
-            Face f_inner= hedi::add_face( FaceProps(), g);
-            Edge e1 = hedi::add_edge(a , b , g);
-            Edge e1t = hedi::add_edge(b , a , g);
-            Edge e2 = hedi::add_edge(b , c , g);
-            Edge e2t = hedi::add_edge(c , b , g);
-            Edge e3 = hedi::add_edge(c , d , g);
-            Edge e3t = hedi::add_edge(d , c , g);
-            Edge e4 = hedi::add_edge(d , a , g);
-            Edge e4t = hedi::add_edge(a , d , g);
+            Vertex a = g.add_vertex(); // VertexProps( Point(far,far,0) ), g);
+            g[a].position = Point(far,far,0);
+            Vertex b = g.add_vertex(); // VertexProps( Point(-far,far,0) ), g);
+            g[b].position = Point(-far,far,0);
+            Vertex c = g.add_vertex(); // VertexProps( Point(-far,-far,0) ), g);
+            g[c].position = Point(-far,-far,0);
+            Vertex d = g.add_vertex(); // VertexProps( Point(far,-far,0) ), g);
+            g[c].position = Point(far,-far,0);
+            Face f_outer= g.add_face( );
+            Face f_inner= g.add_face( );
+            Edge e1 =  g.add_edge(a , b );
+            Edge e1t = g.add_edge(b , a );
+            Edge e2 =  g.add_edge(b , c );
+            Edge e2t = g.add_edge(c , b );
+            Edge e3 =  g.add_edge(c , d );
+            Edge e3t = g.add_edge(d , c );
+            Edge e4 =  g.add_edge(d , a );
+            Edge e4t = g.add_edge(a , d );
             
             g[f_inner].edge = e1;
             g[f_outer].edge = e1t;
             out_face = f_outer;
             // twin edges
-            hedi::twin_edges(e1,e1t,g);
-            hedi::twin_edges(e2,e2t,g);
-            hedi::twin_edges(e3,e3t,g);
-            hedi::twin_edges(e4,e4t,g);
+            g.twin_edges(e1,e1t);
+            g.twin_edges(e2,e2t);
+            g.twin_edges(e3,e3t);
+            g.twin_edges(e4,e4t);
             // inner face:
             g[e1].face = f_inner;
             g[e2].face = f_inner;
@@ -216,7 +219,7 @@ class CutterLocationSurface : public Operation {
         }
         
         void subdivide() {
-            for( Face f=0; f< hedi::num_faces(g) ; ++f ) {
+            for( Face f=0; f< g.num_faces() ; ++f ) {
                 // subdivide each face
                 if ( f!= out_face ) {
                     subdivide_face(f);
@@ -225,21 +228,21 @@ class CutterLocationSurface : public Operation {
         }
         
         void subdivide_face(Face f) {
-            EdgeVector f_edges = hedi::face_edges(f,g);
+            EdgeVector f_edges = g.face_edges(f);
             assert( f_edges.size() == 4 );
-            Vertex center = hedi::add_vertex( g );
+            Vertex center = g.add_vertex();
             BOOST_FOREACH( Edge e, f_edges ) {
-                Vertex src = hedi::source(e,g);
-                Vertex trg = hedi::target(e,g);
+                Vertex src = g.source(e);
+                Vertex trg = g.target(e);
                 // new vertex at mid-point of each edge
                 Point mid = 0.5*(g[src].position+g[trg].position);
                 g[center].position += 0.25*g[src].position; // average of four corners
-                Vertex v = hedi::add_vertex( g );
+                Vertex v = g.add_vertex();
                 g[v].position = mid;
-                hedi::insert_vertex_in_edge(v,e,g); // this also removes the old edges...
+                g.insert_vertex_in_edge(v,e); // this also removes the old edges...
             }
             // now loop through edges again:
-            f_edges = hedi::face_edges(f,g);
+            f_edges = g.face_edges(f);
             assert( f_edges.size() == 8 );
             BOOST_FOREACH( Edge e, f_edges ) {
                 std::cout << e << "\n";
@@ -253,20 +256,20 @@ class CutterLocationSurface : public Operation {
         }
         
     // PYTHON
-        boost::python::list getVertices() const {
+        boost::python::list getVertices()  {
             boost::python::list plist;
-            BOOST_FOREACH( Vertex v, hedi::vertices(g) ) {
+            BOOST_FOREACH( Vertex v, g.vertices() ) {
                 plist.append( g[v].position );
             }
             return plist;
         }
         
-        boost::python::list getEdges() const {
+        boost::python::list getEdges()  {
             boost::python::list edge_list;
-            BOOST_FOREACH( Edge edge, hedi::edges(g) ) { // loop through each edge
+            BOOST_FOREACH( Edge edge, g.edges() ) { // loop through each edge
                     boost::python::list point_list; // the endpoints of each edge
-                    Vertex v1 = hedi::source( edge, g );
-                    Vertex v2 = hedi::target( edge, g );
+                    Vertex v1 = g.source( edge );
+                    Vertex v2 = g.target( edge );
                     point_list.append( g[v1].position );
                     point_list.append( g[v2].position );
                     edge_list.append(point_list);
@@ -277,7 +280,7 @@ class CutterLocationSurface : public Operation {
         /// string repr
         std::string str() const {
             std::ostringstream o;
-            o << "CutterLocationSurface (nVerts="<< hedi::num_vertices(g) << " , nEdges="<< hedi::num_edges(g) <<"\n";
+            o << "CutterLocationSurface (nVerts="<< g.num_vertices() << " , nEdges="<< g.num_edges() <<"\n";
             return o.str();
         }
 

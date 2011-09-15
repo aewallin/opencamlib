@@ -23,7 +23,6 @@
 
 #include "smart_weave.hpp"
 
-
 namespace ocl
 {
 
@@ -126,7 +125,9 @@ void SmartWeave::build() {
 
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
 Vertex SmartWeave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
-    Vertex  v = hedi::add_vertex( VertexProps( position, CL ), g);
+    Vertex  v = g.add_vertex(); // VertexProps( position, CL ), g);
+    g[v].position = position;
+    g[v].type = CL;
     ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
     clVertexSet.insert(v);
     return v;
@@ -278,7 +279,11 @@ bool SmartWeave::add_vertex( Fiber& xf, Fiber& yf,
             return false;
     }
     Point v_position( yf.p1.x, xf.p1.y, xf.p1.z );
-    Vertex v = hedi::add_vertex( VertexProps( v_position, type, xi, yi ), g);
+    Vertex v =g.add_vertex(); // VertexProps( v_position, type, xi, yi ), g);
+    g[v].position = v_position;
+    g[v].type = type;
+    g[v].xi= xi;
+    g[v].yi= yi;
     xi->intersections2.insert( VertexPair( v, v_position.x ) );
     yi->intersections2.insert( VertexPair( v, v_position.y ) );
     return true;
@@ -287,7 +292,7 @@ bool SmartWeave::add_vertex( Fiber& xf, Fiber& yf,
 //add_all_edges
 void SmartWeave::add_all_edges()
 {
-    std::vector<Vertex> vertices = hedi::vertices( g );
+    std::vector<Vertex> vertices = g.vertices(); // hedi::vertices( g );
 
     std::cout << "There are " << vertices.size() << " vertices.\n";
     BOOST_FOREACH( Vertex& vertex, vertices ) {
@@ -308,15 +313,15 @@ void SmartWeave::add_all_edges()
 
             for( adj_itr=adjacent_vertices.begin(); adj_itr<adjacent_vertices.end(); adj_itr++ ) {
                 Edge in, out;
-                if( hedi::has_edge( *adj_itr, vertex, g ) ) {
-                    in = hedi::edge( *adj_itr, vertex, g );
-                    out = hedi::edge( vertex, *adj_itr, g );
+                if( g.has_edge( *adj_itr, vertex ) ) { // hedi::has_edge( *adj_itr, vertex, g )
+                    in =  g.edge( *adj_itr, vertex );
+                    out = g.edge( vertex, *adj_itr );
                     in_edges.push_back( in );
                     out_edges.push_back( out );
                 }
                 else {
-                    in = hedi::add_edge( *adj_itr, vertex, g );
-                    out = hedi::add_edge( vertex, *adj_itr, g );
+                    in = g.add_edge( *adj_itr, vertex );
+                    out = g.add_edge( vertex, *adj_itr );
                     in_edges.push_back( in );
                     out_edges.push_back( out );
                 }

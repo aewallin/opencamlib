@@ -233,6 +233,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.hpp
     ${OpenCamLib_SOURCE_DIR}/common/clfilter.hpp
     ${OpenCamLib_SOURCE_DIR}/common/halfedgediagram.hpp
+
     
     ${OpenCamLib_SOURCE_DIR}/algo/operation.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.hpp

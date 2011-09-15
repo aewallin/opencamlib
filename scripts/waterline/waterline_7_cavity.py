@@ -40,7 +40,7 @@ if __name__ == "__main__":
     #stl = camvtk.STLSurf("../../stl/porche.stl")
     #stl = camvtk.STLSurf("../../stl/ktoolcav.stl")
     #stl = camvtk.STLSurf("../../stl/ktoolcor.stl")
-    stl = camvtk.STLSurf("../../stl/waterline1.stl")
+    stl = camvtk.STLSurf("../../stl/sphere_cutout.stl")
     #myscreen.addActor(stl)
     #stl.SetWireframe() # render tux as wireframe
     #stl.SetSurface() # render tux as surface

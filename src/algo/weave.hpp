@@ -46,8 +46,8 @@ class Weave {
         /// retrun list of loops
         std::vector< std::vector<Point> > getLoops() const;
         /// string representation
-        std::string str() const;
-        void printGraph() const;
+        std::string str() ;
+        void printGraph() ;
         
     protected:       
         /// the weave-graph

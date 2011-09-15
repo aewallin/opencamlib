@@ -33,12 +33,12 @@ namespace weave
 int VertexProps::count = 0;
 
 Weave::~Weave() { // this special descrutctor required because hedi inherits from BGL::adjacency_list. FIXME.
-    VertexItr vi, vi_end, next;
-    boost::tie( vi, vi_end ) = boost::vertices( g );
-    for ( next=vi ; vi != vi_end ; vi=next ) {
-        ++next; // move next out of the way so it is not invalidated on the next line
-        hedi::delete_vertex( *vi, g);
-    }
+    //VertexItr vi, vi_end, next;
+    //boost::tie( vi, vi_end ) = g.vertices(); //boost::vertices( g );
+    //for ( next=vi ; vi != vi_end ; vi=next ) {
+    //    ++next; // move next out of the way so it is not invalidated on the next line
+    //    hedi::delete_vertex( *vi, g);
+    //}
 }
         
 
@@ -65,13 +65,13 @@ void Weave::face_traverse() {
             assert( g[current].type == CL ); // we only want cl-points in the loop
             loop.push_back(current);
             clVertexSet.erase(current); // remove from set of unprocesser cl-verts
-            std::vector<Edge> outEdges = hedi::out_edges(current, g); // find the edge to follow
+            std::vector<Edge> outEdges = g.out_edges(current); //hedi::out_edges(current, g); // find the edge to follow
             //if (outEdges.size() != 1 )
             //    std::cout << " outEdges.size() = " << outEdges.size() << "\n";
             assert( outEdges.size() == 1 ); // cl-points are allways at ends of intervals, so they have only one out-edge
             Edge currentEdge = outEdges[0]; 
             do { // following next, find a CL point 
-                current = hedi::target( currentEdge, g);
+                current = g.target(currentEdge); //hedi::target( currentEdge, g);
                 currentEdge = g[currentEdge].next;
             } while ( g[current].type != CL );
         } while (current!=first); // end the loop when we arrive at the start
@@ -97,9 +97,11 @@ std::vector< std::vector<Point> > Weave::getLoops() const {
 // this can cause a build error when both face and vertex descriptors have the same type
 // i.e. unsigned int (?)
 // operator[] below "g[*itr].type" then looks for FaceProps.type which does not exist...
-void Weave::printGraph() const {
-    std::cout << " number of vertices: " << boost::num_vertices( g ) << "\n";
-    std::cout << " number of edges: " << boost::num_edges( g ) << "\n";
+void Weave::printGraph()  {
+    std::cout << " number of vertices: " <<  g.num_vertices() << "\n"; // boost::num_vertices( g )
+    std::cout << " number of edges: " << g.num_edges()  << "\n"; // boost::num_edges( g )
+    
+    /*
     VertexItr it_begin, it_end, itr;
     boost::tie( it_begin, it_end ) = boost::vertices( g );
     int n=0, n_cl=0, n_internal=0;
@@ -109,14 +111,23 @@ void Weave::printGraph() const {
         else
             ++n_internal;
         ++n;
+    }*/
+    int n=0, n_cl=0, n_internal=0;
+    BOOST_FOREACH(Vertex v, g.vertices() ) {
+        if ( g[v].type == CL )
+            ++n_cl;
+        else
+            ++n_internal;
+        ++n;
     }
+    
     std::cout << " counted " << n << " vertices\n";
     std::cout << "          CL-nodes: " << n_cl << "\n";
     std::cout << "    internal-nodes: " << n_internal << "\n";
 }
         
 // string representation
-std::string Weave::str() const {
+std::string Weave::str()  {
     std::ostringstream o;
     o << "Weave2\n";
     o << "  " << xfibers.size() << " X-fibers\n";

@@ -16,8 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef WEAVE2_TYPEDEF_H
-#define WEAVE2_TYPEDEF_H
+#ifndef WEAVE_TYPEDEF_H
+#define WEAVE_TYPEDEF_H
 
 #include "halfedgediagram.hpp"
 #include "interval.hpp"
@@ -103,7 +103,7 @@ struct FaceProps {
  
   
 // the graph type for the weave
-typedef HEDIGraph<     boost::listS,             // out-edges stored here
+typedef ocl::hedi::HEDIGraph<     boost::listS,             // out-edges stored here
                        boost::listS,             // vertex set stored here
                        boost::bidirectionalS,    // undirecgted or bidirectional graph?
                        VertexProps,              // vertex properties
@@ -113,12 +113,15 @@ typedef HEDIGraph<     boost::listS,             // out-edges stored here
                        boost::listS             // edge storage
                        > WeaveGraph;
 
-typedef boost::graph_traits< WeaveGraph >::vertex_descriptor  Vertex;
-typedef boost::graph_traits< WeaveGraph >::vertex_iterator    VertexItr;
+typedef WeaveGraph::Vertex Vertex;
+typedef WeaveGraph::VertexItr    VertexItr;
+
+//typedef boost::graph_traits< WeaveGraph >::vertex_descriptor  Vertex;
+//
 // typedef boost::graph_traits< WeaveGraph >::edge_descriptor    Edge;
-typedef boost::graph_traits< WeaveGraph >::edge_iterator      EdgeItr;
-typedef boost::graph_traits< WeaveGraph >::out_edge_iterator  OutEdgeItr;
-typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyItr;
+//typedef boost::graph_traits< WeaveGraph >::edge_iterator      EdgeItr;
+//typedef boost::graph_traits< WeaveGraph >::out_edge_iterator  OutEdgeItr;
+//typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyItr;
 
 /// intersections between intervals are stored as a VertexPair
 /// pair.first is a vertex descriptor of the weave graph

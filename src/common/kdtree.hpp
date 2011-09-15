@@ -30,6 +30,7 @@
 #include "bbox.hpp"
 #include "millingcutter.hpp"
 #include "clpoint.hpp"
+#include "numeric.hpp"
 
 namespace ocl
 {
