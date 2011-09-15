@@ -47,6 +47,19 @@ if (CMAKE_BUILD_TOOL MATCHES "make")
     # qt does not like this: -Werror -pedantic-errors
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
+option(BUILD_TYPE
+  "Build type: Release=ON/Debug=OFF  " ON)
+
+if (BUILD_TYPE)
+    MESSAGE(STATUS " CMAKE_BUILD_TYPE = Release")
+    set(CMAKE_BUILD_TYPE Release)
+endif(BUILD_TYPE)
+
+if (NOT BUILD_TYPE)
+    MESSAGE(STATUS " CMAKE_BUILD_TYPE = Debug")
+    set(CMAKE_BUILD_TYPE Debug)
+endif(NOT BUILD_TYPE)
+
 # find out the number of CPUs
 # from: http://www.kitware.com/blog/home/post/63
 if(NOT DEFINED PROCESSOR_COUNT)
