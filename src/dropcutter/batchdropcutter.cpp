@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -141,7 +140,6 @@ void BatchDropCutter::dropCutter4() {
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
-    unsigned int ntriangles = surf->tris.size();
 #ifdef _OPENMP
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else
@@ -200,7 +198,7 @@ void BatchDropCutter::dropCutter5() {
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
-    unsigned int ntriangles = surf->tris.size();
+    
 #ifdef _OPENMP
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else

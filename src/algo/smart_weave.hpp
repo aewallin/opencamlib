@@ -21,13 +21,11 @@
 
 #include <vector>
 
-
 #include "weave.hpp"
 
 namespace ocl {
 
 namespace weave {
-
 
 class SmartWeave : public Weave {
     public:

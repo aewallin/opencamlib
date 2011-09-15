@@ -47,7 +47,6 @@ struct VertexProps {
         index = count;
         count++;
     }
-    //VertexType type;
 // HE data
     /// the position of the vertex
     Point position;
@@ -110,14 +109,6 @@ typedef hedi::HEDIGraph<     boost::listS,             // out-edge storage
 
 
 typedef CLSGraph::Vertex Vertex;
-//typedef CLSGraph::Vertex VertexItr;
-
-//typedef boost::graph_traits< CLSGraph >::vertex_descriptor  Vertex;
-//typedef boost::graph_traits< CLSGraph >::vertex_iterator    VertexItr;
-//typedef boost::graph_traits< CLSGraph >::edge_descriptor    Edge;
-//typedef boost::graph_traits< CLSGraph >::edge_iterator      EdgeItr;
-//typedef boost::graph_traits< CLSGraph >::out_edge_iterator  OutEdgeItr;
-//typedef boost::graph_traits< CLSGraph >::adjacency_iterator AdjacencyItr;
 
 typedef std::vector<Vertex> VertexVector;
 typedef std::vector<Face> FaceVector;

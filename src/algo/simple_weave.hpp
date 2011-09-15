@@ -30,7 +30,6 @@ namespace weave {
 class SimpleWeave : public Weave {
     public:
         SimpleWeave() {}
-        
         virtual ~SimpleWeave() {} 
         void build();
     protected:       
@@ -52,7 +51,6 @@ class SimpleWeave : public Weave {
                                 Interval& xi,
                                 Interval& yi );
 
-        
         /// given a vertex in the graph, find its upper and lower neighbor vertices
         std::pair<Vertex,Vertex> find_neighbor_vertices( VertexPair v_pair, Interval& ival);
 };

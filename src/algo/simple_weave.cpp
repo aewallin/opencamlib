@@ -75,8 +75,8 @@ void SimpleWeave::build() {
             Vertex xv1 = add_cl_vertex( p1, xi, p1.x );
             Point p2( xf.point(xi.upper) );
             Vertex xv2 = add_cl_vertex( p2, xi, p2.x );
-            Edge e1 = g.add_edge(xv1,xv2); // hedi::add_edge( xv1, xv2, g);
-            Edge e2 = g.add_edge(xv2,xv1); // hedi::add_edge( xv2, xv1, g);
+            Edge e1 = g.add_edge(xv1,xv2); 
+            Edge e2 = g.add_edge(xv2,xv1); 
 
             //std::cout << " add_edge " << xv1 << "("<< p1.x<< ") - " << xv2 <<"("<< p2.x << ")\n";
             g[e1].next = e2;
@@ -103,7 +103,7 @@ void SimpleWeave::build() {
                             }
                             // 3) intersection point, of type INT
                             
-                            Vertex v = g.null_vertex(); // boost::graph_traits<WeaveGraph>::null_vertex();
+                            Vertex v = g.null_vertex(); 
                             
                             Point v_position( yf.p1.x, xf.p1.y , xf.p1.z );
                             // find neighbor to v
@@ -123,32 +123,27 @@ void SimpleWeave::build() {
                 } // end if(potential intersection)
             } // end y fiber loop
             
-            
-
-        
             // now we've added an x-interval, we've gone through all the y-intervals
             // if there isn't a single intersecting interval, then remove the x-interval as it is useless
             assert( xi.intersections2.size() >= 2  );
             if ( xi.intersections2.size() == 2 ) {
                 clVertexSet.erase(xv1);
                 clVertexSet.erase(xv2);
-                g.clear_vertex(xv1); //hedi::clear_vertex(xv1,g);
-                g.clear_vertex(xv2); //hedi::clear_vertex(xv2,g);
-                g.remove_vertex(xv1); // hedi::remove_vertex(xv1,g);
-                g.remove_vertex(xv2);  // hedi::remove_vertex(xv2,g);
+                g.clear_vertex(xv1); 
+                g.clear_vertex(xv2); 
+                g.remove_vertex(xv1); 
+                g.remove_vertex(xv2);  
             }
         
         } // end zero-length interval check
-//}*/
 
-            
         } // x interval loop
     } // end X-fiber loop
 }
 
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
 Vertex SimpleWeave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
-    Vertex  v = g.add_vertex(); // hedi::add_vertex( VertexProps( position, CL ), g);
+    Vertex  v = g.add_vertex(); 
     g[v].position = position;
     g[v].type = CL;
     ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
@@ -169,22 +164,21 @@ void SimpleWeave::add_int_vertex(  const Point& v_position, // position of new v
     Vertex v = g.add_vertex(); //hedi::add_vertex( VertexProps( v_position, INT ), g);
     g[v].position = v_position;
     g[v].type = INT;
-    assert( g.has_edge(x_l,x_u) ); //  hedi::has_edge( x_l, x_u, g)
-    assert( g.has_edge(x_u,x_l) ); // hedi::has_edge( x_u, x_l, g)
-    Edge xe_lu = g.edge(x_l,x_u); //hedi::edge( x_l, x_u, g);
-    Edge xe_ul = g.edge(x_u,x_l); //hedi::edge( x_u, x_l, g);
+    assert( g.has_edge(x_l,x_u) ); 
+    assert( g.has_edge(x_u,x_l) ); 
+    Edge xe_lu = g.edge(x_l,x_u); 
+    Edge xe_ul = g.edge(x_u,x_l); 
     Edge xe_lu_next = g[xe_lu].next;
     Edge xe_lu_prev = g[xe_lu].prev; 
     Edge xe_ul_next = g[xe_ul].next;
     Edge xe_ul_prev = g[xe_ul].prev; 
     
-
     // the next/prev data we need
     Edge ye_lu_next, ye_lu_prev ;
     Edge ye_ul_next, ye_ul_prev ;
     Edge ye_lu, ye_ul;
                  
-    bool y_lu_edge = g.has_edge(y_l,y_u); //hedi::has_edge( y_l, y_u, g ); // flag indicating existing y_l - y_u edge 
+    bool y_lu_edge = g.has_edge(y_l,y_u); // flag indicating existing y_l - y_u edge 
     // the case where y_l and y_u are alread already connected.
 
     if ( y_lu_edge ) {

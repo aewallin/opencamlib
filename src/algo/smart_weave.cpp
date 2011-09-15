@@ -125,7 +125,7 @@ void SmartWeave::build() {
 
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices
 Vertex SmartWeave::add_cl_vertex( const Point& position, Interval& ival, double ipos) {
-    Vertex  v = g.add_vertex(); // VertexProps( position, CL ), g);
+    Vertex  v = g.add_vertex(); 
     g[v].position = position;
     g[v].type = CL;
     ival.intersections2.insert( VertexPair( v, ipos) ); // ?? this makes Interval depend on the WeaveGraph type
@@ -279,7 +279,7 @@ bool SmartWeave::add_vertex( Fiber& xf, Fiber& yf,
             return false;
     }
     Point v_position( yf.p1.x, xf.p1.y, xf.p1.z );
-    Vertex v =g.add_vertex(); // VertexProps( v_position, type, xi, yi ), g);
+    Vertex v =g.add_vertex(); 
     g[v].position = v_position;
     g[v].type = type;
     g[v].xi= xi;
@@ -292,7 +292,7 @@ bool SmartWeave::add_vertex( Fiber& xf, Fiber& yf,
 //add_all_edges
 void SmartWeave::add_all_edges()
 {
-    std::vector<Vertex> vertices = g.vertices(); // hedi::vertices( g );
+    std::vector<Vertex> vertices = g.vertices(); 
 
     std::cout << "There are " << vertices.size() << " vertices.\n";
     BOOST_FOREACH( Vertex& vertex, vertices ) {
@@ -313,7 +313,7 @@ void SmartWeave::add_all_edges()
 
             for( adj_itr=adjacent_vertices.begin(); adj_itr<adjacent_vertices.end(); adj_itr++ ) {
                 Edge in, out;
-                if( g.has_edge( *adj_itr, vertex ) ) { // hedi::has_edge( *adj_itr, vertex, g )
+                if( g.has_edge( *adj_itr, vertex ) ) { 
                     in =  g.edge( *adj_itr, vertex );
                     out = g.edge( vertex, *adj_itr );
                     in_edges.push_back( in );

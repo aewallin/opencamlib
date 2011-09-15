@@ -16,8 +16,8 @@
  *  You should have received a copy of the GNU General Public License
  *  along with OpenCAMlib.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef HEDI_H
-#define HEDI_H
+#ifndef HALFEDGEDIAGRAM_HPP
+#define HALFEDGEDIAGRAM_HPP
 
 #include <vector>
 #include <list>
@@ -67,7 +67,6 @@
 namespace ocl {
 
 namespace hedi  { 
-
 
 template <class TOutEdgeList, 
           class TVertexList,
@@ -212,7 +211,6 @@ VertexVector face_vertices(Face face_idx) {
     Edge current = g[startedge].next;
     do {
         Vertex current_target = boost::target( current, g); 
-        //assert( current_target != start_target );
         verts.push_back(current_target);
         current = g[current].next;
     } while ( current != startedge );
@@ -221,8 +219,6 @@ VertexVector face_vertices(Face face_idx) {
 
 /// return edges of face f
 EdgeVector face_edges( Face f ) {
-    //typedef typename boost::graph_traits< BGLGraph >::edge_descriptor  HEEdge;
-    //typedef typename std::vector< HEEdge > EdgeVector;
     Edge start_edge = g[ (Face)f ].edge;
     Edge current_edge = start_edge;
     EdgeVector out;
@@ -270,15 +266,10 @@ EdgeVector  edges() {
 
 /// return v1-v2 edge descriptor
 Edge edge( Vertex v1, Vertex v2 ) {
-    //typedef typename boost::graph_traits< Graph >::edge_descriptor HEEdge;
     typedef typename std::pair<Edge, bool> EdgeBool;
     EdgeBool result = boost::edge(v1, v2, g );
     return result.first;
 }
-
-        
-
-
 
 /// return the previous edge. traverses all edges in face until previous found.
 Edge previous_edge( Edge e ) {
@@ -297,19 +288,6 @@ bool has_edge( Vertex v1, Vertex v2) {
     return result.second;
 }
 
-/// return v1-v2 edge descriptor
-/*
-template <class BGLGraph>
-typename boost::graph_traits< BGLGraph >::edge_descriptor edge( 
-           typename boost::graph_traits< BGLGraph >::vertex_descriptor v1, 
-           typename boost::graph_traits< BGLGraph >::vertex_descriptor v2, 
-           BGLGraph& g ) {
-    typedef typename boost::graph_traits< BGLGraph >::edge_descriptor HEEdge;
-    typedef typename std::pair<HEEdge, bool> EdgeBool;
-    EdgeBool result = boost::edge(v1, v2, g );
-    return result.first;
-}*/
-
 /// return adjacent faces to the given vertex
 FaceVector adjacent_faces( Vertex q ) {
     typedef typename boost::graph_traits< BGLGraph >::out_edge_iterator  HEOutEdgeItr;
@@ -319,7 +297,6 @@ FaceVector adjacent_faces( Vertex q ) {
     for ( ; itr!=itr_end ; ++itr ) {
         face_set.insert( g[*itr].face );
     }
-    //assert( face_set.size() == 3); // degree of q is three, so has three faces
     FaceVector fv;
     BOOST_FOREACH(unsigned int m, face_set) {
         fv.push_back(m);
@@ -475,6 +452,6 @@ void remove_edge( Edge e) {
 
 } // end hedi namespace
 
-} //end ocl namespace
+} // end ocl namespace
 #endif
 // end halfedgediagram.hpp

@@ -1,6 +1,5 @@
-/*  $Id$
- * 
- *  Copyright 2010 Anders Wallin (anders.e.e.wallin "at" gmail.com)
+/*  
+ *  Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
  *  
  *  This file is part of OpenCAMlib.
  *
@@ -294,6 +293,6 @@ class KDTree {
         std::vector<int> dimensions;
 };
 
-} // end namespace
+} // end ocl namespace
 #endif
-// end file kdtree3.h
+// end file kdtree.hpp

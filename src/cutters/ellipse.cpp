@@ -209,7 +209,7 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     // s = sqrt(1-t^2)
     //  -a*ma.y * t + b*mi.y* sqrt(1-t^2) = 0
     //  =>  t^2 = b^2 / (a^2 + b^2)
-    double t1;
+    double t1(0.0);
     if (f.p1.y == f.p2.y)
         t1 = sqrt( square( b*minor_dir.y ) / ( square( a*major_dir.y ) + square( b*minor_dir.y ) ) );
     else if (f.p1.x == f.p2.x)
@@ -260,7 +260,7 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     if (found_positive) {
         if (found_negative) {
             assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.
-            double lolim, hilim;
+            double lolim(0.0), hilim(0.0);
             if (apos.diangle > bpos.diangle ) {
                 lolim = bpos.diangle;
                 hilim = apos.diangle;

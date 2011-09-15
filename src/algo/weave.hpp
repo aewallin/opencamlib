@@ -34,7 +34,7 @@ namespace weave {
 class Weave {
     public:
         Weave() {}
-        virtual ~Weave();
+        virtual ~Weave() {}
         /// add Fiber f to the graph
         /// each fiber should be either in the X or Y-direction
         /// FIXME: seprate addXFiber and addYFiber methods?

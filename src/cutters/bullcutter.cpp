@@ -80,6 +80,8 @@ CC_CLZ_Pair BullCutter::singleEdgeDropCanonical( const Point& u1, const Point& u
         Point ellcenter(0,u1.y,0);
         Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
         int iters = e.solver_brent();
+        if (iters > 200)
+            std::cout << "WARNING: BullCutter::singleEdgeDropCanonical() iters>200 !!\n";
         assert( iters < 200 );
         e.setEllipsePositionHi(u1,u2); // this selects either EllipsePosition1 or EllipsePosition2 and sets it to EllipsePosition_hi
         // pseudo cc-point on the ellipse/cylinder, in the CL=origo system

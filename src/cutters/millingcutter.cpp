@@ -362,7 +362,7 @@ bool MillingCutter::pushCutter(const Fiber& f, Interval& i, const Triangle& t) c
 
 // call vertex, facet, and edge drop methods on input Triangle t
 bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
-    bool facet, vertex, edge;
+    bool facet(false), vertex(false), edge(false);
     /* // alternative ordering of the tests:
     if (cl.below(t))
         vertexDrop(cl,t);

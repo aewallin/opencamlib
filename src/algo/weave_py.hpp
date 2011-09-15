@@ -19,7 +19,6 @@
 #ifndef WEAVE_PY_H
 #define WEAVE_PY_H
 
-
 #include "weave.hpp"
 
 namespace ocl
@@ -31,27 +30,13 @@ namespace weave {
 ///
 class Weave_py : public Weave {
     public:
-            Weave_py() : Weave() {};
-    // PYTHON
+        Weave_py() : Weave() {};
 
         int numVertices() const {
-            //boost::python::list plist;
-            //VertexItr it_begin, it_end, itr;
-            //boost::tie( it_begin, it_end ) = boost::vertices( g );
-            //for ( itr=it_begin ; itr != it_end ; ++itr ) {
-            //    if ( g[*itr].type == t )
-            //        plist.append( g[*itr].position );
-            //}
-            return g.num_vertices(); //boost::num_vertices(g); //plist;
+            return g.num_vertices(); 
         };
         boost::python::list getVertices(VertexType t)  {
             boost::python::list plist;
-            //VertexItr it_begin, it_end, itr;
-            //boost::tie( it_begin, it_end ) = g.vertices( g );
-            //for ( itr=it_begin ; itr != it_end ; ++itr ) {
-            //    if ( g[*itr].type == t )
-            //        plist.append( g[*itr].position );
-            //}
             BOOST_FOREACH( Vertex v, g.vertices() ) {
                 if ( g[v].type == t )
                     plist.append( g[v].position );
@@ -62,46 +47,15 @@ class Weave_py : public Weave {
         /// return CL-points to python
         boost::python::list getCLVertices()  {
             return getVertices( CL );
-            /*
-            boost::python::list plist;
-            VertexItr it_begin, it_end, itr;
-            boost::tie( it_begin, it_end ) = boost::vertices( g );
-            for ( itr=it_begin ; itr != it_end ; ++itr ) {
-                if ( g[*itr].type == CL )
-                    plist.append( g[*itr].position );
-            }
-            return plist;
-            */
         };
         /// return internal points to python
         boost::python::list getINTVertices()  {
             return getVertices( INT );
-            /*
-            boost::python::list plist;
-            VertexItr it_begin, it_end, itr;
-            boost::tie( it_begin, it_end ) = boost::vertices( g );
-            for ( itr=it_begin ; itr != it_end ; ++itr ) {
-                if ( g[*itr].type == INT )
-                    plist.append( g[*itr].position );
-            }
-            return plist;
-            */
         };
         /// return edges to python
         /// format is [ [p1,p2] , [p3,p4] , ... ]
         boost::python::list getEdges()  {
             boost::python::list edge_list;
-            //EdgeItr it_begin, it_end, itr;
-            //boost::tie( it_begin, it_end ) = boost::edges( g );
-            //for ( itr=it_begin ; itr != it_end ; ++itr ) { // loop through each edge
-
-            //    boost::python::list point_list; // the endpoints of each edge
-            //    Vertex v1 = boost::source( *itr, g  );
-            //    Vertex v2 = boost::target( *itr, g  );
-            //    point_list.append(g[v1].position);
-            //    point_list.append(g[v2].position);
-            //    edge_list.append(point_list);
-            //}
             BOOST_FOREACH(Edge e, g.edges() ) {
                 boost::python::list point_list; // the endpoints of each edge
                 Vertex v1 = g.source( e  );
@@ -124,14 +78,11 @@ class Weave_py : public Weave {
             }
             return loop_list;
         };
-        
-  
 
-        
 };
 
 } // end weave namespace
 
 } // end ocl namespace
 #endif
-// end voronoidiagram_py.h
+// end weave_py.h
