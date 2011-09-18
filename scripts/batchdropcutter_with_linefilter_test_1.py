@@ -25,15 +25,15 @@ if __name__ == "__main__":
     diameter=1.77321
     length=5
     #cutter = ocl.BallCutter(diameter, length)
-    #cutter = ocl.CylCutter(diameter, length)
-    cutter = ocl.BullCutter(diameter, 0.2, length)
+    cutter = ocl.CylCutter(diameter, length)
+    #cutter = ocl.BullCutter(diameter, 0.2, length)
     #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.4 )
     
     print cutter
     
     minx=-1
-    dx=0.1/2
+    dx=0.1/5
     
     maxx=10
     miny=-1
