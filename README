@@ -54,21 +54,11 @@ The build directory /bld can be wiped clean ("rm -rf *") and cmake run again if/
 (generate this with 'tree -dL 2')
 
 ├── cpp_examples                c++ example use of opencamlib
-│   ├── cutsim1
-│   ├── cutsim2
 │   ├── point                   minimal example of ocl::Point
-│   ├── qt_opengl
-│   ├── qt_opengl_vbo
-│   ├── qt_vbo2
-│   ├── qt_vbo3
-│   ├── qt_vtk_renderwindow
-│   ├── renderwindowUI
-│   └── vbo
 ├── debian                      files for building a debian package
 ├── doc                         documentation (not much here yet!)
 ├── lib                         useful python helper libraries
 ├── scripts                     python scripts that test or demonstrate use of ocl
-│   ├── cutsim                  cutting simulation tests (old?)
 │   ├── issues
 │   ├── ocode                   old linear octree code
 │   ├── offset-ellipse          relates to BullCutter drop- and push-cutter
@@ -78,17 +68,12 @@ The build directory /bld can be wiped clean ("rm -rf *") and cmake run again if/
 │   ├── algo                    algorithms under development
 │   ├── attic                   old deprecated code
 │   ├── common                  common algorithms and data-structures
-│   ├── cutsim                  cutting simulation
 │   ├── cutters                 cutter-classes
 │   ├── dropcutter              drop-cutter algorithms and operations
 │   ├── geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
 │   └── voronoi
 ├── stl                         STL files for testing
 └── Windows                     Visual-studio project for building on windows
-
-
-the Id svn keyword is set like this:
-svn propset svn:keywords 'Id' filename.cpp 
 
 
 3. Ubuntu 10.04LTS-> install and build

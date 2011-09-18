@@ -2,17 +2,12 @@ project(OpenCamLib)
 
 cmake_minimum_required(VERSION 2.4)
 
-
-
 # some options to set what is built:
 option(BUILD_CXX_LIB
   "Build/install the pure c++ libocl library? " OFF)
 
 option(BUILD_PY_LIB 
   "Build/install the python ocl library? " ON)
-
-option(BUILD_CUTSIM
-  "Build/install the ocl cutting simulation (requires OpenGL and Qt) ? " OFF)
 
 option(BUILD_DOC
   "Build/install the ocl documentation? " OFF)
@@ -24,10 +19,6 @@ endif(NOT BUILD_CXX_LIB)
 if (NOT BUILD_PY_LIB)
     MESSAGE(STATUS " Note: will NOT build python library")
 endif(NOT BUILD_PY_LIB)
-
-if (NOT BUILD_CUTSIM)
-    MESSAGE(STATUS " Note: will NOT build ocl cutting simulation")
-endif(NOT BUILD_CUTSIM)
 
 if (NOT BUILD_DOC)
     MESSAGE(STATUS " Note: will NOT build ocl documentation")
@@ -43,8 +34,7 @@ endif(NOT BUILD_DOC)
 #
 if (CMAKE_BUILD_TOOL MATCHES "make")
     MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
-    add_definitions(-Wall  -Wno-deprecated )
-    # qt does not like this: -Werror -pedantic-errors
+    add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
 option(BUILD_TYPE
@@ -88,10 +78,7 @@ execute_process(
 )
 include_directories(${Python_Includes})
 
-
-
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
 
 # find BOOST and boost-python
 find_package( Boost COMPONENTS python REQUIRED)
@@ -112,32 +99,9 @@ find_package( OpenMP REQUIRED )
 
 IF (OPENMP_FOUND)
     MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
-
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF(OPENMP_FOUND)
 
-#
-# for cutsim, find OpenGL and Qt.
-#
-
-if (BUILD_CUTSIM)
-    MESSAGE(STATUS "Cutting simulation requires OpenGL and Qt...")
-    find_package(OpenGL REQUIRED)
-    if(OPENGL_FOUND)
-        MESSAGE(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
-    endif(OPENGL_FOUND)
-    
-    FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
-    message(STATUS " qmake = ${QT_QMAKE_EXECUTABLE}") 
-    INCLUDE(${QT_USE_FILE})
-    MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
-    
-    set (MOC_HEADERS  # these headers need Qt MOCing
-        ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.hpp
-    )
-    
-    
-endif(BUILD_CUTSIM)
 
 # this defines the source-files
 
@@ -188,16 +152,6 @@ set(OCL_ALGO_SRC
 set(OCL_COMMON_SRC
     ${OpenCamLib_SOURCE_DIR}/common/numeric.cpp
     ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.cpp
-)
-
-set( OCL_CUTSIM_SRC
-    ${OpenCamLib_SOURCE_DIR}/cutsim/volume.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/octree.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/marching_cubes.cpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.cpp 
-    ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.cpp 
-        
 )
 
 set( OCL_INCLUDE_FILES  
@@ -251,15 +205,6 @@ set( OCL_INCLUDE_FILES
 
 )
 
-set( OCL_CUTSIM_INCLUDE_FILES
-    ${OpenCamLib_SOURCE_DIR}/cutsim/octnode.hpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/octree.hpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/volume.hpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/marching_cubes.hpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/gldata.hpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/glwidget.hpp
-    ${OpenCamLib_SOURCE_DIR}/cutsim/p3.hpp
-)
 
 # this branches into the dirs and compiles stuff there
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
@@ -267,7 +212,6 @@ ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  ) 
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
 ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/common  ) 
-# ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutsim  )
 
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
@@ -275,7 +219,6 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
-# include_directories( ${OpenCamLib_SOURCE_DIR}/cutsim )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 if (BUILD_PY_LIB)
@@ -301,8 +244,6 @@ if (BUILD_PY_LIB)
 endif (BUILD_PY_LIB)
 
 
-
-
 # this is the C++ shared library
 if (BUILD_CXX_LIB)
     add_library(
@@ -319,15 +260,6 @@ if (BUILD_CXX_LIB)
     set_target_properties(libocl PROPERTIES PREFIX "") 
 endif (BUILD_CXX_LIB)
 
-# this is the cutting sim
-if(BUILD_CUTSIM)
-    qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})
-    add_library(cutsim SHARED 
-        ${OCL_CUTSIM_SRC}
-        ${MOC_OUTFILES}
-    )
-    target_link_libraries(cutsim  ${OPENGL_LIBRARIES})
-endif(BUILD_CUTSIM)
 
 #
 # this figures out where to install the Python modules
@@ -373,23 +305,6 @@ if (BUILD_CXX_LIB)
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
     )
 endif (BUILD_CXX_LIB)
-
-# install cutsim
-if(BUILD_CUTSIM)
-    install(
-        TARGETS cutsim
-        LIBRARY 
-        DESTINATION lib/opencamlib
-        ARCHIVE DESTINATION lib/opencamlib
-        PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-    )
-    # this installs the c++ include headers
-    install(
-        FILES ${OCL_CUTSIM_INCLUDE_FILES}
-        DESTINATION include/opencamlib
-        PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-    )
-endif (BUILD_CUTSIM)
 
 #
 # this installs the examples
