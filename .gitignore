@@ -6,7 +6,6 @@
 
 #ignore the stuff cmake creates
 CMakeFiles/
-*.cmake
 CMakeCache.txt
 *Makefile
 install_manifest.txt

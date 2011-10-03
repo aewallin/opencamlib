@@ -103,8 +103,32 @@ IF (OPENMP_FOUND)
 ENDIF(OPENMP_FOUND)
 
 
-# this defines the source-files
 
+################ create version_string.hpp, http://stackoverflow.com/questions/3780667
+# include the output directory, where the version_string.hpp file is generated
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+# a custom target that is always built
+add_custom_target(
+    version_string 
+    ALL
+    DEPENDS ver_string 
+)
+# creates version_string.hpp using cmake script
+add_custom_command(
+    OUTPUT ver_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+                                            -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake
+)
+# version_string.hpp is a generated file
+set_source_files_properties(
+    ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+    PROPERTIES GENERATED TRUE
+    HEADER_FILE_ONLY TRUE
+)
+################ end version_string.hpp stuff
+
+
+# this defines the source-files
 set(OCL_GEO_SRC
     ${OpenCamLib_SOURCE_DIR}/geo/arc.cpp
     ${OpenCamLib_SOURCE_DIR}/geo/bbox.cpp
@@ -202,6 +226,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
     
+    ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
 
 )
 
@@ -233,6 +258,11 @@ if (BUILD_PY_LIB)
         ocl_dropcutter.cpp
         #ocl_voronoi.cpp
         ocl.cpp
+        
+    )
+    add_dependencies( 
+        ocl
+        version_string 
     )
 
     MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})

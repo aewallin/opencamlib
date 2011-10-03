@@ -25,22 +25,9 @@
 #include "numeric.hpp"
 #include "point.hpp"
 
-#define OCL_REV_STRING "OpenCamLib github/master"
-
-
-
-namespace ocl
-{
-
-
+namespace ocl {
 
 #define TOLERANCE 0.0000001
-
-
-
-std::string revision() {
-    return OCL_REV_STRING;
-}
 
 double xyVectorToDiangle(double x, double y) {
     double diangle;

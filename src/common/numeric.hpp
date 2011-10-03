@@ -92,9 +92,6 @@ bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
 /// convert the direction (x,y) into a diangle
 double xyVectorToDiangle(double x, double y);
 
-/// return the revision string
-std::string revision();
-
 
 } // end ocl namespace
 #endif

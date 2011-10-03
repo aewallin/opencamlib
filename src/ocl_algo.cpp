@@ -49,7 +49,6 @@ void export_algo() {
     bp::def("eps", eps); // machine epsilon, see numeric.cpp
     bp::def("epsF", epsF);
     bp::def("epsD", epsD);
-    bp::def("revision", revision); // returns OCL revision string to python
     bp::class_<ZigZag>("ZigZag")
         .def("run", &ZigZag::run)
         .def("setDirection", &ZigZag::setDirection)
