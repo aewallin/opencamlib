@@ -25,6 +25,11 @@ if (NOT BUILD_DOC)
 endif(NOT BUILD_DOC)
 
 
+# figure out the gcc version
+
+INCLUDE(gcc_version.cmake)
+
+
 #
 # Turn compiler warnings up to 11, at least with gcc.  I dont know how to
 # do this with other compilers we might support and I'm leaving it up to
@@ -33,8 +38,14 @@ endif(NOT BUILD_DOC)
 # thus we use now use -Wno-deprecated here.
 #
 if (CMAKE_BUILD_TOOL MATCHES "make")
-    MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
-    add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
+	if(GCC_4_6)
+		MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
+		add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
+	else(GCC_4_6)
+		MESSAGE(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
+		add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
+    endif(GCC_4_6)
+    
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
 option(BUILD_TYPE
@@ -119,6 +130,7 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
                                             -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake
 )
+
 # version_string.hpp is a generated file
 set_source_files_properties(
     ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
