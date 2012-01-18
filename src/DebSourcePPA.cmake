@@ -253,7 +253,7 @@ endforeach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
 
 ##############################################################################
 # dput ppa:your-lp-id/ppa <source.changes>
-set(DPUT_HOST ppa:anders-e-e-wallin/opencamlib)
+
 MESSAGE(STATUS "  DPUT_HOST is: " ${DPUT_HOST})
 add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
               DEPENDS ${DEB_SOURCE_CHANGES} 

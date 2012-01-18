@@ -471,7 +471,7 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib")
 set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake)
 set(CPACK_DEBIAN_PACKAGE_SECTION "science")
 set(CPACK_DEBIAN_PACKAGE_VERSION 11.09)
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, libboost-python-dev, libgomp1" )
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, git, cmake, libboost-python-dev, libgomp1" )
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE})
 set(CPACK_DEBIAN_PACKAGE_PRIORITY optional)
 SET(CPACK_PACKAGE_VERSION "11.09")
@@ -483,6 +483,7 @@ set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric)
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/debian_package_description.txt)
 set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/debian_copyright.txt)
 set(CPACK_DEBIAN_CHANGELOG "  * Trying to build source-package with cmake")
+set(DPUT_HOST ppa:anders-e-e-wallin/opencamlib)
 
 # this creates a debian source package.
 # it can be uploaded to a PPA with "make dput"
