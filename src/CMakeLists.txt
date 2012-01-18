@@ -465,15 +465,27 @@ execute_process(
 )
 
 set(CPACK_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "opencamlib@googlegroups.com")
+set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>")
 set(CPACK_PACKAGE_NAME "opencamlib")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib")
+set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake)
 set(CPACK_DEBIAN_PACKAGE_SECTION "science")
-set(CPACK_DEBIAN_PACKAGE_VERSION "")
+set(CPACK_DEBIAN_PACKAGE_VERSION 11.09)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, libboost-python-dev, libgomp1" )
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE})
+set(CPACK_DEBIAN_PACKAGE_PRIORITY optional)
+SET(CPACK_PACKAGE_VERSION "11.09")
 SET(CPACK_PACKAGE_VERSION_MAJOR "11")
 SET(CPACK_PACKAGE_VERSION_MINOR "09")
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
+set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu)
+set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric) 
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/debian_package_description.txt)
+set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/debian_copyright.txt)
+set(CPACK_DEBIAN_CHANGELOG "  * Trying to build source-package with cmake")
+
+# this creates a debian source package.
+# it can be uploaded to a PPA with "make dput"
+INCLUDE(DebSourcePPA.cmake)
 
 include(CPack) # this should be last

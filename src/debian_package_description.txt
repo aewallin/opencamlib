@@ -1,0 +1,3 @@
+A C++ library with python bindings for computer aided manufacturin (CAM)
+algorithms. Creates toolpaths for numerically controlled (CNC) machine
+tools such as lathes, mills, and 3D printers.
