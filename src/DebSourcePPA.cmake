@@ -114,7 +114,7 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
   endforeach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})
 
   file(APPEND ${DEBIAN_CONTROL} "\n"
-    "Standards-Version: 3.8.4\n"
+    "Standards-Version: 3.9.1\n"
     "Homepage: ${CPACK_PACKAGE_VENDOR}\n"
     "\n"
     "Package: ${CPACK_DEBIAN_PACKAGE_NAME}\n"
@@ -122,6 +122,8 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
     "Suggests: ${CPACK_DEBIAN_BUILD_SUGGESTS}\n"
     "Depends: "
     )
+    set(DEBHELP_DEPENDS "\${misc:Depends}")
+    file(APPEND ${DEBIAN_CONTROL} "${DEBHELP_DEPENDS}, ")
 
   foreach(DEP ${CPACK_DEBIAN_PACKAGE_DEPENDS})
     MESSAGE(STATUS "   package-depency: " ${DEP})
@@ -256,5 +258,10 @@ endforeach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
 
 MESSAGE(STATUS "  DPUT_HOST is: " ${DPUT_HOST})
 add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
+              DEPENDS ${DEB_SOURCE_CHANGES} 
+              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
+
+# simulated upload
+add_custom_target(dputs ${DPUT_EXECUTABLE} -s ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
               DEPENDS ${DEB_SOURCE_CHANGES} 
               WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)

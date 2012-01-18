@@ -460,18 +460,15 @@ execute_process(
 )
 
 
-SET(test "hello world ! catch: me if you can")
-STRING(REGEX REPLACE ".*catch: ([^ ]+).*" "\\1" result "${test}" )
-MESSAGE(STATUS "result= ${result}")
  
-message( STATUS " git commit id: " ${GIT_COMMIT_ID})
+#message( STATUS " git commit id: " ${GIT_COMMIT_ID})
 # parse the commit id to get major, minor, 
 STRING(REGEX REPLACE "([0-9][0-9]).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-MESSAGE(STATUS "result= ${GIT_MAJOR_VERSION}")
+#MESSAGE(STATUS "result= ${GIT_MAJOR_VERSION}")
 STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-MESSAGE(STATUS "result= ${GIT_MINOR_VERSION}")
+#MESSAGE(STATUS "result= ${GIT_MINOR_VERSION}")
 STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-MESSAGE(STATUS "result= ${GIT_PATCH_VERSION}")
+#MESSAGE(STATUS "result= ${GIT_PATCH_VERSION}")
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>")
@@ -483,10 +480,10 @@ set(CPACK_DEBIAN_PACKAGE_VERSION 11.09)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, git, cmake, libboost-python-dev, libgomp1" )
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE})
 set(CPACK_DEBIAN_PACKAGE_PRIORITY optional)
-# SET(CPACK_PACKAGE_VERSION "11.09")
+SET(CPACK_PACKAGE_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${GIT_MAJOR_VERSION})
-SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}-${GIT_PATCH_VERSION}")
-#SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION})
+SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}")
+SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION})
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu)
 set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric) 
@@ -498,5 +495,13 @@ set(DPUT_HOST ppa:anders-e-e-wallin/opencamlib)
 # this creates a debian source package.
 # it can be uploaded to a PPA with "make dput"
 INCLUDE(DebSourcePPA.cmake)
+
+# run the source package generation as a target, so we don't have to do it every time
+#add_custom_target(spackage 
+#              ${CMAKE_COMMAND} 
+#              -P ${CMAKE_CURRENT_SOURCE_DIR}/DebSourcePPA.cmake 
+#              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#            )
+
 
 include(CPack) # this should be last
