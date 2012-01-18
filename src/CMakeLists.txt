@@ -118,25 +118,22 @@ ENDIF(OPENMP_FOUND)
 ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
 # include the output directory, where the version_string.hpp file is generated
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+INCLUDE(version_string.cmake)
+
 # a custom target that is always built
-add_custom_target(
-    version_string 
-    ALL
-    DEPENDS ver_string 
-)
+#add_custom_target(
+#    version_string 
+#    ALL
+#    DEPENDS ver_string 
+#)
 # creates version_string.hpp using cmake script
-add_custom_command(
-    OUTPUT ver_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
-    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-                                            -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake
-)
+#add_custom_command(
+#    OUTPUT ver_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+#    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+#                                            -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake
+#)
 
 # version_string.hpp is a generated file
-set_source_files_properties(
-    ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
-    PROPERTIES GENERATED TRUE
-    HEADER_FILE_ONLY TRUE
-)
 ################ end version_string.hpp stuff
 
 
@@ -265,10 +262,8 @@ if (BUILD_PY_LIB)
         MODULE
         ocl_cutters.cpp
         ocl_geometry.cpp
-        #ocl_cutsim.cpp
         ocl_algo.cpp
         ocl_dropcutter.cpp
-        #ocl_voronoi.cpp
         ocl.cpp
         
     )
@@ -464,6 +459,20 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+
+SET(test "hello world ! catch: me if you can")
+STRING(REGEX REPLACE ".*catch: ([^ ]+).*" "\\1" result "${test}" )
+MESSAGE(STATUS "result= ${result}")
+ 
+message( STATUS " git commit id: " ${GIT_COMMIT_ID})
+# parse the commit id to get major, minor, 
+STRING(REGEX REPLACE "([0-9][0-9]).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
+MESSAGE(STATUS "result= ${GIT_MAJOR_VERSION}")
+STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
+MESSAGE(STATUS "result= ${GIT_MINOR_VERSION}")
+STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
+MESSAGE(STATUS "result= ${GIT_PATCH_VERSION}")
+
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>")
 set(CPACK_PACKAGE_NAME "opencamlib")
@@ -474,9 +483,10 @@ set(CPACK_DEBIAN_PACKAGE_VERSION 11.09)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, git, cmake, libboost-python-dev, libgomp1" )
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE})
 set(CPACK_DEBIAN_PACKAGE_PRIORITY optional)
-SET(CPACK_PACKAGE_VERSION "11.09")
-SET(CPACK_PACKAGE_VERSION_MAJOR "11")
-SET(CPACK_PACKAGE_VERSION_MINOR "09")
+# SET(CPACK_PACKAGE_VERSION "11.09")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${GIT_MAJOR_VERSION})
+SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}-${GIT_PATCH_VERSION}")
+#SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION})
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu)
 set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric) 

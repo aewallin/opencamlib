@@ -34,7 +34,7 @@ def main(ycoord=0.970, filename="test"):
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     #t = cam.Triangle(a,b,c)
     
-    cutter = cam.BullCutter(1,0.2)
+    cutter = cam.BullCutter(1,0.2,20)
 
     print cutter   
     xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))

@@ -6,6 +6,7 @@
 # where test is the name of the last tagged git revision, 1 is the number of commits since that tag,
 # 'g' is ???, and 5e1fb47 is the first 7 chars of the git sha1 commit id.
 
+
 find_package(Git)
 if(GIT_FOUND)
     execute_process(
@@ -29,10 +30,15 @@ set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
              "#endif\n"
 )
 
-file(WRITE version_string.hpp.txt ${vstring} )
-message( STATUS "Git version id: " ${vstring})
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp ${vstring} )
+set_source_files_properties(
+    ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+    PROPERTIES GENERATED TRUE
+    HEADER_FILE_ONLY TRUE
+)
+
 # copy the file to the final header only if the version changes
 # reduces needless rebuilds
-execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                        version_string.hpp.txt ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
-
+#execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#                        version_string.hpp.txt /version_string.hpp)
+message( STATUS "version_string.cmake set GIT_COMMIT_ID: " ${GIT_COMMIT_ID})
