@@ -471,38 +471,53 @@ STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${
 #MESSAGE(STATUS "result= ${GIT_PATCH_VERSION}")
 
 set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>")
-set(CPACK_PACKAGE_NAME "opencamlib")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib")
-set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake)
-set(CPACK_DEBIAN_PACKAGE_SECTION "science")
-set(CPACK_DEBIAN_PACKAGE_VERSION 11.09)
-set(CPACK_DEBIAN_BUILD_DEPENDS "python, git, cmake, libboost-dev, libboost-python-dev, libgomp1")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, git, cmake, libboost-python, libgomp1" )
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE})
-set(CPACK_DEBIAN_PACKAGE_PRIORITY optional)
-SET(CPACK_PACKAGE_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}")
-SET(CPACK_PACKAGE_VERSION_MAJOR ${GIT_MAJOR_VERSION})
-SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}")
-SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION})
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
-set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu)
-set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric) 
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/debian_package_description.txt)
-set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/debian_copyright.txt)
-set(CPACK_DEBIAN_CHANGELOG "  * Trying to build debian source-package with cmake")
-set(DPUT_HOST ppa:anders-e-e-wallin/opencamlib)
+set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>" CACHE STRING "email")
+set(CPACK_PACKAGE_NAME "opencamlib" CACHE STRING "name")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib" CACHE STRING "name")
+set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake CACHE STRING "name")
+set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "name")
+set(CPACK_DEBIAN_PACKAGE_VERSION 11.09 CACHE STRING "name")
+set(CPACK_DEBIAN_BUILD_DEPENDS "python, git, cmake, libboost-dev, libboost-python-dev, libgomp1" CACHE STRING "name")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, git, cmake, libboost-python, libgomp1" CACHE STRING "name")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE} CACHE STRING "name")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY optional CACHE STRING "name")
+SET(CPACK_PACKAGE_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${GIT_MAJOR_VERSION} CACHE STRING "name")
+SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
+SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION} CACHE STRING "name")
+set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}" CACHE STRING "name")
+set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu CACHE STRING "name")
+set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric CACHE STRING "name") 
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/debian_package_description.txt CACHE STRING "${CPACK_PACKAGE_DESCRIPTION_FILE}")
+set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/debian_copyright.txt CACHE STRING "name")
+set(CPACK_DEBIAN_CHANGELOG "  * Trying to build debian source-package with cmake" CACHE STRING "name")
+set(DPUT_HOST ppa:anders-e-e-wallin/opencamlib CACHE STRING "name")
+set(DEB_SRC_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "name" )
 
 # this creates a debian source package.
 # it can be uploaded to a PPA with "make dput"
-INCLUDE(DebSourcePPA.cmake)
+#INCLUDE(DebSourcePPA.cmake)
 
 # run the source package generation as a target, so we don't have to do it every time
-#add_custom_target(spackage 
-#              ${CMAKE_COMMAND} 
-#              -P ${CMAKE_CURRENT_SOURCE_DIR}/DebSourcePPA.cmake 
-#              WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-#            )
+add_custom_target(spackage 
+              ${CMAKE_COMMAND} -C ${CMAKE_BINARY_DIR}/CMakeCache.txt
+              -P ${CMAKE_CURRENT_SOURCE_DIR}/DebSourcePPA.cmake 
+              # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            )
+            
+MESSAGE(STATUS "  DPUT_HOST is: " ${DPUT_HOST})
+find_program(DEBUILD_EXECUTABLE debuild)
+find_program(DPUT_EXECUTABLE dput)
+
+add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
+              DEPENDS ${DEB_SOURCE_CHANGES} 
+              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
+
+# simulated upload
+add_custom_target(dputs ${DPUT_EXECUTABLE} -s ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
+              DEPENDS ${DEB_SOURCE_CHANGES} 
+              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
+
 
 
 include(CPack) # this should be last

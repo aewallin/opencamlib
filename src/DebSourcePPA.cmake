@@ -53,24 +53,34 @@ IF(NOT CPACK_DEBIAN_PACKAGE_PRIORITY)
 ENDIF(NOT CPACK_DEBIAN_PACKAGE_PRIORITY)
 MESSAGE(STATUS "Debian package section: " ${CPACK_DEBIAN_PACKAGE_PRIORITY})
 
+MESSAGE(STATUS "reading description file: " ${CPACK_PACKAGE_DESCRIPTION_FILE})
 file(STRINGS ${CPACK_PACKAGE_DESCRIPTION_FILE} DESC_LINES)
 foreach(LINE ${DESC_LINES})
   set(DEB_LONG_DESCRIPTION "${DEB_LONG_DESCRIPTION} ${LINE}\n")
 endforeach(LINE ${DESC_LINES})
 MESSAGE(STATUS "Debian package long description: " ${DEB_LONG_DESCRIPTION})
 
-file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/Debian")
-file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/Debian")
-set(DEBIAN_SOURCE_ORIG_DIR "${CMAKE_BINARY_DIR}/Debian/${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
+file(REMOVE_RECURSE "${CMAKE_CURRENT_BINARY_DIR}/Debian")
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/Debian")
+set(DEBIAN_SOURCE_ORIG_DIR "${CMAKE_CURRENT_BINARY_DIR}/Debian/${CPACK_DEBIAN_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}")
 MESSAGE(STATUS "Debian package source-orig-dir: " ${DEBIAN_SOURCE_ORIG_DIR})
 
 # copy of source
 if( CPACK_DEBIAN_PACKAGE_SOURCE_COPY )
   execute_process(COMMAND ${CPACK_DEBIAN_PACKAGE_SOURCE_COPY} "${CMAKE_SOURCE_DIR}" "${DEBIAN_SOURCE_ORIG_DIR}.orig")
 else( CPACK_DEBIAN_PACKAGE_SOURCE_COPY )
-  MESSAGE(STATUS "Copying files to source-orig-dir. ")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR} "${DEBIAN_SOURCE_ORIG_DIR}.orig")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../.git "${DEBIAN_SOURCE_ORIG_DIR}.orig/.git")
+  MESSAGE(STATUS "Copying files from ${DEB_SRC_DIR} to ${DEBIAN_SOURCE_ORIG_DIR}.orig")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${DEB_SRC_DIR} "${DEBIAN_SOURCE_ORIG_DIR}.orig")
+  # create a git_tag.txt file
+      execute_process(
+        COMMAND ${GIT_EXECUTABLE} describe --tags 
+        RESULT_VARIABLE res_var 
+        OUTPUT_VARIABLE GIT_COM_ID 
+    )
+  string( REPLACE "\n" "" GIT_COMMIT_ID ${GIT_COM_ID} )
+  file(WRITE "${DEBIAN_SOURCE_ORIG_DIR}.orig/git-tag.txt" ${GIT_COMMIT_ID} )
+  
+  #execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../.git "${DEBIAN_SOURCE_ORIG_DIR}.orig/.git")
   #MESSAGE(STATUS "Removing .git from source-orig-dir. ")
   #execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEBIAN_SOURCE_ORIG_DIR}.orig/.git")
   #execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${DEBIAN_SOURCE_ORIG_DIR}.orig/.svn")
@@ -250,19 +260,16 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
     set(DEBUILD_OPTIONS "-sa")
   endif()
   set(SOURCE_CHANGES_FILE "${CPACK_DEBIAN_PACKAGE_NAME}_${RELEASE_PACKAGE_VERSION}_source.changes")
-  set(DEB_SOURCE_CHANGES ${DEB_SOURCE_CHANGES} "${SOURCE_CHANGES_FILE}")
-  add_custom_command(OUTPUT "${SOURCE_CHANGES_FILE}" COMMAND ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS} WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR})
+  set(DEB_SOURCE_CHANGES ${DEB_SOURCE_CHANGES} "${SOURCE_CHANGES_FILE}" CACHE STRING "to ppa")
+  #add_custom_command(OUTPUT "${SOURCE_CHANGES_FILE}" COMMAND ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS} WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR})
+    execute_process(
+    #OUTPUT "${SOURCE_CHANGES_FILE}" 
+    COMMAND ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS} 
+    WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR}
+    )
 endforeach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
 
 ##############################################################################
 # dput ppa:your-lp-id/ppa <source.changes>
 
-MESSAGE(STATUS "  DPUT_HOST is: " ${DPUT_HOST})
-add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
-              DEPENDS ${DEB_SOURCE_CHANGES} 
-              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
 
-# simulated upload
-add_custom_target(dputs ${DPUT_EXECUTABLE} -s ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
-              DEPENDS ${DEB_SOURCE_CHANGES} 
-              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)

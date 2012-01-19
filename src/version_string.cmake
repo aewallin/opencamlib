@@ -15,8 +15,9 @@ if(GIT_FOUND)
         OUTPUT_VARIABLE GIT_COM_ID 
     )
     if( NOT ${res_var} EQUAL 0 )
-        set( GIT_COMMIT_ID "git commit id unknown")
         message( WARNING "Git failed (not a repo, or no tags). Build will not contain git revision info." )
+        # try to read git-tag from file instead
+        file(READ "git-tag.txt" GIT_COM_ID)
     endif()
     string( REPLACE "\n" "" GIT_COMMIT_ID ${GIT_COM_ID} )
 else()
