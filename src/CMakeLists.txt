@@ -503,12 +503,13 @@ add_custom_target(spackage
               ${CMAKE_COMMAND} -C ${CMAKE_BINARY_DIR}/CMakeCache.txt
               -P ${CMAKE_CURRENT_SOURCE_DIR}/DebSourcePPA.cmake 
               # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            )
+            ) # get the changes file as an output from here?
             
 MESSAGE(STATUS "  DPUT_HOST is: " ${DPUT_HOST})
 find_program(DEBUILD_EXECUTABLE debuild)
 find_program(DPUT_EXECUTABLE dput)
 
+# NOTE: the de_source_chages variable is not correctly set, so these targets don't work..
 add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
               DEPENDS ${DEB_SOURCE_CHANGES} 
               WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
