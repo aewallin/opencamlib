@@ -76,7 +76,6 @@ if(NOT DEFINED PROCESSOR_COUNT)
   # FIXME: how do we have cmake/make use all the processors?
 endif()
 
-
 #
 # this figures out the Python include directories and adds them to the
 # header file search path
@@ -119,23 +118,6 @@ ENDIF(OPENMP_FOUND)
 # include the output directory, where the version_string.hpp file is generated
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE(version_string.cmake)
-
-# a custom target that is always built
-#add_custom_target(
-#    version_string 
-#    ALL
-#    DEPENDS ver_string 
-#)
-# creates version_string.hpp using cmake script
-#add_custom_command(
-#    OUTPUT ver_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
-#    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-#                                            -P ${CMAKE_CURRENT_SOURCE_DIR}/version_string.cmake
-#)
-
-# version_string.hpp is a generated file
-################ end version_string.hpp stuff
-
 
 # this defines the source-files
 set(OCL_GEO_SRC
@@ -288,12 +270,10 @@ if (BUILD_CXX_LIB)
         SHARED
         ${OCL_GEO_SRC}
         ${OCL_CUTTER_SRC}
-        #${OCL_VORONOI_SRC}
         ${OCL_ALGO_SRC}
         ${OCL_DROPCUTTER_SRC}
         ${OCL_COMMON_SRC}
     )
-    # target_link_libraries(libocl ocl_algo)
     set_target_properties(libocl PROPERTIES PREFIX "") 
 endif (BUILD_CXX_LIB)
 
@@ -474,11 +454,10 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>" CACHE STRING "email")
 set(CPACK_PACKAGE_NAME "opencamlib" CACHE STRING "name")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib" CACHE STRING "name")
-set(CPACK_DEBIAN_BUILD_DEPENDS debhelper cmake CACHE STRING "name")
 set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "name")
 set(CPACK_DEBIAN_PACKAGE_VERSION 11.09 CACHE STRING "name")
-set(CPACK_DEBIAN_BUILD_DEPENDS "python, git, cmake, libboost-dev, libboost-python-dev, libgomp1" CACHE STRING "name")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "python, git, cmake, libboost-python, libgomp1" CACHE STRING "name")
+set(CPACK_DEBIAN_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRINGS "name")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS python git cmake libboost-python libgomp1 CACHE STRING "name")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE} CACHE STRING "name")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY optional CACHE STRING "name")
 SET(CPACK_PACKAGE_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
@@ -490,12 +469,12 @@ set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu CACHE STRING "name")
 set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric CACHE STRING "name") 
 set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/debian_package_description.txt CACHE STRING "${CPACK_PACKAGE_DESCRIPTION_FILE}")
 set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/debian_copyright.txt CACHE STRING "name")
-set(CPACK_DEBIAN_CHANGELOG "  * Trying to build debian source-package with cmake" CACHE STRING "name")
-set(DPUT_HOST ppa:anders-e-e-wallin/opencamlib CACHE STRING "name")
+set(CPACK_DEBIAN_CHANGELOG "  * Latest development version." CACHE STRING "name")
 set(DEB_SRC_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "name" )
 
 # this creates a debian source package.
 # it can be uploaded to a PPA with "make dput"
+# comment this out, we don't want to create a source-package every time we build.
 #INCLUDE(DebSourcePPA.cmake)
 
 # run the source package generation as a target, so we don't have to do it every time
@@ -504,21 +483,5 @@ add_custom_target(spackage
               -P ${CMAKE_CURRENT_SOURCE_DIR}/DebSourcePPA.cmake 
               # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             ) # get the changes file as an output from here?
-            
-MESSAGE(STATUS "  DPUT_HOST is: " ${DPUT_HOST})
-find_program(DEBUILD_EXECUTABLE debuild)
-find_program(DPUT_EXECUTABLE dput)
-
-# NOTE: the de_source_chages variable is not correctly set, so these targets don't work..
-add_custom_target(dput ${DPUT_EXECUTABLE} ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
-              DEPENDS ${DEB_SOURCE_CHANGES} 
-              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
-
-# simulated upload
-add_custom_target(dputs ${DPUT_EXECUTABLE} -s ${DPUT_HOST} ${DEB_SOURCE_CHANGES} 
-              DEPENDS ${DEB_SOURCE_CHANGES} 
-              WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/Debian)
-
-
 
 include(CPack) # this should be last

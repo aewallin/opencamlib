@@ -16,13 +16,15 @@ if(GIT_FOUND)
     )
     if( NOT ${res_var} EQUAL 0 )
         message( WARNING "Git failed (not a repo, or no tags). Build will not contain git revision info." )
-        # try to read git-tag from file instead
-        file(READ "git-tag.txt" GIT_COM_ID)
+
     endif()
     string( REPLACE "\n" "" GIT_COMMIT_ID ${GIT_COM_ID} )
 else()
-    set( GIT_COMMIT_ID "unknown (git not found!)")
-    message( WARNING "Git not found. Build will not contain git revision info." )
+    # try to read git-tag from file instead
+    file(READ "git-tag.txt" GIT_COMMIT_ID)
+    
+    #set( GIT_COMMIT_ID "unknown (git not found!)")
+    message( WARNING "Git not found. Reading tag from git-tag.txt instead: " ${GIT_COMMIT_ID})
 endif()
 
 set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
