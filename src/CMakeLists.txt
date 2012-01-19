@@ -291,6 +291,11 @@ MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages}
 
 if (BUILD_PY_LIB)
     # this installs the python library
+    if(IS_DIRECTORY ${Python_site_packages})
+        # if the directory does not exist, we need to create it
+        file(MAKE_DIRECTORY ${Python_site_packages})
+    endif()
+    
     install(
         TARGETS ocl
         LIBRARY DESTINATION ${Python_site_packages}
@@ -301,7 +306,7 @@ if (BUILD_PY_LIB)
     install(
         DIRECTORY ../lib/
         DESTINATION ${Python_site_packages}
-        PATTERN .svn EXCLUDE
+        #PATTERN .svn EXCLUDE
     )
 endif (BUILD_PY_LIB)
 
