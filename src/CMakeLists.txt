@@ -288,13 +288,14 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
+# on Ubuntu 11.10 this outputs: /usr/lib/python2.7/dist-packages
 
 if (BUILD_PY_LIB)
     # this installs the python library
-    if(IS_DIRECTORY ${Python_site_packages})
+    #if(IS_DIRECTORY ${Python_site_packages})
         # if the directory does not exist, we need to create it
-        file(MAKE_DIRECTORY ${Python_site_packages})
-    endif()
+    #    file(MAKE_DIRECTORY ${Python_site_packages})
+    #endif()
     
     install(
         TARGETS ocl
