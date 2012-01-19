@@ -283,12 +283,18 @@ endif (BUILD_CXX_LIB)
 #
 
 execute_process(
-    COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+    COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
     OUTPUT_VARIABLE Python_site_packages
     OUTPUT_STRIP_TRAILING_WHITESPACE
-)
+) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
+
+
+# strip away /usr/local/  because that is what CMAKE_INSTALL_PREFIX is set to
+# also, since there is no leading "/", it makes ${Python_site_packages} a relative path.
+STRING(REGEX REPLACE "/usr/local/(.*)$" "\\1" Python_site_packages "${Python_site_packages}" )
+
+MESSAGE(STATUS "CMAKE_INSTALL_PREFIX is : " ${CMAKE_INSTALL_PREFIX})
 MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
-# on Ubuntu 11.10 this outputs: /usr/lib/python2.7/dist-packages
 
 if (BUILD_PY_LIB)
     # this installs the python library
@@ -304,11 +310,11 @@ if (BUILD_PY_LIB)
 
 
     # these are the python helper lib-files such as camvtk.py 
-    install(
-        DIRECTORY ../lib/
-        DESTINATION ${Python_site_packages}
+    #install(
+    #    DIRECTORY ../lib/
+    #    DESTINATION ${Python_site_packages}
         #PATTERN .svn EXCLUDE
-    )
+    #)
 endif (BUILD_PY_LIB)
 
 # this installs the c++ library
