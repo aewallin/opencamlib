@@ -1,6 +1,6 @@
 import ocl
 
-print ocl.revision()
+print ocl.version()
 
 p0 = ocl.CLPoint(0,0,0)
 p1 = ocl.CLPoint(1,2,3)

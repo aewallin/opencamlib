@@ -14,7 +14,7 @@ def drawPoints(myscreen, clpoints, ccpoints):
         
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     
     a=ocl.Point(1,0,0.4)

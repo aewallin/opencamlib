@@ -5,7 +5,7 @@ import vtk
 
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     
     myscreen = camvtk.VTKScreen()    
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")

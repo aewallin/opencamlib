@@ -33,7 +33,7 @@ def drawOutput(myscreen, pts, stepOver):
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z), radius=stepOver/5, color=camvtk.red) )
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
