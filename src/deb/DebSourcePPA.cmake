@@ -27,6 +27,7 @@
 
 find_program(DEBUILD_EXECUTABLE debuild)
 find_program(DPUT_EXECUTABLE dput)
+find_program(GIT_EXECUTABLE git)
 
 if(NOT DEBUILD_EXECUTABLE OR NOT DPUT_EXECUTABLE)
   return()
@@ -72,13 +73,14 @@ else( CPACK_DEBIAN_PACKAGE_SOURCE_COPY )
   MESSAGE(STATUS "Copying files from ${DEB_SRC_DIR} to ${DEBIAN_SOURCE_ORIG_DIR}.orig")
   execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${DEB_SRC_DIR} "${DEBIAN_SOURCE_ORIG_DIR}.orig")
   # create a git_tag.txt file
-      execute_process(
+    MESSAGE(STATUS "Writing git-tag.txt")
+    execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --tags 
         RESULT_VARIABLE res_var 
         OUTPUT_VARIABLE GIT_COM_ID 
     )
-  string( REPLACE "\n" "" GIT_COMMIT_ID ${GIT_COM_ID} )
-  file(WRITE "${DEBIAN_SOURCE_ORIG_DIR}.orig/git-tag.txt" ${GIT_COMMIT_ID} )
+    string( REPLACE "\n" "" GIT_COMMIT_ID ${GIT_COM_ID} )
+    file(WRITE "${DEBIAN_SOURCE_ORIG_DIR}.orig/git-tag.txt" ${GIT_COMMIT_ID} )
   
   #execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/../.git "${DEBIAN_SOURCE_ORIG_DIR}.orig/.git")
   #MESSAGE(STATUS "Removing .git from source-orig-dir. ")
@@ -262,14 +264,19 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
   set(SOURCE_CHANGES_FILE "${CPACK_DEBIAN_PACKAGE_NAME}_${RELEASE_PACKAGE_VERSION}_source.changes")
   set(DEB_SOURCE_CHANGES ${DEB_SOURCE_CHANGES} "${SOURCE_CHANGES_FILE}" CACHE STRING "to ppa")
   #add_custom_command(OUTPUT "${SOURCE_CHANGES_FILE}" COMMAND ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS} WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR})
+    message( STATUS " running for ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS}  ")
+    message( STATUS " in directory  ${DEBIAN_SOURCE_DIR} ")
     execute_process(
-    #OUTPUT "${SOURCE_CHANGES_FILE}" 
-    COMMAND ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS} 
-    WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR}
+        COMMAND ${DEBUILD_EXECUTABLE} -S ${DEBUILD_OPTIONS} 
+        WORKING_DIRECTORY ${DEBIAN_SOURCE_DIR}
+        #ERROR_QUIET
+        #OUTPUT_QUIET
     )
+    message( STATUS "source package for ${RELEASE} generated.")
+    
 endforeach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
 
 ##############################################################################
 # dput ppa:your-lp-id/ppa <source.changes>
-
+message( STATUS "DebSourcePPA.cmake DONE.")
 

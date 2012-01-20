@@ -416,33 +416,14 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-set(CPACK_GENERATOR "DEB")
-set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>" CACHE STRING "email")
-set(CPACK_PACKAGE_NAME "opencamlib" CACHE STRING "name")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "opencamlib" CACHE STRING "name")
-set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "name")
-set(CPACK_DEBIAN_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRINGS "name")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS python git cmake libboost-python libgomp1 CACHE STRING "name")
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE} CACHE STRING "name")
-set(CPACK_DEBIAN_PACKAGE_PRIORITY optional CACHE STRING "name")
-SET(CPACK_PACKAGE_VERSION ${MY_VERSION} CACHE STRING "name")
-#SET(CPACK_PACKAGE_VERSION_MAJOR ${GIT_MAJOR_VERSION} CACHE STRING "name")
-#SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-#SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION} CACHE STRING "name")
-#set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}" CACHE STRING "name")
-set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu CACHE STRING "name")
-set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric CACHE STRING "name") 
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/deb/debian_package_description.txt CACHE STRING "${CPACK_PACKAGE_DESCRIPTION_FILE}")
-set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/deb/debian_copyright.txt CACHE STRING "name")
-set(CPACK_DEBIAN_CHANGELOG "  * Latest development version." CACHE STRING "name")
-set(DEB_SRC_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "name" )
+
+include(package_details.cmake)
 
 # run the source package generation as a target, so we don't have to do it every time
 add_custom_target(spackage 
-              ${CMAKE_COMMAND} -C ${CMAKE_BINARY_DIR}/CMakeCache.txt
+              ${CMAKE_COMMAND} -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} -D MY_VERSION:STRING=${MY_VERSION} -C ${CMAKE_SOURCE_DIR}/package_details.cmake
               -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
-              # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+              #ERROR_QUIET # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             ) # get the changes file as an output from here?
-
-# this adds a new target "package" that builds a binary deb-package with "make package"
+# -C ${CMAKE_BINARY_DIR}/CMakeCache.txt
 include(CPack) # this should be last
