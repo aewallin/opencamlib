@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 2.4)
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
-  "Build/install the pure c++ libocl library? " OFF)
+  "Build/install the pure c++ libocl library? " ON)
 
 option(BUILD_PY_LIB 
   "Build/install the python ocl library? " ON)
@@ -24,11 +24,8 @@ if (NOT BUILD_DOC)
     MESSAGE(STATUS " Note: will NOT build ocl documentation")
 endif(NOT BUILD_DOC)
 
-
 # figure out the gcc version
-
 INCLUDE(gcc_version.cmake)
-
 
 #
 # Turn compiler warnings up to 11, at least with gcc.  I dont know how to
@@ -38,14 +35,13 @@ INCLUDE(gcc_version.cmake)
 # thus we use now use -Wno-deprecated here.
 #
 if (CMAKE_BUILD_TOOL MATCHES "make")
-	if(GCC_4_6)
-		MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
-		add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
-	else(GCC_4_6)
-		MESSAGE(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
-		add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
+    if(GCC_4_6)
+        MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
+        add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
+    else(GCC_4_6)
+        MESSAGE(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
+        add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
     endif(GCC_4_6)
-    
 endif (CMAKE_BUILD_TOOL MATCHES "make")
 
 option(BUILD_TYPE
@@ -60,21 +56,6 @@ if (NOT BUILD_TYPE)
     MESSAGE(STATUS " CMAKE_BUILD_TYPE = Debug")
     set(CMAKE_BUILD_TYPE Debug)
 endif(NOT BUILD_TYPE)
-
-# find out the number of CPUs
-# from: http://www.kitware.com/blog/home/post/63
-if(NOT DEFINED PROCESSOR_COUNT)
-  # Unknown:
-  set(PROCESSOR_COUNT 0)
-  # Linux:
-  set(cpuinfo_file "/proc/cpuinfo")
-  if(EXISTS "${cpuinfo_file}")
-    file(STRINGS "${cpuinfo_file}" procs REGEX "^processor.: [0-9]+$")
-    list(LENGTH procs PROCESSOR_COUNT)
-  endif()
-  MESSAGE(STATUS "Number of processors on this system " ${PROCESSOR_COUNT} )
-  # FIXME: how do we have cmake/make use all the processors?
-endif()
 
 #
 # this figures out the Python include directories and adds them to the
@@ -101,10 +82,7 @@ if(Boost_FOUND)
     MESSAGE(STATUS "Boost_LIBRARIES is: " ${Boost_LIBRARIES})    
 endif()
 
-#
 # find OpenMP
-#
-
 find_package( OpenMP REQUIRED )
 
 IF (OPENMP_FOUND)
@@ -113,11 +91,15 @@ IF (OPENMP_FOUND)
 ENDIF(OPENMP_FOUND)
 
 
-
 ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
 # include the output directory, where the version_string.hpp file is generated
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 INCLUDE(version_string.cmake)
+# now parse the git commit id:
+STRING(REGEX REPLACE "([0-9][0-9]).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
+STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
+STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
+SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
 
 # this defines the source-files
 set(OCL_GEO_SRC
@@ -237,47 +219,6 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
-if (BUILD_PY_LIB)
-    # this makes the ocl Python module
-    add_library(
-        ocl 
-        MODULE
-        ocl_cutters.cpp
-        ocl_geometry.cpp
-        ocl_algo.cpp
-        ocl_dropcutter.cpp
-        ocl.cpp
-        
-    )
-    add_dependencies( 
-        ocl
-        version_string 
-    )
-
-    MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
-    # 
-    # this makes the lib name ocl.so and not libocl.so
-    set_target_properties(ocl PROPERTIES PREFIX "") 
-
-endif (BUILD_PY_LIB)
-
-
-# this is the C++ shared library
-if (BUILD_CXX_LIB)
-    add_library(
-        libocl
-        SHARED
-        ${OCL_GEO_SRC}
-        ${OCL_CUTTER_SRC}
-        ${OCL_ALGO_SRC}
-        ${OCL_DROPCUTTER_SRC}
-        ${OCL_COMMON_SRC}
-    )
-    set_target_properties(libocl PROPERTIES PREFIX "") 
-endif (BUILD_CXX_LIB)
-
-
 #
 # this figures out where to install the Python modules
 #
@@ -297,28 +238,51 @@ MESSAGE(STATUS "CMAKE_INSTALL_PREFIX is : " ${CMAKE_INSTALL_PREFIX})
 MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
 
 if (BUILD_PY_LIB)
-    # this installs the python library
-    #if(IS_DIRECTORY ${Python_site_packages})
-        # if the directory does not exist, we need to create it
-    #    file(MAKE_DIRECTORY ${Python_site_packages})
-    #endif()
+    # this makes the ocl Python module
+    add_library(
+        ocl 
+        MODULE
+        ocl_cutters.cpp
+        ocl_geometry.cpp
+        ocl_algo.cpp
+        ocl_dropcutter.cpp
+        ocl.cpp
+        
+    )
+
+    MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
+    # 
+    # this makes the lib name ocl.so and not libocl.so
+    set_target_properties(ocl PROPERTIES PREFIX "") 
+    set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
     
     install(
         TARGETS ocl
         LIBRARY DESTINATION ${Python_site_packages}
     )
-
-
     # these are the python helper lib-files such as camvtk.py 
     #install(
     #    DIRECTORY ../lib/
     #    DESTINATION ${Python_site_packages}
-        #PATTERN .svn EXCLUDE
+    #    PATTERN .svn EXCLUDE
     #)
 endif (BUILD_PY_LIB)
 
-# this installs the c++ library
+
+# this is the C++ shared library
 if (BUILD_CXX_LIB)
+    add_library(
+        libocl
+        SHARED
+        ${OCL_GEO_SRC}
+        ${OCL_CUTTER_SRC}
+        ${OCL_ALGO_SRC}
+        ${OCL_DROPCUTTER_SRC}
+        ${OCL_COMMON_SRC}
+    )
+    set_target_properties(libocl PROPERTIES PREFIX "") 
+    set_target_properties(libocl PROPERTIES VERSION ${MY_VERSION}) 
     install(
         TARGETS libocl
         LIBRARY 
@@ -334,6 +298,7 @@ if (BUILD_CXX_LIB)
         PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
     )
 endif (BUILD_CXX_LIB)
+
 
 #
 # this installs the examples
@@ -451,17 +416,6 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-
- 
-#message( STATUS " git commit id: " ${GIT_COMMIT_ID})
-# parse the commit id to get major, minor, 
-STRING(REGEX REPLACE "([0-9][0-9]).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-#MESSAGE(STATUS "result= ${GIT_MAJOR_VERSION}")
-STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-#MESSAGE(STATUS "result= ${GIT_MINOR_VERSION}")
-STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-#MESSAGE(STATUS "result= ${GIT_PATCH_VERSION}")
-
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>" CACHE STRING "email")
 set(CPACK_PACKAGE_NAME "opencamlib" CACHE STRING "name")
@@ -471,32 +425,24 @@ set(CPACK_DEBIAN_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-
 set(CPACK_DEBIAN_PACKAGE_DEPENDS python git cmake libboost-python libgomp1 CACHE STRING "name")
 set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE} CACHE STRING "name")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY optional CACHE STRING "name")
-SET(CPACK_PACKAGE_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-
-set_target_properties(ocl PROPERTIES VERSION ${CPACK_PACKAGE_VERSION}) 
-#set_target_properties(libocl PROPERTIES VERSION ${CPACK_PACKAGE_VERSION}) 
-
+SET(CPACK_PACKAGE_VERSION ${MY_VERSION} CACHE STRING "name")
 #SET(CPACK_PACKAGE_VERSION_MAJOR ${GIT_MAJOR_VERSION} CACHE STRING "name")
 #SET(CPACK_PACKAGE_VERSION_MINOR "${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
 #SET(CPACK_PACKAGE_VERSION_PATCH ${GIT_PATCH_VERSION} CACHE STRING "name")
-set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}" CACHE STRING "name")
+#set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}_${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}_${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}" CACHE STRING "name")
 set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu CACHE STRING "name")
 set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric CACHE STRING "name") 
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/debian_package_description.txt CACHE STRING "${CPACK_PACKAGE_DESCRIPTION_FILE}")
-set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/debian_copyright.txt CACHE STRING "name")
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${OpenCamLib_SOURCE_DIR}/deb/debian_package_description.txt CACHE STRING "${CPACK_PACKAGE_DESCRIPTION_FILE}")
+set(CPACK_RESOURCE_FILE_LICENSE ${OpenCamLib_SOURCE_DIR}/deb/debian_copyright.txt CACHE STRING "name")
 set(CPACK_DEBIAN_CHANGELOG "  * Latest development version." CACHE STRING "name")
 set(DEB_SRC_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "name" )
-
-# this creates a debian source package.
-# it can be uploaded to a PPA with "make dput"
-# comment this out, we don't want to create a source-package every time we build.
-#INCLUDE(DebSourcePPA.cmake)
 
 # run the source package generation as a target, so we don't have to do it every time
 add_custom_target(spackage 
               ${CMAKE_COMMAND} -C ${CMAKE_BINARY_DIR}/CMakeCache.txt
-              -P ${CMAKE_CURRENT_SOURCE_DIR}/DebSourcePPA.cmake 
+              -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
               # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
             ) # get the changes file as an output from here?
 
+# this adds a new target "package" that builds a binary deb-package with "make package"
 include(CPack) # this should be last
