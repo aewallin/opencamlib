@@ -407,23 +407,12 @@ IF (DOXYGEN_FOUND)
 ENDIF(DOXYGEN_FOUND)
 endif (BUILD_DOC)
 
-
-# "make package" stuff
- 
-execute_process(
-    COMMAND dpkg --print-architecture
-    OUTPUT_VARIABLE DEB_ARCHITECTURE
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-
 include(package_details.cmake)
 
-# run the source package generation as a target, so we don't have to do it every time
+# "make spackage"
 add_custom_target(spackage 
               ${CMAKE_COMMAND} -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} -D MY_VERSION:STRING=${MY_VERSION} -C ${CMAKE_SOURCE_DIR}/package_details.cmake
               -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
-              #ERROR_QUIET # WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            ) # get the changes file as an output from here?
-# -C ${CMAKE_BINARY_DIR}/CMakeCache.txt
+            ) 
+# "make package"
 include(CPack) # this should be last

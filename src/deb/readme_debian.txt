@@ -1,4 +1,9 @@
 
+CPack is used to create a debian binary package (.deb)
+
+"make package" should build the package.
+"sudo dpkg -i opencamlib-<version>-<arch>.deb" should install the package
+
 The DebSourcePPA.cmake script is used to create a debian source package.
 
 The main CMakeLists.txt file defines a target "spackage" that builds

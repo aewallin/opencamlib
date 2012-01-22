@@ -121,10 +121,10 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
     "Build-Depends: "
     )
 
-  foreach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})
+  foreach(DEP ${DEBSRC_BUILD_DEPENDS})
     MESSAGE(STATUS "   build-depency: " ${DEP})
     file(APPEND ${DEBIAN_CONTROL} "${DEP}, ")
-  endforeach(DEP ${CPACK_DEBIAN_BUILD_DEPENDS})
+  endforeach(DEP ${DEBSRC_BUILD_DEPENDS})
 
   file(APPEND ${DEBIAN_CONTROL} "\n"
     "Standards-Version: 3.9.1\n"
@@ -138,10 +138,10 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
     set(DEBHELP_DEPENDS "\${misc:Depends}")
     file(APPEND ${DEBIAN_CONTROL} "${DEBHELP_DEPENDS}, ")
 
-  foreach(DEP ${CPACK_DEBIAN_PACKAGE_DEPENDS})
+  foreach(DEP ${DEBSRC_PACKAGE_DEPENDS})
     MESSAGE(STATUS "   package-depency: " ${DEP})
     file(APPEND ${DEBIAN_CONTROL} "${DEP}, ")
-  endforeach(DEP ${CPACK_DEBIAN_PACKAGE_DEPENDS})  
+  endforeach(DEP ${DEBSRC_PACKAGE_DEPENDS})  
 
   file(APPEND ${DEBIAN_CONTROL} "\n"
     "Description: ${CPACK_PACKAGE_DISPLAY_NAME} ${CPACK_PACKAGE_DESCRIPTION_SUMMARY}\n"

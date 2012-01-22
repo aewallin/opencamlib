@@ -5,12 +5,33 @@ message(STATUS " called with version  = " ${MY_VERSION})
 set(CPACK_GENERATOR "DEB" CACHE string "generator" )
 set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>" CACHE STRING "email")
 set(CPACK_PACKAGE_NAME "opencamlib" CACHE STRING "name")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Computer aided manufacturing algorithms" CACHE STRING "name")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Computer aided manufacturing algorithms" CACHE STRING "descr")
 set(CPACK_PACKAGE_VENDOR https://github.com/aewallin/opencamlib CACHE STRING "web")
-set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "name3")
-set(CPACK_DEBIAN_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRINGS "name")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS python git cmake libboost-python libgomp1 CACHE STRING "name")
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCHITECTURE} CACHE STRING "name6")
+set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "sect")
+
+set(DEBSRC_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRINGS "build-dep")
+set(DEBSRC_PACKAGE_DEPENDS python git cmake libboost-python libgomp1 CACHE STRING "pack-dep")
+
+# however CPack wants dependencies as a single comma separated string!
+set(CPACK_DEBIAN_PACKAGE_DEPENDS)
+foreach(DEP ${DEBSRC_PACKAGE_DEPENDS})
+    set(CPACK_DEBIAN_PACKAGE_DEPEND "${CPACK_DEBIAN_PACKAGE_DEPENDS}, ${DEP}")
+endforeach(DEP ${DEBSRC_PACKAGE_DEPENDS})  
+
+set(CPACK_DEBIAN_BUILD_DEPENDS)
+foreach(DEP ${DEBSRC_BUILD_DEPENDS})
+    set(CPACK_DEBIAN_BUILD_DEPENDS "${CPACK_DEBIAN_BUILD_DEPENDS}, ${DEP}")
+endforeach(DEP ${DEBSRC_BUILD_DEPENDS})
+
+execute_process(
+    COMMAND dpkg --print-architecture
+    OUTPUT_VARIABLE DEB_ARCHITECTURE 
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message(STATUS "architecture is: ${DEB_ARCHITECTURE}")
+set(DEB_ARCH ${DEB_ARCHITECTURE} CACHE STRING "arch")
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE ${DEB_ARCH} CACHE STRING "cpack arch")
+message(STATUS "architecture is: ${CPACK_DEBIAN_PACKAGE_ARCHITECTURE}")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY optional CACHE STRING "name7")
 SET(CPACK_PACKAGE_VERSION ${MY_VERSION} CACHE STRING "name8")
 set(CPACK_DEBIAN_DISTRIBUTION_NAME ubuntu CACHE STRING "name9")
@@ -29,4 +50,4 @@ endif(${SRC_DIR} MATCHES "")
 message(STATUS " descr file = ${CPACK_PACKAGE_DESCRIPTION_FILE}")
 
 set(CPACK_DEBIAN_CHANGELOG "  * Latest development version." CACHE STRING "name")
-set(DEB_SRC_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "name" )
+# set(DEB_SRC_DIR ${CMAKE_SOURCE_DIR} CACHE STRING "name" )
