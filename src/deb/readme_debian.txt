@@ -7,7 +7,7 @@ CPack is used to create a debian binary package (.deb)
 The DebSourcePPA.cmake script is used to create a debian source package.
 
 The main CMakeLists.txt file defines a target "spackage" that builds
-the source package in build/Debian
+the source package in build/Debian with "make spackage"
 
 This can be uploaded to launchpad with
 dput cam-ppa *.changes
