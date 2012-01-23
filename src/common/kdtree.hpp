@@ -79,12 +79,12 @@ class KDTree {
         }
         /// set the bucket-size 
         void setBucketSize(int b){
-            std::cout << "KDTree::setBucketSize = " << b << "\n"; 
+            //std::cout << "KDTree::setBucketSize = " << b << "\n"; 
             bucketSize = b;
         }
         /// set the search dimension to the XY-plane
         void setXYDimensions(){
-            std::cout << "KDTree::setXYDimensions()\n"; 
+            //std::cout << "KDTree::setXYDimensions()\n"; 
             dimensions.clear();
             dimensions.push_back(0); // x
             dimensions.push_back(1); // x
@@ -93,7 +93,7 @@ class KDTree {
         } // for drop-cutter search in XY plane
         /// set search-plane to YZ
         void setYZDimensions(){ // for X-fibers
-            std::cout << "KDTree::setYZDimensions()\n"; 
+            //std::cout << "KDTree::setYZDimensions()\n"; 
             dimensions.clear();
             dimensions.push_back(2); // y
             dimensions.push_back(3); // y
@@ -102,7 +102,7 @@ class KDTree {
         } // for X-fibers
         /// set search plane to XZ
         void setXZDimensions(){ // for Y-fibers
-            std::cout << "KDTree::setXZDimensions()\n";
+            //std::cout << "KDTree::setXZDimensions()\n";
             dimensions.clear();
             dimensions.push_back(0); // x
             dimensions.push_back(1); // x
@@ -111,7 +111,7 @@ class KDTree {
         } // for Y-fibers
         /// build the kd-tree based on a list of input objects
         void build(const std::list<BBObj>& list){
-            std::cout << "KDTree::build() list.size()= " << list.size() << " \n";
+            //std::cout << "KDTree::build() list.size()= " << list.size() << " \n";
             root = build_node( &list, 0, NULL ); 
         }
         /// search for overlap with input Bbox bb, return found objects

@@ -43,7 +43,7 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
 }
 
 AdaptivePathDropCutter::~AdaptivePathDropCutter() {
-    std::cout << " ~AdaptivePathDropCutter() \n";
+    //std::cout << " ~AdaptivePathDropCutter() \n";
     delete subOp[0];
 }
 
@@ -52,7 +52,7 @@ void AdaptivePathDropCutter::run() {
 }
 
 void AdaptivePathDropCutter::adaptive_sampling_run() {
-    std::cout << " apdc::adaptive_sampling_run()... ";
+    //std::cout << " apdc::adaptive_sampling_run()... ";
     
     clpoints.clear();
     BOOST_FOREACH( const Span* span, path->span_list ) {  // this loop could run in parallel, since spans don't depend on eachother
@@ -63,7 +63,7 @@ void AdaptivePathDropCutter::adaptive_sampling_run() {
         clpoints.push_back(start);
         adaptive_sample( span, 0.0, 1.0, start, stop);
     }
-    std::cout << " DONE clpoints.size()=" << clpoints.size() << "\n";
+    //std::cout << " DONE clpoints.size()=" << clpoints.size() << "\n";
 }
 
 void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl) {

@@ -43,7 +43,7 @@ class Operation {
     public:
         Operation() {}
         virtual ~Operation() {
-            std::cout << "~Operation()\n";
+            //std::cout << "~Operation()\n";
         }
         /// set the STL-surface and build kd-tree
         virtual void setSTL(const STLSurf& s) {

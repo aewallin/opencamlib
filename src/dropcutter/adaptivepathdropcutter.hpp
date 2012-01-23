@@ -53,7 +53,7 @@ class AdaptivePathDropCutter : public Operation {
         /// set the minimum sapling interval
         void setMinSampling(double s) {
             assert( s > 0.0 );
-            std::cout << " apdc::setMinSampling = " << s << "\n";
+            //std::cout << " apdc::setMinSampling = " << s << "\n";
             min_sampling=s;
         }
         /// set the cosine limit for the flat() predicate

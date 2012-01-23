@@ -41,7 +41,7 @@ class PointDropCutter : public Operation {
     public:
         PointDropCutter();
         virtual ~PointDropCutter() {
-            std::cout << " ~PointDropCutter() \n";
+            //std::cout << " ~PointDropCutter() \n";
             delete root;
         }
         void setSTL(const STLSurf &s);
