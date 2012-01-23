@@ -10,7 +10,15 @@ set(CPACK_PACKAGE_VENDOR https://github.com/aewallin/opencamlib CACHE STRING "we
 set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "sect")
 
 set(DEBSRC_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRINGS "build-dep")
-set(DEBSRC_PACKAGE_DEPENDS python git cmake libboost-python libgomp1 CACHE STRING "pack-dep")
+
+# we need to explicitly list the libboost-python versions here. why??
+# precise has 1.48.0
+# oneiric has 1.46.1
+# natty/maverick has 1.42.0
+# lucid has 1.40.0
+set(DEBSRC_PACKAGE_DEPENDS python git cmake 
+                "libboost-python1.48.0 | libboost-python1.46.1 | libboost-python1.42.0 | libboost-python1.40.0"
+                libgomp1 CACHE STRING "name")
 
 # however CPack wants dependencies as a single comma separated string!
 set(CPACK_DEBIAN_PACKAGE_DEPENDS)
