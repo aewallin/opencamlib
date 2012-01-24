@@ -262,11 +262,11 @@ if (BUILD_PY_LIB)
         LIBRARY DESTINATION ${Python_site_packages}
     )
     # these are the python helper lib-files such as camvtk.py 
-    #install(
-    #    DIRECTORY ../lib/
-    #    DESTINATION ${Python_site_packages}
+    install(
+        DIRECTORY ../lib/
+        DESTINATION ${Python_site_packages}
     #    PATTERN .svn EXCLUDE
-    #)
+    )
 endif (BUILD_PY_LIB)
 
 
