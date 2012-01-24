@@ -251,7 +251,7 @@ if (BUILD_PY_LIB)
     )
 
     MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} ) #${Boost_PYTHON_LIBRARY})
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} )
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
@@ -263,7 +263,7 @@ if (BUILD_PY_LIB)
     )
     # these are the python helper lib-files such as camvtk.py 
     install(
-        DIRECTORY ../lib/
+        DIRECTORY lib/
         DESTINATION ${Python_site_packages}
     #    PATTERN .svn EXCLUDE
     )
@@ -411,8 +411,28 @@ include(package_details.cmake)
 
 # "make spackage"
 add_custom_target(spackage 
-              ${CMAKE_COMMAND} -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} -D MY_VERSION:STRING=${MY_VERSION} -C ${CMAKE_SOURCE_DIR}/package_details.cmake
+              ${CMAKE_COMMAND} 
+              -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
+              -D MY_VERSION:STRING=${MY_VERSION} 
+              -C ${CMAKE_SOURCE_DIR}/package_details.cmake
               -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
             ) 
+add_custom_target(spackage-oneiric
+              ${CMAKE_COMMAND} 
+              -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
+              -D MY_VERSION:STRING=${MY_VERSION} 
+              -D MY_DISTRIBUTION_RELEASES:STRING="oneiric"
+              -C ${CMAKE_SOURCE_DIR}/package_details.cmake
+              -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
+            )
+message(STATUS "type:")
+message(STATUS " 'make' for a normal build")
+message(STATUS " 'make -j8' to build faster (if you have many cpus)")
+message(STATUS " 'make install' to install")
+message(STATUS " 'make package' to build a binary deb-packate")
+message(STATUS " 'make spackage' to build debian source-packages")
+message(STATUS " 'make spackage-oneiric' to build a debian source-package only for oneiric")
+message(STATUS " 'make test' to run the tests")
+
 # "make package"
 include(CPack) # this should be last
