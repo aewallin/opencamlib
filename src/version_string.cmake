@@ -28,7 +28,7 @@ else()
     file(READ "git-tag.txt" GIT_COMMIT_ID)
     
     #set( GIT_COMMIT_ID "unknown (git not found!)")
-    message( STATUS "version_string.cmake read from file GIT_COMMIT_ID: " ${GIT_COMMIT_ID})
+    message( STATUS "version_string.cmake read from file git-tag.txt: " ${GIT_COMMIT_ID})
     #message( WARNING "Git not found. Reading tag from git-tag.txt instead: " ${GIT_COMMIT_ID})
 endif()
 
