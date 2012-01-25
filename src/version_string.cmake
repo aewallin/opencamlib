@@ -8,6 +8,23 @@
 
 
 find_package(Git)
+
+if(NOT GIT_FOUND)
+    # cmake 2.8.1 (in Lucid) does not have a git Cmake interface
+    # cmake 2.8.5 (in Oneiric) does have it
+    message(STATUS "couldn't find Cmake interface to git, old version of Cmake?  looking by hand...")
+    execute_process(
+        COMMAND git --version
+        RESULT_VARIABLE RC
+    )
+    if (${RC} EQUAL 0)
+        set(GIT_FOUND 1)
+        set(GIT_EXECUTABLE "git")
+    else()
+        message(ERROR "couldn't run git executable!")
+    endif()
+endif()
+
 if(GIT_FOUND)
     execute_process(
         COMMAND ${GIT_EXECUTABLE} describe --tags 
