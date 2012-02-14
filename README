@@ -21,34 +21,28 @@ It's probably a good idea to try to adhere to some coding standard. Maybe this o
 http://www.possibility.com/Cpp/CppCodingStandard.html
 
 
-2. BUILDING and INSTALLING (on unix/debian-like systems)
-cd into the /src directory, then run
- $> cmake .
-this creates a Makefile, and build with
- $> make 
-this should create the ocl library as a file "ocl.so" in the /src directory
- $> sudo make install
+2. CLONING, BUILDING and INSTALLING (on unix/debian-like systems)
+ $ git clone git://github.com/aewallin/opencamlib.git
+ $ cd opencamlib
+ $ mkdir build
+ $ cd build
+ $ cmake ../src
+ $ make        (try make -j4 for a faster build if you have a multi-core machine)
+ $ sudo make install
 will install the ocl.so library and camvtk.py so that any python shell will find them.
 
- 
 if you also want to build the documentation, then run
- $> make doc
-and
+ $ make doc
  $> make doc-pdf
-this should create the ocl manual named "ocl-manual.pdf" in the src/doc directory
+this should create the ocl manual named "ocl-manual.pdf" in the build/doc directory
 
-using cmake and cpack it is possible to build a .deb package with
- $> make package
+using cmake and cpack it is possible to build a binary .deb package with
+ $ make package
+For uploading debian source-packages to the PPA there is also a custom target
+ $ make spackage
 
-2.1 Out-of-source build
-After downloading the source with svn, create a build directory
- $> mkdir bld
-cd into the directory, and run cmake on ../src
- $> cd bld
- $> cmake ../src
-now you can run "make", "make install", or "make package" in the /bld directory
-which does not write .o files and other build-files into /src
-The build directory /bld can be wiped clean ("rm -rf *") and cmake run again if/when you want a clean build.
+The build directory opencamlib/build can be wiped clean ("rm -rf *") and cmake run 
+again if/when you want a clean build.
 
 3. ORGANIZATION OF FILES
 (generate this with 'tree -dL 2')
