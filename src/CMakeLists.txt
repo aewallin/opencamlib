@@ -10,7 +10,7 @@ option(BUILD_PY_LIB
   "Build/install the python ocl library? " ON)
 
 option(BUILD_DOC
-  "Build/install the ocl documentation? " OFF)
+  "Build/install the ocl documentation? " ON)
 
 if (NOT BUILD_CXX_LIB)
     MESSAGE(STATUS " Note: will NOT build pure c++ library")
@@ -326,7 +326,7 @@ if (BUILD_DOC)
 
 FIND_PACKAGE(Doxygen)
 IF (DOXYGEN_FOUND)
-    MESSAGE(STATUS "Found doxygen. ")
+    MESSAGE(STATUS "Found doxygen. Documentation can be built with 'make doc' ")
     
     # this works around a bug in cmake 2.4 (Ubuntu Hardy)
     execute_process(
@@ -344,9 +344,9 @@ IF (DOXYGEN_FOUND)
         MESSAGE(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
     ENDIF (NOT DVIPS_CONVERTER)
     
-    if (EXISTS Doxyfile)
-        set(DOXY_CONFIG Doxyfile)
-    endif (EXISTS Doxyfile)
+    #if (EXISTS Doxyfile)
+        set(DOXY_CONFIG ${OpenCamLib_SOURCE_DIR}/Doxyfile)
+    #endif (EXISTS Doxyfile)
 
     add_custom_command(
         OUTPUT
