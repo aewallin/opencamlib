@@ -57,20 +57,13 @@ class Interval {
         /// string repr
         std::string str() const;
         
-        /// cutter contact points at upper and lower are stored in upper_cc and lower_cc
-        CCPoint upper_cc;
-        /// cutter contact point correspoinding to lower
-        CCPoint lower_cc;
-        /// the upper t-value 
-        double upper; 
-        /// the lower t-value
-        double lower;
         
-        /// flag for use by Weave::build()
-        bool in_weave; 
-        
-        /// fibers
-        std::set<std::vector<Fiber>::iterator> intersections_fibers;
+        CCPoint upper_cc; ///< cutter contact points at upper and lower are stored in upper_cc and lower_cc
+        CCPoint lower_cc; ///< cutter contact point correspoinding to lower
+        double upper;  ///< the upper t-value 
+        double lower; ///< the lower t-value
+        bool in_weave;  ///< flag for use by Weave::build()
+        std::set<std::vector<Fiber>::iterator> intersections_fibers; ///< fibers
         
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
@@ -90,8 +83,9 @@ class Interval {
 
         /// intersections stored in this set (for rapid finding of neighbors etc)
         typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
-
-        //typedef VertexIntersectionSet::iterator VertexPairIterator;    
+        
+        // this is the same type as ocl::weave::VertexPairIterator, but redefined here anywhere
+        typedef VertexIntersectionSet::iterator VertexPairIterator;    
 
         
         VertexIntersectionSet intersections2;
@@ -99,4 +93,4 @@ class Interval {
 
 } // end namespace
 #endif
-// end file interval.h
+// end file interval.hpp

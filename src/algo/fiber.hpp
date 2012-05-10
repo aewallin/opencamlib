@@ -74,14 +74,10 @@ class Fiber {
         }
 
     // DATA
-        /// start point
-        Point p1;
-        /// end point
-        Point p2;
-        /// direction vector (normalized)
-        Point dir;
-        /// the intervals in this Fiber
-        std::vector<Interval> ints;
+        Point p1;  ///< start point
+        Point p2;  ///< end point
+        Point dir; ///< direction vector (normalized)
+        std::vector<Interval> ints; ///< the intervals in this Fiber
     protected:
         /// set the direction(tangent) vector
         void calcDir();

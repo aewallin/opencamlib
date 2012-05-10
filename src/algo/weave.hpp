@@ -50,16 +50,11 @@ class Weave {
         void printGraph() ;
         
     protected:       
-        /// the weave-graph
-        WeaveGraph g;
-        /// output: list of loops in this weave
-        std::vector< std::vector<Vertex> > loops;
-        /// the X-fibers
-        std::vector<Fiber> xfibers;
-        /// the Y-fibers
-        std::vector<Fiber> yfibers;
-        /// set of CL-points
-        std::set<Vertex> clVertexSet;
+        WeaveGraph g;                             ///< the weave-graph
+        std::vector< std::vector<Vertex> > loops; ///< output: list of loops in this weave
+        std::vector<Fiber> xfibers;               ///< the X-fibers
+        std::vector<Fiber> yfibers;               ///< the Y-fibers
+        std::set<Vertex> clVertexSet;             ///< set of CL-points
 };
 
 } // end weave namespace

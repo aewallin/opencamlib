@@ -140,11 +140,6 @@ typedef std::set< VertexPair, VertexPairCompare > VertexIntersectionSet;
 
 typedef VertexIntersectionSet::iterator VertexPairIterator;    
 
-
-
-
-
-
 } // end weave namespace
 
 } // end ocl namespace

@@ -31,16 +31,16 @@ namespace weave
 
 // given a VertexPair and an Interval, in the Interval find the Vertex above and below the given vertex
 std::pair<Vertex,Vertex> SmartWeave::find_neighbor_vertices( VertexPair v_pair, Interval& ival, bool above_equality ) { 
-    VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
+    Interval::VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
     assert( itr != ival.intersections2.end() ); // we must find a lower_bound
-    VertexPairIterator v_above; 
+    Interval::VertexPairIterator v_above; 
     if ( above_equality ) 
         v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
     else {
         v_above = ++itr;
         --itr;
     }
-    VertexPairIterator v_below = --itr; // this is the vertex below the given vertex
+    Interval::VertexPairIterator v_below = --itr; // this is the vertex below the given vertex
     std::pair<Vertex,Vertex> out;
     out.first = v_above->first; // vertex above v (xu)
     out.second = v_below->first; // vertex below v (xl)
