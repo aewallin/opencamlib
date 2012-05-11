@@ -30,10 +30,10 @@ namespace weave
 {
 
 std::pair<Vertex,Vertex> SimpleWeave::find_neighbor_vertices( VertexPair v_pair, Interval& ival) {
-    VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
+    Interval::VertexPairIterator itr = ival.intersections2.lower_bound( v_pair ); // returns first that is not less than argument (equal or greater)
     assert( itr != ival.intersections2.end() ); // we must find a lower_bound
-    VertexPairIterator v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
-    VertexPairIterator v_below = --itr; // this is the vertex below the give vertex
+    Interval::VertexPairIterator v_above = itr; // lower_bound returns one beyond the give key, i.e. what we want
+    Interval::VertexPairIterator v_below = --itr; // this is the vertex below the give vertex
     std::pair<Vertex,Vertex> out;
     out.first = v_above->first; // vertex above v (xu)
     out.second = v_below->first; // vertex below v (xl)
