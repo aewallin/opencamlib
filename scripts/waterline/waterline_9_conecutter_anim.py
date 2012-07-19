@@ -74,7 +74,7 @@ def drawLoops(myscreen, loops, loopColor=camvtk.yellow):
         nloop = nloop+1
 
 def drawScreen(a,b,c,filename,write_flag):  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     #a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))

@@ -40,7 +40,7 @@ def drawFibers(myscreen, fibs, fibcolor):
             myscreen.addActor( camvtk.Line(p1=(p1.x,p1.y,p1.z),p2=(p2.x,p2.y,p2.z),color=fibcolor) )
             
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))

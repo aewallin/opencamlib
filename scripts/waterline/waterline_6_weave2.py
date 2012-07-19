@@ -27,7 +27,7 @@ def waterline_time(zheights, diam, length,s,sampling):
     
     
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     a = ocl.Point(0,1,0.3)
     b = ocl.Point(1,0.5,0.3)    
     c = ocl.Point(0,0,0)
