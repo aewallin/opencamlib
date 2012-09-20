@@ -48,7 +48,7 @@ class Span{
         /// return a point at parameter value 0 <= t <= 1.0
         virtual Point getPoint(double t) const = 0; // 0.0 to 1.0
         /// avoid gcc 4.7.1 delete-non-virtual-dtor error
-        virtual ~Span();
+        virtual ~Span(){}
 };
 
 /// Line Span
