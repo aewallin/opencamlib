@@ -407,7 +407,7 @@ IF (DOXYGEN_FOUND)
 ENDIF(DOXYGEN_FOUND)
 endif (BUILD_DOC)
 
-include(package_details.cmake)
+include(${CMAKE_SOURCE_DIR}/deb/package_details.cmake)
 
 # "make spackage"
 add_custom_target(spackage 
