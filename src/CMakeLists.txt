@@ -414,24 +414,25 @@ add_custom_target(spackage
               ${CMAKE_COMMAND} 
               -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
               -D MY_VERSION:STRING=${MY_VERSION} 
-              -C ${CMAKE_SOURCE_DIR}/package_details.cmake
+              -C ${CMAKE_SOURCE_DIR}/deb/package_details.cmake
               -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
             ) 
-add_custom_target(spackage-oneiric
-              ${CMAKE_COMMAND} 
-              -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
-              -D MY_VERSION:STRING=${MY_VERSION} 
-              -D MY_DISTRIBUTION_RELEASES:STRING="oneiric"
-              -C ${CMAKE_SOURCE_DIR}/package_details.cmake
-              -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
-            )
+#add_custom_target(spackage-oneiric
+#              ${CMAKE_COMMAND} 
+#              -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
+#              -D MY_VERSION:STRING=${MY_VERSION} 
+#              -D MY_DISTRIBUTION_RELEASES:STRING="oneiric"
+#              -C ${CMAKE_SOURCE_DIR}/package_details.cmake
+#              -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
+#            )
+
 message(STATUS "type:")
 message(STATUS " 'make' for a normal build")
 message(STATUS " 'make -j8' to build faster (if you have many cpus)")
 message(STATUS " 'make install' to install")
 message(STATUS " 'make package' to build a binary deb-packate")
 message(STATUS " 'make spackage' to build debian source-packages")
-message(STATUS " 'make spackage-oneiric' to build a debian source-package only for oneiric")
+#message(STATUS " 'make spackage-oneiric' to build a debian source-package only for oneiric")
 message(STATUS " 'make test' to run the tests")
 
 # "make package"

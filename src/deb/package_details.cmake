@@ -52,7 +52,7 @@ if ( ${MY_DISTRIBUTION_RELEASES} MATCHES "oneiric")
     set(CPACK_DEBIAN_DISTRIBUTION_RELEASES oneiric CACHE STRING "name10") 
     
 else()
-    set(CPACK_DEBIAN_DISTRIBUTION_RELEASES lucid maverick natty oneiric precise CACHE STRING "name10") 
+    set(CPACK_DEBIAN_DISTRIBUTION_RELEASES lucid maverick natty oneiric precise quantal CACHE STRING "name10") 
 endif()
 message(STATUS " CPACK_DEBIAN_DISTRIBUTION_RELEASES : ${CPACK_DEBIAN_DISTRIBUTION_RELEASES}")
 
