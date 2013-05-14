@@ -35,7 +35,7 @@ double xyVectorToDiangle(double x, double y) {
         diangle = (x >= 0 ? y/(x+y) : 1-x/(-x+y));
     else
         diangle = (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
-    if ( isnan(diangle) ) { // Windows platform problem: error C3861: 'isnan': identifier not found
+    if (std::isnan(diangle) ) { // Windows platform problem: error C3861: 'isnan': identifier not found
         std::cout << "numeric::xyVectorToDiangle() error (x,y)= ("<< x << " , " << y  << " ) and diangle=" << diangle << "\n";
         assert(0);
     }
