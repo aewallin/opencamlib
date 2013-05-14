@@ -27,6 +27,9 @@ endif(NOT BUILD_DOC)
 # figure out the gcc version
 INCLUDE(gcc_version.cmake)
 
+find_package (PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS} )
+
 #
 # Turn compiler warnings up to 11, at least with gcc.  I dont know how to
 # do this with other compilers we might support and I'm leaving it up to
@@ -57,24 +60,12 @@ if (NOT BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif(NOT BUILD_TYPE)
 
-#
-# this figures out the Python include directories and adds them to the
-# header file search path
-#
-execute_process(
-    COMMAND python-config --includes
-    COMMAND sed -r "s/-I//g; s/ +/;/g"
-    COMMAND tr -d '\n'
-    OUTPUT_VARIABLE Python_Includes
-)
-include_directories(${Python_Includes})
-
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # find BOOST and boost-python
 find_package( Boost COMPONENTS python REQUIRED)
 if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
+    include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
     MESSAGE(STATUS "found Boost: " ${Boost_LIB_VERSION})
     MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
     MESSAGE(STATUS "boost-python lib is: " ${Boost_PYTHON_LIBRARY})
@@ -241,7 +232,7 @@ if (BUILD_PY_LIB)
     # this makes the ocl Python module
     add_library(
         ocl 
-        MODULE
+        SHARED
         ocl_cutters.cpp
         ocl_geometry.cpp
         ocl_algo.cpp
@@ -251,7 +242,7 @@ if (BUILD_PY_LIB)
     )
 
     MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} )
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES}  ${PYTHON_LIBRARIES})
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 

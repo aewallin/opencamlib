@@ -13,4 +13,5 @@ install_manifest.txt
 #ignore the Doxygen generated files
 doc/
 
-
+build/
+.DS_Store
