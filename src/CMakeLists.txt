@@ -232,7 +232,7 @@ if (BUILD_PY_LIB)
     # this makes the ocl Python module
     add_library(
         ocl 
-        SHARED
+        MODULE
         ocl_cutters.cpp
         ocl_geometry.cpp
         ocl_algo.cpp
@@ -246,8 +246,10 @@ if (BUILD_PY_LIB)
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
-    set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
-    
+    if (NOT APPLE)
+        set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
+    endif (NOT APPLE)   
+
     install(
         TARGETS ocl
         LIBRARY DESTINATION ${Python_site_packages}
