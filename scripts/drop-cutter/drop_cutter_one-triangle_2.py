@@ -1,9 +1,7 @@
 import ocl
 import pyocl
 import camvtk
-import time
 import vtk
-import datetime
 import math
 
 
@@ -11,24 +9,26 @@ def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 
     c.SetPoints()
     myscreen.addActor(c )
-        
 
 if __name__ == "__main__":  
     print ocl.version()
     myscreen = camvtk.VTKScreen()
     
+    # triangle
     a=ocl.Point(1,0,0.4)
-    myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
     b=ocl.Point(0,1,0)    
-    myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
     c=ocl.Point(0,0,-0.2)
-    myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
+    t = ocl.Triangle(b,c,a)
     
+    # draw the triangle with VTK
+    myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
+    myscreen.addActor(camvtk.Point(center=(b.x,b.y,b.z), color=(1,0,1)))
+    myscreen.addActor(camvtk.Point(center=(c.x,c.y,c.z), color=(1,0,1)))
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(c.x,c.y,c.z)) )
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     
-    t = ocl.Triangle(b,c,a)
+    # cutter
     radius1=1
     length=5
     angle = math.pi/4
@@ -38,8 +38,7 @@ if __name__ == "__main__":
     #cutter = ocl.BullCutter(0.5,0.123, length)
     print cutter
     
-    
-    #print cc.type
+    # grid on which we run drop-cutter
     minx=-0.5
     dx=0.0051
     maxx=1.5
@@ -68,6 +67,7 @@ if __name__ == "__main__":
     camvtk.drawCLPointCloud(myscreen, clpoints)
     print "done."
     
+    # draw a sphere, just for fun
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)
     myscreen.addActor( origo )

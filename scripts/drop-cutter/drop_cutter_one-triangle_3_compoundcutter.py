@@ -1,9 +1,7 @@
 import ocl
-import pyocl
+import pyocl # pyocl.CLPointGrid()
 import camvtk
-import time
 import vtk
-import datetime
 import math
 
 if __name__ == "__main__":  
