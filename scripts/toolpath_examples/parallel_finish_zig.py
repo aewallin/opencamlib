@@ -2,17 +2,14 @@
 # simple parallel finish toolpath example
 # Anders Wallin 2014-02-23
 
-import ocl     # https://github.com/aewallin/opencamlib
-#import pyocl   # ocl helper library
-import camvtk  # ocl helper library
-
 import time
-#import vtk
-#import datetime       
+import vtk  # visualization
 import math
 
-
-import ngc_writer # output is produced by this module
+import ocl        # https://github.com/aewallin/opencamlib
+#import pyocl     # ocl helper library
+import camvtk     # ocl helper library
+import ngc_writer # G-code output is produced by this module
 
 # create a simple "Zig" pattern where we cut only in one direction.
 # the first line is at ymin
@@ -34,6 +31,7 @@ def YdirectionZigPath(xmin,xmax,ymin,ymax,Ny):
         paths.append(path)
     return paths
 
+# run the actual drop-cutter algorithm
 def adaptive_path_drop_cutter(surface, cutter, paths):
     apdc = ocl.AdaptivePathDropCutter()
     apdc.setSTL(surface)
@@ -41,10 +39,10 @@ def adaptive_path_drop_cutter(surface, cutter, paths):
     apdc.setSampling(0.04)      # maximum sampling or "step-forward" distance
                                 # should be set so that we don't loose any detail of the STL model
                                 # i.e. this number should be similar or smaller than the smallest triangle
-    apdc.setMinSampling(0.0008) # minimum sampling or step-forward distance
+    apdc.setMinSampling(0.01) # minimum sampling or step-forward distance
                                 # the algorithm subdivides "steep" portions of the toolpath
                                 # until we reach this limit.
-
+    # 0.0008
     cl_paths=[]
     n_points=0
     for path in paths:
@@ -93,12 +91,14 @@ def filterCLPaths(cl_paths, tolerance=0.001):
 
 # this uses ngc_writer and writes G-code to stdout or a file
 def write_zig_gcode_file(filename, n_triangles, t1,n1,tol,t2,n2, toolpath):
-    ngc_writer.clearance_height= 4 # XY rapids at this height
-    ngc_writer.feed_height = 0.3   # z plunge-feed below this height
+    ngc_writer.clearance_height= 5 # XY rapids at this height
+    ngc_writer.feed_height = 3     # use z plunge-feed below this height
     ngc_writer.feed = 200          # feedrate 
     ngc_writer.plunge_feed = 100   # plunge feedrate
     ngc_writer.metric = False      # metric/inch flag
-    ngc_writer.comment( " OpenCAMLib %s" % ocl.version() )
+    ngc_writer.comment( " OpenCAMLib %s" % ocl.version() ) # git version-tag
+    # it is probably useful to include this in all g-code output, so that bugs/problems can be tracked
+    
     ngc_writer.comment( " STL surface: %s" % filename )
     ngc_writer.comment( "   triangles: %d" % n_triangles )
     ngc_writer.comment( " OpenCamLib::AdaptivePathDropCutter run took %.2f s" % t1 )
@@ -120,18 +120,76 @@ def write_zig_gcode_file(filename, n_triangles, t1,n1,tol,t2,n2, toolpath):
             ngc_writer.line_to(p.x,p.y,p.z)
     ngc_writer.postamble() # end of program
 
+def vtk_visualize_parallel_finish_zig(stlfile, toolpaths):
+	myscreen = camvtk.VTKScreen()
+	stl = camvtk.STLSurf(stlfile)
+	myscreen.addActor(stl)
+	stl.SetSurface() # try also SetWireframe()
+	stl.SetColor(camvtk.cyan)
+	myscreen.camera.SetPosition(15, 13, 7)
+	myscreen.camera.SetFocalPoint(5, 5, 0)
+	
+	rapid_height= 5 # XY rapids at this height
+	feed_height = 3 
+	rapidColor = camvtk.pink
+	XYrapidColor = camvtk.green
+	plungeColor = camvtk.red
+	feedColor = camvtk.yellow
+	# zig path algorithm:
+	# 1) lift to clearance height
+	# 2) XY rapid to start of path
+	# 3) plunge to correct z-depth
+	# 4) feed along path until end
+	pos = ocl.Point(0,0,0) # keep track of the current position of the tool
+	first = True 
+	for path in toolpaths:
+		first_pt = path[0]
+		if (first == True): # green sphere at path start
+			myscreen.addActor( camvtk.Sphere(center=(first_pt.x,first_pt.y,rapid_height) , radius=0.1, color=camvtk.green) ) 
+			pos = ocl.Point(first_pt.x,first_pt.y,first_pt.z) # at start of program, assume we have already a rapid move here
+			first = False
+		else: # not the very first move
+			# retract up to rapid_height
+			myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,pos.z),p2=(pos.x,pos.y,feed_height),color=plungeColor) )
+			myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,feed_height),p2=(pos.x,pos.y,rapid_height),color=rapidColor) )
+			# XY rapid into position
+			myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,rapid_height),p2=( first_pt.x,first_pt.y,rapid_height),color=XYrapidColor) )
+			pos = ocl.Point(first_pt.x,first_pt.y,first_pt.z)
+		
+		# rapid down to the feed_height
+		myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,rapid_height),p2=(pos.x,pos.y,feed_height),color=rapidColor) )
+		# feed down to CL
+		myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,feed_height),p2=(pos.x,pos.y,pos.z),color=plungeColor) )
+		
+		# feed along the path
+		for p in path[1:]:
+			myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,pos.z),p2=(p.x,p.y,p.z),color=feedColor) )
+			pos = ocl.Point(p.x,p.y,p.z)
+		
+	# END retract up to rapid_height
+	myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,pos.z),p2=(pos.x,pos.y,feed_height),color=plungeColor) )
+	myscreen.addActor( camvtk.Line(p1=( pos.x,pos.y,feed_height),p2=(pos.x,pos.y,rapid_height),color=rapidColor) )
+	myscreen.addActor( camvtk.Sphere(center=(pos.x,pos.y,rapid_height) , radius=0.1, color=camvtk.red) ) 
+
+	camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5)) # XYZ coordinate arrows
+	camvtk.drawOCLtext(myscreen)
+	myscreen.render()    
+	myscreen.iren.Start()
+
+
 if __name__ == "__main__":     
-    filename = "../../stl/gnu_tux_mod.stl"
-    surface = STLSurfaceSource(filename)
+    stlfile = "../../stl/gnu_tux_mod.stl"
+    surface = STLSurfaceSource(stlfile)
     
-    diameter=0.25
-    length=5
     
     # choose a cutter for the operation:
     # http://www.anderswallin.net/2011/08/opencamlib-cutter-shapes/
+    diameter=0.25
+    length=5
     #cutter = ocl.BallCutter(diameter, length)
     cutter = ocl.CylCutter(diameter, length)
-    #cutter = ocl.BullCutter(diameter, 0.2, length)
+    #corner_radius = 0.05
+    #cutter = ocl.BullCutter(diameter, corner_radius, length)
     #angle = math.pi/4
     #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.4 )
@@ -142,16 +200,20 @@ if __name__ == "__main__":
     xmin=0
     xmax=10
     Ny=40  # number of lines in the y-direction
+    
     paths = YdirectionZigPath(xmin,xmax,ymin,ymax,Ny)
 
     # now project onto the STL surface
     t_before = time.time()
     (raw_toolpath, n_raw) = adaptive_path_drop_cutter(surface,cutter,paths)
     t1 = time.time()
-
+    
+    # filter raw toolpath to reduce size
     tol = 0.001    
     (toolpaths, n_filtered) = filterCLPaths(raw_toolpath, tolerance=0.001)    
     t2 = time.time()-t_before
     
     # output a g-code file
-    write_zig_gcode_file( filename, surface.size() , t1, n_raw ,tol,t2,n_filtered, toolpaths )
+    write_zig_gcode_file( stlfile, surface.size() , t1, n_raw ,tol,t2,n_filtered, toolpaths )
+    # and/or visualize with VTK
+    vtk_visualize_parallel_finish_zig(stlfile, toolpaths)
