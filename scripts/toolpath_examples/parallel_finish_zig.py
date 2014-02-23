@@ -103,8 +103,8 @@ def write_zig_gcode_file(filename, n_triangles, t1,n1,tol,t2,n2, toolpath):
     ngc_writer.comment( "   triangles: %d" % n_triangles )
     ngc_writer.comment( " OpenCamLib::AdaptivePathDropCutter run took %.2f s" % t1 )
     ngc_writer.comment( " got %d raw CL-points " % n1 )
-    ngc_writer.comment( " filtering to tolerance %.4f )" % ( tol )  )
-    ngc_writer.comment( " got %d filtered CL-points. Filter done in %.3f s )" % ( n2 , t2 ) )
+    ngc_writer.comment( " filtering to tolerance %.4f " % ( tol )  )
+    ngc_writer.comment( " got %d filtered CL-points. Filter done in %.3f s " % ( n2 , t2 ) )
     ngc_writer.preamble()
     # a "Zig" or one-way parallel finish path
     # 1) lift to clearance height
