@@ -37,6 +37,9 @@ namespace ocl
 class Triangle;
 class STLSurf;
 
+// CC_CLZ_Pair is the return type of 
+// CC is the x-coordinate of the cutter-contact point
+// CLZ is the z-coordinate of the cutter-location point
 typedef std::pair< double, double > CC_CLZ_Pair;
 typedef std::pair< double, double > DoublePair;
 
@@ -61,25 +64,31 @@ class MillingCutter {
         /// return a MillingCutter which is larger than *this by d
         virtual MillingCutter* offsetCutter(double d) const;
         
-        /// \brief does the cutter bounding-box, positioned at cl, overlap with the bounding-box of Triangle t?
+        /// \brief Test if the cutter bounding-box, positioned at cl, 
+        /// overlaps with the bounding-box of Triangle t. 
         /// works in the xy-plane 
         bool overlaps(Point &cl, const Triangle &t) const;
         
         /// \brief drop cutter at (cl.x, cl.y) against the three vertices of Triangle t.
         /// calls this->height(r) on the subclass of MillingCutter we are using.
+        /// if cl.z is too low, updates cl.z so that cutter does not cut any vertex.
         bool vertexDrop(CLPoint &cl, const Triangle &t) const;
         /// \brief drop cutter at (cl.x, cl.y) against facet of Triangle t
-        /// calls xy_normal_length(), normal_length(), and center_height() on the subclass
+        /// calls xy_normal_length(), normal_length(), and center_height() on the subclass.
+        /// if cl.z is too low, updates cl.z so that cutter does not cut the facet.
+        /// CompositeCutter may be the only sub-class that needs to reimplement this function.
         virtual bool facetDrop(CLPoint &cl, const Triangle &t) const;
         /// \brief drop cutter at (cl.x, cl.y) against the three edges of input Triangle t.
         /// calls the sub-class MillingCutter::singleEdgeDrop on each edge
+        /// if cl.z is too low, updates cl.z so that cutter does not cut any edge.
         virtual bool edgeDrop(CLPoint& cl, const Triangle &t) const;
         /// \brief drop the MillingCutter at Point cl down along the z-axis until it makes contact with Triangle t.
         /// This function calls vertexDrop, facetDrop, and edgeDrop to do its job.
         /// Follows the template-method, or "self-delegation" design pattern.
+        /// if cl.z is too low, updates cl.z so that the cutter does not cut Triangle t.
         bool dropCutter(CLPoint &cl, const Triangle &t) const;
 
-        /// \brief call dropCutter on all Triangle's in STLSurf 
+        /// \brief call dropCutter on all Triangles in an STLSurf 
         /// drops the MillingCutter at Point cl down along the z-axis
         /// until it makes contact with a triangle in the STLSurf s
         /// NOTE: no kd-tree optimization, this function will make 
@@ -147,19 +156,21 @@ class MillingCutter {
             return false;
         }
         
-        /// CCPoint calculation and interval update
+        /// CCPoint calculation and interval update for push-cutter
         bool calcCCandUpdateInterval( double t, double ccv, const Point& q, const Point& p1, const Point& p2, 
                                       const Fiber& f, Interval& i, double height, CCType cctyp) const;
         
     // DROP-CUTTER
         /// drop cutter against edge p1-p2 at xy-distance d from cl
-        /// translates to cl=(0,0) and rotates edge to be alog x-axis for call to singleEdgeDropCanonical()
+        /// translates to cl=(0,0) and rotates edge to be alog x-axis 
+        /// for call to singleEdgeDropCanonical()
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
-        /// edge-drop in the 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis 
-        /// returns x-coordinate of cc-point and cl.z as a CC_CLZ_Pair
-        virtual std::pair<double,double> singleEdgeDropCanonical(const Point& u1, 
-                                                                 const Point& u2) const {
-            return std::pair<double,double>(0.0,0.0); // dummy return value, better to throw an exception or assert?
+        /// edge-drop in the 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis.
+        /// returns x-coordinate of cc-point and cl.z as a CC_CLZ_Pair.
+        /// must be implemented in a subclass.
+        virtual CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, 
+                                                    const Point& u2) const {
+            return CC_CLZ_Pair(0.0,0.0); // dummy return value, better to throw an exception or assert?
         }
     
     // HEIGHT / WIDTH

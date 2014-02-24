@@ -69,7 +69,16 @@ double BullCutter::width(double h) const {
 
 // drop-cutter: vertex and facet are handled in base-class
 
-// drop-cutter: Toroidal cutter edge-test
+// drop-cutter: Toroidal cutter edge-test handled here
+// called from MillingCutter::singleEdgeDrop()
+//
+// the canonical geometry is one where (cl.x, cl.y) = (0,0)
+// and the edge is rotated to lie along the x-axis.
+// since the u1-u2 edge is along the x-axis, the points u1 u2 have the same y-coordinate.
+//
+// when a radius2 cylinder around the edge is sliced by an XY plane this
+// results in an ellipse with a shorter axis of radius2, and a longer axis of radius2/sin(theta)
+// where theta is the slope of the edge in the XZ plane
 CC_CLZ_Pair BullCutter::singleEdgeDropCanonical( const Point& u1, const Point& u2 ) const {
     if ( isZero_tol( u1.z - u2.z ) ) {  // horizontal edge special case
         return CC_CLZ_Pair( 0 , u1.z - height(u1.y) );
@@ -78,21 +87,25 @@ CC_CLZ_Pair BullCutter::singleEdgeDropCanonical( const Point& u1, const Point& u
         double theta = atan( (u2.z - u1.z) / (u2.x-u1.x) ); // theta is the slope of the line
         double a_axis = fabs( radius2/sin(theta) );         // long axis of ellipse = radius2/sin(theta)       
         Point ellcenter(0,u1.y,0);
-        Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1);
-        int iters = e.solver_brent();
+        Ellipse e = Ellipse( ellcenter, a_axis, b_axis, radius1); // radius1 is the ellipse-offset
+        int iters = e.solver_brent(); // numerical solver that searches for a point on the ellipse
+                                      // such that a radius1-length normal-vector from this ellipse-point
+                                      // is at the CL point (0,0)
         if (iters > 200)
             std::cout << "WARNING: BullCutter::singleEdgeDropCanonical() iters>200 !!\n";
         assert( iters < 200 );
-        e.setEllipsePositionHi(u1,u2); // this selects either EllipsePosition1 or EllipsePosition2 and sets it to EllipsePosition_hi
-        // pseudo cc-point on the ellipse/cylinder, in the CL=origo system
-        Point ell_ccp = e.ePointHi();         assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5); // ell_ccp should be on the cylinder-circle  
-        Point cc_tmp_u = ell_ccp.closestPoint(u1,u2); // find real cc-point
+        e.setEllipsePositionHi(u1,u2); // this selects either EllipsePosition1 or 
+                                       // EllipsePosition2 and sets it to EllipsePosition_hi
+        // pseudo cc-point on the ellipse/cylinder, in the CL=(0,0) system
+        Point ell_ccp = e.ePointHi();
+        assert( fabs( ell_ccp.xyNorm() - radius1 ) < 1E-5); // ell_ccp should be on the cylinder-circle  
+        Point cc_tmp_u = ell_ccp.closestPoint(u1,u2); // find cc-point on u1-u2 edge
         return CC_CLZ_Pair( cc_tmp_u.x , e.getCenterZ()-radius2);
     }
 }
 
 // push-cutter: vertex and facet handled by base-class
-
+//  edge handled here
 bool BullCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     //std::cout << " BullCutter::generalEdgePush() \n";
     bool result = false;

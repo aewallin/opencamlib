@@ -48,7 +48,7 @@ class ConeCutter : public MillingCutter {
         std::string str() const;
         
     protected:
-        std::pair<double,double> singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
+        CC_CLZ_Pair singleEdgeDropCanonical(const Point& u1, const Point& u2) const;
         
         bool facetPush(const Fiber& fib, Interval& i,  const Triangle& t) const;
             

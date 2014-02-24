@@ -105,7 +105,8 @@ Point Ellipse::normal(const EllipsePosition& pos) const {
     return n;
 }    
 
-Point AlignedEllipse::normal(const EllipsePosition& pos) const { // normal at point is:    b s + a t 
+Point AlignedEllipse::normal(const EllipsePosition& pos) const { 
+    // normal at point is:    b s + a t 
     Point n = pos.s*b*major_dir + pos.t*a*minor_dir; 
     n.normalize();
     return n;
@@ -114,6 +115,9 @@ Point AlignedEllipse::normal(const EllipsePosition& pos) const { // normal at po
 
 #define OE_ERROR_TOLERANCE 1e-10  /// \todo magic number tolerance
 // #define DEBUG_SOLVER
+//
+// given a known EllipsePosition1, look for the other symmetric
+// solution EllipsePosition2
 bool Ellipse::find_EllipsePosition2() { // a horrible horrible function... :(
     assert( EllipsePosition1.isValid() );
     double err1 = fabs(this->error(this->EllipsePosition1));
@@ -166,7 +170,7 @@ bool Ellipse::find_EllipsePosition2() { // a horrible horrible function... :(
     std::cout << "Ellipse::find_EllipsePosition2 cannot find EllipsePosition2! \n"; 
     std::cout << "ellipse= "<< *this << "\n"; 
     print_solutions();
-    assert(0);
+    assert(0); // serious error if we get here!
         
     return false;
 }
@@ -175,30 +179,35 @@ bool Ellipse::find_EllipsePosition2() { // a horrible horrible function... :(
 /// find the EllipsePosition that makes the offset-ellipse point be at p
 /// this is a zero of Ellipse::error()
 /// returns number of iterations
+///
+/// called (only?) by BullCutter::singleEdgeDropCanonical()   
 int Ellipse::solver_brent() {
     int iters = 1;
     EllipsePosition apos, bpos; // Brent's method requires bracketing the root in [apos.diangle, bpos.diangle]
     apos.setDiangle( 0.0 );         assert( apos.isValid() );
     bpos.setDiangle( 3.0 );         assert( bpos.isValid() );
-    if ( fabs( error(apos) ) < OE_ERROR_TOLERANCE ) {
-        EllipsePosition1 = apos;
+    if ( fabs( error(apos) ) < OE_ERROR_TOLERANCE ) { // if we are lucky apos is the solution
+        EllipsePosition1 = apos;                      // and we do not need to search further.
         find_EllipsePosition2();
         return iters;
-    } else if ( fabs( error(bpos) ) < OE_ERROR_TOLERANCE ) {
+    } else if ( fabs( error(bpos) ) < OE_ERROR_TOLERANCE ) { // or bpos might be the solution?
         EllipsePosition1 = bpos;
         find_EllipsePosition2(); 
         return iters;
     }
-    // root is now bracketed.
+    // neither apos nor bpos is the solution
+    // but root is now bracketed, so we can use brent_zero
     assert( error(apos) * error(bpos) < 0.0  );
-    double dia_sln = brent_zero( apos.diangle, bpos.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); 
+    // this looks for the diangle that makes the offset-ellipse point y-coordinate zero
+    double dia_sln = brent_zero( apos.diangle, bpos.diangle , 3E-16, OE_ERROR_TOLERANCE, this ); // brent_zero.hpp
     EllipsePosition1.setDiangle( dia_sln );     assert( EllipsePosition1.isValid() );
+    // because we only work with the y-coordinate of the offset-ellipse-point, there are two symmetric solutions
     find_EllipsePosition2();
     return iters;
 }
 
 
-
+// used by BullCutter pushcutter edge-test
 bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     error_dir = f.dir.xyPerp(); // now calls to error(diangle) will give the right error
     assert( error_dir.xyNorm() > 0.0 );
@@ -288,9 +297,6 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
             assert( isZero_tol( error(EllipsePosition1.diangle) ) );
             assert( isZero_tol( error(EllipsePosition2.diangle) ) );
             */
-                 
-                     
-            
             
             return true;
         }

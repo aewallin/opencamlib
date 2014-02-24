@@ -50,7 +50,7 @@ CylCutter::CylCutter(double d, double l) {
 
 // we handle the edge-drop here.
 CC_CLZ_Pair CylCutter::singleEdgeDropCanonical(const Point& u1, const Point& u2) const {
-    // along the x-axis the cc-point is at x-coord s:
+    // along the x-axis the cc-point is at x-coord s or -s:
     double s = sqrt( square( radius ) - square( u1.y ) );
     Point cc1(  s, u1.y, 0);
     Point cc2( -s, u1.y, 0);

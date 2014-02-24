@@ -92,24 +92,45 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     return result;
 }
 
-// "dual" edge-drop problems
-// cylinder: zero diam edge/ellipse, r-radius cylinder, find r-offset == cl  (ITO surface XY-slice is a circle)
-// sphere: zero diam cylinder. ellipse around edge, find offset == cl (ITO surface slice is ellipse) (?)
-// toroid: radius2 diam edge, radius1 cylinder, find radius1-offset-ellipse=cl (ITO surf slice is offset ellipse) (this is the offset-ellipse problem)
+// 1) translate the geometry so that in the XY plane cl = (0,0) 
+// 2) rotate the p1-p2 edge so that a new edge u1-u2 lies along the x-axis
+// 3) call singleEdgeDropCanonical(), implemented in the sub-class.
+//    this returns the x-coordinate of the CC point and cl.z
+// 4) rotate/translate back to the original geometry
+// 5) update cl.z if required and if CC lies within the edge 
+//
+// The edge test can be done in a "dual" geometry.
+// instead of testing the original cutter against an infintely thin edge 
+// we can test a virtual CylCutter with radius VR against an infinte ER-radius cylinder around the edge.
+// This reduces to a 2D problem in the XY plane, where section of the ER-radius cylinder is an ellipse.
+// in the general case CL lies on an offset ellipse with offset OR.
+// The general cases only applies for BullCutter(R1,R2) where R1 is the shaft radius
+// and R2 is the corner radius. 
+// For CylCutter and BallCutter there are simple analytic solutions and an offset ellipse approach is not required.
+//
+// The dual problem for each cutter type is:
+// 
+//      CylCutter(R): VR = R, ER = 0, OR=R  (the z-position of VR is the same as for CylCutter)
+//     BallCutter(R): VR = 0, ER = R, OR=0 (the z-position of VR is a distance R up from the tip of BallCutter)
+// BullCutter(R1,R2): VR=R1-R2, ER=R2, OR=R1-R2 (z-position of VR is a distance R2 up from the tip of BullCutter)
+//
 // cone: ??? (how is this an ellipse??)
+//
+// d is the distance from the p1-p2 line to cl, in the 2D XY plane
 bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const {    
-    Point v = p2 - p1; // vector along edge, from p1 -> p2
-    Point vxy( v.x, v.y, 0.0);
-    vxy.xyNormalize(); // normalized XY edge vector
+    Point v = p2 - p1;          // vector along edge, from p1 -> p2
+    Point vxy( v.x, v.y, 0.0);  // XY projection
+    vxy.xyNormalize();          // normalized XY edge vector
     // figure out u-coordinates of p1 and p2 (i.e. x-coord in the rotated system)
-    Point sc = cl.xyClosestPoint( p1, p2 );   
+    Point sc = cl.xyClosestPoint( p1, p2 );
     assert( ( (cl-sc).xyNorm() - d ) < 1E-6 );
     // edge endpoints in the new coordinate system, in these coordinates, CL is at origo
-    Point up1( (p1-sc).dot(vxy) , d, p1.z); // d, distance to line, is the y-coord in the rotated system
-    Point up2( (p2-sc).dot(vxy) , d, p2.z);
-    CC_CLZ_Pair contact = this->singleEdgeDropCanonical( up1, up2 ); // the subclass handles this
+    Point u1( (p1-sc).dot(vxy) , d, p1.z); // d, the distance to line, is the y-coord in the rotated system
+    Point u2( (p2-sc).dot(vxy) , d, p2.z);
+    CC_CLZ_Pair contact = this->singleEdgeDropCanonical( u1, u2 ); // the subclass handles this
     CCPoint cc_tmp( sc + contact.first * vxy, EDGE); // translate back into original coord-system
     cc_tmp.z_projectOntoEdge(p1,p2);
+    // update cl.z if required, and the cc-point lies inside the p1-p2 edge.
     return cl.liftZ_if_InsidePoints( contact.second , cc_tmp , p1, p2);
 }
 

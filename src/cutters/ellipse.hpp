@@ -139,4 +139,4 @@ class AlignedEllipse : public Ellipse {
 
 } // end namespace
 #endif
-// end file oellipse.h
+// end file ellipse.h

@@ -31,6 +31,8 @@ namespace ocl
 /// a and b must bracket the root, i.e. f(a) must have different sign than f(b)
 /// needs a pointer to an ErrObj which must provide a function
 /// double ErrObj::error(double x) for which we try to find a zero
+///
+/// FIXME: describe tolerance parameters eps and t
 template <class ErrObj>
 double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
     // f must have unequal sign at a and b, i.e.
@@ -122,4 +124,4 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
 
 } // end namespace
 #endif
-// end file brent_zero.h
+// end file brent_zero.hpp
