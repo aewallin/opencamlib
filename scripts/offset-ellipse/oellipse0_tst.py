@@ -9,6 +9,8 @@ green= (0,1,0)
 blue= (0,0,1)
 cyan=  (0,1,1)
 yellow= (1,1,0)
+magenta =(float(255)/255,0,float(225)/255)
+pink =(float(255)/255,float(193)/255,float(203)/255)
 
 def ccColor2(cc):
     """ this function returns a different color depending on the type of
@@ -73,11 +75,11 @@ if __name__ == "__main__":
     #c=cam.Point(0,0,0.3)
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     #t = cam.Triangle(a,b,c)
-    
-    cutter = cam.BullCutter(1,0.2)
+    length = 5
+    cutter = cam.BullCutter(1,0.2,length)
 
     
-    print cutter.str()
+    print cutter
     
     xar = camvtk.Arrow(color=red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
@@ -92,20 +94,22 @@ if __name__ == "__main__":
     
     tor = camvtk.Toroid(r1=radius1, r2=radius2, center=(cl.x, cl.y, cl.z),rotXYZ=(0,0,0))
     #tor.SetWireframe()
-    #myscreen.addActor(tor)
+    tor.SetSurface()
+    tor.SetOpacity(0.3)
+    myscreen.addActor(tor)
     
     cyl = camvtk.Cylinder(center=(cl.x,cl.y,cl.z) , radius=radius1, height=2, color=(0,1,1),
                     rotXYZ=(90,0,0), resolution=50 )
     #myscreen.addActor(cyl)
 
-    tube = camvtk.Tube(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z),color=(1,1,0))
-    tube.SetOpacity(0.2)
+    tube = camvtk.Tube(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z),radius=radius2, color=(1,1,0))
+    tube.SetOpacity(0.1)
     myscreen.addActor(tube)
     
     cir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,cl.z), color=yellow)
     myscreen.addActor(cir)
     
-    clp = camvtk.Point(center=(cl.x,cl.y,cl.z))
+    clp = camvtk.Sphere(radius=0.02, center=(cl.x,cl.y,cl.z), color=yellow)
     myscreen.addActor(clp)
     
     # short axis of ellipse = radius2
@@ -138,27 +142,52 @@ if __name__ == "__main__":
         #myscreen.addActor(camvtk.Point(center=(x,y,0), color=(1,0,1)))
         #myscreen.addActor( camvtk.Line(p1=(x,y,0),p2=(x2,y2,0)) )
     
-    oe = OffsetEllipse(ecen_tmp, a, b, radius1)
+    oe = cam.Ellipse(ecen_tmp, a, b, radius1)
     
     myscreen.camera.SetPosition(5, 7, 1)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
         
     nmax=80
-    for n in xrange(0,nmax):
-        s = float(n)/float(nmax-1) * 2-1
-        t = oe.teval(s, 1)
-        t2 = oe.teval(s, 0)
-        p1 = oe.ePoint(s,t)
-        p2 = oe.ePoint(s,t2)
-        p1o = oe.oePoint(s,t)
-        p2o = oe.oePoint(s,t2)
+    dd = float(4.0)/nmax
+    diangles = [ n*dd for n in range(nmax) ]
+    epos1 = cam.EllipsePosition()
+    epos2 = cam.EllipsePosition()
+    for n in range(nmax):
+        #s = float(n)/float(nmax-1) * 2-1
+        #t = oe.teval(s, 1)
+        #t2 = oe.teval(s, 0)
+        n2 = n+1
+        if n2==nmax:
+            n2=0
+        epos1.setDiangle( diangles[n] )
+        epos2.setDiangle( diangles[n2] )
+        
+        p1 = oe.ePoint( epos1 )
+        p2 = oe.ePoint( epos2 )
+        
+        p1o = oe.oePoint( epos1 )
+        p2o = oe.oePoint( epos2 )
         #print "s=", s, "t=", t," epoint=", p1.str()
-        myscreen.addActor(camvtk.Point(center=(p1.x,p1.y,0), color=green))
-        myscreen.addActor(camvtk.Point(center=(p2.x,p2.y,0), color=red))
-        myscreen.addActor(camvtk.Point(center=(p1o.x,p1o.y,0), color=green))
-        myscreen.addActor(camvtk.Point(center=(p2o.x,p2o.y,0), color=red))
-        myscreen.render()
-        time.sleep(0.5)
+        
+        myscreen.addActor( camvtk.Line(p1=(p1.x,p1.y,p1.z),p2=(p2.x,p2.y,p2.z), color=magenta) )
+        
+        myscreen.addActor( camvtk.Line(p1=(p1o.x,p1o.y,p1o.z),p2=(p2o.x,p2o.y,p2o.z), color=pink) )
+        #myscreen.addActor(camvtk.Point(center=(p1.x,p1.y,0), color=green))
+        #myscreen.addActor(camvtk.Point(center=(p2.x,p2.y,0), color=red))
+        
+        #myscreen.addActor(camvtk.Point(center=(p1o.x,p1o.y,0), color=green))
+        #myscreen.addActor(camvtk.Point(center=(p2o.x,p2o.y,0), color=red))
+    
+    # ellipse point, normal
+    epos1.setDiangle(3.48)
+    ep = oe.ePoint( epos1 )
+    oep = oe.oePoint( epos1 )
+    myscreen.addActor( camvtk.Sphere(radius=0.02, center=(ep.x,ep.y,ep.z), color=magenta) )
+    myscreen.addActor( camvtk.Sphere(radius=0.02, center=(oep.x,oep.y,oep.z), color=pink) )
+    myscreen.addActor( camvtk.Line(p1=(ep.x,ep.y,ep.z),p2=(oep.x,oep.y,oep.z), color=red) )
+    
+    myscreen.render()
+    #time.sleep(0.5)
      
     print "rendering...",
     #for cl,cc in zip(clpoints,ccpoints):

@@ -140,7 +140,7 @@ void export_geometry() {
     bp::class_<EllipsePosition>("EllipsePosition")
         .def_readwrite("s", &EllipsePosition::s)
         .def_readwrite("t", &EllipsePosition::t)
-
+        .def("setDiangle", &EllipsePosition::setDiangle)
         .def("__str__", &EllipsePosition::str)
     ;
     bp::class_<Ellipse>("Ellipse")
