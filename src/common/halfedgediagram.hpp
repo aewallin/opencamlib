@@ -219,7 +219,8 @@ VertexVector face_vertices(Face face_idx) {
 
 /// return edges of face f
 EdgeVector face_edges( Face f ) {
-    Edge start_edge = g[ (Face)f ].edge;
+    //Edge start_edge = g[ f ].edge; // was cast: (Face)f
+    Edge start_edge = faces[f].edge;
     Edge current_edge = start_edge;
     EdgeVector out;
     do {

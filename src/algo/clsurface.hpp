@@ -34,12 +34,36 @@ namespace ocl
 namespace clsurf
 {
 
-struct VertexProps {
-    VertexProps() {
+
+
+
+
+typedef boost::adjacency_list_traits<boost::listS, 
+                                     boost::listS, 
+                                     boost::bidirectionalS, 
+                                     boost::listS >::edge_descriptor CLSEdge;
+
+
+typedef boost::adjacency_list_traits<boost::listS, 
+                                     boost::listS, 
+                                     boost::bidirectionalS, 
+                                     boost::listS >::vertex_descriptor CLSVertex;
+//typedef CLSGraph::Edge CLSEdge;
+//typedef CLSGraph::Vertex CLSVertex;
+typedef unsigned int CLSFace;
+//typedef hedi::HEDIGraph::Face CLSFace;
+
+typedef std::vector<CLSVertex> CLSVertexVector;
+typedef std::vector<CLSFace> CLSFaceVector;
+typedef std::vector<CLSEdge> CLSEdgeVector;  
+
+
+struct CLSVertexProps {
+    CLSVertexProps() {
         init();
     }
     /// construct vertex at position p with type t
-    VertexProps( Point p) {
+    CLSVertexProps( Point p) {
         position=p;
         init();
     }
@@ -48,73 +72,50 @@ struct VertexProps {
         count++;
     }
 // HE data
-    /// the position of the vertex
-    Point position;
-    /// index of vertex
-    int index;
-    /// global vertex count
-    static int count;
+    Point position;     ///< the position of the vertex
+    int index; ///< index of vertex
+    static int count; ///< global vertex count
 };
 
-int VertexProps::count = 0;
+int CLSVertexProps::count = 0;
 
-typedef boost::adjacency_list_traits<boost::listS, 
-                                     boost::listS, 
-                                     boost::bidirectionalS, 
-                                     boost::listS >::edge_descriptor Edge;
-
-typedef unsigned int Face;  
-
-struct EdgeProps {
-    EdgeProps() {}
+struct CLSEdgeProps {
+    CLSEdgeProps() {}
     /// create edge with given next, twin, and face
-    EdgeProps(Edge n, Edge t, Face f) { 
+    CLSEdgeProps(CLSEdge n, CLSEdge t, CLSFace f) { 
         next = n;
         twin = t;
         face = f;
     }
-    /// the next edge, counterclockwise, from this edge
-    Edge next; 
-    /// the twin edge
-    Edge twin;
-    /// the face to which this edge belongs
-    Face face; 
+    CLSEdge next; ///< the next edge, counterclockwise, from this edge
+    CLSEdge twin; ///< the twin edge
+    CLSFace face;  ///< the face to which this edge belongs
 };
 
 /// properties of a face 
-struct FaceProps {
+struct CLSFaceProps {
     /// create face with given edge, generator, and type
-    FaceProps() {}
-    FaceProps( Edge e ) {
+    CLSFaceProps() {}
+    CLSFaceProps( CLSEdge e ) {
         edge = e;
     }
-    /// face index
-    Face idx;
-    /// one edge that bounds this face
-    Edge edge;
+    
+    CLSFace idx; ///< face index
+    CLSEdge edge;   ///< one edge that bounds this face
+
 };
 
 
-  
-// extra storage in graph:
-typedef hedi::HEDIGraph<     boost::listS,             // out-edge storage
-                       boost::listS,             // vertex set storage
-                       boost::bidirectionalS,    // bidirectional graph.
-                       VertexProps,              // vertex properties
-                       EdgeProps,                // edge properties
-                       FaceProps,                // face properties
-                       boost::no_property,       // graph properties
-                       boost::listS             // edge storage
-                       > CLSGraph;
-
-
-typedef CLSGraph::Vertex Vertex;
-
-typedef std::vector<Vertex> VertexVector;
-typedef std::vector<Face> FaceVector;
-typedef std::vector<Edge> EdgeVector;  
-
-
+// the cutter location surface graph
+typedef hedi::HEDIGraph<  boost::listS,             // out-edge storage
+                          boost::listS,             // vertex set storage
+                          boost::bidirectionalS,    // bidirectional graph.
+                          CLSVertexProps,           // vertex properties
+                          CLSEdgeProps,             // edge properties
+                          CLSFaceProps,             // face properties
+                          boost::no_property,       // graph properties
+                          boost::listS              // edge storage
+                          > CLSGraph;
 
 
 
@@ -157,24 +158,24 @@ class CutterLocationSurface : public Operation {
             //    b  e1   a
             //    e2      e4
             //    c   e3  d
-            Vertex a = g.add_vertex(); // VertexProps( Point(far,far,0) ), g);
+            CLSVertex a = g.add_vertex(); // VertexProps( Point(far,far,0) ), g);
             g[a].position = Point(far,far,0);
-            Vertex b = g.add_vertex(); // VertexProps( Point(-far,far,0) ), g);
+            CLSVertex b = g.add_vertex(); // VertexProps( Point(-far,far,0) ), g);
             g[b].position = Point(-far,far,0);
-            Vertex c = g.add_vertex(); // VertexProps( Point(-far,-far,0) ), g);
+            CLSVertex c = g.add_vertex(); // VertexProps( Point(-far,-far,0) ), g);
             g[c].position = Point(-far,-far,0);
-            Vertex d = g.add_vertex(); // VertexProps( Point(far,-far,0) ), g);
+            CLSVertex d = g.add_vertex(); // VertexProps( Point(far,-far,0) ), g);
             g[c].position = Point(far,-far,0);
-            Face f_outer= g.add_face( );
-            Face f_inner= g.add_face( );
-            Edge e1 =  g.add_edge(a , b );
-            Edge e1t = g.add_edge(b , a );
-            Edge e2 =  g.add_edge(b , c );
-            Edge e2t = g.add_edge(c , b );
-            Edge e3 =  g.add_edge(c , d );
-            Edge e3t = g.add_edge(d , c );
-            Edge e4 =  g.add_edge(d , a );
-            Edge e4t = g.add_edge(a , d );
+            CLSFace f_outer= g.add_face( );
+            CLSFace f_inner= g.add_face( );
+            CLSEdge e1 =  g.add_edge(a , b );
+            CLSEdge e1t = g.add_edge(b , a );
+            CLSEdge e2 =  g.add_edge(b , c );
+            CLSEdge e2t = g.add_edge(c , b );
+            CLSEdge e3 =  g.add_edge(c , d );
+            CLSEdge e3t = g.add_edge(d , c );
+            CLSEdge e4 =  g.add_edge(d , a );
+            CLSEdge e4t = g.add_edge(a , d );
             
             g[f_inner].edge = e1;
             g[f_outer].edge = e1t;
@@ -210,7 +211,7 @@ class CutterLocationSurface : public Operation {
         }
         
         void subdivide() {
-            for( Face f=0; f< g.num_faces() ; ++f ) {
+            for( CLSFace f=0; f< g.num_faces() ; ++f ) {
                 // subdivide each face
                 if ( f!= out_face ) {
                     subdivide_face(f);
@@ -218,24 +219,24 @@ class CutterLocationSurface : public Operation {
             }
         }
         
-        void subdivide_face(Face f) {
-            EdgeVector f_edges = g.face_edges(f);
+        void subdivide_face(CLSFace f) {
+            CLSEdgeVector f_edges = g.face_edges(f);
             assert( f_edges.size() == 4 );
-            Vertex center = g.add_vertex();
-            BOOST_FOREACH( Edge e, f_edges ) {
-                Vertex src = g.source(e);
-                Vertex trg = g.target(e);
+            CLSVertex center = g.add_vertex();
+            BOOST_FOREACH( CLSEdge e, f_edges ) {
+                CLSVertex src = g.source(e);
+                CLSVertex trg = g.target(e);
                 // new vertex at mid-point of each edge
                 Point mid = 0.5*(g[src].position+g[trg].position);
                 g[center].position += 0.25*g[src].position; // average of four corners
-                Vertex v = g.add_vertex();
+                CLSVertex v = g.add_vertex();
                 g[v].position = mid;
                 g.insert_vertex_in_edge(v,e); // this also removes the old edges...
             }
             // now loop through edges again:
             f_edges = g.face_edges(f);
             assert( f_edges.size() == 8 );
-            BOOST_FOREACH( Edge e, f_edges ) {
+            BOOST_FOREACH( CLSEdge e, f_edges ) {
                 std::cout << e << "\n";
             }
         }
@@ -249,7 +250,7 @@ class CutterLocationSurface : public Operation {
     // PYTHON
         boost::python::list getVertices()  {
             boost::python::list plist;
-            BOOST_FOREACH( Vertex v, g.vertices() ) {
+            BOOST_FOREACH( CLSVertex v, g.vertices() ) {
                 plist.append( g[v].position );
             }
             return plist;
@@ -257,10 +258,10 @@ class CutterLocationSurface : public Operation {
         
         boost::python::list getEdges()  {
             boost::python::list edge_list;
-            BOOST_FOREACH( Edge edge, g.edges() ) { // loop through each edge
+            BOOST_FOREACH( CLSEdge edge, g.edges() ) { // loop through each edge
                     boost::python::list point_list; // the endpoints of each edge
-                    Vertex v1 = g.source( edge );
-                    Vertex v2 = g.target( edge );
+                    CLSVertex v1 = g.source( edge );
+                    CLSVertex v2 = g.target( edge );
                     point_list.append( g[v1].position );
                     point_list.append( g[v2].position );
                     edge_list.append(point_list);
@@ -282,7 +283,7 @@ class CutterLocationSurface : public Operation {
         CLSGraph g;
         double min_sampling;
         double far;
-        Face out_face;
+        CLSFace out_face;
 };
 
 

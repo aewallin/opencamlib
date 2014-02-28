@@ -31,9 +31,7 @@
 
 #include "zigzag.hpp"
 
-//#ifndef WIN32
-//#include "clsurface.hpp"
-//#endif
+#include "clsurface.hpp"
 
 #include "tsp.hpp" // fixme: contains python
 
@@ -176,8 +174,7 @@ void export_algo() {
         .def("run",         &LineCLFilter_py::run)
         .def("getCLPoints", &LineCLFilter_py::getCLPoints)
     ;
-#ifndef WIN32
-/*
+
     // some strange problem with hedi::face_edges()... let's not compile for now..
     bp::class_< clsurf::CutterLocationSurface >("CutterLocationSurface")  
         .def(bp::init<double>())
@@ -190,7 +187,7 @@ void export_algo() {
         .def("getEdges", &clsurf::CutterLocationSurface::getEdges)
         .def("__str__", &clsurf::CutterLocationSurface::str)
     ;
-  */  
+/*
     bp::class_< tsp::TSPSolver >("TSPSolver")  
         .def("addPoint", &tsp::TSPSolver::addPoint)
         .def("run", &tsp::TSPSolver::run)
@@ -198,6 +195,6 @@ void export_algo() {
         .def("getLength", &tsp::TSPSolver::getLength)
         .def("reset", &tsp::TSPSolver::reset)
     ;
-#endif
+    */
 }
 

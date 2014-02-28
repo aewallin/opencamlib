@@ -31,7 +31,7 @@ def writeFrame( w2if, lwr, n ):
     lwr.Write()
     
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     
     

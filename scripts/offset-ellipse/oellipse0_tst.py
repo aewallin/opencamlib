@@ -179,7 +179,8 @@ if __name__ == "__main__":
         #myscreen.addActor(camvtk.Point(center=(p2o.x,p2o.y,0), color=red))
     
     # ellipse point, normal
-    epos1.setDiangle(3.48)
+    #epos1.setDiangle(3.48) # approx solution
+    epos1.setDiangle(0)
     ep = oe.ePoint( epos1 )
     oep = oe.oePoint( epos1 )
     myscreen.addActor( camvtk.Sphere(radius=0.02, center=(ep.x,ep.y,ep.z), color=magenta) )
