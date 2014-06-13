@@ -98,7 +98,7 @@ IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
     else()
         message(FATAL_ERROR "Data were not found for the required build specification.")
     endif()
-    SET(version_string FILE ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+    SET(version_string ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
 ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
     ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
     # include the output directory, where the version_string.hpp file is generated
@@ -109,7 +109,7 @@ ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
     STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
     STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
     SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-    SET(version_string FILE ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
+    SET(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
 ENDIF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
 
 MESSAGE(STATUS "OpenCamLib version: ${MY_VERSION}")
@@ -212,7 +212,7 @@ set( OCL_INCLUDE_FILES
     ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
     ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
     
-    ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp
+    ${version_string}
 
 )
 
