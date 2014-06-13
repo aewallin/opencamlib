@@ -91,15 +91,28 @@ IF (OPENMP_FOUND)
 ENDIF(OPENMP_FOUND)
 
 
-################ create version_string.hpp, http://stackoverflow.com/questions/3780667
-# include the output directory, where the version_string.hpp file is generated
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
-INCLUDE(version_string.cmake)
-# now parse the git commit id:
-STRING(REGEX REPLACE "([0-9][0-9]).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
+IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+    file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
+    if(OpenCamLib_BUILD_SPECIFICATION)
+      string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${OpenCamLib_BUILD_SPECIFICATION})
+    else()
+        message(FATAL_ERROR "Data were not found for the required build specification.")
+    endif()
+    SET(version_string FILE ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+    ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
+    # include the output directory, where the version_string.hpp file is generated
+    include_directories(${CMAKE_CURRENT_BINARY_DIR})
+    INCLUDE(version_string.cmake)
+    # now parse the git commit id:
+    STRING(REGEX REPLACE "([0-9][0-9]).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
+    STRING(REGEX REPLACE "[0-9][0-9].([0-9][0-9])-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
+    STRING(REGEX REPLACE "[0-9][0-9].[0-9][0-9]-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
+    SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
+    SET(version_string FILE ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
+ENDIF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+
+MESSAGE(STATUS "OpenCamLib version: ${MY_VERSION}")
 
 # this defines the source-files
 set(OCL_GEO_SRC
