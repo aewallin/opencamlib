@@ -268,7 +268,6 @@ if (BUILD_PY_LIB)
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
-    set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
     
     install(
         TARGETS ocl
