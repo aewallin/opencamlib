@@ -323,9 +323,9 @@ if (BUILD_PY_LIB)
   # 
   # this makes the lib name ocl.so and not libocl.so
   set_target_properties(ocl PROPERTIES PREFIX "") 
-  if (NOT APPLE)
+  if (WIN32)
     set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
-  endif (NOT APPLE)   
+  endif (WIN32)
 
   install(
     TARGETS ocl
