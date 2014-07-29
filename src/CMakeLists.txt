@@ -242,13 +242,21 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 ) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
 
+execute_process(
+    COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
+    OUTPUT_VARIABLE Python_arch_packages
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 
 # strip away /usr/local/  because that is what CMAKE_INSTALL_PREFIX is set to
 # also, since there is no leading "/", it makes ${Python_site_packages} a relative path.
 STRING(REGEX REPLACE "/usr/local/(.*)$" "\\1" Python_site_packages "${Python_site_packages}" )
+STRING(REGEX REPLACE "/usr/local/(.*)$" "\\1" Python_arch_packages "${Python_arch_packages}" )
 
 MESSAGE(STATUS "CMAKE_INSTALL_PREFIX is : " ${CMAKE_INSTALL_PREFIX})
-MESSAGE(STATUS "Python libraries will be installed to: " ${Python_site_packages})
+MESSAGE(STATUS "Python modules will be installed to: " ${Python_site_packages})
+MESSAGE(STATUS "Python libraries will be installed to: " ${Python_arch_packages})
 
 if (BUILD_PY_LIB)
     # this makes the ocl Python module
@@ -272,7 +280,7 @@ if (BUILD_PY_LIB)
     
     install(
         TARGETS ocl
-        LIBRARY DESTINATION ${Python_site_packages}
+        LIBRARY DESTINATION ${Python_arch_packages}
     )
     # these are the python helper lib-files such as camvtk.py 
     install(
