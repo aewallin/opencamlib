@@ -115,6 +115,7 @@ void export_geometry() {
         .def("getPoints", &Triangle_py::getPoints)
         .def("__str__", &Triangle_py::str) 
         .def_readonly("p", &Triangle_py::p)
+        .def_readonly("n", &Triangle_py::n)
     ;
     bp::class_<STLSurf>("STLSurf_base") // needed by STLSurf_py below
     ;
