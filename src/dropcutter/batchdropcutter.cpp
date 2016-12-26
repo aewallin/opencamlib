@@ -136,7 +136,11 @@ void BatchDropCutter::dropCutter4() {
     int calls=0;
     long int ntris = 0;
     std::list<Triangle>* tris;
-    unsigned int n;
+#ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
+	int n; // loop variable
+#else
+	unsigned int n; // loop variable
+#endif
     unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
@@ -194,8 +198,12 @@ void BatchDropCutter::dropCutter5() {
     int calls=0;
     long int ntris = 0;
     std::list<Triangle>* tris;
-    unsigned int n;
-    unsigned int Nmax = clpoints->size();
+#ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
+	int n; // loop variable
+#else
+	unsigned int n; // loop variable
+#endif
+	unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
     
