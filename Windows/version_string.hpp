@@ -1,4 +1,6 @@
-//version_string.hpp - Manualy created for Windows Compile
+//version_string.hpp - Manualy created for Windows Compile#include "version.h"
+#include "version.h"
+
 #ifndef VERSION_STRING
-#define VERSION_STRING "v11.11"
+#define VERSION_STRING VER_FILEVERSION_STR
 #endif
