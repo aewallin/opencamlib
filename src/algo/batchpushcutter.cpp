@@ -151,7 +151,11 @@ void BatchPushCutter::pushCutter3() {
     Interval* i;
     std::list<Triangle>* tris;
     std::vector<Fiber>& fiberr = *fibers;
+#ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
+	int n; // loop variable
+#else
     unsigned int n; // loop variable
+#endif
     unsigned int calls=0;
     
     #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)

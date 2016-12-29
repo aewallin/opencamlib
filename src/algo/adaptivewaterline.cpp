@@ -83,42 +83,61 @@ void AdaptiveWaterline::adaptive_sampling_run() {
     Line* line = new Line( Point(minx,miny,zh) , Point(maxx,maxy,zh) );
     Span* linespan = new LineSpan(*line);
     
-    #pragma omp parallel
-    {
-        #pragma omp single nowait
-        { // initial root task
-            #pragma omp task
-            { // first child task
-                xfibers.clear();
-                Point xstart_p1 = Point( minx, linespan->getPoint(0.0).y,  zh );
-                Point xstart_p2 = Point( maxx, linespan->getPoint(0.0).y,  zh );
-                Point xstop_p1 = Point( minx, linespan->getPoint(1.0).y,  zh );
-                Point xstop_p2 = Point( maxx, linespan->getPoint(1.0).y,  zh );
-                Fiber xstart_f = Fiber( xstart_p1, xstart_p2 ) ;
-                Fiber xstop_f = Fiber( xstop_p1, xstop_p2 ); 
-                subOp[0]->run(xstart_f);
-                subOp[0]->run(xstop_f);
-                xfibers.push_back(xstart_f);
-                std::cout << " XFiber adaptive sample \n";
-                xfiber_adaptive_sample( linespan, 0.0, 1.0, xstart_f, xstop_f);
-            }
-            # pragma omp task
-            { // second child task
-                yfibers.clear();
-                Point ystart_p1 = Point( linespan->getPoint(0.0).x, miny,  zh );
-                Point ystart_p2 = Point( linespan->getPoint(0.0).x, maxy,  zh );
-                Point ystop_p1 = Point( linespan->getPoint(1.0).x, miny,  zh );
-                Point ystop_p2 = Point( linespan->getPoint(1.0).x, maxy,  zh );
-                Fiber ystart_f = Fiber( ystart_p1, ystart_p2 ) ;
-                Fiber ystop_f = Fiber( ystop_p1, ystop_p2 ); 
-                subOp[1]->run(ystart_f);
-                subOp[1]->run(ystop_f);
-                yfibers.push_back(ystart_f);
-                std::cout << " YFiber adaptive sample \n";
-                yfiber_adaptive_sample( linespan, 0.0, 1.0, ystart_f, ystop_f);
+#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
+	#pragma omp parallel sections
+	{
+		#pragma omp section // Replace OMP Task by Parallel sections
+		{ // first child
+#else
+#pragma omp parallel
+	{
+#pragma omp single nowait
+		{ // initial root task
+#pragma omp task
+			{ // first child task
+#endif // _WIN32
+				xfibers.clear();
+				Point xstart_p1 = Point(minx, linespan->getPoint(0.0).y, zh);
+				Point xstart_p2 = Point(maxx, linespan->getPoint(0.0).y, zh);
+				Point xstop_p1 = Point(minx, linespan->getPoint(1.0).y, zh);
+				Point xstop_p2 = Point(maxx, linespan->getPoint(1.0).y, zh);
+				Fiber xstart_f = Fiber(xstart_p1, xstart_p2);
+				Fiber xstop_f = Fiber(xstop_p1, xstop_p2);
+				subOp[0]->run(xstart_f);
+				subOp[0]->run(xstop_f);
+				xfibers.push_back(xstart_f);
+				std::cout << " XFiber adaptive sample \n";
+				xfiber_adaptive_sample(linespan, 0.0, 1.0, xstart_f, xstop_f);
+#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
+		}
+		#pragma omp section
+		{ // second child
+#else
+		}
+# pragma omp task
+			{ // second child task
+#endif // _WIN32
+				yfibers.clear();
+				Point ystart_p1 = Point(linespan->getPoint(0.0).x, miny, zh);
+				Point ystart_p2 = Point(linespan->getPoint(0.0).x, maxy, zh);
+				Point ystop_p1 = Point(linespan->getPoint(1.0).x, miny, zh);
+				Point ystop_p2 = Point(linespan->getPoint(1.0).x, maxy, zh);
+				Fiber ystart_f = Fiber(ystart_p1, ystart_p2);
+				Fiber ystop_f = Fiber(ystop_p1, ystop_p2);
+				subOp[1]->run(ystart_f);
+				subOp[1]->run(ystop_f);
+				yfibers.push_back(ystart_f);
+				std::cout << " YFiber adaptive sample \n";
+				yfiber_adaptive_sample(linespan, 0.0, 1.0, ystart_f, ystop_f);
+#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
+		}
+	} // end omp parallel
+#else
             }
         }
     } // end omp parallel
+#endif // _WIN32
+
     delete line;
     delete linespan;
     
