@@ -27,7 +27,7 @@ endif(NOT BUILD_DOC)
 # figure out the gcc version
 INCLUDE(gcc_version.cmake)
 
-find_package (PythonLibs REQUIRED)
+find_package (PythonLibs 2 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS} )
 
 #
