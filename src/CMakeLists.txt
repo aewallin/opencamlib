@@ -1,6 +1,7 @@
 project(OpenCamLib)
 
 cmake_minimum_required(VERSION 2.4)
+set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src )
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
@@ -74,13 +75,19 @@ if(Boost_FOUND)
 endif()
 
 # find OpenMP
-find_package( OpenMP REQUIRED )
+if (APPLE)
+  # OpneMP does not work with the default clang++ version 8.00
+  # Install a more recent version using homebrew
+  set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+else()
+ find_package( OpenMP REQUIRED )
+endif()
 
-IF (OPENMP_FOUND)
-    MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-ENDIF(OPENMP_FOUND)
-
+ IF (OPENMP_FOUND)
+     MESSAGE(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+ ENDIF(OPENMP_FOUND)
 
 IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
     file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
@@ -263,7 +270,7 @@ if (BUILD_PY_LIB)
     )
 
     MESSAGE(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES}  ${PYTHON_LIBRARIES})
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES}  ${PYTHON_LIBRARIES} -lboost_python -lboost_system)
     # 
     # this makes the lib name ocl.so and not libocl.so
     set_target_properties(ocl PROPERTIES PREFIX "") 
