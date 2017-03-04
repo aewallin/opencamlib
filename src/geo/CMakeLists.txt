@@ -2,9 +2,9 @@
 
 MESSAGE(STATUS " configuring src/geo")
 
-if (CMAKE_BUILD_TOOL MATCHES "make")
+IF (UNIX)
     add_definitions(-fPIC)
-endif (CMAKE_BUILD_TOOL MATCHES "make")
+ENDIF (UNIX)
 
 
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR} )
@@ -17,14 +17,8 @@ INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/common )
 # this makes the ocl Python module
 #
 
-
-
 add_library(
     ocl_geo
     STATIC
     ${OCL_GEO_SRC}
 )
-
-
-
-

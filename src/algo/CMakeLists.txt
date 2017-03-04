@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 2.4)
 
 MESSAGE(STATUS " configuring src/algo")
 
-if (CMAKE_BUILD_TOOL MATCHES "make")
-    add_definitions(-fPIC)
-endif (CMAKE_BUILD_TOOL MATCHES "make")
+IF (UNIX)
+  add_definitions(-fPIC)
+ENDIF (UNIX)
 
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR} )
 INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/geo )
@@ -20,11 +20,7 @@ INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/common )
 #
 
 add_library(
-    ocl_algo
-    STATIC
-    ${OCL_ALGO_SRC}
-)
-
-
-
-
+  ocl_algo
+  STATIC
+  ${OCL_ALGO_SRC}
+  )

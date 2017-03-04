@@ -38,7 +38,7 @@ include_directories(${PYTHON_INCLUDE_DIRS} )
 # #include'ing the boost graph-library creates deprecated warnings
 # thus we use now use -Wno-deprecated here.
 #
-if (CMAKE_BUILD_TOOL MATCHES "make")
+IF (UNIX)
     if(GCC_4_6)
         MESSAGE(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
         add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
@@ -46,7 +46,7 @@ if (CMAKE_BUILD_TOOL MATCHES "make")
         MESSAGE(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
         add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
     endif(GCC_4_6)
-endif (CMAKE_BUILD_TOOL MATCHES "make")
+ENDIF (UNIX)
 
 option(BUILD_TYPE
   "Build type: Release=ON/Debug=OFF  " ON)

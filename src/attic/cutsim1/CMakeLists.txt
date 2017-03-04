@@ -4,9 +4,9 @@ MESSAGE(STATUS " project_name = " ${PROJECT_NAME} )
 
 cmake_minimum_required(VERSION 2.4)
 
-if (CMAKE_BUILD_TOOL MATCHES "make")
+IF (UNIX)
     add_definitions(-Wall  -Wno-deprecated )
-endif (CMAKE_BUILD_TOOL MATCHES "make")
+ENDIF (UNIX)
 # -Werror
 # -pedantic-errors
 
