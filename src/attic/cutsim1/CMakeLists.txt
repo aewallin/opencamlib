@@ -1,30 +1,30 @@
 project(ocl_cutsim1_example)
 
-MESSAGE(STATUS " project_name = " ${PROJECT_NAME} )
+message(STATUS " project_name = " ${PROJECT_NAME} )
 
 cmake_minimum_required(VERSION 2.4)
 
-if (CMAKE_BUILD_TOOL MATCHES "make")
+if (UNIX)
     add_definitions(-Wall  -Wno-deprecated )
-endif (CMAKE_BUILD_TOOL MATCHES "make")
+endif (UNIX)
 # -Werror
 # -pedantic-errors
 
-FIND_PACKAGE(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
-INCLUDE(${QT_USE_FILE})
- MESSAGE(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
+find_package(Qt4 COMPONENTS QtCore QtGui QtXml QtOpenGL REQUIRED)
+include(${QT_USE_FILE})
+ message(STATUS "QT_USE_FILE = " ${QT_USE_FILE} )
 
 find_package(OpenGL REQUIRED)
 if(OPENGL_FOUND)
-    MESSAGE(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
+    message(STATUS "found OPENGL, lib = " ${OPENGL_LIBRARIES} )
 endif(OPENGL_FOUND)
 
 # find BOOST 
 find_package( Boost )
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
-    MESSAGE(STATUS "found Boost: " ${Boost_LIB_VERSION})
-    MESSAGE(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
+    message(STATUS "found Boost: " ${Boost_LIB_VERSION})
+    message(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
 endif()
 
 find_library(OCL_LIBRARY 
@@ -32,14 +32,14 @@ find_library(OCL_LIBRARY
             PATHS /usr/local/lib/opencamlib /usr/lib/opencamlib
             DOC "The opencamlib library"
 )
-MESSAGE(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
+message(STATUS "OCL_LIBRARY is now: " ${OCL_LIBRARY})
 
 find_library(OCL_CUTSIM_LIBRARY 
             NAMES cutsim
             PATHS /usr/local/lib/opencamlib /usr/lib/opencamlib
             DOC "The opencamlib CUTSIM library"
 )
-MESSAGE(STATUS "OCL_CUTSIM_LIBRARY is now: " ${OCL_CUTSIM_LIBRARY})
+message(STATUS "OCL_CUTSIM_LIBRARY is now: " ${OCL_CUTSIM_LIBRARY})
 
 set (MOC_HEADERS cutsim.hpp)
 qt4_wrap_cpp(MOC_OUTFILES ${MOC_HEADERS})

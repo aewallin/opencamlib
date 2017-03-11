@@ -3,28 +3,24 @@ project(OpenCamLib_algorithms)
 
 cmake_minimum_required(VERSION 2.4)
 
-MESSAGE(STATUS " configuring src/algo")
+message(STATUS " configuring src/algo")
 
-if (CMAKE_BUILD_TOOL MATCHES "make")
-    add_definitions(-fPIC)
-endif (CMAKE_BUILD_TOOL MATCHES "make")
+if (UNIX)
+  add_definitions(-fPIC)
+endif (UNIX)
 
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR} )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/geo )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/cutters )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/algo )
-INCLUDE_DIRECTORIES( ${OpenCamLib_SOURCE_DIR}/common )
+include_directories( ${OpenCamLib_SOURCE_DIR} )
+include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
+include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 
 #
 # this builds a static ocl_algo target
 #
 
 add_library(
-    ocl_algo
-    STATIC
-    ${OCL_ALGO_SRC}
-)
-
-
-
-
+  ocl_algo
+  STATIC
+  ${OCL_ALGO_SRC}
+  )
