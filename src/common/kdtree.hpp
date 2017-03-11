@@ -261,7 +261,7 @@ class KDTree {
                 //std::cout << " search_node Leaf bucket tris-size() = " << tris->size() << "\n";
                 return; // end recursion
             } else if ( (node->dim % 2) == 0) { // cutting along a min-direction: 0, 2, 4
-                // not a bucket node, so recursevily seach hi/lo branches of KDNode
+                // not a bucket node, so recursevily search hi/lo branches of KDNode
                 unsigned int maxdim = node->dim+1;
                 if ( node->cutval > bb[maxdim] ) { // search only lo
                     search_node(tris, bb, node->lo );

@@ -3,7 +3,7 @@
 #first convert to JPEG
 #mogrify -format jpg -quality 97 *.png
 
-# a scirpt for encoding jpeg-frames into a video suitable for uploading to youtube or vimeo
+# a script for encoding jpeg-frames into a video suitable for uploading to youtube or vimeo
 
 # oldest, not very good...
 #mencoder mf://*.jpg -mf fps=25:type=jpg -ovc lavc -lavcopts vcodec=mpeg4 -ac copy -o output.avi -ffourcc DX50

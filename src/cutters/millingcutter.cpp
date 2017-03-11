@@ -100,8 +100,8 @@ bool MillingCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 // 5) update cl.z if required and if CC lies within the edge 
 //
 // The edge test can be done in a "dual" geometry.
-// instead of testing the original cutter against an infintely thin edge 
-// we can test a virtual CylCutter with radius VR against an infinte ER-radius cylinder around the edge.
+// instead of testing the original cutter against an infinitely thin edge 
+// we can test a virtual CylCutter with radius VR against an infinite ER-radius cylinder around the edge.
 // This reduces to a 2D problem in the XY plane, where section of the ER-radius cylinder is an ellipse.
 // in the general case CL lies on an offset ellipse with offset OR.
 // The general cases only applies for BullCutter(R1,R2) where R1 is the shaft radius

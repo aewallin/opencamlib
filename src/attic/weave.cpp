@@ -143,7 +143,7 @@ void Weave::face_traverse() {
 void Weave::build() {
     // 1) add CL-points of X-fiber (if not already in graph)
     // 2) add CL-points of Y-fiber (if not already in graph)
-    // 3) add intersection point (if not already in graph) (will allways be new??)
+    // 3) add intersection point (if not already in graph) (will always be new??)
     // 4) add edges. (if they provide new connections)
     //      ycl_lower <-> intp <-> ycl_upper
     //      xcl_lower <-> intp <-> xcl_upper

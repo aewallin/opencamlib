@@ -101,7 +101,7 @@ VertexVector VoronoiDiagram::findRepairVerts(HEFace f, VoronoiVertexType Vtype) 
     while (!done) { 
         HEVertex src = hedi::source( currentEdge , g);
         HEVertex trg = hedi::target( currentEdge , g);
-        if ( g[src].type == Vtype ) { // seach Vtype - U
+        if ( g[src].type == Vtype ) { // search Vtype - U
             if ( g[trg].type == UNDECIDED ) {
                 // we have found Vtype-U
                 startEdges.push_back( currentEdge );

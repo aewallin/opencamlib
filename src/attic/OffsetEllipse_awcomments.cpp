@@ -77,7 +77,7 @@ void Ellipse::SetEllipseVals(const P2& lecen, const P2& lj, const P2& ln, double
     n = ln; 
     nlen = lnlen; 
     TOL_ZERO(n.Len() - nlen);  // check that nlen is valid
-    ASSERT(n.u <= 0.0);        // ellipse allways tilted so that n.u <= 0
+    ASSERT(n.u <= 0.0);        // ellipse always tilted so that n.u <= 0
     // the eccentricity (ratio of the two axes)
     ASSERT(leccen >= 1.0 - MDTOL_SMALL); 
     eccen = max(1.0, leccen); // eccentricity must be >= 1.0
@@ -452,7 +452,7 @@ double EllipseOffset::EllInters(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, El
 }*/
 
 //////////////////////////////////////////////////////////////////////
-// an alligned ellipse problem where the ellipse is centred on 0, and we intersect it a u-line
+// an aligned ellipse problem where the ellipse is centred on 0, and we intersect it a u-line
 // res.v = u * t / s 
 // the geometry of the calculation is preserved throughout so we can see where the 
 // quartic becomes ill-conditioned

@@ -48,7 +48,7 @@ def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     return plist
     
 def octree2trilist(t):
-    """ return a list of triangles correspoinding to the input octree """
+    """ return a list of triangles corresponding to the input octree """
     nodes = t.get_nodes()
     tlist = []
     for n in nodes:

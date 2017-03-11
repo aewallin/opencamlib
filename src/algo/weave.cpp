@@ -58,7 +58,7 @@ void Weave::face_traverse() {
             std::vector<Edge> outEdges = g.out_edges(current);  // find the edge to follow
             //if (outEdges.size() != 1 )
             //    std::cout << " outEdges.size() = " << outEdges.size() << "\n";
-            assert( outEdges.size() == 1 ); // cl-points are allways at ends of intervals, so they have only one out-edge
+            assert( outEdges.size() == 1 ); // cl-points are always at ends of intervals, so they have only one out-edge
             Edge currentEdge = outEdges[0]; 
             do { // following next, find a CL point 
                 current = g.target(currentEdge); 

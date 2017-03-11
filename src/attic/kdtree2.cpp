@@ -271,7 +271,7 @@ void KDNode2::search_kdtree( std::list<Triangle>* tris,      // found triangles 
     // plane=2 search in the xz plane (perp to y-dir)  dims=[ 0 1 _ _ 4 5 ]
     // plane=3 search in the xy plane (perp to z-dir)  dims=[ 0 1 2 3 _ _ ]
     
-    // not a bucket node, so recursevily seach hi/lo branches of KDNode
+    // not a bucket node, so recursively search hi/lo branches of KDNode
     if ( (node->dim % 2) == 0) { // cutting along a min-direction: 0, 2, 4
         unsigned int maxdim = node->dim+1;
         if ( (KDNode2::plane_valid(node->dim,plane)) && (node->cutval > bb[maxdim]) ) { // search only lo
