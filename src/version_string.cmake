@@ -27,10 +27,12 @@ endif()
 
 if(GIT_FOUND)
     execute_process(
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         COMMAND ${GIT_EXECUTABLE} describe --tags 
         RESULT_VARIABLE res_var 
         OUTPUT_VARIABLE GIT_COM_ID 
         OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
     )
     if( NOT ${res_var} EQUAL 0 )
         message( WARNING "Git failed (not a repo, or no tags)." )
