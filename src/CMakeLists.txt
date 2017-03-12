@@ -3,6 +3,10 @@ project(OpenCamLib)
 cmake_minimum_required(VERSION 2.4)
 set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src )
 
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
+
 # some options to set what is built:
 option(BUILD_CXX_LIB
   "Build/install the pure c++ libocl library? " ON)
@@ -27,6 +31,62 @@ endif(NOT BUILD_DOC)
 
 # figure out the gcc version
 include(gcc_version.cmake)
+
+#
+# Figure out how to build and where to install the Python modules
+#
+
+find_program(PYTHON_EXECUTABLE NAMES python2)
+
+if (APPLE)
+  # Ask Python to tell us it's include directory, if nobody else has
+  if(NOT DEFINED PYTHON_INCLUDE_DIRS)
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
+      "from distutils.sysconfig import get_python_inc;print get_python_inc()"
+      OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS
+      RESULT_VARIABLE PYTHON_INCLUDE_DIR_RESULT ERROR_QUIET)
+    if(NOT PYTHON_INCLUDE_DIR_RESULT MATCHES 0)
+      message(SEND_ERROR "Failed to determine PYTHON_INCLUDE_DIR")
+    endif(NOT PYTHON_INCLUDE_DIR_RESULT MATCHES 0)
+  endif(NOT DEFINED PYTHON_INCLUDE_DIR)
+
+  # Similar for the Python library
+  if(NOT DEFINED PYTHON_LIBRARY)
+      # Get the library path
+      execute_process(COMMAND "${PYTHON_EXECUTABLE}" -c
+        "from distutils import sysconfig;print sysconfig.get_config_var('LIBDIR')"
+        OUTPUT_VARIABLE PYTHON_LIBRARY_DIR
+        RESULT_VARIABLE PYTHON_LIBRARY_DIR_RESULT ERROR_QUIET)
+      string(STRIP ${PYTHON_LIBRARY_DIR} PYTHON_LIBRARY_DIR)
+      if(NOT PYTHON_LIBRARY_DIR_RESULT MATCHES 0)
+          message(SEND_ERROR "Failed to determine PYTHON_LIBRARY")
+      endif(NOT PYTHON_LIBRARY_DIR_RESULT MATCHES 0)
+
+      # Get library filename - might not be safe to assume .dylib extension?
+      execute_process(COMMAND "${PYTHON_EXECUTABLE}" -c
+        "import sys;print 'libpython%d.%d.dylib'%sys.version_info[0:2]"
+        OUTPUT_VARIABLE PYTHON_LIBRARY_FILE
+        RESULT_VARIABLE PYTHON_LIBRARY_FILE_RESULT ERROR_QUIET)
+      string(STRIP ${PYTHON_LIBRARY_FILE} PYTHON_LIBRARY_FILE)
+      if(NOT PYTHON_LIBRARY_FILE_RESULT MATCHES 0)
+          message(SEND_ERROR "Failed to determine PYTHON_LIBRARY")
+      endif(NOT PYTHON_LIBRARY_FILE_RESULT MATCHES 0)
+
+      set(PYTHON_LIBRARY "${PYTHON_LIBRARY_DIR}/${PYTHON_LIBRARY_FILE}")
+  endif(NOT DEFINED PYTHON_LIBRARY)
+endif (APPLE)
+
+execute_process(
+  COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
+  OUTPUT_VARIABLE Python_site_packages
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  ) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
+
+execute_process(
+  COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
+  OUTPUT_VARIABLE Python_arch_packages
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
 
 find_package (PythonLibs 2 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS} )
@@ -229,23 +289,6 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
 include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
-
-#
-# this figures out where to install the Python modules
-#
-
-execute_process(
-  COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
-  OUTPUT_VARIABLE Python_site_packages
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
-
-execute_process(
-  COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
-  OUTPUT_VARIABLE Python_arch_packages
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
 
 # strip away /usr/local/  because that is what CMAKE_INSTALL_PREFIX is set to
 # also, since there is no leading "/", it makes ${Python_site_packages} a relative path.
