@@ -67,7 +67,7 @@ class reader:
         self.nfacets = struct.unpack("<i", fl.read(4))[0]
 
         nfacets = 0
-        # we dont loop over self.nfacets because then we can recover any broken headers that show the wrong number of facets
+        # we don't loop over self.nfacets because then we can recover any broken headers that show the wrong number of facets
         while True:
             try:
                 #50 byte records with normals and vertices per facet

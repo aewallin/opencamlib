@@ -32,7 +32,7 @@ find_package (PythonLibs 2 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS} )
 
 #
-# Turn compiler warnings up to 11, at least with gcc.  I dont know how to
+# Turn compiler warnings up to 11, at least with gcc.  I don't know how to
 # do this with other compilers we might support and I'm leaving it up to
 # the relevant platform maintainers...
 # #include'ing the boost graph-library creates deprecated warnings

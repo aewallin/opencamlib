@@ -376,7 +376,7 @@ void KDNode::search_kdtree( std::list<Triangle>* tris,      // found triangles a
         return;
     } // end bucket-node
     
-    // not a bucket node, so recursevily seach hi/lo branches of KDNode
+    // not a bucket node, so recursively search hi/lo branches of KDNode
     
     #ifdef DEBUG_KD_SEARCH
         //std::cout << "dim=" << node->dim << " cv=" << node->cutval << "\n";

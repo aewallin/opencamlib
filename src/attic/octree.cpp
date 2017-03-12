@@ -90,7 +90,7 @@ void LinOCT::init(int min_expand)
         assert(0);
     }
     
-    Ocode o = Ocode(); // create an onode, initally all "8"
+    Ocode o = Ocode(); // create an onode, initially all "8"
     o.init();
     append(o);
     

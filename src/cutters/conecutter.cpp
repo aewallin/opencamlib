@@ -148,7 +148,7 @@ bool ConeCutter::facetPush(const Fiber& fib, Interval& i,  const Triangle& t) co
 bool ConeCutter::generalEdgePush(const Fiber& f, Interval& i,  const Point& p1, const Point& p2) const {
     bool result = false;
     
-    if ( isZero_tol(p2.z-p1.z) ) // guard agains horizontal edge
+    if ( isZero_tol(p2.z-p1.z) ) // guard against horizontal edge
         return result;
     assert( (p2.z-p1.z) != 0.0 );
     // idea: as the ITO-cone slides along the edge it will pierce a z-plane at the height of the fiber

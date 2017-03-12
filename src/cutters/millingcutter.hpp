@@ -180,9 +180,9 @@ class MillingCutter {
         virtual double width(double h) const {assert(0); return -1;}
     
     // DATA
-        /// xy_normal lenght that locates the cutter center relative to a cc-point on a facet.
+        /// xy_normal length that locates the cutter center relative to a cc-point on a facet.
         double xy_normal_length;
-        /// normal lenght that locates the cutter center relative to a cc-point on a facet.
+        /// normal length that locates the cutter center relative to a cc-point on a facet.
         double normal_length;
         /// height of cutter center along z-axis
         double center_height;

@@ -500,7 +500,7 @@ double EllipseOffset::EllInters(EllipsOffsetPos& eopm, EllipsOffsetPos& eopa, El
 }*/
 
 //////////////////////////////////////////////////////////////////////
-// an alligned ellipse problem where the ellipse is centred on 0, and we intersect it a u-line
+// an aligned ellipse problem where the ellipse is centred on 0, and we intersect it a u-line
 // res.v = u * t / s 
 // the geometry of the calculation is preserved throughout so we can see where the 
 // quartic becomes ill-conditioned

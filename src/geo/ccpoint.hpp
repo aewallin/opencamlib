@@ -38,7 +38,7 @@ enum CCType {NONE,
              ERROR};
 
 ///
-/// \brief Cutter-Contact (CC) point. A Point wiht a CCType.
+/// \brief Cutter-Contact (CC) point. A Point with a CCType.
 ///
 /// Cutter-Contact (CC) Point.
 /// A Point which also contains the type of cutter-contact.

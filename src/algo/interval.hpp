@@ -59,7 +59,7 @@ class Interval {
         
         
         CCPoint upper_cc; ///< cutter contact points at upper and lower are stored in upper_cc and lower_cc
-        CCPoint lower_cc; ///< cutter contact point correspoinding to lower
+        CCPoint lower_cc; ///< cutter contact point corresponding to lower
         double upper;  ///< the upper t-value 
         double lower; ///< the lower t-value
         bool in_weave;  ///< flag for use by Weave::build()
