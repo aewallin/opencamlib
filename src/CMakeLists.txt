@@ -235,13 +235,13 @@ include_directories( ${OpenCamLib_SOURCE_DIR} )
 #
 
 execute_process(
-  COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
+  COMMAND python2 -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
   OUTPUT_VARIABLE Python_site_packages
   OUTPUT_STRIP_TRAILING_WHITESPACE
   ) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
 
 execute_process(
-  COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
+  COMMAND python2 -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
   OUTPUT_VARIABLE Python_arch_packages
   OUTPUT_STRIP_TRAILING_WHITESPACE
   )
