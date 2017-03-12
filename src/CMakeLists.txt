@@ -17,6 +17,9 @@ option(BUILD_PY_LIB
 option(BUILD_DOC
   "Build/install the ocl documentation? " ON)
 
+option(USE_OPENMP
+    "Use OpenMP for parallel computation" ON)
+
 if (NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
 endif(NOT BUILD_CXX_LIB)
@@ -134,20 +137,23 @@ if(Boost_FOUND)
   message(STATUS "Boost_LIBRARIES is: " ${Boost_LIBRARIES})    
 endif()
 
-# find OpenMP
-if (APPLE)
-  # OpneMP does not work with the default clang++ version 8.00
-  # Install a more recent version using homebrew
-  set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-else()
-  find_package( OpenMP REQUIRED )
-endif()
+if(USE_OPENMP)
+  if(APPLE)
+    # OpenMP does not work with the default Apple llvm/clang++
+    # Install a more recent version using Homebrew:
+    # "brew install llvm"
+    set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  else()
+    find_package( OpenMP REQUIRED )
+  endif()
 
-IF (OPENMP_FOUND)
-  message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-ENDIF(OPENMP_FOUND)
+  if (OPENMP_FOUND)
+    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  endif(OPENMP_FOUND)
+
+endif(USE_OPENMP)
 
 IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
   file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
