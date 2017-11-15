@@ -477,8 +477,6 @@ if (BUILD_DOC)
   endif(DOXYGEN_FOUND)
 endif (BUILD_DOC)
 
-include(${CMAKE_SOURCE_DIR}/deb/package_details.cmake)
-
 # "make spackage"
 add_custom_target(spackage 
   ${CMAKE_COMMAND} 
