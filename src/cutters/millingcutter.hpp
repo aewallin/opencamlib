@@ -162,7 +162,7 @@ class MillingCutter {
         
     // DROP-CUTTER
         /// drop cutter against edge p1-p2 at xy-distance d from cl
-        /// translates to cl=(0,0) and rotates edge to be alog x-axis 
+        /// translates to cl=(0,0) and rotates edge to be along x-axis 
         /// for call to singleEdgeDropCanonical()
         bool singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2, double d) const;
         /// edge-drop in the 'canonical' position with cl=(0,0,cl.z) and edge u1-u2 along x-axis.

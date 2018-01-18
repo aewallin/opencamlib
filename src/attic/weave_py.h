@@ -82,7 +82,7 @@ class Weave_py : public Weave {
             }
             return edge_list;
         };
-        /// return loops to pyton
+        /// return loops to python
         boost::python::list py_getLoops() const {
             boost::python::list loop_list;
             BOOST_FOREACH( std::vector<WeaveVertex> loop, loops ) {

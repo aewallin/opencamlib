@@ -37,13 +37,13 @@ class Weave {
         virtual ~Weave() {}
         /// add Fiber f to the graph
         /// each fiber should be either in the X or Y-direction
-        /// FIXME: seprate addXFiber and addYFiber methods?
+        /// FIXME: separate addXFiber and addYFiber methods?
         void addFiber(Fiber& f);
         /// from the list of fibers, build a graph
         virtual void build() = 0;
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
-        /// retrun list of loops
+        /// return list of loops
         std::vector< std::vector<Point> > getLoops() const;
         /// string representation
         std::string str() ;

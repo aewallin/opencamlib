@@ -157,7 +157,7 @@ void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t,
         xfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
         xfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
     } else if ( !flat(start_f,mid_f,stop_f)   ) {
-        if (fw_step > min_sampling) { // not a a flat segment, and we have not reached maximum sampling
+        if (fw_step > min_sampling) { // not a flat segment, and we have not reached maximum sampling
             xfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
             xfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
         }
@@ -179,7 +179,7 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
         yfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
         yfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
     } else if ( !flat(start_f,mid_f,stop_f)   ) {
-        if (fw_step > min_sampling) { // not a a flat segment, and we have not reached maximum sampling
+        if (fw_step > min_sampling) { // not a flat segment, and we have not reached maximum sampling
             yfiber_adaptive_sample( span, start_t, mid_t , start_f, mid_f  );
             yfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
         }

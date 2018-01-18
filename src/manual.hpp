@@ -250,7 +250,7 @@
  * where v is a normalized vector in the direction of the edge, or v=(p2-p1).xyNormalize()
  * 
  * The tests find a contact between the cutter and an infinite line which contains the
- * edge we are testing against. Once the contact cc-point is found we check wether this cc-point is
+ * edge we are testing against. Once the contact cc-point is found we check whether this cc-point is
  * actually in the edge.
  * 
  * \subsubsection cyledge Cylindrical cutter edge test

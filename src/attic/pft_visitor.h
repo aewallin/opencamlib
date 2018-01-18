@@ -39,7 +39,7 @@ struct vertex_output_visitor : public boost::planar_face_traversal_visitor
     /// create a visitor-object
     vertex_output_visitor(Weave* w, WeaveGraph& g) : g_(g) , w_(w) {}
     
-    /// called when we begin traversing a a new face, clear contents of current_loop
+    /// called when we begin traversing a new face, clear contents of current_loop
     void begin_face() { 
         current_loop.clear();
     } 

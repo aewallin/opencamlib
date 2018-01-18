@@ -246,7 +246,7 @@ void LinOCT::condense() {
             n-=jump; 
                     // jump backward and see if the collapse has created 
                      // an opportunity for more collapsing
-                     // collapsable nodes can be as far back as 7 steps
+                     // collapsible nodes can be as far back as 7 steps
             n_collapse++;
         }        
         else {
@@ -264,7 +264,7 @@ void LinOCT::condense() {
     return;
 }
 
-/// return true if eight consequtive 
+/// return true if eight consecutive 
 /// nodes beginning at idx can be collapsed
 bool LinOCT::can_collapse_at(int idx) {
     std::list<Ocode>::iterator it;  
@@ -276,7 +276,7 @@ bool LinOCT::can_collapse_at(int idx) {
         return false;
         
     int deg = it->degree();
-    // check for consequtive numbers 0-7 at position deg
+    // check for consecutive numbers 0-7 at position deg
     Ocode o;
     //std::cout << " checking "<< idx << " to " << idx+7 << " deg=" << deg << "\n"; 
     for (int n=0; n < 8 ; n++) {

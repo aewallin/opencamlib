@@ -49,7 +49,7 @@ class Weave {
         std::vector<Weave> split_components();
         /// run planar_face_traversal to get the waterline points in correct order
         void face_traverse();
-        /// retrun list of loops
+        /// return list of loops
         std::vector< std::vector<Point> > getLoops() const;
         
         /// string representation
