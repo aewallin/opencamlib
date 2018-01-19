@@ -4,16 +4,11 @@ OpenCAMLib README
 OpenCAMLib (ocl) is a c++ library for creating toolpaths for cnc-machines
 such as mills and lathes.
 
-Unti around July 2011 the project was hosted at
-http://code.google.com/p/opencamlib/
-We are now moving to github:
+The OpenCAMLib code is hosted at:
 https://github.com/aewallin/opencamlib
 
 The mailing-list for general development and user-discussion is:
 http://groups.google.com/group/opencamlib
-
-SVN commit messages go to a mailing-list:
-http://groups.google.com/group/opencamlib-svn
 
 IRC-channel #cam on irc.freenode.net
 
