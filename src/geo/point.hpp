@@ -101,7 +101,7 @@ class Point {
          
         /// retruns true if Point *this is inside Triangle t 
         bool isInside(const Triangle &t) const; 
-        /// retrun true if Point within line segment p1-p2
+        /// return true if Point within line segment p1-p2
         bool isInside(const Point& p1, const Point& p2) const;
             
 
