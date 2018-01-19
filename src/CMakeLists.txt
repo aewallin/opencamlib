@@ -323,9 +323,9 @@ if (BUILD_PY_LIB)
   # 
   # this makes the lib name ocl.so and not libocl.so
   set_target_properties(ocl PROPERTIES PREFIX "") 
-  if (NOT APPLE)
+  if (WIN32)
     set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
-  endif (NOT APPLE)   
+  endif (WIN32)
 
   install(
     TARGETS ocl
@@ -476,8 +476,6 @@ if (BUILD_DOC)
 
   endif(DOXYGEN_FOUND)
 endif (BUILD_DOC)
-
-include(${CMAKE_SOURCE_DIR}/deb/package_details.cmake)
 
 # "make spackage"
 add_custom_target(spackage 
