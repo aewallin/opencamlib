@@ -80,11 +80,11 @@ if __name__ == "__main__":
     tx.SetText("opencamlib\ndrop-cutter")
     myscreen.addActor( tx )
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
+    #w2if.Modified()
     
     
     # animate by rotating the camera

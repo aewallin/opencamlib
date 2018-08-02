@@ -755,7 +755,7 @@ class PointCloud(CamvtkActor):
         #polydata.GetPointData().SetScalars(Colors)
 
         polydata.Modified()
-        polydata.Update()
+        #polydata.Update() # https://www.vtk.org/Wiki/VTK/VTK_6_Migration/Removal_of_Update
         self.src=polydata
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInputData(self.src)
