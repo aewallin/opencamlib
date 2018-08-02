@@ -95,8 +95,9 @@ if __name__ == "__main__":
     t_after = time.time()
     calctime = t_after-t_before
     print " done in ", calctime," s"
-    
     cl_filtered = f.getCLPoints()
+    print "       after filter we have", len(cl_filtered),"cl-points"
+    
     aclp_lifted2=[]
     for p in cl_filtered:
         p2 = ocl.Point(p.x,p.y,p.z) + ocl.Point(0,0,1)

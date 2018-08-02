@@ -6,6 +6,19 @@ import datetime
 import math
 import gzip
 
+# Travelling Salesman Problem
+# a.k.a. drill-path optimization
+#
+# we have multiple points in the 2D plane to visit.
+# the task is to optimize the distance travelled by the tool while
+# visiting all points
+#
+# uses data from TSPLIB (not included in opencamlib)
+#
+# ocl.TSPSolver() is a wrapper for boost::metric_tsp_approx()
+# https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/metric_tsp_approx.html
+
+
 def drawPoints(myscreen, pts):
     c=camvtk.PointCloud( pts ) 
     c.SetPoints()
