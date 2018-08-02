@@ -23,10 +23,10 @@ if __name__ == "__main__":
     print cutter
 
     minx=-0.2
-    dx=2
+    dx=1
     maxx=10.2
     miny=-0.2
-    dy=3
+    dy=1
     maxy=12.2
     z=-0.2
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
@@ -48,12 +48,12 @@ if __name__ == "__main__":
     myscreen.camera.SetFocalPoint(4, 5, 0)
     myscreen.render()
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("tux1.png")
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
+    #w2if.Modified()
+    #lwr.SetFileName("tux1.png")
     #lwr.Write()
     
     t = camvtk.Text()
@@ -65,8 +65,8 @@ if __name__ == "__main__":
         myscreen.camera.Azimuth( 1 )
         time.sleep(0.01)
         myscreen.render()
-        lwr.SetFileName("frame"+ ('%03d' % n)+".png")
-        w2if.Modified() 
+        #lwr.SetFileName("frame"+ ('%03d' % n)+".png")
+        #w2if.Modified() 
         #lwr.Write() #uncomment to write screenshots to disk
 
     myscreen.iren.Start()

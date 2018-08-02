@@ -100,12 +100,13 @@ if __name__ == "__main__":
     print "all done."
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("tux1.png")
+    
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
+    #w2if.Modified()
+    #lwr.SetFileName("tux1.png")
     #lwr.Write()
     
     t = camvtk.Text()
