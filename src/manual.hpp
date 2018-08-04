@@ -4,7 +4,7 @@
 /*! \mainpage OpenCAMLib manual
  * 
  * \section intro_sec Introduction
- * OpenCAMLib is a C++ library with Python bindings under GPL license 
+ * OpenCAMLib is a C++ library with Python bindings under LGPL license 
  * for creating toolpaths for cnc machines.
  * 
  *      - hosted at: http://code.google.com/p/opencamlib/
