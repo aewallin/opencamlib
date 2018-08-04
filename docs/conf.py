@@ -14,6 +14,14 @@
 
 import sys
 import os
+import subprocess
+
+# https://breathe.readthedocs.io/en/latest/readthedocs.html
+# generates doxygen XML files
+read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
+
+if read_the_docs_build:
+    subprocess.call('cd ../src; doxygen', shell=True)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
