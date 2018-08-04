@@ -712,7 +712,7 @@ class STLSurf(CamvtkActor):
             polydata.SetPoints(points)
             polydata.SetPolys(triangles)
             polydata.Modified()
-            polydata.Update()
+            #polydata.Update() # gives error on vtk6
             self.src=polydata
             self.mapper = vtk.vtkPolyDataMapper()
             self.mapper.SetInputData(self.src)
