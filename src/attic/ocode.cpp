@@ -276,7 +276,7 @@ bool Ocode::operator==(const Ocode &o){
 
 
 /*
- * /// return correspinding number
+ * /// return corresponding number
 unsigned long Ocode::number() const {
     unsigned long n=0;
     for (int m=0;m<depth;m++) {

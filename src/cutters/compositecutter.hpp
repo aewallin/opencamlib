@@ -49,7 +49,7 @@ class CompositeCutter : public MillingCutter {
         
         MillingCutter* offsetCutter(double d) const;
         
-        /// CompositeCutter can not use the base-class facetDrop, intstead we here
+        /// CompositeCutter can not use the base-class facetDrop, instead we here
         /// call facetDrop() on each cutter in turn, and pick the valid CC/CL point 
         /// as the result for the CompositeCutter
         bool facetDrop(CLPoint &cl, const Triangle &t) const;

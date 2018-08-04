@@ -179,9 +179,9 @@ void SimpleWeave::add_int_vertex(  const Point& v_position, // position of new v
     Edge ye_lu_next, ye_lu_prev ;
     Edge ye_ul_next, ye_ul_prev ;
     Edge ye_lu, ye_ul;
-                 
-    bool y_lu_edge = g.has_edge(y_l,y_u); // flag indicating existing y_l - y_u edge 
-    // the case where y_l and y_u are alread already connected.
+
+    bool y_lu_edge = g.has_edge(y_l,y_u); // flag indicating existing y_l - y_u edge
+    // the case where y_l and y_u are already connected.
 
     if ( y_lu_edge ) {
         assert( g.has_edge( y_u, y_l ) ); // twin must also exist
