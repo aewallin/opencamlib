@@ -100,7 +100,7 @@ class Point {
         /// returns true if point is right of line through p1 and p2 (works in the XY-plane)
         bool isRight(const Point &p1, const Point &p2) const;
          
-        /// retruns true if Point *this is inside Triangle t 
+        /// returns true if Point *this is inside Triangle t 
         bool isInside(const Triangle &t) const; 
         /// return true if Point within line segment p1-p2
         bool isInside(const Point& p1, const Point& p2) const;

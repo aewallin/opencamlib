@@ -28,7 +28,7 @@ such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL lic
 BUILDING and INSTALLING 
 -----------------------
 
-to clone, build and install install the ocl.so library and camvtk.py run the follwing::
+to clone, build and install install the ocl.so library and camvtk.py run the following::
 
  $ git clone git://github.com/aewallin/opencamlib.git
  $ cd opencamlib
