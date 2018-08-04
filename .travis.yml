@@ -1,0 +1,19 @@
+language: c++
+
+compiler:
+    - gcc
+
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y git
+  - sudo apt-get install -y libboost-python-dev
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ../src
+
+script: 
+  - make
+
+after_success:
