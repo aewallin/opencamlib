@@ -1,3 +1,6 @@
+.. image:: https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg
+    :target: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
+    
 .. image:: https://travis-ci.org/aewallin/opencamlib.svg?branch=master
     :target: https://travis-ci.org/aewallin/opencamlib
 
@@ -9,19 +12,13 @@ OpenCAMLib README
 INTRODUCTION
 ---------------
 
-OpenCAMLib (ocl) is a c++ library with python bindings for creating toolpaths for cnc-machines
-such as mills and lathes.
+OpenCAMLib (ocl) is a c++ library with python bindings for creating 3D toolpaths for cnc-machines
+such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL license.
 
-The OpenCAMLib code is hosted at:
-https://github.com/aewallin/opencamlib
-
-The mailing-list for general development and user-discussion is:
-http://groups.google.com/group/opencamlib
-
-IRC-channel #cam on irc.freenode.net
-
-It's probably a good idea to try to adhere to some coding standard. Maybe this one:
-http://www.possibility.com/Cpp/CppCodingStandard.html
+- repository https://github.com/aewallin/opencamlib
+- mailing-list http://groups.google.com/group/opencamlib
+- IRC-channel #cam on irc.freenode.net
+- coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
 
 
 BUILDING and INSTALLING 
