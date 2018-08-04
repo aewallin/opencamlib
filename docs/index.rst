@@ -11,6 +11,12 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+Classes
+=======
+
+this is a test of how doxygen can work with sphix
+
+.. doxygenclass:: Point
 
 
 Indices and tables

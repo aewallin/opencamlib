@@ -36,7 +36,8 @@ if read_the_docs_build:
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = []
+extensions = [ "breathe" ]
+breathe_projects = {"opencamlib":"../src/doc/xml"}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
