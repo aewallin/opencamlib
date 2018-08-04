@@ -14,10 +14,10 @@ Contents:
 Classes
 =======
 
-this is a test of how doxygen can work with sphix
+this is a test of how doxygen can work with sphinx and readthedocs.
 
-.. doxygenclass:: Point
-
+.. doxygenclass:: ocl::Point
+    :project: opencamlib
 
 Indices and tables
 ==================
