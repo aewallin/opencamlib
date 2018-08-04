@@ -9,7 +9,7 @@ if __name__ == "__main__":
     for t in triangles:
         s.addTriangle(t)
     
-    print ocl.revision()    
+    print ocl.version()    
     # define a cutter
     length = 10
     cutter = ocl.CylCutter(3, length)
