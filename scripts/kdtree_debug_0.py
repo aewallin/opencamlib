@@ -30,14 +30,12 @@ def main():
     t2.SetPos( (50, myscreen.height-50) )   
     myscreen.addActor( t2)
         
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
   
-    epos = cam.Epos()
-    epos.setS(0,1)
-
+    
     t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     
     
@@ -117,7 +115,7 @@ def main():
     
     #raw_input("Press Enter to terminate")         
     time.sleep(0.2)
-    lwr.Write()
+    #lwr.Write()
     myscreen.iren.Start()
 
 
