@@ -4,6 +4,10 @@
 .. image:: https://travis-ci.org/aewallin/opencamlib.svg?branch=master
     :target: https://travis-ci.org/aewallin/opencamlib
 
+.. image:: https://readthedocs.org/projects/opencamlib/badge/?version=latest
+    :target: https://opencamlib.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 OpenCAMLib README
 =================
 
