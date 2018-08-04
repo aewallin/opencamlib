@@ -370,7 +370,7 @@ class Sphere(CamvtkActor):
         self.src.SetCenter(center)
         self.src.SetThetaResolution(resolution)
         self.src.SetPhiResolution(resolution)
-
+        self.src.Update()
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInputData(self.src.GetOutput())
         self.SetMapper(self.mapper)

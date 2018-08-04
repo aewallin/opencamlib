@@ -47,7 +47,7 @@ def xfiber(cutter,xvals,t,zh,myscreen):
         drawFiber_clpts(myscreen, f, camvtk.lblue)
 
 def drawScreen(a,b,c,filename,write_flag):  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     z_hi = a.z
     if b.z > z_hi:
@@ -107,6 +107,7 @@ def drawScreen(a,b,c,filename,write_flag):
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    
+    """
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
@@ -116,6 +117,7 @@ def drawScreen(a,b,c,filename,write_flag):
     if write_flag:
         lwr.Write()
         print "wrote ",filename
+    """
     
     #myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

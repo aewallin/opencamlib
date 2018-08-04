@@ -8,6 +8,8 @@ import procmemory
 import csv
 import gc
 
+# 2018.08: Weave not wrapped
+
 def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
     pts = weave.getVertices( vertexType )
     print " got ",len(pts)," of type ", vertexType
@@ -16,7 +18,7 @@ def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
 
 def getWeaveRAM(Nmax,weave2_flag):
     #stl = camvtk.STLSurf("../stl/demo.stl")
-    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)

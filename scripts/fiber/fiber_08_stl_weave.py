@@ -5,6 +5,8 @@ import vtk
 import datetime
 import math
 
+# note 2018.08: won't run becayse we don't have ocl.Weave()
+
 def generateRange(zmin,zmax,zNmax):
     dz = (float(zmax)-float(zmin))/(zNmax-1)
     zvals=[]
@@ -14,10 +16,10 @@ def generateRange(zmin,zmax,zNmax):
     
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
-    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     #stl.SetSurface()

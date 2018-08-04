@@ -74,7 +74,7 @@ def xfiber(xvals,t,zh,myscreen):
 
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     b = ocl.Point(1,0.5,0.0)    
@@ -119,10 +119,10 @@ if __name__ == "__main__":
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
     print "done."
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

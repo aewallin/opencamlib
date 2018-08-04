@@ -5,6 +5,8 @@ import vtk
 import datetime
 import math
 
+# 2018.08: Weave not wrapped
+
 def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
     pts = weave.getVertices( vertexType )
     print " got ",len(pts)," of type ", vertexType
@@ -12,7 +14,7 @@ def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z), radius=vertexRadius, color=vertexColor ) )
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     #myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))

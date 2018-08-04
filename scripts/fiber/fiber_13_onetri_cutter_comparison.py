@@ -82,7 +82,7 @@ def oneCutterWaterline(myscreen, cutter, zh, color):
     xfiber(xvals,t,zh,myscreen,cutter, color)
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
@@ -132,10 +132,10 @@ if __name__ == "__main__":
     print "done."
     
     myscreen.render()    
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
 
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

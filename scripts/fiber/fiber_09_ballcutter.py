@@ -24,7 +24,7 @@ def drawFiber(myscreen, f, fibercolor=camvtk.red):
             #myscreen.addActor(c2)
             
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     
     myscreen = camvtk.VTKScreen()
     

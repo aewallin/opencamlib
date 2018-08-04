@@ -5,8 +5,11 @@ import vtk
 import datetime
 import math
 
+# note 2018.08:
+# the Weave class is not provided to python, so this deprecated example script won't run
+
 if __name__ == "__main__":  
-    print ocl.revision()
+    print ocl.version()
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))

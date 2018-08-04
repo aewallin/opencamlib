@@ -72,10 +72,10 @@ def xfiber(xvals,s,zh,myscreen):
         drawFiber_clpts(myscreen, f, camvtk.lblue)
         
 if __name__ == "__main__":  
-    print ocl.revision() 
+    print ocl.version() 
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../stl/demo.stl")
+    stl = camvtk.STLSurf("../../stl/demo.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((1,1,1))
@@ -107,6 +107,7 @@ if __name__ == "__main__":
     #zh = 0.2571567
     
     for zh in zvals:
+        print "fibers at z=",zh
         yfiber(yvals,s,zh,myscreen)
         xfiber(xvals,s,zh,myscreen)
     
@@ -116,9 +117,9 @@ if __name__ == "__main__":
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 
