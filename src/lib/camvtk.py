@@ -430,6 +430,7 @@ class Line(CamvtkActor):
         self.src = vtk.vtkLineSource()
         self.src.SetPoint1(p1)
         self.src.SetPoint2(p2)
+        self.src.Update()
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInputData(self.src.GetOutput())
         self.SetMapper(self.mapper)
