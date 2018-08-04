@@ -141,6 +141,7 @@ def drawScreen(a,b,c,filename,write_flag):
     camvtk.drawOCLtext(myscreen)
     myscreen.render()    
     
+    """
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
@@ -150,6 +151,7 @@ def drawScreen(a,b,c,filename,write_flag):
     if write_flag:
         lwr.Write()
         print "wrote ",filename
+    """
     
     time.sleep(1)
     #myscreen.iren.Start()
