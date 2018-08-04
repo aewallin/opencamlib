@@ -6,8 +6,10 @@ OpenCAMLib README
 
 
 
-1. INTRODUCTION
-OpenCAMLib (ocl) is a c++ library for creating toolpaths for cnc-machines
+INTRODUCTION
+---------------
+
+OpenCAMLib (ocl) is a c++ library with python bindings for creating toolpaths for cnc-machines
 such as mills and lathes.
 
 The OpenCAMLib code is hosted at:
@@ -22,7 +24,11 @@ It's probably a good idea to try to adhere to some coding standard. Maybe this o
 http://www.possibility.com/Cpp/CppCodingStandard.html
 
 
-2. CLONING, BUILDING and INSTALLING (on unix/debian-like systems)
+BUILDING and INSTALLING 
+-----------------------
+
+to clone, build and install install the ocl.so library and camvtk.py run the follwing::
+
  $ git clone git://github.com/aewallin/opencamlib.git
  $ cd opencamlib
  $ mkdir build
@@ -30,60 +36,70 @@ http://www.possibility.com/Cpp/CppCodingStandard.html
  $ cmake ../src
  $ make        (try make -j4 for a faster build if you have a multi-core machine)
  $ sudo make install
-will install the ocl.so library and camvtk.py so that any python shell will find them.
 
-if you also want to build the documentation, then run
+if you also want to build the documentation, then run::
+
  $ make doc
- $> make doc-pdf
+ $ make doc-pdf
+ 
 this should create the ocl manual named "ocl-manual.pdf" in the build/doc directory
 
-using cmake and cpack it is possible to build a binary .deb package with
+using cmake and cpack it is possible to build a binary .deb package with::
+
  $ make package
-For uploading debian source-packages to the PPA there is also a custom target
+ 
+For uploading debian source-packages to the PPA there is also a custom target::
+
  $ make spackage
 
 The build directory opencamlib/build can be wiped clean ("rm -rf *") and cmake run 
 again if/when you want a clean build.
 
-3. ORGANIZATION OF FILES
-(generate this with 'tree -dL 2')
+ORGANIZATION OF FILES
+---------------------
 
-├── cpp_examples                c++ example use of opencamlib
-│   ├── point                   minimal example of ocl::Point
-├── debian                      files for building a debian package
-├── doc                         documentation (not much here yet!)
-├── lib                         useful python helper libraries
-├── scripts                     python scripts that test or demonstrate use of ocl
-│   ├── issues
-│   ├── ocode                   old linear octree code
-│   ├── offset-ellipse          relates to BullCutter drop- and push-cutter
-│   ├── old
-│   └── voronoi                 vd scripts/tests
-├── src
-│   ├── algo                    algorithms under development
-│   ├── attic                   old deprecated code
-│   ├── common                  common algorithms and data-structures
-│   ├── cutters                 cutter-classes
-│   ├── dropcutter              drop-cutter algorithms and operations
-│   ├── geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
-│   └── voronoi
-├── stl                         STL files for testing
-└── Windows                     Visual-studio project for building on windows
+(generate this with 'tree -dL 2')::
+
+ ├── cpp_examples                c++ example use of opencamlib
+ │   ├── point                   minimal example of ocl::Point
+ ├── debian                      files for building a debian package
+ ├── doc                         documentation (not much here yet!)
+ ├── lib                         useful python helper libraries
+ ├── scripts                     python scripts that test or demonstrate use of ocl
+ │   ├── issues
+ │   ├── ocode                   old linear octree code
+ │   ├── offset-ellipse          relates to BullCutter drop- and push-cutter
+ │   ├── old
+ │   └── voronoi                 vd scripts/tests
+ ├── src
+ │   ├── algo                    algorithms under development
+ │   ├── attic                   old deprecated code
+ │   ├── common                  common algorithms and data-structures
+ │   ├── cutters                 cutter-classes
+ │   ├── dropcutter              drop-cutter algorithms and operations
+ │   ├── geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
+ │   └── voronoi
+ ├── stl                         STL files for testing
+ └── Windows                     Visual-studio project for building on windows
 
 
-3. Ubuntu 10.04LTS-> install and build
+Ubuntu 10.04LTS-> install and build
+-----------------------------------
+
+(these notes are about 8 years old now and should be updated for relevant OSs)
+
 - install 64-bit Ubuntu 10.04LTS
 - run update manager and install all suggested updates. reboot.
 - using synaptic or apt-get, install the following packages(and their dependencies)
--- build-essential
--- cmake
--- subversion
--- doxygen
--- texlive-latex-base
--- libboost-all-dev
+ - build-essential
+ - cmake
+ - subversion
+ - doxygen
+ - texlive-latex-base
+ - libboost-all-dev
 - checkout ocl from svn
--- instructions: http://code.google.com/p/opencamlib/source/checkout
+ - instructions: http://code.google.com/p/opencamlib/source/checkout
 - in the /src directory, first run "cmake ." then "make" and then "sudo make install"
--- this should build and install ocl correctly.
+ - this should build and install ocl correctly.
 
 
