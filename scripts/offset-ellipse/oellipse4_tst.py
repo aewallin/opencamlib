@@ -5,6 +5,8 @@ import vtk
 import math
 import datetime
 
+# 2018.08: Epos not wrapped
+
 def drawellipse(myscreen, ellcenter, a_axis, b_axis):
     resolution=50
     for n in xrange(0,resolution):
@@ -128,10 +130,10 @@ def main(ycoord=0.970, filename="test"):
         
 
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
   
     epos = cam.Epos()
     epos.setS(0,1)

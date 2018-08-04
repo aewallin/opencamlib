@@ -154,10 +154,11 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     #t = cam.Triangle(a,b,c)
     
-    cutter = cam.BullCutter(1,0.2)
+    cutter_length = 2
+    cutter = cam.BullCutter(1,0.2, cutter_length)
 
     
-    print cutter.str()
+    print cutter
     
     xar = camvtk.Arrow(color=red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
@@ -288,10 +289,10 @@ if __name__ == "__main__":
     n = 1
     NRStep=0.1
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
         
     
     while not endcondition:
@@ -348,7 +349,7 @@ if __name__ == "__main__":
             myscreen.removeActor(oesphere)
             
 
-        w2if.Modified()
+        #w2if.Modified()
         #lwr.SetFileName("5_all.png")
         """
         for i in xrange(0,10):
@@ -371,12 +372,12 @@ if __name__ == "__main__":
 
     myscreen.render()
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
-    w2if.Modified()
-    lwr.SetFileName("5_all.png")
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
+    #w2if.Modified()
+    #lwr.SetFileName("5_all.png")
     #lwr.Write()
 
 

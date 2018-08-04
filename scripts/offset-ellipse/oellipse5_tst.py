@@ -5,6 +5,8 @@ import vtk
 import math
 import datetime
 
+# 2018.08: Epos not wrapped
+
 def drawellipse(myscreen, ellcenter, a_axis, b_axis):
     resolution=50
     for n in xrange(0,resolution):
@@ -66,7 +68,8 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     #t = cam.Triangle(a,b,c)
     
-    cutter = cam.BullCutter(1,0.2)
+    cutter_length = 2
+    cutter = cam.BullCutter(1,0.2, cutter_length)
 
     print cutter   
     xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))
@@ -165,10 +168,10 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
         
 
     
-    w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
-    lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    #w2if = vtk.vtkWindowToImageFilter()
+    #w2if.SetInput(myscreen.renWin)
+    #lwr = vtk.vtkPNGWriter()
+    #lwr.SetInput( w2if.GetOutput() )
   
     epos = cam.Epos()
     epos.setS(0,1)
