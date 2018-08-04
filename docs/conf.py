@@ -38,6 +38,7 @@ if read_the_docs_build:
 # ones.
 extensions = [ "breathe" ]
 breathe_projects = {"opencamlib":"../src/doc/xml"}
+breathe_default_project = "opencamlib"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
