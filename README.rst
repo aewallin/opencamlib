@@ -1,4 +1,10 @@
+.. image:: https://travis-ci.org/aewallin/opencamlib.svg?branch=master
+    :target: https://travis-ci.org/aewallin/opencamlib
+
 OpenCAMLib README
+=================
+
+
 
 1. INTRODUCTION
 OpenCAMLib (ocl) is a c++ library for creating toolpaths for cnc-machines
