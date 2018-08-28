@@ -90,7 +90,7 @@ endif( CPACK_DEBIAN_PACKAGE_SOURCE_COPY )
 
 # remove unnecessary folders
 foreach(REMOVE_DIR ${CPACK_DEBIAN_PACKAGE_REMOVE_SOURCE_FILES})
-    MESSAGE(STATUS "Removing direcotry from source-orig-dir. " ${REMOVE_DIR})
+    MESSAGE(STATUS "Removing directory from source-orig-dir. " ${REMOVE_DIR})
   file(REMOVE_RECURSE ${DEBIAN_SOURCE_ORIG_DIR}.orig/${REMOVE_DIR})
 endforeach()
 
@@ -169,7 +169,7 @@ foreach(RELEASE ${CPACK_DEBIAN_DISTRIBUTION_RELEASES})
   
   ##############################################################################
   # debian/copyright
-  MESSAGE(STATUS "  creating debian/coyright.")
+  MESSAGE(STATUS "  creating debian/copyright.")
   set(DEBIAN_COPYRIGHT ${DEBIAN_SOURCE_DIR}/debian/copyright)
   execute_process(COMMAND ${CMAKE_COMMAND} -E
     copy ${CPACK_RESOURCE_FILE_LICENSE} ${DEBIAN_COPYRIGHT}
