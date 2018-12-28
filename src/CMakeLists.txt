@@ -319,7 +319,11 @@ if (BUILD_PY_LIB)
     )
 
   message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-  target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES}  ${PYTHON_LIBRARIES} -lboost_python -lboost_system)
+  if (NOT APPLE)
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES}  ${PYTHON_LIBRARIES} -lboost_python -lboost_system)
+  else (NOT APPLE)
+    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} -lboost_python -lboost_system)
+  endif (NOT APPLE)
   # 
   # this makes the lib name ocl.so and not libocl.so
   set_target_properties(ocl PROPERTIES PREFIX "") 
