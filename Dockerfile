@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 RUN apt-get update
 RUN apt-get install -y cmake build-essential subversion doxygen texlive-latex-base libboost-all-dev git python-vtk6 python-dev x11vnc fluxbox wget wmctrl xvfb
@@ -14,7 +14,6 @@ RUN cmake ../src
 RUN make
 RUN make install
 WORKDIR /usr/lib/x86_64-linux-gnu 
-RUN for i in *-6.0.so.6.0; do sudo ln -s $i ${i/-6.0.so.6.0/-6.0.so}; done
 EXPOSE 5900
 RUN useradd -ms /bin/bash cam
 USER cam

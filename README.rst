@@ -104,3 +104,16 @@ Ubuntu 10.04LTS-> install and build
  - this should build and install ocl correctly.
 
 
+DOCKER BUILD
+-----------------------
+
+To run this in Docker, simply run::  
+
+ $ docker build . -t opencamlib
+ $ docker run -it -p 5900:5900 -e VNC_SERVER_PASSWORD=TestVNC --user cam --privileged opencamlib
+
+Then simply open up a VNC socket connection. With Mac, you can just open Finder, then run CMD + K. 
+
+Type in "vnc://localhost:5900" as the server address, and type "TestVNC" as the password. 
+
+Right click on the desktop terminal that shows up and you can open up a terminal inside there. This is a easy and quick way to get started with opencamlib, while still maintaining all the functionality
