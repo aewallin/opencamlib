@@ -107,7 +107,7 @@ Ubuntu 10.04LTS-> install and build
 DOCKER BUILD
 -----------------------
 
-To run this in Docker, simply run 
+To run this in Docker, simply run::  
 
  $ docker build . -t opencamlib
  $ docker run -it -p 5900:5900 -e VNC_SERVER_PASSWORD=TestVNC --user cam --privileged opencamlib
