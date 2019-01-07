@@ -2,10 +2,20 @@ project(OpenCamLib)
 
 cmake_minimum_required(VERSION 2.4)
 #set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
+  cmake_policy(SET CMP0025 NEW)
 endif(COMMAND cmake_policy)
+
+if (CMAKE_VERSION VERSION_LESS "3.1")
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+  endif ()
+else ()
+  set (CMAKE_CXX_STANDARD 11)
+endif ()
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
@@ -39,45 +49,33 @@ include(gcc_version.cmake)
 # Figure out how to build and where to install the Python modules
 #
 
-find_program(PYTHON_EXECUTABLE NAMES python2)
+find_package(PythonInterp)
 
-if (APPLE)
-  # Ask Python to tell us it's include directory, if nobody else has
-  if(NOT DEFINED PYTHON_INCLUDE_DIRS)
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} -c
-      "from distutils.sysconfig import get_python_inc;print get_python_inc()"
-      OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS
-      RESULT_VARIABLE PYTHON_INCLUDE_DIR_RESULT ERROR_QUIET)
-    if(NOT PYTHON_INCLUDE_DIR_RESULT MATCHES 0)
-      message(SEND_ERROR "Failed to determine PYTHON_INCLUDE_DIR")
-    endif(NOT PYTHON_INCLUDE_DIR_RESULT MATCHES 0)
-  endif(NOT DEFINED PYTHON_INCLUDE_DIRS)
-
-  # Similar for the Python library
-  if(NOT DEFINED PYTHON_LIBRARY)
-      # Get the library path
-      execute_process(COMMAND "${PYTHON_EXECUTABLE}" -c
-        "from distutils import sysconfig;print sysconfig.get_config_var('LIBDIR')"
-        OUTPUT_VARIABLE PYTHON_LIBRARY_DIR
-        RESULT_VARIABLE PYTHON_LIBRARY_DIR_RESULT ERROR_QUIET)
-      string(STRIP ${PYTHON_LIBRARY_DIR} PYTHON_LIBRARY_DIR)
-      if(NOT PYTHON_LIBRARY_DIR_RESULT MATCHES 0)
-          message(SEND_ERROR "Failed to determine PYTHON_LIBRARY")
-      endif(NOT PYTHON_LIBRARY_DIR_RESULT MATCHES 0)
-
-      # Get library filename - might not be safe to assume .dylib extension?
-      execute_process(COMMAND "${PYTHON_EXECUTABLE}" -c
-        "import sys;print 'libpython%d.%d.dylib'%sys.version_info[0:2]"
-        OUTPUT_VARIABLE PYTHON_LIBRARY_FILE
-        RESULT_VARIABLE PYTHON_LIBRARY_FILE_RESULT ERROR_QUIET)
-      string(STRIP ${PYTHON_LIBRARY_FILE} PYTHON_LIBRARY_FILE)
-      if(NOT PYTHON_LIBRARY_FILE_RESULT MATCHES 0)
-          message(SEND_ERROR "Failed to determine PYTHON_LIBRARY")
-      endif(NOT PYTHON_LIBRARY_FILE_RESULT MATCHES 0)
-
-      set(PYTHON_LIBRARY "${PYTHON_LIBRARY_DIR}/${PYTHON_LIBRARY_FILE}")
-  endif(NOT DEFINED PYTHON_LIBRARY)
-endif (APPLE)
+if (PYTHONINTERP_FOUND)
+  if (UNIX AND NOT APPLE)
+    if (PYTHON_VERSION_MAJOR EQUAL 3)
+        find_package(Boost COMPONENTS python${PYTHON_VERSION_SUFFIX})
+        find_package(PythonInterp 3)
+        find_package(PythonLibs 3 REQUIRED)
+    else()
+        find_package(Boost COMPONENTS python)
+        find_package(PythonInterp)
+        find_package(PythonLibs REQUIRED)
+    endif()
+  else()	
+    if (PYTHON_VERSION_MAJOR EQUAL 3)
+        find_package(Boost COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+        find_package(PythonInterp 3)
+        find_package(PythonLibs 3 REQUIRED)
+    else()
+        find_package(Boost COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
+        find_package(PythonInterp)
+        find_package(PythonLibs REQUIRED)
+    endif()
+  endif()
+else()
+    message("Python not found")
+endif()
 
 execute_process(
   COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
@@ -91,8 +89,19 @@ execute_process(
   OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
-find_package (PythonLibs 2 REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS} )
+message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
+message(STATUS "PYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}")
+message(STATUS "PYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}")
+message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
+message(STATUS "PYTHON_INCLUDE_DIR:FILEPATH=${PYTHON_INCLUDE_DIR}")
+message(STATUS "PYTHON_FRAMEWORK_INCLUDES=${PYTHON_FRAMEWORK_INCLUDES}")
+message(STATUS "PYTHONLIBS_VERSION_STRING=${PYTHONLIBS_VERSION_STRING}")
+message(STATUS "Python_FRAMEWORKS=${Python_FRAMEWORKS}")
+message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
+
+
+
+include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 
 #
 # Turn compiler warnings up to 11, at least with gcc.  I don't know how to
@@ -126,23 +135,12 @@ endif(NOT BUILD_TYPE)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# find BOOST and boost-python
-find_package( Boost COMPONENTS python REQUIRED)
-if(Boost_FOUND)
-  include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
-  message(STATUS "found Boost: " ${Boost_LIB_VERSION})
-  message(STATUS "boost-incude dirs are: " ${Boost_INCLUDE_DIRS})
-  message(STATUS "boost-python lib is: " ${Boost_PYTHON_LIBRARY})
-  message(STATUS "boost_LIBRARY_DIRS is: " ${Boost_LIBRARY_DIRS})
-  message(STATUS "Boost_LIBRARIES is: " ${Boost_LIBRARIES})    
-endif()
-
 if(USE_OPENMP)
   if(APPLE)
     # OpenMP does not work with the default Apple llvm/clang++
     # Install a more recent version using Homebrew:
     # "brew install llvm"
-    set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
+    # set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
   else()
     find_package( OpenMP REQUIRED )
@@ -318,13 +316,10 @@ if (BUILD_PY_LIB)
     
     )
 
+  target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+
   message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-  if (NOT APPLE)
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES}  ${PYTHON_LIBRARIES} -lboost_python -lboost_system)
-  else (NOT APPLE)
-    target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} -lboost_python -lboost_system)
-  endif (NOT APPLE)
-  # 
+
   # this makes the lib name ocl.so and not libocl.so
   set_target_properties(ocl PROPERTIES PREFIX "") 
   if (WIN32)
