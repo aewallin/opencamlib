@@ -20,143 +20,143 @@ this is a test of how doxygen can work with sphinx and readthedocs.
     :project: opencamlib
     :members:
 .. doxygenclass:: ocl::AdaptivePathDropCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::AdaptiveWaterline
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::AlignedEllipse
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Arc
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::ArcSpan
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::BallConeCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::BallCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::BatchDropCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::BatchPushCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Bbox
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::BullConeCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::BullCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CCPoint
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CLFilter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CLPoint
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CompBallCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CompCylCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CompositeCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::ConeConeCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::ConeCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CylConeCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::CylCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Ellipse
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::EllipsePosition
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Fiber
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::FiberPushCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Interval
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::VertexPairCompare
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::KDNode
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::KDTree
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Line
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::LineCLFilter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::LineSpan
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::MillingCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Operation
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Path
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::PathDropCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Point
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::PointDropCutter
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Span
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Spread
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::STLReader
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::STLSurf
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Triangle
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::Waterline
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 .. doxygenclass:: ocl::ZigZag
-	:project: opencamlib
-	:members
+    :project: opencamlib
+    :members
 
 Indices and tables
 ==================
