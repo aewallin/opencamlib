@@ -18,6 +18,7 @@ coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
 BUILDING and INSTALLING
 to clone, build and install install the ocl.so library and camvtk.py run the following:
 
+.. code-block:: console
    git clone git://github.com/aewallin/opencamlib.git
    cd opencamlib
    mkdir build
@@ -28,6 +29,7 @@ to clone, build and install install the ocl.so library and camvtk.py run the fol
 
 if you also want to build the documentation, then run:
 
+.. code-block:: console
    make doc
    make doc-pdf
 
@@ -35,10 +37,12 @@ this should create the ocl manual named "ocl-manual.pdf" in the build/doc direct
 
 using cmake and cpack it is possible to build a binary .deb package with:
 
+.. code-block:: console
    make package
 
 For uploading debian source-packages to the PPA there is also a custom target:
 
+.. code-block:: console
    make spackage
 
 The build directory opencamlib/build can be wiped clean ("rm -rf *") and cmake run again if/when you want a clean build.
