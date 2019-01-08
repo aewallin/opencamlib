@@ -1,4 +1,3 @@
 # readthedocs.yml
-python:
-    extra_requirements:
-        - breathe
+dependencies:
+  - breathe
