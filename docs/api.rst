@@ -1,14 +1,16 @@
-Classes
-=======
+API Documentation
+=================
 
-this is a test of how doxygen can work with sphinx and readthedocs.
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
 
-.. doxygenclass:: ocl::Point
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::AdaptivePathDropCutter
-    :project: opencamlib
-    :members:
+   point
+   adaptivepathdropcutter
+
+To Document:
+============
+
 .. doxygenclass:: ocl::AdaptiveWaterline
     :project: opencamlib
     :members:
