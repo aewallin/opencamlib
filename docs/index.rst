@@ -18,6 +18,7 @@ this is a test of how doxygen can work with sphinx and readthedocs.
 
 .. doxygenclass:: ocl::Point
     :project: opencamlib
+    :members:
 
 Indices and tables
 ==================
