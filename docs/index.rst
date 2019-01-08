@@ -18,7 +18,7 @@ coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
 BUILDING and INSTALLING
 to clone, build and install install the ocl.so library and camvtk.py run the following:
 
-.. code-block:: json
+.. code-block:: console
 
    git clone git://github.com/aewallin/opencamlib.git
    cd opencamlib
