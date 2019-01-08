@@ -3,160 +3,55 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to opencamlib's documentation!
-======================================
+OpenCAMLib
+==========
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
+   classes
 
-Classes
-=======
+Introduction
+============
 
-this is a test of how doxygen can work with sphinx and readthedocs.
+OpenCAMLib (ocl) is a c++ library with python bindings for creating 3D toolpaths for cnc-machines such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL license.
 
-.. doxygenclass:: ocl::Point
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::AdaptivePathDropCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::AdaptiveWaterline
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::AlignedEllipse
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Arc
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::ArcSpan
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::BallConeCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::BallCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::BatchDropCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::BatchPushCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Bbox
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::BullConeCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::BullCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CCPoint
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CLFilter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CLPoint
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CompBallCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CompCylCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CompositeCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::ConeConeCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::ConeCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CylConeCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::CylCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Ellipse
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::EllipsePosition
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Fiber
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::FiberPushCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Interval
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::VertexPairCompare
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::KDNode
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::KDTree
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Line
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::LineCLFilter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::LineSpan
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::MillingCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Operation
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Path
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::PathDropCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Point
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::PointDropCutter
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Span
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Spread
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::STLReader
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::STLSurf
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Triangle
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::Waterline
-    :project: opencamlib
-    :members:
-.. doxygenclass:: ocl::ZigZag
-    :project: opencamlib
-    :members:
+repository https://github.com/aewallin/opencamlib
+mailing-list http://groups.google.com/group/opencamlib
+IRC-channel #cam on irc.freenode.net
+coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
+BUILDING and INSTALLING
+to clone, build and install install the ocl.so library and camvtk.py run the following:
+
+..
+	$ git clone git://github.com/aewallin/opencamlib.git
+	$ cd opencamlib
+	$ mkdir build
+	$ cd build
+	$ cmake ../src
+	$ make        (try make -j4 for a faster build if you have a multi-core machine)
+	$ sudo make install
+if you also want to build the documentation, then run:
+
+..
+	$ make doc
+	$ make doc-pdf
+
+this should create the ocl manual named "ocl-manual.pdf" in the build/doc directory
+
+using cmake and cpack it is possible to build a binary .deb package with:
+
+..
+	$ make package
+
+For uploading debian source-packages to the PPA there is also a custom target:
+
+..
+	$ make spackage
+
+The build directory opencamlib/build can be wiped clean ("rm -rf *") and cmake run again if/when you want a clean build.
 
 Indices and tables
 ==================
