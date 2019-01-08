@@ -6,11 +6,10 @@
 OpenCAMLib
 ==========
 
-Contents
-========
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
+   :caption: Contents:
+
    classes
 
 Introduction
@@ -25,31 +24,32 @@ coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
 BUILDING and INSTALLING
 to clone, build and install install the ocl.so library and camvtk.py run the following:
 
-..
-	$ git clone git://github.com/aewallin/opencamlib.git
-	$ cd opencamlib
-	$ mkdir build
-	$ cd build
-	$ cmake ../src
-	$ make        (try make -j4 for a faster build if you have a multi-core machine)
-	$ sudo make install
+.. highlight:: bash
+    git clone git://github.com/aewallin/opencamlib.git
+    cd opencamlib
+    mkdir build
+    cd build
+    cmake ../src
+    make        (try make -j4 for a faster build if you have a multi-core machine)
+    sudo make install
+
 if you also want to build the documentation, then run:
 
-..
-	$ make doc
-	$ make doc-pdf
+.. highlight:: bash
+    make doc
+    make doc-pdf
 
 this should create the ocl manual named "ocl-manual.pdf" in the build/doc directory
 
 using cmake and cpack it is possible to build a binary .deb package with:
 
-..
-	$ make package
+.. highlight:: bash
+    make package
 
 For uploading debian source-packages to the PPA there is also a custom target:
 
-..
-	$ make spackage
+.. highlight:: bash
+    make spackage
 
 The build directory opencamlib/build can be wiped clean ("rm -rf *") and cmake run again if/when you want a clean build.
 
