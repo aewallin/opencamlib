@@ -1,4 +1,0 @@
-# readthedocs.yml
-python:
-    extra_requirements:
-        - breathe
