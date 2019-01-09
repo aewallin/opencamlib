@@ -36,8 +36,11 @@ before_install:
       ls "/c";
       ls "/c/Program Files (x86)";
       ls "/c/Program Files (x86)/MSBuild";
-      ls "/c/Program Files (x86)/MSBuild/15.0";
-      ls "/c/Program Files (x86)/MSBuild/15.0/Bin";
+      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017";
+      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools";
+      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild";
+      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0";
+      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin";
       choco install cmake;
       choco install nodejs;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
@@ -70,7 +73,7 @@ before_script:
         ../src;
     fi
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ls; "/c/Program Files (x86)/MSBuild/15.0/Bin/MSBuild.exe" ALL_BUILD.vcxproj; else make; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ls; "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe" ALL_BUILD.vcxproj; else make; fi
 
 after_success:
   - sudo make install
