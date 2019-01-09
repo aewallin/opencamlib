@@ -11,25 +11,19 @@ compiler:
 env:
   - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF
   - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=ON BUILD_PY_LIB=OFF
-  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON PYTHONV=2
-  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON PYTHONV=3
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=ON
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       if [[ "$PYTHONV" == "2" ]]; then
         HOMEBREW_NO_AUTO_UPDATE=1 brew install boost-python;
-        export PYTHON_BINARY=/usr/local/bin/python;
-        export PYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib;
-        export PYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7;
-      else
+      elif [[ "$PYTHONV" == "3" ]]; then
         HOMEBREW_NO_AUTO_UPDATE=1 brew install python boost-python3;
-        export PYTHON_BINARY=/usr/local/bin/python3;
-        export PYTHON_LIBRARY=$(python3-config --prefix)/lib/libpython3.7.dylib;
-        export PYTHON_INCLUDE_DIR=$(python3-config --prefix)/include/python3.7m;
       fi;
       export CMAKE_FIND_FRAMEWORK=LAST;
       export CMAKE_VERBOSE_MAKEFILE=ON;
-    else
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
       sudo apt-get install -y git libboost-python-dev libboost-system-dev;
     fi
@@ -40,22 +34,13 @@ before_script:
   - echo $BUILD_CXX_LIB
   - echo $BUILD_NODEJS_LIB
   - echo $BUILD_PY_LIB
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      cmake
+  - echo $USE_PYTHONV3
+  - cmake
         -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
         -DBUILD_PY_LIB="$BUILD_PY_LIB"
-        -DPYTHON_BINARY="$PYTHON_BINARY"
-        -DPYTHON_LIBRARY="$PYTHON_LIBRARY"
-        -DPYTHON_INCLUDE_DIR="$PYTHON_INCLUDE_DIR"
+        -DUSE_PYTHONV3="$USE_PYTHONV3"
         ../src;
-    else
-      cmake
-        -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
-        -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
-        -DBUILD_PY_LIB="$BUILD_PY_LIB"
-        ../src;
-    fi
 script: 
   - make
 

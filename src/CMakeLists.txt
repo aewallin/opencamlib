@@ -33,6 +33,9 @@ option(BUILD_DOC
 option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
+option(USE_PYTHONV3
+    "Use Python V3" OFF)
+
 if (NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
 endif(NOT BUILD_CXX_LIB)
