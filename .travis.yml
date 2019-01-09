@@ -39,7 +39,7 @@ before_install:
       7z x boost.zip -y -o/c/boost -r;
     fi
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then /c/Program Files/nodejs/npm install; else npm install; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then "/c/Program Files/nodejs/npm" install; else npm install; fi
   - mkdir build
   - cd build
   - echo $BUILD_CXX_LIB
