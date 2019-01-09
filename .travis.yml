@@ -3,9 +3,9 @@ os:
   - linux
   - osx
 
-matrix:
-  allow_failures:
-    - os: windows
+# matrix:
+#   allow_failures:
+#     - os: windows
 
 language: cpp
 
@@ -56,15 +56,27 @@ before_script:
   - echo $BUILD_PY_LIB
   - echo $USE_PYTHONV3
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      cmake
-        -DPYTHON_ROOT_DIR="$([ "$USE_PYTHONV3" == "ON" ] && echo "/c/Python37" || echo "/c/Python27")"
-        -DBOOST_ROOT="/c/boost/boost_1_69_0"
-        -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
-        -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
-        -DBUILD_PY_LIB="$BUILD_PY_LIB"
-        -DUSE_PYTHONV3="$USE_PYTHONV3"
-        -DVERSION_STRING="$TRAVIS_BRANCH"
-        ../src;
+      if [[ "$USE_PYTHONV3" == "ON" ]]; then
+        cmake
+          -DPython3_DIR="/c/Python37"
+          -DBOOST_ROOT="/c/boost/boost_1_69_0"
+          -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+          -DBUILD_PY_LIB="$BUILD_PY_LIB"
+          -DUSE_PYTHONV3="$USE_PYTHONV3"
+          -DVERSION_STRING="$TRAVIS_BRANCH"
+          ../src;
+      else
+        cmake
+          -DPython2_DIR="/c/Python27"
+          -DBOOST_ROOT="/c/boost/boost_1_69_0"
+          -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+          -DBUILD_PY_LIB="$BUILD_PY_LIB"
+          -DUSE_PYTHONV3="$USE_PYTHONV3"
+          -DVERSION_STRING="$TRAVIS_BRANCH"
+          ../src;
+      fi
     else
       /usr/local/bin/cmake
         -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
