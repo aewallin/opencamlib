@@ -149,15 +149,16 @@ void BatchPushCutter::pushCutter3() {
     omp_set_num_threads(nthreads);
     //omp_set_nested(1);
 #endif
-    unsigned int Nmax = fibers->size();         // the number of fibers to process
     std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
     Interval* i;
     std::list<Triangle>* tris;
     std::vector<Fiber>& fiberr = *fibers;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
 	int n; // loop variable
+    int Nmax = fibers->size();         // the number of fibers to process
 #else
     unsigned int n; // loop variable
+    unsigned int Nmax = fibers->size();         // the number of fibers to process
 #endif
     unsigned int calls=0;
     
