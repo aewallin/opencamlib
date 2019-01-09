@@ -25,7 +25,7 @@ option(BUILD_PY_LIB
   "Build/install the python ocl library? " ON)
 
 option(BUILD_NODEJS_LIB 
-  "Build/install the node.js ocl library? " ON)
+  "Build/install the node.js ocl library? " OFF)
 
 option(BUILD_DOC
   "Build/install the ocl documentation? " ON)
