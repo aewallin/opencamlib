@@ -43,7 +43,7 @@ void export_dropcutter();
 
 // this defines the python ocl module
 BOOST_PYTHON_MODULE(ocl) {
-    bp::docstring_options doc_options();
+    bp::docstring_options doc_options;
 // these functions set the docstring options
     //void disable_user_defined();
     void enable_user_defined();

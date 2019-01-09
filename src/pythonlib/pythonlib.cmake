@@ -61,20 +61,18 @@ message(STATUS "PYTHONLIBS_VERSION_STRING=${PYTHONLIBS_VERSION_STRING}")
 message(STATUS "Python_FRAMEWORKS=${Python_FRAMEWORKS}")
 message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
 
-
 include_directories(${Boost_INCLUDE_DIRS})
-
 include_directories(${PYTHON_INCLUDE_DIRS})
 
 # this makes the ocl Python module
 add_library(
 ocl 
 MODULE
-ocl_cutters.cpp
-ocl_geometry.cpp
-ocl_algo.cpp
-ocl_dropcutter.cpp
-ocl.cpp
+pythonlib/ocl_cutters.cpp
+pythonlib/ocl_geometry.cpp
+pythonlib/ocl_algo.cpp
+pythonlib/ocl_dropcutter.cpp
+pythonlib/ocl.cpp
 
 )
 

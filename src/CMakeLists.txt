@@ -247,7 +247,7 @@ if (BUILD_NODEJS_LIB)
 endif (BUILD_NODEJS_LIB)
 
 if (BUILD_PY_LIB)
-  include(${CMAKE_CURRENT_SOURCE_DIR}/pythonlib.cmake)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/pythonlib/pythonlib.cmake)
 endif (BUILD_PY_LIB)
 
 # this is the C++ shared library
