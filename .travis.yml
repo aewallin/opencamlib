@@ -17,9 +17,9 @@ env:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       if [[ "$USE_PYTHONV3" == "OFF" ]]; then
-        brew install cmake boost-python;
+        HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade cmake && brew install cmake boost-python;
       elif [[ "$USE_PYTHONV3" == "ON" ]]; then
-        brew install cmake python boost-python3;
+        HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade cmake && brew install cmake boost-python3;
       fi;
       export CMAKE_FIND_FRAMEWORK=LAST;
       export CMAKE_VERBOSE_MAKEFILE=ON;
@@ -32,8 +32,8 @@ before_install:
       sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
     else
       choco install cmake;
-      wget -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
-      7z x boost.zip -oc:\;
+      wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
+      7z x boost.zip -y -oc:\boost -r;
       ls c:;
     fi
 before_script:
