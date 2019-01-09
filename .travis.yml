@@ -17,9 +17,11 @@ env:
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       if [[ "$USE_PYTHONV3" == "OFF" ]]; then
-        HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade cmake && brew install cmake boost-python;
+        brew upgrade cmake;
+        brew install boost-python;
       elif [[ "$USE_PYTHONV3" == "ON" ]]; then
-        HOMEBREW_NO_AUTO_UPDATE=1 brew upgrade cmake && brew install cmake boost-python3;
+        brew upgrade cmake;
+        brew install boost-python3;
       fi;
       export CMAKE_FIND_FRAMEWORK=LAST;
       export CMAKE_VERBOSE_MAKEFILE=ON;
@@ -34,7 +36,7 @@ before_install:
       choco install cmake;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -oc:\boost -r;
-      ls c:;
+      ls c:\;
     fi
 before_script:
   - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then npm install; fi
