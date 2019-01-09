@@ -27,7 +27,7 @@ before_install:
       sudo apt-get update;
       sudo apt-get install -y git libboost-python-dev libboost-system-dev;
       wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh;
-      sudo mkdir /opt/cmake
+      sudo mkdir /opt/cmake;
       sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
       sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
     else
