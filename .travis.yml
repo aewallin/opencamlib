@@ -1,22 +1,57 @@
 os:
   - linux
   - osx
+  - windows
 
 language: c++
 
 compiler:
     - gcc
 
+env:
+  - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=ON BUILD_PY_LIB=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON
+  - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF PYTHONV=2
+  - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF PYTHONV=3
+
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get update; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get install -y git; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost-python; else sudo apt-get install -y libboost-python-dev; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get install -y libboost-system-dev; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$PYTHONV" == "2" ]]; then
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install boost-python;
+        export PYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib;
+        export PYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7;
+      else
+        HOMEBREW_NO_AUTO_UPDATE=1 brew install python boost-python3;
+      fi;
+      export CMAKE_FIND_FRAMEWORK=LAST;
+      export CMAKE_VERBOSE_MAKEFILE=ON;
+    else
+      sudo apt-get update;
+      sudo apt-get install -y git libboost-python-dev libboost-system-dev;
+    fi
 before_script:
-  - npm install
+  - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then npm install; fi
   - mkdir build
   - cd build
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake ../src -DBUILD_NODEJS_LIB=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG -DCMAKE_BUILD_TYPE=Release -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -Wno-dev; else cmake ../src -DBUILD_NODEJS_LIB=ON; fi
+  - echo $BUILD_CXX_LIB
+  - echo $BUILD_NODEJS_LIB
+  - echo $BUILD_PY_LIB
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      cmake
+        -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+        -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+        -DBUILD_PYTHON_LIB="$BUILD_PY_LIB"
+        -DPYTHON_LIBRARY="$PYTHON_LIBRARY"
+        -DPYTHON_INCLUDE_DIR="$PYTHON_INCLUDE_DIR"
+        ../src;
+    else
+      cmake
+        -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+        -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+        -DBUILD_PYTHON_LIB="$BUILD_PY_LIB"
+        ../src;
+    fi
 script: 
   - make
 
