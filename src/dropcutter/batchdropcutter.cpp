@@ -140,10 +140,11 @@ void BatchDropCutter::dropCutter4() {
     std::list<Triangle>* tris;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
 	int n; // loop variable
+    int Nmax = clpoints->size();
 #else
 	unsigned int n; // loop variable
-#endif
     unsigned int Nmax = clpoints->size();
+#endif
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
 #ifdef _OPENMP
@@ -161,7 +162,7 @@ void BatchDropCutter::dropCutter4() {
 #endif
             nloop++;
             tris = root->search_cutter_overlap( cutter, &clref[n] );
-            assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
+            // assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it)) {
@@ -201,11 +202,12 @@ void BatchDropCutter::dropCutter5() {
     long int ntris = 0;
     std::list<Triangle>* tris;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
+    int Nmax = clpoints->size();
 	int n; // loop variable
 #else
+    unsigned int Nmax = clpoints->size();
 	unsigned int n; // loop variable
 #endif
-	unsigned int Nmax = clpoints->size();
     std::vector<CLPoint>& clref = *clpoints; 
     int nloop=0;
     
@@ -225,7 +227,7 @@ void BatchDropCutter::dropCutter5() {
             nloop++;
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris );
-            assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
+            // assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
                 if ( cutter->overlaps(clref[n],*it) ) { // cutter overlap triangle? check
                     if (clref[n].below(*it)) {
