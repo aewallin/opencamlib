@@ -16,11 +16,11 @@ env:
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update;
+      brew upgrade cmake;
       if [[ "$USE_PYTHONV3" == "OFF" ]]; then
-        brew upgrade cmake;
         brew install boost-python;
       elif [[ "$USE_PYTHONV3" == "ON" ]]; then
-        brew upgrade cmake;
         brew install boost-python3;
       fi;
       export CMAKE_FIND_FRAMEWORK=LAST;
