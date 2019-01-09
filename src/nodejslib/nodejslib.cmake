@@ -1,6 +1,6 @@
 message("Creating node.js library")
 
-include(../node_modules/@mapbox/cmake-node-module/module.cmake)
+include(nodemodule.cmake)
 
 set(NODE_MODULE_MINIMUM_ABI 67)
 
