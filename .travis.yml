@@ -49,6 +49,7 @@ before_script:
   - echo $USE_PYTHONV3
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       cmake
+        -G "NMake Makefiles"
         -DBOOST_ROOT="/c/boost/boost_1_69_0"
         -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
@@ -63,8 +64,8 @@ before_script:
         -DUSE_PYTHONV3="$USE_PYTHONV3"
         ../src;
     fi
-script: 
-  - make
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then nmake; else make; fi
 
 after_success:
   - sudo make install
