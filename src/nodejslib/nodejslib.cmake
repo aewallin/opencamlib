@@ -1,4 +1,5 @@
-message("Creating node.js library")
+find_package(Boost)
+include_directories(${Boost_INCLUDE_DIRS})
 
 include(${OpenCamLib_SOURCE_DIR}/nodejslib/nodemodule.cmake)
 

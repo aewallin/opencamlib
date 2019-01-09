@@ -138,10 +138,6 @@ ENDIF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
 
 message(STATUS "OpenCamLib version: ${MY_VERSION}")
 
-# Add boost
-find_package(Boost)
-include_directories(${Boost_INCLUDE_DIRS})
-
 # this defines the source-files
 set(OCL_GEO_SRC
   ${OpenCamLib_SOURCE_DIR}/geo/arc.cpp
