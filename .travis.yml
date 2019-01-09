@@ -3,6 +3,10 @@ os:
   - linux
   - osx
 
+matrix:
+  allow_failures:
+    - os: windows
+
 language: cpp
 
 compiler:
@@ -53,7 +57,7 @@ before_script:
   - echo $USE_PYTHONV3
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       cmake
-        -DPython2_ROOT_DIR="$([ "$USE_PYTHONV3" == "ON" ] && echo "/c/Python37" || echo "/c/Python27")"
+        -DPYTHON_ROOT_DIR="$([ "$USE_PYTHONV3" == "ON" ] && echo "/c/Python37" || echo "/c/Python27")"
         -DBOOST_ROOT="/c/boost/boost_1_69_0"
         -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
