@@ -26,6 +26,7 @@ before_install:
       wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh;
       sudo mkdir /opt/cmake;
       sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
+      sudo rm /usr/local/bin/cmake;
       sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       sudo apt-get update;
