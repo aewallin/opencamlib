@@ -60,7 +60,11 @@ before_script:
         cmake
           -DPython3_ROOT_DIR="/c/Python37"
           -DPython3_EXECUTABLE="/c/Python37/python.exe"
+          -DPython3_SITELIB="/c/Python37/Lib/site-packages"
+          -DPython3_SITEARCH="/c/Python37/Lib/site-packages"
           -DBOOST_ROOT="/c/boost/boost_1_69_0"
+          -DBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost"
+          -DBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/lib"
           -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
           -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
           -DBUILD_PY_LIB="$BUILD_PY_LIB"
@@ -71,7 +75,11 @@ before_script:
         cmake
           -DPython2_ROOT_DIR="/c/Python27"
           -DPython2_EXECUTABLE="/c/Python27/python.exe"
+          -DPython2_SITELIB="/c/Python27/Lib/site-packages"
+          -DPython2_SITEARCH="/c/Python27/Lib/site-packages"
           -DBOOST_ROOT="/c/boost/boost_1_69_0"
+          -DBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost"
+          -DBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/lib"
           -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
           -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
           -DBUILD_PY_LIB="$BUILD_PY_LIB"

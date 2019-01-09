@@ -99,9 +99,9 @@ message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRAR
 
 # this makes the lib name ocl.so and not libocl.so
 set_target_properties(ocl PROPERTIES PREFIX "") 
-if (WIN32)
-set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
-endif (WIN32)
+# if (WIN32)
+# set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION})
+# endif (WIN32)
 
 install(
   TARGETS ocl
