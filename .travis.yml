@@ -33,21 +33,13 @@ before_install:
       sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
       sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
     else
-      ls "/c";
-      ls "/c/Program Files (x86)";
-      ls "/c/Program Files (x86)/MSBuild";
-      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017";
-      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools";
-      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild";
-      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0";
-      ls "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin";
       choco install cmake;
       choco install nodejs;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -o/c/boost -r;
     fi
 before_script:
-  - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then npm install; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then /c/users/travis/AppData/Roaming/npm install; else npm install; fi
   - mkdir build
   - cd build
   - echo $BUILD_CXX_LIB
