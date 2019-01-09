@@ -35,6 +35,11 @@ before_install:
     else
       choco install cmake;
       choco install nodejs;
+      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
+        choco install python2;
+      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
+        choco install python3;
+      fi;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -o/c/boost -r;
     fi
