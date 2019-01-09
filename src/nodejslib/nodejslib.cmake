@@ -1,6 +1,6 @@
 message("Creating node.js library")
 
-include(nodemodule.cmake)
+include(${OpenCamLib_SOURCE_DIR}/nodejslib/nodemodule.cmake)
 
 set(NODE_MODULE_MINIMUM_ABI 67)
 
