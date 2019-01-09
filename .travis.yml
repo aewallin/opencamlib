@@ -36,6 +36,7 @@ before_install:
       pwd;
       choco install cmake;
       choco install nodejs;
+      # choco install visualstudio2017buildtools;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -o/c/boost -r;
     fi
@@ -64,7 +65,7 @@ before_script:
         ../src;
     fi
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then pwd; ls; msbuild Project.sln; else make; fi
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ls; devenv OpenCamLib.sln; else make; fi
 
 after_success:
   - sudo make install
