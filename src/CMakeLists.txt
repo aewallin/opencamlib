@@ -24,6 +24,9 @@ option(BUILD_CXX_LIB
 option(BUILD_PY_LIB 
   "Build/install the python ocl library? " ON)
 
+option(BUILD_NODEJS_LIB 
+  "Build/install the node.js ocl library? " OFF)
+
 option(BUILD_DOC
   "Build/install the ocl documentation? " ON)
 
@@ -44,64 +47,6 @@ endif(NOT BUILD_DOC)
 
 # figure out the gcc version
 include(gcc_version.cmake)
-
-#
-# Figure out how to build and where to install the Python modules
-#
-
-find_package(PythonInterp)
-
-if (PYTHONINTERP_FOUND)
-  if (UNIX AND NOT APPLE)
-    if (PYTHON_VERSION_MAJOR EQUAL 3)
-        find_package(Boost COMPONENTS python${PYTHON_VERSION_SUFFIX})
-        find_package(PythonInterp 3)
-        find_package(PythonLibs 3 REQUIRED)
-    else()
-        find_package(Boost COMPONENTS python)
-        find_package(PythonInterp)
-        find_package(PythonLibs REQUIRED)
-    endif()
-  else()	
-    if (PYTHON_VERSION_MAJOR EQUAL 3)
-        find_package(Boost COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-        find_package(PythonInterp 3)
-        find_package(PythonLibs 3 REQUIRED)
-    else()
-        find_package(Boost COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR})
-        find_package(PythonInterp)
-        find_package(PythonLibs REQUIRED)
-    endif()
-  endif()
-else()
-    message("Python not found")
-endif()
-
-execute_process(
-  COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
-  OUTPUT_VARIABLE Python_site_packages
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
-
-execute_process(
-  COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
-  OUTPUT_VARIABLE Python_arch_packages
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
-message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
-message(STATUS "PYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}")
-message(STATUS "PYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}")
-message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
-message(STATUS "PYTHON_INCLUDE_DIR:FILEPATH=${PYTHON_INCLUDE_DIR}")
-message(STATUS "PYTHON_FRAMEWORK_INCLUDES=${PYTHON_FRAMEWORK_INCLUDES}")
-message(STATUS "PYTHONLIBS_VERSION_STRING=${PYTHONLIBS_VERSION_STRING}")
-message(STATUS "Python_FRAMEWORKS=${Python_FRAMEWORKS}")
-message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-
-
-
-include_directories(${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
 
 #
 # Turn compiler warnings up to 11, at least with gcc.  I don't know how to
@@ -175,6 +120,10 @@ ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
 ENDIF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
 
 message(STATUS "OpenCamLib version: ${MY_VERSION}")
+
+# Add boost
+find_package(Boost)
+include_directories(${Boost_INCLUDE_DIRS})
 
 # this defines the source-files
 set(OCL_GEO_SRC
@@ -278,13 +227,12 @@ set( OCL_INCLUDE_FILES
 
   )
 
-
 # this branches into the dirs and compiles stuff there
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/cutters  )
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/geo  )
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
-ADD_SUBDIRECTORY( ${OpenCamLib_SOURCE_DIR}/common  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
 
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
@@ -294,80 +242,18 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
-# strip away /usr/local/  because that is what CMAKE_INSTALL_PREFIX is set to
-# also, since there is no leading "/", it makes ${Python_site_packages} a relative path.
-STRING(REGEX REPLACE "/usr/local/(.*)$" "\\1" Python_site_packages "${Python_site_packages}" )
-STRING(REGEX REPLACE "/usr/local/(.*)$" "\\1" Python_arch_packages "${Python_arch_packages}" )
-
-message(STATUS "CMAKE_INSTALL_PREFIX is : " ${CMAKE_INSTALL_PREFIX})
-message(STATUS "Python modules will be installed to: " ${Python_site_packages})
-message(STATUS "Python libraries will be installed to: " ${Python_arch_packages})
+if (BUILD_NODEJS_LIB)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/nodejslib/nodejslib.cmake)
+endif (BUILD_NODEJS_LIB)
 
 if (BUILD_PY_LIB)
-  # this makes the ocl Python module
-  add_library(
-    ocl 
-    MODULE
-    ocl_cutters.cpp
-    ocl_geometry.cpp
-    ocl_algo.cpp
-    ocl_dropcutter.cpp
-    ocl.cpp
-    
-    )
-
-  target_link_libraries(ocl ocl_common ocl_dropcutter ocl_cutters  ocl_geo ocl_algo ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
-
-  message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
-
-  # this makes the lib name ocl.so and not libocl.so
-  set_target_properties(ocl PROPERTIES PREFIX "") 
-  if (WIN32)
-    set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION}) 
-  endif (WIN32)
-
-  install(
-    TARGETS ocl
-    LIBRARY DESTINATION ${Python_arch_packages}
-    )
-  # these are the python helper lib-files such as camvtk.py 
-  install(
-    DIRECTORY lib/
-    DESTINATION ${Python_site_packages}
-    #    PATTERN .svn EXCLUDE
-    )
+  include(${CMAKE_CURRENT_SOURCE_DIR}/pythonlib.cmake)
 endif (BUILD_PY_LIB)
-
 
 # this is the C++ shared library
 if (BUILD_CXX_LIB)
-  add_library(
-    libocl
-    SHARED
-    ${OCL_GEO_SRC}
-    ${OCL_CUTTER_SRC}
-    ${OCL_ALGO_SRC}
-    ${OCL_DROPCUTTER_SRC}
-    ${OCL_COMMON_SRC}
-    )
-  set_target_properties(libocl PROPERTIES PREFIX "") 
-  set_target_properties(libocl PROPERTIES VERSION ${MY_VERSION}) 
-  install(
-    TARGETS libocl
-    LIBRARY 
-    DESTINATION lib/opencamlib
-    ARCHIVE DESTINATION lib/opencamlib
-    PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-    )
-
-  # this installs the c++ include headers
-  install(
-    FILES ${OCL_INCLUDE_FILES}
-    DESTINATION include/opencamlib
-    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-    )
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cxxlib.cmake)
 endif (BUILD_CXX_LIB)
-
 
 #
 # this installs the examples

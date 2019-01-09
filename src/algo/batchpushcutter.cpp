@@ -55,19 +55,19 @@ BatchPushCutter::~BatchPushCutter() {
 
 void BatchPushCutter::setSTL(const STLSurf &s) {
     surf = &s;
-    std::cout << "BPC::setSTL() Building kd-tree... bucketSize=" << bucketSize << "..";
+    // std::cout << "BPC::setSTL() Building kd-tree... bucketSize=" << bucketSize << "..";
     root->setBucketSize( bucketSize );
     if (x_direction)
         root->setYZDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     else if (y_direction)
         root->setXZDimensions();
     else {
-        std::cout << " ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
+        std::cerr << "ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
         assert(0);
     }
-    std::cout << "BPC::setSTL() root->build()...";
+    // std::cout << "BPC::setSTL() root->build()...";
     root->build(s.tris);
-    std::cout << "done.\n";
+    // std::cout << "done.\n";
 }
 
 void BatchPushCutter::appendFiber(Fiber& f) {
@@ -81,8 +81,8 @@ void BatchPushCutter::reset() {
 /// very simple batch push-cutter
 /// each fiber is tested against all triangles of surface
 void BatchPushCutter::pushCutter1() {
-    std::cout << "BatchPushCutter1 with " << fibers->size() << 
-              " fibers and " << surf->tris.size() << " triangles..." << std::endl;
+    // std::cout << "BatchPushCutter1 with " << fibers->size() << 
+    //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
     boost::progress_display show_progress( fibers->size() );
     BOOST_FOREACH(Fiber& f, *fibers) {
@@ -94,15 +94,15 @@ void BatchPushCutter::pushCutter1() {
         }
         ++show_progress;
     }
-    std::cout << "BatchPushCutter done." << std::endl;
+    // std::cout << "BatchPushCutter done." << std::endl;
     return;
 }
 
 /// push-cutter which uses KDNode2 kd-tree search to find triangles 
 /// overlapping with the cutter.
 void BatchPushCutter::pushCutter2() {
-    std::cout << "BatchPushCutter2 with " << fibers->size() << 
-              " fibers and " << surf->tris.size() << " triangles..." << std::endl;
+    // std::cout << "BatchPushCutter2 with " << fibers->size() << 
+    //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
     std::list<Triangle>* overlap_triangles;
     boost::progress_display show_progress( fibers->size() );
@@ -132,19 +132,20 @@ void BatchPushCutter::pushCutter2() {
         delete( overlap_triangles );
         ++show_progress;
     }
-    std::cout << "BatchPushCutter2 done." << std::endl;
+    // std::cout << "BatchPushCutter2 done." << std::endl;
     return;
 }
 
 /// use kd-tree search to find overlapping triangles
 /// use OpenMP for multi-threading
 void BatchPushCutter::pushCutter3() {
-    std::cout << "BatchPushCutter3 with " << fibers->size() << 
-              " fibers and " << surf->tris.size() << " triangles." << std::endl;
-    std::cout << " cutter = " << cutter->str() << "\n";
+    // std::cout << "BatchPushCutter3 with " << fibers->size() << 
+    //           " fibers and " << surf->tris.size() << " triangles." << std::endl;
+    // std::cout << " cutter = " << cutter->str() << "\n";
     nCalls = 0;
     boost::progress_display show_progress( fibers->size() );
 #ifdef _OPENMP
+    std::cout << "OpenMP is enabled";
     omp_set_num_threads(nthreads);
     //omp_set_nested(1);
 #endif
@@ -196,7 +197,7 @@ void BatchPushCutter::pushCutter3() {
     } // OpenMP parallel region ends here
     
     this->nCalls = calls;
-    std::cout << "\nBatchPushCutter3 done." << std::endl;
+    // std::cout << "\nBatchPushCutter3 done." << std::endl;
     return;
 }
 

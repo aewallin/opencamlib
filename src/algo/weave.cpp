@@ -47,7 +47,7 @@ void Weave::addFiber(Fiber& f) {
 // traverse the graph putting loops of vertices into the loops variable
 // this figure illustrates next-pointers: http://www.anderswallin.net/wp-content/uploads/2011/05/weave2_zoom.png
 void Weave::face_traverse() { 
-    std::cout << " traversing graph with " << clVertexSet.size() << " cl-points\n";
+    // std::cout << " traversing graph with " << clVertexSet.size() << " cl-points\n";
     while ( !clVertexSet.empty() ) { // while unprocessed cl-vertices remain
         std::vector<Vertex> loop; // start on a new loop
         Vertex current = *(clVertexSet.begin());
