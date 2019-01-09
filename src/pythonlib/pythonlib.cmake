@@ -1,6 +1,7 @@
 #
 # Figure out how to build and where to install the Python modules
 #
+set(Boost_ADDITIONAL_VERSIONS 1.69.0) 
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
   find_package(PythonInterp)
