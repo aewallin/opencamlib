@@ -33,7 +33,7 @@ namespace ocl
 {
 
 CylCutter::CylCutter() {
-    std::cout << " usage: CylCutter( double diameter, double length ) \n";
+    // std::cout << " usage: CylCutter( double diameter, double length ) \n";
     assert(0);
 }
 

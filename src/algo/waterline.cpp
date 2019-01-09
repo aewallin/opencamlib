@@ -55,7 +55,7 @@ Waterline::Waterline() {
 }
 
 Waterline::~Waterline() {
-    std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
+    // std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
     subOp.clear();
 }
 
@@ -93,7 +93,7 @@ void Waterline::reset() {
 }
 
 void Waterline::weave_process() {
-    std::cout << "Weave...\n" << std::flush;
+    // std::cout << "Weave...\n" << std::flush;
     weave::SimpleWeave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
@@ -104,19 +104,19 @@ void Waterline::weave_process() {
    
     //std::cout << "Weave::build()..." << std::flush;
     weave.build(); 
-    std::cout << "done.\n";
+    // std::cout << "done.\n";
     
-    std::cout << "Weave::face traverse()...";
+    // std::cout << "Weave::face traverse()...";
     weave.face_traverse();
-    std::cout << "done.\n";
+    // std::cout << "done.\n";
 
-    std::cout << "Weave::get_loops()...";
+    // std::cout << "Weave::get_loops()...";
     loops = weave.getLoops();
-    std::cout << "done.\n";   
+    // std::cout << "done.\n";   
 }
 
 void Waterline::weave_process2() {
-    std::cout << "Weave...\n" << std::flush;
+    // std::cout << "Weave...\n" << std::flush;
     weave::SmartWeave weave;
     BOOST_FOREACH( Fiber f, xfibers ) {
         weave.addFiber(f);
@@ -127,19 +127,19 @@ void Waterline::weave_process2() {
    
     //std::cout << "Weave::build2()..." << std::flush;
     weave.build(); 
-    std::cout << "done.\n";
+    // std::cout << "done.\n";
     
-    std::cout << "Weave::face traverse()...";
+    // std::cout << "Weave::face traverse()...";
     weave.face_traverse();
-    std::cout << "done.\n";
+    // std::cout << "done.\n";
 
-    std::cout << "Weave::get_loops()...";
+    // std::cout << "Weave::get_loops()...";
     loops = weave.getLoops();
-    std::cout << "done.\n";   
+    // std::cout << "done.\n";   
 }
 
 void Waterline::init_fibers() {
-    std::cout << " Waterline::init_fibers()\n";
+    // std::cout << " Waterline::init_fibers()\n";
     double minx = surf->bb.minpt.x - 2*cutter->getRadius();
     double maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
     double miny = surf->bb.minpt.y - 2*cutter->getRadius();
@@ -160,7 +160,6 @@ void Waterline::init_fibers() {
         Fiber f = Fiber( p1 , p2 );
         subOp[1]->appendFiber( f );
     }
-
 }
 
 // return a double-vector [ start , ... , end ] with N elements

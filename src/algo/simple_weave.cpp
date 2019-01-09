@@ -62,7 +62,7 @@ void SimpleWeave::build() {
     // if this connects points that are already connected, then remove old edge and
     // provide this "via" connection
     //int n_xfiber=0;
-    std::cout << " SimpleWeave::build()... \n";
+    // std::cout << " SimpleWeave::build()... \n";
     BOOST_FOREACH( Fiber& xf, xfibers) {
         assert( !xf.empty() ); // no empty fibers please
         BOOST_FOREACH( Interval& xi, xf.ints ) {
