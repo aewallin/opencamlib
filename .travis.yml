@@ -59,6 +59,7 @@ before_script:
       if [[ "$USE_PYTHONV3" == "ON" ]]; then
         cmake
           -DPython3_ROOT_DIR="/c/Python37"
+          -DPython3_EXECUTABLE="/c/Python37/python.exe"
           -DBOOST_ROOT="/c/boost/boost_1_69_0"
           -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
           -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
@@ -69,6 +70,7 @@ before_script:
       else
         cmake
           -DPython2_ROOT_DIR="/c/Python27"
+          -DPython2_EXECUTABLE="/c/Python27/python.exe"
           -DBOOST_ROOT="/c/boost/boost_1_69_0"
           -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
           -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
