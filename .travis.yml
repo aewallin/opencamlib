@@ -36,7 +36,7 @@ before_install:
       pwd;
       choco install cmake;
       choco install nodejs;
-      # choco install visualstudio2017buildtools;
+      choco install visualstudio2017buildtools;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -o/c/boost -r;
     fi
