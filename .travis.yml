@@ -36,7 +36,6 @@ before_install:
       pwd;
       choco install cmake;
       choco install nodejs;
-      choco install visualstudio2017buildtools;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -o/c/boost -r;
     fi
@@ -55,6 +54,7 @@ before_script:
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
         -DBUILD_PY_LIB="$BUILD_PY_LIB"
         -DUSE_PYTHONV3="$USE_PYTHONV3"
+        -DVERSION_STRING="$TRAVIS_BRANCH"
         ../src;
     else
       /usr/local/bin/cmake
@@ -62,6 +62,7 @@ before_script:
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
         -DBUILD_PY_LIB="$BUILD_PY_LIB"
         -DUSE_PYTHONV3="$USE_PYTHONV3"
+        -DVERSION_STRING="$TRAVIS_BRANCH"
         ../src;
     fi
 script:
