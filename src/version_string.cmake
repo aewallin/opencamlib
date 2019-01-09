@@ -32,7 +32,7 @@ if(GIT_FOUND)
         RESULT_VARIABLE res_var 
         OUTPUT_VARIABLE GIT_COM_ID 
         OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
+        # ERROR_QUIET
     )
     if( NOT ${res_var} EQUAL 0 )
         message( WARNING "Git failed (not a repo, or no tags)." )
