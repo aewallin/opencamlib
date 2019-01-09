@@ -13,6 +13,7 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost-python; else sudo apt-get install -y libboost-python-dev; fi
   - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get install -y libboost-system-dev; fi
 before_script:
+  - npm install
   - mkdir build
   - cd build
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake ../src -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG -DCMAKE_BUILD_TYPE=Release -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -Wno-dev; else cmake ../src; fi
