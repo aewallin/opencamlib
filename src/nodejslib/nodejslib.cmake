@@ -6,6 +6,8 @@ set(NODE_MODULE_MINIMUM_ABI 67)
 
 if (APPLE)
 	set(INSTALL_PATH  "nodejslib/opencamlib.darwin.node")
+elseif(WIN32)
+	set(INSTALL_PATH  "nodejslib/opencamlib.windows.node")
 else()
 	set(INSTALL_PATH  "nodejslib/opencamlib.linux.node")
 endif()
