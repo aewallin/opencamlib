@@ -33,8 +33,9 @@ before_install:
       sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
       sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
     else
-      pwd
+      pwd;
       choco install cmake;
+      choco install nodejs;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -o/c/boost -r;
     fi
