@@ -34,10 +34,13 @@ option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
 option(VERSION_STRING
-    "Set version string" ON)
+    "Set version string" OFF)
 
 option(USE_PYTHONV3
     "Use Python V3" OFF)
+
+option(PYTHON_ROOT_DIR
+    "Python root dir hint" OFF)
 
 if (NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
