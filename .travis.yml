@@ -36,7 +36,6 @@ before_install:
       choco install cmake;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
       7z x boost.zip -y -oc:\boost -r;
-      ls c:\;
     fi
 before_script:
   - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then npm install; fi
