@@ -33,9 +33,10 @@ before_install:
       sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
       sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
     else
+      pwd
       choco install cmake;
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
-      7z x boost.zip -y -oc:\boost -r;
+      7z x boost.zip -y -o/c/boost -r;
     fi
 before_script:
   - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then npm install; fi
@@ -47,7 +48,7 @@ before_script:
   - echo $USE_PYTHONV3
   - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       cmake
-        -DBOOST_ROOT="C:\boost"
+        -DBOOST_ROOT="/c/boost"
         -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
         -DBUILD_PY_LIB="$BUILD_PY_LIB"
