@@ -19,10 +19,14 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       if [[ "$PYTHONV" == "2" ]]; then
         HOMEBREW_NO_AUTO_UPDATE=1 brew install boost-python;
+        export PYTHON_BINARY=/usr/local/bin/python;
         export PYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib;
         export PYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7;
       else
         HOMEBREW_NO_AUTO_UPDATE=1 brew install python boost-python3;
+        export PYTHON_BINARY=/usr/local/bin/python3;
+        export PYTHON_LIBRARY=$(python3-config --prefix)/lib/libpython3.7.dylib;
+        export PYTHON_INCLUDE_DIR=$(python3-config --prefix)/include/python3.7m;
       fi;
       export CMAKE_FIND_FRAMEWORK=LAST;
       export CMAKE_VERBOSE_MAKEFILE=ON;
@@ -42,6 +46,7 @@ before_script:
         -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
         -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
         -DBUILD_PYTHON_LIB="$BUILD_PY_LIB"
+        -DPYTHON_BINARY="$PYTHON_BINARY"
         -DPYTHON_LIBRARY="$PYTHON_LIBRARY"
         -DPYTHON_INCLUDE_DIR="$PYTHON_INCLUDE_DIR"
         ../src;
