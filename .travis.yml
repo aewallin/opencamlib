@@ -1,24 +1,99 @@
 os:
+  - windows
   - linux
   - osx
 
-language: c++
+# matrix:
+#   allow_failures:
+#     - os: windows
+
+language: cpp
 
 compiler:
     - gcc
 
+env:
+  - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=ON BUILD_PY_LIB=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=ON
+
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get update; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get install -y git; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install boost-python; else sudo apt-get install -y libboost-python-dev; fi
-  - if [[ "$TRAVIS_OS_NAME" != "osx" ]]; then sudo apt-get install -y libboost-system-dev; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update;
+      brew upgrade cmake;
+      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
+        brew install boost-python;
+      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
+        brew install boost-python3;
+      fi;
+      export CMAKE_FIND_FRAMEWORK=LAST;
+      export CMAKE_VERBOSE_MAKEFILE=ON;
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      sudo apt-get update;
+      sudo apt-get install -y git libboost-python-dev libboost-system-dev;
+      wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh;
+      sudo mkdir /opt/cmake;
+      sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
+      sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
+    else
+      choco install cmake;
+      choco install nodejs;
+      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
+        choco install python2;
+      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
+        choco install python3;
+      fi;
+      wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
+      7z x boost.zip -y -o/c/boost -r;
+    fi
 before_script:
-  - npm install
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then "/c/Program Files/nodejs/npm" install; else npm install; fi
   - mkdir build
   - cd build
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then cmake ../src -DBUILD_NODEJS_LIB=ON -DPYTHON_LIBRARY=$(python-config --prefix)/lib/libpython2.7.dylib -DPYTHON_INCLUDE_DIR=$(python-config --prefix)/include/python2.7 -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG -DCMAKE_BUILD_TYPE=Release -DCMAKE_FIND_FRAMEWORK=LAST -DCMAKE_VERBOSE_MAKEFILE=ON -Wno-dev; else cmake ../src -DBUILD_NODEJS_LIB=ON; fi
-script: 
-  - make
+  - echo $BUILD_CXX_LIB
+  - echo $BUILD_NODEJS_LIB
+  - echo $BUILD_PY_LIB
+  - echo $USE_PYTHONV3
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      if [[ "$USE_PYTHONV3" == "ON" ]]; then
+        cmake
+          -DPython3_ROOT_DIR="/c/Python37"
+          -DPython3_EXECUTABLE="/c/Python37/python.exe"
+          -DPython3_SITELIB="/c/Python37/Lib/site-packages"
+          -DPython3_SITEARCH="/c/Python37/Lib/site-packages"
+          -DBOOST_ROOT="/c/boost/boost_1_69_0"
+          -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+          -DBUILD_PY_LIB="$BUILD_PY_LIB"
+          -DUSE_PYTHONV3="$USE_PYTHONV3"
+          -DVERSION_STRING="$TRAVIS_BRANCH"
+          ../src;
+      else
+        cmake
+          -DPython2_ROOT_DIR="/c/Python27"
+          -DPython2_EXECUTABLE="/c/Python27/python.exe"
+          -DPython2_SITELIB="/c/Python27/Lib/site-packages"
+          -DPython2_SITEARCH="/c/Python27/Lib/site-packages"
+          -DBOOST_ROOT="/c/boost/boost_1_69_0"
+          -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+          -DBUILD_PY_LIB="$BUILD_PY_LIB"
+          -DUSE_PYTHONV3="$USE_PYTHONV3"
+          -DVERSION_STRING="$TRAVIS_BRANCH"
+          ../src;
+      fi
+    else
+      /usr/local/bin/cmake
+        -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
+        -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
+        -DBUILD_PY_LIB="$BUILD_PY_LIB"
+        -DUSE_PYTHONV3="$USE_PYTHONV3"
+        -DVERSION_STRING="$TRAVIS_BRANCH"
+        ../src;
+    fi
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ls; "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe" ALL_BUILD.vcxproj; else make; fi
 
 after_success:
   - sudo make install

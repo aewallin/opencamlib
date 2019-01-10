@@ -1,11 +1,14 @@
-message("Creating node.js library")
+find_package(Boost)
+include_directories(${Boost_INCLUDE_DIRS})
 
-include(../node_modules/@mapbox/cmake-node-module/module.cmake)
+include(${OpenCamLib_SOURCE_DIR}/nodejslib/nodemodule.cmake)
 
 set(NODE_MODULE_MINIMUM_ABI 67)
 
 if (APPLE)
 	set(INSTALL_PATH  "nodejslib/opencamlib.darwin.node")
+elseif(WIN32)
+	set(INSTALL_PATH  "nodejslib/opencamlib.windows.node")
 else()
 	set(INSTALL_PATH  "nodejslib/opencamlib.linux.node")
 endif()

@@ -33,6 +33,12 @@ option(BUILD_DOC
 option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
+option(VERSION_STRING
+    "Set version string" OFF)
+
+option(USE_PYTHONV3
+    "Use Python V3" OFF)
+
 if (NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
 endif(NOT BUILD_CXX_LIB)
@@ -110,20 +116,27 @@ ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
   ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
   # include the output directory, where the version_string.hpp file is generated
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
-  include(version_string.cmake)
-  # now parse the git commit id:
-  STRING(REGEX REPLACE "([0-9]+).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-  STRING(REGEX REPLACE "[0-9]+.([0-9]+)-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-  STRING(REGEX REPLACE "[0-9]+.[0-9]+-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-  SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-  SET(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
+  if (VERSION_STRING)
+    set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
+               "#ifndef VERSION_STRING\n"
+               "#define VERSION_STRING \"${VERSION_STRING}\"\n"
+               "#endif\n"
+    )
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp ${vstring} )
+    set(MY_VERSION ${VERSION_STRING})
+    set(version_string ${VERSION_STRING})
+  else()
+    include(version_string.cmake)
+    # now parse the git commit id:
+    STRING(REGEX REPLACE "([0-9]+).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
+    STRING(REGEX REPLACE "[0-9]+.([0-9]+)-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
+    STRING(REGEX REPLACE "[0-9]+.[0-9]+-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
+    SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
+    SET(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
+  endif()
 ENDIF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
 
 message(STATUS "OpenCamLib version: ${MY_VERSION}")
-
-# Add boost
-find_package(Boost)
-include_directories(${Boost_INCLUDE_DIRS})
 
 # this defines the source-files
 set(OCL_GEO_SRC
@@ -247,12 +260,12 @@ if (BUILD_NODEJS_LIB)
 endif (BUILD_NODEJS_LIB)
 
 if (BUILD_PY_LIB)
-  include(${CMAKE_CURRENT_SOURCE_DIR}/pythonlib.cmake)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/pythonlib/pythonlib.cmake)
 endif (BUILD_PY_LIB)
 
 # this is the C++ shared library
 if (BUILD_CXX_LIB)
-  include(${CMAKE_CURRENT_SOURCE_DIR}/cxxlib.cmake)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/cxxlib/cxxlib.cmake)
 endif (BUILD_CXX_LIB)
 
 #
