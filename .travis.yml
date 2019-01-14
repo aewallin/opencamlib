@@ -65,7 +65,7 @@ before_install:
 
 before_script:
   - cd $TRAVIS_BUILD_DIR
-  - export PATH="$PATH:/c/Program Files/nodejs;/c/Python27/python;/c/Python37/python"
+  - export PATH="$PATH:/c/Program Files/nodejs:/c/Python27/python:/c/Python37/python"
   - echo $PATH
   - npm install
   - mkdir build
