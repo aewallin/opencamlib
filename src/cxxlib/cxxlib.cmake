@@ -1,6 +1,21 @@
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 
+# this branches into the dirs and compiles stuff there
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
+
+# include dirs
+include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
+include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
+include_directories( ${OpenCamLib_SOURCE_DIR}/common )
+include_directories( ${OpenCamLib_SOURCE_DIR} )
+
 add_library(
   libocl
   SHARED

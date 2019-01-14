@@ -1,29 +1,24 @@
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
 
-include(${OpenCamLib_SOURCE_DIR}/nodejslib/nodemodule.cmake)
+# this branches into the dirs and compiles stuff there
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
 
-set(NODE_MODULE_MINIMUM_ABI 67)
+# include dirs
+include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
+include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
+include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
+include_directories( ${OpenCamLib_SOURCE_DIR}/common )
+include_directories( ${OpenCamLib_SOURCE_DIR} )
 
-if (APPLE)
-	set(INSTALL_PATH  "nodejslib/opencamlib.darwin.node")
-elseif(WIN32)
-	set(INSTALL_PATH  "nodejslib/opencamlib.windows.node")
-else()
-	set(INSTALL_PATH  "nodejslib/opencamlib.linux.node")
-endif()
-message(${INSTALL_PATH})
-add_node_module(opencamlib
-	NAN_VERSION 2.12.1
-	INSTALL_PATH ${INSTALL_PATH}
-)
-foreach(TARGET IN LISTS opencamlib::targets)
-	message(${TARGET})
-	target_link_libraries(${TARGET} ${Boost_LIBRARIES})
-	include_directories(${TARGET} SYSTEM PRIVATE ${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
-	target_include_directories(${TARGET} SYSTEM PRIVATE ${Boost_INCLUDE_DIRS})
-endforeach()
-target_sources(opencamlib INTERFACE
+include_directories(${CMAKE_JS_INC})
+add_library(${TARGET} SHARED
 	${OCL_GEO_SRC}
 	${OCL_CUTTER_SRC}
 	${OCL_DROPCUTTER_SRC}
@@ -38,3 +33,6 @@ target_sources(opencamlib INTERFACE
 	${OpenCamLib_SOURCE_DIR}/nodejslib/waterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/nodejslib.cpp
 )
+set_target_properties(${TARGET} PROPERTIES PREFIX "" SUFFIX ".node")
+link_libraries(${CMAKE_JS_LIB})
+link_libraries(${Boost_LIBRARIES})
