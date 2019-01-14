@@ -18,7 +18,7 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 include_directories(${CMAKE_JS_INC})
-add_library(${PROJECT_NAME} SHARED
+add_library(opencamlib SHARED
 	${OCL_GEO_SRC}
 	${OCL_CUTTER_SRC}
 	${OCL_DROPCUTTER_SRC}
@@ -42,6 +42,6 @@ else()
 	set(NODE_LIB_POSTFIX ".linux.node")
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
+set_target_properties(opencamlib PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
 link_libraries(${CMAKE_JS_LIB})
 link_libraries(${Boost_LIBRARIES})

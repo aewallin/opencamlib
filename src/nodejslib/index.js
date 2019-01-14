@@ -4,4 +4,4 @@ if (process.platform == 'win32') {
 } else if (process.platform == 'darwin') {
 	platform = 'darwin'
 }
-module.exports = require(__dirname + '/../../build/Release/OpenCamLib.' + platform + '.node')
+module.exports = require(__dirname + '/../../build/Release/opencamlib.' + platform + '.node')
