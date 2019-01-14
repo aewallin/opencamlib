@@ -16,17 +16,17 @@ compiler:
 env:
   - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF
   - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=ON BUILD_PY_LIB=OFF
-  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=OFF
-  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=ON
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PY_3=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PY_3=ON
 
 before_install:
   - >
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update
       brew upgrade cmake
-      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
+      if [[ "$USE_PY_3" == "OFF" ]]; then
         brew install boost-python
-      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
+      elif [[ "$USE_PY_3" == "ON" ]]; then
         brew install boost-python3
       fi
       export CMAKE_FIND_FRAMEWORK=LAST
@@ -41,9 +41,9 @@ before_install:
     else
       choco install cmake
       choco install nodejs
-      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
+      if [[ "$USE_PY_3" == "OFF" ]]; then
         choco install python2
-      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
+      elif [[ "$USE_PY_3" == "ON" ]]; then
         choco install python3
       fi
       wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip
@@ -51,7 +51,7 @@ before_install:
       if [[ "$BUILD_PY_LIB" == "ON" ]]; then
         cd /c/boost/boost_1_69_0
         ./bootstrap.bat
-        if [[ "$USE_PYTHONV3" == "OFF" ]]; then
+        if [[ "$USE_PY_3" == "OFF" ]]; then
           echo 'using python : 2.7 : C:\\Python27\\python : C:\\Python27\\include : C:\\Python27\\libs ;' >> project-config.jam
         else
           echo 'using python : 3.7 : C:\\Python37\\python : C:\\Python37\\include : C:\\Python37\\libs ;' >> project-config.jam
@@ -73,7 +73,7 @@ before_script:
   - echo $BUILD_CXX_LIB
   - echo $BUILD_NODEJS_LIB
   - echo $BUILD_PY_LIB
-  - echo $USE_PYTHONV3
+  - echo $USE_PY_3
   - >
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
@@ -87,7 +87,7 @@ before_script:
           --CDBUILD_PY_LIB="$BUILD_PY_LIB" \
           --CDVERSION_STRING="$TRAVIS_BRANCH"
       elif [[ "$BUILD_PY_LIB" == "ON" ]]; then
-        if [[ "$USE_PYTHONV3" == "ON" ]]; then
+        if [[ "$USE_PY_3" == "ON" ]]; then
           cmake \
             -DPython3_ROOT_DIR="/c/Python37" \
             -DPython3_EXECUTABLE="/c/Python37/python.exe" \
@@ -99,7 +99,7 @@ before_script:
             -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
             -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
             -DBUILD_PY_LIB="$BUILD_PY_LIB" \
-            -DUSE_PYTHONV3="$USE_PYTHONV3" \
+            -DUSE_PY_3="$USE_PY_3" \
             -DVERSION_STRING="$TRAVIS_BRANCH" \
             -DCMAKE_GENERATOR_PLATFORM="x64" \
             ../src;
@@ -115,7 +115,7 @@ before_script:
             -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
             -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
             -DBUILD_PY_LIB="$BUILD_PY_LIB" \
-            -DUSE_PYTHONV3="$USE_PYTHONV3" \
+            -DUSE_PY_3="$USE_PY_3" \
             -DVERSION_STRING="$TRAVIS_BRANCH" \
             -DCMAKE_GENERATOR_PLATFORM="x64" \
             ../src;
@@ -139,14 +139,14 @@ before_script:
           --CDBUILD_CXX_LIB="$BUILD_CXX_LIB" \
           --CDBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
           --CDBUILD_PY_LIB="$BUILD_PY_LIB" \
-          --CDUSE_PYTHONV3="$USE_PYTHONV3" \
+          --CDUSE_PY_3="$USE_PY_3" \
           --CDVERSION_STRING="$TRAVIS_BRANCH"
       else
         /usr/local/bin/cmake \
           -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
           -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
           -DBUILD_PY_LIB="$BUILD_PY_LIB" \
-          -DUSE_PYTHONV3="$USE_PYTHONV3" \
+          -DUSE_PY_3="$USE_PY_3" \
           -DVERSION_STRING="$TRAVIS_BRANCH" \
           ../src;
       fi
@@ -157,13 +157,13 @@ script:
 after_success:
   - >
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      if [[ "$USE_PYTHONV3" == "ON" ]]; then
+      if [[ "$USE_PY_3" == "ON" ]]; then
         otool -L /usr/local/Cellar/python/3.7.2_1/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/ocl.so;
       else
         otool -L /usr/local/Cellar/python@2/2.7.15_1/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/ocl.so;
       fi
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      if [[ "$USE_PYTHONV3" == "ON" ]]; then
+      if [[ "$USE_PY_3" == "ON" ]]; then
         objdump -x /usr/lib/python3/dist-packages/ocl.so;
       else
         objdump -x /usr/lib/python2.7/dist-packages/ocl.so;

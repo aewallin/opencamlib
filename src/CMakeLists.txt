@@ -36,7 +36,7 @@ option(USE_OPENMP
 option(VERSION_STRING
     "Set version string" OFF)
 
-option(USE_PYTHONV3
+option(USE_PY_3
     "Use Python V3" OFF)
 
 if (NOT BUILD_CXX_LIB)
