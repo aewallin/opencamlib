@@ -65,7 +65,7 @@ before_install:
 
 before_script:
   - cd $TRAVIS_BUILD_DIR
-  - export PATH="$PATH:/c/Program Files/nodejs"
+  - export PATH="$PATH:/c/Program Files/nodejs;/c/Python27/python;/c/Python37/python"
   - echo $PATH
   - npm install
   - mkdir build
@@ -151,9 +151,23 @@ before_script:
           ../src;
       fi
     fi
-
 script:
   - if [ "$TRAVIS_OS_NAME" != "windows" ] && [ "$BUILD_NODEJS_LIB" == "OFF" ]; then sudo make install; fi
 
 after_success:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then otool -L /usr/local/lib/python2.7/site-packages/ocl.so; fi
+  - >
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$USE_PYTHONV3" == "ON" ]]; then
+        otool -L /usr/local/Cellar/python/3.7.2_1/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/ocl.so;
+      else
+        otool -L /usr/local/Cellar/python@2/2.7.15_1/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/ocl.so;
+      fi
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      if [[ "$USE_PYTHONV3" == "ON" ]]; then
+        objdump -x /usr/lib/python3/dist-packages/ocl.so;
+      else
+        objdump -x /usr/lib/python2.7/dist-packages/ocl.so;
+      fi
+    fi
+  - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then node $TRAVIS_BUILD_DIR/examples/nodejs/test.js; fi
+  - if [[ "$BUILD_PY_LIB" == "ON" ]]; then python $TRAVIS_BUILD_DIR/examples/python/ocl_clpoint.py; fi

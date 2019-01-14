@@ -18,7 +18,7 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 include_directories(${CMAKE_JS_INC})
-add_library(${TARGET} SHARED
+add_library(${PROJECT_NAME} SHARED
 	${OCL_GEO_SRC}
 	${OCL_CUTTER_SRC}
 	${OCL_DROPCUTTER_SRC}
@@ -33,6 +33,15 @@ add_library(${TARGET} SHARED
 	${OpenCamLib_SOURCE_DIR}/nodejslib/waterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/nodejslib.cpp
 )
-set_target_properties(${TARGET} PROPERTIES PREFIX "" SUFFIX ".node")
+
+if(WIN32)
+	set(NODE_LIB_POSTFIX ".win32.node")
+elseif(APPLE)
+	set(NODE_LIB_POSTFIX ".darwin.node")
+else()
+	set(NODE_LIB_POSTFIX ".linux.node")
+endif()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
 link_libraries(${CMAKE_JS_LIB})
 link_libraries(${Boost_LIBRARIES})

@@ -1,6 +1,6 @@
 import ocl
 
-print ocl.revision()
+# print ocl.revision()
 
 p = ocl.Point(1,2,3)
 print p
