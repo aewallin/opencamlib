@@ -6,6 +6,9 @@
 #include "triangle_js.hpp"
 #include "bbox_js.hpp"
 #include "waterline_js.hpp"
+#include "path_js.hpp"
+#include "line_js.hpp"
+#include "adaptivepathdropcutter_js.hpp"
 
 using namespace Napi;
 
@@ -17,6 +20,9 @@ Napi::Object InitAll(Napi::Env env, Napi::Object exports) {
   TriangleJS::Init(env, exports);
   BboxJS::Init(env, exports);
   WaterlineJS::Init(env, exports);
+  PathJS::Init(env, exports);
+  LineJS::Init(env, exports);
+  AdaptivePathDropCutterJS::Init(env, exports);
   return exports;
 }
 
