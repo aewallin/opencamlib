@@ -6,7 +6,7 @@ class WaterlineJS : public Napi::ObjectWrap<WaterlineJS>
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     WaterlineJS(const Napi::CallbackInfo &info);
-    ocl::Waterline *GetInternalInstance();
+    ocl::Waterline* GetInternalInstance();
     void setZ(const Napi::CallbackInfo &info);
     void setSTL(const Napi::CallbackInfo &info);
     void setCutter(const Napi::CallbackInfo &info);

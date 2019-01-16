@@ -20,10 +20,10 @@ BboxJS::BboxJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<BboxJS>(info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_ = ocl::Bbox();
+    actualClass_ = ocl::Bbox();
 }
 
-ocl::Bbox BboxJS::GetInternalInstance()
+ocl::Bbox* BboxJS::GetInternalInstance()
 {
-    return this->actualClass_;
+    return &actualClass_;
 }

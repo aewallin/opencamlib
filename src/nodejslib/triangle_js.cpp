@@ -22,7 +22,7 @@ TriangleJS::TriangleJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Triang
     actualClass_ = ocl::Triangle();
 }
 
-ocl::Triangle TriangleJS::GetInternalInstance()
+ocl::Triangle* TriangleJS::GetInternalInstance()
 {
-    return actualClass_;
+    return &actualClass_;
 }
