@@ -76,8 +76,7 @@ class KDTree {
     public:
         KDTree() {};
         virtual ~KDTree() {
-            // std::cout << " ~KDTree()\n";
-            delete root;
+            // std::cout << " ~KDTree()" << std::endl;
         }
         /// set the bucket-size 
         void setBucketSize(int b){
