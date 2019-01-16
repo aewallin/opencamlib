@@ -56,7 +56,7 @@ function adaptivePathDropCutter(surface, cutter, paths) {
         apdc.setPath(path)
         apdc.run()
         cl_points = apdc.getCLPoints()
-        cl_paths = cl_paths.concat(cl_points)
+        cl_paths.push(cl_points)
     })
     return cl_paths
 }
@@ -86,7 +86,12 @@ const Ny = 40 // number of lines in the y-direction
 const paths = YdirectionZigPath(xmin, xmax, ymin, ymax, Ny)
 
 //  now project onto the STL surface
-const points = adaptivePathDropCutter(surface, cutter, paths)
-points.forEach(function (point) {
-    console.log('G01 X' + Math.round(point[0] * 10000) / 10000 + ' Y' + Math.round(point[1] * 10000) / 10000 + ' Z' + Math.round(point[2] * 10000) / 10000)
+const toolpaths = adaptivePathDropCutter(surface, cutter, paths)
+toolpaths.forEach(function (points) {
+    console.log('G00 X' + Math.round(points[0][0] * 10000) / 10000 + ' Y' + Math.round(points[0][1] * 10000) / 10000)
+    console.log('G01 Z' + Math.round(points[0][2] * 10000) / 10000)
+    points.forEach(function (point) {
+        console.log('G01 X' + Math.round(point[0] * 10000) / 10000 + ' Y' + Math.round(point[1] * 10000) / 10000 + ' Z' + Math.round(point[2] * 10000) / 10000)
+    })
+    console.log('G00 Z3')
 })
