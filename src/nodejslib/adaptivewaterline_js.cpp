@@ -1,75 +1,82 @@
-#include "waterline_js.hpp"
+#include "adaptivewaterline_js.hpp"
 #include "stlsurf_js.hpp"
 #include "cylcutter_js.hpp"
 #include "cylcutter.hpp"
 #include "point.hpp"
 #include "millingcutter.hpp"
 
-Napi::FunctionReference WaterlineJS::constructor;
+Napi::FunctionReference AdaptiveWaterlineJS::constructor;
 
-Napi::Object WaterlineJS::Init(Napi::Env env, Napi::Object exports)
+Napi::Object AdaptiveWaterlineJS::Init(Napi::Env env, Napi::Object exports)
 {
     Napi::HandleScope scope(env);
 
-    Napi::Function func = DefineClass(env, "Waterline", {
-        InstanceMethod("setZ", &WaterlineJS::setZ),
-        InstanceMethod("setSTL", &WaterlineJS::setSTL),
-        InstanceMethod("setCutter", &WaterlineJS::setCutter),
-        InstanceMethod("setSampling", &WaterlineJS::setSampling),
-        InstanceMethod("run", &WaterlineJS::run),
-        InstanceMethod("getLoops", &WaterlineJS::getLoops)
+    Napi::Function func = DefineClass(env, "AdaptiveWaterline", {
+        InstanceMethod("setZ", &AdaptiveWaterlineJS::setZ),
+        InstanceMethod("setSTL", &AdaptiveWaterlineJS::setSTL),
+        InstanceMethod("setCutter", &AdaptiveWaterlineJS::setCutter),
+        InstanceMethod("setSampling", &AdaptiveWaterlineJS::setSampling),
+        InstanceMethod("setMinSampling", &AdaptiveWaterlineJS::setMinSampling),
+        InstanceMethod("run", &AdaptiveWaterlineJS::run),
+        InstanceMethod("getLoops", &AdaptiveWaterlineJS::getLoops)
     });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 
-    exports.Set("Waterline", func);
+    exports.Set("AdaptiveWaterline", func);
     return exports;
 }
 
-WaterlineJS::WaterlineJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<WaterlineJS>(info)
+AdaptiveWaterlineJS::AdaptiveWaterlineJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<AdaptiveWaterlineJS>(info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    actualClass_ = ocl::Waterline();
+    actualClass_ = ocl::AdaptiveWaterline();
 }
 
-ocl::Waterline* WaterlineJS::GetInternalInstance()
+ocl::AdaptiveWaterline *AdaptiveWaterlineJS::GetInternalInstance()
 {
     return &actualClass_;
 }
 
-void WaterlineJS::setZ(const Napi::CallbackInfo &info)
+void AdaptiveWaterlineJS::setZ(const Napi::CallbackInfo &info)
 {
     Napi::Number z = info[0].As<Napi::Number>();
     actualClass_.setZ(z.DoubleValue());
 }
 
-void WaterlineJS::setSTL(const Napi::CallbackInfo &info)
+void AdaptiveWaterlineJS::setSTL(const Napi::CallbackInfo &info)
 {
     STLSurfJS *sjs = Napi::ObjectWrap<STLSurfJS>::Unwrap(info[0].As<Napi::Object>());
     ocl::STLSurf *surface = sjs->GetInternalInstance();
     actualClass_.setSTL(*surface);
 }
 
-void WaterlineJS::setCutter(const Napi::CallbackInfo &info)
+void AdaptiveWaterlineJS::setCutter(const Napi::CallbackInfo &info)
 {
     CylCutterJS *cjs = Napi::ObjectWrap<CylCutterJS>::Unwrap(info[0].As<Napi::Object>());
     ocl::CylCutter *cutter = cjs->GetInternalInstance();
     actualClass_.setCutter(cutter);
 }
 
-void WaterlineJS::setSampling(const Napi::CallbackInfo &info)
+void AdaptiveWaterlineJS::setSampling(const Napi::CallbackInfo &info)
 {
     Napi::Number s = info[0].As<Napi::Number>();
     actualClass_.setSampling(s.DoubleValue());
 }
 
-void WaterlineJS::run(const Napi::CallbackInfo &info)
+void AdaptiveWaterlineJS::setMinSampling(const Napi::CallbackInfo &info)
+{
+    Napi::Number s = info[0].As<Napi::Number>();
+    actualClass_.setMinSampling(s.DoubleValue());
+}
+
+void AdaptiveWaterlineJS::run(const Napi::CallbackInfo &info)
 {
     actualClass_.run();
 }
 
-Napi::Value WaterlineJS::getLoops(const Napi::CallbackInfo &info)
+Napi::Value AdaptiveWaterlineJS::getLoops(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -79,7 +86,7 @@ Napi::Value WaterlineJS::getLoops(const Napi::CallbackInfo &info)
     int y = 1;
     int z = 2;
     int loopI = 0;
-    for (auto & loop : loops)
+    for (auto &loop : loops)
     {
         Napi::Array loopArr = Napi::Array::New(env);
         int pointI = 0;

@@ -9,6 +9,7 @@
 #include "path_js.hpp"
 #include "line_js.hpp"
 #include "adaptivepathdropcutter_js.hpp"
+#include "adaptivewaterline_js.hpp"
 
 using namespace Napi;
 
@@ -23,6 +24,7 @@ Napi::Object InitAll(Napi::Env env, Napi::Object exports) {
   PathJS::Init(env, exports);
   LineJS::Init(env, exports);
   AdaptivePathDropCutterJS::Init(env, exports);
+  AdaptiveWaterlineJS::Init(env, exports);
   return exports;
 }
 
