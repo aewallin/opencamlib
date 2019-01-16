@@ -8,6 +8,7 @@ endif()
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
+include_directories(${CMAKE_JS_INC})
 
 # this branches into the dirs and compiles stuff there
 add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
@@ -24,14 +25,15 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
-include_directories(${CMAKE_JS_INC})
+include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib)
+
 add_library(opencamlib
 	SHARED
-	# ${OCL_GEO_SRC}
-	# ${OCL_CUTTER_SRC}
-	# ${OCL_DROPCUTTER_SRC}
-	# ${OCL_ALGO_SRC}
-	# ${OCL_COMMON_SRC}
+	${OCL_GEO_SRC}
+	${OCL_CUTTER_SRC}
+	${OCL_DROPCUTTER_SRC}
+	${OCL_ALGO_SRC}
+	${OCL_COMMON_SRC}
 	${OpenCamLib_SOURCE_DIR}/nodejslib/point_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/stlsurf_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/stlreader_js.cpp
@@ -46,25 +48,11 @@ add_library(opencamlib
 	${OpenCamLib_SOURCE_DIR}/nodejslib/nodejslib.cpp
 )
 
-# link_libraries(${CMAKE_JS_LIB})
-# link_libraries(${Boost_LIBRARIES})
-
 target_link_libraries(
   opencamlib
-  point_js
-  stlsurf_js
-  stlreader_js
-  triangle_js
-  bbox_js
-  cylcutter_js
-  waterline_js
-  line_js
-  path_js
-  adaptivepathdropcutter_js
-  adaptivewaterline_js
-  nodejslib
   ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
+  ${CMAKE_JS_LIB}
 )
 
 if(WIN32)
