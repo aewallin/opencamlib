@@ -1,9 +1,9 @@
 message(STATUS "Will build node.js library")
 
-# if(CMAKE_BUILD_TYPE EQUAL "Debug")
+if(CMAKE_BUILD_TYPE EQUAL "Debug")
 	message(STATUS "Debug build, passing -g flag to compiler to emit source location (handy for debugging with lldb)")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-# endif()
+endif()
 
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -25,12 +25,13 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 include_directories(${CMAKE_JS_INC})
-add_library(opencamlib SHARED
-	${OCL_GEO_SRC}
-	${OCL_CUTTER_SRC}
-	${OCL_DROPCUTTER_SRC}
-	${OCL_ALGO_SRC}
-	${OCL_COMMON_SRC}
+add_library(opencamlib
+	SHARED
+	# ${OCL_GEO_SRC}
+	# ${OCL_CUTTER_SRC}
+	# ${OCL_DROPCUTTER_SRC}
+	# ${OCL_ALGO_SRC}
+	# ${OCL_COMMON_SRC}
 	${OpenCamLib_SOURCE_DIR}/nodejslib/point_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/stlsurf_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/stlreader_js.cpp
@@ -41,7 +42,29 @@ add_library(opencamlib SHARED
 	${OpenCamLib_SOURCE_DIR}/nodejslib/line_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/path_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivepathdropcutter_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivewaterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/nodejslib.cpp
+)
+
+# link_libraries(${CMAKE_JS_LIB})
+# link_libraries(${Boost_LIBRARIES})
+
+target_link_libraries(
+  opencamlib
+  point_js
+  stlsurf_js
+  stlreader_js
+  triangle_js
+  bbox_js
+  cylcutter_js
+  waterline_js
+  line_js
+  path_js
+  adaptivepathdropcutter_js
+  adaptivewaterline_js
+  nodejslib
+  ${Boost_LIBRARIES}
+  ${PYTHON_LIBRARIES}
 )
 
 if(WIN32)
@@ -51,6 +74,5 @@ elseif(APPLE)
 else()
 	set(NODE_LIB_POSTFIX ".linux.node")
 endif()
+
 set_target_properties(opencamlib PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
-link_libraries(${CMAKE_JS_LIB})
-link_libraries(${Boost_LIBRARIES})
