@@ -47,7 +47,7 @@ class PointDropCutter : public Operation {
         void setSTL(const STLSurf &s);
         void run(CLPoint& cl);
         void run() {
-            std::cout << "ERROR: can't call run() on PointDropCutter()\n";
+            // std::cout << "ERROR: can't call run() on PointDropCutter()\n";
             assert(0);
         }
         
