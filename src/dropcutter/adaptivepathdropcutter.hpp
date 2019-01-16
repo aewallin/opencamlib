@@ -70,7 +70,12 @@ class AdaptivePathDropCutter : public Operation {
             
             subOp[0]->clearCLPoints();
         }
-    protected:
+        std::vector<CLPoint> getPoints() const
+        {
+            return clpoints;
+        }
+
+      protected:
         /// run adaptive sample on the given Span between t-values of start_t and stop_t
         void adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl);
         /// flatness predicate for adaptive sampling
