@@ -6,28 +6,6 @@
 #include "point.hpp"
 #include "millingcutter.hpp"
 
-// class WaterLineAsyncWorker : public Napi::AsyncWorker
-// {
-//   public:
-//     WaterLineAsyncWorker(Napi::Function &callback, ocl::Waterline waterline) : Napi::AsyncWorker(callback) {}
-//     ~WaterLineAsyncWorker() {}
-
-//     void Execute()
-//     {
-//         waterline.run();
-//     }
-
-//     void OnOK()
-//     {
-//         Napi::HandleScope scope(Env());
-//         Callback().Call({Env().Null()});
-//     }
-
-//   private:
-//     ocl::Waterline waterline;
-// };
-
-
 Napi::FunctionReference WaterlineJS::constructor;
 
 Napi::Object WaterlineJS::Init(Napi::Env env, Napi::Object exports)
@@ -56,7 +34,7 @@ WaterlineJS::WaterlineJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Wate
     actualClass_ = ocl::Waterline();
 }
 
-ocl::Waterline *WaterlineJS::GetInternalInstance()
+ocl::Waterline* WaterlineJS::GetInternalInstance()
 {
     return &actualClass_;
 }
@@ -89,9 +67,6 @@ void WaterlineJS::setSampling(const Napi::CallbackInfo &info)
 
 void WaterlineJS::run(const Napi::CallbackInfo &info)
 {
-    // Napi::Function callback = info[0].As<Napi::Function>();
-    // WaterLineAsyncWorker *w = new WaterLineAsyncWorker(callback, actualClass_);
-    // w->Queue();
     actualClass_.run();
 }
 
@@ -104,18 +79,22 @@ Napi::Value WaterlineJS::getLoops(const Napi::CallbackInfo &info)
     int x = 0;
     int y = 1;
     int z = 2;
-    int i = 0;
-    for (auto & points : loops)
+    int loopI = 0;
+    for (auto & loop : loops)
     {
-        for (auto &point : points)
+        Napi::Array loopArr = Napi::Array::New(env);
+        int pointI = 0;
+        for (auto &point : loop)
         {
             Napi::Array pointArr = Napi::Array::New(env);
             pointArr.Set(x, Napi::Number::New(env, point.x));
             pointArr.Set(y, Napi::Number::New(env, point.y));
             pointArr.Set(z, Napi::Number::New(env, point.z));
-            result.Set(i, pointArr);
-            i++;
+            loopArr.Set(pointI, pointArr);
+            pointI++;
         }
+        result.Set(loopI, loopArr);
+        loopI++;
     }
     return result;
 }
