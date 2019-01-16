@@ -22,7 +22,7 @@ option(BUILD_CXX_LIB
   "Build/install the pure c++ libocl library? " ON)
 
 option(BUILD_PY_LIB 
-  "Build/install the python ocl library? " ON)
+  "Build/install the python ocl library? " OFF)
 
 option(BUILD_NODEJS_LIB 
   "Build/install the node.js ocl library? " OFF)
@@ -36,7 +36,7 @@ option(USE_OPENMP
 option(VERSION_STRING
     "Set version string" OFF)
 
-option(USE_PYTHONV3
+option(USE_PY_3
     "Use Python V3" OFF)
 
 if (NOT BUILD_CXX_LIB)
@@ -235,25 +235,7 @@ set( OCL_INCLUDE_FILES
   ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.hpp
   ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
   ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
-  
-  ${version_string}
-
   )
-
-# this branches into the dirs and compiles stuff there
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
-
-# include dirs
-include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
-include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
-include_directories( ${OpenCamLib_SOURCE_DIR}/common )
-include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 if (BUILD_NODEJS_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/nodejslib/nodejslib.cmake)

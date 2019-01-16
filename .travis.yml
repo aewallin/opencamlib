@@ -6,6 +6,7 @@ os:
 # matrix:
 #   allow_failures:
 #     - os: windows
+#       env: BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=ON BUILD_PY_LIB=OFF
 
 language: cpp
 
@@ -15,86 +16,158 @@ compiler:
 env:
   - BUILD_CXX_LIB=ON BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=OFF
   - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=ON BUILD_PY_LIB=OFF
-  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=OFF
-  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PYTHONV3=ON
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PY_3=OFF
+  - BUILD_CXX_LIB=OFF BUILD_NODEJS_LIB=OFF BUILD_PY_LIB=ON USE_PY_3=ON
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      brew update;
-      brew upgrade cmake;
-      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
-        brew install boost-python;
-      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
-        brew install boost-python3;
-      fi;
-      export CMAKE_FIND_FRAMEWORK=LAST;
-      export CMAKE_VERBOSE_MAKEFILE=ON;
+  - >
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      brew update
+      brew upgrade cmake
+      if [[ "$USE_PY_3" == "OFF" ]]; then
+        brew install boost-python
+      elif [[ "$USE_PY_3" == "ON" ]]; then
+        brew install boost-python3
+      fi
+      export CMAKE_FIND_FRAMEWORK=LAST
+      export CMAKE_VERBOSE_MAKEFILE=ON
     elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      sudo apt-get update;
-      sudo apt-get install -y git libboost-python-dev libboost-system-dev;
-      wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh;
-      sudo mkdir /opt/cmake;
-      sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake;
-      sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake;
+      sudo apt-get update
+      sudo apt-get install -y git libboost-python-dev libboost-system-dev
+      wget -O cmake.sh https://github.com/Kitware/CMake/releases/download/v3.13.2/cmake-3.13.2-Linux-x86_64.sh
+      sudo mkdir /opt/cmake
+      sudo sh cmake.sh --skip-license --exclude-subdir --prefix=/opt/cmake
+      sudo ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
     else
-      choco install cmake;
-      choco install nodejs;
-      if [[ "$USE_PYTHONV3" == "OFF" ]]; then
-        choco install python2;
-      elif [[ "$USE_PYTHONV3" == "ON" ]]; then
-        choco install python3;
-      fi;
-      wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip;
-      7z x boost.zip -y -o/c/boost -r;
+      choco install cmake
+      choco install nodejs
+      if [[ "$USE_PY_3" == "OFF" ]]; then
+        choco install python2
+      elif [[ "$USE_PY_3" == "ON" ]]; then
+        choco install python3
+      fi
+      wget -nv -O boost.zip https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.zip
+      7z x boost.zip -y -o/c/boost -r
+      if [[ "$BUILD_PY_LIB" == "ON" ]]; then
+        cd /c/boost/boost_1_69_0
+        ./bootstrap.bat
+        if [[ "$USE_PY_3" == "OFF" ]]; then
+          echo 'using python : 2.7 : C:\\Python27\\python : C:\\Python27\\include : C:\\Python27\\libs ;' >> project-config.jam
+        else
+          echo 'using python : 3.7 : C:\\Python37\\python : C:\\Python37\\include : C:\\Python37\\libs ;' >> project-config.jam
+        fi
+        cat project-config.jam
+        cat bootstrap.log
+        ./b2 address-model=64 threading=multi --with-python -j2 variant=debug link=static --layout=system
+        ls /c/boost/boost_1_69_0/stage/lib
+      fi
     fi
+
 before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then "/c/Program Files/nodejs/npm" install; else npm install; fi
+  - cd $TRAVIS_BUILD_DIR
+  - export PATH="$PATH:/c/Program Files/nodejs:/c/Python27/python:/c/Python37/python"
+  - echo $PATH
+  - npm install
   - mkdir build
   - cd build
   - echo $BUILD_CXX_LIB
   - echo $BUILD_NODEJS_LIB
   - echo $BUILD_PY_LIB
-  - echo $USE_PYTHONV3
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
-      if [[ "$USE_PYTHONV3" == "ON" ]]; then
-        cmake
-          -DPython3_ROOT_DIR="/c/Python37"
-          -DPython3_EXECUTABLE="/c/Python37/python.exe"
-          -DPython3_SITELIB="/c/Python37/Lib/site-packages"
-          -DPython3_SITEARCH="/c/Python37/Lib/site-packages"
-          -DBOOST_ROOT="/c/boost/boost_1_69_0"
-          -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
-          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
-          -DBUILD_PY_LIB="$BUILD_PY_LIB"
-          -DUSE_PYTHONV3="$USE_PYTHONV3"
-          -DVERSION_STRING="$TRAVIS_BRANCH"
-          ../src;
+  - echo $USE_PY_3
+  - >
+    if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
+      if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
+        cd ..
+        ./node_modules/.bin/cmake-js compile --arch=x64 \
+          --CDBOOST_ROOT="/c/boost/boost_1_69_0" \
+          --CDBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost" \
+          --CDBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/stage/lib" \
+          --CDBUILD_CXX_LIB="$BUILD_CXX_LIB" \
+          --CDBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+          --CDBUILD_PY_LIB="$BUILD_PY_LIB" \
+          --CDVERSION_STRING="$TRAVIS_BRANCH"
+      elif [[ "$BUILD_PY_LIB" == "ON" ]]; then
+        if [[ "$USE_PY_3" == "ON" ]]; then
+          cmake \
+            -DPython3_ROOT_DIR="/c/Python37" \
+            -DPython3_EXECUTABLE="/c/Python37/python.exe" \
+            -DPython3_SITELIB="/c/Python37/Lib/site-packages" \
+            -DPython3_SITEARCH="/c/Python37/Lib/site-packages" \
+            -DBOOST_ROOT="/c/boost/boost_1_69_0" \
+            -DBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost" \
+            -DBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/stage/lib" \
+            -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
+            -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+            -DBUILD_PY_LIB="$BUILD_PY_LIB" \
+            -DUSE_PY_3="$USE_PY_3" \
+            -DVERSION_STRING="$TRAVIS_BRANCH" \
+            -DCMAKE_GENERATOR_PLATFORM="x64" \
+            ../src;
+        else
+          cmake \
+            -DPython2_ROOT_DIR="/c/Python27" \
+            -DPython2_EXECUTABLE="/c/Python27/python.exe" \
+            -DPython2_SITELIB="/c/Python27/Lib/site-packages" \
+            -DPython2_SITEARCH="/c/Python27/Lib/site-packages" \
+            -DBOOST_ROOT="/c/boost/boost_1_69_0" \
+            -DBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost" \
+            -DBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/stage/lib" \
+            -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
+            -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+            -DBUILD_PY_LIB="$BUILD_PY_LIB" \
+            -DUSE_PY_3="$USE_PY_3" \
+            -DVERSION_STRING="$TRAVIS_BRANCH" \
+            -DCMAKE_GENERATOR_PLATFORM="x64" \
+            ../src;
+        fi
       else
-        cmake
-          -DPython2_ROOT_DIR="/c/Python27"
-          -DPython2_EXECUTABLE="/c/Python27/python.exe"
-          -DPython2_SITELIB="/c/Python27/Lib/site-packages"
-          -DPython2_SITEARCH="/c/Python27/Lib/site-packages"
-          -DBOOST_ROOT="/c/boost/boost_1_69_0"
-          -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
-          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
-          -DBUILD_PY_LIB="$BUILD_PY_LIB"
-          -DUSE_PYTHONV3="$USE_PYTHONV3"
-          -DVERSION_STRING="$TRAVIS_BRANCH"
+        cmake \
+          -DBOOST_ROOT="/c/boost/boost_1_69_0" \
+          -DBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost" \
+          -DBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/stage/lib" \
+          -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
+          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+          -DBUILD_PY_LIB="$BUILD_PY_LIB" \
+          -DVERSION_STRING="$TRAVIS_BRANCH" \
+          -DCMAKE_GENERATOR_PLATFORM="x64" \
           ../src;
       fi
     else
-      /usr/local/bin/cmake
-        -DBUILD_CXX_LIB="$BUILD_CXX_LIB"
-        -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB"
-        -DBUILD_PY_LIB="$BUILD_PY_LIB"
-        -DUSE_PYTHONV3="$USE_PYTHONV3"
-        -DVERSION_STRING="$TRAVIS_BRANCH"
-        ../src;
+      if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
+        cd ..
+        ./node_modules/.bin/cmake-js compile --arch=x64 \
+          --CDBUILD_CXX_LIB="$BUILD_CXX_LIB" \
+          --CDBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+          --CDBUILD_PY_LIB="$BUILD_PY_LIB" \
+          --CDUSE_PY_3="$USE_PY_3" \
+          --CDVERSION_STRING="$TRAVIS_BRANCH"
+      else
+        /usr/local/bin/cmake \
+          -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
+          -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+          -DBUILD_PY_LIB="$BUILD_PY_LIB" \
+          -DUSE_PY_3="$USE_PY_3" \
+          -DVERSION_STRING="$TRAVIS_BRANCH" \
+          ../src;
+      fi
     fi
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then ls; "/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin/MSBuild.exe" ALL_BUILD.vcxproj; else make; fi
+  - if [ "$TRAVIS_OS_NAME" != "windows" ] && [ "$BUILD_NODEJS_LIB" == "OFF" ]; then sudo make install; fi
 
 after_success:
-  - sudo make install
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then otool -L /usr/local/lib/python2.7/site-packages/ocl.so; fi
+  - >
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [[ "$USE_PY_3" == "ON" ]]; then
+        otool -L /usr/local/Cellar/python/3.7.2_1/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/ocl.so;
+      else
+        otool -L /usr/local/Cellar/python@2/2.7.15_1/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/ocl.so;
+      fi
+    elif [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      if [[ "$USE_PY_3" == "ON" ]]; then
+        objdump -x /usr/lib/python3/dist-packages/ocl.so;
+      else
+        objdump -x /usr/lib/python2.7/dist-packages/ocl.so;
+      fi
+    fi
+  - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then node $TRAVIS_BUILD_DIR/examples/nodejs/test.js; fi
+  - if [[ "$BUILD_PY_LIB" == "ON" ]]; then python $TRAVIS_BUILD_DIR/examples/python/ocl_clpoint.py; fi
