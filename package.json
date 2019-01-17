@@ -2,26 +2,34 @@
   "name": "opencamlib",
   "version": "1.0.0",
   "description": ".. image:: https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg     :target: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html",
-  "main": "src/nodejslib/index.js",
+  "main": "src/nodejslib/lib/index.js",
+  "types": "src/nodejslib/lib/index.d.ts",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-ts": "cd src/nodejslib/src && tsc",
+    "watch-ts": "cd src/nodejslib/src && tsc - w",
+    "build-lib": "mkdir build || true; cd build && cmake-js -d .. compile --CDBUILD_NODEJS_LIB=\"ON\" --CDBUILD_CXX_LIB=\"OFF\" && node ../examples/nodejs/test.js",
+    "debug-lib": "mkdir build || true; cd build && cmake-js -d .. compile --debug --CDBUILD_NODEJS_LIB=\"ON\" --CDBUILD_CXX_LIB=\"OFF\" && DEBUG=1 node ../examples/nodejs/test.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vespakoen/opencamlib.git"
+    "url": "git+https://github.com/aewallin/opencamlib.git"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "LGPL",
   "bugs": {
-    "url": "https://github.com/vespakoen/opencamlib/issues"
+    "url": "https://github.com/aewallin/opencamlib/issues"
   },
-  "homepage": "https://github.com/vespakoen/opencamlib#readme",
+  "homepage": "https://github.com/aewallin/opencamlib#readme",
   "dependencies": {
     "cmake-js": "^4.0.1",
     "node-addon-api": "^1.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.18",
+    "typescript": "^3.2.2"
   }
 }

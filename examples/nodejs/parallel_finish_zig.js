@@ -3,6 +3,9 @@ const {
     STLSurf,
     STLReader,
     CylCutter,
+    BallCutter,
+    BullCutter,
+    ConeCutter,
     AdaptivePathDropCutter,
     Path,
     Line,
@@ -63,17 +66,16 @@ function adaptivePathDropCutter(surface, cutter, paths) {
 
 const surface = new STLSurf()
 new STLReader(__dirname + '/../../stl/gnu_tux_mod.stl', surface)
-// new STLReader('/Users/koen/Desktop/gear.stl', surface)
 // choose a cutter for the operation:
 // http://www.anderswallin.net/2011/08/opencamlib-cutter-shapes/
 const diameter = 0.25
 const length = 5
 // const cutter = new BallCutter(diameter, length)
-const cutter = new CylCutter(diameter, length)
+// const cutter = new CylCutter(diameter, length)
 // const corner_radius = 0.05
 // const cutter = new BullCutter(diameter, corner_radius, length)
-// const angle = Math.PI / 4
-// const cutter = new ConeCutter(diameter, angle, length)
+const angle = Math.PI / 4
+const cutter = new ConeCutter(diameter, angle, length)
 // const cutter = cutter.offsetCutter(0.4)
 
 //  toolpath is contained in this simple box

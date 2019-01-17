@@ -35,16 +35,20 @@ add_library(opencamlib
 	${OCL_ALGO_SRC}
 	${OCL_COMMON_SRC}
 	${OpenCamLib_SOURCE_DIR}/nodejslib/point_js.cpp
-	${OpenCamLib_SOURCE_DIR}/nodejslib/stlsurf_js.cpp
-	${OpenCamLib_SOURCE_DIR}/nodejslib/stlreader_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/triangle_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/bbox_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/cylcutter_js.cpp
-	${OpenCamLib_SOURCE_DIR}/nodejslib/waterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/line_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/path_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/stlsurf_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/stlreader_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/waterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivepathdropcutter_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivewaterline_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/cylcutter_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/ballcutter_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/bullcutter_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/conecutter_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/nodejslib.cpp
 )
 

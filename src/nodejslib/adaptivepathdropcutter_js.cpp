@@ -1,13 +1,12 @@
 #include "adaptivepathdropcutter_js.hpp"
-#include "stlsurf_js.hpp"
-#include "cylcutter_js.hpp"
-#include "cylcutter.hpp"
 #include "point.hpp"
 #include "clpoint.hpp"
-#include "millingcutter.hpp"
 #include "path_js.hpp"
-
-#include "stlreader.hpp"
+#include "stlsurf_js.hpp"
+#include "cylcutter_js.hpp"
+#include "ballcutter_js.hpp"
+#include "bullcutter_js.hpp"
+#include "conecutter_js.hpp"
 
 Napi::FunctionReference AdaptivePathDropCutterJS::constructor;
 
@@ -18,7 +17,10 @@ void AdaptivePathDropCutterJS::Init(Napi::Env env, Napi::Object exports)
     Napi::Function func = DefineClass(env, "AdaptivePathDropCutter", {
         InstanceMethod("setSTL", &AdaptivePathDropCutterJS::setSTL),
         InstanceMethod("setPath", &AdaptivePathDropCutterJS::setPath),
-        InstanceMethod("setCutter", &AdaptivePathDropCutterJS::setCutter),
+        InstanceMethod("setCylCutter", &AdaptivePathDropCutterJS::setCylCutter),
+        InstanceMethod("setBallCutter", &AdaptivePathDropCutterJS::setBallCutter),
+        InstanceMethod("setBullCutter", &AdaptivePathDropCutterJS::setBullCutter),
+        InstanceMethod("setConeCutter", &AdaptivePathDropCutterJS::setConeCutter),
         InstanceMethod("setSampling", &AdaptivePathDropCutterJS::setSampling),
         InstanceMethod("setMinSampling", &AdaptivePathDropCutterJS::setMinSampling),
         InstanceMethod("getCLPoints", &AdaptivePathDropCutterJS::getCLPoints),
@@ -59,11 +61,35 @@ void AdaptivePathDropCutterJS::setPath(const Napi::CallbackInfo &info)
     actualClass_.setPath(path);
 }
 
-void AdaptivePathDropCutterJS::setCutter(const Napi::CallbackInfo &info)
+void AdaptivePathDropCutterJS::setCylCutter(const Napi::CallbackInfo &info)
 {
-    // std::cout << "AdaptivePathDropCutterJS::setCutter()" << std::endl;
+    // std::cout << "AdaptivePathDropCutterJS::setCylCutter()" << std::endl;
     CylCutterJS *cjs = Napi::ObjectWrap<CylCutterJS>::Unwrap(info[0].As<Napi::Object>());
     ocl::CylCutter *cutter = cjs->GetInternalInstance();
+    actualClass_.setCutter(cutter);
+}
+
+void AdaptivePathDropCutterJS::setBallCutter(const Napi::CallbackInfo &info)
+{
+    // std::cout << "AdaptivePathDropCutterJS::setBallCutter()" << std::endl;
+    BallCutterJS *cjs = Napi::ObjectWrap<BallCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::BallCutter *cutter = cjs->GetInternalInstance();
+    actualClass_.setCutter(cutter);
+}
+
+void AdaptivePathDropCutterJS::setBullCutter(const Napi::CallbackInfo &info)
+{
+    // std::cout << "AdaptivePathDropCutterJS::setBullCutter()" << std::endl;
+    BullCutterJS *cjs = Napi::ObjectWrap<BullCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::BullCutter *cutter = cjs->GetInternalInstance();
+    actualClass_.setCutter(cutter);
+}
+
+void AdaptivePathDropCutterJS::setConeCutter(const Napi::CallbackInfo &info)
+{
+    // std::cout << "AdaptivePathDropCutterJS::setConeCutter()" << std::endl;
+    ConeCutterJS *cjs = Napi::ObjectWrap<ConeCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::ConeCutter *cutter = cjs->GetInternalInstance();
     actualClass_.setCutter(cutter);
 }
 

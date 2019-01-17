@@ -1,9 +1,10 @@
 #include "adaptivewaterline_js.hpp"
 #include "stlsurf_js.hpp"
-#include "cylcutter_js.hpp"
-#include "cylcutter.hpp"
 #include "point.hpp"
-#include "millingcutter.hpp"
+#include "cylcutter_js.hpp"
+#include "ballcutter_js.hpp"
+#include "bullcutter_js.hpp"
+#include "conecutter_js.hpp"
 
 Napi::FunctionReference AdaptiveWaterlineJS::constructor;
 
@@ -14,7 +15,10 @@ Napi::Object AdaptiveWaterlineJS::Init(Napi::Env env, Napi::Object exports)
     Napi::Function func = DefineClass(env, "AdaptiveWaterline", {
         InstanceMethod("setZ", &AdaptiveWaterlineJS::setZ),
         InstanceMethod("setSTL", &AdaptiveWaterlineJS::setSTL),
-        InstanceMethod("setCutter", &AdaptiveWaterlineJS::setCutter),
+        InstanceMethod("setCylCutter", &AdaptiveWaterlineJS::setCylCutter),
+        InstanceMethod("setBallCutter", &AdaptiveWaterlineJS::setBallCutter),
+        InstanceMethod("setBullCutter", &AdaptiveWaterlineJS::setBullCutter),
+        InstanceMethod("setConeCutter", &AdaptiveWaterlineJS::setConeCutter),
         InstanceMethod("setSampling", &AdaptiveWaterlineJS::setSampling),
         InstanceMethod("setMinSampling", &AdaptiveWaterlineJS::setMinSampling),
         InstanceMethod("run", &AdaptiveWaterlineJS::run),
@@ -52,10 +56,31 @@ void AdaptiveWaterlineJS::setSTL(const Napi::CallbackInfo &info)
     actualClass_.setSTL(*surface);
 }
 
-void AdaptiveWaterlineJS::setCutter(const Napi::CallbackInfo &info)
+void AdaptiveWaterlineJS::setCylCutter(const Napi::CallbackInfo &info)
 {
     CylCutterJS *cjs = Napi::ObjectWrap<CylCutterJS>::Unwrap(info[0].As<Napi::Object>());
     ocl::CylCutter *cutter = cjs->GetInternalInstance();
+    actualClass_.setCutter(cutter);
+}
+
+void AdaptiveWaterlineJS::setBallCutter(const Napi::CallbackInfo &info)
+{
+    BallCutterJS *cjs = Napi::ObjectWrap<BallCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::BallCutter *cutter = cjs->GetInternalInstance();
+    actualClass_.setCutter(cutter);
+}
+
+void AdaptiveWaterlineJS::setBullCutter(const Napi::CallbackInfo &info)
+{
+    BullCutterJS *cjs = Napi::ObjectWrap<BullCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::BullCutter *cutter = cjs->GetInternalInstance();
+    actualClass_.setCutter(cutter);
+}
+
+void AdaptiveWaterlineJS::setConeCutter(const Napi::CallbackInfo &info)
+{
+    ConeCutterJS *cjs = Napi::ObjectWrap<ConeCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::ConeCutter *cutter = cjs->GetInternalInstance();
     actualClass_.setCutter(cutter);
 }
 
