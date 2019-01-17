@@ -1,13 +1,14 @@
 message(STATUS "Will build node.js library")
 
-# if(CMAKE_BUILD_TYPE EQUAL "Debug")
+if(CMAKE_BUILD_TYPE EQUAL "Debug")
 	message(STATUS "Debug build, passing -g flag to compiler to emit source location (handy for debugging with lldb)")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
-# endif()
+endif()
 
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
+include_directories(${CMAKE_JS_INC})
 
 # this branches into the dirs and compiles stuff there
 add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
@@ -24,8 +25,10 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
 include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
-include_directories(${CMAKE_JS_INC})
-add_library(opencamlib SHARED
+include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib)
+
+add_library(opencamlib
+	SHARED
 	${OCL_GEO_SRC}
 	${OCL_CUTTER_SRC}
 	${OCL_DROPCUTTER_SRC}
@@ -41,7 +44,15 @@ add_library(opencamlib SHARED
 	${OpenCamLib_SOURCE_DIR}/nodejslib/line_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/path_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivepathdropcutter_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivewaterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/nodejslib.cpp
+)
+
+target_link_libraries(
+  opencamlib
+  ${Boost_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  ${CMAKE_JS_LIB}
 )
 
 if(WIN32)
@@ -51,6 +62,5 @@ elseif(APPLE)
 else()
 	set(NODE_LIB_POSTFIX ".linux.node")
 endif()
+
 set_target_properties(opencamlib PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
-link_libraries(${CMAKE_JS_LIB})
-link_libraries(${Boost_LIBRARIES})
