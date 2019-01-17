@@ -14,6 +14,8 @@ wl.setCutter(cutter)
 wl.setZ(1)
 wl.setSampling(0.1)
 wl.run()
-wl.getLoops().forEach(function (point) {
-    console.log('G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2])
+wl.getLoops().forEach(function (loop) {
+    loop.forEach(function (point) {
+        console.log('G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2])
+    })
 })
