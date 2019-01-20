@@ -10,5 +10,9 @@
   "license": "ISC",
   "dependencies": {
     "stl": "^1.1.1"
+  },
+  "devDependencies": {
+    "brfs": "^2.0.1",
+    "browserify": "^16.2.3"
   }
 }
