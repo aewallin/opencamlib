@@ -47,6 +47,10 @@ if (NOT BUILD_PY_LIB)
   message(STATUS " Note: will NOT build python library")
 endif(NOT BUILD_PY_LIB)
 
+if (NOT BUILD_EMSCRIPTEN_LIB)
+  message(STATUS " Note: will NOT build emscripten library")
+endif(NOT BUILD_EMSCRIPTEN_LIB)
+
 if (NOT BUILD_DOC)
   message(STATUS " Note: will NOT build ocl documentation")
 endif(NOT BUILD_DOC)
@@ -249,6 +253,10 @@ endif (BUILD_PY_LIB)
 if (BUILD_CXX_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cxxlib/cxxlib.cmake)
 endif (BUILD_CXX_LIB)
+
+if (BUILD_EMSCRIPTEN_LIB)
+  include(${CMAKE_CURRENT_SOURCE_DIR}/emscriptenlib/emscriptenlib.cmake)
+endif (BUILD_EMSCRIPTEN_LIB)
 
 #
 # this installs the examples
