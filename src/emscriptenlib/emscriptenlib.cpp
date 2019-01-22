@@ -145,13 +145,58 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .value("LineSpanType", LineSpanType)
         .value("ArcSpanType", ArcSpanType);
 
+    class_<Path>("Path")
+        .constructor()
+        .constructor<Path>()
+        .function("appendLine", static_cast<void (Path::*)(const Line &l)>(&Path::append))
+        .function("appendArc", static_cast<void (Path::*)(const Arc &a)>(&Path::append));
+
     //////////
     // ALGO //
     //////////
     class_<Operation>("Operation")
         .function("setCutter", &Operation::setCutter, allow_raw_pointers())
+        .function("getCLPoints", &Operation::getCLPoints)
         .function("setSTL", &Operation::setSTL, allow_raw_pointers())
         .function("setSampling", &Operation::setSampling);
+
+    class_<BatchDropCutter, emscripten::base<Operation>>("BatchDropCutter")
+        .constructor()
+        .function("run", &BatchDropCutter::run);
+        // .function("setSTL", &BatchDropCutter::setSTL)
+        // .function("setCutter", &BatchDropCutter::setCutter)
+        // .function("setThreads", &BatchDropCutter::setThreads)
+        // .function("getThreads", &BatchDropCutter::getThreads)
+        // .function("appendPoint", &BatchDropCutter::appendPoint)
+        // .function("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter)
+        // .function("getCalls", &BatchDropCutter::getCalls)
+        // .function("getBucketSize", &BatchDropCutter::getBucketSize)
+        // .function("setBucketSize", &BatchDropCutter::setBucketSize);
+
+    class_<PathDropCutter, emscripten::base<Operation>>("PathDropCutter")
+        .constructor()
+        .function("run", &PathDropCutter::run)
+        // .function("setCutter", &PathDropCutter::setCutter)
+        // .function("setSTL", &PathDropCutter::setSTL)
+        // .function("setSampling", &PathDropCutter::setSampling)
+        .function("setPath", &PathDropCutter::setPath, allow_raw_pointers())
+        .function("getZ", &PathDropCutter::getZ)
+        .function("setZ", &PathDropCutter::setZ)
+        .function("getPoints", &PathDropCutter::getPoints);
+
+    class_<AdaptivePathDropCutter, emscripten::base<Operation>>("AdaptivePathDropCutter")
+        .constructor()
+        .function("run", &AdaptivePathDropCutter::run)
+        // .function("setCutter", &AdaptivePathDropCutter::setCutter)
+        // .function("setSTL", &AdaptivePathDropCutter::setSTL)
+        // .function("setSampling", &AdaptivePathDropCutter::setSampling)
+        .function("setMinSampling", &AdaptivePathDropCutter::setMinSampling)
+        .function("setCosLimit", &AdaptivePathDropCutter::setCosLimit)
+        // .function("getSampling", &AdaptivePathDropCutter::getSampling)
+        .function("setPath", &AdaptivePathDropCutter::setPath, allow_raw_pointers())
+        .function("getZ", &AdaptivePathDropCutter::getZ)
+        .function("setZ", &AdaptivePathDropCutter::setZ)
+        .function("getPoints", &AdaptivePathDropCutter::getPoints);
 
     // class_<ZigZag>("ZigZag")
     //     .function("run", &ZigZag::run)
@@ -164,22 +209,22 @@ EMSCRIPTEN_BINDINGS(opencamlib)
 
     class_<BatchPushCutter>("BatchPushCutter")
         .constructor();
-    // class_<BatchPushCutter_py, bases<BatchPushCutter>>("BatchPushCutter")
-    //     .function("run", &BatchPushCutter_py::run)
-    //     .function("setSTL", &BatchPushCutter_py::setSTL)
-    //     .function("setCutter", &BatchPushCutter_py::setCutter)
-    //     .function("setThreads", &BatchPushCutter_py::setThreads)
-    //     .function("appendFiber", &BatchPushCutter_py::appendFiber)
-    //     .function("getOverlapTriangles", &BatchPushCutter_py::getOverlapTriangles)
-    //     .function("getCLPoints", &BatchPushCutter_py::getCLPoints)
-    //     .function("getFibers", &BatchPushCutter_py::getFibers_py)
-    //     .function("getCalls", &BatchPushCutter_py::getCalls)
-    //     .function("setThreads", &BatchPushCutter_py::setThreads)
-    //     .function("getThreads", &BatchPushCutter_py::getThreads)
-    //     .function("setBucketSize", &BatchPushCutter_py::setBucketSize)
-    //     .function("getBucketSize", &BatchPushCutter_py::getBucketSize)
-    //     .function("setXDirection", &BatchPushCutter_py::setXDirection)
-    //     .function("setYDirection", &BatchPushCutter_py::setYDirection);
+    // class_<BatchPushCutter, bases<BatchPushCutter>>("BatchPushCutter")
+    //     .function("run", &BatchPushCutter::run)
+    //     .function("setSTL", &BatchPushCutter::setSTL)
+    //     .function("setCutter", &BatchPushCutter::setCutter)
+    //     .function("setThreads", &BatchPushCutter::setThreads)
+    //     .function("appendFiber", &BatchPushCutter::appendFiber)
+    //     .function("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
+    //     .function("getCLPoints", &BatchPushCutter::getCLPoints)
+    //     .function("getFibers", &BatchPushCutter::getFibers)
+    //     .function("getCalls", &BatchPushCutter::getCalls)
+    //     .function("setThreads", &BatchPushCutter::setThreads)
+    //     .function("getThreads", &BatchPushCutter::getThreads)
+    //     .function("setBucketSize", &BatchPushCutter::setBucketSize)
+    //     .function("getBucketSize", &BatchPushCutter::getBucketSize)
+    //     .function("setXDirection", &BatchPushCutter::setXDirection)
+    //     .function("setYDirection", &BatchPushCutter::setYDirection);
 
     class_<Interval>("Interval")
         .constructor<double, double>()
@@ -195,17 +240,18 @@ EMSCRIPTEN_BINDINGS(opencamlib)
     class_<Fiber>("Fiber")
         .constructor();
 
-    // class_<Fiber_py, bases<Fiber>>("Fiber")
+    // class_<Fiber, bases<Fiber>>("Fiber")
     //     .constructor<Point, Point>()
-    //     .property("p1", &Fiber_py::p1)
-    //     .property("p2", &Fiber_py::p2)
-    //     .property("dir", &Fiber_py::dir)
-    //     .function("addInterval", &Fiber_py::addInterval)
-    //     .function("point", &Fiber_py::point)
-    //     .function("printInts", &Fiber_py::printInts)
-    //     .function("getInts", &Fiber_py::getInts);
+    //     .property("p1", &Fiber::p1)
+    //     .property("p2", &Fiber::p2)
+    //     .property("dir", &Fiber::dir)
+    //     .function("addInterval", &Fiber::addInterval)
+    //     .function("point", &Fiber::point)
+    //     .function("printInts", &Fiber::printInts)
+    //     .function("getInts", &Fiber::getInts);
 
     register_vector<Point>("std::vector<Point>");
+    register_vector<CLPoint>("std::vector<CLPoint>");
     register_vector<std::vector<Point>>("std::vector<std::vector<Point>>");
 
     class_<Waterline, emscripten::base<Operation>>("Waterline")
@@ -214,37 +260,40 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .function("run", &Waterline::run)
         .function("getLoops", &Waterline::getLoops);
 
-    // class_<Waterline_py, bases<Waterline>>("Waterline")
-    //     .function("setCutter", &Waterline_py::setCutter)
-    //     .function("setSTL", &Waterline_py::setSTL)
-    //     .function("setZ", &Waterline_py::setZ)
-    //     .function("setSampling", &Waterline_py::setSampling)
-    //     .function("run", &Waterline_py::run)
-    //     .function("run2", &Waterline_py::run2)
-    //     .function("reset", &Waterline_py::reset)
-    //     .function("getLoops", &Waterline_py::py_getLoops)
-    //     .function("setThreads", &Waterline_py::setThreads)
-    //     .function("getThreads", &Waterline_py::getThreads)
-    //     .function("getXFibers", &Waterline_py::py_getXFibers)
-    //     .function("getYFibers", &Waterline_py::py_getYFibers);
+    // class_<Waterline, bases<Waterline>>("Waterline")
+    //     .function("setCutter", &Waterline::setCutter)
+    //     .function("setSTL", &Waterline::setSTL)
+    //     .function("setZ", &Waterline::setZ)
+    //     .function("setSampling", &Waterline::setSampling)
+    //     .function("run", &Waterline::run)
+    //     .function("run2", &Waterline::run2)
+    //     .function("reset", &Waterline::reset)
+    //     .function("getLoops", &Waterline::py_getLoops)
+    //     .function("setThreads", &Waterline::setThreads)
+    //     .function("getThreads", &Waterline::getThreads)
+    //     .function("getXFibers", &Waterline::py_getXFibers)
+    //     .function("getYFibers", &Waterline::py_getYFibers);
 
-    class_<AdaptiveWaterline>("AdaptiveWaterline")
-        .constructor();
-    // class_<AdaptiveWaterline_py, bases<AdaptiveWaterline>>("AdaptiveWaterline")
-    //     .function("setCutter", &AdaptiveWaterline_py::setCutter)
-    //     .function("setSTL", &AdaptiveWaterline_py::setSTL)
-    //     .function("setZ", &AdaptiveWaterline_py::setZ)
-    //     .function("setSampling", &AdaptiveWaterline_py::setSampling)
-    //     .function("setMinSampling", &AdaptiveWaterline_py::setMinSampling)
-    //     .function("run", &AdaptiveWaterline_py::run)
-    //     .function("run2", &AdaptiveWaterline_py::run2)
-    //     .function("reset", &AdaptiveWaterline_py::reset)
-    //     //.function("run2", &AdaptiveWaterline_py::run2) // uses Weave::build2()
-    //     .function("getLoops", &AdaptiveWaterline_py::py_getLoops)
-    //     .function("setThreads", &AdaptiveWaterline_py::setThreads)
-    //     .function("getThreads", &AdaptiveWaterline_py::getThreads)
-    //     .function("getXFibers", &AdaptiveWaterline_py::getXFibers)
-    //     .function("getYFibers", &AdaptiveWaterline_py::getYFibers);
+    class_<AdaptiveWaterline, emscripten::base<Waterline>>("AdaptiveWaterline")
+        .constructor()
+        // .function("setZ", &AdaptiveWaterline::setZ)
+        .function("setMinSampling", &AdaptiveWaterline::setMinSampling);
+        // .function("run", &AdaptiveWaterline::run);
+    // class_<AdaptiveWaterline, bases<AdaptiveWaterline>>("AdaptiveWaterline")
+    //     .function("setCutter", &AdaptiveWaterline::setCutter)
+    //     .function("setSTL", &AdaptiveWaterline::setSTL)
+    //     .function("setZ", &AdaptiveWaterline::setZ)
+    //     .function("setSampling", &AdaptiveWaterline::setSampling)
+    //     .function("setMinSampling", &AdaptiveWaterline::setMinSampling)
+    //     .function("run", &AdaptiveWaterline::run)
+    //     .function("run2", &AdaptiveWaterline::run2)
+    //     .function("reset", &AdaptiveWaterline::reset)
+    //     //.function("run2", &AdaptiveWaterline::run2) // uses Weave::build2()
+    //     .function("getLoops", &AdaptiveWaterline::py_getLoops)
+    //     .function("setThreads", &AdaptiveWaterline::setThreads)
+    //     .function("getThreads", &AdaptiveWaterline::getThreads)
+    //     .function("getXFibers", &AdaptiveWaterline::getXFibers)
+    //     .function("getYFibers", &AdaptiveWaterline::getYFibers);
 
     enum_<weave::VertexType>("WeaveVertexType")
         .value("CL", weave::CL)
@@ -256,11 +305,11 @@ EMSCRIPTEN_BINDINGS(opencamlib)
 
     class_<LineCLFilter>("LineCLFilter")
         .constructor();
-    // class_<LineCLFilter_py, bases<LineCLFilter>>("LineCLFilter")
-    //     .function("addCLPoint", &LineCLFilter_py::addCLPoint)
-    //     .function("setTolerance", &LineCLFilter_py::setTolerance)
-    //     .function("run", &LineCLFilter_py::run)
-    //     .function("getCLPoints", &LineCLFilter_py::getCLPoints);
+    // class_<LineCLFilter, bases<LineCLFilter>>("LineCLFilter")
+    //     .function("addCLPoint", &LineCLFilter::addCLPoint)
+    //     .function("setTolerance", &LineCLFilter::setTolerance)
+    //     .function("run", &LineCLFilter::run)
+    //     .function("getCLPoints", &LineCLFilter::getCLPoints);
 
     // some strange problem with hedi::face_edges()... let's not compile for now..
     // class_<clsurf::CutterLocationSurface>("CutterLocationSurface")

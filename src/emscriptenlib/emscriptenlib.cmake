@@ -1,9 +1,9 @@
 message(STATUS "Will build emscripten js library")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g -g4 -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -g4 -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3")
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --bind --pre-js ${OpenCamLib_SOURCE_DIR}/emscriptenlib/pre.js -s MODULARIZE=1 -s ALLOW_MEMORY_GROWTH=1")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --bind -s MODULARIZE=1 -s SINGLE_FILE=1 -s ALLOW_MEMORY_GROWTH=1")
 
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
