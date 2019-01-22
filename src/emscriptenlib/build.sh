@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# rm -rf ../../buildemscripten || true
-# mkdir ../../buildemscripten
+rm -rf ../../buildemscripten || true
+mkdir ../../buildemscripten
 cd ../../buildemscripten
 emcmake cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
@@ -12,5 +12,5 @@ emcmake cmake .. \
 emmake make -j4
 cp src/opencamlib.* ../src/emscriptenlib
 cd ../src/emscriptenlib
-./node_modules/.bin/browserify -t brfs browser.js > browser.out.js
-python server.py
+./node_modules/.bin/browserify test.src.js > test.js
+./node_modules/.bin/browserify index.js > pkg/index.js

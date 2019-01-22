@@ -75,18 +75,18 @@ if (UNIX)
   endif(GCC_4_6)
 endif (UNIX)
 
-option(BUILD_TYPE
-  "Build type: Release=ON/Debug=OFF  " ON)
+# option(BUILD_TYPE
+#   "Build type: Release=ON/Debug=OFF  " ON)
 
-if (BUILD_TYPE)
-  message(STATUS " CMAKE_BUILD_TYPE = Release")
-  set(CMAKE_BUILD_TYPE Release)
-endif(BUILD_TYPE)
+# if (BUILD_TYPE)
+#   message(STATUS " CMAKE_BUILD_TYPE = Release")
+#   set(CMAKE_BUILD_TYPE Release)
+# endif(BUILD_TYPE)
 
-if (NOT BUILD_TYPE)
-  message(STATUS " CMAKE_BUILD_TYPE = Debug")
-  set(CMAKE_BUILD_TYPE Debug)
-endif(NOT BUILD_TYPE)
+# if (NOT BUILD_TYPE)
+#   message(STATUS " CMAKE_BUILD_TYPE = Debug")
+#   set(CMAKE_BUILD_TYPE Debug)
+# endif(NOT BUILD_TYPE)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
