@@ -1,0 +1,16 @@
+{
+  "name": "opencamlibjs",
+  "version": "0.0.2",
+  "description": "opencamlib for the web compiled with emscripten",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "opencamlib",
+    "cam",
+    "cnc"
+  ],
+  "author": "Koen Schmeets",
+  "license": "LGPL-3.0"
+}
