@@ -155,6 +155,7 @@ before_script:
           ../src;
       fi
     fi
+
 script:
   - if [ "$TRAVIS_OS_NAME" != "windows" ] && [ "$BUILD_NODEJS_LIB" == "OFF" ]; then sudo make install; fi
 
