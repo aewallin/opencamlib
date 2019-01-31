@@ -75,10 +75,8 @@ before_script:
   - echo $BUILD_NODEJS_LIB
   - echo $BUILD_PY_LIB
   - echo $USE_PY_3
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export CXX="/usr/local/opt/llvm/bin/clang++"; fi
   - >
-    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
-      export CXX="/usr/local/opt/llvm/bin/clang++"
-    fi
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
         cd ..
