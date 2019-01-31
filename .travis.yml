@@ -171,3 +171,12 @@ after_success:
     fi
   - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then node $TRAVIS_BUILD_DIR/examples/nodejs/test.js; fi
   - if [[ "$BUILD_PY_LIB" == "ON" ]]; then python $TRAVIS_BUILD_DIR/examples/python/ocl_clpoint.py; fi
+deploy:
+  provider: releases
+  api_key:
+    secure: ZIxxYjD+LwXpZAj6AeFe+CgZwpjHNFO/a25EbWrTVQtAg1joEOLTQwJKKmLUFGuSehgKcozIrX/bq2NcmQuqbUx4vCN5r0iYcGr+lboQTc++wh2q+Kkehi+vZDH2Ctv4PmxMYuWK8o1f0ZNgPJWFSHP0LZL8E477ecGRJp66VOTgKXLC2Ng3qgFVIv4wDKefeyE6yHmPd5R57NcuFuPWp1cyVeFhWqLVvYWKEWl1UFlu5lC6/uSCXwQ2kMzSTXU52q8dBMRwRKv7pa3e1zQa2QCvueqq0RrHyfKnIvW5xmnT2DY37P2Bn+9/Am79tQPN5QkPTCvsRgVo2mWA07JEBBNhBT+kqUTIlmfA3r2F/k8eWivdMbxDs8ds1P/K7vjG1Hc8KfCXGU+KX5FcQDE+/q0JprOrzWUXBVcBKjRUuUsbE4wl8DYUuf44+xy0gahMCNaB+QrYn9NsnNGh5lbcrE8McyxetOaigjGFo3zjMFzdKBS8SYhERVWb8e1oWhhXHF3KndrXAIl7YgOKOOuUrPoSd1NSNQ1UEcK+raGltMCEoWnY7Lqva7oPRYNbCdvI3cxhOE00uUi46LNzGCuNbK06runWecw4OKnjWZVczdJ/wKJulh+wlk7O8B0L5qYwP95A+rBbxb4ghT7OmtlHz2rgFDeC3tH0iUMAayMZquQ=
+  file:
+    - build/Release/opencamlib.darwin.node
+    - build/Release/opencamlib.win32.node
+    - build/Release/opencamlib.linux.node
+    - build/ocl.so
