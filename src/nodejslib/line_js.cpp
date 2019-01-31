@@ -24,7 +24,8 @@ LineJS::LineJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<LineJS>(info) 
   if (length == 1) {
     Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
   }
-  if (length == 2) {
+  else if (length == 2)
+  {
     PointJS* p1in = Napi::ObjectWrap<PointJS>::Unwrap(info[0].As<Napi::Object>());
     PointJS* p2in = Napi::ObjectWrap<PointJS>::Unwrap(info[1].As<Napi::Object>());
     ocl::Point* p1 = p1in->GetInternalInstance();

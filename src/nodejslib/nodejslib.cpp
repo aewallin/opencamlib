@@ -10,6 +10,7 @@
 #include "stlreader_js.hpp"
 
 #include "waterline_js.hpp"
+#include "pathdropcutter_js.hpp"
 #include "adaptivepathdropcutter_js.hpp"
 #include "adaptivewaterline_js.hpp"
 
@@ -28,6 +29,7 @@ Napi::Object InitAll(Napi::Env env, Napi::Object exports) {
   LineJS::Init(env, exports);
 
   WaterlineJS::Init(env, exports);
+  PathDropCutterJS::Init(env, exports);
   AdaptivePathDropCutterJS::Init(env, exports);
   AdaptiveWaterlineJS::Init(env, exports);
 

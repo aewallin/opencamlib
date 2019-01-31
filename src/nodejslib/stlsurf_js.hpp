@@ -7,6 +7,7 @@ class STLSurfJS : public Napi::ObjectWrap<STLSurfJS>
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     STLSurfJS(const Napi::CallbackInfo &info);
     ocl::STLSurf* GetInternalInstance();
+    void addTriangle(const Napi::CallbackInfo &info);
     Napi::Value getTriangles(const Napi::CallbackInfo &info);
   private:
     static Napi::FunctionReference constructor;
