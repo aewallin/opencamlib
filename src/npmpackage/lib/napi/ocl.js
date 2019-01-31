@@ -2,7 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var platform = 'linux';
 if (process.platform == 'win32') {
-    platform = 'win32';
+    if (process.arch === 'x64') {
+        platform = 'win64';
+    }
+    else {
+        platform = 'win32';
+    }
 }
 else if (process.platform == 'darwin') {
     platform = 'darwin';

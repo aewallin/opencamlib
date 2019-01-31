@@ -16,6 +16,7 @@
   "author": "Koen Schmeets",
   "license": "LGPL-3.0",
   "devDependencies": {
+    "@types/node": "^10.12.20",
     "browserify": "^16.2.3",
     "browserify-derequire": "^1.0.0",
     "stl": "^1.1.1",
