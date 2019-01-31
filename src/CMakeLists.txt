@@ -96,17 +96,18 @@ if(USE_OPENMP)
     # OpenMP does not work with the default Apple llvm/clang++
     # Install a more recent version using Homebrew:
     # "brew install llvm"
-    # set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+    # and set the right compiler using: export CXX="/usr/local/opt/llvm/bin/clang++"
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
+    set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include ${OpenMP_CXX_FLAGS}")
   else()
     find_package( OpenMP REQUIRED )
-  endif()
-
-  if (OPENMP_FOUND)
-    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  endif(OPENMP_FOUND)
-
+    if (OPENMP_FOUND)
+      message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
+    endif(OPENMP_FOUND)
+  endif()
 endif(USE_OPENMP)
 
 IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
