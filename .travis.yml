@@ -178,13 +178,13 @@ deploy:
     secure: "LadBELJ5FU2XBoZBBo3IOtbx5xEGkdbsMDQCbHkOOlcDzHKLGTRotHfBt/JpFV05RTBvs4OjUrHNtq5d04yQswOzSlQxH8d6i2oBlxt+QWTWoN0EwzI+pW0E4KqrJCmHq6v7DNFezrmKQNoaEq0VABsT24SevRG+pvB4Rg9GwHPfA6uJlI2hE//dY3e0fdgz2oQegkq0k6TGx3cTiDpsK7xJ01WOY1Md3v7jVf5rWkJs5QFByvVLiCQ/GewXY/Xkh6vm52dHgszmW7q1jpzNtJoCbac8eFlTo68NA17eSKYEezfrLRSL4aV6Pf5kwoPIrXa2q1D/kIk6hJ2psvA4ZyDUPUSKqiGwB67gSGS0fkJfE9MbgJUgcpIxBWx/O6WisZhvMVEhopYuCZ/OesdFOfyQQ1tvpQrYyZ4dkFVnoqjBrMo6G0uPoA5s/k93823DymnK5ah/21TueXwR+JgKHsYdN0menGk0ZyrTLHvqdOyKIDlZuUW40/maF1gVLNhHx7HaWPz6CNTasyxHV/KaIkTirXHpCih1XCszCxm1LVCfrAeR0ebFgsTX7Mnobl2hosKsI3MkOq6xp/9nxD8p8rZ4yWVct4y+RFl2gZ6U6vya6ldSCQc5+4eMgUHV5pL836h+r0V2PK4/sROKtY66ojySn2tuntYWkEfRNBUtLY4="
   file:
     - $TRAVIS_BUILD_DIR/build/Release/opencamlib.darwin.node
-    - $TRAVIS_BUILD_DIR/build/Release/opencamlib.win32.node
+    - $TRAVIS_BUILD_DIR/build/Release/opencamlib.win64.node
     - $TRAVIS_BUILD_DIR/build/Release/opencamlib.linux.node
     - $TRAVIS_BUILD_DIR/build/ocl.27.darwin.so
-    - $TRAVIS_BUILD_DIR/build/ocl.27.win32.so
+    - $TRAVIS_BUILD_DIR/build/ocl.27.win64.so
     - $TRAVIS_BUILD_DIR/build/ocl.27.linux.so
     - $TRAVIS_BUILD_DIR/build/ocl.37.darwin.so
-    - $TRAVIS_BUILD_DIR/build/ocl.37.win32.so
+    - $TRAVIS_BUILD_DIR/build/ocl.37.win64.so
     - $TRAVIS_BUILD_DIR/build/ocl.37.linux.so
   skip_cleanup: true
   on:
