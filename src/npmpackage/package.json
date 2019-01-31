@@ -1,0 +1,26 @@
+{
+  "name": "opencamlibjs",
+  "version": "0.0.3",
+  "description": "opencamlib for the web compiled with emscripten",
+  "main": "./lib/napi/index.js",
+  "browser": "./browser.js",
+  "scripts": {
+    "start": "tsc -w",
+    "build": "(tsc || true) && browserify -p browserify-derequire --standalone ocl lib/emscripten/index.js > browser.js"
+  },
+  "keywords": [
+    "opencamlib",
+    "cam",
+    "cnc"
+  ],
+  "author": "Koen Schmeets",
+  "license": "LGPL-3.0",
+  "devDependencies": {
+    "browserify": "^16.2.3",
+    "browserify-derequire": "^1.0.0",
+    "stl": "^1.1.1",
+    "tslib": "^1.9.3",
+    "typescript": "^3.2.4"
+  },
+  "dependencies": {}
+}
