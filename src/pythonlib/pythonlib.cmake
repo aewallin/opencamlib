@@ -140,7 +140,7 @@ else()
 endif()
 
 if(WIN32)
-  set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.win32.so")
+  set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.win64.so")
 elseif(APPLE)
   set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.darwin.so")
 else()

@@ -53,7 +53,7 @@ target_link_libraries(
 )
 
 if(WIN32)
-	set(NODE_LIB_POSTFIX ".win32.node")
+	set(NODE_LIB_POSTFIX ".win64.node")
 elseif(APPLE)
 	set(NODE_LIB_POSTFIX ".darwin.node")
 else()
