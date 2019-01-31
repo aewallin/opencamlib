@@ -24,6 +24,7 @@ before_install:
     if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
       brew update
       brew upgrade cmake
+      brew install llvm
       if [[ "$USE_PY_3" == "OFF" ]]; then
         brew install boost-python
       elif [[ "$USE_PY_3" == "ON" ]]; then
@@ -75,6 +76,9 @@ before_script:
   - echo $BUILD_PY_LIB
   - echo $USE_PY_3
   - >
+    if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      export CXX="/usr/local/opt/llvm/bin/clang++"
+    fi
     if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then
       if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
         cd ..
@@ -169,8 +173,6 @@ after_success:
         objdump -x /usr/lib/python2.7/dist-packages/ocl.so;
       fi
     fi
-  - if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then node $TRAVIS_BUILD_DIR/examples/nodejs/test.js; fi
-  - if [[ "$BUILD_PY_LIB" == "ON" ]]; then python $TRAVIS_BUILD_DIR/examples/python/ocl_clpoint.py; fi
 deploy:
   provider: releases
   api_key:
@@ -179,4 +181,11 @@ deploy:
     - build/Release/opencamlib.darwin.node
     - build/Release/opencamlib.win32.node
     - build/Release/opencamlib.linux.node
-    - build/ocl.so
+    - build/ocl.27.darwin.so
+    - build/ocl.27.win32.so
+    - build/ocl.27.linux.so
+    - build/ocl.37.darwin.so
+    - build/ocl.37.win32.so
+    - build/ocl.37.linux.so
+  on:
+    all_branches: true
