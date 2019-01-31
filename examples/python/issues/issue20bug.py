@@ -9,7 +9,7 @@ if __name__ == "__main__":
     for t in triangles:
         s.addTriangle(t)
     
-    print ocl.version()    
+    print(ocl.version()    )
     # define a cutter
     length = 10
     cutter = ocl.CylCutter(3, length)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     clp = pdf.getCLPoints()     # get the cl-points from pdf
 
 
-    print 'first point ', clp[0], '   ( z should be at z5 )'
+    print('first point ', clp[0], '   ( z should be at z5 )')
     
     # visualize things with VTK
     myscreen = camvtk.VTKScreen()

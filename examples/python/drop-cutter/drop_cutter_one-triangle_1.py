@@ -5,7 +5,7 @@ import vtk
 import math
 
 if __name__ == "__main__":  
-    print ocl.version() # print out git version tag
+    print(ocl.version() # print out git version tag)
     
     # set up VTK visualization
     myscreen = camvtk.VTKScreen()
@@ -41,7 +41,7 @@ if __name__ == "__main__":
     cutter = c1
     cutter = c1.offsetCutter(0.1)
     
-    print cutter
+    print(cutter)
     
     
     # grid parameters
@@ -59,21 +59,21 @@ if __name__ == "__main__":
     
     # loop through the cl-points
     n=0
-    print len(clpoints), "cl-points to evaluate"
+    print(len(clpoints), "cl-points to evaluate")
     for cl in clpoints:
         cutter.vertexDrop(cl,t)
         cutter.edgeDrop(cl,t)
         cutter.facetDrop(cl,t)
         n=n+1
-    print "drop-cutter done."
+    print("drop-cutter done.")
     # cl has now been updated so it is a valid cutter-location point
     # drop-cutter only updates the z-coordinate of cl, x/y are not changed.
 
-    print "rendering...",
+    print("rendering...",)
     # render all the points
     camvtk.drawCLPointCloud(myscreen, clpoints)
     camvtk.drawCCPoints(myscreen, clpoints)
-    print "done."   
+    print("done."   )
     
     tx = camvtk.Text()
     tx.SetPos( (myscreen.width-200, myscreen.height-130) )

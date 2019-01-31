@@ -8,7 +8,7 @@ import datetime
 
         
 if __name__ == "__main__": 
-    print ocl.version()    
+    print(ocl.version()    )
     myscreen = camvtk.VTKScreen()
     
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
@@ -20,12 +20,12 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     length=5
     cutter = ocl.BallCutter(1.4321, length)
     #cutter = ocl.CylCutter(1.123, length)
     #cutter = ocl.BullCutter(1.123, 0.2, length)
-    print cutter
+    print(cutter)
     
     minx=0
     dx=0.1/6
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     z=-17
     # this generates a list of CL-points in a grid
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-    print "generated grid with", len(clpoints)," CL-points"
+    print("generated grid with", len(clpoints)," CL-points")
     
     # batchdropcutter    
     bdc1 = ocl.BatchDropCutter()
@@ -46,22 +46,22 @@ if __name__ == "__main__":
         bdc1.appendPoint(p)
     
     t_before = time.time()    
-    print "threads=",bdc1.getThreads()
+    print("threads=",bdc1.getThreads())
     bdc1.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " done in ", calctime," s"
+    print(" done in ", calctime," s")
     
     clpoints = bdc1.getCLPoints()
 
-    print len(clpoints), " cl points evaluated"
+    print(len(clpoints), " cl points evaluated")
     
-    print "rendering...",
+    print("rendering...",)
     
     # draw the CL-points
     camvtk.drawCLPointCloud(myscreen, clpoints)
         
-    print "done"
+    print("done")
         
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)

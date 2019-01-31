@@ -79,7 +79,7 @@ if __name__ == "__main__":
     cutter = cam.BullCutter(1,0.2,length)
 
     
-    print cutter
+    print(cutter)
     
     xar = camvtk.Arrow(color=red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
@@ -117,16 +117,16 @@ if __name__ == "__main__":
     # where theta is the slope of the line
     dx = b.x - a.x
     dz = b.z - a.z
-    print "dx=", dx
-    print "dz=", dz
+    print("dx=", dx)
+    print("dz=", dz)
     theta = math.atan(dz/dx)
-    print "theta=",theta
+    print("theta=",theta)
     a = abs( radius2/math.sin(theta) )
-    print "a=", a, " = ", a/radius2,"* radius2"
+    print("a=", a, " = ", a/radius2,"* radius2")
     # ellipse
     #a=2
     b=radius2
-    print "b= ", b
+    print("b= ", b)
     
     
     ecen_tmp=cam.Point(1.38,2,0)
@@ -190,14 +190,14 @@ if __name__ == "__main__":
     myscreen.render()
     #time.sleep(0.5)
      
-    print "rendering...",
+    print("rendering...",)
     #for cl,cc in zip(clpoints,ccpoints):
     #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
     #    if cc.type != cam.CCType.NONE: # only render interesting cc-points
     #        myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=ccColor2(cc) ) )
 
                         
-    print "done."
+    print("done.")
     
 
     

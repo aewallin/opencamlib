@@ -6,7 +6,7 @@ import datetime
 import math
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()
     
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     
     cutter = ocl.CylCutter(0.3,6)
     #cutter = ocl.BallCutter(0.3,6)
-    print "fiber..."
+    print("fiber...")
     range=6
     Nmax = 800
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
@@ -70,11 +70,11 @@ if __name__ == "__main__":
     clpoints = bpc_x.getCLPoints()
     clp2 = bpc_y.getCLPoints()
     clpoints +=clp2
-    print "rendering raw CL-points."
+    print("rendering raw CL-points.")
     
     # draw the CL-points
     camvtk.drawCLPointCloud(myscreen, clpoints)
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

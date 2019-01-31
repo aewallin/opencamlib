@@ -12,7 +12,7 @@ def drawPoints(myscreen, clpoints, ccpoints):
 
 def drawFiber(myscreen, f, fibercolor):
     inter = f.getInts()
-    print "fiber has ", len(inter) , " intervals"
+    print("fiber has ", len(inter) , " intervals")
     for i in inter:
         if not i.empty():
             ip1 = f.point( i.lower )
@@ -82,7 +82,7 @@ def oneCutterWaterline(myscreen, cutter, zh, color):
     xfiber(xvals,t,zh,myscreen,cutter, color)
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         #yfiber(yvals,t,zh,myscreen)
         #xfiber(xvals,t,zh,myscreen)
     
-    print "done."
+    print("done.")
     
     myscreen.render()    
     #w2if = vtk.vtkWindowToImageFilter()

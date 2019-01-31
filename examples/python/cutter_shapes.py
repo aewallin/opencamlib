@@ -24,7 +24,7 @@ def drawLoops(myscreen, loops, loopcolor):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopcolor) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
         
 def getWaterline(s, cutter, zh, sampling):
@@ -73,7 +73,7 @@ def getPathsX(s,cutter,sampling,x):
     return apdc.getCLPoints()
 
 if __name__ == "__main__":  
-    print ocl.version() # revision()
+    print(ocl.version() # revision())
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
     #stl = camvtk.STLSurf("../stl/30sphere.stl")
@@ -94,7 +94,7 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     s.addTriangle(t)
     
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     
     Nwaterlines = 40
     zh=[-0.15*x for x in xrange(Nwaterlines)]
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     #cutter = ocl.BullConeCutter(diam/1.5, diam/10, diam, math.pi/10)
     cutter = ocl.ConeConeCutter(diam/2,math.pi/3,diam,math.pi/6)
     
-    print cutter
+    print(cutter)
     #raw_input("Press Enter to terminate") 
     
     ptsy_all = []
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         
     #print " got ",len(pts)," cl-points"
     #for p in pts:
-    #    print p.x," ",p.y," ",p.z
+    #    print(p.x," ",p.y," ",p.z)
     #exit()
     
     loops = []
@@ -149,13 +149,13 @@ if __name__ == "__main__":
     #for l in cutter_loops:
     #    loops.append(l)
     
-    print "All waterlines done. Got", len(loops)," loops in total."
+    print("All waterlines done. Got", len(loops)," loops in total.")
     # draw the loops
     drawLoops(myscreen, loops, camvtk.cyan)
     drawLoops(myscreen, ptsy_all, camvtk.pink)
     drawLoops(myscreen, ptsx_all, camvtk.lblue)
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(15, 13, 7)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     camvtk.drawArrows(myscreen,center=(0,0,3))

@@ -5,23 +5,23 @@ import vtk
 
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
     stl = camvtk.STLSurf("../stl/demo.stl")
     #stl = camvtk.STLSurf("../stl/pycam-textbox.stl") 
-    print "STL surface read"
+    print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    
     polydata = stl.src.GetOutput()
     s= ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STLSurf with ", s.size(), " triangles"
+    print("STLSurf with ", s.size(), " triangles")
     
     # define a cutter
     #cutter = ocl.CylCutter(0.6, 5)
     cutter = ocl.BullCutter(0.6, 0.01, 5)
-    print cutter
+    print(cutter)
     pdc = ocl.PathDropCutter()   # create a pdc
     apdc = ocl.AdaptivePathDropCutter()
     pdc.setSTL(s)
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     pdc.setSampling(0.4)
     apdc.setSampling(0.4)
     apdc.setMinSampling(0.0008)
-    print " apdc sampling = ", apdc.getSampling()
+    print(" apdc sampling = ", apdc.getSampling())
     # some parameters for this "zigzig" pattern    
     ymin=0
     ymax=12
@@ -54,27 +54,27 @@ if __name__ == "__main__":
         path.append( l )        # add the line to the path
         path2.append( l2 )
 
-    print " set the path for pdf "
+    print(" set the path for pdf ")
     pdc.setPath( path )
     apdc.setPath( path2 )
     
-    print " run the calculation "
+    print(" run the calculation ")
     t_before = time.time()
     pdc.run()                   # run drop-cutter on the path
     t_after = time.time()
-    print " pdc run took ", t_after-t_before," s"
+    print(" pdc run took ", t_after-t_before," s")
     
-    print " run the calculation "
+    print(" run the calculation ")
     t_before = time.time()
     apdc.run()                   # run drop-cutter on the path
     t_after = time.time()
-    print " apdc run took ", t_after-t_before," s"
+    print(" apdc run took ", t_after-t_before," s")
     
     
-    print "get the results "
+    print("get the results ")
     clp = pdc.getCLPoints()     # get the cl-points from pdf
     aclp = apdc.getCLPoints()
-    print "got ", len(aclp) ," adaptive points"
+    print("got ", len(aclp) ," adaptive points")
     
     aclp_lifted=[]
     for p in aclp:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     
     # filter the adaptively sampled toolpaths
     
-    print "filtering. before filter we have", len(aclp_lifted),"cl-points"
+    print("filtering. before filter we have", len(aclp_lifted),"cl-points")
     t_before = time.time()
     f = ocl.LineCLFilter()
     f.setTolerance(0.001)
@@ -94,9 +94,9 @@ if __name__ == "__main__":
     f.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " done in ", calctime," s"
+    print(" done in ", calctime," s")
     cl_filtered = f.getCLPoints()
-    print "       after filter we have", len(cl_filtered),"cl-points"
+    print("       after filter we have", len(cl_filtered),"cl-points")
     
     aclp_lifted2=[]
     for p in cl_filtered:
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         aclp_lifted2.append(p2)
     
     
-    print " render the CL-points"
+    print(" render the CL-points")
     camvtk.drawCLPointCloud(myscreen, clp)
     camvtk.drawCLPointCloud(myscreen, aclp_lifted)
     camvtk.drawCLPointCloud(myscreen, aclp_lifted2)
@@ -112,5 +112,5 @@ if __name__ == "__main__":
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()
-    print " All done."
+    print(" All done.")
     myscreen.iren.Start()

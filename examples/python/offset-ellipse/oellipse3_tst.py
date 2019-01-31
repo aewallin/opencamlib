@@ -188,7 +188,7 @@ if __name__ == "__main__":
     cutter = cam.BullCutter(1,0.2, cutter_length)
 
     
-    print cutter
+    print(cutter)
     
     xar = camvtk.Arrow(color=red, rotXYZ=(0,0,0))
     #xar.SetFlat()
@@ -376,11 +376,11 @@ if __name__ == "__main__":
         pt = oe2.oePoint(epos5)
         #print "before= ", epos5.s, " , ", epos5.t
         nsteps = solver(oe, epos5, cl)
-        print nsteps 
+        print(nsteps )
         convlist.append(nsteps)
         
         convtext = "%i" % (nsteps)
-        print (pt.x, pt.y, pt.z)
+        print((pt.x, pt.y, pt.z))
         #center=(pt.x, pt.y, pt.z)    
         tst = camvtk.Text3D( color=(1,1,1), center=(pt.x, pt.y, 0)  , 
                             text=convtext, scale=0.02)
@@ -425,7 +425,7 @@ if __name__ == "__main__":
             lwr.Write()
         """
         n=n+1
-    print convlist
+    print(convlist)
     #print "rendering...",
     #for cl,cc in zip(clpoints,ccpoints):
     #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
@@ -433,7 +433,7 @@ if __name__ == "__main__":
     #        myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=ccColor2(cc) ) )
 
                         
-    print "done."
+    print("done.")
     
 
     

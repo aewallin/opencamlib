@@ -7,10 +7,10 @@ import math
         
 if __name__ == "__main__":  
     p = ocl.Epos()
-    print "initial Epos() is ",p, "with dia=",p.d
+    print("initial Epos() is ",p, "with dia=",p.d)
     
     for n in xrange(0,30):
-        print p.d," : ",p
+        print(p.d," : ",p)
         p.d = p.d - 0.25
         p.setD()
         

@@ -18,7 +18,7 @@ def calcWaterline(zh, cutter,s):
     wl.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " Waterline done in ", calctime," s"
+    print(" Waterline done in ", calctime," s")
     out = []
     out.append(wl.getLoops())
     out.append(wl.getXFibers())
@@ -66,15 +66,15 @@ def drawLoops(myscreen, loops, loopColor=camvtk.yellow):
                 previous=p
             n=n+1
         zofz = zofz +0.01
-        print "rendered loop ",nloop, " with ", len(lop), " points at zofz=",zofz
+        print("rendered loop ",nloop, " with ", len(lop), " points at zofz=",zofz)
         if len(lop)==2:
             for p in lop:
-                print p
+                print(p)
                 myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zofz),radius=0.0005, color=camvtk.pink ) )
         nloop = nloop+1
 
 def drawScreen(a,b,c,filename,write_flag):  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     #a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -134,7 +134,7 @@ def drawScreen(a,b,c,filename,write_flag):
         
         
 
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(1, -1, 3)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
@@ -150,7 +150,7 @@ def drawScreen(a,b,c,filename,write_flag):
     lwr.SetFileName(filename)
     if write_flag:
         lwr.Write()
-        print "wrote ",filename
+        print("wrote ",filename)
     """
     
     time.sleep(1)

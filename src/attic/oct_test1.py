@@ -172,14 +172,14 @@ if __name__ == "__main__":
     
     testvol = Volume()
     
-    print "building tree...",
+    print("building tree...",)
     tree = buildOCTree(testvol)
-    print "done."
-    print tree
+    print("done.")
+    print(tree)
     
     list =[]
     searchOCTree(tree, list)
-    print len(list), " nodes in tree"
+    print(len(list), " nodes in tree")
     
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
@@ -205,7 +205,7 @@ if __name__ == "__main__":
             t.SetText("OpenCAMLib 10.03-beta " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             myscreen.render()
             myscreen.camera.Azimuth( 3 )
-            print "frame %i of %i" % (n, len(list))
+            print("frame %i of %i" % (n, len(list)))
             w2if.Modified() 
             lwr.SetFileName("frames/oct"+ ('%05d' % n)+".png")
             #lwr.Write()
@@ -215,7 +215,7 @@ if __name__ == "__main__":
         
 
     
-    print "done!"
+    print("done!")
     
     myscreen.render()
     

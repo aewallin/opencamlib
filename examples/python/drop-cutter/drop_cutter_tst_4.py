@@ -7,7 +7,7 @@ import datetime
 import math
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     
     a=ocl.Point(1,0,0)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     #cutter = ocl.BullCutter(diameter,corneradius, length)
     #cutter = ocl.ConeCutter(diameter, angle, length)
     
-    print cutter
+    print(cutter)
     
     minx=-0.5
     dx=0.01
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     maxy=1.5
     z=-0.8
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-    print len(clpoints), "cl-points to evaluate"
+    print(len(clpoints), "cl-points to evaluate")
     n=0
     clp=[]
     bdc = ocl.BatchDropCutter()
@@ -53,14 +53,14 @@ if __name__ == "__main__":
         
     bdc.run()
    
-    print "done."
+    print("done.")
     clpoints = bdc.getCLPoints()
-    print "rendering..."
-    print " len(clpoints)=", len(clpoints)
+    print("rendering...")
+    print(" len(clpoints)=", len(clpoints))
 
     camvtk.drawCLPointCloud(myscreen, clpoints)
 
-    print "done."
+    print("done.")
         
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)

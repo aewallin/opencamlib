@@ -5,7 +5,7 @@ import time
 def printNodes(t):
     nodes = t.get_nodes()
     for n in nodes:
-        print n.str()
+        print(n.str())
 
 def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
     nodes = t.get_nodes()

@@ -16,7 +16,7 @@ def generateRange(zmin,zmax,zNmax):
     
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
@@ -27,13 +27,13 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     bounds = s.getBounds()
-    print "STLSurf.Bounds()=", bounds
+    print("STLSurf.Bounds()=", bounds)
     cutter = ocl.CylCutter(1.6,5)
     #cutter = ocl.BallCutter(0.3,5)
         
-    print cutter
+    print(cutter)
     xmin=-1
     xmax=15
     N=100
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     zmax = 2.75
     zNmax = 5
     zvals = generateRange(zmin,zmax,zNmax)
-    print " calculating waterlines at ", len(zvals)," different z-heights"
+    print(" calculating waterlines at ", len(zvals)," different z-heights")
     #print zvals
     bpcx = ocl.BatchPushCutter()
     bpcy = ocl.BatchPushCutter()
@@ -84,8 +84,8 @@ if __name__ == "__main__":
     clpoints = bpcx.getCLPoints()
     clp2=bpcy.getCLPoints()
     clpoints+=clp2
-    print "got ", len(clpoints), " CL-points"
-    print "rendering raw CL-points."
+    print("got ", len(clpoints), " CL-points")
+    print("rendering raw CL-points.")
     
     # draw the CL-points
     #camvtk.drawCLPointCloud(myscreen, clpoints)
@@ -104,38 +104,38 @@ if __name__ == "__main__":
             if f.p1.z == zh:
                 zlevel_fibers.append(f)
         sorted_fibers.append(zlevel_fibers)
-    print " found ",len(sorted_fibers)," z-levels"
+    print(" found ",len(sorted_fibers)," z-levels")
     
     n=0
     loops = []
     t2_before = time.time()
     for zlev_fibers in sorted_fibers:
-        print " z-level ",n," at z=", zvals[n], " has ", len(zlev_fibers), "fibers"
+        print(" z-level ",n," at z=", zvals[n], " has ", len(zlev_fibers), "fibers")
         n=n+1
         w = ocl.Weave()
         for f in zlev_fibers:
             w.addFiber(f)
-        print " build()...",
+        print(" build()...",)
         w.build()
-        print "done"
-        print " split()...",
+        print("done")
+        print(" split()...",)
         subw = w.get_components()
-        print " graph has ", len(subw)," sub-weaves"
+        print(" graph has ", len(subw)," sub-weaves")
         m=0
         for sw in subw:
-            print m," face_traverse...",
+            print(m," face_traverse...",)
             t_before = time.time()
             sw.face_traverse()
             t_after = time.time()
             calctime = t_after-t_before
-            print "done in ", calctime," s"
+            print("done in ", calctime," s")
             w_loop = sw.getLoops()
             for lop in w_loop:
                 loops.append(lop)
             m=m+1
     t2_after = time.time()
-    print " found", len(loops)," loops"
-    print " loop extraction took ", t2_after-t2_before," seconds"
+    print(" found", len(loops)," loops")
+    print(" loop extraction took ", t2_after-t2_before," seconds")
     # draw the loops
     for lop in loops:
         n = 0
@@ -163,7 +163,7 @@ if __name__ == "__main__":
     myscreen.addActor( t2)
     
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

@@ -25,7 +25,7 @@ def DrawLoops(myscreen, loops):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
 
 def drawOutput(myscreen, pts, stepOver):
@@ -33,7 +33,7 @@ def drawOutput(myscreen, pts, stepOver):
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z), radius=stepOver/5, color=camvtk.red) )
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -66,12 +66,12 @@ if __name__ == "__main__":
     wl.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " Waterline done in ", calctime," s"
+    print(" Waterline done in ", calctime," s")
     cutter_loops = wl.getLoops()
     for l in cutter_loops:
         loops.append(l)
     #print loops
-    print "All waterlines done. Got", len(loops)," loops in total."
+    print("All waterlines done. Got", len(loops)," loops in total.")
     DrawLoops(myscreen, loops)
     
     z = ocl.ZigZag()
@@ -83,12 +83,12 @@ if __name__ == "__main__":
         for p in lop:
             z.addPoint(p)
     z.run()
-    print z
+    print(z)
     out = z.getOutput()
-    print "got ",len(out)," output points"
+    print("got ",len(out)," output points")
     drawOutput(myscreen, out, stepOver )
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(2, 2, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

@@ -38,7 +38,7 @@ def main(ycoord=0.970, filename="test"):
     
     cutter = cam.BullCutter(1,0.2,20)
 
-    print cutter   
+    print(cutter   )
     xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
     yar = camvtk.Arrow(color=camvtk.green, rotXYZ=(0,0,90))
@@ -80,13 +80,13 @@ def main(ycoord=0.970, filename="test"):
     #print "dx=", dx
     #print "dz=", dz
     theta = math.atan(dz/dx)  ## dx==0 is special case!! (i.e. vertical lines)
-    print "theta=",theta
+    print("theta=",theta)
     a_axis = abs( radius2/math.sin(theta) )
-    print "a=", a_axis
+    print("a=", a_axis)
     # ellipse
     #a=2
     b_axis=radius2
-    print "b= ", b_axis
+    print("b= ", b_axis)
     
     
     # slice the tube with a plane at z=0 and find the ellipse center
@@ -98,7 +98,7 @@ def main(ycoord=0.970, filename="test"):
     # so point
     tparam = -a.z / (b.z - a.z)  # NOTE horizontal lines are a special case!!
     ellcenter = a + tparam*(b-a)
-    print "ellcenter (z=0?) =", ellcenter
+    print("ellcenter (z=0?) =", ellcenter)
     # center of the 
     # ecen_tmp=cam.Point(ellcenter,a.y,0)
     
@@ -153,13 +153,13 @@ def main(ycoord=0.970, filename="test"):
     #epos.s = epos.s
     #epos.t = epos.t
     #print nsteps
-    print "solution1 at: ", epos.s , " , ", epos.t 
+    print("solution1 at: ", epos.s , " , ", epos.t )
     #print "solution2 at: ", epos2.s , " , ", epos2.t 
-    print " cl =", cl
-    print " cle=", cle
+    print(" cl =", cl)
+    print(" cle=", cle)
     
     xoffset = cl.x - cle.x
-    print "xoffset= ", xoffset
+    print("xoffset= ", xoffset)
     # we slide xoffset along the x-axis from ellcenter 
     # to find the correct z-plane
     # line is: a + t*(b-a)
@@ -168,16 +168,16 @@ def main(ycoord=0.970, filename="test"):
     # t= (ellcenter.x + xoffset - a.x) / (b.x - a.x)
     tparam2 = (ellcenter.x + xoffset - a.x) / (b.x - a.x)
     slide = tparam2*(b-a)
-    print "sliding z-delta: ", slide.z
+    print("sliding z-delta: ", slide.z)
     elc2 = a + tparam2*(b-a)
-    print "ellcenter2=", elc2
+    print("ellcenter2=", elc2)
     #convlist.append(nsteps)
     fe = cam.Ellipse(elc2, a_axis, b_axis, radius1)
     fecen = camvtk.Sphere(center=(elc2.x,elc2.y,elc2.z), radius=0.01, color=camvtk.pink)
     myscreen.addActor(fecen)
     fccp = fe.ePoint(epos)
     fclp = fe.oePoint(epos)
-    print "solver cl=", fclp, " == ", cl, " ??"
+    print("solver cl=", fclp, " == ", cl, " ??")
     
     fcir= camvtk.Circle(radius=radius1, center=(cl.x,cl.y,elc2.z), color=camvtk.yellow)
     myscreen.addActor(fcir)
@@ -220,7 +220,7 @@ def main(ycoord=0.970, filename="test"):
     myscreen.addActor(cl_sphere)
     #myscreen.render()
   
-    print "done."
+    print("done.")
     myscreen.render()
     lwr.SetFileName(filename)
     #lwr.Write()

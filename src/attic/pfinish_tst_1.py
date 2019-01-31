@@ -8,7 +8,7 @@ if __name__ == "__main__":
     myscreen = camvtk.VTKScreen()
     
     stl = camvtk.STLSurf("../stl/demo.stl")
-    print "STL surface read"
+    print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s= ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STLSurf with ", s.size(), " triangles"
+    print("STLSurf with ", s.size(), " triangles")
     
     cutter = ocl.CylCutter(0.6)
     #print cutter.str()
@@ -40,12 +40,12 @@ if __name__ == "__main__":
     pftp = cam.ParallelFinish()
     pftp.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
     pftp.dropCutterSTL1(cutter, s) 
-    print " made ", pftp.dcCalls, " drop-cutter calls"
+    print(" made ", pftp.dcCalls, " drop-cutter calls")
     
     pf2 = cam.ParallelFinish()
     pf2.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
     pf2.dropCutterSTL2(cutter, s) 
-    print " made ", pf2.dcCalls, " drop-cutter calls"
+    print(" made ", pf2.dcCalls, " drop-cutter calls")
     
     clpoints = pftp.getCLPoints()
     ccpoints = pftp.getCCPoints()
@@ -89,8 +89,8 @@ if __name__ == "__main__":
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z), color=col) )
         #print cc.type
         
-    print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
-    print len(clpoints), " cl points evaluated"
+    print("none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf)
+    print(len(clpoints), " cl points evaluated")
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()

@@ -22,12 +22,12 @@ def waterline_time(zheights, diam, length,s,sampling):
         for l in cutter_loops:
             loops.append(l)
     timeTotal = time.time()-t_total
-    print " ALL Waterlines done in ", timeTotal ," s"
+    print(" ALL Waterlines done in ", timeTotal ," s")
     return timeTotal
     
     
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     a = ocl.Point(0,1,0.3)
     b = ocl.Point(1,0.5,0.3)    
     c = ocl.Point(0,0,0)

@@ -30,14 +30,14 @@ def loop_waterline(zh, cutter,s):
     clpoints = bpc.getCLPoints()
     fibers = bpc.getFibers()
     w = ocl.Weave()
-    print "Weave...",
+    print("Weave...",)
     for f in fibers:
         w.addFiber(f)
-    print "build()...",
+    print("build()...",)
     w.build()
-    print "face_traverse()...",
+    print("face_traverse()...",)
     w.face_traverse()
-    print "done."
+    print("done.")
     return w.getLoops()
 
 def drawLoop(myscreen, w_loop):  # draw the loop as a yellow line
@@ -52,7 +52,7 @@ def drawLoop(myscreen, w_loop):  # draw the loop as a yellow line
             previous = p
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -73,7 +73,7 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter(0.4, 5)
     #cutter = ocl.BullCutter(0.4, 0.1, 5)
     #cutter = ocl.ConeCutter(diameter, angle, length)
-    print cutter
+    print(cutter)
     zstart = 0
     zend = 0.35
     zvals=[]
@@ -81,11 +81,11 @@ if __name__ == "__main__":
     for n in xrange(0,Nz):
         zvals.append( zstart + n*(zend-zstart)/float(Nz-1) )
     for zh in zvals:
-        print "zh=", zh
+        print("zh=", zh)
         w_loop = loop_waterline(zh, cutter,s)
         drawLoop( myscreen, w_loop )
         
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

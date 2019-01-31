@@ -50,7 +50,7 @@ if __name__ == "__main__":
     #cutter = ocl.BullCutter(diameter, diameter/5, length)
     #cutter = ocl.ConeCutter(diameter, angle, length)
     
-    print cutter
+    print(cutter)
     range=6
     Nmax = 500
     yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         f.addInterval(i)
         drawFiber(myscreen, f, camvtk.lblue)
             
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

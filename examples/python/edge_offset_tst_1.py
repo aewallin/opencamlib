@@ -12,7 +12,7 @@ def drawEdge(myscreen, a, b):
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     camvtk.drawOCLtext(myscreen)
     camvtk.drawArrows(myscreen,center=(-1,-2,0))
@@ -69,7 +69,7 @@ if __name__ == "__main__":
     myscreen.addActor(con2)
     
     
-    print "done."
+    print("done.")
         
     myscreen.camera.SetPosition(4, 3, 2)
     myscreen.camera.SetFocalPoint(0, 0, 0)

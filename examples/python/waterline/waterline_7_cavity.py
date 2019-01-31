@@ -24,16 +24,16 @@ def drawLoops(myscreen, loops, loopcolor):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopcolor) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         if len(lop) == 2:
             for p in lop:
-                print p
+                print(p)
                 myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z),radius=0.1,color=camvtk.green) )
         nloop = nloop+1
         
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../../stl/demo.stl")
     #stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     myscreen.addActor(stl2) 
     stl2.SetSurface()
     stl2.SetColor(camvtk.cyan)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     zh=-0.5
     zheights=[ -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05] # for cavity
     zheights=[ -0.1, 0.0, 0.1, 0.2, 0.3, 0.4 , 0.5, 0.6, 0.7] # for core
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     wl.run2()
     t_after = time.time()
     calctime = t_after-t_before
-    print " Waterline done in ", calctime," s"
+    print(" Waterline done in ", calctime," s")
     cutter_loops = wl.getLoops()
     for l in cutter_loops:
         loops.append(l)
@@ -97,14 +97,14 @@ if __name__ == "__main__":
         awl.run()
         t_after = time.time()
         calctime = t_after-t_before
-        print " AdaptiveWaterline done in ", calctime," s"
+        print(" AdaptiveWaterline done in ", calctime," s")
         acutter_loops = awl.getLoops()
         for l in acutter_loops:
             aloops.append(l)
     
     drawLoops(myscreen, aloops, camvtk.red)
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(185, 153, 167)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     camvtk.drawArrows(myscreen,center=(0,-4,0))

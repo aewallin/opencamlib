@@ -32,8 +32,8 @@ class reader:
 
         self.little_endian = (struct.unpack("<f", struct.pack("@f", 140919.00))[0] == 140919.00)
         
-#        print "computer is little endian: ", self.little_endian
-#        print "file is ascii: ", self.isascii
+#        print("computer is little endian: ", self.little_endian)
+#        print("file is ascii: ", self.isascii)
         
         self.nfacets = 0
         self.ndegenerate = 0

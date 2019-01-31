@@ -37,7 +37,7 @@ if __name__ == "__main__":
     tsp = ocl.TSPSolver()
     pts = readPts()
     drawPoints(myscreen, pts)
-    print "got ",len(pts)," points"
+    print("got ",len(pts)," points")
     #exit()
     for p in pts:
         tsp.addPoint( p.x , p.y)
@@ -45,10 +45,10 @@ if __name__ == "__main__":
     tsp.run()
     run_time = time.time() - start_time
     l = tsp.getLength()
-    print "tour length ",l
+    print("tour length ",l)
     out = tsp.getOutput()
     for o in out:
-        print o,
+        print(o,)
     
     drawTour(myscreen, pts, out)
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     tsp = ocl.TSPSolver()
     pts = readPts()
     drawPoints(myscreen, pts)
-    print "got ",len(pts)," points"
+    print("got ",len(pts)," points")
     #exit()
     for p in pts:
         tsp.addPoint( p.x , p.y)
@@ -108,10 +108,10 @@ if __name__ == "__main__":
     tsp.run()
     run_time = time.time() - start_time
     l = tsp.getLength()
-    print "tour length ",l
+    print("tour length ",l)
     out = tsp.getOutput()
     for o in out:
-        print o,
+        print(o,)
     
     drawTour(myscreen, pts, out)
 

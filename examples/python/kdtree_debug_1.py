@@ -45,25 +45,25 @@ def main():
     
     stl = camvtk.STLSurf(filename="../stl/demo.stl")
     #stl = camvtk.STLSurf(filename="../stl/demo2.stl")
-    print "STL surface read"
+    print("STL surface read")
     #myscreen.addActor(stl)
     #stl.SetWireframe()
     #stl.SetColor((0.5,0.5,0.5))
     polydata = stl.src.GetOutput()
     s= cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STLSurf with ", s.size(), " triangles"
+    print("STLSurf with ", s.size(), " triangles")
     
     
     myscreen.addActor( camvtk.Sphere( center=(0,0,0), radius=0.2, color = camvtk.yellow ) )
   
     s.build_kdtree()
-    print "built kd-tree"
+    print("built kd-tree")
     s.jump_kd_reset()
     
     tlist = s.get_kd_triangles()
     
-    print "got", len(tlist), " triangles"
+    print("got", len(tlist), " triangles")
     
     while (s.jump_kd_hi()):
         lotris = s.get_kd_triangles()
@@ -73,24 +73,24 @@ def main():
         hitris = s.get_kd_triangles()
         lev = s.get_kd_level()
         
-        print "l=", lev, " hi=", len(hitris), " lo=", len(lotris), " cut=", cut
+        print("l=", lev, " hi=", len(hitris), " lo=", len(lotris), " cut=", cut)
         
         if ( cut[0] < 2 ):
-            print "x cut ",
+            print("x cut ",)
             if ( cut[0] == 0):
-                print "max" 
+                print("max" )
                 myscreen.addActor( camvtk.Line( p1=(cut[1],100,0), p2=(cut[1],-100,0), color = camvtk.green ) )
             else:
-                print "min" 
+                print("min" )
                 myscreen.addActor( camvtk.Line( p1=(cut[1],100,0), p2=(cut[1],-100,0), color = camvtk.lgreen ) )
             #myscreen.addActor( camvtk.Line( p1=(100,cut[1],0), p2=(-100,cut[1],0), color = camvtk.red ) )
         else:
-            print "y cut ",
+            print("y cut ",)
             if ( cut[0] == 2):
-                print "max" 
+                print("max" )
                 myscreen.addActor( camvtk.Line( p1=(100,cut[1],0), p2=(-100,cut[1],0), color = camvtk.red ) )
             else:
-                print "min"
+                print("min")
                 myscreen.addActor( camvtk.Line( p1=(100,cut[1],0), p2=(-100,cut[1],0), color = camvtk.pink ) )
             
         
@@ -111,7 +111,7 @@ def main():
     
 
   
-    print "done."
+    print("done.")
     myscreen.render()
     #lwr.SetFileName(filename)
     

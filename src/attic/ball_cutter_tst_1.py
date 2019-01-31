@@ -21,16 +21,16 @@ if __name__ == "__main__":
     #cutter = ocl.CylCutter(0.5)
     #cutter = ocl.BallCutter(1.5)
     
-    print ocl.revision()
-    print cutter
+    print(ocl.revision())
+    print(cutter)
     
     
     
-    print "rendering...",
+    print("rendering...",)
  
     # insert code here to actually do something...
                            
-    print "done."
+    print("done.")
     
 
     

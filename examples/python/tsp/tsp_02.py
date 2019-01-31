@@ -25,7 +25,7 @@ def TSPLIBReader( filename ):
                 points.append( ocl.Point( float( words[1] ),  float( words[2] ) ) )
             
                 
-    print "read ",len(points)," points from ", filename
+    print("read ",len(points)," points from ", filename)
     return points
     
     
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         run_time = time.time() - start_time
         l = tsp.getLength()
         ratio = float(l)/float(inst[2])
-        print n," : ",inst[1],": ",ratio," l=",l," / ",inst[2], " / ",run_time, "seconds"
+        print(n," : ",inst[1],": ",ratio," l=",l," / ",inst[2], " / ",run_time, "seconds")
         resultrow.append( inst[0] ) # length
         resultrow.append( inst[2] ) # optimal
         resultrow.append( l ) # found tour length

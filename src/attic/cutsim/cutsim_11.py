@@ -7,7 +7,7 @@ import vtk
 import math
 
 def main():  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(2, 2, 5)
     myscreen.camera.SetFocalPoint(0.5,0, 1)   
@@ -29,21 +29,21 @@ def main():
     t = ocl.Octree(root_scale, max_depth, cp)
     t.init(2)
     n = 0 # the frame number
-    print "root_scale = ", t.root_scale()
-    print " max_depth = ", t.max_depth()
-    print " leaf_scale=", t.leaf_scale()
+    print("root_scale = ", t.root_scale())
+    print(" max_depth = ", t.max_depth())
+    print(" leaf_scale=", t.leaf_scale())
 
-    print "mc()...",
+    print("mc()...",)
     mc = ocl.MarchingCubes()
     tris = mc.mc_tree(t) 
 
     mc_surf = camvtk.STLSurf( triangleList=tris )
     mc_surf.SetColor(camvtk.cyan)
 
-    print " STLSurf()...",
+    print(" STLSurf()...",)
     myscreen.addActor( mc_surf )
 
-    print "done."
+    print("done.")
     myscreen.render()
     myscreen.removeActor( mc_surf )
 
@@ -77,10 +77,10 @@ def main():
         
         t_after = time.time()
         render_time = t_after-t_before
-        print "%i: mc_tris=%i\t diff=%1.3f \t mc=%1.3f \t ren=%1.3f" % (n, len(tris), diff_time, mc_time, render_time)
+        print("%i: mc_tris=%i\t diff=%1.3f \t mc=%1.3f \t ren=%1.3f" % (n, len(tris), diff_time, mc_time, render_time))
         n=n+1
 
-    print "all done."
+    print("all done.")
     myscreen.iren.Start() 
     exit()
 

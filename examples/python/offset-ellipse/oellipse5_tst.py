@@ -28,12 +28,12 @@ def calcEcenter(oe,a,b,cl,sln):
     
     cce = oe.ePoint(pos)
     cle = oe.oePoint(pos)
-    print "solution at: ", pos
-    print "  cce=", cce
-    print "  cle=", cle
+    print("solution at: ", pos)
+    print("  cce=", cce)
+    print("  cle=", cle)
     
     xoffset = cl.x - cle.x
-    print " xoffset= ", xoffset
+    print(" xoffset= ", xoffset)
     # we slide xoffset along the x-axis from ellcenter 
     # to find the correct z-plane
     # line is: a + t*(b-a)
@@ -71,7 +71,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     cutter_length = 2
     cutter = cam.BullCutter(1,0.2, cutter_length)
 
-    print cutter   
+    print(cutter   )
     xar = camvtk.Arrow(color=camvtk.red, rotXYZ=(0,0,0))
     myscreen.addActor(xar)
     yar = camvtk.Arrow(color=camvtk.green, rotXYZ=(0,0,90))
@@ -120,13 +120,13 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     #print "dx=", dx
     #print "dz=", dz
     theta = math.atan(dz/dx)  ## dx==0 is special case!! (i.e. vertical lines)
-    print "theta=",theta
+    print("theta=",theta)
     a_axis = abs( radius2/math.sin(theta) )
-    print "a=", a_axis
+    print("a=", a_axis)
     # ellipse
     #a=2
     b_axis=radius2
-    print "b= ", b_axis
+    print("b= ", b_axis)
     
     
     # slice the tube with a plane at z=0 and find the ellipse center
@@ -138,7 +138,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     # so point
     tparam = -a.z / (b.z - a.z)  # NOTE horizontal lines are a special case!!
     ellcenter = a + tparam*(b-a)
-    print "ellcenter (z=0?) =", ellcenter
+    print("ellcenter (z=0?) =", ellcenter)
     # center of the 
     # ecen_tmp=cam.Point(ellcenter,a.y,0)
     
@@ -185,14 +185,14 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     # RUN THE SOLVER!
     nsteps = cam.Ellipse.solver(oe,  cl)
     
-    print "solver done. back to python:"
-    print "1st (s,t) solution=", oe.epos1
-    print "2st (s,t) solution=", oe.epos2
+    print("solver done. back to python:")
+    print("1st (s,t) solution=", oe.epos1)
+    print("2st (s,t) solution=", oe.epos2)
     
     elc1 = calcEcenter(oe,a,b, cl,1)
     elc2 = calcEcenter(oe,a,b, cl,2)
-    print "elc1=", elc1
-    print "elc2=", elc2
+    print("elc1=", elc1)
+    print("elc2=", elc2)
     #exit()
     
     #elc2 = elc2
@@ -275,7 +275,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     #myscreen.addActor(cl_sphere)
     #myscreen.render()
   
-    print "done."
+    print("done.")
     myscreen.render()
     lwr.SetFileName(filename)
     

@@ -5,31 +5,31 @@ import vtk
 
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
     stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    print "STL surface read"
+    print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    
     polydata = stl.src.GetOutput()
     s= ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STLSurf with ", s.size(), " triangles"
+    print("STLSurf with ", s.size(), " triangles")
     
     # define a cutter
     cutter = ocl.CylCutter(0.6, 5)
-    print cutter
+    print(cutter)
     
-    print "creating PathDropCutter()"
+    print("creating PathDropCutter()")
     pdc = ocl.PathDropCutter()   # create a pdc
-    print "set STL surface"
+    print("set STL surface")
     pdc.setSTL(s)
-    print "set cutter"
+    print("set cutter")
     pdc.setCutter(cutter)               # set the cutter
-    print "set minimumZ"
+    print("set minimumZ")
     pdc.minimumZ = -1                   # set the minimum Z-coordinate, or "floor" for drop-cutter
-    print "set the sampling interval"
+    print("set the sampling interval")
     pdc.setSampling(0.0123)
     
     # some parameters for this "zigzig" pattern    
@@ -47,23 +47,23 @@ if __name__ == "__main__":
         l = ocl.Line(p1,p2)     # line-object
         path.append( l )        # add the line to the path
 
-    print " set the path for pdf "
+    print(" set the path for pdf ")
     pdc.setPath( path )
     
-    print " run the calculation "
+    print(" run the calculation ")
     t_before = time.time()
     pdc.run()                   # run drop-cutter on the path
     t_after = time.time()
-    print "run took ", t_after-t_before," s"
+    print("run took ", t_after-t_before," s")
     
-    print "get the results "
+    print("get the results ")
     clp = pdc.getCLPoints()     # get the cl-points from pdf
     
-    print " render the CL-points"
+    print(" render the CL-points")
     camvtk.drawCLPointCloud(myscreen, clp)
     #myscreen.addActor( camvtk.PointCloud(pointlist=clp, collist=ccp)  )
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()
-    print " All done."
+    print(" All done.")
     myscreen.iren.Start()

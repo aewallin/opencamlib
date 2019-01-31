@@ -7,7 +7,7 @@ import vtk
 import math
 
 def main():  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-8, -4, 25)
     myscreen.camera.SetFocalPoint(4.5,6, 0)   
@@ -32,7 +32,7 @@ def main():
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     
     #angle = math.pi/4
     radius  = 0.4
@@ -64,12 +64,12 @@ def main():
     
     t_after = time.time()
     calctime = t_after-t_before
-    print " BDC4 done in ", calctime," s"
+    print(" BDC4 done in ", calctime," s")
     dropcutter_time = calctime
     clpoints = bdc.getCLPoints()
     
     #camvtk.drawCLPointCloud(myscreen, clpoints)
-    print " clpts= ", len(clpoints)
+    print(" clpts= ", len(clpoints))
     myscreen.render()
     #myscreen.iren.Start() 
     #exit()
@@ -111,14 +111,14 @@ def main():
     
     mc = ocl.MarchingCubes()
     
-    print "stock mc()...",
+    print("stock mc()...",)
     tris = mc.mc_tree(t) # t.mc_triangles()
-    print " mc() got ", len(tris), " triangles"
+    print(" mc() got ", len(tris), " triangles")
     mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
     mc_surf.SetColor(camvtk.cyan)
-    print "stock STLSurf()...",
+    print("stock STLSurf()...",)
     myscreen.addActor( mc_surf )
-    print "done."
+    print("done.")
             
     myscreen.render()
     #myscreen.iren.Start() 
@@ -130,7 +130,7 @@ def main():
         cl = ocl.Point( clpoints[n].x, clpoints[n].y, clpoints[n].z )
         s.setPos( cl )
         #myscreen.addActor( camvtk.Point( center=(cl.x,cl.y,cl.z), color=camvtk.yellow))
-        print n,": diff...",
+        print(n,": diff...",)
         t_before = time.time() 
         t.diff_negative(s)
         t_after = time.time() 
@@ -146,29 +146,29 @@ def main():
             cltext.SetText(postext)
             
             cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
-            print cactors
+            print(cactors)
             t_before = time.time() 
-            print "mc()...",
+            print("mc()...",)
             tris = mc.mc_tree(t) #.mc_triangles()
             t_after = time.time() 
             mc_time = t_after-t_before
-            print "done in ", mc_time," s"
-            print " mc() got ", len(tris), " triangles"
+            print("done in ", mc_time," s")
+            print(" mc() got ", len(tris), " triangles")
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
             #mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
-            print " STLSurf()...",
+            print(" STLSurf()...",)
             myscreen.addActor( mc_surf )
-            print "done."
+            print("done.")
 
-            print " render()...",
+            print(" render()...",)
             myscreen.render()
             myscreen.camera.Azimuth( 0.5 )
             lwr.SetFileName("frames/cutsim_d9_frame"+ ('%06d' % n)+".png")
             w2if.Modified() 
             lwr.Write()
             
-            print "done."
+            print("done.")
             myscreen.removeActor( mc_surf )
             for c in cactors:
                 myscreen.removeActor( c )
@@ -199,8 +199,8 @@ def main():
         #    myscreen.addActor( camvtk.Line( p1=(sp1.x,sp1.y,sp1.z),p2=(sp2.x,sp2.y,sp2.z), color=camvtk.red ) )
         #print "center moved to", s.center
     
-    print " clpts= ", len(clpoints)
-    print "All done."
+    print(" clpts= ", len(clpoints))
+    print("All done.")
     myscreen.iren.Start() 
 
 if __name__ == "__main__":
