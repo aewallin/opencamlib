@@ -59,7 +59,7 @@ before_install:
         fi
         cat project-config.jam
         cat bootstrap.log
-        ./b2 address-model=64 threading=multi --with-python -j2 variant=debug link=static --layout=system
+        ./b2 address-model=64 threading=multi --with-python -j2 variant=release link=static --layout=system
         ls /c/boost/boost_1_69_0/stage/lib
       fi
     fi
