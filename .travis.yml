@@ -190,6 +190,12 @@ deploy:
     - $TRAVIS_BUILD_DIR/build/ocl.37.darwin.so
     - $TRAVIS_BUILD_DIR/build/ocl.37.win64.so
     - $TRAVIS_BUILD_DIR/build/ocl.37.linux.so
+    - $TRAVIS_BUILD_DIR/build/Release/ocl.27.darwin.so
+    - $TRAVIS_BUILD_DIR/build/Release/ocl.27.win64.so
+    - $TRAVIS_BUILD_DIR/build/Release/ocl.27.linux.so
+    - $TRAVIS_BUILD_DIR/build/Release/ocl.37.darwin.so
+    - $TRAVIS_BUILD_DIR/build/Release/ocl.37.win64.so
+    - $TRAVIS_BUILD_DIR/build/Release/ocl.37.linux.so
   skip_cleanup: true
   on:
     all_branches: true
