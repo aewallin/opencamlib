@@ -87,19 +87,19 @@ if __name__ == "__main__":
     cutter = ocl.CylCutter(0.3, 6)
     print("lengt=", cutter.getLength())
     print("fiber...",)
-    range=30
+    fiber_range=30
     Nmax = 200
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.1
     zmax = 0.5
     zNmax = 2
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    #for n in xrange(0,zNmax):
+    #for n in range(0,zNmax):
     #    zvals.append(zmin+n*dz)
     zvals.append(0.1)
-    #zvals = [ float(n-float(zNmax)/2)/zNmax*range for n in xrange(0,zNmax+1)]
+    #zvals = [ float(n-float(zNmax)/2)/zNmax*fiber_range for n in range(0,zNmax+1)]
     #print zvals
     #exit()
     #cc = ocl.CCPoint()

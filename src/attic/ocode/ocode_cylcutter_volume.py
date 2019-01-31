@@ -262,7 +262,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     drawTree2(myscreen,dt,opacity=1, color=camvtk.cyan, offset=(5,0,0))
     
     """
-    for n in xrange(0,30):
+    for n in range(0,30):
         tp = ocl.Point(2.5,2.5,2-n*0.3)
         tpc = camvtk.black
         if (cylvol.isInside(tp)):

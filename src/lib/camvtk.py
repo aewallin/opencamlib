@@ -462,7 +462,7 @@ class Circle(CamvtkActor):
         lines =vtk.vtkCellArray()
         id = 0
         points = vtk.vtkPoints()
-        for n in xrange(0,resolution):
+        for n in range(0,resolution):
             line = vtk.vtkLine()
             angle1 = (float(n)/(float(resolution)))*2*math.pi
             angle2 = (float(n+1)/(float(resolution)))*2*math.pi

@@ -243,7 +243,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     ##camvtk.Cylinder(center=(pmin.x,pmin.y,pmin.z), radius=0.1, color=camvtk.pink)
     
     """
-    for n in xrange(0,30):
+    for n in range(0,30):
         tp = ocl.Point(2.5,2.5,2-n*0.3)
         tpc = camvtk.black
         if (cylvol.isInside(tp)):

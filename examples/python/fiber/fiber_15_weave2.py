@@ -45,8 +45,8 @@ if __name__ == "__main__":
     print("fiber...")
     fiber_range=7
     Nmax = 200
-    yvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in range(0,Nmax+1)]
 
     zvals=[ 0.23]
 

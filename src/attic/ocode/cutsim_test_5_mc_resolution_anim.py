@@ -61,7 +61,7 @@ def main():
         print(" render()...",)
         myscreen.render()
         print("done.")
-        for m in xrange(0,180):
+        for m in range(0,180):
             # do a rotating animation
             lwr.SetFileName("frames/mc8_frame"+ ('%06d' % n)+".png")
             myscreen.camera.Azimuth( 2 )

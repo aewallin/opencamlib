@@ -73,7 +73,7 @@ def getPathsX(s,cutter,sampling,x):
     return apdc.getCLPoints()
 
 if __name__ == "__main__":  
-    print(ocl.version() # revision())
+    print(ocl.version()) # revision()
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
     #stl = camvtk.STLSurf("../stl/30sphere.stl")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     print("STL surface read,", s.size(), "triangles")
     
     Nwaterlines = 40
-    zh=[-0.15*x for x in xrange(Nwaterlines)]
+    zh=[-0.15*x for x in range(Nwaterlines)]
     #zh=[15]
     diam = 3.01
     length = 50

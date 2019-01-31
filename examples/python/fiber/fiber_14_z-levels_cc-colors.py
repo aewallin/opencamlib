@@ -92,15 +92,15 @@ if __name__ == "__main__":
     print("fiber...")
     fiberrange=5
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in range(0,Nmax+1)]
     """
     zmin = ztri_lo - 0.2
     zmax = ztri
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     """
     
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     zmax= 0.3
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
-    for n in xrange(Nmax):
+    for n in range(Nmax):
         zheights.append(z)
         z=z+dz
     #zheights= []

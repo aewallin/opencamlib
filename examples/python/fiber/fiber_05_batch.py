@@ -26,17 +26,17 @@ if __name__ == "__main__":
     cutter = ocl.CylCutter(0.3,6)
     #cutter = ocl.BallCutter(0.3,6)
     print("fiber...")
-    range=6
+    fiber_range=6
     Nmax = 800
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.1
     zmax = 0.5
     zNmax = 50
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     #zvals.append(0.2)
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
 
     bpc_x = ocl.BatchPushCutter()

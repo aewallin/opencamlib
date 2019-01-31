@@ -124,7 +124,7 @@ class writer:
     def write(self, fc):
         self.fl = open(self.fn, "w")
         self.WriteHeader(self.fl, fc.nfacets)
-        for t in xrange(fc.nfacets):
+        for t in range(fc.nfacets):
             x0, y0, z0, x1, y1, z1, x2, y2, z2 = fc.GetFacet(t)
             self.WriteFacet(x0, y0, z0, x1, y1, z1, x2, y2, z2)
             

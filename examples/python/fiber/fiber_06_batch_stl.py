@@ -8,7 +8,7 @@ import math
 def generateRange(zmin,zmax,zNmax):
     dz = (float(zmax)-float(zmin))/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     return zvals
     

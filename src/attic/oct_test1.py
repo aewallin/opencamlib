@@ -24,7 +24,7 @@ def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     node = OCTNode( level, center = nodecenter , type = 1, childlist=None)
     
     flags = []
-    for n in xrange(0,9): # test all points
+    for n in range(0,9): # test all points
         flags.append( volume.isInside( node.nodePoint(n) ) )
     
     if (sum(flags) == 0): # nothing is inside
@@ -44,7 +44,7 @@ def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     # have to subdivide:
     childs = []
     child_centers = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         child_center = node.childCenter(n) 
         childs.append( buildOCTree( volume , nodecenter = child_center, level= level+1) )
     node.setChildren(childs)
@@ -121,7 +121,7 @@ def addNodes(myscreen, oct):
         return # don't draw intermediate nodes
         
     p = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         p1 = oct.nodePoint(n)
         p.append(p1)
         

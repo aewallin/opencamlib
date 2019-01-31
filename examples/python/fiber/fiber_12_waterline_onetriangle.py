@@ -8,22 +8,22 @@ import math
 # 2018.08: Weave not wrapped
 
 def loop_waterline(zh, cutter,s):
-    range=2
+    fiber_range=2
     Nmax = 200
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     bpc = ocl.BatchPushCutter()
     bpc.setXDirection()
     bpc.setSTL(s)
     bpc.setCutter(cutter)
     for y in yvals:
-        f1 = ocl.Point(-range,y,zh) # start point of fiber
-        f2 = ocl.Point(+range,y,zh)  # end point of fiber
+        f1 = ocl.Point(-fiber_range,y,zh) # start point of fiber
+        f2 = ocl.Point(+fiber_range,y,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         bpc.appendFiber(f)
     for x in xvals:
-        f1 = ocl.Point(x,-range,zh) # start point of fiber
-        f2 = ocl.Point(x,+range,zh)  # end point of fiber
+        f1 = ocl.Point(x,-fiber_range,zh) # start point of fiber
+        f2 = ocl.Point(x,+fiber_range,zh)  # end point of fiber
         f =  ocl.Fiber( f1, f2)
         bpc.appendFiber(f)
     bpc.run()
@@ -78,7 +78,7 @@ if __name__ == "__main__":
     zend = 0.35
     zvals=[]
     Nz = 7
-    for n in xrange(0,Nz):
+    for n in range(0,Nz):
         zvals.append( zstart + n*(zend-zstart)/float(Nz-1) )
     for zh in zvals:
         print("zh=", zh)

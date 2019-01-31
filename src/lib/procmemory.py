@@ -54,7 +54,7 @@ if __name__ == "__main__":
     m1 = memory()
     print(m1)
     l=[]
-    for n in xrange(100000):
+    for n in range(100000):
         l.append(n)
     m2 = memory()
     

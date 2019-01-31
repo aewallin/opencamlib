@@ -57,7 +57,7 @@ def main(filename="frame/f.png"):
     
     Nmoves = len(clpoints)
     print(Nmoves,"CL-points to process")
-    for n in xrange(0,Nmoves-1):
+    for n in range(0,Nmoves-1):
         #if n<Nmoves-1:
         print(n," to ",n+1)
         startp = clpoints[n]
