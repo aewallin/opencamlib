@@ -105,6 +105,7 @@ before_script:
             -DVERSION_STRING="$TRAVIS_BRANCH" \
             -DCMAKE_GENERATOR_PLATFORM="x64" \
             ../src;
+          cmake --build . --config Release
         else
           cmake \
             -DPython2_ROOT_DIR="/c/Python27" \
@@ -121,6 +122,7 @@ before_script:
             -DVERSION_STRING="$TRAVIS_BRANCH" \
             -DCMAKE_GENERATOR_PLATFORM="x64" \
             ../src;
+          cmake --build . --config Release
         fi
       else
         cmake \
@@ -133,6 +135,7 @@ before_script:
           -DVERSION_STRING="$TRAVIS_BRANCH" \
           -DCMAKE_GENERATOR_PLATFORM="x64" \
           ../src;
+        cmake --build . --config Release
       fi
     else
       if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
