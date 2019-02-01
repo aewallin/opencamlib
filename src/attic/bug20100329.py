@@ -31,7 +31,7 @@ if __name__ == "__main__":
     
     plist=[]
     zbase=-5
-    #for n in xrange(0,3):
+    #for n in range(0,3):
     #    plist.append( ocl.Point(1 + 0.01*n, 1.4, zbase) )
     plist.append( ocl.Point(1.02, 1.4, zbase) )
     
@@ -54,12 +54,12 @@ if __name__ == "__main__":
                 myscreen.addActor( camvtk.Sphere(center=(cc.x,cc.y,cc.z) , radius=0.1, color=(0.2,0.3,0.4) ) )
             myscreen.render()
             if p.z > 10:
-                print "cl-point is ", p.str()
-                print "cc-point is ", cc.str()
-                print "t=", t.str()
+                print("cl-point is ", p.str())
+                print("cc-point is ", cc.str())
+                print("t=", t.str())
                 tripoints = t.getPoints()
                 #for pt in tripoints:
-                #    print pt.x, " , ", pt.y, " , ", pt.z
+                #    print(pt.x, " , ", pt.y, " , ", pt.z)
                 break
             myscreen.removeActor(stl2)
             #time.sleep(0.01)
@@ -67,12 +67,12 @@ if __name__ == "__main__":
         #cutter.dropCutterSTL(p, cc, s) 
         clpoints.append(p)
         ccpoints.append(cc)
-    print "drop-cutter done"
+    print("drop-cutter done")
     
     for (cl,cc) in zip(clpoints,ccpoints):
         myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=camvtk.ccColor(cc) ) )
         #myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=camvtk.yellow ) )
-        print "adding point", cl.str()
+        print("adding point", cl.str())
         trilist = pf.getTrianglesUnderCutter(p, cutter)
         stl2 = camvtk.STLSurf(filename=None, triangleList=trilist, color=camvtk.red )
         stl2.SetSurface()
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         
     #p = plist[2]
     #for t in s.tris:
-    #    print t.str()
+    #    print(t.str())
         
     #cutter.vertexDrop(p)
     

@@ -6,7 +6,7 @@ import datetime
 import vtk
 
 def main():  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-15, -8, 15)
     myscreen.camera.SetFocalPoint(0,0, 0)   
@@ -44,12 +44,12 @@ def main():
     for max_depth in depths:
         t = ocl.Octree(root_scale, max_depth, cp)
         t.init(1)
-        print "build...",
+        print("build...",)
         t_before = time.time() 
         t.diff_positive(s)    
         t_after = time.time() 
         build_time = t_after-t_before
-        print "done."
+        print("done.")
         tris = t.mc_triangles()
         infotext= "Octree + Marching-Cubes test\nmax octree-depth:%i \ntriangles: %i \nbuild() time: %f ms" % (max_depth, 
                                                           len(tris), build_time*1e3 )
@@ -58,10 +58,10 @@ def main():
         mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
         #
         myscreen.addActor( mc_surf )
-        print " render()...",
+        print(" render()...",)
         myscreen.render()
-        print "done."
-        for m in xrange(0,180):
+        print("done.")
+        for m in range(0,180):
             # do a rotating animation
             lwr.SetFileName("frames/mc8_frame"+ ('%06d' % n)+".png")
             myscreen.camera.Azimuth( 2 )

@@ -8,7 +8,7 @@ import vtk
 
 
 def main(filename="frame/f.png"):  
-    print ocl.revision()
+    print(ocl.revision())
           
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(20, 12, 20)
@@ -27,7 +27,7 @@ def main(filename="frame/f.png"):
     
     c = ocl.CylCutter(1) # cutter
     c.length = 3
-    print "cutter length=", c.length
+    print("cutter length=", c.length)
     p1 = ocl.CLPoint(-0.2,-0.2,0.2) # start of move
     p2 = ocl.CLPoint(-0.2,0.2,0.0) # end of move
     p3 = ocl.CLPoint(0.5,0.0,-0.5)
@@ -56,10 +56,10 @@ def main(filename="frame/f.png"):
     myscreen.addActor(surf)
     
     Nmoves = len(clpoints)
-    print Nmoves,"CL-points to process"
-    for n in xrange(0,Nmoves-1):
+    print(Nmoves,"CL-points to process")
+    for n in range(0,Nmoves-1):
         #if n<Nmoves-1:
-        print n," to ",n+1
+        print(n," to ",n+1)
         startp = clpoints[n]
         endp   = clpoints[n+1]
         sweep = ocl.LinOCT()
@@ -96,9 +96,9 @@ def main(filename="frame/f.png"):
     title.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     myscreen.addActor(title)
         
-    print " render()...",
+    print(" render()...",)
     myscreen.render()
-    print "done."
+    print("done.")
     
     lwr.SetFileName(filename)
     time.sleep(0.2)

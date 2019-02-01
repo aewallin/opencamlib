@@ -35,12 +35,12 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
             myscreen.addActor( cube )
             #black = black+1
         if ( (i % (nmax/10))==0):
-            print ".",
+            print(".",)
         i=i+1
-    print "done."
+    print("done.")
     #print black," black nodes"
     """
-    for m in xrange(0,9):
+    for m in range(0,9):
         cen = n.corner(m)
         sph = camvtk.Sphere( center=(cen.x, cen.y, cen.z), radius=0.5, color=camvtk.green)
         myscreen.addActor(sph)
@@ -80,7 +80,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     t.init(3)
     #t2.init(3)
 
-    print " after init() t :", t.str()
+    print(" after init() t :", t.str())
     #print " after init() t2 :", t2.str()
     
     # sphere
@@ -100,7 +100,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     c = ocl.CylCutter(1)
     c.length = 3
-    print "cutter length=", c.length
+    print("cutter length=", c.length)
     p1 = ocl.Point(0,0,0)
     p2 = ocl.Point(1,1.4,0)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)

@@ -50,26 +50,26 @@ if __name__ == "__main__":
     #cutter = ocl.ConeConeCutter(0.4,math.pi/3,0.7,math.pi/6)
     #cutter = ocl.ConeCutter(0.4, math.pi/3)
     
-    print "fiber..."
+    print("fiber...")
               
     f = ocl.Fiber( f1, f2)
     i = ocl.Interval()
     f.printInts()  
-    print "vertexPush"
+    print("vertexPush")
     cc = ocl.CCPoint()
     cutter.pushCutter(f,i,t)
-    print i
+    print(i)
     f.addInterval(i)
-    print "AFTER vertexPush"
+    print("AFTER vertexPush")
     f.printInts()  
 
     #inter = f.getInts()
     #print inter
-    print "done."
+    print("done.")
     
-    print "rendering..."
+    print("rendering...")
     drawFiber(myscreen, f)
-    print "done."
+    print("done.")
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)
     myscreen.addActor( origo )

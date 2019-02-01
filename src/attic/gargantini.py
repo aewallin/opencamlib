@@ -14,7 +14,7 @@ def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     node = OCTNode( level, center = nodecenter , type = 1, childlist=None)
     
     flags = []
-    for n in xrange(0,9): # test all points
+    for n in range(0,9): # test all points
         flags.append( volume.isInside( node.nodePoint(n) ) )
     
     if (sum(flags) == 0): # nothing is inside
@@ -34,7 +34,7 @@ def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     # have to subdivide:
     childs = []
     child_centers = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         child_center = node.childCenter(n) 
         childs.append( buildOCTree( volume , nodecenter = child_center, level= level+1) )
     node.setChildren(childs)
@@ -74,7 +74,7 @@ def drawNode(myscreen, node):
     if node.type == cam.OCType.GREY:
         return # don't draw intermediate nodes    
     p = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         p1 = node.nodePoint(n)
         p.append(p1)
         
@@ -114,12 +114,12 @@ def drawNode2(myscreen, node):
     if node.type == cam.OCType.GREY:
         return # don't draw intermediate nodes    
     p = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         p1 = node.nodePoint(n)
         p.append(p1)
         
     lines = []
-    for n in xrange(0,8):
+    for n in range(0,8):
         lines.append ( camvtk.Point(center=(p[n].x,p[n].y,p[n].z) ) )
         
     if node.type == cam.OCType.WHITE:
@@ -174,7 +174,7 @@ class gcode():
         # scan code from left to right
         p = cam.Point(0,0,0)
         for digit in self.code:
-            print digit
+            print(digit)
 
 # set operations on linear octrees
 # o1 = o2            octant o1 is same as o2
@@ -196,7 +196,7 @@ def linoct_setops( o1, o2):
     
     ptr1 = 0
     ptr2 = 0
-    while( (ptr1 <= len(o1)) && (ptr2 <= len(o2)) ):
+    while( (ptr1 <= len(o1)) and (ptr2 <= len(o2)) ):
         if ( o1[ptr1].containedIn( o2[ptr2] ) ): # case1: containment of o1 node in o2 node
             int_ptr += 1
             intersection[int_ptr] = o1[ptr1]
@@ -205,7 +205,7 @@ def linoct_setops( o1, o2):
             add_to_queue( Q21, o1[ptr1] )
             ptr1 +=1 # move to next in o1
             
-        else if ( o2[ptr2].containedIn( o1[ptr1] ) ): # case2: containemnet of o2 node in o1 node
+        elif ( o2[ptr2].containedIn( o1[ptr1] ) ): # case2: containemnet of o2 node in o1 node
             int_ptr=int_ptr+1
             intersection[int_ptr] = o2[ptr2]
             if ( Hold21 == 0): # difference queue 12 is empty
@@ -213,7 +213,7 @@ def linoct_setops( o1, o2):
             add_to_queue( Q12, o2[ptr2] )
             ptr2 +=1 # move to next in o2
             
-        else if ( o1[ptr1].lessThan( o2[ptr2] ) ): # case3: node o1 precedes node of o2
+        elif ( o1[ptr1].lessThan( o2[ptr2] ) ): # case3: node o1 precedes node of o2
             union_ptr += 1
             union[union_ptr] = o1[ptr1]
             if ( Hold12 == o1[ptr1] ):
@@ -246,10 +246,10 @@ def linoct_setops( o1, o2):
             do_differences( Hold12, Q12, diff12, diff12_ptr )
             Hold12 = 0
             ptr3 += 1
-        for i in xrange(ptr3, len(o1)):  # difference
+        for i in range(ptr3, len(o1)):  # difference
             diff12_ptr += 1
             diff12[diff12_ptr] = o1[i]
-        for in in xrange(ptr1, len(o1)):  # union
+        for i in range(ptr1, len(o1)):  # union
             union_ptr +=1
             union[union_ptr] = o1[i]
         
@@ -259,10 +259,10 @@ def linoct_setops( o1, o2):
             do_differences(Hold21, Q21, diff21, diff21_ptr)
             Hold21=0
             ptr3 +=1
-        for i in xrange(ptr3, len(o2):
+        for i in range(ptr3, len(o2)):
             diff21_ptr +=1
             diff21[diff21_ptr] = o2[i]
-        for i in xrange(ptr2, len(o2)):
+        for i in range(ptr2, len(o2)):
             union_ptr += 1
             union[union_ptr] = o2[i]
     
@@ -284,13 +284,13 @@ def compress( octree, ptr):
 # expand(n) takes node and expands into eight suboctants, return deque in ascending order
 def do_differences( H, Q, D, Dptr):
     Q2 = expand(H) # create nodes representing suboctants of H
-    while ( Q2 not empty):
-        if ( Q not empty):
+    while Q2:
+        if Q:
             n = Hd(Q)
             if ( n==Hd(Q2) ):
                 Q2 = Tl(Q2)
                 Q = Tl(Q)
-            else if ( n.containedIn( Hd(Q2) ) ):
+            elif ( n.containedIn( Hd(Q2) ) ):
                 Q2 = append( expand( Hd(Q2), Tl(Q2) ) )
             else:
                 Dptr +=1
@@ -316,19 +316,19 @@ if __name__ == "__main__":
     
     #print oct.str()
     """
-    print "max scale=", oct.get_max_scale()
-    for n in xrange(0,9):
+    print("max scale=", oct.get_max_scale())
+    for n in range(0,9):
         p1 = oct.nodePoint(n)
         myscreen.addActor( camvtk.Sphere(center=(p1.x, p1.y, p1.z), radius=0.1, color=camvtk.red))
-        print "id=%i" % (n),
-        print p1.str()
+        print("id=%i" % (n),)
+        print(p1.str())
     
-    print "child centers:"
-    for n in xrange(1,9):
+    print("child centers:")
+    for n in range(1,9):
         p1 = oct.childCenter(n)
         myscreen.addActor( camvtk.Sphere(center=(p1.x, p1.y, p1.z), radius=0.1, color=camvtk.yellow))
-        print "id=%i" % (n),
-        print p1.str()
+        print("id=%i" % (n),)
+        print(p1.str())
         
     """
     
@@ -371,29 +371,29 @@ if __name__ == "__main__":
     
     iters = oc2.prune_all()
     nlist = oc2.get_all_nodes()
-    print " oc2 got ", len(nlist), " nodes"
+    print(" oc2 got ", len(nlist), " nodes")
     nlist = oc2.get_white_nodes()
-    print " oc2 got ", len(nlist), " white nodes"
+    print(" oc2 got ", len(nlist), " white nodes")
     nlist = oc3.get_all_nodes()
-    print " oc3 got ", len(nlist), " nodes"
+    print(" oc3 got ", len(nlist), " nodes")
     
     
 
     
-    print "calling balance"
+    print("calling balance")
     oc2.balance(oc3)
-    print "after balance:"
+    print("after balance:")
     nlist = oc2.get_all_nodes()
-    print " oc2 got ", len(nlist), " nodes"
+    print(" oc2 got ", len(nlist), " nodes")
     nlist = oc2.get_white_nodes()
-    print " oc2 got ", len(nlist), " white nodes"
-    print "calling diff"
+    print(" oc2 got ", len(nlist), " white nodes")
+    print("calling diff")
     oc2.diff(oc3)
-    print "after diff:"
+    print("after diff:")
     nlist = oc2.get_all_nodes()
-    print " oc2 got ", len(nlist), " nodes"
+    print(" oc2 got ", len(nlist), " nodes")
     nlist = oc2.get_white_nodes()
-    print " oc2 got ", len(nlist), " white nodes"
+    print(" oc2 got ", len(nlist), " white nodes")
     
     drawOCT(myscreen, oc2, camvtk.green)
     #drawOCT(myscreen, oc3, camvtk.red, opacity=0.1)
@@ -431,14 +431,14 @@ if __name__ == "__main__":
     
     testvol = Volume()
     
-    print "building tree...",
+    print("building tree...",)
     tree = buildOCTree(testvol)
-    print "done."
-    print tree
+    print("done.")
+    print(tree)
     
     list =[]
     searchOCTree(tree, list)
-    print len(list), " nodes in tree"
+    print(len(list), " nodes in tree")
     
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
@@ -464,7 +464,7 @@ if __name__ == "__main__":
             t.SetText("OpenCAMLib 10.03-beta " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             myscreen.render()
             myscreen.camera.Azimuth( 3 )
-            print "frame %i of %i" % (n, len(list))
+            print("frame %i of %i" % (n, len(list)))
             w2if.Modified() 
             lwr.SetFileName("frames/oct"+ ('%05d' % n)+".png")
             #lwr.Write()
@@ -474,7 +474,7 @@ if __name__ == "__main__":
         
 
     
-    print "done!"
+    print("done!")
     
 
     #raw_input("Press Enter to terminate") 

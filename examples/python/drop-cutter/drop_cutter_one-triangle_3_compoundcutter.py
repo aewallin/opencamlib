@@ -5,7 +5,7 @@ import vtk
 import math
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     
     a=ocl.Point(1,0.6,0.1)
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     cutter = ocl.BullConeCutter(0.4,0.1,0.7,math.pi/6)
     #cutter = ocl.ConeConeCutter(0.4,math.pi/3,0.7,math.pi/6)
     #cutter = ocl.ConeCutter(0.4, math.pi/3)
-    print cutter
+    print(cutter)
     
     #print cc.type
     minx=-0.5
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     nn=0
     ne=0
     nf=0
-    print len(clpoints), "cl-points to evaluate"
+    print(len(clpoints), "cl-points to evaluate")
     n=0
     
     for cl in clpoints:
@@ -57,14 +57,14 @@ if __name__ == "__main__":
         #cutter.dropCutter(cl,t)
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
-            print n/int(len(clpoints)/10), " ",
+            print(n/int(len(clpoints)/10), " ",)
               
-    print "done."
-    print "rendering..."
-    print " len(clpoints)=", len(clpoints)
+    print("done.")
+    print("rendering...")
+    print(" len(clpoints)=", len(clpoints))
 
     camvtk.drawCLPointCloud(myscreen, clpoints)
-    print "done."
+    print("done.")
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 
     origo.SetOpacity(0.2)
     myscreen.addActor( origo )

@@ -5,7 +5,7 @@ import time
 def printNodes(t):
     nodes = t.get_nodes()
     for n in nodes:
-        print n.str(), " c=",n.color
+        print(n.str(), " c=",n.color)
 
 def drawTree(myscreen,t,color=camvtk.red,opacity=0.2):
     nodes = t.get_nodes()
@@ -30,9 +30,9 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2):
             cube.SetOpacity(opacity)
             myscreen.addActor( cube )
             #black = black+1
-    print black," black nodes"
+    print(black," black nodes")
     """
-    for m in xrange(0,9):
+    for m in range(0,9):
         cen = n.corner(m)
         sph = camvtk.Sphere( center=(cen.x, cen.y, cen.z), radius=0.5, color=camvtk.green)
         myscreen.addActor(sph)

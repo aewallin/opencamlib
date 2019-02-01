@@ -7,7 +7,7 @@ import datetime
 import math
 
 if __name__ == "__main__": 
-    print ocl.version()    
+    print(ocl.version()    )
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/Cylinder_1.stl")
     stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     
     angle = math.pi/4
     diameter=1.77321
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.4 )
     
-    print cutter
+    print(cutter)
     
     minx=-1
     dx=0.1/5
@@ -42,41 +42,41 @@ if __name__ == "__main__":
     z=-1
     # this generates a list of CL-points in a grid
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
-    print "generated grid with", len(clpoints)," CL-points"
+    print("generated grid with", len(clpoints)," CL-points")
     
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
     #bdc.setThreads(1)
-    print "bdc()"
+    print("bdc()")
     bdc.setBucketSize(2)
-    print "bucketSize"
+    print("bucketSize")
     bdc.setSTL(s)
-    print "setSTL()"
+    print("setSTL()")
     bdc.setCutter(cutter)
-    print "setCutter()"
+    print("setCutter()")
     #bdc.setThreads(1)  # explicitly setting one thread is better for debugging
     for p in clpoints:
         bdc.appendPoint(p)
-    print "bdc has ",len(clpoints)," cl-points"
+    print("bdc has ",len(clpoints)," cl-points")
     
     t_before = time.time()    
     bdc.run() # run the actual drop-cutter
     dc_calls = bdc.getCalls()
     t_after = time.time()
     calctime = t_after-t_before
-    print " BDC done in ", calctime," s", dc_calls," dc-calls" 
+    print(" BDC done in ", calctime," s", dc_calls," dc-calls" )
     dropcutter_time = calctime
     clpoints = bdc.getCLPoints()
     
     #print len(clpoints), " cl points evaluated"
     
-    print "rendering raw CL-points."
+    print("rendering raw CL-points.")
     
     # draw the CL-points
     camvtk.drawCLPointCloud(myscreen, clpoints)
     
     # filter
-    print "filtering. before filter we have", len(clpoints),"cl-points"
+    print("filtering. before filter we have", len(clpoints),"cl-points")
     t_before = time.time()
     f = ocl.LineCLFilter()
     f.setTolerance(0.001)
@@ -85,19 +85,19 @@ if __name__ == "__main__":
     f.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " done in ", calctime," s"
+    print(" done in ", calctime," s")
     
     clp2 = f.getCLPoints()
-    print "after filtering we have", len(clp2),"cl-points"
+    print("after filtering we have", len(clp2),"cl-points")
     
     # draw the filtered points
     # offset these points up for clarity
     for p in clp2:
         p.z=p.z+3
     
-    print "rendering filtered CL-points."
+    print("rendering filtered CL-points.")
     camvtk.drawCLPointCloud(myscreen, clp2)
-    print "all done."
+    print("all done.")
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(4, 5, 0)
     

@@ -15,8 +15,8 @@ import math
 def CLPointGridZigZag(minx,dx,maxx,miny,dy,maxy,z):
     """ generate and return a zigzag grid of points """
     plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
+    xvalues = [round(minx+n*dx,2) for n in range(int(round((maxx-minx)/dx))+1) ]
+    yvalues = [round(miny+n*dy,2) for n in range(int(round((maxy-miny)/dy))+1) ]
     
     #yrow = 0
     #x=minx
@@ -40,8 +40,8 @@ def CLPointGridZigZag(minx,dx,maxx,miny,dy,maxy,z):
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):
     """ generate and return a rectangular grid of points """
     plist = []
-    xvalues = [round(minx+n*dx,2) for n in xrange(int(round((maxx-minx)/dx))+1) ]
-    yvalues = [round(miny+n*dy,2) for n in xrange(int(round((maxy-miny)/dy))+1) ]
+    xvalues = [round(minx+n*dx,2) for n in range(int(round((maxx-minx)/dx))+1) ]
+    yvalues = [round(miny+n*dy,2) for n in range(int(round((maxy-miny)/dy))+1) ]
     for y in yvalues:
         for x in xvalues:
             plist.append( ocl.CLPoint(x,y,z) )

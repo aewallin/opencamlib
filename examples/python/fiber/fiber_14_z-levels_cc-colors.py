@@ -49,7 +49,7 @@ def xfiber(xvals,t,zh,myscreen):
         drawFiber_clpts(myscreen, f, camvtk.lblue)
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     
     ztri = 0.3 # this is the shallow case
@@ -87,20 +87,20 @@ if __name__ == "__main__":
     cutter =  ocl.BallConeCutter(diameter/float(3), diameter, math.pi/float(5))
     
     
-    print "cutter= ", cutter
-    print "length=", cutter.getLength()
-    print "fiber..."
+    print("cutter= ", cutter)
+    print("length=", cutter.getLength())
+    print("fiber...")
     fiberrange=5
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiberrange for n in range(0,Nmax+1)]
     """
     zmin = ztri_lo - 0.2
     zmax = ztri
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     """
     
@@ -110,20 +110,20 @@ if __name__ == "__main__":
     zmax= 0.3
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
-    for n in xrange(Nmax):
+    for n in range(Nmax):
         zheights.append(z)
         z=z+dz
     #zheights= []
     #zheights.append(-0.25)
     
-    print len(zheights)," to do: ",
+    print(len(zheights)," to do: ",)
     n=0
     for zh in zheights:
-        print n,
+        print(n,)
         yfiber(yvals,t,zh,myscreen)
         xfiber(xvals,t,zh,myscreen)
         n=n+1
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(-1, -1, 3)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

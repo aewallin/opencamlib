@@ -13,7 +13,7 @@ def generateRange(zmin,zmax,zNmax):
     else:
         dz = 0
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     return zvals
     
@@ -46,21 +46,21 @@ def waterline(cutter, s, zh, tol = 0.1 ):
     for f in fibers:
         w.addFiber(f)
 
-    print " build()...",
+    print(" build()...",)
     w.build()
-    print "done"
-    print " split()...",
+    print("done")
+    print(" split()...",)
     subw = w.get_components()
-    print "done. graph has", len(subw),"sub-weaves"
+    print("done. graph has", len(subw),"sub-weaves")
     m=0
     loops = []
     for sw in subw:
-        print m," face_traverse...",
+        print(m," face_traverse...",)
         t_before = time.time()
         sw.face_traverse()
         t_after = time.time()
         calctime = t_after-t_before
-        print "done in ", calctime," s."
+        print("done in ", calctime," s.")
         sw_loops = sw.getLoops()
         for lop in sw_loops:
             loops.append(lop)
@@ -68,7 +68,7 @@ def waterline(cutter, s, zh, tol = 0.1 ):
     return loops
     
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     zh=1.9
     cutter_diams = generateRange(0.1, 6, 5)
     loops = []
@@ -90,7 +90,7 @@ if __name__ == "__main__":
         for l in cutter_loops:
             loops.append(l)
 
-    print "All waterlines done. Got", len(loops)," loops in total."
+    print("All waterlines done. Got", len(loops)," loops in total.")
     # draw the loops
     for lop in loops:
         n = 0
@@ -110,7 +110,7 @@ if __name__ == "__main__":
                 previous=p
             n=n+1
 
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

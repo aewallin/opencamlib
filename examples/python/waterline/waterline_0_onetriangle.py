@@ -6,7 +6,7 @@ import datetime
 import math
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -46,13 +46,13 @@ if __name__ == "__main__":
             wl.run()
             t_after = time.time()
             calctime = t_after-t_before
-            print " Waterline done in ", calctime," s"
+            print(" Waterline done in ", calctime," s")
             cutter_loops = wl.getLoops()
             for l in cutter_loops:
                 loops.append(l)
-    print " ALL Waterlines done in ", time.time()-t_total," s"
+    print(" ALL Waterlines done in ", time.time()-t_total," s")
     #print loops
-    print "All waterlines done. Got", len(loops)," loops in total."
+    print("All waterlines done. Got", len(loops)," loops in total.")
     # draw the loops
     nloop=0
     for lop in loops:
@@ -72,10 +72,10 @@ if __name__ == "__main__":
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(2, 2, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

@@ -50,7 +50,7 @@ def TSPLIBReader( filename ):
                 points.append( ocl.Point( float( words[1] ),  float( words[2] ) ) )
             
                 
-    print "read ",len(points)," points from ", filename
+    print("read ",len(points)," points from ", filename)
     return points
 
 def TSPTourReader( filename ):
@@ -67,7 +67,7 @@ def TSPTourReader( filename ):
             words = line.split()
             if words[0]!="-1" and words[0]!="EOF" :
                 points.append(  int( words[0] )-1 ) # NOTE our indexes start from 0, thus "-1"
-    print " read length ",len(points)," tour from ",filename
+    print(" read length ",len(points)," tour from ",filename)
     points.append( points[0] ) # end at the same point we started
     return points
     
@@ -178,7 +178,7 @@ if __name__ == "__main__":
     #tour = TSPTourReader( tourfile )
     #print tour
     #opt_len = TSPTourLength(pts,tour)
-    print " optimal tour length = ",opt_len
+    print(" optimal tour length = ",opt_len)
 
     myscreen = camvtk.VTKScreen()
     drawPoints(myscreen, pts)
@@ -188,7 +188,7 @@ if __name__ == "__main__":
     for p in pts:
         tsp.addPoint( p.x , p.y)
         n=n+1
-    print " added ",n," points"
+    print(" added ",n," points")
     tsp.run()
     r = tsp.getOutput()
     l = tsp.getLength()
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     
     drawTour(myscreen, pts, r)
     #tsp.reset()
-    print " tour length= ",l, " ratio = ",float(l)/float(opt_len)
+    print(" tour length= ",l, " ratio = ",float(l)/float(opt_len))
 
     myscreen.camera.SetPosition(0.0, 0.0, 200)
     myscreen.camera.SetViewUp(0.0, 0.0, 0)

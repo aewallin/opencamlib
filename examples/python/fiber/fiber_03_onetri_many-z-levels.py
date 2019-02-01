@@ -12,7 +12,7 @@ def drawPoints(myscreen, clpoints, ccpoints):
 
 def drawFiber(myscreen, f, fibercolor=camvtk.red):
     inter = f.getInts()
-    print "fiber has ", len(inter) , " intervals"
+    print("fiber has ", len(inter) , " intervals")
     for i in inter:
         if not i.empty():
             ip1 = f.point( i.lower )
@@ -74,7 +74,7 @@ def xfiber(xvals,t,zh,myscreen):
 
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     b = ocl.Point(1,0.5,0.0)    
@@ -95,25 +95,25 @@ if __name__ == "__main__":
     #cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
     
-    print "cutter= ", cutter
-    print "lengt=", cutter.getLength()
-    print "fiber...",
-    range=2
+    print("cutter= ", cutter)
+    print("lengt=", cutter.getLength())
+    print("fiber...",)
+    fiber_range=2
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.2082
     zmax = 0.3115
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     for zh in zvals:
         yfiber(yvals,t,zh,myscreen)
         xfiber(xvals,t,zh,myscreen)
-    print "done."
-    print "rendering...",
+    print("done.")
+    print("rendering...",)
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
@@ -123,6 +123,6 @@ if __name__ == "__main__":
     #w2if.SetInput(myscreen.renWin)
     #lwr = vtk.vtkPNGWriter()
     #lwr.SetInput( w2if.GetOutput() )
-    print "done."
+    print("done.")
     myscreen.iren.Start()
     #raw_input("Press Enter to terminate") 

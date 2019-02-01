@@ -22,17 +22,17 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #cube.SetWireframe()
         myscreen.addActor( cube )
         if (nmax>100):
-            print "i=", i
-            print "div=", (float(nmax)/10)
+            print("i=", i)
+            print("div=", (float(nmax)/10))
             if ( (i % (float(nmax)/10))==0):
-                print ".",
+                print(".",)
         i=i+1
-    print "done."
+    print("done.")
     
 def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
     nodes = t.get_nodes()
     nmax=len(nodes)
-    print "drawTree2: ", nmax," nodes",
+    print("drawTree2: ", nmax," nodes",)
     # make a list of triangles
     tlist = []
     i=0
@@ -65,7 +65,7 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         tlist.append(ocl.Triangle(p4,p6,p2))
         if (nmax>100):
             if ( (i % (nmax/10))==0):
-                print ".",
+                print(".",)
         i=i+1
             
         #tlist.append(ocl.Triangle(p1,p2,p4))
@@ -73,13 +73,13 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #tlist.append(ocl.Triangle(p2,p3,p7))
         #tlist.append(ocl.Triangle(p2,p7,p8))
         #tlist.append(ocl.Triangle(p3,p7,p8))
-    print ".actor.",
+    print(".actor.",)
     surf = camvtk.STLSurf(triangleList=tlist)
     surf.SetColor(color)
     surf.SetOpacity(opacity)
-    print ".add.",
+    print(".add.",)
     myscreen.addActor(surf)
-    print ".done."
+    print(".done.")
     
 def drawCylCutter(myscreen, c, p):
     cyl = camvtk.Cylinder(center=(p.x,p.y,p.z), radius=c.radius,
@@ -91,7 +91,7 @@ def drawCylCutter(myscreen, c, p):
 
 
 def main(filename="frame/f.png",yc=6, n=0):  
-    print ocl.revision()
+    print(ocl.revision())
           
     f=ocl.Ocode()
     f.set_depth(7) # depth and scale set here.
@@ -128,12 +128,12 @@ def main(filename="frame/f.png",yc=6, n=0):
     t.init(5)
     t2.init(4)
         
-    print " after init() t :", t.str()
-    print " after init() t2 :", t2.str()
+    print(" after init() t :", t.str())
+    print(" after init() t2 :", t2.str())
     
     c = ocl.CylCutter(1) # cutter
     c.length = 3
-    print "cutter length=", c.length
+    print("cutter length=", c.length)
     p1 = ocl.Point(-0.2,-0.2,0.2) # start of move
     p2 = ocl.Point(1.5,1.5,-1) # end of move
     
@@ -186,29 +186,29 @@ def main(filename="frame/f.png",yc=6, n=0):
     t_before = time.time()
     t.build( g1vol )
     t_after = time.time()
-    print "g1 build took ", t_after-t_before," s"
+    print("g1 build took ", t_after-t_before," s")
     
     # build cube
     t_before = time.time()
     t2.build( cube1 )
     t_after = time.time()
-    print "cube build took ", t_after-t_before," s"
+    print("cube build took ", t_after-t_before," s")
     
     #t.sort()
     #t2.sort()
     
-    print "calling diff()...",
+    print("calling diff()...",)
     t_before = time.time()
     #dt = t2.operation(1,t)
     t2.diff(t)
     t_after = time.time()
-    print "done."
-    print "diff took ", t_after-t_before," s"
+    print("done.")
+    print("diff took ", t_after-t_before," s")
     
-    print "diff has ", t2.size()," nodes"
+    print("diff has ", t2.size()," nodes")
     
     # original trees
-    print "drawing trees"
+    print("drawing trees")
     drawTree2(myscreen,t,opacity=1, color=camvtk.green)
     drawTree2(myscreen,t2,opacity=0.2, color=camvtk.cyan)
     drawTree2(myscreen,t2,opacity=1, color=camvtk.cyan, offset=(5,0,0))
@@ -228,9 +228,9 @@ def main(filename="frame/f.png",yc=6, n=0):
     title.SetText("OpenCAMLib " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     myscreen.addActor(title)
         
-    print " render()...",
+    print(" render()...",)
     myscreen.render()
-    print "done."
+    print("done.")
     lwr.SetFileName(filename)
     time.sleep(0.2)
     #lwr.Write()

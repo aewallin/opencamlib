@@ -18,12 +18,12 @@ if __name__ == "__main__":
     myscreen.addActor( camvtk.Line(p1=(c.x,c.y,c.z),p2=(b.x,b.y,b.z)) )
     myscreen.addActor( camvtk.Line(p1=(a.x,a.y,a.z),p2=(b.x,b.y,b.z)) )
     t = ocl.Triangle(b,c,a)
-    print t
+    print(t)
     zcut=0.1
-    print "zslice at z=",zcut
+    print("zslice at z=",zcut)
     t2 = t.zslice(zcut)
     for tri in t2:
-        print tri
+        print(tri)
         pts = tri.getPoints()
         myscreen.addActor( camvtk.Line(p1=(pts[0].x,pts[0].y,pts[0].z),p2=(pts[2].x,pts[2].y,pts[2].z)) )
         myscreen.addActor( camvtk.Line(p1=(pts[2].x,pts[2].y,pts[2].z),p2=(pts[1].x,pts[1].y,pts[1].z)) )
@@ -32,7 +32,7 @@ if __name__ == "__main__":
         for p in pts:
             myscreen.addActor( camvtk.Sphere( center=(p.x, p.y, p.z), radius=0.02, color=camvtk.green))
         
-    print "done."
+    print("done.")
     
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)

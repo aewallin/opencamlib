@@ -72,7 +72,7 @@ def xfiber(xvals,s,zh,myscreen):
         drawFiber_clpts(myscreen, f, camvtk.lblue)
         
 if __name__ == "__main__":  
-    print ocl.version() 
+    print(ocl.version() )
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
     stl = camvtk.STLSurf("../../stl/demo.stl")
@@ -82,24 +82,24 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     
     cutter = ocl.CylCutter(0.3, 6)
-    print "lengt=", cutter.getLength()
-    print "fiber...",
-    range=30
+    print("lengt=", cutter.getLength())
+    print("fiber...",)
+    fiber_range=30
     Nmax = 200
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.1
     zmax = 0.5
     zNmax = 2
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    #for n in xrange(0,zNmax):
+    #for n in range(0,zNmax):
     #    zvals.append(zmin+n*dz)
     zvals.append(0.1)
-    #zvals = [ float(n-float(zNmax)/2)/zNmax*range for n in xrange(0,zNmax+1)]
+    #zvals = [ float(n-float(zNmax)/2)/zNmax*fiber_range for n in range(0,zNmax+1)]
     #print zvals
     #exit()
     #cc = ocl.CCPoint()
@@ -107,11 +107,11 @@ if __name__ == "__main__":
     #zh = 0.2571567
     
     for zh in zvals:
-        print "fibers at z=",zh
+        print("fibers at z=",zh)
         yfiber(yvals,s,zh,myscreen)
         xfiber(xvals,s,zh,myscreen)
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

@@ -6,7 +6,7 @@ import datetime
 import math
 
 if __name__ == "__main__":  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter(0.4, 5)
     cutter = ocl.BullCutter(0.4, 0.1, 5)
     
-    print "fiber..."
+    print("fiber...")
 
     zh =  0.23
     
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     awl.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " AdaptiveWaterline done in ", calctime," s"
+    print(" AdaptiveWaterline done in ", calctime," s")
     xfibers = awl.getXFibers()
     #print " got ", len(xf)," x-fibers"
     yfibers = awl.getYFibers()
@@ -50,29 +50,29 @@ if __name__ == "__main__":
     
     
     fibers = xfibers+yfibers
-    print " got ",len(xfibers)," xfibers"
-    print " got ",len(yfibers)," yfibers"
-    print "rendering fibers and CL-points."
+    print(" got ",len(xfibers)," xfibers")
+    print(" got ",len(yfibers)," yfibers")
+    print("rendering fibers and CL-points.")
     w = ocl.Weave()
-    print "push fibers to Weave...",
+    print("push fibers to Weave...",)
     for f in fibers:
         w.addFiber(f)
-    print "done."
-    print "Weave build()...",
+    print("done.")
+    print("Weave build()...",)
     w.build()
-    print "done"
-    print "face_traverse..."
+    print("done")
+    print("face_traverse...")
     w.face_traverse()
-    print "done."
+    print("done.")
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
     w_edges = w.getEdges()
     w_loop = w.getLoops()
     
-    print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
+    print(" weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points")
     
-    print " got: ", len(w_edges), " edges"
-    print " got: ", len(w_loop), " loop points"
+    print(" got: ", len(w_edges), " edges")
+    print(" got: ", len(w_loop), " loop points")
     #zoffset = 0.0
     #for p in w_clpts:
     #    myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
@@ -105,7 +105,7 @@ if __name__ == "__main__":
             myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset2), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset2) ) )
         ne = ne+1
         
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

@@ -7,7 +7,7 @@ import vtk
 import math
 
 def main():  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(2, 2, 5)
     myscreen.camera.SetFocalPoint(0.5,0, 1)   
@@ -41,9 +41,9 @@ def main():
     t.init(2)
     n = 0 # the frame number
     
-    print "root_scale = ", t.root_scale()
-    print " max_depth = ", t.max_depth()
-    print " leaf_scale=", t.leaf_scale()
+    print("root_scale = ", t.root_scale())
+    print(" max_depth = ", t.max_depth())
+    print(" leaf_scale=", t.leaf_scale())
     
     # X
     #stockbox = ocl.PlaneVolume( 1, 0, -0.9)
@@ -68,9 +68,9 @@ def main():
     
     mc = ocl.MarchingCubes()
     
-    print "mc()...",
+    print("mc()...",)
     tris = mc.mc_tree(t) # t.mc_triangles()
-    print " mc() got ", len(tris), " triangles"
+    print(" mc() got ", len(tris), " triangles")
     #tris2 = t.side_triangles()
     #print "appending"
     #for tr in tris2:
@@ -84,10 +84,10 @@ def main():
     #mc_surf.SetWireframe()
     #mc_surf.SetOpacity(0.3)
     
-    print " STLSurf()...",
+    print(" STLSurf()...",)
     myscreen.addActor( mc_surf )
     #myscreen.addActor( s_surf )
-    print "done."
+    print("done.")
     myscreen.render()
     
     
@@ -157,12 +157,12 @@ def main():
         
         #print "done."   
         #time.sleep(0.4)
-        print n, " mc_tris=",len(tris)
+        print(n, " mc_tris=",len(tris))
         #," side_tris=",len(tris2)
         n=n+1
         #myscreen.camera.SetPosition(3*math.cos( 7*float(n)/(float(Nmax)) ), 3*math.sin( 7*float(n)/(float(Nmax)) ), 5)
         #myscreen.camera.Azimuth( math.sin( 5*float(n)/(float(Nmax)) ) )
-    print "all done."
+    print("all done.")
     myscreen.iren.Start() 
     exit()
 

@@ -24,7 +24,7 @@ def drawLoops(myscreen, loops, loopcolor):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopcolor) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
         
 
@@ -40,7 +40,7 @@ def drawFibers(myscreen, fibs, fibcolor):
             myscreen.addActor( camvtk.Line(p1=(p1.x,p1.y,p1.z),p2=(p2.x,p2.y,p2.z),color=fibcolor) )
             
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -76,7 +76,7 @@ if __name__ == "__main__":
     wl.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " Waterline done in ", calctime," s"
+    print(" Waterline done in ", calctime," s")
     cutter_loops = wl.getLoops()
     for l in cutter_loops:
         loops.append(l)
@@ -93,12 +93,12 @@ if __name__ == "__main__":
     
     t_after = time.time()
     calctime = t_after-t_before
-    print " AdaptiveWaterline done in ", calctime," s"
+    print(" AdaptiveWaterline done in ", calctime," s")
     
     xf = awl.getXFibers()
-    print " got ", len(xf)," x-fibers"
+    print(" got ", len(xf)," x-fibers")
     yf = awl.getYFibers()
-    print " got ", len(yf)," y-fibers"
+    print(" got ", len(yf)," y-fibers")
     drawFibers(myscreen, xf, camvtk.red)
     drawFibers(myscreen, yf, camvtk.green)
     
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     drawLoops(myscreen, loops, camvtk.yellow)
     drawLoops(myscreen, aloops, camvtk.mag)
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(2, 2, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

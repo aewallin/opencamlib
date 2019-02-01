@@ -9,7 +9,7 @@ import math
 # the Weave class is not provided to python, so this deprecated example script won't run
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     a = ocl.Point(0,1,0.3)
     myscreen.addActor(camvtk.Point(center=(a.x,a.y,a.z), color=(1,0,1)))
@@ -28,18 +28,18 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter(0.4, 5)
     #cutter = ocl.BullCutter(0.4, 0.1, 5)
     
-    print "fiber..."
-    range=4
+    print("fiber...")
+    fiber_range=4
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.1
     zmax = 0.5
     zNmax = 5
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[ 0.23]
     #zvals.append(0.2)
-    #for n in xrange(0,zNmax):
+    #for n in range(0,zNmax):
     #    zvals.append(zmin+n*dz)
 
     bpc_x = ocl.BatchPushCutter()
@@ -72,29 +72,29 @@ if __name__ == "__main__":
     xfibers = bpc_x.getFibers()
     yfibers = bpc_y.getFibers()
     fibers = xfibers+yfibers
-    print " got ",len(xfibers)," xfibers"
-    print " got ",len(yfibers)," yfibers"
-    print "rendering fibers and CL-points."
+    print(" got ",len(xfibers)," xfibers")
+    print(" got ",len(yfibers)," yfibers")
+    print("rendering fibers and CL-points.")
     w = ocl.Weave()
-    print "push fibers to Weave...",
+    print("push fibers to Weave...",)
     for f in fibers:
         w.addFiber(f)
-    print "done."
-    print "Weave build()...",
+    print("done.")
+    print("Weave build()...",)
     w.build()
-    print "done"
-    print "face_traverse..."
+    print("done")
+    print("face_traverse...")
     w.face_traverse()
-    print "done."
+    print("done.")
     w_clpts = w.getCLPoints()
     w_ipts = w.getIPoints()
     w_edges = w.getEdges()
     w_loop = w.getLoops()
     
-    print " weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points"
+    print(" weave: got ", len(w_clpts)," CL-points and ", len(w_ipts)," internal points")
     
-    print " got: ", len(w_edges), " edges"
-    print " got: ", len(w_loop), " loop points"
+    print(" got: ", len(w_edges), " edges")
+    print(" got: ", len(w_loop), " loop points")
     #zoffset = 0.0
     #for p in w_clpts:
     #    myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z+zoffset), radius=0.0031, color=camvtk.red ) )
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
         ne = ne+1
         
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

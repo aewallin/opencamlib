@@ -10,12 +10,12 @@ import procmemory
 
 def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
     pts = weave.getVertices( vertexType )
-    print " got ",len(pts)," of type ", vertexType
+    print(" got ",len(pts)," of type ", vertexType)
     for p in pts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z), radius=vertexRadius, color=vertexColor ) )
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
@@ -31,11 +31,11 @@ if __name__ == "__main__":
     #cutter = ocl.BallCutter(0.4, 5)
     #cutter = ocl.BullCutter(0.4, 0.1, 5)
     
-    print "fiber..."
+    print("fiber...")
     fiber_range=30
     Nmax = 400
-    yvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in range(0,Nmax+1)]
 
     zvals=[ 1.6523]
 
@@ -68,26 +68,26 @@ if __name__ == "__main__":
     xfibers = bpc_x.getFibers()
     yfibers = bpc_y.getFibers()
     fibers = xfibers+yfibers
-    print " got ",len(xfibers)," xfibers"
-    print " got ",len(yfibers)," yfibers"
-    print "rendering fibers and CL-points."
+    print(" got ",len(xfibers)," xfibers")
+    print(" got ",len(yfibers)," yfibers")
+    print("rendering fibers and CL-points.")
     w = ocl.Weave()
-    print "push fibers to Weave...",
+    print("push fibers to Weave...",)
     for f in fibers:
         w.addFiber(f)
-    print "done."
-    print "Weave build()...",
+    print("done.")
+    print("Weave build()...",)
     mem1 = procmemory.resident()
-    print "before ", mem1
+    print("before ", mem1)
     w.build()
     #w.build2()
     mem2 = procmemory.resident()
-    print "after ", float(mem2)/float(1024*1024), " MB"
-    print " build() memory: ",float(mem2-mem1)/float(1024*1024)," MB"
-    print "done"
-    print "face_traverse..."
+    print("after ", float(mem2)/float(1024*1024), " MB")
+    print(" build() memory: ",float(mem2-mem1)/float(1024*1024)," MB")
+    print("done")
+    print("face_traverse...")
     w.face_traverse()
-    print "done."
+    print("done.")
     w_clpts = w.getCLVertices()
     w_ipts = w.getINTVertices()
     w_edges = w.getEdges()
@@ -99,8 +99,8 @@ if __name__ == "__main__":
     drawVertices(myscreen, w, ocl.WeaveVertexType.ADJ, vertexRadius, camvtk.green)
     drawVertices(myscreen, w, ocl.WeaveVertexType.TWOADJ, vertexRadius, camvtk.lblue)
 
-    print " got: ", len(w_edges), " edges"
-    print " got: ", len(w_loop), " loops"
+    print(" got: ", len(w_edges), " edges")
+    print(" got: ", len(w_loop), " loops")
     
     # draw the loops
         
@@ -122,7 +122,7 @@ if __name__ == "__main__":
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=camvtk.yellow) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
         
     
@@ -136,7 +136,7 @@ if __name__ == "__main__":
         myscreen.addActor( camvtk.Line( p1=( p1.x,p1.y,p1.z+zoffset+ne*dzoffset), p2=(p2.x,p2.y,p2.z+zoffset+ne*dzoffset) ) )
         ne = ne+1
         
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.8051, 0.8051, 3.5)
     myscreen.camera.SetFocalPoint(0.805, 0.805, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

@@ -41,10 +41,10 @@ def vtk_visualize_waterlines(stlfile, waterlines):
     stl.SetColor(camvtk.cyan)
     myscreen.camera.SetPosition(15, 13, 7)
     myscreen.camera.SetFocalPoint(5, 5, 0)
-    print "Rendering waterlines at ", len(waterlines), " different z-heights"
+    print("Rendering waterlines at ", len(waterlines), " different z-heights")
     n=0
     for loops in waterlines: # at each z-height, we may get many loops
-        print "  %d/%d:" % (n,len(waterlines))
+        print("  %d/%d:" % (n,len(waterlines)))
         drawLoops(myscreen,loops,camvtk.yellow)
         n=n+1
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5)) # XYZ coordinate arrows
@@ -72,7 +72,7 @@ def drawLoops(myscreen,loops,loopColor):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopColor) )
                 previous=p
             n=n+1
-        print "    loop ",nloop, " with ", len(lop), " points"
+        print("    loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
 
 if __name__ == "__main__":     
@@ -96,14 +96,14 @@ if __name__ == "__main__":
                            # AdaptiveWaterline() also has settings for minimum sampling interval (see c++ code)
     all_loops=[]
     for zh in zheights:
-        print "calculating Waterline at z= ", zh
+        print("calculating Waterline at z= ", zh)
         wl.reset()
         wl.setZ(zh) # height for this waterline
         wl.run()
         all_loops.append( wl.getLoops() )
     t_after = time.time()
     calctime = t_after-t_before
-    print " TOTAL Waterline time is: ", calctime," s"
+    print(" TOTAL Waterline time is: ", calctime," s")
     
     # waterlines around sharp features tend to be circular.
     # however the algorithm outputs only cutter-location points

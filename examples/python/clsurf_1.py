@@ -31,7 +31,7 @@ def writeFrame( w2if, lwr, n ):
     lwr.Write()
     
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     
     
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     
     
     far = 20
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     
 
         
-    print "PYTHON All DONE."
+    print("PYTHON All DONE.")
 
 
     

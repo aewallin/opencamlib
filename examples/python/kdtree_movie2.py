@@ -13,7 +13,7 @@ if __name__ == "__main__":
     
     stl = camvtk.STLSurf(filename="stl/demo.stl")
     #stl = camvtk.STLSurf(filename="demo2.stl")
-    print "STL surface read"
+    print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s= cam.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STLSurf with ", s.size(), " triangles"
+    print("STLSurf with ", s.size(), " triangles")
     cutterDiameter=1
     cutter = cam.CylCutter(cutterDiameter)
     #print cutter.str()
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     pf2.initCLPoints(minx,dx,maxx,miny,dy,maxy,z)
     pf2.initSTLSurf(s, bucketSize)
     pf2.dropCutterSTL2(cutter) 
-    print " made ", pf2.dcCalls, " drop-cutter calls"
+    print(" made ", pf2.dcCalls, " drop-cutter calls")
     
     #clpoints = pftp.getCLPoints()
     #ccpoints = pftp.getCCPoints()
@@ -165,8 +165,8 @@ if __name__ == "__main__":
         myscreen.removeActor(stl2)
         myscreen.removeActor( cutactor )
         
-    print "none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf
-    print len(clpoints), " cl points evaluated"
+    print("none=",nn," vertex=",nv, " edge=",ne, " facet=",nf, " sum=", nn+nv+ne+nf)
+    print(len(clpoints), " cl points evaluated")
 
     
     

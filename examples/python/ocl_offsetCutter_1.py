@@ -1,7 +1,7 @@
 import ocl
 import math
 
-print ocl.revision()
+print ocl.version()
 
 # cylinder
 c = ocl.CylCutter(2.345, 5)

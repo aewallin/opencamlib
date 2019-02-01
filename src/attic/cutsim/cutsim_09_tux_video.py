@@ -7,7 +7,7 @@ import vtk
 import math
 
 def main():  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-8, -4, 25)
     myscreen.camera.SetFocalPoint(4.5,6, 0)   
@@ -32,7 +32,7 @@ def main():
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     
     #angle = math.pi/4
     radius  = 0.4
@@ -65,12 +65,12 @@ def main():
     bdc.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " BDC4 done in ", calctime," s"
+    print(" BDC4 done in ", calctime," s")
     dropcutter_time = calctime
     clpoints = bdc.getCLPoints()
     
     #camvtk.drawCLPointCloud(myscreen, clpoints)
-    print " clpts= ", len(clpoints)
+    print(" clpts= ", len(clpoints))
     myscreen.render()
     #myscreen.iren.Start() 
     #exit()
@@ -112,14 +112,14 @@ def main():
     
     mc = ocl.MarchingCubes()
     
-    print "mc()...",
+    print("mc()...",)
     tris = mc.mc_tree(t) #.mc_triangles()
-    print " mc() got ", len(tris), " triangles"
+    print(" mc() got ", len(tris), " triangles")
     mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
     mc_surf.SetColor(camvtk.cyan)
-    print " STLSurf()...",
+    print(" STLSurf()...",)
     myscreen.addActor( mc_surf )
-    print "done."
+    print("done.")
     cl = ocl.Point(0,0,5)
     cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
     myscreen.render()
@@ -148,12 +148,12 @@ def main():
             
             cactors = camvtk.drawBallCutter(myscreen, cutter, cl)
             t_before = time.time() 
-            print "mc()...",
+            print("mc()...",)
             tris = mc.mc_tree(t) #.mc_triangles()
             mc_time = time.time()-t_before
-            print "done in ", mc_time," s"
-            print " mc() got ", len(tris), " triangles"
-            print " STLSurf()...",
+            print("done in ", mc_time," s")
+            print(" mc() got ", len(tris), " triangles")
+            print(" STLSurf()...",)
             
             
             t_before = time.time() 
@@ -161,8 +161,8 @@ def main():
             #mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
             myscreen.addActor( mc_surf )
-            print "done."
-            print " render()...",
+            print("done.")
+            print(" render()...",)
             myscreen.render()
             render_time = time.time()-t_before
             myscreen.camera.Azimuth( 0.1 )
@@ -170,7 +170,7 @@ def main():
             w2if.Modified() 
             
             call_ms = step_time/renderinterleave
-            print renderinterleave," diff() calls in", step_time, " = ", call_ms," ms/call"
+            print(renderinterleave," diff() calls in", step_time, " = ", call_ms," ms/call")
             infotext= "Octree max_depth=%i \nCL-point %i of %i \n%i CL-pts/frame\ndiff()-time:  %1.3f s/CL-point\nmc()-time:  %1.3f s/frame\nrender()-time:  %1.3f s/frame\n%i Triangles" % (max_depth,n, 
                                                                                                       len(clpoints), renderinterleave, call_ms, mc_time, render_time, len(tris))
             octtext.SetText(infotext)
@@ -179,7 +179,7 @@ def main():
             
             #lwr.Write() # uncomment to actually write files to disk
             
-            print "done."
+            print("done.")
 
             step_time = 0
         
@@ -195,8 +195,8 @@ def main():
         #print "done."
 
     
-    print " clpts= ", len(clpoints)
-    print "All done."
+    print(" clpts= ", len(clpoints))
+    print("All done.")
     myscreen.iren.Start() 
 
 if __name__ == "__main__":

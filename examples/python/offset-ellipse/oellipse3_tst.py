@@ -188,7 +188,7 @@ if __name__ == "__main__":
     cutter = cam.BullCutter(1,0.2, cutter_length)
 
     
-    print cutter
+    print(cutter)
     
     xar = camvtk.Arrow(color=red, rotXYZ=(0,0,0))
     #xar.SetFlat()
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     ecen_tmp=cam.Point(1.38,2,0)
     resolution=50
     """
-    for n in xrange(0,resolution):
+    for n in range(0,resolution):
         angle1= (float(n)/float(resolution))*2*math.pi
         angle2= (float(n+1)/float(resolution))*2*math.pi
         x=ecen_tmp.x + a*math.cos(angle1)
@@ -267,7 +267,7 @@ if __name__ == "__main__":
     epos4 = EPos()
     epos5 = EPos()
     """
-    for n in xrange(0,nmax):
+    for n in range(0,nmax):
         s = float(n)/float(nmax-1) * float(2)/math.sqrt(2) - float(1)/math.sqrt(2)
         t = float(n)/float(nmax-1) * float(2)/math.sqrt(2) - float(1)/math.sqrt(2)
         
@@ -336,7 +336,7 @@ if __name__ == "__main__":
     epos1.sets(0,1)
     #while not endcondition:
     convlist=[]
-    for n in xrange(0,Nsteps):
+    for n in range(0,Nsteps):
         t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         #current_error = oe.error(epos5, cl)
         epos5.s=epos1.s
@@ -376,11 +376,11 @@ if __name__ == "__main__":
         pt = oe2.oePoint(epos5)
         #print "before= ", epos5.s, " , ", epos5.t
         nsteps = solver(oe, epos5, cl)
-        print nsteps 
+        print(nsteps )
         convlist.append(nsteps)
         
         convtext = "%i" % (nsteps)
-        print (pt.x, pt.y, pt.z)
+        print((pt.x, pt.y, pt.z))
         #center=(pt.x, pt.y, pt.z)    
         tst = camvtk.Text3D( color=(1,1,1), center=(pt.x, pt.y, 0)  , 
                             text=convtext, scale=0.02)
@@ -420,12 +420,12 @@ if __name__ == "__main__":
         #w2if.Modified()
         #lwr.SetFileName("5_all.png")
         """
-        for i in xrange(0,10):
+        for i in range(0,10):
             lwr.SetFileName("frames/oe_nrx"+ ('%05d%02d' % (n,i))+".png")
             lwr.Write()
         """
         n=n+1
-    print convlist
+    print(convlist)
     #print "rendering...",
     #for cl,cc in zip(clpoints,ccpoints):
     #    myscreen.addActor( camvtk.Point(center=(cl.x,cl.y,cl.z) , color=ccColor(cc) ) )
@@ -433,7 +433,7 @@ if __name__ == "__main__":
     #        myscreen.addActor( camvtk.Point(center=(cc.x,cc.y,cc.z) , color=ccColor2(cc) ) )
 
                         
-    print "done."
+    print("done.")
     
 
     

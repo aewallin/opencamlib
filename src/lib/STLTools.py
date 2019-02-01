@@ -32,8 +32,8 @@ class reader:
 
         self.little_endian = (struct.unpack("<f", struct.pack("@f", 140919.00))[0] == 140919.00)
         
-#        print "computer is little endian: ", self.little_endian
-#        print "file is ascii: ", self.isascii
+#        print("computer is little endian: ", self.little_endian)
+#        print("file is ascii: ", self.isascii)
         
         self.nfacets = 0
         self.ndegenerate = 0
@@ -124,7 +124,7 @@ class writer:
     def write(self, fc):
         self.fl = open(self.fn, "w")
         self.WriteHeader(self.fl, fc.nfacets)
-        for t in xrange(fc.nfacets):
+        for t in range(fc.nfacets):
             x0, y0, z0, x1, y1, z1, x2, y2, z2 = fc.GetFacet(t)
             self.WriteFacet(x0, y0, z0, x1, y1, z1, x2, y2, z2)
             

@@ -8,7 +8,7 @@ import vtk
 
 
 def main(filename="frame/f.png"):  
-    print ocl.revision()
+    print(ocl.revision())
           
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-15, -8, 15)
@@ -27,15 +27,15 @@ def main(filename="frame/f.png"):
     
     c = ocl.CylCutter(2) # cutter
     c.length = 3
-    print "cutter length=", c.length
+    print("cutter length=", c.length)
     
     # generate CL-points
     stl = camvtk.STLSurf("../stl/demo.stl")
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
-    print s.getBounds()
+    print("STL surface read,", s.size(), "triangles")
+    print(s.getBounds())
     #exit()
     minx=0
     dx=0.1/6
@@ -46,7 +46,7 @@ def main(filename="frame/f.png"):
     z=-17
     # this generates a list of CL-points in a grid
     clpoints = pyocl.CLPointGridZigZag(minx,dx,maxx,miny,dy,maxy,z)
-    print "generated grid with", len(clpoints)," CL-points"
+    print("generated grid with", len(clpoints)," CL-points")
     # batchdropcutter    
     bdc = ocl.BatchDropCutter()
     bdc.setSTL(s,1)
@@ -54,22 +54,22 @@ def main(filename="frame/f.png"):
     for p in clpoints:
         bdc.appendPoint(p)
     t_before = time.time()    
-    print "threads=",bdc.nthreads
+    print("threads=",bdc.nthreads)
     bdc.dropCutter4()
     t_after = time.time()
     calctime = t_after-t_before
-    print " done in ", calctime," s"
+    print(" done in ", calctime," s")
     clpoints = bdc.getCLPoints()
     
     # filter
-    print "filtering. before filter we have", len(clpoints),"cl-points"
+    print("filtering. before filter we have", len(clpoints),"cl-points")
     f = ocl.LineCLFilter()
     f.setTolerance(0.001)
     for p in clpoints:
         f.addCLPoint(p)
     f.run()
     clpts = f.getCLPoints()
-    print "after filtering we have", len(clpts),"cl-points"
+    print("after filtering we have", len(clpts),"cl-points")
     
     #exit()
         
@@ -95,7 +95,7 @@ def main(filename="frame/f.png"):
     stock.init(3)
     stock.build( stockvol )
     calctime = time.time()-t_before
-    print " stock built in ", calctime," s, stock.size()=",stock.size()
+    print(" stock built in ", calctime," s, stock.size()=",stock.size())
         
     # draw initial octree 
     #tlist = pyocl.octree2trilist(stock)
@@ -130,12 +130,12 @@ def main(filename="frame/f.png"):
     
     
     Nmoves = len(clpts)
-    print Nmoves,"CL-points to process"
-    for n in xrange(0,Nmoves-1):
+    print(Nmoves,"CL-points to process")
+    for n in range(0,Nmoves-1):
         timetext.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         
         #if n<Nmoves-1:
-        print n," to ",n+1
+        print(n," to ",n+1)
         startp = clpts[n]  # start of move
         endp   = clpts[n+1] # end of move
         
@@ -143,14 +143,14 @@ def main(filename="frame/f.png"):
         sweep = ocl.LinOCT()
         sweep.init(0)
         calctime = time.time()-t_before
-        print " sweep-init done in ", calctime," s, sweep.size()=",sweep.size()
+        print(" sweep-init done in ", calctime," s, sweep.size()=",sweep.size())
         
         g1vol = ocl.CylMoveOCTVolume(c, ocl.Point(startp.x,startp.y,startp.z), ocl.Point(endp.x,endp.y,endp.z))
         
         t_before = time.time()
         sweep.build( g1vol )
         calctime = time.time()-t_before
-        print " sweep-build done in ", calctime," s, sweep.size()=",sweep.size()
+        print(" sweep-build done in ", calctime," s, sweep.size()=",sweep.size())
         
         # draw cutter
         cyl1 = camvtk.Cylinder(center=(startp.x,startp.y,startp.z), radius=c.radius,
@@ -175,7 +175,7 @@ def main(filename="frame/f.png"):
         t_before = time.time()
         stock.diff(sweep)
         calctime = time.time()-t_before
-        print " diff done in ", calctime," s, stock.size()", stock.size()
+        print(" diff done in ", calctime," s, stock.size()", stock.size())
         
         info = "tree-depth:%i \nmove: %i \nstock-nodes: %i \nsweep-nodes: %i" % (tree_maxdepth, n, stock.size(), sweep.size() )
         infotext.SetText(info)
@@ -191,7 +191,7 @@ def main(filename="frame/f.png"):
             sweepsurf.SetOpacity(0.1)
             myscreen.addActor(sweepsurf)
             calctime = time.time()-t_before
-            print " sweepsurf-render  ", calctime," s"
+            print(" sweepsurf-render  ", calctime," s")
                    
             # stock surface 
             t_before = time.time()
@@ -202,7 +202,7 @@ def main(filename="frame/f.png"):
             stocksurf.SetOpacity(1.0)
             myscreen.addActor(stocksurf)
             calctime = time.time()-t_before
-            print " stocksurf-render  ", calctime," s"
+            print(" stocksurf-render  ", calctime," s")
             
             #time.sleep(1.1)
             # write screenshot to disk
@@ -215,7 +215,7 @@ def main(filename="frame/f.png"):
             lwr.Write()
             
             calctime = time.time()-t_before
-            print " render  ", calctime," s"
+            print(" render  ", calctime," s")
             
             #myscreen.render()
             #time.sleep(0.1)
@@ -232,9 +232,9 @@ def main(filename="frame/f.png"):
         #myscreen.render()
         #time.sleep(0.1)
 
-    print " render()...",
+    print(" render()...",)
     myscreen.render()
-    print "done."
+    print("done.")
     
     
     #time.sleep(0.2)

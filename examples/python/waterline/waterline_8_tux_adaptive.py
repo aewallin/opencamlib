@@ -25,7 +25,7 @@ def drawLoops(myscreen,loops,loopColor):
                 myscreen.addActor( camvtk.Line(p1=(previous.x,previous.y,previous.z),p2=(p.x,p.y,p.z),color=loopColor) )
                 previous=p
             n=n+1
-        print "rendered loop ",nloop, " with ", len(lop), " points"
+        print("rendered loop ",nloop, " with ", len(lop), " points")
         nloop = nloop+1
 
 def getLoops(wl,zh,diam):
@@ -35,13 +35,13 @@ def getLoops(wl,zh,diam):
     wl.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " Waterline done in ", calctime," s"
+    print(" Waterline done in ", calctime," s")
     return wl.getLoops()
 
 
     
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../../stl/demo.stl")
     stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
 
     #zh = 1.0
     t_before = time.time() 
@@ -68,14 +68,14 @@ if __name__ == "__main__":
     wl.setSampling(0.0314)
     
     for zh in zheights:
-        print "calculating Waterline at z= ", zh
+        print("calculating Waterline at z= ", zh)
         cutter_loops = getLoops(wl,zh,diam)
         drawLoops(myscreen,cutter_loops,camvtk.red)
     t_after = time.time()
     calctime = t_after-t_before
-    print " TOTAL Waterline time is: ", calctime," s"
+    print(" TOTAL Waterline time is: ", calctime," s")
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(15, 13, 7)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

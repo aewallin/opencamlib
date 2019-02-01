@@ -29,7 +29,7 @@ def drawBB(myscreen, bb):
         myscreen.addActor(l)
         
 if __name__ == "__main__":  
-    print ocl.revision()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()
     
@@ -43,13 +43,13 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read ", s.size(), " triangles"
+    print("STL surface read ", s.size(), " triangles")
     
     minimum_point = s.bb.minpt
     maximum_point = s.bb.maxpt
-    print "min point =", minimum_point
-    print "max point =", maximum_point
-    print s.getBounds()
+    print("min point =", minimum_point)
+    print("max point =", maximum_point)
+    print(s.getBounds())
     
     # render the min and max points
     myscreen.addActor( camvtk.Sphere( center=(minimum_point.x, minimum_point.y, minimum_point.z), radius=0.1, color=camvtk.red) )

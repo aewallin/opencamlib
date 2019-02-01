@@ -17,7 +17,7 @@ def _VmB(VmKey):
         v = t.read()
         t.close()
     except:
-        print "procmemory.py ERROR!"
+        print("procmemory.py ERROR!")
         return 0.0  # non-Linux?
     #print v
     # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
@@ -52,11 +52,11 @@ def stacksize(since=0.0):
     
 if __name__ == "__main__":  
     m1 = memory()
-    print m1
+    print(m1)
     l=[]
-    for n in xrange(100000):
+    for n in range(100000):
         l.append(n)
     m2 = memory()
     
-    print m2/_scale['kB'], 'kB'
+    print(m2/_scale['kB'], 'kB')
     raw_input("Press Enter to terminate") 

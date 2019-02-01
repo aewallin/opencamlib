@@ -18,4 +18,4 @@ for p in clp:
 f.run()
 p2 = f.getCLPoints()
 for p in p2:
-    print p
+    print(p)

@@ -24,14 +24,14 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #cube.SetWireframe()
         myscreen.addActor( cube )
         if ( (i % (nmax/10))==0):
-            print ".",
+            print(".",)
         i=i+1
-    print "done."
+    print("done.")
     
 def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
     nodes = t.get_nodes()
     nmax=len(nodes)
-    print "drawTree2: ", nmax," nodes",
+    print("drawTree2: ", nmax," nodes",)
     # make a list of triangles
     tlist = []
     i=0
@@ -62,7 +62,7 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         tlist.append(ocl.Triangle(p1,p2,p4)) # 1,2,4,6
         tlist.append(ocl.Triangle(p4,p6,p2))
         if ( (i % (nmax/10))==0):
-            print ".",
+            print(".",)
         i=i+1
             
         #tlist.append(ocl.Triangle(p1,p2,p4))
@@ -70,7 +70,7 @@ def drawTree2(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
         #tlist.append(ocl.Triangle(p2,p3,p7))
         #tlist.append(ocl.Triangle(p2,p7,p8))
         #tlist.append(ocl.Triangle(p3,p7,p8))
-    print "done"
+    print("done")
     surf = camvtk.STLSurf(triangleList=tlist)
     surf.SetColor(color)
     surf.SetOpacity(opacity)
@@ -129,12 +129,12 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     """
     dl = myscreen.GetLights()
-    print "original default light:"
-    print dl
-    print "nextitem()"
+    print("original default light:")
+    print(dl)
+    print("nextitem()")
     l1 = dl.GetNextItem()
-    print " light:"
-    print l1
+    print(" light:")
+    print(l1)
     #print myscreen.GetLights()
     
     lights = vtk.vtkLightCollection()
@@ -152,16 +152,16 @@ def main(filename="frame/f.png",yc=6, n=0):
     #myscreen.SetLightCollection(lights)
     llist = myscreen.GetLights()
     li = llist.GetNextItem()
-    print " new list of lights:"
-    print li
+    print(" new list of lights:")
+    print(li)
     #for li in llist:
-    #    print li
-    print " newly created light:"
-    print l
+    #    print(li)
+    print(" newly created light:")
+    print(l)
     
     dl = myscreen.GetLights()
-    print "NEW light:"
-    print dl
+    print("NEW light:")
+    print(dl)
     """
     
     t = ocl.LinOCT()
@@ -174,8 +174,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     #myscreen.iren.Start() 
     #exit()
     
-    print " after init() t :", t.str()
-    print " after init() t2 :", t2.str()
+    print(" after init() t :", t.str())
+    print(" after init() t2 :", t2.str())
     
     # sphere
     svol = ocl.SphereOCTVolume()
@@ -205,7 +205,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     
     c = ocl.CylCutter(2)
     c.length = 3
-    print "cutter length=", c.length
+    print("cutter length=", c.length)
     p1 = ocl.Point(-1,-2,0)
     p2 = ocl.Point(1,2.0,0)
     g1vol = ocl.CylMoveOCTVolume(c, p1, p2)
@@ -232,9 +232,9 @@ def main(filename="frame/f.png",yc=6, n=0):
        
     t.build( g1vol )
     t2.build( cube1)
-    print "calling diff()...",
+    print("calling diff()...",)
     dt = t2.operation(1,t)
-    print "done."
+    print("done.")
     
     # set Cylinde bounding-box
     """
@@ -262,7 +262,7 @@ def main(filename="frame/f.png",yc=6, n=0):
     drawTree2(myscreen,dt,opacity=1, color=camvtk.cyan, offset=(5,0,0))
     
     """
-    for n in xrange(0,30):
+    for n in range(0,30):
         tp = ocl.Point(2.5,2.5,2-n*0.3)
         tpc = camvtk.black
         if (cylvol.isInside(tp)):
@@ -331,9 +331,9 @@ def main(filename="frame/f.png",yc=6, n=0):
     #st4.SetPos( (50, 100) )   
     #myscreen.addActor( st4)
     
-    print " render()...",
+    print(" render()...",)
     myscreen.render()
-    print "done."
+    print("done.")
     lwr.SetFileName(filename)
     time.sleep(0.2)
     #lwr.Write()

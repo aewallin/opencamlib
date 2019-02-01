@@ -18,7 +18,7 @@ if __name__ == "__main__":
     t = ocl.Triangle(a,b,c)
     
     cutter = ocl.CylCutter(.3, 5)
-    print cutter
+    print(cutter)
     
     minx=-0.2
     dx=0.02
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     for cl in clpoints:
         cutter.dropCutter(cl,t)
                 
-    print len(clpoints), " cl points evaluated"
+    print(len(clpoints), " cl points evaluated")
     # draw the points
     camvtk.drawCLPointCloud(myscreen, clpoints)
     

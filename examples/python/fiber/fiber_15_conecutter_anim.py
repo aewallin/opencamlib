@@ -47,7 +47,7 @@ def xfiber(cutter,xvals,t,zh,myscreen):
         drawFiber_clpts(myscreen, f, camvtk.lblue)
 
 def drawScreen(a,b,c,filename,write_flag):  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     z_hi = a.z
     if b.z > z_hi:
@@ -84,24 +84,24 @@ def drawScreen(a,b,c,filename,write_flag):
     cutter = ocl.ConeCutter(diameter, angle, length)
     #cutter = cutter.offsetCutter( 0.1 )
     
-    print "cutter= ", cutter
-    print "length=", cutter.getLength()
-    print "fiber..."
-    range=2
+    print("cutter= ", cutter)
+    print("length=", cutter.getLength())
+    print("fiber...")
+    fiber_range=2
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = z_lo - 0.3
     zmax = z_hi
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     for zh in zvals:
         yfiber(cutter,yvals,t,zh,myscreen)
         xfiber(cutter,xvals,t,zh,myscreen)
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(-2, -1, 3)
     myscreen.camera.SetFocalPoint(1.0, 0.0, -0.5)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))
@@ -116,7 +116,7 @@ def drawScreen(a,b,c,filename,write_flag):
     lwr.SetFileName(filename)
     if write_flag:
         lwr.Write()
-        print "wrote ",filename
+        print("wrote ",filename)
     """
     
     #myscreen.iren.Start()
@@ -128,7 +128,7 @@ if __name__ == "__main__":
     ztri_lo = 0.1
     Nmax = 300
     thetamax = 2*math.pi
-    for n in xrange(0,Nmax):
+    for n in range(0,Nmax):
         theta=thetamax/Nmax
         a = ocl.Point(0,1,ztri)
         a.xRotate(theta*n)

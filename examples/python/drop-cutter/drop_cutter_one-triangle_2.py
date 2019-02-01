@@ -11,7 +11,7 @@ def drawPoints(myscreen, clpoints, ccpoints):
     myscreen.addActor(c )
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     
     # triangle
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     cutter = ocl.BallCutter(0.532, length)
     #cutter = ocl.CylCutter(0.3, length)
     #cutter = ocl.BullCutter(0.5,0.123, length)
-    print cutter
+    print(cutter)
     
     # grid on which we run drop-cutter
     minx=-0.5
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     z=-0.7
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
 
-    print len(clpoints), "cl-points to evaluate"
+    print(len(clpoints), "cl-points to evaluate")
     n=0
     for cl in clpoints:
         #cutter.vertexDrop(cl,t)
@@ -57,15 +57,15 @@ if __name__ == "__main__":
         cutter.dropCutter(cl,t) # this calls all three above: vertex,facet,edge
         n=n+1
         if (n % int(len(clpoints)/10)) == 0:
-            print n/int(len(clpoints)/10), " ",
+            print(n/int(len(clpoints)/10), " ",)
               
-    print "done."
+    print("done.")
     
-    print "rendering..."
-    print " len(clpoints)=", len(clpoints)
+    print("rendering...")
+    print(" len(clpoints)=", len(clpoints))
 
     camvtk.drawCLPointCloud(myscreen, clpoints)
-    print "done."
+    print("done.")
     
     # draw a sphere, just for fun
     origo = camvtk.Sphere(center=(0,0,0) , radius=0.1, color=camvtk.blue) 

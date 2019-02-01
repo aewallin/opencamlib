@@ -40,23 +40,23 @@ def drawPaths(paths):
     ngc_writer.postamble()
     
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
     #stl = camvtk.STLSurf("../stl/demo.stl")
     stl = camvtk.STLSurf("../stl/pycam-textbox.stl") 
-    print "STL surface read"
+    print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    
     polydata = stl.src.GetOutput()
     s= ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STLSurf with ", s.size(), " triangles"
-    print s.getBounds()
+    print("STLSurf with ", s.size(), " triangles")
+    print(s.getBounds())
     # define a cutter
     cutter = ocl.CylCutter(10, 50) # diameter, length
     #cutter = ocl.BullCutter(0.6, 0.01, 5)
-    print cutter
+    print(cutter)
     #pdc = ocl.PathDropCutter()   # create a pdc
     apdc = ocl.AdaptivePathDropCutter()
     #pdc.setSTL(s)
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     #pdc.setSampling(0.4)
     apdc.setSampling(0.4)
     apdc.setMinSampling(0.0008)
-    print " apdc sampling = ", apdc.getSampling()
+    print(" apdc sampling = ", apdc.getSampling())
     
     
      
@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # create a simple "Zig" pattern where we cut only in one direction.
     paths = []
     # create a list of paths
-    for n in xrange(0,Ny):
+    for n in range(0,Ny):
         path = ocl.Path() 
         y = ymin+n*dy           # current y-coordinate
         p1 = ocl.Point(0,y,0)   # start-point of line
@@ -102,13 +102,13 @@ if __name__ == "__main__":
         cl_paths.append(aclp)
     
     t_after = time.time()
-    print "( OpenCamLib::AdaptivePathDropCutter run took %.2f s )" % ( t_after-t_before )
-    print "( got %d raw CL-points )" % ( n_aclp )
+    print("( OpenCamLib::AdaptivePathDropCutter run took %.2f s )" % ( t_after-t_before ))
+    print("( got %d raw CL-points )" % ( n_aclp ))
     # to reduce the G-code size we filter here. (this is not strictly required and could be omitted)
     # we could potentially detect G2/G3 arcs here, if there was a filter for that.
     
     tol = 0.001    
-    print "( filtering to tolerance %.4f )" % ( tol ) 
+    print("( filtering to tolerance %.4f )" % ( tol ) )
     cl_filtered_paths = []
     t_before = time.time()
     n_filtered=0
@@ -118,7 +118,7 @@ if __name__ == "__main__":
         cl_filtered_paths.append(cl_filtered)
     t_after = time.time()
     calctime = t_after-t_before
-    print "( got %d filtered CL-points. Filter done in %.3f s )" % ( n_filtered , calctime )
+    print("( got %d filtered CL-points. Filter done in %.3f s )" % ( n_filtered , calctime ))
     
     drawPaths(cl_filtered_paths)
     """
@@ -127,11 +127,11 @@ if __name__ == "__main__":
     ymax=50
     Ny=10  # number of lines in the y-direction
     dy = float(ymax-ymin)/Ny  # the y step-over
-    print "step-over ",dy
+    print("step-over ",dy)
     #path = ocl.Path()                   # create an empty path object 
     path2 = ocl.Path() 
     # add Line objects to the path in this loop
-    for n in xrange(0,Ny):
+    for n in range(0,Ny):
         y = ymin+n*dy
         p1 = ocl.Point(0,y,-100)   # start-point of line
         p2 = ocl.Point(130,y,-100)   # end-point of line
@@ -140,7 +140,7 @@ if __name__ == "__main__":
         #path.append( l )        # add the line to the path
         path2.append( l2 )
 
-    print " set the path for pdf "
+    print(" set the path for pdf ")
     #pdc.setPath( path )
     apdc.setPath( path2 )
     
@@ -150,17 +150,17 @@ if __name__ == "__main__":
     #t_after = time.time()
     #print " pdc run took ", t_after-t_before," s"
     
-    print " run the calculation "
+    print(" run the calculation ")
     t_before = time.time()
     apdc.run()                   # run drop-cutter on the path
     t_after = time.time()
-    print " apdc run took ", t_after-t_before," s"
+    print(" apdc run took ", t_after-t_before," s")
     
     
-    print "get the results "
+    print("get the results ")
     #clp = pdc.getCLPoints()     # get the cl-points from pdf
     aclp = apdc.getCLPoints()
-    print "got ", len(aclp) ," adaptive points"
+    print("got ", len(aclp) ," adaptive points")
     
     #aclp_lifted=[]
     #for p in aclp:
@@ -169,7 +169,7 @@ if __name__ == "__main__":
     
     # filter the adaptively sampled toolpaths
     
-    print "filtering. before filter we have", len(aclp),"cl-points"
+    print("filtering. before filter we have", len(aclp),"cl-points")
     t_before = time.time()
     f = ocl.LineCLFilter()
     f.setTolerance(0.001)
@@ -180,7 +180,7 @@ if __name__ == "__main__":
     f.run()
     t_after = time.time()
     calctime = t_after-t_before
-    print " done in ", calctime," s"
+    print(" done in ", calctime," s")
     
     cl_filtered = f.getCLPoints()
     #aclp_lifted2=[]
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     #    aclp_lifted2.append(p2)
     
     
-    print " render the CL-points"
+    print(" render the CL-points")
     #camvtk.drawCLPointCloud(myscreen, clp)
     
     camvtk.drawCLPointCloud(myscreen, cl_filtered)
@@ -203,5 +203,5 @@ if __name__ == "__main__":
     myscreen.camera.SetPosition(3, 23, 15)
     myscreen.camera.SetFocalPoint(5, 5, 0)
     myscreen.render()
-    print " All done."
+    print(" All done.")
     myscreen.iren.Start()

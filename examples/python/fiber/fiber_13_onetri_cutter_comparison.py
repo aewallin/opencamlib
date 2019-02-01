@@ -12,7 +12,7 @@ def drawPoints(myscreen, clpoints, ccpoints):
 
 def drawFiber(myscreen, f, fibercolor):
     inter = f.getInts()
-    print "fiber has ", len(inter) , " intervals"
+    print("fiber has ", len(inter) , " intervals")
     for i in inter:
         if not i.empty():
             ip1 = f.point( i.lower )
@@ -74,15 +74,15 @@ def xfiber(xvals,t,zh,myscreen,cutter,color):
         drawFiber_clpts(myscreen, f, color)
 
 def oneCutterWaterline(myscreen, cutter, zh, color):
-    range=2
+    fiber_range=2
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     yfiber(yvals,t,zh,myscreen,cutter, color)
     xfiber(xvals,t,zh,myscreen,cutter, color)
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
@@ -109,16 +109,16 @@ if __name__ == "__main__":
     #cutter = cutter.offsetCutter( 0.1 )
     
     
-    range=2
+    fiber_range=2
     Nmax = 50
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.1
     zmax = 0.25
     zNmax =5
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
 
     for zh in zvals:
@@ -129,7 +129,7 @@ if __name__ == "__main__":
         #yfiber(yvals,t,zh,myscreen)
         #xfiber(xvals,t,zh,myscreen)
     
-    print "done."
+    print("done.")
     
     myscreen.render()    
     #w2if = vtk.vtkWindowToImageFilter()

@@ -7,7 +7,7 @@ import vtk
 import math
 
 def main():  
-    print ocl.revision()
+    print(ocl.revision())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-15, -8, 15)
     myscreen.camera.SetFocalPoint(0,0, 0)   
@@ -38,27 +38,27 @@ def main():
     s.center =  ocl.Point( 1.3*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
     mc = ocl.MarchingCubes()
     while (n<=nmax):
-        print "diff...",
+        print("diff...",)
         t_before = time.time() 
         t.diff_negative(s)
         t_after = time.time() 
         build_time = t_after-t_before
-        print "done in ", build_time," s"
+        print("done in ", build_time," s")
         
         if n==nmax:
             t_before = time.time() 
-            print "mc()...",
+            print("mc()...",)
             tris = mc.mc_tree(t) #.mc_triangles()
             t_after = time.time() 
             mc_time = t_after-t_before
-            print "done in ", mc_time," s"
-            print " mc() got ", len(tris), " triangles"
+            print("done in ", mc_time," s")
+            print(" mc() got ", len(tris), " triangles")
             mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
             #mc_surf.SetWireframe()
             mc_surf.SetColor(camvtk.cyan)
-            print " STLSurf()...",
+            print(" STLSurf()...",)
             myscreen.addActor( mc_surf )
-            print "done."
+            print("done.")
             nodes = t.get_leaf_nodes()
             allpoints=[]
             #for no in nodes:
@@ -66,13 +66,13 @@ def main():
             #    for v in verts:
             #        allpoints.append(v)
             #oct_points = camvtk.PointCloud( allpoints )
-            print " PointCloud()...",
+            print(" PointCloud()...",)
             #myscreen.addActor( oct_points )
-            print "done."
-            print " render()...",
+            print("done.")
+            print(" render()...",)
             myscreen.render()
 
-            print "done."
+            print("done.")
 
             #lwr.SetFileName("frames/mc8_frame"+ ('%06d' % n)+".png")
             #myscreen.camera.Azimuth( 2 )
@@ -95,12 +95,12 @@ def main():
         sp1 = ocl.Point(s.center)
         s.center =  ocl.Point( 1.3*math.cos(theta),1.3*math.sin(theta),thetalift*theta)  
         sp2 = ocl.Point(s.center)
-        print "line from ",sp1," to ",sp2
+        print("line from ",sp1," to ",sp2)
         if n is not nmax:
             myscreen.addActor( camvtk.Line( p1=(sp1.x,sp1.y,sp1.z),p2=(sp2.x,sp2.y,sp2.z), color=camvtk.red ) )
-        print "center moved to", s.center
+        print("center moved to", s.center)
         n=n+1
-    print "All done."
+    print("All done.")
     myscreen.iren.Start() 
 
 if __name__ == "__main__":

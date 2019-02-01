@@ -8,13 +8,13 @@ import math
 def generateRange(zmin,zmax,zNmax):
     dz = (float(zmax)-float(zmin))/(zNmax-1)
     zvals=[]
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
     return zvals
     
 
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()
     #stl = camvtk.STLSurf("../stl/demo.stl")
@@ -26,14 +26,14 @@ if __name__ == "__main__":
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
-    print "STL surface read,", s.size(), "triangles"
+    print("STL surface read,", s.size(), "triangles")
     bounds = s.getBounds()
-    print "STLSurf.Bounds()=", bounds
+    print("STLSurf.Bounds()=", bounds)
     cutter = ocl.CylCutter(0.3,6)
     #cutter = ocl.BallCutter(0.3,6)
         
     cutter.length = 4.0
-    print cutter
+    print(cutter)
     xmin=-1
     xmax=15
     N=100
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     zmax = 2.75
     zNmax = 7
     zvals = generateRange(zmin,zmax,zNmax)
-    print " calculating waterlines at ", len(zvals)," different z-heights"
+    print(" calculating waterlines at ", len(zvals)," different z-heights")
     #print zvals
     bpc_x = ocl.BatchPushCutter()
     bpc_y = ocl.BatchPushCutter()
@@ -86,14 +86,14 @@ if __name__ == "__main__":
     bpc_y.run()
     t_after = time.time()
     push_calctime = t_after-t_before
-    print " BPC 3 done in ", push_calctime," s", bpc_x.getCalls()," push-calls" 
+    print(" BPC 3 done in ", push_calctime," s", bpc_x.getCalls()," push-calls" )
     
         
     clpoints = bpc_x.getCLPoints()
     clp2 = bpc_y.getCLPoints()
     clpoints+=clp2
-    print "got ", len(clpoints), " CL-points"
-    print "rendering raw CL-points."
+    print("got ", len(clpoints), " CL-points")
+    print("rendering raw CL-points.")
     
     # draw the CL-points
     camvtk.drawCLPointCloud(myscreen, clpoints)
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     
     
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

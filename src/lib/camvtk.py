@@ -76,7 +76,7 @@ def clColor(cc):
         col = white
         
     else:
-        print "camvtk.clColor() ERROR: CCType=",cc.type," is unknown, no color"
+        print("camvtk.clColor() ERROR: CCType=",cc.type," is unknown, no color")
         col = red
     return col
 
@@ -107,7 +107,7 @@ def ccColor(cc):
     elif cc.type == ocl.CCType.ERROR:
         col = (0,0.5,1)
     else:
-        print "err. CCType unknown, no color"
+        print("err. CCType unknown, no color")
         col = red
     return col       
 
@@ -172,10 +172,10 @@ def drawTree(myscreen,t,color=red,opacity=0.2, offset=(0,0,0)):
         #cube.SetWireframe()
         myscreen.addActor( cube )
         #if (nmax>100):
-        #    print "i=", i
-        #    print "div=", (float(nmax)/10)
+        #    print("i=", i)
+        #    print("div=", (float(nmax)/10))
         #    if ( (i % (float(nmax)/10))==0):
-        #        print ".",
+        #        print(".",)
         #i=i+1
     #print "done."
 
@@ -462,7 +462,7 @@ class Circle(CamvtkActor):
         lines =vtk.vtkCellArray()
         id = 0
         points = vtk.vtkPoints()
-        for n in xrange(0,resolution):
+        for n in range(0,resolution):
             line = vtk.vtkLine()
             angle1 = (float(n)/(float(resolution)))*2*math.pi
             angle2 = (float(n+1)/(float(resolution)))*2*math.pi

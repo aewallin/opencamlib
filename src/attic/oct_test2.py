@@ -24,7 +24,7 @@ def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     node = OCTNode( level, center = nodecenter , type = 1, childlist=None)
     
     flags = []
-    for n in xrange(0,9): # test all points
+    for n in range(0,9): # test all points
         flags.append( volume.isInside( node.nodePoint(n) ) )
     
     if (sum(flags) == 0): # nothing is inside
@@ -44,7 +44,7 @@ def buildOCTree(volume, nodecenter=cam.Point(0,0,0), level=0):
     # have to subdivide:
     childs = []
     child_centers = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         child_center = node.childCenter(n) 
         childs.append( buildOCTree( volume , nodecenter = child_center, level= level+1) )
     node.setChildren(childs)
@@ -83,7 +83,7 @@ def addNodes(myscreen, oct):
         return # don't draw intermediate nodes
         
     p = []
-    for n in xrange(1,9):
+    for n in range(1,9):
         p1 = oct.nodePoint(n)
         p.append(p1)
         
@@ -125,21 +125,21 @@ if __name__ == "__main__":
     myscreen.camera.SetPosition(5, 3, 2)
     myscreen.camera.SetFocalPoint(0,0, 0)
     
-    print oct.str()
+    print(oct.str())
     """
-    print "max scale=", oct.get_max_scale()
-    for n in xrange(0,9):
+    print("max scale=", oct.get_max_scale())
+    for n in range(0,9):
         p1 = oct.nodePoint(n)
         myscreen.addActor( camvtk.Sphere(center=(p1.x, p1.y, p1.z), radius=0.1, color=camvtk.red))
-        print "id=%i" % (n),
-        print p1.str()
+        print("id=%i" % (n),)
+        print(p1.str())
     
-    print "child centers:"
-    for n in xrange(1,9):
+    print("child centers:")
+    for n in range(1,9):
         p1 = oct.childCenter(n)
         myscreen.addActor( camvtk.Sphere(center=(p1.x, p1.y, p1.z), radius=0.1, color=camvtk.yellow))
-        print "id=%i" % (n),
-        print p1.str()
+        print("id=%i" % (n),)
+        print(p1.str())
         
     """
     
@@ -155,10 +155,10 @@ if __name__ == "__main__":
     
     nlist = oc2.get_all_nodes()
     
-    print "got ", len(nlist), " nodes"
+    print("got ", len(nlist), " nodes")
     
     for node in nlist:
-        print node.str()
+        print(node.str())
         if node.type == cam.OCType.WHITE:
             sph_color = camvtk.white
         if node.type == cam.OCType.BLACK:
@@ -173,14 +173,14 @@ if __name__ == "__main__":
     
     testvol = Volume()
     
-    print "building tree...",
+    print("building tree...",)
     tree = buildOCTree(testvol)
-    print "done."
-    print tree
+    print("done.")
+    print(tree)
     
     list =[]
     searchOCTree(tree, list)
-    print len(list), " nodes in tree"
+    print(len(list), " nodes in tree")
     
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
@@ -206,7 +206,7 @@ if __name__ == "__main__":
             t.SetText("OpenCAMLib 10.03-beta " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             myscreen.render()
             myscreen.camera.Azimuth( 3 )
-            print "frame %i of %i" % (n, len(list))
+            print("frame %i of %i" % (n, len(list)))
             w2if.Modified() 
             lwr.SetFileName("frames/oct"+ ('%05d' % n)+".png")
             #lwr.Write()
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         
 
     
-    print "done!"
+    print("done!")
     
 
     #raw_input("Press Enter to terminate") 

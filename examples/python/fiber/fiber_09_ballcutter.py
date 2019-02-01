@@ -24,7 +24,7 @@ def drawFiber(myscreen, f, fibercolor=camvtk.red):
             #myscreen.addActor(c2)
             
 if __name__ == "__main__":  
-    print ocl.version()
+    print(ocl.version())
     
     myscreen = camvtk.VTKScreen()
     
@@ -44,18 +44,18 @@ if __name__ == "__main__":
     #cutter = ocl.CylCutter(0.3, length)
     cutter = ocl.BallCutter(0.3, length)
     
-    print "fiber..."
-    range=4
+    print("fiber...")
+    fiber_range=4
     Nmax = 100
-    yvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*range for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*fiber_range for n in range(0,Nmax+1)]
     zmin = -0.1
     zmax = 0.5
     zNmax = 20
     dz = (zmax-zmin)/(zNmax-1)
     zvals=[]
     zvals.append(0.2)
-    for n in xrange(0,zNmax):
+    for n in range(0,zNmax):
         zvals.append(zmin+n*dz)
 
     bpc = ocl.BatchPushCutter()
@@ -78,8 +78,8 @@ if __name__ == "__main__":
     bpc.run()
     clpoints = bpc.getCLPoints()
     fibers = bpc.getFibers()
-    print " got ",len(fibers)," fibers from bpc"
-    print "rendering fibers and CL-points."
+    print(" got ",len(fibers)," fibers from bpc")
+    print("rendering fibers and CL-points.")
     #camvtk.drawCLPointCloud(myscreen, clpoints)
     for f in fibers:
         drawFiber(myscreen, f, camvtk.red)
@@ -88,7 +88,7 @@ if __name__ == "__main__":
 
         
 
-    print "done."
+    print("done.")
     myscreen.camera.SetPosition(0.5, 3, 2)
     myscreen.camera.SetFocalPoint(0.5, 0.5, 0)
     camvtk.drawArrows(myscreen,center=(-0.5,-0.5,-0.5))

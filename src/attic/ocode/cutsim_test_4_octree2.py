@@ -8,7 +8,7 @@ import vtk
 
 
 def main(filename="frame/f.png"):  
-    print ocl.revision()
+    print(ocl.revision())
           
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-15, -8, 15)
@@ -27,13 +27,13 @@ def main(filename="frame/f.png"):
     
     c = ocl.CylCutter(3,10) # cutter
     c.length = 3
-    print "cutter length=", c.length
+    print("cutter length=", c.length)
     
     cp= ocl.Point(0,0,0)
     max_depth = 9
     root_scale = 3
     t = ocl.Octree(root_scale, max_depth, cp)
-    print t
+    print(t)
     
     nodes = t.get_leaf_nodes()
     t.init(1)
@@ -41,10 +41,10 @@ def main(filename="frame/f.png"):
     s = ocl.SphereOCTVolume()
     s.center = ocl.Point(0,0,0)
     s.radius = 2.6345
-    print "build...",
+    print("build...",)
     t.build(s)
-    print "done."
-    print t
+    print("done.")
+    print(t)
     
     sphere = camvtk.Sphere( center=(s.center.x,s.center.y,s.center.z), radius=s.radius, color=camvtk.cyan)
     sphere.SetOpacity(0.1)
@@ -52,7 +52,7 @@ def main(filename="frame/f.png"):
     
     
     nodes = t.get_surface_nodes()
-    print "got ", len(nodes)," surface nodes"
+    print("got ", len(nodes)," surface nodes")
    
     points=[]
     for n in nodes:
@@ -73,9 +73,9 @@ def main(filename="frame/f.png"):
     mc_surf = camvtk.STLSurf( triangleList=tris, color=camvtk.red )
     #mc_surf.SetWireframe()
     myscreen.addActor( mc_surf )
-    print " render()...",
+    print(" render()...",)
     myscreen.render()
-    print "done."
+    print("done.")
     
     
     #time.sleep(0.2)

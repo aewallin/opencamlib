@@ -12,7 +12,7 @@ import gc
 
 def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
     pts = weave.getVertices( vertexType )
-    print " got ",len(pts)," of type ", vertexType
+    print(" got ",len(pts)," of type ", vertexType)
     for p in pts:
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z), radius=vertexRadius, color=vertexColor ) )
 
@@ -25,8 +25,8 @@ def getWeaveRAM(Nmax,weave2_flag):
     cutter = ocl.CylCutter(0.3, 5)
     fiber_range=30
     #Nmax = 400
-    yvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in xrange(0,Nmax+1)]
-    xvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in xrange(0,Nmax+1)]
+    yvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in range(0,Nmax+1)]
+    xvals = [float(n-float(Nmax)/2)/Nmax*float(fiber_range) for n in range(0,Nmax+1)]
     zvals=[ 1.6523]
     bpc_x = ocl.BatchPushCutter()
     bpc_y = ocl.BatchPushCutter()
@@ -55,16 +55,16 @@ def getWeaveRAM(Nmax,weave2_flag):
     xfibers = bpc_x.getFibers()
     yfibers = bpc_y.getFibers()
     fibers = xfibers+yfibers
-    print " got ",len(xfibers)," xfibers"
-    print " got ",len(yfibers)," yfibers"
+    print(" got ",len(xfibers)," xfibers")
+    print(" got ",len(yfibers)," yfibers")
     fibercount = len(xfibers) + len(yfibers)
-    print "rendering fibers and CL-points."
+    print("rendering fibers and CL-points.")
     w = ocl.Weave()
-    print "push fibers to Weave...",
+    print("push fibers to Weave...",)
     for f in fibers:
         w.addFiber(f)
-    print "done."
-    print "Weave build()...",
+    print("done.")
+    print("Weave build()...",)
     mem1 = procmemory.memory()
     if weave2_flag==1:
         w.build2()
@@ -75,21 +75,21 @@ def getWeaveRAM(Nmax,weave2_flag):
     megabytes = float(mem2-mem1)/float(1024*1024)
     megabytes2 = float(mem2)/float(1024*1024)
     verts = w.numVertices()
-    print " before: ", float(mem1)/float(1024*1024)
-    print "  after: ", float(mem2)/float(1024*1024)
-    print " build() memory: ",megabytes," MB"
-    print "done"
-    print "face_traverse..."
+    print(" before: ", float(mem1)/float(1024*1024))
+    print("  after: ", float(mem2)/float(1024*1024))
+    print(" build() memory: ",megabytes," MB")
+    print("done")
+    print("face_traverse...")
     w.face_traverse()
-    print "done."
+    print("done.")
     w_clpts = w.getCLVertices()
     w_ipts = w.getINTVertices()
     w_edges = w.getEdges()
     w_loop = w.getLoops()
 
 
-    print " got: ", len(w_edges), " edges"
-    print " got: ", len(w_loop), " loops"
+    print(" got: ", len(w_edges), " edges")
+    print(" got: ", len(w_loop), " loops")
     out=[]
     out.append(fibercount)
     out.append(verts)
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         mb = getWeaveRAM(Nmax,0)
         mb2 = getWeaveRAM(Nmax,1)
         #print mb2
-        print mb[0], " :=> ", mb[1], " MB"
+        print(mb[0], " :=> ", mb[1], " MB")
         writer.writerow(mb+mb2)
         gc.collect()
 

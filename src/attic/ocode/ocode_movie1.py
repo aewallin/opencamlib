@@ -31,7 +31,7 @@ def drawTree(myscreen,t,color=camvtk.red,opacity=0.2, offset=(0,0,0)):
             #black = black+1
     #print black," black nodes"
     """
-    for m in xrange(0,9):
+    for m in range(0,9):
         cen = n.corner(m)
         sph = camvtk.Sphere( center=(cen.x, cen.y, cen.z), radius=0.5, color=camvtk.green)
         myscreen.addActor(sph)
@@ -67,8 +67,8 @@ def main(filename="frame/f.png",yc=6, n=0):
     t.init(3)
     t2.init(3)
 
-    print " after init() t :", t.str()
-    print " after init() t2 :", t2.str()
+    print(" after init() t :", t.str())
+    print(" after init() t2 :", t2.str())
 
     svol = ocl.SphereOCTVolume()
     svol.radius=3
@@ -82,44 +82,44 @@ def main(filename="frame/f.png",yc=6, n=0):
     cube2.center = ocl.Point(1,2,0)
     cube2.side = 30
 
-    print "t build()"    
+    print("t build()"    )
     t.build(svol)
-    print " t after build() ", t.size()
+    print(" t after build() ", t.size())
     t.condense()
-    print " t after condense() ", t.size()
+    print(" t after condense() ", t.size())
 
-    print "t2 build()" 
+    print("t2 build()" )
     t2.build(cube1)
-    print " t2 after build() ", t2.size()
+    print(" t2 after build() ", t2.size())
     t2.condense()
-    print " t2 after condense() ", t2.size()   
+    print(" t2 after condense() ", t2.size()   )
     
     # original trees
     drawTree(myscreen,t,opacity=1, color=camvtk.green)
     drawTree(myscreen,t2,opacity=1, color=camvtk.red)
 
-    print " diff12()...",
+    print(" diff12()...",)
     t3 = t2.operation(1,t)
-    print "done."
+    print("done.")
 
 
-    print " diff21()...",
+    print(" diff21()...",)
     t4 = t2.operation(2,t)
-    print "done."
+    print("done.")
 
 
-    print " intersection()...",
+    print(" intersection()...",)
     t5 = t2.operation(3,t)
-    print "done."
+    print("done.")
     
-    print " sum()...",
+    print(" sum()...",)
     t6 = t2.operation(4,t)
-    print "done."
+    print("done.")
     
-    print "  difference 1-2  t3 (blue) =", t3.size()
-    print " difference 2-1  t4 (yellow)=", t4.size()
-    print "     intersection t5 (pink) =", t5.size()
-    print "            union t6 (grey) =", t6.size()
+    print("  difference 1-2  t3 (blue) =", t3.size())
+    print(" difference 2-1  t4 (yellow)=", t4.size())
+    print("     intersection t5 (pink) =", t5.size())
+    print("            union t6 (grey) =", t6.size())
 
     drawTree(myscreen,t3,opacity=1, color=camvtk.blue, offset=(0,15,0))
     drawTree(myscreen,t4,opacity=1, color=camvtk.yellow,offset=(0,-15,0))
