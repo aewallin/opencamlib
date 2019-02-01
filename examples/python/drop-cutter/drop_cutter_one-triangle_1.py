@@ -5,7 +5,7 @@ import vtk
 import math
 
 if __name__ == "__main__":  
-    print(ocl.version() # print out git version tag)
+    print(ocl.version()) # print out git version tag
     
     # set up VTK visualization
     myscreen = camvtk.VTKScreen()

@@ -8,7 +8,7 @@ import vtk
 
 
 def main(filename="frame/f.png"):  
-    print(ocl.revision())
+    print(ocl.version())
           
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-15, -8, 15)

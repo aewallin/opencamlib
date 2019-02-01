@@ -11,7 +11,7 @@ of an octree node, as used in the octree cutting simulation and
 marching-cubes.
 """
 def main():  
-    print(ocl.revision())
+    print(ocl.version())
     myscreen = camvtk.VTKScreen()   
     myscreen.camera.SetPosition(-8, -4, 25)
     myscreen.camera.SetFocalPoint(0,0, 0)   

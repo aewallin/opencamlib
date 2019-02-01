@@ -7,7 +7,7 @@ import math
 
         
 if __name__ == "__main__":  
-    print(ocl.revision())
+    print(ocl.version())
     i = ocl.Interval()
     print(i)
     i = ocl.Interval(0.123, 0.456)

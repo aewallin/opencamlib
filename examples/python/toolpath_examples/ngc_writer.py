@@ -43,17 +43,17 @@ def plunge(z):
 
 def preamble():
     if (metric):
-        print("G21 F% 8.0f" % (feed) # G20 F6 for inch)
+        print("G21 F% 8.0f" % (feed)) # G20 F6 for inch
     else:
-        print("G20 F% 8.0f" % (feed) # G20 F6 for inch)
+        print("G20 F% 8.0f" % (feed)) # G20 F6 for inch
         
-    print("G64 P0.001" # linuxcnc blend mode)
+    print("G64 P0.001") # linuxcnc blend mode
     pen_up()
-    print("G0 X0 Y0" # this might not be a good idea!?)
+    print("G0 X0 Y0") # this might not be a good idea!?
 
 def postamble():
     pen_up()
-    print("M2" # end of program)
+    print("M2") # end of program
 
 def comment(s=""):
     print("( ",s," )")
