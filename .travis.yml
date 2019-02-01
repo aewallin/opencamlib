@@ -25,6 +25,7 @@ before_install:
       brew update
       brew upgrade cmake
       brew install llvm
+      brew install libomp
       if [[ "$USE_PY_3" == "OFF" ]]; then
         brew install boost-python
       elif [[ "$USE_PY_3" == "ON" ]]; then
