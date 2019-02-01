@@ -45,7 +45,7 @@ if __name__ == "__main__":
     path = ocl.Path()                   # create an empty path object 
     path2 = ocl.Path() 
     # add Line objects to the path in this loop
-    for n in xrange(0,Ny):
+    for n in range(0,Ny):
         y = ymin+n*dy
         p1 = ocl.Point(0,y,0)   # start-point of line
         p2 = ocl.Point(10,y,0)   # end-point of line

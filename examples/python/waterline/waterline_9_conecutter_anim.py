@@ -98,7 +98,7 @@ def drawScreen(a,b,c,filename,write_flag):
     zmax= -0.05
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
-    for n in xrange(Nmax):
+    for n in range(Nmax):
         zheights.append(z)
         z=z+dz
         
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     ymax = 0.5
     dy = ymax/float(Nmax)
     current_dir = os.getcwd()
-    for n in xrange(0,Nmax):
+    for n in range(0,Nmax):
         a = ocl.Point(0,1,0.3)
         b = ocl.Point(1,0.5,0.3) 
         c = ocl.Point(-0.1,n*dy,0.0)

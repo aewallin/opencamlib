@@ -31,7 +31,7 @@ if __name__ == "__main__":
     
     plist=[]
     zbase=-5
-    #for n in xrange(0,3):
+    #for n in range(0,3):
     #    plist.append( ocl.Point(1 + 0.01*n, 1.4, zbase) )
     plist.append( ocl.Point(1.02, 1.4, zbase) )
     

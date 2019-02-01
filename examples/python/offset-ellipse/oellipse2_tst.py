@@ -208,7 +208,7 @@ if __name__ == "__main__":
     
     ecen_tmp=cam.Point(1.38,2,0)
     resolution=50
-    for n in xrange(0,resolution):
+    for n in range(0,resolution):
         angle1= (float(n)/float(resolution))*2*math.pi
         angle2= (float(n+1)/float(resolution))*2*math.pi
         x=ecen_tmp.x + a*math.cos(angle1)
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     epos3 = EPos()
     epos4 = EPos()
     epos5 = EPos()
-    for n in xrange(0,nmax):
+    for n in range(0,nmax):
         s = float(n)/float(nmax-1) * float(2)/math.sqrt(2) - float(1)/math.sqrt(2)
         t = float(n)/float(nmax-1) * float(2)/math.sqrt(2) - float(1)/math.sqrt(2)
         
@@ -296,7 +296,7 @@ if __name__ == "__main__":
         
     
     while not endcondition:
-    #for n in xrange(0,Nsteps):
+    #for n in range(0,Nsteps):
         t.SetText("OpenCAMLib 10.03-beta, " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         current_error = oe.error(epos5, cl)
 
@@ -352,7 +352,7 @@ if __name__ == "__main__":
         #w2if.Modified()
         #lwr.SetFileName("5_all.png")
         """
-        for i in xrange(0,10):
+        for i in range(0,10):
             lwr.SetFileName("frames/oe_nrx"+ ('%05d%02d' % (n,i))+".png")
             lwr.Write()
         """

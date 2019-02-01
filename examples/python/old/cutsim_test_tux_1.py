@@ -131,7 +131,7 @@ def main(filename="frame/f.png"):
     
     Nmoves = len(clpts)
     print(Nmoves,"CL-points to process")
-    for n in xrange(0,Nmoves-1):
+    for n in range(0,Nmoves-1):
         timetext.SetText(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         
         #if n<Nmoves-1:

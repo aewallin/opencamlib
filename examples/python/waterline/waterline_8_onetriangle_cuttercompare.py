@@ -97,7 +97,7 @@ if __name__ == "__main__":
     zmax= 0.30
     dz = (zmax-zmin)/float(Nmax-1)
     z = zmin
-    for n in xrange(Nmax):
+    for n in range(Nmax):
         zheights.append(z)
         z=z+dz
         

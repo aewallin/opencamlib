@@ -17,7 +17,7 @@ import ngc_writer # G-code output is produced by this module
 def YdirectionZigPath(xmin,xmax,ymin,ymax,Ny):
     paths = []
     dy = float(ymax-ymin)/(Ny-1)  # the y step-over
-    for n in xrange(0,Ny):
+    for n in range(0,Ny):
         path = ocl.Path() 
         y = ymin+n*dy              # current y-coordinate 
         if (n==Ny-1):

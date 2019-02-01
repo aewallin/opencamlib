@@ -82,7 +82,7 @@ if __name__ == "__main__":
     # create a simple "Zig" pattern where we cut only in one direction.
     paths = []
     # create a list of paths
-    for n in xrange(0,Ny):
+    for n in range(0,Ny):
         path = ocl.Path() 
         y = ymin+n*dy           # current y-coordinate
         p1 = ocl.Point(0,y,0)   # start-point of line
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     #path = ocl.Path()                   # create an empty path object 
     path2 = ocl.Path() 
     # add Line objects to the path in this loop
-    for n in xrange(0,Ny):
+    for n in range(0,Ny):
         y = ymin+n*dy
         p1 = ocl.Point(0,y,-100)   # start-point of line
         p2 = ocl.Point(130,y,-100)   # end-point of line

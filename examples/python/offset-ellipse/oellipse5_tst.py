@@ -9,7 +9,7 @@ import datetime
 
 def drawellipse(myscreen, ellcenter, a_axis, b_axis):
     resolution=50
-    for n in xrange(0,resolution):
+    for n in range(0,resolution):
         angle1= (float(n)/float(resolution))*2*math.pi
         angle2= (float(n+1)/float(resolution))*2*math.pi
         x=ellcenter.x + a_axis*math.cos(angle1)

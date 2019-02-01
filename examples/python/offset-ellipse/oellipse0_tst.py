@@ -131,7 +131,7 @@ if __name__ == "__main__":
     
     ecen_tmp=cam.Point(1.38,2,0)
     resolution=50
-    for n in xrange(0,resolution):
+    for n in range(0,resolution):
         angle1= (float(n)/float(resolution))*2*math.pi
         angle2= (float(n+1)/float(resolution))*2*math.pi
         x=ecen_tmp.x + a*math.cos(angle1)
