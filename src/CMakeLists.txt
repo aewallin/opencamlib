@@ -34,6 +34,9 @@ option(BUILD_DOC
 option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
+option(USE_VERSION_AND_PLATFORM_SUFFIX
+    "Use version and platform suffix for generated libraries" OFF)
+
 option(VERSION_STRING
     "Set version string" OFF)
 
@@ -46,6 +49,10 @@ endif(NOT BUILD_CXX_LIB)
 
 if (NOT BUILD_PY_LIB)
   message(STATUS " Note: will NOT build python library")
+endif(NOT BUILD_PY_LIB)
+
+if (NOT BUILD_NODEJS_LIB)
+  message(STATUS " Note: will NOT build node.js library")
 endif(NOT BUILD_PY_LIB)
 
 if (NOT BUILD_EMSCRIPTEN_LIB)
@@ -97,10 +104,10 @@ if(USE_OPENMP)
     # Install a more recent version using Homebrew:
     # "brew install llvm"
     # and set the right compiler using: export CXX="/usr/local/opt/llvm/bin/clang++"
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
-    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -L/usr/local/opt/llvm/lib")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -L/usr/local/opt/libomp/lib")
+    set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS} -L/usr/local/opt/libomp/lib")
     set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/llvm/include ${OpenMP_CXX_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -I/usr/local/opt/libomp/include ${OpenMP_CXX_FLAGS}")
   else()
     find_package( OpenMP REQUIRED )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")

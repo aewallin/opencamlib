@@ -81,6 +81,7 @@ before_script:
       if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
         cd ..
         ./node_modules/.bin/cmake-js compile --arch=x64 \
+          --CDUSE_VERSION_AND_PLATFORM_SUFFIX="ON" \
           --CDBOOST_ROOT="/c/boost/boost_1_69_0" \
           --CDBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost" \
           --CDBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/stage/lib" \
@@ -91,6 +92,7 @@ before_script:
       elif [[ "$BUILD_PY_LIB" == "ON" ]]; then
         if [[ "$USE_PY_3" == "ON" ]]; then
           cmake \
+            -DUSE_VERSION_AND_PLATFORM_SUFFIX="ON" \
             -DPython3_ROOT_DIR="/c/Python37" \
             -DPython3_EXECUTABLE="/c/Python37/python.exe" \
             -DPython3_SITELIB="/c/Python37/Lib/site-packages" \
@@ -108,6 +110,7 @@ before_script:
           cmake --build . --config Release
         else
           cmake \
+            -DUSE_VERSION_AND_PLATFORM_SUFFIX="ON" \
             -DPython2_ROOT_DIR="/c/Python27" \
             -DPython2_EXECUTABLE="/c/Python27/python.exe" \
             -DPython2_SITELIB="/c/Python27/Lib/site-packages" \
@@ -126,6 +129,7 @@ before_script:
         fi
       else
         cmake \
+          -DUSE_VERSION_AND_PLATFORM_SUFFIX="ON" \
           -DBOOST_ROOT="/c/boost/boost_1_69_0" \
           -DBOOST_INCLUDEDIR="/c/boost/boost_1_69_0/boost" \
           -DBOOST_LIBRARYDIR="/c/boost/boost_1_69_0/stage/lib" \
@@ -141,6 +145,7 @@ before_script:
       if [[ "$BUILD_NODEJS_LIB" == "ON" ]]; then
         cd ..
         ./node_modules/.bin/cmake-js compile --arch=x64 \
+          --CDUSE_VERSION_AND_PLATFORM_SUFFIX="ON" \
           --CDBUILD_CXX_LIB="$BUILD_CXX_LIB" \
           --CDBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
           --CDBUILD_PY_LIB="$BUILD_PY_LIB" \
@@ -148,6 +153,7 @@ before_script:
           --CDVERSION_STRING="$TRAVIS_BRANCH"
       else
         /usr/local/bin/cmake \
+          -DUSE_VERSION_AND_PLATFORM_SUFFIX="ON" \
           -DBUILD_CXX_LIB="$BUILD_CXX_LIB" \
           -DBUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
           -DBUILD_PY_LIB="$BUILD_PY_LIB" \

@@ -123,53 +123,44 @@ target_link_libraries(
 
 message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
 
-<<<<<<< HEAD
-# this makes the lib name ocl.so and not libocl.so
-set_target_properties(ocl PROPERTIES PREFIX "")
-if (WIN32)
-  set_target_properties(ocl PROPERTIES SUFFIX ".pyd")
-endif (WIN32)
-# if (WIN32)
-# set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION})
-# endif (WIN32)
-=======
-if(USE_PY_3)
-  set(PYTHON_LIB_VERSION_POSTFIX "${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+if(USE_VERSION_AND_PLATFORM_SUFFIX)
+  if(USE_PY_3)
+    set(PYTHON_LIB_VERSION_POSTFIX "${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}")
+  else()
+    set(PYTHON_LIB_VERSION_POSTFIX "${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+  endif()
+  if(WIN32)
+    set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.win64.so")
+  elseif(APPLE)
+    set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.darwin.so")
+  else()
+    set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.linux.so")
+  endif()
+  set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ${PYTHON_LIB_POSTFIX})
 else()
-  set(PYTHON_LIB_VERSION_POSTFIX "${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR}")
+  set_target_properties(ocl PROPERTIES PREFIX "")
 endif()
-
-if(WIN32)
-  set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.win64.so")
-elseif(APPLE)
-  set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.darwin.so")
-else()
-  set(PYTHON_LIB_POSTFIX ".${PYTHON_LIB_VERSION_POSTFIX}.linux.so")
-endif()
-
-set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ${PYTHON_LIB_POSTFIX})
->>>>>>> Add postfixes to python libraries, update travis
 
 if (APPLE AND NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-install(
-  TARGETS ocl
-  LIBRARY DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
-)
-# these are the python helper lib-files such as camvtk.py
-install(
-  DIRECTORY lib/
-  DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
-  #    PATTERN .svn EXCLUDE
-)
+  install(
+    TARGETS ocl
+    LIBRARY DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
+  )
+  # these are the python helper lib-files such as camvtk.py
+  install(
+    DIRECTORY lib/
+    DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
+    #    PATTERN .svn EXCLUDE
+  )
 else()
-install(
-  TARGETS ocl
-  LIBRARY DESTINATION ${PYTHON_ARCH_PACKAGES}
-)
-# these are the python helper lib-files such as camvtk.py 
-install(
-  DIRECTORY lib/
-  DESTINATION ${PYTHON_SITE_PACKAGES}
-  #    PATTERN .svn EXCLUDE
-)
+  install(
+    TARGETS ocl
+    LIBRARY DESTINATION ${PYTHON_ARCH_PACKAGES}
+  )
+  # these are the python helper lib-files such as camvtk.py 
+  install(
+    DIRECTORY lib/
+    DESTINATION ${PYTHON_SITE_PACKAGES}
+    #    PATTERN .svn EXCLUDE
+  )
 endif()
