@@ -53,7 +53,7 @@ endif(NOT BUILD_PY_LIB)
 
 if (NOT BUILD_NODEJS_LIB)
   message(STATUS " Note: will NOT build node.js library")
-endif(NOT BUILD_PY_LIB)
+endif(NOT BUILD_NODEJS_LIB)
 
 if (NOT BUILD_EMSCRIPTEN_LIB)
   message(STATUS " Note: will NOT build emscripten library")
