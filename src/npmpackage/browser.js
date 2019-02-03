@@ -1,10 +1,25 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.ocl = f()}})(function(){var define,module,exports;return (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(_dereq_,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var millingcutter_1 = tslib_1.__importDefault(_dereq_("./millingcutter"));
+var millingcutter_1 = __importDefault(_dereq_("./millingcutter"));
 var CylCutter = /** @class */ (function (_super) {
-    tslib_1.__extends(CylCutter, _super);
+    __extends(CylCutter, _super);
     function CylCutter(diameter, length) {
         var _this = _super.call(this) || this;
         _this.diameter = diameter;
@@ -18,14 +33,29 @@ var CylCutter = /** @class */ (function (_super) {
 }(millingcutter_1.default));
 exports.default = CylCutter;
 
-},{"./millingcutter":11,"tslib":176}],2:[function(_dereq_,module,exports){
+},{"./millingcutter":11}],2:[function(_dereq_,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var operation_1 = tslib_1.__importDefault(_dereq_("./operation"));
-var ocl_1 = tslib_1.__importDefault(_dereq_("./ocl"));
+var operation_1 = __importDefault(_dereq_("./operation"));
+var ocl_1 = __importDefault(_dereq_("./ocl"));
 var EmscriptenAdaptivePathDropCutter = /** @class */ (function (_super) {
-    tslib_1.__extends(EmscriptenAdaptivePathDropCutter, _super);
+    __extends(EmscriptenAdaptivePathDropCutter, _super);
     function EmscriptenAdaptivePathDropCutter() {
         var _this = _super.call(this) || this;
         _this.chain = _this.chain.then(function () {
@@ -48,7 +78,7 @@ var EmscriptenAdaptivePathDropCutter = /** @class */ (function (_super) {
                     var p1 = new ocl_1.default.Point(span[1][0].x, span[1][0].y, span[1][0].z);
                     var p2 = new ocl_1.default.Point(span[1][1].x, span[1][1].y, span[1][1].z);
                     var l = new ocl_1.default.Line(p1, p2);
-                    actualPath.append(l);
+                    actualPath.appendLine(l);
                 }
             });
             _this.actualClass.setPath(actualPath);
@@ -58,21 +88,36 @@ var EmscriptenAdaptivePathDropCutter = /** @class */ (function (_super) {
         var _this = this;
         return this.chain.then(function () {
             _this.actualClass.run();
-            return Promise.resolve(_this.actualClass.getCLPoints());
+            return Promise.resolve(_this.pointsToArray(_this.actualClass.getCLPoints()));
         });
     };
     return EmscriptenAdaptivePathDropCutter;
 }(operation_1.default));
 exports.default = EmscriptenAdaptivePathDropCutter;
 
-},{"./ocl":5,"./operation":6,"tslib":176}],3:[function(_dereq_,module,exports){
+},{"./ocl":5,"./operation":6}],3:[function(_dereq_,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var operation_1 = tslib_1.__importDefault(_dereq_("./operation"));
-var ocl_1 = tslib_1.__importDefault(_dereq_("./ocl"));
+var operation_1 = __importDefault(_dereq_("./operation"));
+var ocl_1 = __importDefault(_dereq_("./ocl"));
 var EmscriptenAdaptiveWaterline = /** @class */ (function (_super) {
-    tslib_1.__extends(EmscriptenAdaptiveWaterline, _super);
+    __extends(EmscriptenAdaptiveWaterline, _super);
     function EmscriptenAdaptiveWaterline() {
         var _this = _super.call(this) || this;
         _this.chain = _this.chain.then(function () {
@@ -118,7 +163,7 @@ var EmscriptenAdaptiveWaterline = /** @class */ (function (_super) {
 }(operation_1.default));
 exports.default = EmscriptenAdaptiveWaterline;
 
-},{"./ocl":5,"./operation":6,"tslib":176}],4:[function(_dereq_,module,exports){
+},{"./ocl":5,"./operation":6}],4:[function(_dereq_,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var adaptivewaterline_1 = _dereq_("./adaptivewaterline");
@@ -150,11 +195,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ocl = _dereq_('../../opencamlib')();
 exports.default = ocl;
 
-},{"../../opencamlib":178}],6:[function(_dereq_,module,exports){
+},{"../../opencamlib":177}],6:[function(_dereq_,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var ocl_1 = tslib_1.__importDefault(_dereq_("./ocl"));
+var ocl_1 = __importDefault(_dereq_("./ocl"));
 var Operation = /** @class */ (function () {
     function Operation() {
         this.chain = new Promise(function (resolve) {
@@ -196,18 +243,54 @@ var Operation = /** @class */ (function () {
             _this.actualClass.setSampling(sampling);
         });
     };
+    Operation.prototype.loopsToArray = function (loops) {
+        var result = [];
+        for (var i = 0; i < loops.size(); i++) {
+            var loop = loops.get(i);
+            var points = [];
+            for (var j = 0; j < loop.size(); j++) {
+                var point = loop.get(j);
+                points.push([point.x, point.y, point.z]);
+            }
+            result.push(points);
+        }
+        return result;
+    };
+    Operation.prototype.pointsToArray = function (points) {
+        var result = [];
+        for (var j = 0; j < points.size(); j++) {
+            var point = points.get(j);
+            result.push([point.x, point.y, point.z]);
+        }
+        return result;
+    };
     return Operation;
 }());
 exports.default = Operation;
 
-},{"./ocl":5,"tslib":176}],7:[function(_dereq_,module,exports){
+},{"./ocl":5}],7:[function(_dereq_,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var operation_1 = tslib_1.__importDefault(_dereq_("./operation"));
-var ocl_1 = tslib_1.__importDefault(_dereq_("./ocl"));
+var operation_1 = __importDefault(_dereq_("./operation"));
+var ocl_1 = __importDefault(_dereq_("./ocl"));
 var EmscriptenPathDropCutter = /** @class */ (function (_super) {
-    tslib_1.__extends(EmscriptenPathDropCutter, _super);
+    __extends(EmscriptenPathDropCutter, _super);
     function EmscriptenPathDropCutter() {
         var _this = _super.call(this) || this;
         _this.chain = _this.chain.then(function () {
@@ -224,7 +307,7 @@ var EmscriptenPathDropCutter = /** @class */ (function (_super) {
                     var p1 = new ocl_1.default.Point(span[1][0].x, span[1][0].y, span[1][0].z);
                     var p2 = new ocl_1.default.Point(span[1][1].x, span[1][1].y, span[1][1].z);
                     var l = new ocl_1.default.Line(p1, p2);
-                    actualPath.append(l);
+                    actualPath.appendLine(l);
                 }
             });
             _this.actualClass.setPath(actualPath);
@@ -234,18 +317,20 @@ var EmscriptenPathDropCutter = /** @class */ (function (_super) {
         var _this = this;
         return this.chain.then(function () {
             _this.actualClass.run();
-            return Promise.resolve(_this.actualClass.getCLPoints());
+            return Promise.resolve(_this.pointsToArray(_this.actualClass.getCLPoints()));
         });
     };
     return EmscriptenPathDropCutter;
 }(operation_1.default));
 exports.default = EmscriptenPathDropCutter;
 
-},{"./ocl":5,"./operation":6,"tslib":176}],8:[function(_dereq_,module,exports){
+},{"./ocl":5,"./operation":6}],8:[function(_dereq_,module,exports){
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var stl_1 = tslib_1.__importDefault(_dereq_("stl"));
+var stl_1 = __importDefault(_dereq_("stl"));
 var STLReader = /** @class */ (function () {
     function STLReader(contents, surface) {
         var obj = stl_1.default.toObject(contents);
@@ -255,14 +340,29 @@ var STLReader = /** @class */ (function () {
 }());
 exports.default = STLReader;
 
-},{"stl":169,"tslib":176}],9:[function(_dereq_,module,exports){
+},{"stl":169}],9:[function(_dereq_,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var operation_1 = tslib_1.__importDefault(_dereq_("./operation"));
-var ocl_1 = tslib_1.__importDefault(_dereq_("./ocl"));
+var operation_1 = __importDefault(_dereq_("./operation"));
+var ocl_1 = __importDefault(_dereq_("./ocl"));
 var EmscriptenWaterline = /** @class */ (function (_super) {
-    tslib_1.__extends(EmscriptenWaterline, _super);
+    __extends(EmscriptenWaterline, _super);
     function EmscriptenWaterline() {
         var _this = _super.call(this) || this;
         _this.chain = _this.chain.then(function () {
@@ -275,19 +375,6 @@ var EmscriptenWaterline = /** @class */ (function (_super) {
         this.chain = this.chain.then(function () {
             _this.actualClass.setZ(z);
         });
-    };
-    EmscriptenWaterline.prototype.loopsToArray = function (loops) {
-        var result = [];
-        for (var i = 0; i < loops.size(); i++) {
-            var loop = loops.get(i);
-            var points = [];
-            for (var j = 0; j < loop.size(); j++) {
-                var point = loop.get(j);
-                points.push([point.x, point.y, point.z]);
-            }
-            result.push(points);
-        }
-        return result;
     };
     EmscriptenWaterline.prototype.run = function () {
         var _this = this;
@@ -302,13 +389,28 @@ var EmscriptenWaterline = /** @class */ (function (_super) {
 }(operation_1.default));
 exports.default = EmscriptenWaterline;
 
-},{"./ocl":5,"./operation":6,"tslib":176}],10:[function(_dereq_,module,exports){
+},{"./ocl":5,"./operation":6}],10:[function(_dereq_,module,exports){
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = _dereq_("tslib");
-var span_1 = tslib_1.__importDefault(_dereq_("./span"));
+var span_1 = __importDefault(_dereq_("./span"));
 var Line = /** @class */ (function (_super) {
-    tslib_1.__extends(Line, _super);
+    __extends(Line, _super);
     function Line(p1, p2) {
         var _this = _super.call(this) || this;
         _this.p1 = p1;
@@ -322,7 +424,7 @@ var Line = /** @class */ (function (_super) {
 }(span_1.default));
 exports.default = Line;
 
-},{"./span":14,"tslib":176}],11:[function(_dereq_,module,exports){
+},{"./span":14}],11:[function(_dereq_,module,exports){
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var MillingCutter = /** @class */ (function () {
@@ -342,8 +444,8 @@ var Path = /** @class */ (function () {
     function Path() {
         this.segments = [];
     }
-    Path.prototype.append = function (line) {
-        this.segments.push(line);
+    Path.prototype.append = function (segment) {
+        this.segments.push(segment);
     };
     Path.prototype.serialize = function () {
         return this.segments.map(function (segment) { return segment.serialize(); });
@@ -21311,7 +21413,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},_dereq_("timers").setImmediate)
-},{"./_stream_duplex":146,"./internal/streams/destroy":152,"./internal/streams/stream":153,"_process":136,"core-util-is":68,"inherits":117,"process-nextick-args":135,"safe-buffer":159,"timers":64,"util-deprecate":177}],151:[function(_dereq_,module,exports){
+},{"./_stream_duplex":146,"./internal/streams/destroy":152,"./internal/streams/stream":153,"_process":136,"core-util-is":68,"inherits":117,"process-nextick-args":135,"safe-buffer":159,"timers":64,"util-deprecate":176}],151:[function(_dereq_,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -23681,253 +23783,6 @@ function triangleNormal(x0, y0, z0, x1, y1, z1, x2, y2, z2, output) {
 
 },{}],176:[function(_dereq_,module,exports){
 (function (global){
-/*! *****************************************************************************
-Copyright (c) Microsoft Corporation. All rights reserved.
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-this file except in compliance with the License. You may obtain a copy of the
-License at http://www.apache.org/licenses/LICENSE-2.0
-
-THIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED
-WARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,
-MERCHANTABLITY OR NON-INFRINGEMENT.
-
-See the Apache Version 2.0 License for specific language governing permissions
-and limitations under the License.
-***************************************************************************** */
-/* global global, define, System, Reflect, Promise */
-var __extends;
-var __assign;
-var __rest;
-var __decorate;
-var __param;
-var __metadata;
-var __awaiter;
-var __generator;
-var __exportStar;
-var __values;
-var __read;
-var __spread;
-var __await;
-var __asyncGenerator;
-var __asyncDelegator;
-var __asyncValues;
-var __makeTemplateObject;
-var __importStar;
-var __importDefault;
-(function (factory) {
-    var root = typeof global === "object" ? global : typeof self === "object" ? self : typeof this === "object" ? this : {};
-    if (typeof define === "function" && define.amd) {
-        define("tslib", ["exports"], function (exports) { factory(createExporter(root, createExporter(exports))); });
-    }
-    else if (typeof module === "object" && typeof module.exports === "object") {
-        factory(createExporter(root, createExporter(module.exports)));
-    }
-    else {
-        factory(createExporter(root));
-    }
-    function createExporter(exports, previous) {
-        if (exports !== root) {
-            if (typeof Object.create === "function") {
-                Object.defineProperty(exports, "__esModule", { value: true });
-            }
-            else {
-                exports.__esModule = true;
-            }
-        }
-        return function (id, v) { return exports[id] = previous ? previous(id, v) : v; };
-    }
-})
-(function (exporter) {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-
-    __extends = function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-
-    __assign = Object.assign || function (t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-
-    __rest = function (s, e) {
-        var t = {};
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-            t[p] = s[p];
-        if (s != null && typeof Object.getOwnPropertySymbols === "function")
-            for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-                t[p[i]] = s[p[i]];
-        return t;
-    };
-
-    __decorate = function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-
-    __param = function (paramIndex, decorator) {
-        return function (target, key) { decorator(target, key, paramIndex); }
-    };
-
-    __metadata = function (metadataKey, metadataValue) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
-    };
-
-    __awaiter = function (thisArg, _arguments, P, generator) {
-        return new (P || (P = Promise))(function (resolve, reject) {
-            function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-            function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-            function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-            step((generator = generator.apply(thisArg, _arguments || [])).next());
-        });
-    };
-
-    __generator = function (thisArg, body) {
-        var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-        return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-        function verb(n) { return function (v) { return step([n, v]); }; }
-        function step(op) {
-            if (f) throw new TypeError("Generator is already executing.");
-            while (_) try {
-                if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-                if (y = 0, t) op = [op[0] & 2, t.value];
-                switch (op[0]) {
-                    case 0: case 1: t = op; break;
-                    case 4: _.label++; return { value: op[1], done: false };
-                    case 5: _.label++; y = op[1]; op = [0]; continue;
-                    case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                    default:
-                        if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                        if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                        if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                        if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                        if (t[2]) _.ops.pop();
-                        _.trys.pop(); continue;
-                }
-                op = body.call(thisArg, _);
-            } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-            if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-        }
-    };
-
-    __exportStar = function (m, exports) {
-        for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
-    };
-
-    __values = function (o) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator], i = 0;
-        if (m) return m.call(o);
-        return {
-            next: function () {
-                if (o && i >= o.length) o = void 0;
-                return { value: o && o[i++], done: !o };
-            }
-        };
-    };
-
-    __read = function (o, n) {
-        var m = typeof Symbol === "function" && o[Symbol.iterator];
-        if (!m) return o;
-        var i = m.call(o), r, ar = [], e;
-        try {
-            while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
-        }
-        catch (error) { e = { error: error }; }
-        finally {
-            try {
-                if (r && !r.done && (m = i["return"])) m.call(i);
-            }
-            finally { if (e) throw e.error; }
-        }
-        return ar;
-    };
-
-    __spread = function () {
-        for (var ar = [], i = 0; i < arguments.length; i++)
-            ar = ar.concat(__read(arguments[i]));
-        return ar;
-    };
-
-    __await = function (v) {
-        return this instanceof __await ? (this.v = v, this) : new __await(v);
-    };
-
-    __asyncGenerator = function (thisArg, _arguments, generator) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var g = generator.apply(thisArg, _arguments || []), i, q = [];
-        return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i;
-        function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }
-        function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }
-        function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);  }
-        function fulfill(value) { resume("next", value); }
-        function reject(value) { resume("throw", value); }
-        function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }
-    };
-
-    __asyncDelegator = function (o) {
-        var i, p;
-        return i = {}, verb("next"), verb("throw", function (e) { throw e; }), verb("return"), i[Symbol.iterator] = function () { return this; }, i;
-        function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === "return" } : f ? f(v) : v; } : f; }
-    };
-
-    __asyncValues = function (o) {
-        if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-        var m = o[Symbol.asyncIterator], i;
-        return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-        function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-        function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
-    };
-
-    __makeTemplateObject = function (cooked, raw) {
-        if (Object.defineProperty) { Object.defineProperty(cooked, "raw", { value: raw }); } else { cooked.raw = raw; }
-        return cooked;
-    };
-
-    __importStar = function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-        result["default"] = mod;
-        return result;
-    };
-
-    __importDefault = function (mod) {
-        return (mod && mod.__esModule) ? mod : { "default": mod };
-    };
-
-    exporter("__extends", __extends);
-    exporter("__assign", __assign);
-    exporter("__rest", __rest);
-    exporter("__decorate", __decorate);
-    exporter("__param", __param);
-    exporter("__metadata", __metadata);
-    exporter("__awaiter", __awaiter);
-    exporter("__generator", __generator);
-    exporter("__exportStar", __exportStar);
-    exporter("__values", __values);
-    exporter("__read", __read);
-    exporter("__spread", __spread);
-    exporter("__await", __await);
-    exporter("__asyncGenerator", __asyncGenerator);
-    exporter("__asyncDelegator", __asyncDelegator);
-    exporter("__asyncValues", __asyncValues);
-    exporter("__makeTemplateObject", __makeTemplateObject);
-    exporter("__importStar", __importStar);
-    exporter("__importDefault", __importDefault);
-});
-
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],177:[function(_dereq_,module,exports){
-(function (global){
 
 /**
  * Module exports.
@@ -23997,7 +23852,7 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],178:[function(_dereq_,module,exports){
+},{}],177:[function(_dereq_,module,exports){
 (function (process,Buffer,__dirname){
 
 var Module = (function() {

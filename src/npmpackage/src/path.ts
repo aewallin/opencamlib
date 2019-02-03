@@ -3,8 +3,8 @@ import Span from './span'
 class Path {
     protected segments: Span[] = []
 
-    append(line: Span) {
-        this.segments.push(line)
+    append(segment: Span) {
+        this.segments.push(segment)
     }
 
     serialize() {

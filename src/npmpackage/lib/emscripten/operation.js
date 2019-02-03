@@ -1,7 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var ocl_1 = tslib_1.__importDefault(require("./ocl"));
+var ocl_1 = __importDefault(require("./ocl"));
 var Operation = /** @class */ (function () {
     function Operation() {
         this.chain = new Promise(function (resolve) {
@@ -42,6 +44,27 @@ var Operation = /** @class */ (function () {
         this.chain = this.chain.then(function () {
             _this.actualClass.setSampling(sampling);
         });
+    };
+    Operation.prototype.loopsToArray = function (loops) {
+        var result = [];
+        for (var i = 0; i < loops.size(); i++) {
+            var loop = loops.get(i);
+            var points = [];
+            for (var j = 0; j < loop.size(); j++) {
+                var point = loop.get(j);
+                points.push([point.x, point.y, point.z]);
+            }
+            result.push(points);
+        }
+        return result;
+    };
+    Operation.prototype.pointsToArray = function (points) {
+        var result = [];
+        for (var j = 0; j < points.size(); j++) {
+            var point = points.get(j);
+            result.push([point.x, point.y, point.z]);
+        }
+        return result;
     };
     return Operation;
 }());

@@ -7,5 +7,7 @@ declare class Operation {
     setSTL(surface: STLSurf): void;
     setCutter(cutter: MillingCutter): void;
     setSampling(sampling: number): void;
+    loopsToArray(loops: any): any;
+    pointsToArray(points: any): any;
 }
 export default Operation;

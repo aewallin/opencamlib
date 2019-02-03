@@ -15,20 +15,6 @@ class EmscriptenWaterline extends Operation {
         })
     }
 
-    loopsToArray(loops: any): any {
-        const result = []
-        for (var i = 0; i < loops.size(); i++) {
-            const loop = loops.get(i)
-            const points = []
-            for (var j = 0; j < loop.size(); j++) {
-                const point = loop.get(j)
-                points.push([point.x, point.y, point.z] as [number, number, number])
-            }
-            result.push(points)
-        }
-        return result
-    }
-
     run() {
         return new Promise(resolve => {
             this.chain.then(() => {

@@ -46,6 +46,30 @@ class Operation {
             this.actualClass.setSampling(sampling)
         })
     }
+
+    loopsToArray(loops: any): any {
+        const result = []
+        for (var i = 0; i < loops.size(); i++) {
+            const loop = loops.get(i)
+            const points = []
+            for (var j = 0; j < loop.size(); j++) {
+                const point = loop.get(j)
+                points.push([point.x, point.y, point.z] as [number, number, number])
+            }
+            result.push(points)
+        }
+        return result
+    }
+
+    pointsToArray(points: any): any {
+        const result = []
+        for (var j = 0; j < points.size(); j++) {
+            const point = points.get(j)
+            result.push([point.x, point.y, point.z] as [number, number, number])
+        }
+        return result
+    }
+
 }
 
 export default Operation

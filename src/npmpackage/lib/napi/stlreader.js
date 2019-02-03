@@ -1,7 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var stl_1 = tslib_1.__importDefault(require("stl"));
+var stl_1 = __importDefault(require("stl"));
 var STLReader = /** @class */ (function () {
     function STLReader(contents, surface) {
         var obj = stl_1.default.toObject(contents);

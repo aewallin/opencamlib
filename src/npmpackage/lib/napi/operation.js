@@ -1,11 +1,13 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-var tslib_1 = require("tslib");
-var ocl_1 = tslib_1.__importDefault(require("./ocl"));
-var cylcutter_1 = tslib_1.__importDefault(require("../cylcutter"));
-var ballcutter_1 = tslib_1.__importDefault(require("../ballcutter"));
-var bullcutter_1 = tslib_1.__importDefault(require("../bullcutter"));
-var conecutter_1 = tslib_1.__importDefault(require("../conecutter"));
+var ocl_1 = __importDefault(require("./ocl"));
+var cylcutter_1 = __importDefault(require("../cylcutter"));
+var ballcutter_1 = __importDefault(require("../ballcutter"));
+var bullcutter_1 = __importDefault(require("../bullcutter"));
+var conecutter_1 = __importDefault(require("../conecutter"));
 var Operation = /** @class */ (function () {
     function Operation() {
     }
