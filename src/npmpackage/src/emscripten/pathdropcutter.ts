@@ -28,7 +28,7 @@ class EmscriptenPathDropCutter extends Operation {
     run() {
         return this.chain.then(() => {
             this.actualClass.run()
-            return Promise.resolve(this.pointsToArray(this.actualClass.getCLPoints()))
+            return Promise.resolve(this.pointsToArray(this.actualClass.getPoints()))
         })
     }
 }

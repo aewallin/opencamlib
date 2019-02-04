@@ -46,7 +46,7 @@ var EmscriptenPathDropCutter = /** @class */ (function (_super) {
         var _this = this;
         return this.chain.then(function () {
             _this.actualClass.run();
-            return Promise.resolve(_this.pointsToArray(_this.actualClass.getCLPoints()));
+            return Promise.resolve(_this.pointsToArray(_this.actualClass.getPoints()));
         });
     };
     return EmscriptenPathDropCutter;
