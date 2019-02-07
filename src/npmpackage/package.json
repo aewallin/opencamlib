@@ -1,6 +1,6 @@
 {
   "name": "opencamlibjs",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "opencamlib for the web compiled with emscripten",
   "main": "./lib/napi/index.js",
   "browser": "./browser.js",

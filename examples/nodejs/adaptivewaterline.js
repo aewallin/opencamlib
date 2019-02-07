@@ -1,4 +1,5 @@
-const ocl = require('../..')
+const ocl = require('../../src/npmpackage')
+const fs = require('fs')
 const {
     STLSurf,
     STLReader,
@@ -7,17 +8,20 @@ const {
 } = ocl
 
 const surface = new STLSurf()
-new STLReader(__dirname + '/../../stl/gnu_tux_mod.stl', surface)
-const cutter = new CylCutter(4, 20)
-const awl = new AdaptiveWaterline()
-awl.setSTL(surface)
-awl.setCutter(cutter)
-awl.setSampling(0.1)
-awl.setMinSampling(0.001)
-awl.setZ(1)
-awl.run()
-awl.getLoops().forEach(function (loop) {
-    loop.forEach(function (point) {
-        console.log('G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2])
+new STLReader(fs.readFileSync(__dirname + '/../../stl/gnu_tux_mod.stl', 'utf8'), surface)
+const cutter = new CylCutter(1, 20)
+for (var z = 0; z < 3; z++) {
+    const awl = new AdaptiveWaterline()
+    awl.setSTL(surface)
+    awl.setCutter(cutter)
+    awl.setSampling(0.1)
+    awl.setMinSampling(0.01)
+    awl.setZ(z)
+    awl.run().then(loops => {
+        loops.forEach(points => {
+            points.forEach(function (point) {
+                console.log('G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2])
+            })
+        })
     })
-})
+}
