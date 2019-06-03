@@ -10,13 +10,6 @@ include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
 include_directories(${CMAKE_JS_INC})
 
-# this branches into the dirs and compiles stuff there
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
-
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )

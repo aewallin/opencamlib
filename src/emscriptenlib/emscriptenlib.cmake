@@ -8,13 +8,6 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --bind -s MODULARIZE=1 -s SINGLE_FILE=1 
 find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 
-# this branches into the dirs and compiles stuff there
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
-
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
