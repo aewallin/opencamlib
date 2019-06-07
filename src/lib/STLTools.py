@@ -84,7 +84,7 @@ class reader:
                 fl.read(2) # padding
                 nfacets += 1
             
-            except struct.error, e:
+            except struct.error as e:
                 break
         
         if self.nfacets != nfacets:
