@@ -34,6 +34,10 @@ to clone, build and install install the ocl.so library and camvtk.py run the fol
  $ cd opencamlib
  $ mkdir build
  $ cd build
+ $ sudo apt install cmake
+ $ sudo apt install libboost-program-options-dev
+ $ sudo apt install doxygen
+ $ sudo apt install texlive-full
  $ cmake ../src
  $ make        (try make -j4 for a faster build if you have a multi-core machine)
  $ sudo make install
