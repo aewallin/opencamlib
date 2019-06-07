@@ -241,6 +241,13 @@ set( OCL_INCLUDE_FILES
   ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
   )
 
+# this branches into the dirs and compiles stuff there
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
+add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
+  
 if (BUILD_NODEJS_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/nodejslib/nodejslib.cmake)
 endif (BUILD_NODEJS_LIB)
