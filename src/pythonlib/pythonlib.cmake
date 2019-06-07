@@ -124,7 +124,10 @@ target_link_libraries(
 message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
 
 # this makes the lib name ocl.so and not libocl.so
-set_target_properties(ocl PROPERTIES PREFIX "") 
+set_target_properties(ocl PROPERTIES PREFIX "")
+if (WIN32)
+  set_target_properties(ocl PROPERTIES SUFFIX ".pyd")
+endif (WIN32)
 # if (WIN32)
 # set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION})
 # endif (WIN32)
