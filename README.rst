@@ -1,3 +1,5 @@
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faewallin%2Fopencamlib.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Faewallin%2Fopencamlib?ref=badge_shield)
+
 .. image:: https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg
     :target: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
     
@@ -121,3 +123,6 @@ Then simply open up a VNC socket connection. With Mac, you can just open Finder,
 Type in "vnc://localhost:5900" as the server address, and type "TestVNC" as the password. 
 
 Right click on the desktop terminal that shows up and you can open up a terminal inside there. This is a easy and quick way to get started with opencamlib, while still maintaining all the functionality
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Faewallin%2Fopencamlib.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Faewallin%2Fopencamlib?ref=badge_large)
