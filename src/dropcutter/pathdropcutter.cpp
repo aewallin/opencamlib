@@ -41,6 +41,7 @@ PathDropCutter::PathDropCutter() {
 }
 
 PathDropCutter::~PathDropCutter() {
+    delete subOp[0];
     subOp.clear();
 }
 

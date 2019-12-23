@@ -64,6 +64,8 @@ AdaptiveWaterline::AdaptiveWaterline() {
 
 AdaptiveWaterline::~AdaptiveWaterline() {
     std::cout << "~AdaptiveWaterline(): subOp.size()= " << subOp.size() <<"\n";
+    delete subOp[1];
+    delete subOp[0];
     subOp.clear();
 }
 

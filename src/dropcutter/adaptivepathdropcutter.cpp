@@ -46,6 +46,7 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
 
 AdaptivePathDropCutter::~AdaptivePathDropCutter() {
     // std::cout << " ~AdaptivePathDropCutter() " << std::endl;
+    delete subOp[0];
     subOp.clear();
 }
 

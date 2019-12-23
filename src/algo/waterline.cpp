@@ -56,6 +56,8 @@ Waterline::Waterline() {
 
 Waterline::~Waterline() {
     // std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
+    delete subOp[1];
+    delete subOp[0];
     subOp.clear();
 }
 
