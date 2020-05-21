@@ -1,20 +1,20 @@
 /*  $Id$
- * 
+ *
  *  Copyright (c) 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com).
- *  
- *  This file is part of OpenCAMlib 
+ *
+ *  This file is part of OpenCAMlib
  *  (see https://github.com/aewallin/opencamlib).
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 2.1 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
@@ -60,7 +60,7 @@ double CompositeCutter::height(double r) const {
     return cutter[idx]->height(r) + zoffset[idx];
 }
 
-// return the width of the cutter at height h. 
+// return the width of the cutter at height h.
 double CompositeCutter::width(double h) const {
     unsigned int idx = height_to_index(h);
     // std::cout << "CompositeCutter::width( " << h << " ) idx=" << idx << " zoffset= " << zoffset[idx] << "\n";
@@ -91,7 +91,7 @@ unsigned int CompositeCutter::radius_to_index(double r) const {
 }
 
 bool CompositeCutter::ccValidRadius(unsigned int n, CLPoint& cl) const {
-    if (cl.cc->type == NONE)
+    if (cl.cc.load()->type == NONE)
         return false;
     double d = cl.xyDistance(*cl.cc);
     double lolimit;
@@ -208,7 +208,7 @@ bool CompositeCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t)
                 contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
         }
     }
-    
+
     for( unsigned int n=0; n<contacts.size(); ++n ) {
         i.update( contacts[n].first, contacts[n].second );
         result = true;
@@ -235,7 +235,7 @@ bool CompositeCutter::facetPush(const Fiber& f, Interval& i, const Triangle& t) 
                 contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
         }
     }
-    
+
     for( unsigned int n=0; n<contacts.size(); ++n ) {
         i.update( contacts[n].first, contacts[n].second );
         result = true;
@@ -260,12 +260,12 @@ bool CompositeCutter::edgePush(const Fiber& f, Interval& i, const Triangle& t) c
                 contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
         }
     }
-    
+
     for( unsigned int n=0; n<contacts.size(); ++n ) {
         i.update( contacts[n].first, contacts[n].second );
         result = true;
     }
-    
+
     return result;
 }
 
@@ -291,20 +291,20 @@ std::string CompositeCutter::str() const {
 
 //********   actual Composite-cutters  ******************************* */
 
-   
+
 //  only constructors required, drop-cutter and push-cutter calls handled by base-class
 
 // TESTING
 CompCylCutter::CompCylCutter(double diam2, double clength) {
-    MillingCutter* shaft = new CylCutter(diam2, clength ); 
-    addCutter( *shaft, diam2/2.0, clength , 0.0 );    
+    MillingCutter* shaft = new CylCutter(diam2, clength );
+    addCutter( *shaft, diam2/2.0, clength , 0.0 );
     length = clength;
 }
 
 // TESTING
 CompBallCutter::CompBallCutter(double diam2, double clength) {
-    MillingCutter* shaft = new BallCutter(diam2, clength ); 
-    addCutter( *shaft, diam2/2.0, clength , 0.0 );    
+    MillingCutter* shaft = new BallCutter(diam2, clength );
+    addCutter( *shaft, diam2/2.0, clength , 0.0 );
     length = clength;
 }
 
@@ -313,11 +313,11 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
     MillingCutter* cyl = new CylCutter(diam1, 1 );
     MillingCutter* cone = new ConeCutter(diam2, angle);
     MillingCutter* shaft = new CylCutter(diam2, 20 ); // FIXME: dummy height
-    
+
     double cone_offset= - (diam1/2)/tan(angle);
     double cyl_height = 0.0;
     double cone_height = (diam2/2.0)/tan(angle) + cone_offset;
-    
+
     addCutter( *cyl, diam1/2.0, cyl_height, 0.0 );
     addCutter( *cone, diam2/2.0, cone_height, cone_offset );
     addCutter( *shaft, diam2/2.0, (diam2/2.0)/tan(angle) + 20 , cone_height );
@@ -326,10 +326,10 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
 
 
 BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
-    MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero 
+    MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     MillingCutter* shaft = new CylCutter(diam2, 20); // FIXME: length
-    
+
     double radius1 = diam1/2.0;
     double radius2 = diam2/2.0;
     double rcontact = radius1*cos(angle);
@@ -337,7 +337,7 @@ BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
     double cone_offset = - ( (rcontact)/tan(angle) - height1 );
     double height2 = radius2/tan(angle) + cone_offset;
     double shaft_offset = height2;
-    
+
     // cutter, radivec, heightvec, zoffset
     addCutter( *c1, rcontact, height1, 0.0 );
     addCutter( *c2, diam2/2.0, height2, cone_offset );
@@ -346,10 +346,10 @@ BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
 }
 
 BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, double angle) {
-    MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero 
+    MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle);
     MillingCutter* shaft = new CylCutter(diam2, 20);
-    
+
     double h1 = radius1*sin(angle); // the contact point is this much down from the toroid-ring
     double rad = sqrt( square(radius1) - square(h1) );
     double rcontact = (diam1/2.0) - radius1 + rad; // radius of the contact-ring
@@ -357,7 +357,7 @@ BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, doubl
     double height1 = radius1 - h1;
     double height2 = (diam2/2.0)/tan(angle) + cone_offset;
     double shaft_offset = height2;
-    
+
     addCutter( *c1, rcontact, height1, 0.0 );
     addCutter( *c2, diam2/2.0, height2, cone_offset );
     addCutter( *shaft, diam2/2.0, height2+20, shaft_offset );
@@ -369,13 +369,13 @@ ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double
     MillingCutter* c1 = new ConeCutter(diam1, angle1); // at offset zero
     MillingCutter* c2 = new ConeCutter(diam2, angle2);
     MillingCutter* shaft = new CylCutter(diam2, 20);
-    
-    double height1 = (diam1/2.0)/tan(angle1); 
+
+    double height1 = (diam1/2.0)/tan(angle1);
     double tmp = (diam1/2.0)/tan(angle2);
     double cone_offset= - ( tmp-height1);
     double height2 = (diam2/2.0)/tan(angle2) + cone_offset;
     double shaft_offset = height2;
-    
+
     addCutter( *c1, diam1/2.0, height1, 0.0 );
     addCutter( *c2, diam2/2.0, height2, cone_offset );
     addCutter( *shaft, diam2/2.0, height2+20, shaft_offset );
