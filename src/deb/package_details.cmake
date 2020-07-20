@@ -2,14 +2,14 @@
 message(STATUS " called with SRC_DIR is = " ${SRC_DIR})
 message(STATUS " called with version  = " ${MY_VERSION})
 
-set(CPACK_GENERATOR "DEB" CACHE string "generator" )
+set(CPACK_GENERATOR "DEB" CACHE STRING "generator" )
 set(CPACK_PACKAGE_CONTACT "Anders Wallin <anders.e.e.wallin@gmail.com>" CACHE STRING "email")
 set(CPACK_PACKAGE_NAME "opencamlib" CACHE STRING "name")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Computer aided manufacturing algorithms" CACHE STRING "descr")
 set(CPACK_PACKAGE_VENDOR https://github.com/aewallin/opencamlib CACHE STRING "web")
 set(CPACK_DEBIAN_PACKAGE_SECTION "science" CACHE STRING "sect")
 
-set(DEBSRC_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRINGS "build-dep")
+set(DEBSRC_BUILD_DEPENDS debhelper python git cmake libboost-dev libboost-python-dev libgomp1 CACHE STRING "build-dep")
 
 # we need to explicitly list the libboost-python versions here. why??
 # precise has 1.48.0
