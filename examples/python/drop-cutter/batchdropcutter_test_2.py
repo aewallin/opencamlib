@@ -9,6 +9,8 @@ import math
 if __name__ == "__main__":  
     print(ocl.version())
     myscreen = camvtk.VTKScreen()
+    
+    # read STL file from disk
     stl = camvtk.STLSurf("../../../stl/gnu_tux_mod.stl")
     #stl = camvtk.STLSurf("../stl/beet_mm.stl")
     #stl = camvtk.STLSurf("../stl/Blade.stl")
@@ -20,6 +22,8 @@ if __name__ == "__main__":
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print("STL surface read ", s.size(), " triangles")
+    
+    # Define a cutter
     length=5
     cutter = ocl.BallCutter(1.4321, length)
     #cutter = ocl.CylCutter(1.123, length)
@@ -27,12 +31,9 @@ if __name__ == "__main__":
     #cutter = ocl.ConeCutter(0.43, math.pi/7, length)
     print(cutter)
     
-    minx=0
-    dx=0.06
-    maxx=9
-    miny=0
-    dy=1
-    maxy=12
+    # a grid of XY points where we run drop-cutter
+    minx, dx, maxx = 0, 0.006, 9
+    miny, dy, maxy = 0, 0.1, 12
     z=-5
     clpoints = pyocl.CLPointGrid(minx,dx,maxx,miny,dy,maxy,z)
     print("generated grid with", len(clpoints)," CL-points")
@@ -46,13 +47,14 @@ if __name__ == "__main__":
         bdc1.appendPoint(p)
         
     t_before = time.time()    
-    bdc1.run()
+    bdc1.run() # the actual drop-cutter run
     t_after = time.time()
     calctime = t_after-t_before
-    print(" done in ", calctime," s"    )
+    print(" done in %f s" % calctime    )
+    print(" time/point %g s" % (calctime/len(clpoints))   )
     
     clpts = bdc1.getCLPoints()
-    print("rendering...",)
+    print("rendering...")
     camvtk.drawCLPointCloud(myscreen, clpts)
     print("done")
        
