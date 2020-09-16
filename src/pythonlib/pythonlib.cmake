@@ -132,6 +132,18 @@ endif (WIN32)
 # set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION})
 # endif (WIN32)
 
+if (APPLE AND NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+install(
+  TARGETS ocl
+  LIBRARY DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
+)
+# these are the python helper lib-files such as camvtk.py
+install(
+  DIRECTORY lib/
+  DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
+  #    PATTERN .svn EXCLUDE
+)
+else()
 install(
   TARGETS ocl
   LIBRARY DESTINATION ${PYTHON_ARCH_PACKAGES}
@@ -142,3 +154,4 @@ install(
   DESTINATION ${PYTHON_SITE_PACKAGES}
   #    PATTERN .svn EXCLUDE
 )
+endif()
