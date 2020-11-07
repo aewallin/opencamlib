@@ -1340,7 +1340,7 @@ function derDecodeLen(buf, primitive, fail) {
   // Long form
   var num = len & 0x7f;
   if (num > 4)
-    return buf.error('length octect is too long');
+    return buf.error('length octet is too long');
 
   len = 0;
   for (var i = 0; i < num; i++) {
@@ -1492,7 +1492,7 @@ DERNode.prototype._encodeStr = function encodeStr(str, tag) {
     if (!this._isPrintstr(str)) {
       return this.reporter.error('Encoding of string type: printstr supports ' +
                                  'only latin upper and lower case letters, ' +
-                                 'digits, space, apostrophe, left and rigth ' +
+                                 'digits, space, apostrophe, left and right ' +
                                  'parenthesis, plus sign, comma, hyphen, ' +
                                  'dot, slash, colon, equal sign, ' +
                                  'question mark');
@@ -5389,7 +5389,7 @@ if (typeof self === 'object') {
 },{"crypto":19}],19:[function(require,module,exports){
 
 },{}],20:[function(require,module,exports){
-// based on the aes implimentation in triple sec
+// based on the aes implementation in triple sec
 // https://github.com/keybase/triplesec
 // which is in turn based on the one from crypto-js
 // https://code.google.com/p/crypto-js/
@@ -7434,7 +7434,7 @@ function alloc (size, fill, encoding) {
   if (fill !== undefined) {
     // Only pay attention to encoding if it's a string. This
     // prevents accidentally sending in a number that would
-    // be interpretted as a start offset.
+    // be interpreted as a start offset.
     return typeof encoding === 'string'
       ? createBuffer(size).fill(fill, encoding)
       : createBuffer(size).fill(fill)
@@ -7726,7 +7726,7 @@ function slowToString (encoding, start, end) {
     return ''
   }
 
-  // Force coersion to uint32. This will also coerce falsey/NaN values to 0.
+  // Force coercion to uint32. This will also coerce falsey/NaN values to 0.
   end >>>= 0
   start >>>= 0
 
@@ -13010,7 +13010,7 @@ EC.prototype.recoverPubKey = function(msg, signature, j, enc) {
   var isYOdd = j & 1;
   var isSecondKey = j >> 1;
   if (r.cmp(this.curve.p.umod(this.curve.n)) >= 0 && isSecondKey)
-    throw new Error('Unable to find sencond key candinate');
+    throw new Error('Unable to find second key candidate');
 
   // 1.1. Let x = r + jn.
   if (isSecondKey)
@@ -18112,7 +18112,7 @@ function defaultClearTimeout () {
 } ())
 function runTimeout(fun) {
     if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
+        //normal environments in sane situations
         return setTimeout(fun, 0);
     }
     // if setTimeout wasn't available but was latter defined
@@ -18121,14 +18121,14 @@ function runTimeout(fun) {
         return setTimeout(fun, 0);
     }
     try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
+        // when when somebody has screwed with setTimeout but no I.E. madness
         return cachedSetTimeout(fun, 0);
     } catch(e){
         try {
             // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
             return cachedSetTimeout.call(null, fun, 0);
         } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopefully our context correct otherwise it will throw a global error
             return cachedSetTimeout.call(this, fun, 0);
         }
     }
@@ -18137,23 +18137,23 @@ function runTimeout(fun) {
 }
 function runClearTimeout(marker) {
     if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
+        //normal environments in sane situations
         return clearTimeout(marker);
     }
-    // if clearTimeout wasn't available but was latter defined
+    // if clearTimeout wasn't available but was later defined
     if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
         cachedClearTimeout = clearTimeout;
         return clearTimeout(marker);
     }
     try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
+        // when when somebody has screwed with setTimeout but no I.E. madness
         return cachedClearTimeout(marker);
     } catch (e){
         try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
             return cachedClearTimeout.call(null, marker);
         } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopefully our context correct otherwise it will throw a global error.
             // Some versions of I.E. have different rules for clearTimeout vs setTimeout
             return cachedClearTimeout.call(this, marker);
         }
@@ -18219,7 +18219,7 @@ process.nextTick = function (fun) {
     }
 };
 
-// v8 likes predictible objects
+// v8 likes predictable objects
 function Item(fun, array) {
     this.fun = fun;
     this.array = array;
@@ -21996,7 +21996,7 @@ module.exports = Sha512
 
 // reduce is more tricky
 // maybe we want to group the reductions or emit progress updates occasionally
-// the most basic reduce just emits one 'data' event after it has recieved 'end'
+// the most basic reduce just emits one 'data' event after it has received 'end'
 
 
 var through = require('through')

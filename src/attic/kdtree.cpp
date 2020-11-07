@@ -59,7 +59,7 @@ KDNode::KDNode(int d, double cv, KDNode *parent, KDNode *hi_c, KDNode *lo_c,
 /// given a list of triangles, build and return the root node of a kd-tree with the triangles
 KDNode* KDNode::build_kdtree(const std::list<Triangle> *tris, 
                              unsigned int bucketSize,   // defaults to 1
-                             int level,                 // defualts to 0 == root
+                             int level,                 // defaults to 0 == root
                              KDNode *parent)            // defaults to NULL    
 {
     

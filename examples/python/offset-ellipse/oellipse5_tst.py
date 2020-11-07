@@ -187,7 +187,7 @@ def main(ycoord=1.2, filename="test", theta=60, fi=45):
     
     print("solver done. back to python:")
     print("1st (s,t) solution=", oe.epos1)
-    print("2st (s,t) solution=", oe.epos2)
+    print("2nd (s,t) solution=", oe.epos2)
     
     elc1 = calcEcenter(oe,a,b, cl,1)
     elc2 = calcEcenter(oe,a,b, cl,2)

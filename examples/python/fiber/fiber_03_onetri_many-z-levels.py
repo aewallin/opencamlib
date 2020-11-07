@@ -96,7 +96,7 @@ if __name__ == "__main__":
     #cutter = cutter.offsetCutter( 0.1 )
     
     print("cutter= ", cutter)
-    print("lengt=", cutter.getLength())
+    print("length=", cutter.getLength())
     print("fiber...",)
     fiber_range=2
     Nmax = 100
