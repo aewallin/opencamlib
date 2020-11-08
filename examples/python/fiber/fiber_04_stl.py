@@ -85,7 +85,7 @@ if __name__ == "__main__":
     print("STL surface read,", s.size(), "triangles")
     
     cutter = ocl.CylCutter(0.3, 6)
-    print("lengt=", cutter.getLength())
+    print("length=", cutter.getLength())
     print("fiber...",)
     fiber_range=30
     Nmax = 200

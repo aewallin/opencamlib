@@ -45,7 +45,7 @@ struct vertex_output_visitor : public boost::planar_face_traversal_visitor
         current_loop.clear();
     } 
     
-    /// called when we encouter a new vertex. if it is of CL-type we push it into the loop
+    /// called when we encounter a new vertex. if it is of CL-type we push it into the loop
     void next_vertex(WeaveVertex v) {
         if ( g_[v].type == CL ) { // could instead check for vertex degree?
             current_loop.push_back(v);
