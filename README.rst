@@ -20,6 +20,11 @@ OpenCAMLib (ocl) is a c++ library with python bindings for creating 3D toolpaths
 such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL license.
 
 - repository https://github.com/aewallin/opencamlib
+- PPAs
+ - https://launchpad.net/~iacobs/+archive/ubuntu/cnc/ 
+ - https://launchpad.net/~neomilium/+archive/ubuntu/cam
+ - https://launchpad.net/~freecad-community/+archive/ubuntu/ppa 
+ - (updated 2012) https://launchpad.net/~anders-e-e-wallin/+archive/ubuntu/cam
 - mailing-list http://groups.google.com/group/opencamlib
 - IRC-channel #cam on irc.freenode.net
 - coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
