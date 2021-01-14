@@ -20,7 +20,7 @@
 */
 
 #include <boost/foreach.hpp>
-#include <boost/progress.hpp>
+// #include <boost/progress.hpp>
 
 #ifdef _OPENMP  
     #include <omp.h>

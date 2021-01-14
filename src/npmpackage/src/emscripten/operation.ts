@@ -4,7 +4,7 @@ import ocl from './ocl'
 
 class Operation {
     protected actualClass: any
-    protected chain: Promise<any>
+    protected chain: Promise<void>
 
     constructor() {
         this.chain = new Promise((resolve) => {

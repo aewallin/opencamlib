@@ -1,14 +1,29 @@
-#!/bin/bash
+# #!/bin/bash
 
-source ~/Projects/emsdk/emsdk_env.sh
-rm -rf ../../buildemscripten || true
-mkdir ../../buildemscripten
-cd ../../buildemscripten
-emcmake cmake .. \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_CXX_LIB="OFF" \
-    -DBUILD_EMSCRIPTEN_LIB="ON" \
-    -DUSE_OPENMP="OFF" \
-    -DBoost_INCLUDE_DIR="/usr/local/Cellar/boost/1.68.0/include"
+cd ../..
+
+source ../emsdk/emsdk_env.sh
+
+# rm -rf buildemscriptenlib || true
+mkdir buildemscriptenlib || true
+cd buildemscriptenlib
+
+if [ "$1" == "release" ]; then
+    emcmake cmake ../src \
+        -D CMAKE_BUILD_TYPE="Release" \
+        -D BUILD_CXX_LIB="OFF" \
+        -D BUILD_PY_LIB="OFF" \
+        -D BUILD_EMSCRIPTEN_LIB="ON" \
+        -D USE_OPENMP="OFF"
+else
+    emcmake cmake ../src \
+        -D CMAKE_BUILD_TYPE="Debug" \
+        -D BUILD_CXX_LIB="OFF" \
+        -D BUILD_PY_LIB="OFF" \
+        -D BUILD_EMSCRIPTEN_LIB="ON" \
+        -D USE_OPENMP="OFF"
+fi
+
 emmake make -j4
-cp src/opencamlib.* ../src/npmpackage/
+
+cp opencamlib.* ../src/npmpackage/

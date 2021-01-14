@@ -1,9 +1,9 @@
 import Operation from './operation';
-declare class EmscriptenAdaptiveWaterline extends Operation {
+declare class AdaptiveWaterline extends Operation {
     constructor();
     setMinSampling(minSampling: number): void;
     setZ(z: number): void;
     loopsToArray(loops: any): any;
-    run(): Promise<{}>;
+    run(): Promise<unknown>;
 }
-export default EmscriptenAdaptiveWaterline;
+export default AdaptiveWaterline;

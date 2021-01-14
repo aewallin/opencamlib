@@ -1,5 +1,6 @@
 # find boost so we can get it's version
-find_package(Boost)
+find_package(Boost REQUIRED)
+message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
 
 # debugging
 set(Boost_DEBUG ON)
@@ -118,6 +119,7 @@ target_link_libraries(
   ocl_geo
   ocl_algo
   ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 

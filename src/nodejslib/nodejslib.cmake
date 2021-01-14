@@ -5,9 +5,10 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
 	add_definitions(-g)
 endif()
 
-find_package(Boost)
+find_package(Boost REQUIRED)
+message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
+include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib/node_modules/node-addon-api)
 include_directories(${CMAKE_JS_INC})
 
 # include dirs
@@ -49,6 +50,7 @@ add_library(opencamlib
 target_link_libraries(
   opencamlib
   ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
   ${CMAKE_JS_LIB}
 )
 

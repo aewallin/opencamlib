@@ -1,21 +1,13 @@
 #!/bin/bash
 
 cd ../..
-# rm -rf build
 
-export CXX="/usr/local/opt/llvm/bin/clang++"
+mkdir -p src/npmpackage/build/{Debug,Release} || true
 
-# cmake-js \
-#     --out buildnodejsrelease \
-#     compile \
-#     --CDBUILD_NODEJS_LIB="ON" \
-#     --CDBUILD_CXX_LIB="OFF"
-# cp -r buildnodejsrelease/Release/* src/npmpackage/build/Release/ || true
-
-cmake-js \
-    --out buildnodejsdebug \
-    compile \
-    --debug \
-    --CDBUILD_NODEJS_LIB="ON" \
-    --CDBUILD_CXX_LIB="OFF"
-cp -r buildnodejsdebug/Debug/* src/npmpackage/build/Debug/ || true
+if [ "$1" = "release" ]; then
+    ./node_modules/.bin/cmake-js build --out buildnodejsrelease --CDBUILD_NODEJS_LIB="ON"
+    cp -r buildnodejsrelease/Release/* src/npmpackage/build/Release || true
+else
+    ./node_modules/.bin/cmake-js build --out buildnodejsdebug --CDBUILD_NODEJS_LIB="ON" --debug
+    cp -r buildnodejsdebug/Debug/* src/npmpackage/build/Debug || true
+fi

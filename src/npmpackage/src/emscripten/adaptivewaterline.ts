@@ -1,7 +1,7 @@
 import Operation from './operation';
 import ocl from './ocl'
 
-class EmscriptenAdaptiveWaterline extends Operation {
+class AdaptiveWaterline extends Operation {
     constructor() {
         super()
         this.chain = this.chain.then(() => {
@@ -45,4 +45,4 @@ class EmscriptenAdaptiveWaterline extends Operation {
     }
 }
 
-export default EmscriptenAdaptiveWaterline
+export default AdaptiveWaterline

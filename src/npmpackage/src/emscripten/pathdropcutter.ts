@@ -2,7 +2,7 @@ import Path from '../path'
 import Operation from './operation'
 import ocl from './ocl'
 
-class EmscriptenPathDropCutter extends Operation {
+class PathDropCutter extends Operation {
     constructor() {
         super()
         this.chain = this.chain.then(() => {
@@ -33,4 +33,4 @@ class EmscriptenPathDropCutter extends Operation {
     }
 }
 
-export default EmscriptenPathDropCutter
+export default PathDropCutter

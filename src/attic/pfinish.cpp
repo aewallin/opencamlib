@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <math.h>
-#include <boost/progress.hpp>
+// #include <boost/progress.hpp>
 
 #include "cutter.h"
 #include "point.h"
