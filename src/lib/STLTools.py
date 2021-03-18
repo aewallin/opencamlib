@@ -43,7 +43,7 @@ class reader:
             
     def IsAscii(self, fdata):
         l = fdata.readline(1024)
-        isascii = l[:5] == "solid" and (len(l) == 5 or (re.search("[^A-Za-z0-9\,\.\/\;\:\'\"\+\-\s\r\n]", l[6:]) == None)) # some files say 'solid' but are binary files, we try to find a non alphanumerical character in the rest to the first line
+        isascii = l[:5] == "solid" and (len(l) == 5 or (re.search("[^A-Za-z0-9\,\.\/\;\:\'\"\+\-\s\r\n]", l[6:]) is None)) # some files say 'solid' but are binary files, we try to find a non alphanumerical character in the rest to the first line
         fdata.seek(0)
         return isascii
 
@@ -74,7 +74,7 @@ class reader:
                 fl.read(12) # override normal
                 
                 xyz = struct.unpack("<9f", fl.read(36)) # little endian
-                if TriangleNormal(xyz[0], xyz[1], xyz[2], xyz[3], xyz[4], xyz[5], xyz[6], xyz[7], xyz[8]) == None:
+                if TriangleNormal(xyz[0], xyz[1], xyz[2], xyz[3], xyz[4], xyz[5], xyz[6], xyz[7], xyz[8]) is None:
                     self.ndegenerate = self.ndegenerate + 1
                 if (fs):
                     fs.PushTriangle(xyz[0], xyz[1], xyz[2], xyz[3], xyz[4], xyz[5], xyz[6], xyz[7], xyz[8])
@@ -154,7 +154,7 @@ class writer:
             z2 *= self.scale
         # calculate facet normal
         n = TriangleNormal(x0, y0, z0, x1, y1, z1, x2, y2, z2)
-        if n == None:
+        if n is None:
             if skip_degenerated: return
             n = (0.0, 0.0, 0.0)
             
