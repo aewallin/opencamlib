@@ -1,6 +1,3 @@
-find_package(Boost)
-include_directories(${Boost_INCLUDE_DIRS})
-
 # include dirs
 include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
 include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
@@ -18,8 +15,18 @@ add_library(
   ${OCL_DROPCUTTER_SRC}
   ${OCL_COMMON_SRC}
   )
-set_target_properties(libocl PROPERTIES PREFIX "") 
-set_target_properties(libocl PROPERTIES VERSION ${MY_VERSION}) 
+
+target_link_libraries(
+  libocl
+  ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
+)
+
+set_target_properties(libocl PROPERTIES
+  PREFIX ""
+  VERSION ${MY_VERSION}
+  )
+
 install(
   TARGETS libocl
   LIBRARY 

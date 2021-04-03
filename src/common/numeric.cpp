@@ -19,15 +19,11 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 #include <iostream>
-#include <cmath> // for fabs()
+#include <cmath> // for fabs() and isnan()
 #include <cassert>
 
 #include "numeric.hpp"
 #include "point.hpp"
-
-#ifdef _WIN32 // Windows platform problem: error C3861: 'isnan': identifier not found, use the Boost version instead
-#include <boost/math/special_functions/fpclassify.hpp> // isnan
-#endif
 
 namespace ocl {
 
@@ -39,11 +35,8 @@ double xyVectorToDiangle(double x, double y) {
         diangle = (x >= 0 ? y/(x+y) : 1-x/(-x+y));
     else
         diangle = (x < 0 ? 2-y/(-x-y) : 3+x/(x-y));
-#ifdef _WIN32
-	if ((boost::math::isnan)(diangle)) { // Use the Boost version 
-#else
-    if (std::isnan(diangle) ) { // Use the std version
-#endif
+
+    if (boost::math::isnan(diangle) ) {
         std::cout << "numeric::xyVectorToDiangle() error (x,y)= ("<< x << " , " << y  << " ) and diangle=" << diangle << "\n";
         assert(0);
     }

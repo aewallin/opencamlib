@@ -112,6 +112,75 @@ Ubuntu 10.04LTS-> install and build
 - in the /src directory, first run "cmake ." then "make" and then "sudo make install"
  - this should build and install ocl correctly.
 
+Emscripten
+----------
+
+
+$ cd src/emscriptenlib
+$ ./build.sh
+
+macOS
+-----
+
+Make sure you have XCode installed and that it is correctly set:
+
+$ sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer
+
+Install homebrew (https://brew.sh) and use it to install the dependencies:
+
+$ brew install boost boost-python3 doxygen libomp
+
+JavaScript
+----------
+
+opencamlib is compiled to wasm using emscripten.
+You can simply use the package from npm which works in the browser and in node.js
+
+$ npm install --save-dev opencamlib
+
+If you want to build it yourself, make sure to clone emscripten in the parent folder of the opencamlib project.
+
+$ git clone https://github.com/emscripten-core/emsdk.git
+$ cd emsdk
+$ ./emsdk install latest
+$ ./emsdk activate latest
+
+Now your can compile the emscripten.wasm and emscripten.js files using:
+
+$ cd src/emscriptenlib
+$ ./build.sh
+
+The opencamlib.wasm file will be copied to src/npmpackage
+
+To work on the npm package, run
+
+$ npm install
+$ npm start
+
+npm install
+
+        ./node_modules/.bin/cmake-js compile --arch=x64 \
+          -D USE_VERSION_AND_PLATFORM_SUFFIX="ON" \
+          -D BUILD_CXX_LIB="$BUILD_CXX_LIB" \
+          -D BUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+          -D BUILD_PY_LIB="$BUILD_PY_LIB" \
+          -D USE_PY_3="$USE_PY_3" \
+          -D VERSION_STRING="$TRAVIS_BRANCH"
+
+        /usr/local/bin/cmake \
+          -D USE_VERSION_AND_PLATFORM_SUFFIX="ON" \
+          -D BUILD_CXX_LIB="$BUILD_CXX_LIB" \
+          -D BUILD_NODEJS_LIB="$BUILD_NODEJS_LIB" \
+          -D BUILD_PY_LIB="$BUILD_PY_LIB" \
+          -D USE_PY_3="$USE_PY_3" \
+          -D VERSION_STRING="$TRAVIS_BRANCH" \
+          ../src;
+
+      if [[ "$USE_PY_3" == "ON" ]]; then
+        otool -L /usr/local/Cellar/python/3.7.2_1/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages/ocl.so;
+      else
+        otool -L /usr/local/Cellar/python@2/2.7.15_1/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/ocl.so;
+      fi
 
 DOCKER BUILD
 -----------------------

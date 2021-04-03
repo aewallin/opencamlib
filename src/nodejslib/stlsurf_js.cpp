@@ -1,4 +1,5 @@
 #include "triangle.hpp"
+#include "triangle_js.hpp"
 #include "stlsurf.hpp"
 #include "stlsurf_js.hpp"
 
@@ -9,6 +10,7 @@ Napi::Object STLSurfJS::Init(Napi::Env env, Napi::Object exports)
     Napi::HandleScope scope(env);
 
     Napi::Function func = DefineClass(env, "STLSurf", {
+        InstanceMethod("addTriangle", &STLSurfJS::addTriangle),
         InstanceMethod("getTriangles", &STLSurfJS::getTriangles)
     });
     constructor = Napi::Persistent(func);
@@ -28,6 +30,19 @@ STLSurfJS::STLSurfJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<STLSurfJ
 ocl::STLSurf* STLSurfJS::GetInternalInstance()
 {
     return &actualClass_;
+}
+
+void STLSurfJS::addTriangle(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+    if (info.Length() != 1)
+    {
+        Napi::TypeError::New(env, "Argument expected").ThrowAsJavaScriptException();
+    }
+    TriangleJS *tjs = Napi::ObjectWrap<TriangleJS>::Unwrap(info[0].As<Napi::Object>());
+    ocl::Triangle *oclt = tjs->GetInternalInstance();
+    actualClass_.addTriangle(*oclt);
 }
 
 Napi::Value STLSurfJS::getTriangles(const Napi::CallbackInfo &info)

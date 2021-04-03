@@ -20,7 +20,7 @@
 */
 
 #include <boost/foreach.hpp>
-#include <boost/progress.hpp>
+// #include <boost/progress.hpp>
 
 #ifdef _OPENMP // this should really not be a check for Windows, but a check for OpenMP
     #include <omp.h>
@@ -109,7 +109,7 @@ void BatchDropCutter::dropCutter3() {
     std::cout << "dropCutterSTL3 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
     nCalls = 0;
-    boost::progress_display show_progress( clpoints->size() );
+    // boost::progress_display show_progress( clpoints->size() );
     std::list<Triangle> *triangles_under_cutter;
     BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
@@ -121,7 +121,7 @@ void BatchDropCutter::dropCutter3() {
                 }
             }
         }
-        ++show_progress;
+        // ++show_progress;
         delete triangles_under_cutter;
     }
     
@@ -133,7 +133,7 @@ void BatchDropCutter::dropCutter3() {
 void BatchDropCutter::dropCutter4() {
     std::cout << "dropCutterSTL4 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
-    boost::progress_display show_progress( clpoints->size() );
+    // boost::progress_display show_progress( clpoints->size() );
     nCalls = 0;
     int calls=0;
     long int ntris = 0;
@@ -185,7 +185,7 @@ void BatchDropCutter::dropCutter4() {
             }
             ntris += tris->size();
             delete( tris );
-            ++show_progress;
+            // ++show_progress;
         } // end OpenMP PARALLEL for
     nCalls = calls;
     std::cout << " " << nCalls << " dropCutter() calls.\n";
@@ -196,7 +196,7 @@ void BatchDropCutter::dropCutter4() {
 void BatchDropCutter::dropCutter5() {
     std::cout << "dropCutterSTL5 " << clpoints->size() << 
             " cl-points and " << surf->tris.size() << " triangles.\n";
-    boost::progress_display show_progress( clpoints->size() );
+    // boost::progress_display show_progress( clpoints->size() );
     nCalls = 0;
     int calls=0;
     long int ntris = 0;
@@ -238,7 +238,7 @@ void BatchDropCutter::dropCutter5() {
             }
             ntris += tris->size();
             delete( tris );
-            ++show_progress;
+            // ++show_progress;
         } // end OpenMP PARALLEL for
     nCalls = calls;
     std::cout << "\n " << nCalls << " dropCutter() calls.\n";

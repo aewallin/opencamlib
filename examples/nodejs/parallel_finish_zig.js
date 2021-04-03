@@ -1,4 +1,6 @@
-const ocl = require('../..')
+const fs = require('fs')
+const ocl = require('opencamlib')
+
 const {
     STLSurf,
     STLReader,
@@ -54,18 +56,14 @@ function adaptivePathDropCutter(surface, cutter, paths) {
     // the algorithm subdivides "steep" portions of the toolpath
     // until we reach this limit.
     apdc.setMinSampling(0.01)
-    let cl_paths = []
-    paths.forEach(function (path) {
+    return Promise.all(paths.map(function (path) {
         apdc.setPath(path)
-        apdc.run()
-        cl_points = apdc.getCLPoints()
-        cl_paths.push(cl_points)
-    })
-    return cl_paths
+        return apdc.run()
+    }))
 }
 
 const surface = new STLSurf()
-new STLReader(__dirname + '/../../stl/gnu_tux_mod.stl', surface)
+new STLReader(fs.readFileSync(__dirname + '/../../stl/gnu_tux_mod.stl'), surface)
 // choose a cutter for the operation:
 // http://www.anderswallin.net/2011/08/opencamlib-cutter-shapes/
 const diameter = 0.25
@@ -87,13 +85,18 @@ const Ny = 40 // number of lines in the y-direction
 
 const paths = YdirectionZigPath(xmin, xmax, ymin, ymax, Ny)
 
-//  now project onto the STL surface
-const toolpaths = adaptivePathDropCutter(surface, cutter, paths)
-toolpaths.forEach(function (points) {
-    console.log('G00 X' + Math.round(points[0][0] * 10000) / 10000 + ' Y' + Math.round(points[0][1] * 10000) / 10000)
-    console.log('G01 Z' + Math.round(points[0][2] * 10000) / 10000)
-    points.forEach(function (point) {
-        console.log('G01 X' + Math.round(point[0] * 10000) / 10000 + ' Y' + Math.round(point[1] * 10000) / 10000 + ' Z' + Math.round(point[2] * 10000) / 10000)
+async function main() {
+    //  now project onto the STL surface
+    const toolpaths = await adaptivePathDropCutter(surface, cutter, paths)
+    console.log(toolpaths)
+    toolpaths.forEach(function (points) {
+        console.log('G00 X' + Math.round(points[0][0] * 10000) / 10000 + ' Y' + Math.round(points[0][1] * 10000) / 10000)
+        console.log('G01 Z' + Math.round(points[0][2] * 10000) / 10000)
+        points.forEach(function (point) {
+            console.log('G01 X' + Math.round(point[0] * 10000) / 10000 + ' Y' + Math.round(point[1] * 10000) / 10000 + ' Z' + Math.round(point[2] * 10000) / 10000)
+        })
+        console.log('G00 Z3')
     })
-    console.log('G00 Z3')
-})
+}
+
+main()

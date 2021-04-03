@@ -25,13 +25,7 @@
 
 #include "point.hpp"
 
-#ifdef _MSC_VER
-    #include <float.h>  // for _isnan() on VC++
-    #define isnan(x) _isnan(x)  // VC++ uses _isnan() instead of isnan()
-#elif defined WIN32
-    bool isnan(double x){return false;}
-#endif
-
+#include <boost/math/special_functions/fpclassify.hpp> // isnan
 
 namespace ocl
 {

@@ -1,7 +1,7 @@
+cmake_minimum_required(VERSION 3.9)
+
 project(OpenCamLib)
 
-cmake_minimum_required(VERSION 3.9)
-#set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if(COMMAND cmake_policy)
@@ -20,7 +20,7 @@ endif ()
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
-  "Build/install the pure c++ libocl library? " ON)
+  "Build/install the pure c++ libocl library? " OFF)
 
 option(BUILD_PY_LIB 
   "Build/install the python ocl library? " OFF)
@@ -34,11 +34,14 @@ option(BUILD_DOC
 option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
+option(USE_VERSION_AND_PLATFORM_SUFFIX
+  "Use version and platform suffix for generated libraries" OFF)
+
 option(VERSION_STRING
-    "Set version string" OFF)
+  "Set version string" OFF)
 
 option(USE_PY_3
-    "Use Python V3" OFF)
+  "Use Python V3" ON)
 
 if (NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
@@ -47,6 +50,10 @@ endif(NOT BUILD_CXX_LIB)
 if (NOT BUILD_PY_LIB)
   message(STATUS " Note: will NOT build python library")
 endif(NOT BUILD_PY_LIB)
+
+if (NOT BUILD_NODEJS_LIB)
+  message(STATUS " Note: will NOT build node.js library")
+endif(NOT BUILD_NODEJS_LIB)
 
 if (NOT BUILD_EMSCRIPTEN_LIB)
   message(STATUS " Note: will NOT build emscripten library")
@@ -59,7 +66,6 @@ endif(NOT BUILD_DOC)
 # figure out the gcc version
 include(gcc_version.cmake)
 
-#
 # Turn compiler warnings up to 11, at least with gcc.  I don't know how to
 # do this with other compilers we might support and I'm leaving it up to
 # the relevant platform maintainers...
@@ -91,23 +97,33 @@ endif (UNIX)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(Boost_DEBUG ON)
+set(Boost_USE_STATIC_LIBS ON)
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+	set(Boost_USE_DEBUG_LIBS     ON)
+	set(Boost_USE_RELEASE_LIBS   OFF)
+else()
+	set(Boost_USE_DEBUG_LIBS     OFF)
+	set(Boost_USE_RELEASE_LIBS   ON)
+endif()
+if (BUILD_EMSCRIPTEN_LIB)
+  set(Boost_USE_MULTITHREADED  OFF)	
+elseif(USE_OPENMP)
+  set(Boost_USE_MULTITHREADED  ON)	
+endif()
+find_package(Boost REQUIRED)
+
+message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
+
 if(USE_OPENMP)
-  if(APPLE)
-    # OpenMP does not work with the default Apple llvm/clang++
-    # Install a more recent version using Homebrew:
-    # "brew install llvm"
-    # set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  else()
-    find_package( OpenMP REQUIRED )
-  endif()
-
+  find_package( OpenMP )
   if (OPENMP_FOUND)
-    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  endif(OPENMP_FOUND)
-
-endif(USE_OPENMP)
+    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
+    include_directories(${OpenMP_CXX_INCLUDE_DIRS})
+  endif()
+endif()
 
 IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
   file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")

@@ -1,0 +1,35 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches-ignore:
+      - master
+    tags-ignore:
+      - v*
+
+jobs:
+  test:
+    name: Test ${{ matrix.os }} ${{ matrix.lib }} ${{ matrix.release_type }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, macos-11.0, macos-10.15, windows-2016, windows-2019]
+        lib: [cxxlib, python2lib, python3lib, nodejslib, emscriptenlib]
+        release_type: [debug, release]
+        # os: [ubuntu-20.04]
+        # lib: [python2lib, python3lib]
+        # release_type: [debug]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Install & Build
+        shell: bash
+        run: |
+          OSNAME="${{ matrix.os }}"
+          ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+          ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}

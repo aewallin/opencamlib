@@ -18,7 +18,3 @@ add_library(
     STATIC
     ${OCL_DROPCUTTER_SRC}
 )
-
-
-
-
