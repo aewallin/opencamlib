@@ -37,6 +37,7 @@ namespace ocl
 //********   ********************** */
 
 PointDropCutter::PointDropCutter() {
+    // std::cout << " PointDropCutter()" << std::endl;
     nCalls = 0;
 #ifdef _OPENMP
     nthreads = omp_get_num_procs(); // figure out how many cores we have
@@ -47,7 +48,7 @@ PointDropCutter::PointDropCutter() {
 }
 
 void PointDropCutter::setSTL(const STLSurf &s) {
-    //std::cout << "PointDropCutter::setSTL()\n";
+    // std::cout << "PointDropCutter::setSTL()\n";
     surf = &s;
     root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     root->setBucketSize( bucketSize );
@@ -55,7 +56,7 @@ void PointDropCutter::setSTL(const STLSurf &s) {
 }
 
 void PointDropCutter::run(CLPoint& clp) {
-    //std::cout << "PointDropCutter::run() clp= " << clp << " dropped to ";
+    // std::cout << "PointDropCutter::run() clp= " << clp << " dropped to ";
     pointDropCutter1(clp);
     //std::cout  << clp << " nCalls = " << nCalls <<"\n ";
 }
