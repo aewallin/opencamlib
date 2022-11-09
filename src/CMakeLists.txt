@@ -1,6 +1,7 @@
+cmake_minimum_required(VERSION 3.9)
+
 project(OpenCamLib)
 
-cmake_minimum_required(VERSION 3.9)
 #set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -15,12 +16,12 @@ if (CMAKE_VERSION VERSION_LESS "3.1")
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
   endif ()
 else ()
-  set (CMAKE_CXX_STANDARD 11)
+  set (CMAKE_CXX_STANDARD 14)
 endif ()
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
-  "Build/install the pure c++ libocl library? " ON)
+  "Build/install the pure c++ libocl library? " OFF)
 
 option(BUILD_PY_LIB 
   "Build/install the python ocl library? " OFF)
@@ -38,7 +39,7 @@ option(VERSION_STRING
     "Set version string" OFF)
 
 option(USE_PY_3
-    "Use Python V3" OFF)
+    "Use Python V3" ON)
 
 if (NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
@@ -91,23 +92,31 @@ endif (UNIX)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
+set(Boost_DEBUG ON)
+set(Boost_USE_STATIC_LIBS ON)
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+	set(Boost_USE_DEBUG_LIBS     ON)
+	set(Boost_USE_RELEASE_LIBS   OFF)
+else()
+	set(Boost_USE_DEBUG_LIBS     OFF)
+	set(Boost_USE_RELEASE_LIBS   ON)
+endif()
 if(USE_OPENMP)
-  if(APPLE)
-    # OpenMP does not work with the default Apple llvm/clang++
-    # Install a more recent version using Homebrew:
-    # "brew install llvm"
-    # set(OpenMP_CXX_FLAGS "-fopenmp=libomp")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  else()
-    find_package( OpenMP REQUIRED )
-  endif()
+  set(Boost_USE_MULTITHREADED  ON)	
+endif()
+find_package(Boost REQUIRED)
 
+message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIRS})
+
+if(USE_OPENMP)
+  find_package( OpenMP )
   if (OPENMP_FOUND)
-    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  endif(OPENMP_FOUND)
-
-endif(USE_OPENMP)
+    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
+    include_directories(${OpenMP_CXX_INCLUDE_DIRS})
+  endif()
+endif()
 
 IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
   file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
