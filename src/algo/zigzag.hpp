@@ -76,14 +76,6 @@ class ZigZag {
             
         }
         
-        boost::python::list getOutput() const {
-            boost::python::list o;
-            BOOST_FOREACH( Point p, out ) {
-                o.append(p);
-            }
-            return o;
-        }
-        
         /// add an input CLPoint to this Operation
         void addPoint(Point& p) {
             pocket.push_back(p);
