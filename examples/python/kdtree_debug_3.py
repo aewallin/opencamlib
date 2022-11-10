@@ -172,9 +172,9 @@ def main():
     myscreen.addActor( t2)
         
     w2if = vtk.vtkWindowToImageFilter()
-    w2if.SetInput(myscreen.renWin)
+    w2if.SetInputConnection(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    lwr.SetInputConnection( w2if.GetOutputPort() )
   
     epos = cam.Epos()
     epos.setS(0,1)

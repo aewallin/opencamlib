@@ -17,8 +17,8 @@ def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
 if __name__ == "__main__":  
     print(ocl.version())
     myscreen = camvtk.VTKScreen()
-    #stl = camvtk.STLSurf("../stl/demo.stl")
-    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
+    #stl = camvtk.STLSurf("../../stl/demo.stl")
+    stl = camvtk.STLSurf("../../../stl/gnu_tux_mod.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     #stl.SetSurface()

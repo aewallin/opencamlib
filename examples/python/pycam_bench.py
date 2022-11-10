@@ -43,8 +43,8 @@ if __name__ == "__main__":
     print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
-    #stl = camvtk.STLSurf("../stl/demo.stl")
-    stl = camvtk.STLSurf("../stl/pycam-textbox.stl") 
+    #stl = camvtk.STLSurf("../../../stl/demo.stl")
+    stl = camvtk.STLSurf("../../../stl/pycam-textbox.stl") 
     print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    

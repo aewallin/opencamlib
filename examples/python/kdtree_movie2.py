@@ -23,7 +23,8 @@ if __name__ == "__main__":
     camvtk.vtkPolyData2OCLSTL(polydata, s)
     print("STLSurf with ", s.size(), " triangles")
     cutterDiameter=1
-    cutter = cam.CylCutter(cutterDiameter)
+    cutterLength=5
+    cutter = cam.CylCutter(cutterDiameter, 6)
     #print cutter.str()
     #print cc.type
     minx=0

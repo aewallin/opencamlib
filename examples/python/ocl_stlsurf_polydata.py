@@ -22,7 +22,7 @@ if __name__ == "__main__":
     
     myscreen = camvtk.VTKScreen()
     print("screen created")
-    stl = camvtk.STLSurf("../stl/sphere.stl")
+    stl = camvtk.STLSurf("../../stl/sphere.stl")
     print("STL surface read")
     myscreen.addActor(stl)
     

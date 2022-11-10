@@ -3,7 +3,7 @@ import ocl
 
 # This example shows how to aggregate lines and arcs into path objects and then
 # how to retrieve such data.
-print ocl.version()
+print(ocl.version())
 
 paths = []
 
@@ -35,7 +35,7 @@ paths.append(path_id_3)
 for path in paths:
 	# Retrieve a list of type/span pairs.  The type indicates whether it's a line or an arc
 	spans = path.getTypeSpanPairs()
-	print '\n\nSpan'
+	print('\n\nSpan')
 
 	for span in spans:
 		span_type = span[0]
@@ -43,9 +43,9 @@ for path in paths:
 
 		if (span_type == ocl.ArcSpanType):
 			arc = span_element
-			print 'Arc(start=' + str(arc.p1) + ', centre=' + str(arc.c) + ' end=' + str(arc.p2) + ')'
+			print('Arc(start=' + str(arc.p1) + ', centre=' + str(arc.c) + ' end=' + str(arc.p2) + ')')
 
 		if (span_type == ocl.LineSpanType):
 			line = span_element
-			print 'Line(start=' + str(line.p1) + ', end=' + str(line.p2) + ')'
+			print('Line(start=' + str(line.p1) + ', end=' + str(line.p2) + ')')
 

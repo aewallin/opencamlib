@@ -107,7 +107,7 @@ if __name__ == "__main__":
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    lwr.SetInputConnection( w2if.GetOutputPort() )
     t = camvtk.Text()
     t.SetPos( (myscreen.width-350, myscreen.height-30) )
     myscreen.addActor(t)

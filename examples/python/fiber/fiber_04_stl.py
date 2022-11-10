@@ -74,8 +74,8 @@ def xfiber(xvals,s,zh,myscreen):
 if __name__ == "__main__":  
     print(ocl.version() )
     myscreen = camvtk.VTKScreen()
-    #stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
-    stl = camvtk.STLSurf("../../stl/demo.stl")
+    #stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../../../stl/demo.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((1,1,1))
