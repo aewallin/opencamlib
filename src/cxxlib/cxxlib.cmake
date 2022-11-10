@@ -19,7 +19,14 @@ add_library(
   ${OCL_COMMON_SRC}
   )
 set_target_properties(libocl PROPERTIES PREFIX "") 
-set_target_properties(libocl PROPERTIES VERSION ${MY_VERSION}) 
+set_target_properties(libocl PROPERTIES VERSION ${MY_VERSION})
+
+target_link_libraries(
+  libocl
+  ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
+)
+
 install(
   TARGETS libocl
   LIBRARY 
