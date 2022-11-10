@@ -55,7 +55,7 @@ AdaptiveWaterline::AdaptiveWaterline() {
 #ifdef _OPENMP
     nthreads = omp_get_num_procs(); 
     //omp_set_dynamic(0);
-    omp_set_nested(1);
+    omp_set_max_active_levels(1);
 #endif
     sampling = 1.0;
     min_sampling = 0.1;
