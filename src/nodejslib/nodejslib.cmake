@@ -1,13 +1,11 @@
 message(STATUS "Will build node.js library")
 
-if(CMAKE_BUILD_TYPE EQUAL "Debug")
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
 	message(STATUS "Debug build, passing -g flag to compiler to emit source location (handy for debugging with lldb)")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+	add_definitions(-g)
 endif()
 
-find_package(Boost)
-include_directories(${Boost_INCLUDE_DIRS})
-include_directories(${OpenCamLib_SOURCE_DIR}/../node_modules/node-addon-api)
+include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib/node_modules/node-addon-api)
 include_directories(${CMAKE_JS_INC})
 
 # include dirs
@@ -36,6 +34,7 @@ add_library(opencamlib
 	${OpenCamLib_SOURCE_DIR}/nodejslib/stlsurf_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/stlreader_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/waterline_js.cpp
+	${OpenCamLib_SOURCE_DIR}/nodejslib/pathdropcutter_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivepathdropcutter_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/adaptivewaterline_js.cpp
 	${OpenCamLib_SOURCE_DIR}/nodejslib/cylcutter_js.cpp
@@ -48,12 +47,12 @@ add_library(opencamlib
 target_link_libraries(
   opencamlib
   ${Boost_LIBRARIES}
-  ${PYTHON_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
   ${CMAKE_JS_LIB}
 )
 
 if(WIN32)
-	set(NODE_LIB_POSTFIX ".win32.node")
+	set(NODE_LIB_POSTFIX ".win64.node")
 elseif(APPLE)
 	set(NODE_LIB_POSTFIX ".darwin.node")
 else()
@@ -61,3 +60,5 @@ else()
 endif()
 
 set_target_properties(opencamlib PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
+
+add_definitions(-DNAPI_VERSION=3)
