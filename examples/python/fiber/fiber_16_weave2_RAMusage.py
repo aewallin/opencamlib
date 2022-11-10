@@ -17,8 +17,8 @@ def drawVertices(myscreen, weave, vertexType, vertexRadius, vertexColor):
         myscreen.addActor( camvtk.Sphere(center=(p.x,p.y,p.z), radius=vertexRadius, color=vertexColor ) )
 
 def getWeaveRAM(Nmax,weave2_flag):
-    #stl = camvtk.STLSurf("../stl/demo.stl")
-    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
+    #stl = camvtk.STLSurf("../../stl/demo.stl")
+    stl = camvtk.STLSurf("../../../stl/gnu_tux_mod.stl")
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)

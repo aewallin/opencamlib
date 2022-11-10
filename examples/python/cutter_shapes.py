@@ -75,8 +75,8 @@ def getPathsX(s,cutter,sampling,x):
 if __name__ == "__main__":  
     print(ocl.version()) # revision()
     myscreen = camvtk.VTKScreen()
-    #stl = camvtk.STLSurf("../stl/demo.stl")
-    #stl = camvtk.STLSurf("../stl/30sphere.stl")
+    #stl = camvtk.STLSurf("../../stl/demo.stl")
+    #stl = camvtk.STLSurf("../../stl/30sphere.stl")
     #myscreen.addActor(stl)
     
     base=0.1

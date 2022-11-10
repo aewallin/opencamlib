@@ -30,7 +30,7 @@ def main(filename="frame/f.png"):
     print("cutter length=", c.length)
     
     # generate CL-points
-    stl = camvtk.STLSurf("../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
     polydata = stl.src.GetOutput()
     s = ocl.STLSurf()
     camvtk.vtkPolyData2OCLSTL(polydata, s)

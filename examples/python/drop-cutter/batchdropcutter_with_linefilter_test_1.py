@@ -9,9 +9,9 @@ import math
 if __name__ == "__main__": 
     print(ocl.version()    )
     myscreen = camvtk.VTKScreen()
-    #stl = camvtk.STLSurf("../stl/Cylinder_1.stl")
-    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
-    #stl = camvtk.STLSurf("../stl/demo.stl")
+    #stl = camvtk.STLSurf("../../stl/Cylinder_1.stl")
+    stl = camvtk.STLSurf("../../../stl/gnu_tux_mod.stl")
+    #stl = camvtk.STLSurf("../../stl/demo.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))

@@ -178,7 +178,7 @@ def vtk_visualize_parallel_finish_zig(stlfile, toolpaths):
 
 
 if __name__ == "__main__":     
-    stlfile = "../../stl/gnu_tux_mod.stl"
+    stlfile = "../../../stl/gnu_tux_mod.stl"
     surface = STLSurfaceSource(stlfile)
     
     

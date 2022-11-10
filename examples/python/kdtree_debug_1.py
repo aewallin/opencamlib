@@ -33,7 +33,7 @@ def main():
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    lwr.SetInputConnection( w2if.GetOutputPort() )
   
     epos = cam.Epos()
     epos.setS(0,1)
