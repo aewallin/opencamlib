@@ -21,11 +21,14 @@ PathJS::PathJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<PathJS>(info) 
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
 
-  actualClass_ = ocl::Path();
+  this->actualClass_ = new ocl::Path();
 }
 
-ocl::Path* PathJS::GetInternalInstance() {
-  return &actualClass_;
+ocl::Path *PathJS::GetInternalInstance(const Napi::CallbackInfo &info)
+{
+  Napi::Env env = info.Env();
+  Napi::HandleScope scope(env);
+  return this->actualClass_;
 }
 
 void PathJS::append(const Napi::CallbackInfo& info) {
@@ -35,6 +38,6 @@ void PathJS::append(const Napi::CallbackInfo& info) {
     Napi::TypeError::New(env, "Argument expected").ThrowAsJavaScriptException();
   }
   LineJS* ljs = Napi::ObjectWrap<LineJS>::Unwrap(info[0].As<Napi::Object>());
-  ocl::Line* ocll = ljs->GetInternalInstance();
-  actualClass_.append(*ocll);
+  ocl::Line* ocll = ljs->GetInternalInstance(info);
+  this->actualClass_->append(*ocll);
 }
