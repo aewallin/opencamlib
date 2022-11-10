@@ -47,15 +47,15 @@ Waterline::Waterline() {
     subOp[1]->setYDirection();
     nthreads=1;
 #ifdef _OPENMP
-    nthreads = omp_get_num_procs(); 
+    nthreads = omp_get_num_procs();
     //omp_set_dynamic(0);
-    omp_set_nested(1);
+    omp_set_max_active_levels(1);
 #endif
 
 }
 
 Waterline::~Waterline() {
-    // std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
+    std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
     delete subOp[1];
     delete subOp[0];
     subOp.clear();
