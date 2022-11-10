@@ -35,7 +35,7 @@ class BatchPushCutter_py : public BatchPushCutter {
     public:
         BatchPushCutter_py() : BatchPushCutter() {}
         /// return CL-points to Python
-        boost::python::list getCLPoints() const {
+        boost::python::list getCLPoints_py() const {
             boost::python::list plist;
             BOOST_FOREACH(Fiber f, *fibers) {
                 BOOST_FOREACH( Interval i, f.ints ) {

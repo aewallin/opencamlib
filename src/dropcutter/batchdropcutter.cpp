@@ -136,7 +136,6 @@ void BatchDropCutter::dropCutter4() {
     boost::progress_display show_progress( clpoints->size() );
     nCalls = 0;
     int calls=0;
-    long int ntris = 0;
     std::list<Triangle>* tris;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
 	int n; // loop variable
@@ -152,7 +151,7 @@ void BatchDropCutter::dropCutter4() {
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( nloop, ntris, calls, clref) private(n,tris,it)
+    #pragma omp parallel for shared( nloop, calls, clref) private(n,tris,it)
         for (n=0;n< Nmax ;n++) { // PARALLEL OpenMP loop!
 #ifdef _OPENMP
             if ( n== 0 ) { // first iteration
@@ -183,7 +182,6 @@ void BatchDropCutter::dropCutter4() {
                         cutter->edgeDrop( clref[n],*it);
                 }
             }
-            ntris += tris->size();
             delete( tris );
             ++show_progress;
         } // end OpenMP PARALLEL for
@@ -199,7 +197,6 @@ void BatchDropCutter::dropCutter5() {
     boost::progress_display show_progress( clpoints->size() );
     nCalls = 0;
     int calls=0;
-    long int ntris = 0;
     std::list<Triangle>* tris;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
     int Nmax = clpoints->size();
@@ -216,7 +213,7 @@ void BatchDropCutter::dropCutter5() {
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for schedule(dynamic) shared( nloop, ntris, calls, clref ) private(n,tris,it) 
+    #pragma omp parallel for schedule(dynamic) shared( nloop, calls, clref ) private(n,tris,it) 
         for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
 #ifdef _OPENMP
             if ( n== 0 ) { // first iteration
@@ -236,7 +233,6 @@ void BatchDropCutter::dropCutter5() {
                     }
                 }
             }
-            ntris += tris->size();
             delete( tris );
             ++show_progress;
         } // end OpenMP PARALLEL for

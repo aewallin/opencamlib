@@ -60,14 +60,14 @@ void export_algo() {
 
     bp::class_<BatchPushCutter>("BatchPushCutter_base")
     ;
-    bp::class_<BatchPushCutter_py, bp::bases<BatchPushCutter> >("BatchPushCutter")
+    bp::class_<BatchPushCutter_py, bp::bases<BatchPushCutter>>("BatchPushCutter")
         .def("run", &BatchPushCutter_py::run)
         .def("setSTL", &BatchPushCutter_py::setSTL)
         .def("setCutter", &BatchPushCutter_py::setCutter)
         .def("setThreads", &BatchPushCutter_py::setThreads)
         .def("appendFiber", &BatchPushCutter_py::appendFiber)
         .def("getOverlapTriangles", &BatchPushCutter_py::getOverlapTriangles)
-        .def("getCLPoints", &BatchPushCutter_py::getCLPoints)
+        .def("getCLPoints", &BatchPushCutter_py::getCLPoints_py)
         .def("getFibers", &BatchPushCutter_py::getFibers_py)
         .def("getCalls", &BatchPushCutter_py::getCalls)
         .def("setThreads", &BatchPushCutter_py::setThreads)
@@ -75,8 +75,7 @@ void export_algo() {
         .def("setBucketSize", &BatchPushCutter_py::setBucketSize)
         .def("getBucketSize", &BatchPushCutter_py::getBucketSize)
         .def("setXDirection", &BatchPushCutter_py::setXDirection)
-        .def("setYDirection", &BatchPushCutter_py::setYDirection)
-    ;
+        .def("setYDirection", &BatchPushCutter_py::setYDirection);
     bp::class_<Interval>("Interval")
         .def(bp::init<double, double>())
         .def_readonly("upper", &Interval::upper )
