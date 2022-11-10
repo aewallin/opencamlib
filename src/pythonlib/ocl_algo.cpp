@@ -30,7 +30,7 @@
 #include "lineclfilter_py.hpp"    
 #include "numeric.hpp"
 
-#include "zigzag.hpp"
+#include "zigzag_py.hpp"
 
 #include "clsurface.hpp"
 
@@ -48,13 +48,16 @@ void export_algo() {
     bp::def("eps", eps); // machine epsilon, see numeric.cpp
     bp::def("epsF", epsF);
     bp::def("epsD", epsD);
-    bp::class_<ZigZag>("ZigZag")
+
+    bp::class_<ZigZag>("ZigZag_base");
+
+    bp::class_<ZigZag_py, bp::bases<ZigZag>>("ZigZag")
         .def("run", &ZigZag::run)
         .def("setDirection", &ZigZag::setDirection)
         .def("setOrigin", &ZigZag::setOrigin)
         .def("setStepOver", &ZigZag::setStepOver)
         .def("addPoint", &ZigZag::addPoint)
-        .def("getOutput", &ZigZag::getOutput)
+        .def("getOutput", &ZigZag_py::getOutput)
         .def("__str__", &ZigZag::str)
     ;
 
