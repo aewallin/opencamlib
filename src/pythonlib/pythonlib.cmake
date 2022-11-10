@@ -118,6 +118,7 @@ target_link_libraries(
   ocl_geo
   ocl_algo
   ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 
