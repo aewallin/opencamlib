@@ -24,15 +24,18 @@ LineJS::LineJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<LineJS>(info) 
   if (length == 1) {
     Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
   }
-  if (length == 2) {
+  else if (length == 2)
+  {
     PointJS* p1in = Napi::ObjectWrap<PointJS>::Unwrap(info[0].As<Napi::Object>());
     PointJS* p2in = Napi::ObjectWrap<PointJS>::Unwrap(info[1].As<Napi::Object>());
-    ocl::Point* p1 = p1in->GetInternalInstance();
-    ocl::Point* p2 = p2in->GetInternalInstance();
-    actualClass_ = ocl::Line(*p1, *p2);
+    ocl::Point* p1 = p1in->GetInternalInstance(info);
+    ocl::Point* p2 = p2in->GetInternalInstance(info);
+    actualClass_ = new ocl::Line(*p1, *p2);
   }
 }
 
-ocl::Line* LineJS::GetInternalInstance() {
-  return &actualClass_;
+ocl::Line* LineJS::GetInternalInstance(const Napi::CallbackInfo& info) {
+  Napi::Env env = info.Env();
+  Napi::HandleScope scope(env);
+  return this->actualClass_;
 }

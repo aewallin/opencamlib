@@ -30,7 +30,7 @@ STLReaderJS::STLReaderJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<STLR
     }
     Napi::String filepath = info[0].As<Napi::String>();
     STLSurfJS *surface = Napi::ObjectWrap<STLSurfJS>::Unwrap(info[1].As<Napi::Object>());
-    ocl::STLSurf *surfaceInstance = surface->GetInternalInstance();
+    ocl::STLSurf *surfaceInstance = surface->GetInternalInstance(info);
     std::wstring filepathWstring;
     std::string filepathStr = filepath.Utf8Value();
     filepathWstring.assign(filepathStr.begin(), filepathStr.end());

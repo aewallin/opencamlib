@@ -27,16 +27,19 @@ BallCutterJS::BallCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Ba
     }
     Napi::Number d = info[0].As<Napi::Number>();
     Napi::Number l = info[1].As<Napi::Number>();
-    actualClass_ = ocl::BallCutter(d.DoubleValue(), l.DoubleValue());
+    this->actualClass_ = new ocl::BallCutter(d.DoubleValue(), l.DoubleValue());
 }
 
 Napi::Value BallCutterJS::str(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    return Napi::String::New(env, actualClass_.str());
+    Napi::HandleScope scope(env);
+    return Napi::String::New(env, this->actualClass_->str());
 }
 
-ocl::BallCutter* BallCutterJS::GetInternalInstance()
+ocl::BallCutter *BallCutterJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
-    return &actualClass_;
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+    return this->actualClass_;
 }

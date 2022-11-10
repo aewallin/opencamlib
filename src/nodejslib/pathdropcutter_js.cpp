@@ -1,4 +1,4 @@
-#include "adaptivepathdropcutter_js.hpp"
+#include "pathdropcutter_js.hpp"
 #include "point.hpp"
 #include "clpoint.hpp"
 #include "path_js.hpp"
@@ -8,38 +8,37 @@
 #include "bullcutter_js.hpp"
 #include "conecutter_js.hpp"
 
-Napi::FunctionReference AdaptivePathDropCutterJS::constructor;
+Napi::FunctionReference PathDropCutterJS::constructor;
 
-void AdaptivePathDropCutterJS::Init(Napi::Env env, Napi::Object exports)
+void PathDropCutterJS::Init(Napi::Env env, Napi::Object exports)
 {
     Napi::HandleScope scope(env);
 
-    Napi::Function func = DefineClass(env, "AdaptivePathDropCutter", {
-        InstanceMethod("setSTL", &AdaptivePathDropCutterJS::setSTL),
-        InstanceMethod("setPath", &AdaptivePathDropCutterJS::setPath),
-        InstanceMethod("setCylCutter", &AdaptivePathDropCutterJS::setCylCutter),
-        InstanceMethod("setBallCutter", &AdaptivePathDropCutterJS::setBallCutter),
-        InstanceMethod("setBullCutter", &AdaptivePathDropCutterJS::setBullCutter),
-        InstanceMethod("setConeCutter", &AdaptivePathDropCutterJS::setConeCutter),
-        InstanceMethod("setSampling", &AdaptivePathDropCutterJS::setSampling),
-        InstanceMethod("setMinSampling", &AdaptivePathDropCutterJS::setMinSampling),
-        InstanceMethod("getCLPoints", &AdaptivePathDropCutterJS::getCLPoints),
-        InstanceMethod("run", &AdaptivePathDropCutterJS::run)
+    Napi::Function func = DefineClass(env, "PathDropCutter", {
+        InstanceMethod("setSTL", &PathDropCutterJS::setSTL),
+        InstanceMethod("setPath", &PathDropCutterJS::setPath),
+        InstanceMethod("setCylCutter", &PathDropCutterJS::setCylCutter),
+        InstanceMethod("setBallCutter", &PathDropCutterJS::setBallCutter),
+        InstanceMethod("setBullCutter", &PathDropCutterJS::setBullCutter),
+        InstanceMethod("setConeCutter", &PathDropCutterJS::setConeCutter),
+        InstanceMethod("setSampling", &PathDropCutterJS::setSampling),
+        InstanceMethod("getCLPoints", &PathDropCutterJS::getCLPoints),
+        InstanceMethod("run", &PathDropCutterJS::run)
     });
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 
-    exports.Set("AdaptivePathDropCutter", func);
+    exports.Set("PathDropCutter", func);
 }
 
-AdaptivePathDropCutterJS::AdaptivePathDropCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<AdaptivePathDropCutterJS>(info)
+PathDropCutterJS::PathDropCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<PathDropCutterJS>(info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_ = new ocl::AdaptivePathDropCutter();
+    this->actualClass_ = new ocl::PathDropCutter();
 }
 
-void AdaptivePathDropCutterJS::setSTL(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setSTL(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -48,7 +47,7 @@ void AdaptivePathDropCutterJS::setSTL(const Napi::CallbackInfo &info)
     this->actualClass_->setSTL(*surface);
 }
 
-void AdaptivePathDropCutterJS::setPath(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setPath(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -57,7 +56,7 @@ void AdaptivePathDropCutterJS::setPath(const Napi::CallbackInfo &info)
     this->actualClass_->setPath(path);
 }
 
-void AdaptivePathDropCutterJS::setCylCutter(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setCylCutter(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -66,7 +65,7 @@ void AdaptivePathDropCutterJS::setCylCutter(const Napi::CallbackInfo &info)
     this->actualClass_->setCutter(cutter);
 }
 
-void AdaptivePathDropCutterJS::setBallCutter(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setBallCutter(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -75,7 +74,7 @@ void AdaptivePathDropCutterJS::setBallCutter(const Napi::CallbackInfo &info)
     this->actualClass_->setCutter(cutter);
 }
 
-void AdaptivePathDropCutterJS::setBullCutter(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setBullCutter(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -84,7 +83,7 @@ void AdaptivePathDropCutterJS::setBullCutter(const Napi::CallbackInfo &info)
     this->actualClass_->setCutter(cutter);
 }
 
-void AdaptivePathDropCutterJS::setConeCutter(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setConeCutter(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -93,7 +92,7 @@ void AdaptivePathDropCutterJS::setConeCutter(const Napi::CallbackInfo &info)
     this->actualClass_->setCutter(cutter);
 }
 
-void AdaptivePathDropCutterJS::setSampling(const Napi::CallbackInfo &info)
+void PathDropCutterJS::setSampling(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -101,15 +100,7 @@ void AdaptivePathDropCutterJS::setSampling(const Napi::CallbackInfo &info)
     this->actualClass_->setSampling(s.DoubleValue());
 }
 
-void AdaptivePathDropCutterJS::setMinSampling(const Napi::CallbackInfo &info)
-{
-    Napi::Env env = info.Env();
-    Napi::HandleScope scope(env);
-    Napi::Number s = info[0].As<Napi::Number>();
-    this->actualClass_->setMinSampling(s.DoubleValue());
-}
-
-Napi::Value AdaptivePathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info)
+Napi::Value PathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
@@ -119,8 +110,7 @@ Napi::Value AdaptivePathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info
     int y = 1;
     int z = 2;
     int i = 0;
-    // std::cout << points.size();
-    for (auto & point : points)
+    for (auto &point : points)
     {
         Napi::Array pointArr = Napi::Array::New(env);
         pointArr.Set(x, Napi::Number::New(env, point.x));
@@ -132,9 +122,7 @@ Napi::Value AdaptivePathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info
     return result;
 }
 
-void AdaptivePathDropCutterJS::run(const Napi::CallbackInfo &info)
+void PathDropCutterJS::run(const Napi::CallbackInfo &info)
 {
-    Napi::Env env = info.Env();
-    Napi::HandleScope scope(env);
     this->actualClass_->run();
 }
