@@ -3,11 +3,11 @@
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 
 if [ "$1" = "python2lib" ]; then
-    brew install llvm libomp boost boost-python python@2
+    brew install libomp boost boost-python python@2
 elif [ "$1" = "python3lib" ]; then
-    brew install llvm libomp boost boost-python3
+    brew install libomp boost boost-python3
 else
-    brew install llvm libomp boost
+    brew install libomp boost
 fi
 
 if [ "$1" = "emscriptenlib" ]; then
