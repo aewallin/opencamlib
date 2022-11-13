@@ -20,7 +20,6 @@
 */
 
 #include <boost/foreach.hpp>
-#include <boost/progress.hpp>
 
 #ifdef _OPENMP  
     #include <omp.h>
@@ -84,7 +83,6 @@ void BatchPushCutter::pushCutter1() {
     // std::cout << "BatchPushCutter1 with " << fibers->size() << 
     //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
-    boost::progress_display show_progress( fibers->size() );
     BOOST_FOREACH(Fiber& f, *fibers) {
         BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
             Interval i;
@@ -92,7 +90,6 @@ void BatchPushCutter::pushCutter1() {
             f.addInterval(i);
             ++nCalls;
         }
-        ++show_progress;
     }
     // std::cout << "BatchPushCutter done." << std::endl;
     return;
@@ -105,7 +102,6 @@ void BatchPushCutter::pushCutter2() {
     //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
     std::list<Triangle>* overlap_triangles;
-    boost::progress_display show_progress( fibers->size() );
     BOOST_FOREACH(Fiber& f, *fibers) {
         CLPoint cl;
         if (x_direction) {
@@ -130,7 +126,6 @@ void BatchPushCutter::pushCutter2() {
             //}
         }
         delete( overlap_triangles );
-        ++show_progress;
     }
     // std::cout << "BatchPushCutter2 done." << std::endl;
     return;
@@ -143,11 +138,8 @@ void BatchPushCutter::pushCutter3() {
     //           " fibers and " << surf->tris.size() << " triangles." << std::endl;
     // std::cout << " cutter = " << cutter->str() << "\n";
     nCalls = 0;
-    boost::progress_display show_progress( fibers->size() );
 #ifdef _OPENMP
-    std::cout << "OpenMP is enabled";
     omp_set_num_threads(nthreads);
-    //omp_set_nested(1);
 #endif
     std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
     Interval* i;
@@ -165,12 +157,6 @@ void BatchPushCutter::pushCutter3() {
     #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)
     //#pragma omp parallel for shared( calls, fiberr) private(n,i,tris,it,it_end)
     for (n=0; n<Nmax; ++n) { // loop through all fibers
-#ifdef _OPENMP
-        if ( n== 0 ) { // first iteration
-            if (omp_get_thread_num() == 0 ) 
-                std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
-        }
-#endif  
         CLPoint cl; // cl-point on the fiber
         if ( x_direction ) {
             cl.x=0;
@@ -194,7 +180,6 @@ void BatchPushCutter::pushCutter3() {
             //}
         }
         delete( tris );
-        ++show_progress;
     } // OpenMP parallel region ends here
     
     this->nCalls = calls;
