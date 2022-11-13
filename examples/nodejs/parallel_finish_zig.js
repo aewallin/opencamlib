@@ -1,4 +1,4 @@
-const ocl = require('../..')
+const fs = require('fs')
 const {
     STLSurf,
     STLReader,
@@ -10,7 +10,7 @@ const {
     Path,
     Line,
     Point
-} = ocl
+} = require('opencamlib')
 
 function assert(condition, message) {
     if (!condition) {
@@ -65,7 +65,8 @@ function adaptivePathDropCutter(surface, cutter, paths) {
 }
 
 const surface = new STLSurf()
-new STLReader(__dirname + '/../../stl/gnu_tux_mod.stl', surface)
+const stlContents = fs.readFileSync(__dirname + '/../../stl/gnu_tux_mod.stl')
+new STLReader(stlContents, surface)
 // choose a cutter for the operation:
 // http://www.anderswallin.net/2011/08/opencamlib-cutter-shapes/
 const diameter = 0.25

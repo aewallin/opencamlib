@@ -1,13 +1,14 @@
-const ocl = require('../..')
+const fs = require('fs')
 const {
     STLSurf,
     STLReader,
     CylCutter,
     AdaptiveWaterline
-} = ocl
+} = require('opencamlib')
 
 const surface = new STLSurf()
-new STLReader(__dirname + '/../../stl/gnu_tux_mod.stl', surface)
+const stlContents = fs.readFileSync(__dirname + '/../../stl/gnu_tux_mod.stl')
+new STLReader(stlContents, surface)
 const cutter = new CylCutter(4, 20)
 const awl = new AdaptiveWaterline()
 awl.setSTL(surface)
