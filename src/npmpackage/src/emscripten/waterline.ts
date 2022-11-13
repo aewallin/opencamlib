@@ -1,11 +1,13 @@
 import Operation from './operation';
-import ocl from './ocl'
+import opencamlib from './ocl'
 
 class EmscriptenWaterline extends Operation {
     constructor() {
         super()
         this.chain = this.chain.then(() => {
-            this.actualClass = new ocl.Waterline()
+            return opencamlib.then((ocl: any) => {
+                this.actualClass = new ocl.Waterline()
+            })
         })
     }
 
@@ -16,11 +18,15 @@ class EmscriptenWaterline extends Operation {
     }
 
     run() {
-        this.actualClass.run()
+        this.chain = this.chain.then(() => {
+            this.actualClass.run()
+        })
     }
 
     getLoops() {
-        return this.loopsToArray(this.actualClass.getLoops())
+        return this.chain.then(() => {
+            return this.loopsToArray(this.actualClass.getLoops())
+        })
     }
 }
 

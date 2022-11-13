@@ -2,10 +2,14 @@
 
 export HOMEBREW_NO_INSTALL_CLEANUP=1
 
-if [ "$1" = "python2lib" ]; then
-    brew install libomp boost boost-python python@2
-elif [ "$1" = "python3lib" ]; then
-    brew install libomp boost boost-python3
+if ! command -v brew &> /dev/null
+then
+    echo "brew could not be found in PATH, please install it, see: https://brew.sh"
+    exit
+fi
+
+if [ "$1" = "python3lib" ]; then
+    brew install libomp boost python3 boost-python3
 else
     brew install libomp boost
 fi

@@ -1,3 +1,3 @@
-const ocl = require('../../build/Debug/opencamlib')()
+const ocl = require('../../build/Release/opencamlib')()
 
 export default ocl

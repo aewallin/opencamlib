@@ -49,7 +49,7 @@ Waterline::Waterline() {
 #ifdef _OPENMP
     nthreads = omp_get_num_procs();
     //omp_set_dynamic(0);
-    omp_set_max_active_levels(1);
+    // omp_set_max_active_levels(1);
 #endif
 
 }

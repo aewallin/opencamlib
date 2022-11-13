@@ -1,11 +1,13 @@
 import Operation from './operation';
-import ocl from './ocl'
+import opencamlib from './ocl'
 
 class AdaptiveWaterline extends Operation {
     constructor() {
         super()
         this.chain = this.chain.then(() => {
-            this.actualClass = new ocl.AdaptiveWaterline()
+            return opencamlib.then((ocl: any) => {
+                this.actualClass = new ocl.AdaptiveWaterline()
+            })
         })
     }
 
@@ -36,11 +38,16 @@ class AdaptiveWaterline extends Operation {
     }
 
     run() {
-        this.actualClass.run()
+        this.chain = this.chain.then(() => {
+            this.actualClass.run()
+        })
     }
 
     getLoops() {
-        return this.loopsToArray(this.actualClass.getLoops())
+        this.chain = this.chain.then(() => {
+            return this.loopsToArray(this.actualClass.getLoops())
+        })
+        return this.chain
     }
 }
 

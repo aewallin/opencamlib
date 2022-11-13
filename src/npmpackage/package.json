@@ -3,7 +3,7 @@
   "version": "0.0.9",
   "description": "opencamlib for the web compiled with emscripten",
   "main": "./lib/napi/index.js",
-  "browser": "./lib/emscripten/index.js",
+  "browser": "./browser.js",
   "scripts": {
     "start": "tsc -w",
     "build": "(tsc || true) && browserify -p browserify-derequire --standalone ocl lib/emscripten/index.js > browser.js"
@@ -13,6 +13,14 @@
     "cam",
     "cnc"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aewallin/opencamlib.git"
+  },
+  "bugs": {
+    "url": "https://github.com/aewallin/opencamlib/issues"
+  },
+  "homepage": "https://github.com/aewallin/opencamlib#readme",
   "author": "Koen Schmeets",
   "license": "LGPL-3.0",
   "devDependencies": {

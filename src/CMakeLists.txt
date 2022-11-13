@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.12...3.15)
 
 project(OpenCamLib)
 
@@ -8,6 +8,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
   cmake_policy(SET CMP0025 NEW)
+  cmake_policy(SET CMP0091 NEW) # for multithreaded  https://cmake.org/cmake/help/latest/policy/CMP0091.html
 endif(COMMAND cmake_policy)
 
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
@@ -18,6 +19,10 @@ if (CMAKE_VERSION VERSION_LESS "3.1")
 else ()
   set (CMAKE_CXX_STANDARD 14)
 endif ()
+
+if (WIN32)
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+endif()
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
@@ -106,7 +111,17 @@ if (BUILD_EMSCRIPTEN_LIB)
 elseif(USE_OPENMP)
   set(Boost_USE_MULTITHREADED  ON)
 endif()
+# when building the emscripten we have to temporarily set
+# the root path mode to BOTH so Boost can be found
+if (BUILD_EMSCRIPTEN_LIB)
+  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
+  set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+endif()
 find_package(Boost REQUIRED)
+if (BUILD_EMSCRIPTEN_LIB)
+  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+  set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+endif()
 message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
 include_directories(${Boost_INCLUDE_DIRS})
 

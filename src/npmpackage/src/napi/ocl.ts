@@ -9,9 +9,9 @@ if (process.platform == 'win32') {
     platform = 'darwin'
 }
 var buildType = 'Release'
-// if (process.env.DEBUG) {
+if (process.env.DEBUG) {
     buildType = 'Debug'
-// }
+}
 
 const oclLib = require(__dirname + '/../../build/' + buildType + '/opencamlib.' + platform + '.node')
 
