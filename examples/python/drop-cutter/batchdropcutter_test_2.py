@@ -12,8 +12,8 @@ if __name__ == "__main__":
     
     # read STL file from disk
     stl = camvtk.STLSurf("../../../stl/gnu_tux_mod.stl")
-    #stl = camvtk.STLSurf("../stl/beet_mm.stl")
-    #stl = camvtk.STLSurf("../stl/Blade.stl")
+    #stl = camvtk.STLSurf("../../../stl/beet_mm.stl")
+    #stl = camvtk.STLSurf("../../../stl/Blade.stl")
     myscreen.addActor(stl)
     stl.SetWireframe()
     stl.SetColor((0.5,0.5,0.5))

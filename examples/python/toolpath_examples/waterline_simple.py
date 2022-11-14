@@ -76,7 +76,7 @@ def drawLoops(myscreen,loops,loopColor):
         nloop = nloop+1
 
 if __name__ == "__main__":     
-    stlfile = "../../stl/gnu_tux_mod.stl"
+    stlfile = "../../../stl/gnu_tux_mod.stl"
     surface = STLSurfaceSource(stlfile)
     
 

@@ -6,7 +6,7 @@ if __name__ == "__main__":
     s= ocl.STLSurf()
     print(s)
     myscreen = camvtk.VTKScreen()
-    stl = camvtk.STLSurf("../stl/demo.stl")
+    stl = camvtk.STLSurf("../../stl/demo.stl")
     print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()

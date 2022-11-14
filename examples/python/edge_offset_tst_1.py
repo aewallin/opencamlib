@@ -78,7 +78,7 @@ if __name__ == "__main__":
     w2if = vtk.vtkWindowToImageFilter()
     w2if.SetInput(myscreen.renWin)
     lwr = vtk.vtkPNGWriter()
-    lwr.SetInput( w2if.GetOutput() )
+    lwr.SetInputConnection( w2if.GetOutputPort() )
 
         
     #for n in range(1,18):
