@@ -35,11 +35,12 @@ BUILDING and INSTALLING
 
 To clone, build and install install the opencamlib library run the::
 
- $ git clone git://github.com/aewallin/opencamlib.git
+ $ sudo apt install git python3 python3-dev cmake build-essential libboost-dev doxygen texlive-latex-base
+ $ # to build the python library, also install: libboost-python-dev
+ $ git clone https://github.com/aewallin/opencamlib
  $ cd opencamlib
  $ mkdir build
  $ cd build
- $ sudo apt install cmake libboost-dev doxygen texlive-full
  $ cmake ../src # add one of the following depending on what you want to build: -D CXX_LIB="ON", -D BUILD_PY_LIB="ON" or -D BUILD_NODEJS_LIB="ON"
  $ make . # try make -j4 for a faster build if you have a multi-core machine
  $ make install .
