@@ -36,32 +36,31 @@ if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
   endif()
   execute_process(
     COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(0,0,\"/usr/local\")"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES_RAW
     OUTPUT_STRIP_TRAILING_WHITESPACE
   ) # on Ubuntu 11.10 this outputs: /usr/local/lib/python2.7/dist-packages
-
   execute_process(
     COMMAND ${PYTHON_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(plat_specific=1,standard_lib=0,prefix=\"/usr/local\")"
-    OUTPUT_VARIABLE PYTHON_ARCH_PACKAGES
+    OUTPUT_VARIABLE PYTHON_ARCH_PACKAGES_RAW
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
+  cmake_path(SET PYTHON_SITE_PACKAGES "${PYTHON_SITE_PACKAGES_RAW}")
+  cmake_path(SET PYTHON_ARCH_PACKAGES "${PYTHON_ARCH_PACKAGES_RAW}")
 else()
   message(STATUS "CMake version >= 3.12.0")
   if (USE_PY_3)
-    set(Python3_FIND_STRATEGY "LOCATION")
     find_package(Python3 COMPONENTS Interpreter Development)
     set(PYTHON_INCLUDE_DIRS ${Python3_INCLUDE_DIRS})
     set(PYTHON_LIBRARIES ${Python3_LIBRARIES})
-    set(PYTHON_SITE_PACKAGES ${Python3_SITELIB})
-    set(PYTHON_ARCH_PACKAGES ${Python3_SITEARCH})
+    cmake_path(SET PYTHON_SITE_PACKAGES "${Python3_SITELIB}")
+    cmake_path(SET PYTHON_ARCH_PACKAGES "${Python3_SITEARCH}")
     find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
   else()
-    set(Python2_FIND_STRATEGY "LOCATION")
     find_package(Python2 COMPONENTS Interpreter Development)
     set(PYTHON_INCLUDE_DIRS ${Python2_INCLUDE_DIRS})
     set(PYTHON_LIBRARIES ${Python2_LIBRARIES})
-    set(PYTHON_SITE_PACKAGES ${Python2_SITELIB})
-    set(PYTHON_ARCH_PACKAGES ${Python2_SITEARCH})
+    cmake_path(SET PYTHON_SITE_PACKAGES "${Python2_SITELIB}")
+    cmake_path(SET PYTHON_ARCH_PACKAGES "${Python2_SITEARCH}")
     find_package(Boost COMPONENTS python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR})
   endif()
 endif()
@@ -70,8 +69,6 @@ message(STATUS "Boost_INCLUDE_DIR = ${Boost_INCLUDE_DIR}")
 message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
-message(STATUS "PYTHON_SITE_PACKAGES = " ${PYTHON_SITE_PACKAGES})
-message(STATUS "PYTHON_ARCH_PACKAGES = " ${PYTHON_ARCH_PACKAGES})
 message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
 message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_SITE_PACKAGES = ${PYTHON_SITE_PACKAGES}")
@@ -116,33 +113,30 @@ message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRAR
 
 # this makes the lib name ocl.so and not libocl.so
 set_target_properties(ocl PROPERTIES PREFIX "")
+# this makes the lib name ocl.pyd and not ocl.so
 if (WIN32)
   set_target_properties(ocl PROPERTIES SUFFIX ".pyd")
 endif (WIN32)
-# if (WIN32)
-# set_target_properties(ocl PROPERTIES VERSION ${MY_VERSION})
-# endif (WIN32)
 
 if (APPLE AND NOT CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-install(
-  TARGETS ocl
-  LIBRARY DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
-)
-# these are the python helper lib-files such as camvtk.py
-install(
-  DIRECTORY lib/
-  DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
-  #    PATTERN .svn EXCLUDE
-)
+  install(
+    TARGETS ocl
+    LIBRARY DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
+  )
+  # these are the python helper lib-files such as camvtk.py
+  install(
+    DIRECTORY lib/
+    DESTINATION lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/ocl
+  )
 else()
-install(
-  TARGETS ocl
-  LIBRARY DESTINATION ${PYTHON_ARCH_PACKAGES}
-)
-# these are the python helper lib-files such as camvtk.py 
-install(
-  DIRECTORY lib/
-  DESTINATION ${PYTHON_SITE_PACKAGES}
-  #    PATTERN .svn EXCLUDE
-)
+  install(
+    TARGETS ocl
+    LIBRARY DESTINATION ${PYTHON_ARCH_PACKAGES}
+  )
+  # these are the python helper lib-files such as camvtk.py 
+  install(
+    DIRECTORY lib/
+    DESTINATION ${PYTHON_SITE_PACKAGES}
+    #    PATTERN .svn EXCLUDE
+  )
 endif()

@@ -38,6 +38,7 @@ if [ "$1" = "cxxlib" ]; then
         -D BOOST_ROOT="/c/boost/boost_1_80_0" \
         ../../..
     cmake --build . --config "${BUILD_TYPE}" -- -maxcpucount
+    cmake --install . --config "${BUILD_TYPE}"
 elif [ "$1" = "nodejslib" ]; then
     cd src/nodejslib
     npm install
@@ -48,6 +49,7 @@ elif [ "$1" = "nodejslib" ]; then
             --out "${BUILD_DIR}" \
             --CD BUILD_NODEJS_LIB="ON" \
             --CD BOOST_ROOT="/c/boost/boost_1_80_0"
+        mkdir -p src/npmpackage/build/Release || true
         cp -r $BUILD_DIR/Release/* src/npmpackage/build/Release || true
     else
         ./src/nodejslib/node_modules/.bin/cmake-js \
@@ -56,6 +58,7 @@ elif [ "$1" = "nodejslib" ]; then
             --CD BUILD_NODEJS_LIB="ON" \
             --CD BOOST_ROOT="/c/boost/boost_1_80_0" \
             --debug
+        mkdir -p src/npmpackage/build/Debug || true
         cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
     fi
 elif [ "$1" = "python3lib" ]; then
@@ -65,8 +68,10 @@ elif [ "$1" = "python3lib" ]; then
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
         -D BOOST_ROOT="/c/boost/boost_1_80_0" \
+        -D Python3_ROOT_DIR="${PYTHON_PREFIX}" \
         ../../..
     cmake --build . --config "${BUILD_TYPE}" -- -maxcpucount
+    cmake --install . --config "${BUILD_TYPE}"
 elif [ "$1" = "emscriptenlib" ]; then
     source ../emsdk/emsdk_env.sh
     cd $BUILD_DIR
@@ -77,6 +82,9 @@ elif [ "$1" = "emscriptenlib" ]; then
         -D BOOST_ROOT="/c/boost/boost_1_80_0" \
         ../../..
     emmake make
+    cd ../../..
+    mkdir -p "src/npmpackage/build" || true
+    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/" || true
 else
     echo "Usage: ./scripts/build-windows.sh lib build_type [clean]"
     echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib"

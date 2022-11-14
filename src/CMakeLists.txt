@@ -7,6 +7,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
   cmake_policy(SET CMP0025 NEW)
   cmake_policy(SET CMP0091 NEW) # for multithreaded  https://cmake.org/cmake/help/latest/policy/CMP0091.html
+  cmake_policy(SET CMP0094 NEW) # for Python*_FIND_STRATEGY=LOCATION
 endif(COMMAND cmake_policy)
 
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")

@@ -36,6 +36,7 @@ if [ "$1" = "cxxlib" ]; then
         -D BUILD_CXX_LIB="ON" \
         ../../..
     cmake --build . -j$(sysctl -n hw.logicalcpu)
+    cmake --install .
 elif [ "$1" = "nodejslib" ]; then
     cd src/nodejslib
     npm install
@@ -46,6 +47,7 @@ elif [ "$1" = "nodejslib" ]; then
             --parallel $(sysctl -n hw.logicalcpu) \
             --CD BUILD_NODEJS_LIB="ON"
 
+        mkdir -p src/npmpackage/build/Release || true
         cp -r $BUILD_DIR/Release/* src/npmpackage/build/Release || true
     else
         ./src/nodejslib/node_modules/.bin/cmake-js build \
@@ -53,6 +55,8 @@ elif [ "$1" = "nodejslib" ]; then
             --parallel $(sysctl -n hw.logicalcpu) \
             --CD BUILD_NODEJS_LIB="ON" \
             --debug
+
+        mkdir -p src/npmpackage/build/Debug || true
         cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
     fi
 elif [ "$1" = "python3lib" ]; then
@@ -60,7 +64,7 @@ elif [ "$1" = "python3lib" ]; then
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
-        -D Python3_ROOT_DIR="$(brew --prefix python3)" \
+        -D Python3_ROOT_DIR="${PYTHON_PREFIX}" \
         ../../..
     cmake --build . -j$(sysctl -n hw.logicalcpu)
     cmake --install .
@@ -74,7 +78,8 @@ elif [ "$1" = "emscriptenlib" ]; then
         ../../..
     emmake make -j$(sysctl -n hw.logicalcpu)
     cd ../../..
-    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/$BUILD_TYPE" || true
+    mkdir -p "src/npmpackage/build" || true
+    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/" || true
 else
     echo "Usage: ./scripts/build-macos.sh lib build_type [clean]"
     echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib"

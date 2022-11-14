@@ -7,7 +7,6 @@
 #include <opencamlib/numeric.hpp>
 
 int main() {
-    std::cout << ocl::revision() << "\n";
     ocl::Point p1;
     p1.x = 1.2;
     p1.y = sqrt(p1.x);

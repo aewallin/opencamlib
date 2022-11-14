@@ -8,7 +8,7 @@ if __name__ == "__main__":
     print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
-    stl = camvtk.STLSurf("../../../stl/gnu_tux_mod.stl")
+    stl = camvtk.STLSurf("../../stl/gnu_tux_mod.stl")
     print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    

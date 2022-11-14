@@ -17,5 +17,6 @@ build/
 .DS_Store
 .vscode
 node_modules
+src/npmpackage/browser.js
 src/npmpackage/lib
 src/npmpackage/build
