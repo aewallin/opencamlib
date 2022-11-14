@@ -1,0 +1,12 @@
+{
+  "name": "opencamlib-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test.js",
+  "scripts": {
+    "test": "npm link ../../src/npmpackage && node test.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

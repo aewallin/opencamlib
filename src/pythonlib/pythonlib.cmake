@@ -1,24 +1,11 @@
-# find boost so we can get it's version
-find_package(Boost)
-
 # debugging
 set(Boost_DEBUG ON)
 
-# set additional versions, when using a old CMake version this can be handy to find a modern boost
-# set(Boost_ADDITIONAL_VERSIONS 1.69.0)
-
-# set boost architecture and namespace, this is needed to make cmake find boost when you didn't compile boost (using b2) with the --layout=system option.
-# set(Boost_ARCHITECTURE "-x64")
-# set(Boost_NAMESPACE "libboost")
-
 if (WIN32)
   # use static python lib
-  add_definitions(-DBOOST_PYTHON_STATIC_LIB) 
+  add_definitions(-D BOOST_PYTHON_STATIC_LIB)
   # disable autolinking in boost
-  add_definitions( -DBOOST_ALL_NO_LIB ) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
-  set(Boost_USE_STATIC_LIBS ON)
-  set(Boost_USE_MULTITHREADED ON)
-  set(Boost_USE_STATIC_RUNTIME OFF)
+  add_definitions(-D BOOST_ALL_NO_LIB) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
 endif()
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12.0")
@@ -118,8 +105,10 @@ target_link_libraries(
   ocl_geo
   ocl_algo
   ${Boost_LIBRARIES}
+  ${OpenMP_CXX_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
+
 
 message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
 

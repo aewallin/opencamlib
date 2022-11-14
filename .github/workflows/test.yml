@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches-ignore:
+      - master
+    tags-ignore:
+      - v*
+
+jobs:
+  test:
+    name: Test ${{ matrix.os }} ${{ matrix.lib }} ${{ matrix.release_type }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # We only run on a single os version to not run into CI limits.
+        os: [
+          # ubuntu-16.04, # builds on this version are not picked up quickly on the free plan
+          # ubuntu-18.04,
+          ubuntu-20.04,
+          # macos-10.5, # builds on this version are not picked up quickly on the free plan
+          macos-11.0,
+          # macos-12.00, # builds on this version are not picked up quickly on the free plan
+          # windows-2019,
+          windows-2022
+        ]
+        lib: [
+          cxxlib,
+          python3lib,
+          nodejslib,
+          emscriptenlib
+        ]
+        release_type: [debug, release]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install & Build
+        shell: bash
+        run: |
+          if [[ "${{ matrix.os }}" == "windows"* ]]; then
+            export PYTHON_EXECUTABLE="C:/hostedtoolcache/windows/Python/3.11.0/x64/python3.exe"
+          fi
+          OSNAME="${{ matrix.os }}"
+          ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+          ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+      # Disable for now to avoid running into limits
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: ocl
+      #     if-no-files-found: ignore
+      #     path: |
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/src/libocl.dylib
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/src/libocl.so
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/src/ocl.so
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/src/Debug/libocl.dll
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/src/Release/libocl.dll
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/src/opencamlib.js
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/Debug/opencamlib.darwin.node
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/Release/opencamlib.darwin.node
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/Debug/opencamlib.win64.node
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/Release/opencamlib.win64.node
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/Debug/opencamlib.linux.node
+      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/Release/opencamlib.linux.node
