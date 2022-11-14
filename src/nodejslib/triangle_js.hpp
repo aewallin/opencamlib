@@ -6,9 +6,9 @@ class TriangleJS : public Napi::ObjectWrap<TriangleJS>
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     TriangleJS(const Napi::CallbackInfo &info);
-    ocl::Triangle *GetInternalInstance();
+    ocl::Triangle *GetInternalInstance(const Napi::CallbackInfo &info);
 
   private:
     static Napi::FunctionReference constructor;
-    ocl::Triangle actualClass_;
+    ocl::Triangle *actualClass_;
 };

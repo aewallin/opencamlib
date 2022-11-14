@@ -6,7 +6,6 @@ class AdaptiveWaterlineJS : public Napi::ObjectWrap<AdaptiveWaterlineJS>
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     AdaptiveWaterlineJS(const Napi::CallbackInfo &info);
-    ocl::AdaptiveWaterline *GetInternalInstance();
     void setZ(const Napi::CallbackInfo &info);
     void setSTL(const Napi::CallbackInfo &info);
     void setCylCutter(const Napi::CallbackInfo &info);
@@ -20,5 +19,5 @@ class AdaptiveWaterlineJS : public Napi::ObjectWrap<AdaptiveWaterlineJS>
 
   private:
     static Napi::FunctionReference constructor;
-    ocl::AdaptiveWaterline actualClass_;
+    ocl::AdaptiveWaterline *actualClass_;
 };
