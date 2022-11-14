@@ -1,8 +1,8 @@
 .. image:: https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg
     :target: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
     
-.. image:: https://travis-ci.org/aewallin/opencamlib.svg?branch=master
-    :target: https://travis-ci.org/aewallin/opencamlib
+.. image:: https://github.com/aewallin/opencamlib/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/aewallin/opencamlib/actions/workflows/test.yml
 
 .. image:: https://readthedocs.org/projects/opencamlib/badge/?version=latest
     :target: https://opencamlib.readthedocs.io/en/latest/?badge=latest
@@ -16,7 +16,7 @@ OpenCAMLib README
 INTRODUCTION
 ---------------
 
-OpenCAMLib (ocl) is a c++ library with python bindings for creating 3D toolpaths for cnc-machines
+OpenCAMLib (ocl) is a C++ library with Python bindings for creating 3D toolpaths for CNC-machines
 such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL license.
 
 - repository https://github.com/aewallin/opencamlib
@@ -33,19 +33,16 @@ such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL lic
 BUILDING and INSTALLING 
 -----------------------
 
-to clone, build and install install the ocl.so library and camvtk.py run the following::
+To clone, build and install install the opencamlib library run the::
 
  $ git clone git://github.com/aewallin/opencamlib.git
  $ cd opencamlib
  $ mkdir build
  $ cd build
- $ sudo apt install cmake
- $ sudo apt install libboost-program-options-dev
- $ sudo apt install doxygen
- $ sudo apt install texlive-full
- $ cmake ../src
- $ make        (try make -j4 for a faster build if you have a multi-core machine)
- $ sudo make install
+ $ sudo apt install cmake libboost-dev doxygen texlive-full
+ $ cmake ../src # add one of the following depending on what you want to build: -D CXX_LIB="ON", -D BUILD_PY_LIB="ON" or -D BUILD_NODEJS_LIB="ON"
+ $ make . # try make -j4 for a faster build if you have a multi-core machine
+ $ make install .
 
 if you also want to build the documentation, then run::
 
@@ -70,28 +67,22 @@ ORGANIZATION OF FILES
 
 (generate this with 'tree -dL 2')::
 
- ├── cpp_examples                c++ example use of opencamlib
- │   ├── point                   minimal example of ocl::Point
- ├── debian                      files for building a debian package
- ├── doc                         documentation (not much here yet!)
- ├── lib                         useful python helper libraries
- ├── scripts                     python scripts that test or demonstrate use of ocl
- │   ├── issues
- │   ├── ocode                   old linear octree code
- │   ├── offset-ellipse          relates to BullCutter drop- and push-cutter
- │   ├── old
- │   └── voronoi                 vd scripts/tests
+ ├── examples                    c++, emscripten, nodejs and python examples
+ ├── docs                        documentation (not much here yet!)
+ ├── scripts                     CI scripts for installing and building ocl
  ├── src
  │   ├── algo                    algorithms under development
  │   ├── attic                   old deprecated code
  │   ├── common                  common algorithms and data-structures
  │   ├── cutters                 cutter-classes
+ │   ├── cxxlib                  c++ library cmake config
+ │   ├── deb                     debian package cmake config
  │   ├── dropcutter              drop-cutter algorithms and operations
  │   ├── geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
- │   └── voronoi
- ├── stl                         STL files for testing
- └── Windows                     Visual-studio project for building on windows
-
+ │   ├── nodejslib               node.js library bindings and cmake config
+ │   ├── npmpackage              combined node.js and emscripten wrappers, for publishing to npm
+ │   ├── pythonlib               python library bindings and cmake config
+ └── stl                         STL files for testing
 
 Ubuntu 10.04LTS-> install and build
 -----------------------------------

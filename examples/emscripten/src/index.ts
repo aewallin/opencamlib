@@ -9,7 +9,7 @@ import {
   Path,
   Point,
   Line
-} from 'opencamlib/browser'
+} from 'opencamlib'
 
 async function waterline(surface, cutter, z, sampling) {
   const wl = new Waterline()
