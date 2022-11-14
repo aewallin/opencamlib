@@ -8,16 +8,15 @@ then
     exit
 fi
 
-if [ "$1" = "nodejslib" ]; then
-    cd src/nodejslib
-    npm install
-    cd ../..
-fi
-
 if [ "$1" = "python3lib" ]; then
     brew install libomp boost python3 boost-python3
 else
     brew install libomp boost
+fi
+
+if [ "$1" = "nodejslib" ]; then
+    cd src/nodejslib
+    npm install
 fi
 
 if [ "$1" = "emscriptenlib" ]; then
