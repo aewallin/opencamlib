@@ -3,8 +3,6 @@
 if [ "$1" = "all" ]; then
     ./scripts/build-macos.sh cxxlib debug $3
     ./scripts/build-macos.sh cxxlib release $3
-    ./scripts/build-macos.sh python2lib debug $3
-    ./scripts/build-macos.sh python2lib release $3
     ./scripts/build-macos.sh python3lib debug $3
     ./scripts/build-macos.sh python3lib release $3
     ./scripts/build-macos.sh nodejslib debug $3
@@ -58,18 +56,13 @@ elif [ "$1" = "nodejslib" ]; then
 
         cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
     fi
-elif [ "$1" = "python2lib" ]; then
-    cd $BUILD_DIR
-    cmake \
-        -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
-        -D BUILD_PY_LIB="ON" \
-        -D USE_PY_3="OFF" \
-        ../../..
-    cmake --build . -j$(sysctl -n hw.logicalcpu)
 elif [ "$1" = "python3lib" ]; then
     cd $BUILD_DIR
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
+        -D CMAKE_FIND_USE_CMAKE_PATH="OFF" \
+        -D Python_FIND_STRATEGY="LOCATION" \
+        -D Python3_ROOT_DIR="$(brew --prefix python3)" \
         -D BUILD_PY_LIB="ON" \
         ../../..
     cmake --build . -j$(sysctl -n hw.logicalcpu)
@@ -81,14 +74,13 @@ elif [ "$1" = "emscriptenlib" ]; then
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
-        -D CMAKE_FIND_ROOT_PATH="/" \
         ../../..
     emmake make -j$(sysctl -n hw.logicalcpu)
     cd ../../..
-    cp -r "$BUILD_DIR/src/opencamlib.js" "$BUILD_DIR/src/opencamlib.wasm" "src/npmpackage/build/$BUILD_TYPE" || true
+    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/$BUILD_TYPE" || true
 else
     echo "Usage: ./scripts/build-macos.sh lib build_type [clean]"
-    echo "  lib: one of cxxlib, nodejslib, python2lib, python3lib, emscriptenlib"
+    echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib"
     echo "  build_type: one of debug, release"
     echo "  clean: optional, removes the build directory before building"
 fi
