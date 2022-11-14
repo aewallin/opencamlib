@@ -28,16 +28,19 @@ BullCutterJS::BullCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Bu
     Napi::Number d = info[0].As<Napi::Number>();
     Napi::Number r = info[1].As<Napi::Number>();
     Napi::Number l = info[2].As<Napi::Number>();
-    actualClass_ = ocl::BullCutter(d.DoubleValue(), r.DoubleValue(), l.DoubleValue());
+    this->actualClass_ = new ocl::BullCutter(d.DoubleValue(), r.DoubleValue(), l.DoubleValue());
 }
 
 Napi::Value BullCutterJS::str(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
-    return Napi::String::New(env, actualClass_.str());
+    Napi::HandleScope scope(env);
+    return Napi::String::New(env, this->actualClass_->str());
 }
 
-ocl::BullCutter* BullCutterJS::GetInternalInstance()
+ocl::BullCutter *BullCutterJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
-    return &actualClass_;
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+    return this->actualClass_;
 }

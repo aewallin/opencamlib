@@ -20,8 +20,9 @@
 #include "operation.hpp"
 #include "waterline.hpp"
 #include "adaptivepathdropcutter.hpp"
+#include "compositecutter.hpp"
 #include "adaptivewaterline.hpp"
-// #include "zigzag.hpp"
+#include "zigzag.hpp"
 #include "weave.hpp"
 #include "lineclfilter.hpp"
 // #include "clsurface.hpp"
@@ -75,11 +76,11 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .constructor<CCPoint>()
         .constructor<double, double, double>()
         .function("__str__", &CCPoint::str);
-        // .property("type", &CCPoint::type) // @todo figure out the problem
+    // .property("type", &CCPoint::type) // @todo figure out the problem
 
     class_<Triangle>("Triangle")
-      .constructor()
-      .constructor<Point, Point, Point>();
+        .constructor()
+        .constructor<Point, Point, Point>();
 
     enum_<CCType>("CCType")
         .value("NONE", NONE)
@@ -113,20 +114,20 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .function("isInside", &Bbox::isInside)
         .property("maxpt", &Bbox::maxpt)
         .property("minpt", &Bbox::minpt);
-    
+
     // Epos and the Ellipse are used for the toroidal tool edge-tests
     class_<EllipsePosition>("EllipsePosition")
         .property("s", &EllipsePosition::s)
         .property("t", &EllipsePosition::t)
         .function("setDiangle", &EllipsePosition::setDiangle)
         .function("__str__", &EllipsePosition::str);
-    
+
     // class_<Ellipse>("Ellipse")
     //     .constructor<Point &, double, double, double>()
     //     .function("ePoint", &Ellipse::ePoint)
     //     .function("oePoint", &Ellipse::oePoint)
     //     .function("normal", &Ellipse::normal);
-    
+
     class_<Line>("Line")
         .constructor<Point, Point>()
         .constructor<Line>()
@@ -184,20 +185,21 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .function("run", &AdaptivePathDropCutter::run)
         .function("setMinSampling", &AdaptivePathDropCutter::setMinSampling)
         .function("setCosLimit", &AdaptivePathDropCutter::setCosLimit)
-        // .function("getSampling", &AdaptivePathDropCutter::getSampling)
+        .function("getSampling", &AdaptivePathDropCutter::getSampling)
         .function("setPath", &AdaptivePathDropCutter::setPath, allow_raw_pointers())
         .function("getZ", &AdaptivePathDropCutter::getZ)
         .function("setZ", &AdaptivePathDropCutter::setZ)
         .function("getPoints", &AdaptivePathDropCutter::getPoints);
 
-    // class_<ZigZag>("ZigZag")
-    //     .function("run", &ZigZag::run)
-    //     .function("setDirection", &ZigZag::setDirection)
-    //     .function("setOrigin", &ZigZag::setOrigin)
-    //     .function("setStepOver", &ZigZag::setStepOver)
-    //     .function("addPoint", &ZigZag::addPoint)
-    //     .function("getOutput", &ZigZag::getOutput)
-    //     .function("__str__", &ZigZag::str);
+    class_<ZigZag>("ZigZag")
+        .constructor()
+        .function("run", &ZigZag::run)
+        .function("setDirection", &ZigZag::setDirection, allow_raw_pointers())
+        .function("setOrigin", &ZigZag::setOrigin, allow_raw_pointers())
+        .function("setStepOver", &ZigZag::setStepOver)
+        .function("addPoint", &ZigZag::addPoint)
+        // .function("getOutput", &ZigZag::getOutput)
+        .function("__str__", &ZigZag::str);
 
     class_<BatchPushCutter>("BatchPushCutter")
         .constructor()
@@ -227,7 +229,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .function("__str__", &Interval::str);
 
     class_<Fiber>("Fiber")
-        .constructor();
+        .constructor<Point, Point>();
 
     // class_<Fiber, bases<Fiber>>("Fiber")
     //     .constructor<Point, Point>()
@@ -245,7 +247,10 @@ EMSCRIPTEN_BINDINGS(opencamlib)
 
     class_<Waterline, emscripten::base<Operation>>("Waterline")
         .constructor()
+        .function("setCutter", &Waterline::setCutter, allow_raw_pointers())
+        .function("setSTL", &Waterline::setSTL, allow_raw_pointers())
         .function("setZ", &Waterline::setZ)
+        .function("setSampling", &Waterline::setSampling)
         .function("run", &Waterline::run)
         .function("run2", &Waterline::run2)
         .function("reset", &Waterline::reset)
@@ -277,12 +282,11 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .value("FULLINT", weave::FULLINT);
 
     class_<LineCLFilter>("LineCLFilter")
-        .constructor();
-    // class_<LineCLFilter, bases<LineCLFilter>>("LineCLFilter")
-    //     .function("addCLPoint", &LineCLFilter::addCLPoint)
-    //     .function("setTolerance", &LineCLFilter::setTolerance)
-    //     .function("run", &LineCLFilter::run)
-    //     .function("getCLPoints", &LineCLFilter::getCLPoints);
+        .constructor()
+        .function("addCLPoint", &LineCLFilter::addCLPoint)
+        .function("setTolerance", &LineCLFilter::setTolerance)
+        .function("run", &LineCLFilter::run);
+    // .function("getCLPoints", &LineCLFilter::getCLPoints);
 
     // some strange problem with hedi::face_edges()... let's not compile for now..
     // class_<clsurf::CutterLocationSurface>("CutterLocationSurface")
@@ -290,13 +294,13 @@ EMSCRIPTEN_BINDINGS(opencamlib)
     //     .function("run", &clsurf::CutterLocationSurface::run)
     //     .function("setMinSampling", &clsurf::CutterLocationSurface::setMinSampling)
     //     .function("setSampling", &clsurf::CutterLocationSurface::setSampling)
-    //     .function("setSTL", &clsurf::CutterLocationSurface::setSTL)
-    //     .function("setCutter", &clsurf::CutterLocationSurface::setCutter)
-    //     .function("getVertices", &clsurf::CutterLocationSurface::getVertices)
-    //     .function("getEdges", &clsurf::CutterLocationSurface::getEdges)
+    //     .function("setSTL", &clsurf::CutterLocationSurface::setSTL, allow_raw_pointers())
+    //     .function("setCutter", &clsurf::CutterLocationSurface::setCutter, allow_raw_pointers())
+    //     // .function("getVertices", &clsurf::CutterLocationSurface::getVertices)
+    //     // .function("getEdges", &clsurf::CutterLocationSurface::getEdges)
     //     .function("__str__", &clsurf::CutterLocationSurface::str);
     /*
-    class_< tsp::TSPSolver >("TSPSolver")  
+    class_<tsp::TSPSolver >("TSPSolver")
         .function("addPoint", &tsp::TSPSolver::addPoint)
         .function("run", &tsp::TSPSolver::run)
         .function("getOutput", &tsp::TSPSolver::getOutput)
@@ -308,42 +312,43 @@ EMSCRIPTEN_BINDINGS(opencamlib)
     /////////////
     // CUTTERS //
     /////////////
-    class_<MillingCutter>("MillingCutter");
-        // .function("vertexDrop", &MillingCutter::vertexDrop)
-        // .function("facetDrop", &MillingCutter::facetDrop)
-        // .function("edgeDrop", &MillingCutter::edgeDrop)
-        // .function("dropCutter", &MillingCutter::dropCutter)
-        // .function("pushCutter", &MillingCutter::pushCutter)
+    class_<MillingCutter>("MillingCutter")
+        .constructor()
+        .function("vertexDrop", &MillingCutter::vertexDrop)
+        .function("facetDrop", &MillingCutter::facetDrop)
+        .function("edgeDrop", &MillingCutter::edgeDrop)
+        .function("dropCutter", &MillingCutter::dropCutter)
+        .function("pushCutter", &MillingCutter::pushCutter)
         // .function("offsetCutter", &MillingCutter::offsetCutter)
-        // .function("__str__", &MillingCutter::str)
-        // .function("getRadius", &MillingCutter::getRadius)
-        // .function("getLength", &MillingCutter::getLength)
-        // .function("getDiameter", &MillingCutter::getDiameter);
+        .function("__str__", &MillingCutter::str)
+        .function("getRadius", &MillingCutter::getRadius)
+        .function("getLength", &MillingCutter::getLength)
+        .function("getDiameter", &MillingCutter::getDiameter);
 
     class_<CylCutter, emscripten::base<MillingCutter>>("CylCutter")
-        .constructor<double, double>();
-        // .function("dropCutterSTL", &CylCutter::dropCutterSTL);
+        .constructor<double, double>()
+        .function("dropCutterSTL", &CylCutter::dropCutterSTL, allow_raw_pointers());
 
     class_<BallCutter, emscripten::base<MillingCutter>>("BallCutter")
-        .constructor<double, double>();
-        // .function("dropCutterSTL", &BallCutter::dropCutterSTL);
+        .constructor<double, double>()
+        .function("dropCutterSTL", &BallCutter::dropCutterSTL, allow_raw_pointers());
 
     class_<BullCutter, emscripten::base<MillingCutter>>("BullCutter")
         .constructor<double, double, double>();
     class_<ConeCutter, emscripten::base<MillingCutter>>("ConeCutter")
         .constructor<double, double, double>();
 
-    // class_<CompCylCutter, emscripten::base<MillingCutter>>("CompCylCutter")
-    //     .constructor<double, double>();
-    // class_<CompBallCutter, emscripten::base<MillingCutter>>("CompBallCutter")
-    //     .constructor<double, double>();
+    class_<CompCylCutter, emscripten::base<MillingCutter>>("CompCylCutter")
+        .constructor<double, double>();
+    class_<CompBallCutter, emscripten::base<MillingCutter>>("CompBallCutter")
+        .constructor<double, double>();
 
-    // class_<CylConeCutter, emscripten::base<MillingCutter>>("CylConeCutter")
-    //     .constructor<double, double, double>();
-    // class_<BallConeCutter, emscripten::base<MillingCutter>>("BallConeCutter")
-    //     .constructor<double, double, double>();
-    // class_<BullConeCutter, emscripten::base<MillingCutter>>("BullConeCutter")
-    //     .constructor<double, double, double, double>();
-    // class_<ConeConeCutter, emscripten::base<MillingCutter>>("ConeConeCutter")
-    //     .constructor<double, double, double, double>();
+    class_<CylConeCutter, emscripten::base<MillingCutter>>("CylConeCutter")
+        .constructor<double, double, double>();
+    class_<BallConeCutter, emscripten::base<MillingCutter>>("BallConeCutter")
+        .constructor<double, double, double>();
+    class_<BullConeCutter, emscripten::base<MillingCutter>>("BullConeCutter")
+        .constructor<double, double, double, double>();
+    class_<ConeConeCutter, emscripten::base<MillingCutter>>("ConeConeCutter")
+        .constructor<double, double, double, double>();
 }
