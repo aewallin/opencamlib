@@ -53,17 +53,14 @@ elif [ "$1" = "nodejslib" ]; then
             --parallel $(sysctl -n hw.logicalcpu) \
             --CD BUILD_NODEJS_LIB="ON" \
             --debug
-
         cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
     fi
 elif [ "$1" = "python3lib" ]; then
     cd $BUILD_DIR
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
-        -D CMAKE_FIND_USE_CMAKE_PATH="OFF" \
-        -D Python_FIND_STRATEGY="LOCATION" \
-        -D Python3_ROOT_DIR="$(brew --prefix python3)" \
         -D BUILD_PY_LIB="ON" \
+        -D Python3_ROOT_DIR="$(brew --prefix python3)" \
         ../../..
     cmake --build . -j$(sysctl -n hw.logicalcpu)
     cmake --install .

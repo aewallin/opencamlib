@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.12...3.15)
-
 project(OpenCamLib)
 
 #set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
