@@ -141,13 +141,12 @@ void BatchDropCutter::dropCutter4() {
     unsigned int Nmax = clpoints->size();
 #endif
     std::vector<CLPoint>& clref = *clpoints; 
-    int nloop=0;
 #ifdef _OPENMP
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for shared( nloop, calls, clref) private(n,tris,it)
+    #pragma omp parallel for shared( calls, clref) private(n,tris,it)
         for (n=0;n< Nmax ;n++) { // PARALLEL OpenMP loop!
 #ifdef _OPENMP
             if ( n== 0 ) { // first iteration
@@ -155,7 +154,6 @@ void BatchDropCutter::dropCutter4() {
                     std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";// print out how many threads we are using
             }
 #endif
-            nloop++;
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             // assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 
             for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
@@ -200,14 +198,13 @@ void BatchDropCutter::dropCutter5() {
 	unsigned int n; // loop variable
 #endif
     std::vector<CLPoint>& clref = *clpoints; 
-    int nloop=0;
     
 #ifdef _OPENMP
     omp_set_num_threads(nthreads); // the constructor sets number of threads right
                                    // or the user can explicitly specify something else
 #endif
     std::list<Triangle>::iterator it;
-    #pragma omp parallel for schedule(dynamic) shared( nloop, calls, clref ) private(n,tris,it) 
+    #pragma omp parallel for schedule(dynamic) shared( calls, clref ) private(n,tris,it) 
         for (n=0;n<Nmax;++n) { // PARALLEL OpenMP loop!
 #ifdef _OPENMP
             if ( n== 0 ) { // first iteration
@@ -215,7 +212,6 @@ void BatchDropCutter::dropCutter5() {
                     std::cout << "Number of OpenMP threads = "<< omp_get_num_threads() << "\n";
             }
 #endif
-            nloop++;
             tris = root->search_cutter_overlap( cutter, &clref[n] );
             assert( tris );
             // assert( tris->size() <= ntriangles ); // can't possibly find more triangles than in the STLSurf 

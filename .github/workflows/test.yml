@@ -5,9 +5,9 @@ on:
     branches:
       - master
   push:
-    branches-ignore:
+    branches:
       - master
-    tags-ignore:
+    tags:
       - v*
 
 jobs:
