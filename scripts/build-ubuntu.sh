@@ -35,15 +35,18 @@ if [ "$1" = "cxxlib" ]; then
         -D BUILD_CXX_LIB="ON" \
         ../../..
     cmake --build . -j$(nproc)
+    sudo cmake --install .
 elif [ "$1" = "nodejslib" ]; then
     cd src/nodejslib
     npm install
     cd ../..
     if [ "$2" = "release" ]; then
         ./src/nodejslib/node_modules/.bin/cmake-js build --out "${BUILD_DIR}" --CDBUILD_NODEJS_LIB="ON"
+        mkdir -p src/npmpackage/build/Release || true
         cp -r $BUILD_DIR/Release/* src/npmpackage/build/Release || true
     else
         ./src/nodejslib/node_modules/.bin/cmake-js build --out "${BUILD_DIR}" --CDBUILD_NODEJS_LIB="ON" --debug
+        mkdir -p src/npmpackage/build/Debug || true
         cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
     fi
 elif [ "$1" = "python3lib" ]; then
@@ -53,6 +56,7 @@ elif [ "$1" = "python3lib" ]; then
         -D BUILD_PY_LIB="ON" \
         ../../..
     cmake --build . -j$(nproc)
+    sudo cmake --install .
 elif [ "$1" = "emscriptenlib" ]; then
     source ../emsdk/emsdk_env.sh
     cd $BUILD_DIR
@@ -62,6 +66,9 @@ elif [ "$1" = "emscriptenlib" ]; then
         -D USE_OPENMP="OFF" \
         ../../..
     emmake make -j$(nproc)
+    cd ../../..
+    mkdir -p "src/npmpackage/build" || true
+    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/" || true
 else
     echo "Usage: ./scripts/build-macos.sh lib build_type [clean]"
     echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib"

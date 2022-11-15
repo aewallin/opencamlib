@@ -14,7 +14,7 @@ jobs:
   test:
     name: Test ${{ matrix.os }} ${{ matrix.lib }} ${{ matrix.release_type }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 50
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +22,8 @@ jobs:
         os: [
           # ubuntu-16.04, # builds on this version are not picked up quickly on the free plan
           # ubuntu-18.04,
-          ubuntu-20.04,
+          # ubuntu-20.04,
+          ubuntu-22.04,
           # macos-10.5, # builds on this version are not picked up quickly on the free plan
           macos-11.0,
           # macos-12.00, # builds on this version are not picked up quickly on the free plan
@@ -36,19 +37,40 @@ jobs:
           emscriptenlib
         ]
         release_type: [debug, release]
+        include:
+          - os: windows-2022
+            lib: python3lib
+            python_executable: C:/hostedtoolcache/windows/Python/3.10.8/x64/python3.exe
+            python_prefix: C:/hostedtoolcache/windows/Python/3.10.8/x64
+          - os: macos-11.0
+            lib: python3lib
+            python_executable: /usr/local/opt/python@3.10/bin/python3
+            python_prefix: /usr/local/opt/python@3.10
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Install & Build
+      - name: Install
         shell: bash
         run: |
-          if [[ "${{ matrix.os }}" == "windows"* ]]; then
-            export PYTHON_EXECUTABLE="C:/hostedtoolcache/windows/Python/3.11.0/x64/python3.exe"
-          fi
+          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
           OSNAME="${{ matrix.os }}"
           ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+      - name: Build
+        shell: bash
+        run: |
+          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
+          OSNAME="${{ matrix.os }}"
           ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+      - name: Test
+        shell: bash
+        run: |
+          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
+          OSNAME="${{ matrix.os }}"
+          ./scripts/test-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
       # Disable for now to avoid running into limits
       # - uses: actions/upload-artifact@v3
       #   with:
