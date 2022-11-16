@@ -51,14 +51,12 @@ else()
   if (USE_PY_3)
     find_package(Python3 COMPONENTS Interpreter Development)
     set(PYTHON_INCLUDE_DIRS ${Python3_INCLUDE_DIRS})
-    set(PYTHON_LIBRARIES ${Python3_LIBRARIES})
     cmake_path(SET PYTHON_SITE_PACKAGES "${Python3_SITELIB}")
     cmake_path(SET PYTHON_ARCH_PACKAGES "${Python3_SITEARCH}")
     find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR})
   else()
     find_package(Python2 COMPONENTS Interpreter Development)
     set(PYTHON_INCLUDE_DIRS ${Python2_INCLUDE_DIRS})
-    set(PYTHON_LIBRARIES ${Python2_LIBRARIES})
     cmake_path(SET PYTHON_SITE_PACKAGES "${Python2_SITELIB}")
     cmake_path(SET PYTHON_ARCH_PACKAGES "${Python2_SITEARCH}")
     find_package(Boost COMPONENTS python${Python2_VERSION_MAJOR}${Python2_VERSION_MINOR})
@@ -70,7 +68,6 @@ message(STATUS "Boost_INCLUDE_DIRS = ${Boost_INCLUDE_DIRS}")
 message(STATUS "Boost_LIBRARY_DIRS = ${Boost_LIBRARY_DIRS}")
 message(STATUS "Boost_LIBRARIES = ${Boost_LIBRARIES}")
 message(STATUS "PYTHON_INCLUDE_DIRS = ${PYTHON_INCLUDE_DIRS}")
-message(STATUS "PYTHON_LIBRARIES = ${PYTHON_LIBRARIES}")
 message(STATUS "PYTHON_SITE_PACKAGES = ${PYTHON_SITE_PACKAGES}")
 message(STATUS "PYTHON_ARCH_PACKAGES = ${PYTHON_ARCH_PACKAGES}")
 
@@ -96,6 +93,11 @@ add_library(
   pythonlib/ocl.cpp
 )
 
+message(STATUS "linking Python binary ocl.so with Boost: " ${Boost_PYTHON_LIBRARY} " and OpenMP: " ${OpenMP_CXX_LIBRARIES})
+
+# to avoid the need to link with libpython, we should use dynamic lookup
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -undefined dynamic_lookup")
+
 target_link_libraries(
   ocl
   ocl_common
@@ -105,11 +107,7 @@ target_link_libraries(
   ocl_algo
   ${Boost_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}
-  ${PYTHON_LIBRARIES}
 )
-
-
-message(STATUS "linking python binary ocl.so with boost: " ${Boost_PYTHON_LIBRARY})
 
 # this makes the lib name ocl.so and not libocl.so
 set_target_properties(ocl PROPERTIES PREFIX "")
