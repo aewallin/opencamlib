@@ -1,4 +1,7 @@
-#!/bin/bash -xe
+#!/bin/bash
+
+set -x
+set -e
 
 if [ "$1" = "all" ]; then
     ./scripts/build-macos.sh cxxlib debug $3
@@ -28,12 +31,16 @@ fi
 
 mkdir -p $BUILD_DIR || true
 
-# export VERBOSE=1
+if [ -n "$BOOST_FROM_SOURCE" ]; then
+    BOOST_PREFIX=${BOOST_PREFIX:-"$HOME/local"}
+fi
+
 if [ "$1" = "cxxlib" ]; then
     cd $BUILD_DIR
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_CXX_LIB="ON" \
+        ${BOOST_PREFIX:+"-D Boost_ROOT=$BOOST_PREFIX"} \
         ../../..
     cmake --build . -j$(sysctl -n hw.logicalcpu)
     cmake --install .
@@ -45,26 +52,29 @@ elif [ "$1" = "nodejslib" ]; then
         ./src/nodejslib/node_modules/.bin/cmake-js build \
             --out "${BUILD_DIR}" \
             --parallel $(sysctl -n hw.logicalcpu) \
-            --CD BUILD_NODEJS_LIB="ON"
+            --CD BUILD_NODEJS_LIB="ON" \
+            ${BOOST_PREFIX:+"--CD Boost_ROOT=$BOOST_PREFIX"}
 
         mkdir -p src/npmpackage/build/Release || true
-        cp -r $BUILD_DIR/Release/* src/npmpackage/build/Release || true
+        cp "$BUILD_DIR/ocl.node" src/npmpackage/build/Release/ocl-$(node -e "console.log(process.platform)")-$(node -e "console.log(process.arch)").node || true
     else
         ./src/nodejslib/node_modules/.bin/cmake-js build \
             --out "${BUILD_DIR}" \
             --parallel $(sysctl -n hw.logicalcpu) \
             --CD BUILD_NODEJS_LIB="ON" \
+            ${BOOST_PREFIX:+"--CD Boost_ROOT=$BOOST_PREFIX"} \
             --debug
 
         mkdir -p src/npmpackage/build/Debug || true
-        cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
+        cp "$BUILD_DIR/ocl.node" src/npmpackage/build/Debug/ocl-$(node -e "console.log(process.platform)")-$(node -e "console.log(process.arch)").node || true
     fi
 elif [ "$1" = "python3lib" ]; then
     cd $BUILD_DIR
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
-        -D Python3_ROOT_DIR="${PYTHON_PREFIX}" \
+        ${PYTHON_PREFIX:+"-D Python3_ROOT_DIR=$PYTHON_PREFIX"} \
+        ${BOOST_PREFIX:+"-D Boost_ROOT=$BOOST_PREFIX"} \
         ../../..
     cmake --build . -j$(sysctl -n hw.logicalcpu)
     cmake --install .
@@ -75,11 +85,12 @@ elif [ "$1" = "emscriptenlib" ]; then
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
+        ${BOOST_PREFIX:+"-D Boost_ROOT=$BOOST_PREFIX"} \
         ../../..
     emmake make -j$(sysctl -n hw.logicalcpu)
     cd ../../..
     mkdir -p "src/npmpackage/build" || true
-    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/" || true
+    cp "$BUILD_DIR/ocl.js" src/npmpackage/build/ || true
 else
     echo "Usage: ./scripts/build-macos.sh lib build_type [clean]"
     echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib"

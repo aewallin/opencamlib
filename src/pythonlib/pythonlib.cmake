@@ -100,7 +100,7 @@ message(STATUS "linking Python binary ocl.so with Boost: " ${Boost_PYTHON_LIBRAR
 
 if(APPLE)
   # to avoid the need to link with libpython, we should use dynamic lookup
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -undefined dynamic_lookup")
+  set_target_properties(ocl PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
 
 target_link_libraries(
@@ -118,8 +118,8 @@ if(NOT APPLE)
   target_link_libraries(ocl ${PYTHON_LIBRARIES})
 endif()
 
-# this makes the lib name ocl.so and not libocl.so
 set_target_properties(ocl PROPERTIES PREFIX "")
+
 # this makes the lib name ocl.pyd and not ocl.so
 if (WIN32)
   set_target_properties(ocl PROPERTIES SUFFIX ".pyd")

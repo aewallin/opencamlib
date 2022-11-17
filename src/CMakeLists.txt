@@ -8,7 +8,13 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0025 NEW)
   cmake_policy(SET CMP0091 NEW) # for multithreaded  https://cmake.org/cmake/help/latest/policy/CMP0091.html
   cmake_policy(SET CMP0094 NEW) # for Python*_FIND_STRATEGY=LOCATION
+  cmake_policy(SET CMP0042 NEW)
 endif(COMMAND cmake_policy)
+
+# install targets in root of the build dir, using $<0:> generator expression to force it from not being overwritten
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
 
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 if (CMAKE_VERSION VERSION_LESS "3.1")
@@ -25,7 +31,7 @@ endif()
 
 # some options to set what is built:
 option(BUILD_CXX_LIB
-  "Build/install the pure c++ libocl library? " OFF)
+  "Build/install the pure c++ ocl library? " OFF)
 
 option(BUILD_PY_LIB 
   "Build/install the python ocl library? " OFF)
@@ -422,9 +428,9 @@ endif (BUILD_DOC)
 # "make spackage"
 add_custom_target(spackage 
   ${CMAKE_COMMAND} 
-  -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
+  -D SRC_DIR:STRING=${CMAKE_CURRENT_SOURCE_DIR} 
   -D MY_VERSION:STRING=${MY_VERSION} 
-  -C ${CMAKE_SOURCE_DIR}/deb/package_details.cmake
+  -C ${CMAKE_CURRENT_SOURCE_DIR}/deb/package_details.cmake
   -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
   ) 
 #add_custom_target(spackage-oneiric

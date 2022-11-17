@@ -10,34 +10,36 @@ include_directories( ${OpenCamLib_SOURCE_DIR}/common )
 include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 add_library(
-  libocl
+  ocl
   SHARED
   ${OCL_GEO_SRC}
   ${OCL_CUTTER_SRC}
   ${OCL_ALGO_SRC}
   ${OCL_DROPCUTTER_SRC}
   ${OCL_COMMON_SRC}
-  )
-set_target_properties(libocl PROPERTIES PREFIX "") 
-set_target_properties(libocl PROPERTIES VERSION ${MY_VERSION})
+)
+
+set_target_properties(ocl PROPERTIES
+  VERSION ${MY_VERSION}
+)
 
 target_link_libraries(
-  libocl
+  ocl
   ${Boost_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}
 )
 
 install(
-  TARGETS libocl
-  LIBRARY 
+  TARGETS ocl
+  LIBRARY
   DESTINATION lib/opencamlib
   ARCHIVE DESTINATION lib/opencamlib
   PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-  )
+)
 
 # this installs the c++ include headers
 install(
   FILES ${OCL_INCLUDE_FILES}
   DESTINATION include/opencamlib
   PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-  )
+)
