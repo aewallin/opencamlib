@@ -4,11 +4,17 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'scripts/**'
+      - 'src/**'
   push:
     branches:
       - master
     tags:
       - v*
+    paths:
+      - 'scripts/**'
+      - 'src/**'
 
 jobs:
   test:
@@ -36,17 +42,34 @@ jobs:
           nodejslib,
           emscriptenlib
         ]
-        release_type: [debug, release]
+        release_type: [
+          # debug,
+          release
+        ]
         include:
           - os: windows-2022
             lib: python3lib
             python_executable: C:/hostedtoolcache/windows/Python/3.10.8/x64/python3.exe
             python_prefix: C:/hostedtoolcache/windows/Python/3.10.8/x64
+            generator: Visual Studio 17 2022
             boost_from_source: "1"
+          - os: windows-2022
+            lib: emscriptenlib
+            boost_from_source: "1"
+            generator: Visual Studio 17 2022
+          - os: windows-2022
+            lib: cxxlib
+            generator: Visual Studio 17 2022
+          - os: windows-2022
+            lib: nodejslib
+            generator: Visual Studio 17 2022
           - os: macos-11.0
             lib: python3lib
             python_executable: /usr/local/opt/python@3.10/bin/python3
             python_prefix: /usr/local/opt/python@3.10
+          - os: ubuntu-22.04
+            lib: emscriptenlib
+            boost_from_source: "1"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -58,7 +81,7 @@ jobs:
           export PYTHON_PREFIX="${{ matrix.python_prefix }}"
           export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           OSNAME="${{ matrix.os }}"
-          ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+          ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
       - name: Build
         shell: bash
         run: |
@@ -66,7 +89,7 @@ jobs:
           export PYTHON_PREFIX="${{ matrix.python_prefix }}"
           export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           OSNAME="${{ matrix.os }}"
-          ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
+          ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
       - name: Test
         shell: bash
         run: |
@@ -74,19 +97,4 @@ jobs:
           export PYTHON_PREFIX="${{ matrix.python_prefix }}"
           export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           OSNAME="${{ matrix.os }}"
-          ./scripts/test-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }} ${OSNAME#*-}
-      # Disable for now to avoid running into limits
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: ocl
-      #     if-no-files-found: ignore
-      #     path: |
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/ocl.dylib
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/ocl.so
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/ocl.dll
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/libocl.dylib
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/libocl.so
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/libocl.dll
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/ocl.pyd
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/ocl.js
-      #       build/${{ matrix.lib }}/${{ matrix.release_type }}/ocl.node
+          ./scripts/test-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
