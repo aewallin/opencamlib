@@ -335,7 +335,7 @@ void SmartWeave::add_all_edges()
             }
 
             for(    in_edge_itr = in_edges.begin(),    out_edge_itr = out_edges.begin();
-                    in_edge_itr < in_edges.end(),    out_edge_itr < out_edges.end();
+                    in_edge_itr < in_edges.end() &&    out_edge_itr < out_edges.end();
                     in_edge_itr++,                    out_edge_itr++ )
             {
                 if( in_edge_itr == in_edges.begin() ) {

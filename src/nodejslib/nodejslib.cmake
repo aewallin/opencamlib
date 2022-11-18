@@ -18,7 +18,7 @@ include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib)
 
-add_library(opencamlib
+add_library(ocl
 	SHARED
 	${OCL_GEO_SRC}
 	${OCL_CUTTER_SRC}
@@ -45,20 +45,13 @@ add_library(opencamlib
 )
 
 target_link_libraries(
-  opencamlib
+  ocl
   ${Boost_LIBRARIES}
   ${OpenMP_CXX_LIBRARIES}
   ${CMAKE_JS_LIB}
 )
 
-if(WIN32)
-	set(NODE_LIB_POSTFIX ".win64.node")
-elseif(APPLE)
-	set(NODE_LIB_POSTFIX ".darwin.node")
-else()
-	set(NODE_LIB_POSTFIX ".linux.node")
-endif()
-
-set_target_properties(opencamlib PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
+set(NODE_LIB_POSTFIX ".node")
+set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
 
 add_definitions(-DNAPI_VERSION=3)

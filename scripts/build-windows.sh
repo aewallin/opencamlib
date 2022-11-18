@@ -1,4 +1,7 @@
-#!/bin/bash -xe
+#!/bin/bash
+
+set -x
+set -e
 
 if [ "$1" = "all" ]; then
     ./scripts/build-windows.sh cxxlib debug $3
@@ -29,13 +32,17 @@ else
     GENERATOR="Visual Studio 17 2022"
 fi
 
+if [ -n "$BOOST_FROM_SOURCE" ] || [ "$1" = "emscriptenlib" ]; then
+    BOOST_PREFIX=${BOOST_PREFIX:-"/c/boost"}
+fi
+
 if [ "$1" = "cxxlib" ]; then
     cd $BUILD_DIR
     cmake \
         -G "${GENERATOR}" \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_CXX_LIB="ON" \
-        -D BOOST_ROOT="/c/boost/boost_1_80_0" \
+        ${BOOST_PREFIX:+"-D BOOST_ROOT=$BOOST_PREFIX"} \
         ../../..
     cmake --build . --config "${BUILD_TYPE}" -- -maxcpucount
     cmake --install . --config "${BUILD_TYPE}"
@@ -48,18 +55,18 @@ elif [ "$1" = "nodejslib" ]; then
             build \
             --out "${BUILD_DIR}" \
             --CD BUILD_NODEJS_LIB="ON" \
-            --CD BOOST_ROOT="/c/boost/boost_1_80_0"
+            ${BOOST_PREFIX:+"--CD BOOST_ROOT=$BOOST_PREFIX"}
         mkdir -p src/npmpackage/build/Release || true
-        cp -r $BUILD_DIR/Release/* src/npmpackage/build/Release || true
+        cp "$BUILD_DIR/ocl.node" src/npmpackage/build/Release/ocl-$(node -e "console.log(process.platform)")-$(node -e "console.log(process.arch)").node || true
     else
         ./src/nodejslib/node_modules/.bin/cmake-js \
             build \
             --out "${BUILD_DIR}" \
             --CD BUILD_NODEJS_LIB="ON" \
-            --CD BOOST_ROOT="/c/boost/boost_1_80_0" \
+            ${BOOST_PREFIX:+"--CD BOOST_ROOT=$BOOST_PREFIX"} \
             --debug
         mkdir -p src/npmpackage/build/Debug || true
-        cp -r $BUILD_DIR/Debug/* src/npmpackage/build/Debug || true
+        cp "$BUILD_DIR/ocl.node" src/npmpackage/build/Debug/ocl-$(node -e "console.log(process.platform)")-$(node -e "console.log(process.arch)").node || true
     fi
 elif [ "$1" = "python3lib" ]; then
     cd $BUILD_DIR
@@ -67,8 +74,8 @@ elif [ "$1" = "python3lib" ]; then
         -G "${GENERATOR}" \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
-        -D BOOST_ROOT="/c/boost/boost_1_80_0" \
-        -D Python3_ROOT_DIR="${PYTHON_PREFIX}" \
+        ${BOOST_PREFIX:+"-D BOOST_ROOT=$BOOST_PREFIX"} \
+        ${PYTHON_PREFIX:+"-D Python3_ROOT_DIR=$PYTHON_PREFIX"} \
         ../../..
     cmake --build . --config "${BUILD_TYPE}" -- -maxcpucount
     cmake --install . --config "${BUILD_TYPE}"
@@ -79,12 +86,12 @@ elif [ "$1" = "emscriptenlib" ]; then
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
-        -D BOOST_ROOT="/c/boost/boost_1_80_0" \
+        ${BOOST_PREFIX:+"-D BOOST_ROOT=$BOOST_PREFIX"} \
         ../../..
     emmake make
     cd ../../..
     mkdir -p "src/npmpackage/build" || true
-    cp -r "$BUILD_DIR/src/opencamlib.js" "src/npmpackage/build/" || true
+    cp -r "$BUILD_DIR/ocl.js" src/npmpackage/build/ || true
 else
     echo "Usage: ./scripts/build-windows.sh lib build_type [clean]"
     echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib"

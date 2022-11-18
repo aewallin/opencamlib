@@ -16,7 +16,7 @@ include_directories( ${OpenCamLib_SOURCE_DIR} )
 
 include_directories(${OpenCamLib_SOURCE_DIR}/emscriptenlib)
 
-add_executable(opencamlib
+add_executable(ocl
 	# SHARED
 	${OCL_GEO_SRC}
 	${OCL_CUTTER_SRC}
@@ -27,10 +27,10 @@ add_executable(opencamlib
 )
 
 target_link_libraries(
-  opencamlib
+  ocl
   ${Boost_LIBRARIES}
 )
-set_target_properties(opencamlib PROPERTIES LINK_FLAGS "\
+set_target_properties(ocl PROPERTIES LINK_FLAGS "\
 	-lembind \
 	-s MODULARIZE=1 \
 	-s EXPORT_NAME=ocl \
