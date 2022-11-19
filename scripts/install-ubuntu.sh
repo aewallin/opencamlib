@@ -3,18 +3,20 @@
 set -x
 set -e
 
-sudo apt update
-sudo apt install -y git cmake build-essential doxygen texlive-latex-base
-if [ -z $BOOST_FROM_SOURCE ]; then
-    sudo apt install -y libboost-dev
-fi
-
-if [ "$1" = "python3lib" ]; then
-    if [ -z $PYTHON_EXECUTABLE ]; then
-        sudo apt install -y python3
-    fi
+if [ -z $NO_DEPS ]; then
+    sudo apt update
+    sudo apt install -y git cmake build-essential doxygen texlive-latex-base
     if [ -z $BOOST_FROM_SOURCE ]; then
-        sudo apt install -y libboost-python-dev
+        sudo apt install -y libboost-dev
+    fi
+
+    if [ "$1" = "python3lib" ]; then
+        if [ -z $PYTHON_EXECUTABLE ]; then
+            sudo apt install -y python3
+        fi
+        if [ -z $BOOST_FROM_SOURCE ]; then
+            sudo apt install -y libboost-python-dev
+        fi
     fi
 fi
 
@@ -31,7 +33,7 @@ if [ "$1" = "emscriptenlib" ]; then
     ./emsdk activate latest
 fi
 
-if [ -n "$BOOST_FROM_SOURCE" ] || [ "$1" = "emscriptenlib" ]; then
+if [ -n "$BOOST_FROM_SOURCE" ]; then
     rm -rf /tmp/boost || true
     mkdir /tmp/boost
     cd /tmp
@@ -51,7 +53,8 @@ if [ -n "$BOOST_FROM_SOURCE" ] || [ "$1" = "emscriptenlib" ]; then
         GOT_USER_CONFIG="1"
     fi
     ./bootstrap.sh
-    ./b2 address-model=64 \
+    SYSTEM_ADDRESS_MODEL=$(getconf LONG_BIT)
+    ./b2 address-model=${ADDRESS_MODEL:-"$SYSTEM_ADDRESS_MODEL"} \
         threading=multi \
         -j$(nproc) \
         variant="$2" \

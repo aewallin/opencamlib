@@ -1,10 +1,5 @@
 message(STATUS "Will build node.js library")
 
-if(CMAKE_BUILD_TYPE MATCHES "Debug")
-	message(STATUS "Debug build, passing -g flag to compiler to emit source location (handy for debugging with lldb)")
-	add_definitions(-g)
-endif()
-
 include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib/node_modules/node-addon-api)
 include_directories(${CMAKE_JS_INC})
 

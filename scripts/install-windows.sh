@@ -3,9 +3,11 @@
 set -x
 set -e
 
-choco install wget --no-progress
-if [ -z $BOOST_FROM_SOURCE ]; then
-    choco install boost-msvc-14.3 --no-progress
+if [ -z $NO_DEPS ]; then
+    choco install wget --no-progress
+    if [ -z $BOOST_FROM_SOURCE ]; then
+        choco install boost-msvc-14.3 --no-progress
+    fi
 fi
 
 if [ "$1" = "emscriptenlib" ]; then
@@ -22,7 +24,7 @@ if [ "$1" = "nodejslib" ]; then
     cd ../..
 fi
 
-if [ -n "$BOOST_FROM_SOURCE" ] || [ "$1" = "emscriptenlib" ]; then
+if [ -n "$BOOST_FROM_SOURCE" ]; then
     rm -rf /c/boost || true
     mkdir /c/boost
     cd /c
@@ -42,7 +44,7 @@ if [ -n "$BOOST_FROM_SOURCE" ] || [ "$1" = "emscriptenlib" ]; then
         GOT_USER_CONFIG="1"
     fi
     ./bootstrap.bat
-    ./b2 address-model=64 \
+    ./b2 address-model=${ADDRESS_MODEL:-"64"} \
         threading=multi \
         -j2 \
         variant="$2" \
