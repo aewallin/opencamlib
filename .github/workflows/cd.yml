@@ -48,15 +48,19 @@ jobs:
             os: macos-11.0
             osname: macos
             arch: arm64
+            boost_architecture: arm
             python_executable: /usr/local/opt/python@3.10/bin/python3
             python_prefix: /usr/local/opt/python@3.10
+            boost_from_source: "1"
             address_model: "32_64"
           - os_arch: macos-x86_64
             os: macos-11.0
             osname: macos
             arch: x86_64
+            boost_architecture: x86
             python_executable: /usr/local/opt/python@3.10/bin/python3
             python_prefix: /usr/local/opt/python@3.10
+            boost_from_source: "1"
             address_model: "32_64"
           - os_arch: ubuntu-x64
             os: ubuntu-22.04
@@ -85,29 +89,33 @@ jobs:
         shell: bash
         if: ${{ !matrix.docker-arch }}
         run: |
-          export NO_INSTALL="1"
-          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export ADDRESS_MODEL="${{ matrix.address_model }}"
+          export OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
+          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
+          export OCL_ADDRESS_MODEL="${{ matrix.address_model }}"
           ./scripts/install-${{ matrix.osname }}.sh nodejslib release
-          export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
+          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           if [ "${{ matrix.osname }}" == "macos" ]; then
             export CMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}"
-            export OPENMP_MULTI_ARCH="1"
+            export OCL_OPENMP_MULTI_ARCH="1"
           fi
           ./scripts/install-${{ matrix.osname }}.sh python3lib release
           if [ "${{ matrix.osname }}" == "macos" ]; then
             export OPENMP_PREFIX_MACOS=$(find /tmp/libomp-${{ matrix.arch }}/libomp -depth 1)
           fi
+          export OCL_INSTALL_PREFIX="$(pwd)/dist/cxxlib"
           ./scripts/build-${{ matrix.osname }}.sh cxxlib release
+          export OCL_INSTALL_PREFIX="$(pwd)/dist/nodejslib"
           ./scripts/build-${{ matrix.osname }}.sh nodejslib release
+          export OCL_INSTALL_PREFIX="$(pwd)/dist/python3lib"
           ./scripts/build-${{ matrix.osname }}.sh python3lib release
           if [ "${{ matrix.os_arch }}" = "ubuntu-x64" ]; then
-            export BOOST_FROM_SOURCE="1"
+            export OCL_BOOST_FROM_SOURCE="1"
             ./scripts/install-ubuntu.sh emscriptenlib release
+            export OCL_INSTALL_PREFIX="$(pwd)/dist/emscriptenlib"
             ./scripts/build-ubuntu.sh emscriptenlib release
           fi
-          find ./build
+          find .
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         if: matrix.docker-arch
@@ -116,32 +124,30 @@ jobs:
         if: matrix.docker-arch
         with:
           image: ${{ matrix.docker-image }}
-          options: --platform=${{ matrix.docker-arch }} -v ${{ github.workspace }}:/work -e OSNAME=${{ matrix.osname }} -e ADDRESS_MODEL=${{ matrix.address_model }}
+          options: --platform=${{ matrix.docker-arch }} -v ${{ github.workspace }}:/work -e OSNAME=${{ matrix.osname }} -e OCL_ADDRESS_MODEL=${{ matrix.address_model }}
           run: |
             apt-get update
-            apt-get install -y git cmake build-essential libboost-dev libboost-python-dev tree
+            apt-get install -y git cmake build-essential libboost-dev libboost-python-dev
             cd /work
-            export NO_DEPS="1"
-            export NO_INSTALL="1"
+            export OCL_NO_DEPS="1"
             ./scripts/install-${OSNAME}.sh nodejslib release
             ./scripts/install-${OSNAME}.sh python3lib release
+            export OCL_INSTALL_PREFIX="$(pwd)/dist/cxxlib"
             ./scripts/build-${OSNAME}.sh cxxlib release
+            export OCL_INSTALL_PREFIX="$(pwd)/dist/nodejslib"
             ./scripts/build-${OSNAME}.sh nodejslib release
+            export OCL_INSTALL_PREFIX="$(pwd)/dist/python3lib"
             ./scripts/build-${OSNAME}.sh python3lib release
-            tree ./build
+            find .
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os_arch }}
           if-no-files-found: ignore
           path: |
-            build/python3lib/release/ocl.dylib
-            build/python3lib/release/ocl.so
-            build/pyhon3lib/release/ocl.pyd
-            build/cxxlib/release/libocl.dylib
-            build/cxxlib/release/libocl.so
-            build/cxxlib/release/libocl.dll
-            build/emscriptenlib/release/ocl.js
-            build/nodejslib/release/ocl.node
+            dist/python3lib
+            dist/cxxlib
+            dist/emscriptenlib
+            dist/nodejslib
   bundle:
     name: Bundle Libraries
     needs: build

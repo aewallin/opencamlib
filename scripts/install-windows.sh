@@ -3,11 +3,39 @@
 set -x
 set -e
 
-if [ -z $NO_DEPS ]; then
+print_help() {
+    cat "$(dirname $(readlink -f $0))/usage-install.txt"
+    exit 1
+}
+
+POSITIONAL_ARGS=()
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
+        --boost-from-source) OCL_BOOST_FROM_SOURCE="1"; ;;
+        --boost-address-model) OCL_BOOST_ADDRESS_MODEL="$2"; shift ;;
+        --boost-architecture) OCL_BOOST_ARCHITECTURE="$2"; shift ;;
+        --python-executable) OCL_PYTHON_EXECUTABLE="$2"; shift ;;
+        --no-deps) OCL_NO_DEPS="1"; ;;
+        --help|--*)
+            print_help ;;
+        *)
+            POSITIONAL_ARGS+=("$1") ;;
+    esac
+    shift
+done
+set -- "${POSITIONAL_ARGS[@]}"
+
+if [ -z $OCL_NO_DEPS ]; then
     choco install wget --no-progress
-    if [ -z $BOOST_FROM_SOURCE ]; then
+    if [ -z $OCL_BOOST_FROM_SOURCE ]; then
         choco install boost-msvc-14.3 --no-progress
     fi
+fi
+
+if [ "$1" = "nodejslib" ]; then
+    cd src/nodejslib
+    npm install
 fi
 
 if [ "$1" = "emscriptenlib" ]; then
@@ -18,25 +46,19 @@ if [ "$1" = "emscriptenlib" ]; then
     ./emsdk activate latest
 fi
 
-if [ "$1" = "nodejslib" ]; then
-    cd src/nodejslib
-    npm install
-    cd ../..
-fi
-
-if [ -n "$BOOST_FROM_SOURCE" ]; then
+if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
     rm -rf /c/boost || true
     mkdir /c/boost
     cd /c
-    if [ ! -f boost.tar.gz ]; then
-        wget -nv -O boost.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
+    if [ ! -f boost_1_80_0.tar.gz ]; then
+        wget -nv -O boost_1_80_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
     fi
-    tar -zxf boost.tar.gz -C /c/boost
+    tar -zxf boost_1_80_0.tar.gz -C /c/boost
     cd /c/boost/boost_1_80_0
     if [ "$1" = "python3lib" ]; then
-        if [ -n "${PYTHON_EXECUTABLE}" ]; then
-            PYTHON_VERSION=`${PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
-            echo "using python : ${PYTHON_VERSION} : ${PYTHON_EXECUTABLE} ;" > ./user-config.jam
+        if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
+            PYTHON_VERSION=`${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
+            echo "using python : ${PYTHON_VERSION} : ${OCL_PYTHON_EXECUTABLE} ;" > ./user-config.jam
         else
             echo "using python ;" > ./user-config.jam
         fi
@@ -44,14 +66,17 @@ if [ -n "$BOOST_FROM_SOURCE" ]; then
         GOT_USER_CONFIG="1"
     fi
     ./bootstrap.bat
-    ./b2 address-model=${ADDRESS_MODEL:-"64"} \
+    ./b2 \
         threading=multi \
         -j2 \
         variant="$2" \
         link=static \
+        address-model=${OCL_BOOST_ADDRESS_MODEL:-"64"} \
+        ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
         --layout=system \
         --build-type=minimal \
         ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
+        cxxflags='-fPIC' \
         install \
         --prefix="${BOOST_PREFIX:-"/c/boost"}"
 fi

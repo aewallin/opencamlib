@@ -4,12 +4,12 @@ include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib/node_modules/node-addon-a
 include_directories(${CMAKE_JS_INC})
 
 # include dirs
-include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
-include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
-include_directories( ${OpenCamLib_SOURCE_DIR}/common )
-include_directories( ${OpenCamLib_SOURCE_DIR} )
+include_directories(${OpenCamLib_SOURCE_DIR}/cutters)
+include_directories(${OpenCamLib_SOURCE_DIR}/geo)
+include_directories(${OpenCamLib_SOURCE_DIR}/algo)
+include_directories(${OpenCamLib_SOURCE_DIR}/dropcutter)
+include_directories(${OpenCamLib_SOURCE_DIR}/common)
+include_directories(${OpenCamLib_SOURCE_DIR})
 
 include_directories(${OpenCamLib_SOURCE_DIR}/nodejslib)
 
@@ -46,7 +46,36 @@ target_link_libraries(
   ${CMAKE_JS_LIB}
 )
 
-set(NODE_LIB_POSTFIX ".node")
-set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ${NODE_LIB_POSTFIX})
+execute_process(COMMAND node --print "process.platform" OUTPUT_VARIABLE NODE_PLATFORM)
+string(STRIP ${NODE_PLATFORM} NODE_PLATFORM)
+if(CMAKE_OSX_ARCHITECTURES)
+	if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+		set(NODE_ARCH "arm64")
+	else()
+		set(NODE_ARCH "x64")
+	endif()
+else()
+	execute_process(COMMAND node --print "process.arch" OUTPUT_VARIABLE NODE_ARCH)
+	string(STRIP ${NODE_ARCH} NODE_ARCH)
+endif()
+set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX "-${NODE_PLATFORM}-${NODE_ARCH}.node")
 
 add_definitions(-DNAPI_VERSION=3)
+
+if(USE_OPENMP AND APPLE)
+  # copy libomp into install directory
+  install(
+    FILES ${OpenMP_omp_LIBRARY}
+    DESTINATION "."
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  )
+  # fix loader path
+  add_custom_command(TARGET ocl POST_BUILD
+    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@loader_path/libomp.dylib" $<TARGET_FILE:ocl>
+  )
+endif()
+
+install(
+	TARGETS ocl
+	DESTINATION "."
+)
