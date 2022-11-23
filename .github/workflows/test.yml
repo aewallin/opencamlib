@@ -67,6 +67,7 @@ jobs:
             lib: python3lib
             python_executable: /usr/local/opt/python@3.10/bin/python3
             python_prefix: /usr/local/opt/python@3.10
+            boost_from_source: "1"
           - os: ubuntu-22.04
             lib: emscriptenlib
             boost_from_source: "1"
@@ -77,24 +78,38 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
+          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
+          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           OSNAME="${{ matrix.os }}"
           ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
       - name: Build
         shell: bash
         run: |
-          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
+          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
+          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           OSNAME="${{ matrix.os }}"
+          if [ "${OSNAME%%-*}" = "ubuntu" ]; then
+            export OCL_SUDO_INSTALL="1"
+          fi
+          if [ "${{ matrix.lib }}" = "cxxlib" ] && [ "${OSNAME%%-*}" != "windows" ]; then
+            export OCL_INSTALL_PREFIX="/usr/local"
+          elif [ "${{ matrix.lib }}" = "nodejslib" ]; then
+            if [ "${{ matrix.release_type }}" = "debug" ]; then
+              export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build/Debug"
+            else
+              export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build/Release"
+            fi
+          elif [ "${{ matrix.lib }}" = "emscriptenlib" ]; then
+            export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build"
+          fi
           ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
       - name: Test
         shell: bash
         run: |
-          export PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
+          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
+          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
+          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
           OSNAME="${{ matrix.os }}"
           ./scripts/test-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}

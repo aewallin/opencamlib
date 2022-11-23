@@ -3,109 +3,92 @@
 set -x
 set -e
 
-if [ "$1" = "all" ]; then
-    if [ "$2" = "debug" ] || [ -z $2 ]; then
-        ./scripts/build-macos.sh cxxlib debug $3
-        ./scripts/build-macos.sh python3lib debug $3
-        ./scripts/build-macos.sh nodejslib debug $3
-        ./scripts/build-macos.sh emscriptenlib debug $3
-    elif [ "$2" = "release" ] || [ -z $2 ]; then
-        ./scripts/build-macos.sh cxxlib release $3
-        ./scripts/build-macos.sh python3lib release $3
-        ./scripts/build-macos.sh nodejslib release $3
-        ./scripts/build-macos.sh emscriptenlib release $3
-    fi
-    exit 0
+print_help() {
+    cat "$(dirname $(readlink -f $0))/usage-build.txt"
+    exit 1
+}
+
+POSITIONAL_ARGS=()
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --install-prefix) OCL_INSTALL_PREFIX="$2"; shift ;;
+        --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
+        --python-prefix) OCL_PYTHON_PREFIX="$2"; shift ;;
+        --clean) OCL_CLEAN="1"; ;;
+        --no-install) OCL_NO_INSTALL="1"; ;;
+        --help|--*)
+            print_help ;;
+        *)
+            POSITIONAL_ARGS+=("$1") ;;
+    esac
+    shift
+done
+set -- "${POSITIONAL_ARGS[@]}"
+
+if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
+    OCL_BOOST_PREFIX=${OCL_BOOST_PREFIX:-"$HOME/local"}
 fi
 
 BUILD_DIR="build/${1}"
-if [ "$2" = "release" ]; then
-    BUILD_DIR="$BUILD_DIR/release"
-    BUILD_TYPE="Release"
-else
+if [ "$2" = "debug" ]; then
     BUILD_DIR="$BUILD_DIR/debug"
     BUILD_TYPE="Debug"
+else
+    BUILD_DIR="$BUILD_DIR/release"
+    BUILD_TYPE="Release"
 fi
 
-if [ "$3" = "clean" ]; then
+if [ "$OCL_CLEAN" = "1" ]; then
     echo $BUILD_DIR
     rm -rf $BUILD_DIR || true
 fi
-
 mkdir -p $BUILD_DIR || true
+cd $BUILD_DIR
 
-if [ -n "$BOOST_FROM_SOURCE" ]; then
-    BOOST_PREFIX=${BOOST_PREFIX:-"$HOME/local"}
-fi
+NUM_PROCS=$(sysctl -n hw.logicalcpu)
 
 if [ "$1" = "cxxlib" ]; then
-    cd $BUILD_DIR
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_CXX_LIB="ON" \
-        ${BOOST_PREFIX:+"-D Boost_ROOT=$BOOST_PREFIX"} \
+        ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
-    cmake --build . -j$(sysctl -n hw.logicalcpu)
-    if [ -z $NO_INSTALL ]; then
-        cmake --install .
-    fi
+    cmake --build . -j$NUM_PROCS
 elif [ "$1" = "nodejslib" ]; then
-    cd src/nodejslib
-    npm install
-    cd ../..
-    if [ "$2" = "release" ]; then
-        ./src/nodejslib/node_modules/.bin/cmake-js build \
-            --out "${BUILD_DIR}" \
-            --parallel $(sysctl -n hw.logicalcpu) \
-            --CD BUILD_NODEJS_LIB="ON" \
-            ${BOOST_PREFIX:+"--CD Boost_ROOT=$BOOST_PREFIX"}
-        if [ -z $NO_INSTALL ]; then
-            mkdir -p src/npmpackage/build/Release || true
-            cp "$BUILD_DIR/ocl.node" src/npmpackage/build/Release/ocl-$(node -e "console.log(process.platform)")-$(node -e "console.log(process.arch)").node || true
-        fi
-    else
-        ./src/nodejslib/node_modules/.bin/cmake-js build \
-            --out "${BUILD_DIR}" \
-            --parallel $(sysctl -n hw.logicalcpu) \
-            --CD BUILD_NODEJS_LIB="ON" \
-            ${BOOST_PREFIX:+"--CD Boost_ROOT=$BOOST_PREFIX"} \
-            --debug
-        if [ -z $NO_INSTALL ]; then
-            mkdir -p src/npmpackage/build/Debug || true
-            cp "$BUILD_DIR/ocl.node" src/npmpackage/build/Debug/ocl-$(node -e "console.log(process.platform)")-$(node -e "console.log(process.arch)").node || true
-        fi
-    fi
+    ../../../src/nodejslib/node_modules/.bin/cmake-js \
+        build \
+        --directory "../../.." \
+        --out "." \
+        --parallel $NUM_PROCS \
+        --CD BUILD_NODEJS_LIB="ON" \
+        ${CMAKE_OSX_ARCHITECTURES:+"--arch=${CMAKE_OSX_ARCHITECTURES}"} \
+        ${OCL_INSTALL_PREFIX:+"--CDCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"--CDBoost_ROOT=${OCL_BOOST_PREFIX}"} \
+        --config "${BUILD_TYPE}"
 elif [ "$1" = "python3lib" ]; then
-    cd $BUILD_DIR
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
-        ${PYTHON_PREFIX:+"-D Python3_ROOT_DIR=$PYTHON_PREFIX"} \
-        ${BOOST_PREFIX:+"-D Boost_ROOT=$BOOST_PREFIX"} \
+        ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
+        ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
-    cmake --build . -j$(sysctl -n hw.logicalcpu)
-    if [ -z $NO_INSTALL ]; then
-        cmake --install .
-    fi
+    cmake --build . -j$NUM_PROCS
 elif [ "$1" = "emscriptenlib" ]; then
-    source ../emsdk/emsdk_env.sh
-    cd $BUILD_DIR
+    source ../../../../emsdk/emsdk_env.sh
     emcmake cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
-        ${BOOST_PREFIX:+"-D Boost_ROOT=$BOOST_PREFIX"} \
+        ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
-    emmake make -j$(sysctl -n hw.logicalcpu)
-    if [ -z $NO_INSTALL ]; then
-        cd ../../..
-        mkdir -p "src/npmpackage/build" || true
-        cp "$BUILD_DIR/ocl.js" src/npmpackage/build/ || true
-    fi
+    emmake make -j$NUM_PROCS
 else
-    echo "Usage: ./scripts/build-macos.sh lib build_type [clean]"
-    echo "  lib: one of cxxlib, nodejslib, python3lib, emscriptenlib, all"
-    echo "  build_type: one of debug, release"
-    echo "  clean: optional, removes the build directory before building"
+   print_help
 fi
 
+if [ -z $OCL_NO_INSTALL ]; then
+    cmake --install .
+fi

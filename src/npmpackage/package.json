@@ -31,8 +31,7 @@
     "browserify-derequire": "^1.1.1",
     "isomorphic-fetch": "^3.0.0",
     "stl": "^1.1.1",
-    "typescript": "^4.1.3",
-    "segfault-handler": "^1.3.0"
+    "typescript": "^4.1.3"
   },
   "dependencies": {}
 }

@@ -21,6 +21,9 @@
 
 // This is an extra comment.  One can never have too many comments.
 
+#ifdef _OPENMP
+    #include <omp.h>
+#endif
 #include <boost/python.hpp>
 #include <boost/python/docstring_options.hpp>
 
@@ -32,6 +35,14 @@ std::string ocl_docstring() {
 
 std::string ocl_version() {
     return VERSION_STRING;
+}
+
+int ocl_max_threads()
+{
+    #ifdef _OPENMP
+    return omp_get_max_threads();
+    #endif
+    return 1;
 }
 
 namespace bp = boost::python;
@@ -58,6 +69,7 @@ BOOST_PYTHON_MODULE(ocl) {
     
     bp::def("__doc__", ocl_docstring);
     bp::def("version", ocl_version);
+    bp::def("max_threads", ocl_max_threads);
     export_geometry(); // see ocl_geometry.cpp
     export_cutters(); // see ocl_cutters.cpp    
     export_algo(); // see ocl_algo.cpp

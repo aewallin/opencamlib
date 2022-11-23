@@ -36,6 +36,6 @@ fi
 
 if [ "$1" = "python3lib" ]; then
   cd examples/python
-  ${PYTHON_EXECUTABLE:-python3} -m sysconfig
-  ${PYTHON_EXECUTABLE:-python3} test.py
+  ${OCL_PYTHON_EXECUTABLE:-python3} -m sysconfig
+  ${OCL_PYTHON_EXECUTABLE:-python3} test.py
 fi

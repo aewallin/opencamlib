@@ -9,12 +9,19 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0091 NEW) # for multithreaded  https://cmake.org/cmake/help/latest/policy/CMP0091.html
   cmake_policy(SET CMP0094 NEW) # for Python*_FIND_STRATEGY=LOCATION
   cmake_policy(SET CMP0042 NEW)
+  cmake_policy(SET CMP0054 NEW)
 endif(COMMAND cmake_policy)
 
 # install targets in root of the build dir, using $<0:> generator expression to force it from not being overwritten
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+  string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/$<0:>)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/$<0:>)
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/$<0:>)
+endforeach()
 
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
 if (CMAKE_VERSION VERSION_LESS "3.1")
@@ -118,6 +125,13 @@ if (BUILD_EMSCRIPTEN_LIB)
 elseif(USE_OPENMP)
   set(Boost_USE_MULTITHREADED  ON)
 endif()
+if (WIN32)
+  # use static python lib
+  add_definitions(-D BOOST_PYTHON_STATIC_LIB)
+  # disable autolinking in boost
+  add_definitions(-D BOOST_ALL_NO_LIB) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
+endif()
+
 # when building the emscripten we have to temporarily set
 # the root path mode to BOTH so Boost can be found
 if (BUILD_EMSCRIPTEN_LIB)

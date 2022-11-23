@@ -7,12 +7,12 @@ find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # include dirs
-include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
-include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/dropcutter )
-include_directories( ${OpenCamLib_SOURCE_DIR}/common )
-include_directories( ${OpenCamLib_SOURCE_DIR} )
+include_directories(${OpenCamLib_SOURCE_DIR}/cutters)
+include_directories(${OpenCamLib_SOURCE_DIR}/geo)
+include_directories(${OpenCamLib_SOURCE_DIR}/algo)
+include_directories(${OpenCamLib_SOURCE_DIR}/dropcutter)
+include_directories(${OpenCamLib_SOURCE_DIR}/common)
+include_directories(${OpenCamLib_SOURCE_DIR})
 
 include_directories(${OpenCamLib_SOURCE_DIR}/emscriptenlib)
 
@@ -30,6 +30,7 @@ target_link_libraries(
   ocl
   ${Boost_LIBRARIES}
 )
+
 set_target_properties(ocl PROPERTIES LINK_FLAGS "\
 	-lembind \
 	-s MODULARIZE=1 \
@@ -41,3 +42,8 @@ set_target_properties(ocl PROPERTIES LINK_FLAGS "\
 	-s SINGLE_FILE=1 \
 	-s ENVIRONMENT=web \
 	--closure 1")
+
+install(
+  TARGETS ocl
+  RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+)

@@ -1,0 +1,13 @@
+Usage: ./scripts/build-PLATFORM.sh [OPTIONS] LIB BUILD_TYPE
+
+Options:
+  --clean           removes the build directory before building
+  --boost-prefix    set a custom path where to look for Boost
+  --python-prefix   set a custom path where to look for Python
+  --install-prefix  set a custom path where to install the library
+  --no-install      skip cmake --install
+  --help            shows this page
+Libraries:
+  cxxlib | nodejslib | python3lib | emscriptenlib
+Build types:
+  debug | release
