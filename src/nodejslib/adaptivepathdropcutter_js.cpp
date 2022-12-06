@@ -23,6 +23,7 @@ void AdaptivePathDropCutterJS::Init(Napi::Env env, Napi::Object exports)
         InstanceMethod("setConeCutter", &AdaptivePathDropCutterJS::setConeCutter),
         InstanceMethod("setSampling", &AdaptivePathDropCutterJS::setSampling),
         InstanceMethod("setMinSampling", &AdaptivePathDropCutterJS::setMinSampling),
+        InstanceMethod("setZ", &AdaptivePathDropCutterJS::setZ),
         InstanceMethod("getCLPoints", &AdaptivePathDropCutterJS::getCLPoints),
         InstanceMethod("run", &AdaptivePathDropCutterJS::run)
     });
@@ -107,6 +108,14 @@ void AdaptivePathDropCutterJS::setMinSampling(const Napi::CallbackInfo &info)
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
     this->actualClass_->setMinSampling(s.DoubleValue());
+}
+
+void AdaptivePathDropCutterJS::setZ(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+    Napi::Number s = info[0].As<Napi::Number>();
+    this->actualClass_->setZ(s.DoubleValue());
 }
 
 Napi::Value AdaptivePathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info)
