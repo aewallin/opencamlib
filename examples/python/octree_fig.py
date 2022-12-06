@@ -1,10 +1,5 @@
-import ocl
-import pyocl
-import camvtk
-import time
-import datetime
-import vtk
-import math
+from opencamlib import ocl, camvtk
+
 """
 This scripts draws a picture which enumerates the vertices, edges, and faces
 of an octree node, as used in the octree cutting simulation and

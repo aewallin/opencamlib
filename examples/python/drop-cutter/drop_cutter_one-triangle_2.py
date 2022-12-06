@@ -1,9 +1,5 @@
-import ocl
-import pyocl
-import camvtk
-import vtk
+from opencamlib import ocl, pyocl, camvtk
 import math
-
 
 def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 

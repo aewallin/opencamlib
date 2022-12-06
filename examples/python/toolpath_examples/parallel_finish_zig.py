@@ -3,12 +3,8 @@
 # Anders Wallin 2014-02-23
 
 import time
-import vtk  # visualization
-import math
 
-import ocl        # https://github.com/aewallin/opencamlib
-#import pyocl     # ocl helper library
-import camvtk     # ocl helper library
+from opencamlib import ocl, camvtk
 import ngc_writer # G-code output is produced by this module
 
 # create a simple "Zig" pattern where we cut only in one direction.

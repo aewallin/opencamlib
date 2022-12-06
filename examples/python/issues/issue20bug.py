@@ -1,5 +1,4 @@
-import ocl
-import camvtk
+from opencamlib import ocl, camvtk
 import issue20data
 
 if __name__ == "__main__":  

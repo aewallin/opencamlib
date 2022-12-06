@@ -1,8 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
+from opencamlib import ocl, camvtk
 import math
 
 def drawFiber_clpts(myscreen, f, fibercolor=camvtk.red):

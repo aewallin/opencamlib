@@ -1,8 +1,5 @@
-import ocl
-import camvtk
+from opencamlib import ocl, camvtk
 import time
-import vtk
-
 
 if __name__ == "__main__":  
     print(ocl.version())

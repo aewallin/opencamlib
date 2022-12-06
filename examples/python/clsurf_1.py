@@ -1,10 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
-import math
-import random
+from opencamlib import ocl, camvtk
 
 def drawVertex(myscreen, p, vertexColor, rad=0.1):
     myscreen.addActor( camvtk.Sphere( center=(p.x,p.y,p.z), radius=rad, color=vertexColor ) )

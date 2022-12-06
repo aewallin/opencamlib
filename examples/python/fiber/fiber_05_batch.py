@@ -1,9 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
-import math
+from opencamlib import ocl, camvtk
 
 if __name__ == "__main__":  
     print(ocl.version())

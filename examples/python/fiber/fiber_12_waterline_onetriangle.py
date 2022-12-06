@@ -1,8 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
+from opencamlib import ocl, camvtk
 import math
 
 # 2018.08: Weave not wrapped

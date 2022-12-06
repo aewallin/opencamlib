@@ -1,7 +1,4 @@
-import ocl
-import pyocl
-import camvtk
-import time
+from opencamlib import ocl, pyocl, camvtk
 
 if __name__ == "__main__":  
     myscreen = camvtk.VTKScreen()

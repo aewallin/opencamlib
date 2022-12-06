@@ -1,9 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
-import math
+from opencamlib import ocl, camvtk
 
 def drawPoints(myscreen, clpoints, ccpoints):
     c=camvtk.PointCloud( pointlist=clpoints, collist=ccpoints) 

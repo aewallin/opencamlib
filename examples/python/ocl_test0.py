@@ -1,4 +1,4 @@
-import ocl
+from opencamlib import ocl
 
 if __name__ == "__main__":
     p = ocl.Point()

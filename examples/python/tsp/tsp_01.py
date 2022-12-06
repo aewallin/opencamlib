@@ -1,8 +1,5 @@
-import ocl
-import camvtk
-import time
+from opencamlib import ocl, camvtk
 import vtk
-import datetime
 import math
 import gzip
 

@@ -1,5 +1,4 @@
-import ocl
-
+from opencamlib import ocl
 # print(ocl.version())
 
 p = ocl.Point(1,2,3)

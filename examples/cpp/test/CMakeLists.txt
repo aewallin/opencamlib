@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.12...3.15)
 cmake_policy(SET CMP0025 NEW)
 set(CMAKE_CXX_STANDARD 20)
 
-project(OCL_POINT_EXAMPLE)
+project(OCL_TEST_EXAMPLE)
 
 # install targets in root of the build dir, using $<0:> generator expression to force it from not being overwritten
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/$<0:>)
@@ -19,22 +19,22 @@ endforeach()
 find_package(OpenCamLib REQUIRED)
 
 set(EXAMPLE_SRC
-  ${PROJECT_SOURCE_DIR}/point_example.cpp
+  ${PROJECT_SOURCE_DIR}/test_example.cpp
 )
 
 add_executable(
-  point_example
+  test_example
   ${EXAMPLE_SRC}
 )
 
 target_link_libraries(
-  point_example
+  test_example
   OpenCamLib::ocl
 )
 
 if(WIN32)
-  add_custom_command(TARGET point_example POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:point_example> $<TARGET_FILE_DIR:point_example>
+  add_custom_command(TARGET test_example POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:test_example> $<TARGET_FILE_DIR:test_example>
     COMMAND_EXPAND_LISTS
   )
 endif()

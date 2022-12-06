@@ -1,8 +1,6 @@
-import ocl
-import camvtk
+from opencamlib import ocl, camvtk
 import time
-import vtk
-
+import toolpath_examples.ngc_writer as ngc_writer
 
 def filter_path(path,tol):
     f = ocl.LineCLFilter()
@@ -43,8 +41,8 @@ if __name__ == "__main__":
     print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
-    #stl = camvtk.STLSurf("../../../stl/demo.stl")
-    stl = camvtk.STLSurf("../../../stl/pycam-textbox.stl") 
+    #stl = camvtk.STLSurf("../../stl/demo.stl")
+    stl = camvtk.STLSurf("../../stl/pycam-textbox.stl") 
     print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    

@@ -1,10 +1,5 @@
-import ocl
-import pyocl
-import camvtk
-import time
+from opencamlib import ocl, camvtk
 import vtk
-import datetime
-import math
 
 def drawEdge(myscreen, a, b):
     myscreen.addActor(camvtk.Sphere(center=(a.x,a.y,a.z), radius=0.0351, color=camvtk.green));
