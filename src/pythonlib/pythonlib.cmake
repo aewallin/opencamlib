@@ -2,12 +2,12 @@ find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
 find_package(Boost COMPONENTS python${Python_VERSION_MAJOR}${Python_VERSION_MINOR} REQUIRED)
 
 # include dirs
-include_directories(${OpenCamLib_SOURCE_DIR}/cutters)
-include_directories(${OpenCamLib_SOURCE_DIR}/geo)
-include_directories(${OpenCamLib_SOURCE_DIR}/algo)
-include_directories(${OpenCamLib_SOURCE_DIR}/dropcutter)
-include_directories(${OpenCamLib_SOURCE_DIR}/common)
-include_directories(${OpenCamLib_SOURCE_DIR})
+include_directories(${PROJECT_SOURCE_DIR}/cutters)
+include_directories(${PROJECT_SOURCE_DIR}/geo)
+include_directories(${PROJECT_SOURCE_DIR}/algo)
+include_directories(${PROJECT_SOURCE_DIR}/dropcutter)
+include_directories(${PROJECT_SOURCE_DIR}/common)
+include_directories(${PROJECT_SOURCE_DIR})
 
 # this makes the ocl Python module
 Python_add_library(

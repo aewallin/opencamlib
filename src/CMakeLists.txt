@@ -1,4 +1,4 @@
-project(OpenCamLib)
+project(OpenCAMLib)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -166,14 +166,14 @@ if(USE_OPENMP)
   endif()
 endif()
 
-if(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
-  file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
-  if(OpenCamLib_BUILD_SPECIFICATION)
-    string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${OpenCamLib_BUILD_SPECIFICATION})
+if(EXISTS ${PROJECT_SOURCE_DIR}/version_string.hpp)
+  file(STRINGS "${PROJECT_SOURCE_DIR}/version_string.hpp" PROJECT_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
+  if(PROJECT_BUILD_SPECIFICATION)
+    string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${PROJECT_BUILD_SPECIFICATION})
   else()
     message(FATAL_ERROR "Data were not found for the required build specification.")
   endif()
-  set(version_string ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+  set(version_string ${PROJECT_SOURCE_DIR}/version_string.hpp)
 else()
   ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
   # include the output directory, where the version_string.hpp file is generated
@@ -198,117 +198,117 @@ else()
   endif()
 endif()
 
-message(STATUS "OpenCamLib version: ${MY_VERSION}")
+message(STATUS "OpenCAMLib version: ${MY_VERSION}")
 
 # this defines the source-files
 set(OCL_SRC
-  ${OpenCamLib_SOURCE_DIR}/ocl.cpp
+  ${PROJECT_SOURCE_DIR}/ocl.cpp
   )
 
 set(OCL_GEO_SRC
-  ${OpenCamLib_SOURCE_DIR}/geo/arc.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/bbox.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/clpoint.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/line.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/path.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/point.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlreader.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/triangle.cpp
+  ${PROJECT_SOURCE_DIR}/geo/arc.cpp
+  ${PROJECT_SOURCE_DIR}/geo/bbox.cpp
+  ${PROJECT_SOURCE_DIR}/geo/ccpoint.cpp
+  ${PROJECT_SOURCE_DIR}/geo/clpoint.cpp
+  ${PROJECT_SOURCE_DIR}/geo/line.cpp
+  ${PROJECT_SOURCE_DIR}/geo/path.cpp
+  ${PROJECT_SOURCE_DIR}/geo/point.cpp
+  ${PROJECT_SOURCE_DIR}/geo/stlreader.cpp
+  ${PROJECT_SOURCE_DIR}/geo/stlsurf.cpp
+  ${PROJECT_SOURCE_DIR}/geo/triangle.cpp
   )
 
 set(OCL_CUTTER_SRC
-  ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/ballcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/bullcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/compositecutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/conecutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/millingcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/cylcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipse.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipseposition.cpp
   )
 
 set(OCL_DROPCUTTER_SRC
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
   )
 
 set(OCL_ALGO_SRC
-  ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/simple_weave.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.cpp
+  ${PROJECT_SOURCE_DIR}/algo/batchpushcutter.cpp
+  ${PROJECT_SOURCE_DIR}/algo/fiberpushcutter.cpp
+  ${PROJECT_SOURCE_DIR}/algo/interval.cpp
+  ${PROJECT_SOURCE_DIR}/algo/fiber.cpp
+  ${PROJECT_SOURCE_DIR}/algo/waterline.cpp
+  ${PROJECT_SOURCE_DIR}/algo/adaptivewaterline.cpp
+  ${PROJECT_SOURCE_DIR}/algo/weave.cpp
+  ${PROJECT_SOURCE_DIR}/algo/simple_weave.cpp
+  ${PROJECT_SOURCE_DIR}/algo/smart_weave.cpp
   )
 
 set(OCL_COMMON_SRC
-  ${OpenCamLib_SOURCE_DIR}/common/numeric.cpp
-  ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.cpp
+  ${PROJECT_SOURCE_DIR}/common/numeric.cpp
+  ${PROJECT_SOURCE_DIR}/common/lineclfilter.cpp
   )
 
 set(OCL_INCLUDE_FILES
-  ${OpenCamLib_SOURCE_DIR}/ocl.hpp
+  ${PROJECT_SOURCE_DIR}/ocl.hpp
 
-  ${OpenCamLib_SOURCE_DIR}/geo/arc.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/bbox.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/clpoint.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/line.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/path.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlreader.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/triangle.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/point.hpp
+  ${PROJECT_SOURCE_DIR}/geo/arc.hpp
+  ${PROJECT_SOURCE_DIR}/geo/bbox.hpp
+  ${PROJECT_SOURCE_DIR}/geo/ccpoint.hpp
+  ${PROJECT_SOURCE_DIR}/geo/clpoint.hpp
+  ${PROJECT_SOURCE_DIR}/geo/line.hpp
+  ${PROJECT_SOURCE_DIR}/geo/path.hpp
+  ${PROJECT_SOURCE_DIR}/geo/stlreader.hpp
+  ${PROJECT_SOURCE_DIR}/geo/stlsurf.hpp
+  ${PROJECT_SOURCE_DIR}/geo/triangle.hpp
+  ${PROJECT_SOURCE_DIR}/geo/point.hpp
 
-  ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/ballcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/bullcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/compositecutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/conecutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/cylcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipseposition.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/millingcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipse.hpp
 
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
 
-  ${OpenCamLib_SOURCE_DIR}/common/brent_zero.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/kdnode.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/kdtree.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/numeric.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/clfilter.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/halfedgediagram.hpp
+  ${PROJECT_SOURCE_DIR}/common/brent_zero.hpp
+  ${PROJECT_SOURCE_DIR}/common/kdnode.hpp
+  ${PROJECT_SOURCE_DIR}/common/kdtree.hpp
+  ${PROJECT_SOURCE_DIR}/common/numeric.hpp
+  ${PROJECT_SOURCE_DIR}/common/lineclfilter.hpp
+  ${PROJECT_SOURCE_DIR}/common/clfilter.hpp
+  ${PROJECT_SOURCE_DIR}/common/halfedgediagram.hpp
 
-  ${OpenCamLib_SOURCE_DIR}/algo/operation.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiber.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/interval.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/waterline.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/weave.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/simple_weave.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
+  ${PROJECT_SOURCE_DIR}/algo/operation.hpp
+  ${PROJECT_SOURCE_DIR}/algo/batchpushcutter.hpp
+  ${PROJECT_SOURCE_DIR}/algo/fiberpushcutter.hpp
+  ${PROJECT_SOURCE_DIR}/algo/fiber.hpp
+  ${PROJECT_SOURCE_DIR}/algo/interval.hpp
+  ${PROJECT_SOURCE_DIR}/algo/waterline.hpp
+  ${PROJECT_SOURCE_DIR}/algo/adaptivewaterline.hpp
+  ${PROJECT_SOURCE_DIR}/algo/weave.hpp
+  ${PROJECT_SOURCE_DIR}/algo/simple_weave.hpp
+  ${PROJECT_SOURCE_DIR}/algo/smart_weave.hpp
+  ${PROJECT_SOURCE_DIR}/algo/weave_typedef.hpp
+  ${PROJECT_SOURCE_DIR}/algo/tsp.hpp
   )
 
 # this branches into the dirs and compiles stuff there
-add_subdirectory(${OpenCamLib_SOURCE_DIR}/cutters)
-add_subdirectory(${OpenCamLib_SOURCE_DIR}/geo)
-add_subdirectory(${OpenCamLib_SOURCE_DIR}/algo)
-add_subdirectory(${OpenCamLib_SOURCE_DIR}/dropcutter)
-add_subdirectory(${OpenCamLib_SOURCE_DIR}/common)
+add_subdirectory(${PROJECT_SOURCE_DIR}/cutters)
+add_subdirectory(${PROJECT_SOURCE_DIR}/geo)
+add_subdirectory(${PROJECT_SOURCE_DIR}/algo)
+add_subdirectory(${PROJECT_SOURCE_DIR}/dropcutter)
+add_subdirectory(${PROJECT_SOURCE_DIR}/common)
 
 if(BUILD_NODEJS_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/nodejslib/nodejslib.cmake)
@@ -342,7 +342,7 @@ if(BUILD_DOC)
       message(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
     endif()
 
-    configure_file(${OpenCamLib_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile COPYONLY)
+    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile COPYONLY)
     set(DOXY_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
     execute_process(

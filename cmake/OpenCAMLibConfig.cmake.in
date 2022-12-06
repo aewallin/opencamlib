@@ -3,4 +3,4 @@
 include(CMakeFindDependencyMacro)
 find_dependency(Boost REQUIRED)
 
-include("${CMAKE_CURRENT_LIST_DIR}/OpenCamLibTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/OpenCAMLibTargets.cmake")

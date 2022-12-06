@@ -23,12 +23,12 @@ set_property(TARGET ocl PROPERTY PUBLIC_HEADER ${OCL_INCLUDE_FILES})
 # add include directories
 target_include_directories(ocl
   PRIVATE
-    ${OpenCamLib_SOURCE_DIR}/cutters
-    ${OpenCamLib_SOURCE_DIR}/geo
-    ${OpenCamLib_SOURCE_DIR}/algo
-    ${OpenCamLib_SOURCE_DIR}/dropcutter
-    ${OpenCamLib_SOURCE_DIR}/common
-    ${OpenCamLib_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR}/cutters
+    ${PROJECT_SOURCE_DIR}/geo
+    ${PROJECT_SOURCE_DIR}/algo
+    ${PROJECT_SOURCE_DIR}/dropcutter
+    ${PROJECT_SOURCE_DIR}/common
+    ${PROJECT_SOURCE_DIR}
   PUBLIC
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
@@ -52,10 +52,10 @@ install(
 
 # this install the cmake targets
 install(
-  EXPORT ocltargets 
-  FILE OpenCamLibTargets.cmake
-  DESTINATION share/cmake/OpenCamLib
-  NAMESPACE OpenCamLib::
+  EXPORT ocltargets
+  FILE OpenCAMLibTargets.cmake
+  DESTINATION share/cmake/OpenCAMLib
+  NAMESPACE OpenCAMLib::
 )
 
 # this creates the cmake config

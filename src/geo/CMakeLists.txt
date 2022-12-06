@@ -7,11 +7,11 @@ if (UNIX)
 endif (UNIX)
 
 
-include_directories( ${OpenCamLib_SOURCE_DIR} )
-include_directories( ${OpenCamLib_SOURCE_DIR}/cutters )
-include_directories( ${OpenCamLib_SOURCE_DIR}/algo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/geo )
-include_directories( ${OpenCamLib_SOURCE_DIR}/common )
+include_directories( ${PROJECT_SOURCE_DIR} )
+include_directories( ${PROJECT_SOURCE_DIR}/cutters )
+include_directories( ${PROJECT_SOURCE_DIR}/algo )
+include_directories( ${PROJECT_SOURCE_DIR}/geo )
+include_directories( ${PROJECT_SOURCE_DIR}/common )
 
 #
 # this makes the ocl Python module

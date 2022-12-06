@@ -16,7 +16,7 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/$<0:>)
 endforeach()
 
-find_package(OpenCamLib REQUIRED)
+find_package(OpenCAMLib REQUIRED)
 
 set(EXAMPLE_SRC
   ${PROJECT_SOURCE_DIR}/point_example.cpp
@@ -29,7 +29,7 @@ add_executable(
 
 target_link_libraries(
   point_example
-  OpenCamLib::ocl
+  OpenCAMLib::ocl
 )
 
 if(WIN32)

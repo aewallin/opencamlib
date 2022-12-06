@@ -100,7 +100,7 @@ if __name__ == "__main__":
         cl_paths.append(aclp)
     
     t_after = time.time()
-    print("( OpenCamLib::AdaptivePathDropCutter run took %.2f s )" % ( t_after-t_before ))
+    print("( OpenCAMLib::AdaptivePathDropCutter run took %.2f s )" % ( t_after-t_before ))
     print("( got %d raw CL-points )" % ( n_aclp ))
     # to reduce the G-code size we filter here. (this is not strictly required and could be omitted)
     # we could potentially detect G2/G3 arcs here, if there was a filter for that.
