@@ -1,6 +1,6 @@
 .. image:: https://img.shields.io/badge/License-LGPL%20v2.1-blue.svg
     :target: https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html
-    
+
 .. image:: https://github.com/aewallin/opencamlib/actions/workflows/test.yml/badge.svg
     :target: https://github.com/aewallin/opencamlib/actions/workflows/test.yml
 
@@ -11,110 +11,236 @@
 OpenCAMLib README
 =================
 
-
-
 INTRODUCTION
 ---------------
 
-OpenCAMLib (ocl) is a C++ library with Python bindings for creating 3D toolpaths for CNC-machines
+OpenCAMLib (ocl) is a C++ library with Python, Node.js and emscripten bindings for creating 3D toolpaths for CNC-machines
 such as mills and lathes. From August 2018 OpenCAMLib is released under LGPL license.
 
 - repository https://github.com/aewallin/opencamlib
 - PPAs
- - https://launchpad.net/~iacobs/+archive/ubuntu/cnc/ 
- - https://launchpad.net/~neomilium/+archive/ubuntu/cam
- - https://launchpad.net/~freecad-community/+archive/ubuntu/ppa 
- - (updated 2012) https://launchpad.net/~anders-e-e-wallin/+archive/ubuntu/cam
+  - https://launchpad.net/~iacobs/+archive/ubuntu/cnc/
+  - https://launchpad.net/~neomilium/+archive/ubuntu/cam
+  - https://launchpad.net/~freecad-community/+archive/ubuntu/ppa
+  - (updated 2012) https://launchpad.net/~anders-e-e-wallin/+archive/ubuntu/cam
 - mailing-list http://groups.google.com/group/opencamlib
 - IRC-channel #cam on irc.freenode.net
 - coding standard (?) http://www.possibility.com/Cpp/CppCodingStandard.html
 
+INSTALLING (The Easy Way)
+-------------------------
 
-BUILDING and INSTALLING 
------------------------
+OpenCAMLib provides pre-compiled C++, node.js and Python (v3) and Emscripten (WASM) libraries for the most common platforms (Linux, macOS and Windows) for the most common architectures.
+Especially when using opencamlib as a python library, or node.js library, try installing it with the package manager first:
 
-To clone, build and install install the opencamlib library run the::
+**Python (V3)**
 
- $ sudo apt install git python3 python3-dev cmake build-essential libboost-dev doxygen texlive-latex-base
- $ # to build the python library, also install: libboost-python-dev
- $ git clone https://github.com/aewallin/opencamlib
- $ cd opencamlib
- $ mkdir build
- $ cd build
- $ cmake ../src # add one of the following depending on what you want to build: -D CXX_LIB="ON", -D BUILD_PY_LIB="ON" or -D BUILD_NODEJS_LIB="ON"
- $ make . # try make -j4 for a faster build if you have a multi-core machine
- $ make install .
+The Python library is hosted on PyPi.org, and can be installed like this:
 
-if you also want to build the documentation, then run::
+..  code-block:: shell
 
- $ make doc
- $ make doc-pdf
- 
-this should create the ocl manual named "ocl-manual.pdf" in the build/doc directory
+    pip install opencamlib
 
-using cmake and cpack it is possible to build a binary .deb package with::
+On some platforms, pip is called pip3, you might have to run:
 
- $ make package
- 
-For uploading debian source-packages to the PPA there is also a custom target::
+..  code-block:: shell
 
- $ make spackage
+    pip3 install opencamlib
 
-The build directory opencamlib/build can be wiped clean ("rm -rf *") and cmake run 
-again if/when you want a clean build.
+Note that pip / pip3 is will install packages for to the system installation of Python, if you want to install a package in a custom Python installation that is not in your $PATH
+(for example, the Python which comes with Blender), you can install packages like so:
+
+..  code-block:: shell
+
+    /path/to/your/custom/python -m pip install opencamlib
+
+**JavaScript**
+
+The JavaScript library works in node.js and the browser (by leveraging emscripten / WASM).
+The library is hosted on npmjs.org and can be installed like this:
+
+..  code-block:: shell
+
+    npm install --save @opencamlib/opencamlib
+
+Or, using yarn:
+
+..  code-block:: shell
+
+    yarn add @opencamlib/opencamlib
+
+**C++**
+
+Precompiled C++ libraries are available on the Github Releases page (https://github.com/aewallin/opencamlib/releases).
+This project also installs a OpenCamLibConfig.cmake, which, if your project uses CMake, allows you to use `find_package(OpenCamLib REQUIRED)`.
+You can see an example of that in use over here: `examples/cpp/test/CMakeLists.txt`
+
+INSTALLING (The Harder Way)
+---------------------------
+
+Having trouble with a pre-compiled library? Please report it to us.
+If there are no pre-compiled libraries for your platform or architecture, or want to customize or package opencamlib, this is for you.
+
+OpenCamLib uses functionality from a library called Boost.
+For the Python bindings, OpenCamLib uses an extra library called Boost.Python.
+
+**Only the Python bindings need Boost to be compiled** (with Boost.Python), all other libraries **DO NOT** need Boost to be compiled.
+So, if you are not compiling the Python libraries, simply download Boost, extract it into a folder, and tell CMake where to look for it.
+
+We provide a couple of scripts to help with installation of dependencies and building, you might want to take a look at those first.
+They are located in the `scripts/` folder, the `install-$PLATFORM.sh` scripts install dependencies and the `build-$PLATFORM.sh` call CMake.
+
+**Dependencies**
+
+To compile OpenCAMLib, you need a working C++ compiler, Git, CMake and Boost.
+At this time of writing, here are the packages to install:
+
+*Ubuntu:*
+..  code-block:: shell
+
+    sudo apt install -y git cmake build-essential
+
+*macOS:*
+..  code-block:: shell
+
+    brew install boost python@3.11 boost-python3
+
+*Windows:*
+Install Visual Studio, Git and CMake by downloading the installers from the internet, or by using your package manager.
+
+**C++**
+
+The C++ library is the easiest to build, it only depends on Boost's headers.
+Make sure you have a compiler, git, cmake and Boost installed (or simply download and extract it somewhere).
+
+..  code-block:: shell
+
+    git clone https://github.com/aewallin/opencamlib
+    cd opencamlib
+    mkdir build
+    cd build
+    cmake .. -D CXX_LIB="ON"
+    make . # try make -j4 for a faster build if you have a multi-core machine
+    make install .
+
+When boost is not in a standard location, you can add the `-D Boost_ROOT=/path/to/boost` option to the cmake command.
+
+**Emscripten**
+
+To compile the emscripten library, first download, install and activate it using the following commands:
+
+..  code-block:: shell
+
+    git clone https://github.com/emscripten-core/emsdk.git
+    cd emsdk
+    ./emsdk install latest
+    ./emsdk activate latest
+
+Now you can compile opencamlib like this (make sure to replace the `path/to/` sections):
+
+..  code-block:: shell
+
+    source path/to/emsdk/emsdk_env.sh
+    git clone https://github.com/aewallin/opencamlib
+    cd opencamlib
+    mkdir build
+    cd build
+    emcmake cmake \
+      -D CMAKE_BUILD_TYPE="Release" \
+      -D BUILD_EMSCRIPTEN_LIB="ON" \
+      -D USE_OPENMP="OFF" \
+      -D CMAKE_INSTALL_PREFIX=/path/to/opencamlib/src/npmpackage/build \
+      -D Boost_ROOT=/path/to/boost \
+      ..
+    emmake make # try emmake make -j4 for a faster build if you have a multi-core machine
+
+Note that USE_OPENMP has been turned off, OpenMP is not supported with Emscripten at the moment
+
+**Node.js**
+
+To compile the node.js library, install the dependencies in `src/nodejslib`:
+
+..  code-block:: shell
+
+    cd src/nodejslib
+    npm install
+
+Next, use cmake-js to compile the library:
+
+..  code-block:: shell
+
+    git clone https://github.com/aewallin/opencamlib
+    cd opencamlib
+    mkdir build
+    cd build
+    ../src/nodejslib/node_modules/.bin/cmake-js \
+      build \
+      --directory ".." \
+      --out "." \
+      --parallel 4 \
+      --CD BUILD_NODEJS_LIB="ON" \
+      --CD USE_OPENMP="ON" \
+      --CD CMAKE_INSTALL_PREFIX=/path/to/opencamlib/build/Release/$(node --print "process.platform")-nodejs-$(node --print "process.arch") \
+      --CD Boost_ROOT=/path/to/boost \
+      --config "Release"
+
+**Python**
+
+The Python library can be compiled similarly to the C++ example above, however, this time Boost.Python has to be compiled first.
+Most systems have Boost.Python available as a download, but only for a specific Python version only (usually the latest Python version).
+These might work if you are using Python from the same package, unfortunately, this is not a very reliable method, so compiling them yourself is usually the best option.
+
+First, download and extract Boost:
+
+..  code-block:: shell
+
+    wget -nv -O boost_1_80_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
+    tar -zxf boost_1_80_0.tar.gz -C /tmp/boost
+    cd /tmp/boost/boost_1_80_0
+
+Now we can compile it:
+
+..  code-block:: shell
+
+    echo "using python ;" > ./user-config.jam
+    ./bootstrap.sh
+    ./b2 \
+      -a \
+      threading=multi \
+      -j4 \
+      variant="release" \
+      link=static \
+      address-model=64 \
+      architecture=x86 \
+      --layout=system \
+      --with-python \
+      --user-config=./user-config.jam \
+      cxxflags='-fPIC' \
+      stage
+
+Note that you can customize the user-config.jam file to point it to your Python installation
+(see: https://www.boost.org/doc/libs/1_78_0/libs/python/doc/html/building/configuring_boost_build.html).
+You should also specify the correct architecture and address-model.
+On windows, make sure to use windows style paths, e.g. `C:\\path\\to\\Python`
 
 ORGANIZATION OF FILES
 ---------------------
 
 (generate this with 'tree -dL 2')::
 
- ├── examples                    c++, emscripten, nodejs and python examples
  ├── docs                        documentation (not much here yet!)
+ ├── examples                    c++, emscripten, nodejs and python examples
  ├── scripts                     CI scripts for installing and building ocl
  ├── src
  │   ├── algo                    algorithms under development
- │   ├── attic                   old deprecated code
  │   ├── common                  common algorithms and data-structures
  │   ├── cutters                 cutter-classes
  │   ├── cxxlib                  c++ library cmake config
  │   ├── deb                     debian package cmake config
  │   ├── dropcutter              drop-cutter algorithms and operations
- │   ├── geo                     primitive geometry classes (point,triangle,stlsurf, etc.)
+ │   ├── emscriptenlib           bindings for emscripten library
+ │   ├── geo                     primitive geometry classes (point, triangle, stlsurf, etc.)
  │   ├── nodejslib               node.js library bindings and cmake config
  │   ├── npmpackage              combined node.js and emscripten wrappers, for publishing to npm
  │   ├── pythonlib               python library bindings and cmake config
  └── stl                         STL files for testing
-
-Ubuntu 10.04LTS-> install and build
------------------------------------
-
-(these notes are about 8 years old now and should be updated for relevant OSs)
-
-- install 64-bit Ubuntu 10.04LTS
-- run update manager and install all suggested updates. reboot.
-- using synaptic or apt-get, install the following packages(and their dependencies)
- - build-essential
- - cmake
- - subversion
- - doxygen
- - texlive-latex-base
- - libboost-all-dev
-- checkout ocl from svn
- - instructions: http://code.google.com/p/opencamlib/source/checkout
-- in the /src directory, first run "cmake ." then "make" and then "sudo make install"
- - this should build and install ocl correctly.
-
-
-DOCKER BUILD
------------------------
-
-To run this in Docker, simply run::  
-
- $ docker build . -t opencamlib
- $ docker run -it -p 5900:5900 -e VNC_SERVER_PASSWORD=TestVNC --user cam --privileged opencamlib
-
-Then simply open up a VNC socket connection. With Mac, you can just open Finder, then run CMD + K. 
-
-Type in "vnc://localhost:5900" as the server address, and type "TestVNC" as the password. 
-
-Right click on the desktop terminal that shows up and you can open up a terminal inside there. This is a easy and quick way to get started with opencamlib, while still maintaining all the functionality
