@@ -20,7 +20,7 @@ TriangleJS::TriangleJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Triang
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    int length = info.Length();
+    size_t length = info.Length();
     if (length == 0)
     {
         this->actualClass_ = new ocl::Triangle();

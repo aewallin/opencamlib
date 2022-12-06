@@ -74,7 +74,7 @@ unsigned int CompositeCutter::height_to_index(double h) const {
             return n;
     }
     // return the last cutter if we get here...
-    return cutter.size()-1;
+    return static_cast<unsigned int>(cutter.size()) - 1;
     std::cout << " Error, height= " << h << " has no index \n";
     assert(0);
     return 0;

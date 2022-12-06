@@ -54,7 +54,7 @@ class Fiber {
         /// return true if the Fiber contains no intervals
         bool empty() const {return ints.empty();}
         /// return number of intervals
-        unsigned int size() const {return ints.size();}
+        unsigned int size() const {return static_cast<unsigned int>(ints.size());}
         
         /// return the upper cl-point of interval n
         Point upperCLPoint(unsigned int n) const {

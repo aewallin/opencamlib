@@ -34,7 +34,7 @@ PointJS::PointJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<PointJS>(inf
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
 
-  int length = info.Length();
+  size_t length = static_cast<int>(info.Length());
   if (length == 1) {
     Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
   }

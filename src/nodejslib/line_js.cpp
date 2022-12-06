@@ -20,7 +20,7 @@ LineJS::LineJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<LineJS>(info) 
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
 
-  int length = info.Length();
+  size_t length = info.Length();
   if (length == 1) {
     Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
   }

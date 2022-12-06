@@ -20,7 +20,7 @@ BallCutterJS::BallCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Ba
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    int length = info.Length();
+    size_t length = info.Length();
     if (length != 2)
     {
         Napi::TypeError::New(env, "Provide 2 argument").ThrowAsJavaScriptException();

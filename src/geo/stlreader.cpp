@@ -119,7 +119,7 @@ namespace ocl
                     if(!strcmp(five_chars, "verte"))
                     {
 #ifdef WIN32
-                        sscanf(str, " vertex %f %f %f", &(x[vertex][0]), &(x[vertex][1]), &(x[vertex][2]));
+                        sscanf_s(str, " vertex %f %f %f", &(x[vertex][0]), &(x[vertex][1]), &(x[vertex][2]));
 #else
                         std::istringstream ss(str);
                         ss.imbue(std::locale("C"));
@@ -133,7 +133,7 @@ namespace ocl
                     else if(!strcmp(five_chars, "facet"))
                     {
 #ifdef WIN32
-                        sscanf(str, " facet normal %f %f %f", &(n[0]), &(n[1]), &(n[2]));
+                        sscanf_s(str, " facet normal %f %f %f", &(n[0]), &(n[1]), &(n[2]));
 #else
                         std::istringstream ss(str);
                         ss.imbue(std::locale("C"));
