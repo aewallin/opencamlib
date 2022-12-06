@@ -10,7 +10,7 @@ const {
   Path,
   Point,
   Line
-} = require('opencamlib')
+} = require('@opencamlib/opencamlib')
 
 async function waterline(surface, cutter, z, sampling) {
   const wl = new Waterline()
