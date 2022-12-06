@@ -11,158 +11,404 @@ on:
       - v*
 
 jobs:
-  build:
-    name: CD ${{ matrix.os }} ${{ matrix.arch }}
+  cxx:
+    name: ${{ matrix.os_short }} c++ ${{ matrix.architecture }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
         os_arch: [
-          windows-x64,
-          windows-ia32,
-          macos-arm64,
-          macos-x86_64,
-          ubuntu-x64,
-          ubuntu-arm64,
-          ubuntu-arm
+          "windows-ia32",
+          "windows-x64",
+          "macos-x86_64",
+          "macos-arm64",
+          "linux-x86_64",
+          "linux-aarch64",
         ]
         include:
-          - os_arch: windows-x64
-            os: windows-2022
-            osname: windows
-            arch: x64
-            python_executable: C:/hostedtoolcache/windows/Python/3.10.8/x64/python3.exe
-            python_prefix: C:/hostedtoolcache/windows/Python/3.10.8/x64
-            boost_from_source: "1"
-            address_model: "64"
-          - os_arch: windows-ia32
-            os: windows-2022
-            osname: windows
-            arch: ia32
-            python_executable: C:/hostedtoolcache/windows/Python/3.10.8/x64/python3.exe
-            python_prefix: C:/hostedtoolcache/windows/Python/3.10.8/x64
-            boost_from_source: "1"
-            address_model: "32"
-          - os_arch: macos-arm64
-            os: macos-11.0
-            osname: macos
-            arch: arm64
-            boost_architecture: arm
-            python_executable: /usr/local/opt/python@3.10/bin/python3
-            python_prefix: /usr/local/opt/python@3.10
-            boost_from_source: "1"
-            address_model: "32_64"
-          - os_arch: macos-x86_64
-            os: macos-11.0
-            osname: macos
-            arch: x86_64
-            boost_architecture: x86
-            python_executable: /usr/local/opt/python@3.10/bin/python3
-            python_prefix: /usr/local/opt/python@3.10
-            boost_from_source: "1"
-            address_model: "32_64"
-          - os_arch: ubuntu-x64
-            os: ubuntu-22.04
-            osname: ubuntu
-            arch: x64
-            address_model: "64"
-          - os_arch: ubuntu-arm64
-            os: ubuntu-22.04
-            osname: ubuntu
-            arch: arm64
-            docker-arch: linux/arm64
-            docker-image: node:19.1.0-bullseye-slim
-            address_model: "64"
-          - os_arch: ubuntu-arm
-            os: ubuntu-22.04
-            osname: ubuntu
-            arch: arm
-            docker-arch: linux/arm/v7
-            docker-image: node:19.1.0-bullseye-slim
-            address_model: "32"
+          - os_arch: "windows-ia32"
+            os: "windows-2022"
+            os_short: "windows"
+            architecture: "ia32"
+            vs_architecture: "Win32"
+            boost_prefix: /c/boost/boost_1_80_0
+          - os_arch: "windows-x64"
+            os: "windows-2022"
+            os_short: "windows"
+            architecture: "x64"
+            vs_architecture: "x64"
+            boost_prefix: /c/boost/boost_1_80_0
+          - os_arch: "macos-x86_64"
+            os: "macos-11.0"
+            os_short: "macos"
+            architecture: "x86_64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+          - os_arch: "macos-arm64"
+            os: "macos-11.0"
+            os_short: "macos"
+            architecture: "arm64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+          - os_arch: linux-x86_64
+            os: "ubuntu-22.04"
+            os_short: "linux"
+            architecture: "x86_64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+          - os_arch: linux-aarch64
+            os: "ubuntu-22.04"
+            os_short: "linux"
+            architecture: "aarch64"
+            boost_prefix: /tmp/boost/boost_1_80_0
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Build
+      - name: deps
+        if: matrix.os_short == 'linux'
         shell: bash
-        if: ${{ !matrix.docker-arch }}
         run: |
-          export OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
-          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export OCL_ADDRESS_MODEL="${{ matrix.address_model }}"
-          ./scripts/install-${{ matrix.osname }}.sh nodejslib release
-          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
-          if [ "${{ matrix.osname }}" == "macos" ]; then
-            export CMAKE_OSX_ARCHITECTURES="${{ matrix.arch }}"
-            export OCL_OPENMP_MULTI_ARCH="1"
+          sudo dpkg --add-architecture armel
+          sudo dpkg --add-architecture amd64
+          sudo apt-get update
+          sudo apt install \
+            crossbuild-essential-armel \
+            crossbuild-essential-amd64
+      - name: cxxlib
+        shell: bash
+        run: |
+          OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
+
+          ./scripts/install-${{ matrix.os_short }}.sh cxxlib release \
+            --boost-from-source \
+            --boost-headers-only
+
+          if [ "${{ matrix.os_short }}" == "macos" ]; then
+            CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
           fi
-          ./scripts/install-${{ matrix.osname }}.sh python3lib release
-          if [ "${{ matrix.osname }}" == "macos" ]; then
-            export OPENMP_PREFIX_MACOS=$(find /tmp/libomp-${{ matrix.arch }}/libomp -depth 1)
+
+          if [ "${{ matrix.os_short }}" == "linux" ]; then
+            if [ "${{ matrix.architecture }}" == "x86_64" ]; then
+              CC="gcc-x86-64-linux-gnu"
+              CXX="g++-x86-64-linux-gnu"
+            else
+              CC="gcc-arm-linux-gnueabi"
+              CXX="g++-arm-linux-gnueabi"
+            fi
           fi
-          export OCL_INSTALL_PREFIX="$(pwd)/dist/cxxlib"
-          ./scripts/build-${{ matrix.osname }}.sh cxxlib release
-          export OCL_INSTALL_PREFIX="$(pwd)/dist/nodejslib"
-          ./scripts/build-${{ matrix.osname }}.sh nodejslib release
-          export OCL_INSTALL_PREFIX="$(pwd)/dist/python3lib"
-          ./scripts/build-${{ matrix.osname }}.sh python3lib release
-          if [ "${{ matrix.os_arch }}" = "ubuntu-x64" ]; then
-            export OCL_BOOST_FROM_SOURCE="1"
-            ./scripts/install-ubuntu.sh emscriptenlib release
-            export OCL_INSTALL_PREFIX="$(pwd)/dist/emscriptenlib"
-            ./scripts/build-ubuntu.sh emscriptenlib release
-          fi
-          find .
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        if: matrix.docker-arch
-      - name: Build in Docker
-        uses: addnab/docker-run-action@v3
-        if: matrix.docker-arch
-        with:
-          image: ${{ matrix.docker-image }}
-          options: --platform=${{ matrix.docker-arch }} -v ${{ github.workspace }}:/work -e OSNAME=${{ matrix.osname }} -e OCL_ADDRESS_MODEL=${{ matrix.address_model }}
-          run: |
-            apt-get update
-            apt-get install -y git cmake build-essential libboost-dev libboost-python-dev
-            cd /work
-            export OCL_NO_DEPS="1"
-            ./scripts/install-${OSNAME}.sh nodejslib release
-            ./scripts/install-${OSNAME}.sh python3lib release
-            export OCL_INSTALL_PREFIX="$(pwd)/dist/cxxlib"
-            ./scripts/build-${OSNAME}.sh cxxlib release
-            export OCL_INSTALL_PREFIX="$(pwd)/dist/nodejslib"
-            ./scripts/build-${OSNAME}.sh nodejslib release
-            export OCL_INSTALL_PREFIX="$(pwd)/dist/python3lib"
-            ./scripts/build-${OSNAME}.sh python3lib release
-            find .
+
+          ./scripts/build-${{ matrix.os_short }}.sh cxxlib release \
+            --clean \
+            --use-openmp \
+            --boost-prefix ${{ matrix.boost_prefix }} \
+            --install-prefix $(pwd)/dist
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.os_arch }}
-          if-no-files-found: ignore
+          name: ${{ matrix.os_short }}-cxx-${{ matrix.architecture }}
           path: |
-            dist/python3lib
-            dist/cxxlib
-            dist/emscriptenlib
-            dist/nodejslib
-  bundle:
-    name: Bundle Libraries
-    needs: build
+            dist
+  nodejs:
+    name: ${{ matrix.os_short }} node.js ${{ matrix.architecture }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os_arch: [
+          "windows-ia32",
+          "windows-x64",
+          "macos-x86_64",
+          "macos-arm64",
+          "linux-x86_64",
+          "linux-aarch64",
+        ]
+        include:
+          - os_arch: "windows-ia32"
+            os: "windows-2022"
+            os_short: "windows"
+            architecture: "ia32"
+            vs_architecture: "Win32"
+            boost_prefix: /c/boost/boost_1_80_0
+            node_architecture: "ia32"
+          - os_arch: "windows-x64"
+            os: "windows-2022"
+            os_short: "windows"
+            architecture: "x64"
+            vs_architecture: "x64"
+            boost_prefix: /c/boost/boost_1_80_0
+            node_architecture: "x64"
+          - os_arch: "macos-x86_64"
+            os: "macos-11.0"
+            os_short: "macos"
+            architecture: "x86_64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+            node_architecture: "x64"
+          - os_arch: "macos-arm64"
+            os: "macos-11.0"
+            os_short: "macos"
+            architecture: "arm64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+            node_architecture: "arm64"
+          - os_arch: linux-x86_64
+            os: "ubuntu-22.04"
+            os_short: "linux"
+            architecture: "x86_64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+            node_architecture: "x64"
+          - os_arch: linux-aarch64
+            os: "ubuntu-22.04"
+            os_short: "linux"
+            architecture: "aarch64"
+            boost_prefix: /tmp/boost/boost_1_80_0
+            node_architecture: "arm64"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: nodejslib
+        shell: bash
+        run: |
+          OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
+
+          ./scripts/install-${{ matrix.os_short }}.sh nodejslib release \
+            --boost-from-source \
+            --boost-headers-only
+
+          if [ "${{ matrix.os_short }}" == "macos" ]; then
+            CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
+          fi
+
+          if [ "${{ matrix.os_short }}" == "linux" ]; then
+            if [ "${{ matrix.architecture }}" == "x86_64" ]; then
+              CC="gcc-x86-64-linux-gnu"
+              CXX="g++-x86-64-linux-gnu"
+            else
+              CC="gcc-arm-linux-gnueabi"
+              CXX="g++-arm-linux-gnueabi"
+            fi
+          fi
+
+          ./scripts/build-${{ matrix.os_short }}.sh nodejslib release \
+            --clean \
+            --use-openmp \
+            --boost-prefix ${{ matrix.boost_prefix }} \
+            --install-prefix $(pwd)/dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os_short }}-nodejs-${{ matrix.node_architecture }}
+          path: |
+            dist
+  python:
+    name: ${{ matrix.os_short }} python ${{ matrix.architecture }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os_arch: [
+          "windows-ia32",
+          "windows-x64",
+          # "windows-arm64",
+          "macos-x86_64",
+          "macos-arm64",
+          "linux-x86_64",
+          "linux-aarch64",
+        ]
+        include:
+          - os_arch: "windows-ia32"
+            os: "windows-2022"
+            os_short: "windows"
+            architecture: "ia32"
+            boost_architecture: "x86"
+            cibuildwheel_architecture: "x86"
+            boost_address_model: "32"
+            vs_architecture: "Win32"
+          - os_arch: "windows-x64"
+            os: "windows-2022"
+            os_short: "windows"
+            architecture: "x64"
+            boost_architecture: "x86"
+            boost_address_model: "64"
+            cibuildwheel_architecture: "AMD64"
+            vs_architecture: "x64"
+          # - os_arch: "windows-arm64"
+          #   os: "windows-2022"
+          #   os_short: "windows"
+          #   architecture: "arm64"
+          #   boost_architecture: "arm"
+          #   boost_address_model: "64"
+          #   cibuildwheel_architecture: "ARM64"
+          #   vs_architecture: "ARM64"
+          - os_arch: "macos-x86_64"
+            os: "macos-11.0"
+            os_short: "macos"
+            architecture: "x86_64"
+            boost_architecture: "x86"
+          - os_arch: "macos-arm64"
+            os: "macos-11.0"
+            os_short: "macos"
+            architecture: "arm64"
+            boost_architecture: "arm"
+          - os_arch: linux-x86_64
+            os: "ubuntu-22.04"
+            os_short: "linux"
+            architecture: "x86_64"
+            boost_architecture: "x86"
+          - os_arch: linux-aarch64
+            os: "ubuntu-22.04"
+            os_short: "linux"
+            architecture: "aarch64"
+            boost_architecture: "arm"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Cache Boost.Python
+        id: cache-boost-python
+        uses: actions/cache@v3
+        with:
+          path: boost.tar.gz
+          key: boost-1.80.0-${{ matrix.os_short }}-${{ matrix.architecture }}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        if: matrix.architecture == 'aarch64'
+        with:
+          platforms: arm64
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.11.2
+        env:
+          CIBW_PLATFORM: ${{ matrix.os_short }}
+          CIBW_ARCHS_WINDOWS: ${{ matrix.cibuildwheel_architecture }}
+          CIBW_ENVIRONMENT_WINDOWS: >
+            BOOST_ROOT="C:\\boost"
+            BOOST_ADDRESS_MODEL="${{ matrix.boost_address_model }}"
+            BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
+            CMAKE_GENERATOR="Visual Studio 17 2022"
+            CMAKE_GENERATOR_PLATFORM="${{ matrix.vs_architecture }}"
+          CIBW_ENVIRONMENT_PASS_WINDOWS: BOOST_ROOT BOOST_ADDRESS_MODEL BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM
+          CIBW_ARCHS_MACOS: ${{ matrix.architecture }}
+          CIBW_ENVIRONMENT_MACOS: >
+            BOOST_ROOT="/tmp/boost"
+            BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
+            OPENMP_PREFIX_MACOS="/tmp/libomp-${{ matrix.architecture }}/libomp/fixed"
+          CIBW_ENVIRONMENT_PASS_MACOS: BOOST_ROOT BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS
+          CIBW_BEFORE_BUILD_LINUX: pip install cmake
+          CIBW_ARCHS_LINUX: ${{ matrix.architecture }}
+          CIBW_ENVIRONMENT_LINUX: >
+            BOOST_ROOT="/boost"
+            BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
+          CIBW_ENVIRONMENT_PASS_LINUX: BOOST_ROOT BOOST_ARCHITECTURE
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.os_short }}-python-${{ matrix.architecture }}
+          path: |
+            ./wheelhouse/*.whl
+  emscripten:
+    name: emscripten
+    runs-on: ubuntu-22.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: emscripten
+        shell: bash
+        run: |
+          ./scripts/install-linux.sh emscriptenlib release \
+            --boost-from-source \
+            --boost-headers-only
+
+          ./scripts/build-linux.sh emscriptenlib release \
+            --clean \
+            --boost-prefix /tmp/boost \
+            --install-prefix $(pwd)/dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: emscripten
+          path: |
+            dist
+
+  publish-npm:
+    name: publish to NPM
+    needs: [
+      nodejs,
+      emscripten,
+    ]
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v3
         with:
-          path: tmp
-      - name: Display structure of downloaded files
-        run: |
-          mkdir prebuilds
-          mv tmp/* prebuilds/
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: libraries
           path: prebuilds
-          retention-days: 7
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14.x'
+      - name: Publish node.js library
+        shell: bash
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo $NPM_CONFIG_USERCONFIG
+          mkdir -p src/npmpackage/build/Release
+          mv prebuilds/*-nodejs-* src/npmpackage/build/Release
+          mv prebuilds/emscripten/ocl.js src/npmpackage/build
+          cd src/npmpackage
+          npm install
+          npm run build-emscripten
+          npm publish --access public
+
+  publish-pypi:
+    name: publish to PyPi
+    needs: [
+      python,
+    ]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          path: prebuilds
+      - name: prepare wheels
+        shell: bash
+        run: |
+          find prebuilds
+          mkdir dist
+          mv prebuilds/*-python-*/* dist
+          ls dist
+      - name: Publish wheels to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+      - name: Publish wheels to PyPI
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+  publish-github:
+    name: publish to Github
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [
+      cxx,
+    ]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v3
+        with:
+          path: prebuilds
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            prebuilds/*-cxx-*

@@ -15,6 +15,7 @@ while [[ "$#" -gt 0 ]]; do
         --boost-from-source) OCL_BOOST_FROM_SOURCE="1"; ;;
         --boost-address-model) OCL_BOOST_ADDRESS_MODEL="$2"; shift ;;
         --boost-architecture) OCL_BOOST_ARCHITECTURE="$2"; shift ;;
+        --boost-headers-only) OCL_BOOST_HEADERS_ONLY="1"; ;;
         --python-executable) OCL_PYTHON_EXECUTABLE="$2"; shift ;;
         --no-deps) OCL_NO_DEPS="1"; ;;
         --help|--*)
@@ -28,7 +29,7 @@ set -- "${POSITIONAL_ARGS[@]}"
 
 if [ -z $OCL_NO_DEPS ]; then
     sudo apt update
-    sudo apt install -y git cmake build-essential doxygen texlive-latex-base
+    sudo apt install -y git cmake build-essential
     if [ -z $OCL_BOOST_FROM_SOURCE ]; then
         sudo apt install -y libboost-dev
     fi
@@ -65,28 +66,30 @@ if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
     fi
     tar -zxf boost_1_80_0.tar.gz -C /tmp/boost
     cd boost/boost_1_80_0
-    if [ "$1" = "python3lib" ]; then
-        if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
-            PYTHON_VERSION=`${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
-            echo "using python : ${PYTHON_VERSION} : ${OCL_PYTHON_EXECUTABLE} ;" > ./user-config.jam
-        else
-            echo "using python ;" > ./user-config.jam
+    if [ -z $OCL_BOOST_HEADERS_ONLY ]; then
+        if [ "$1" = "python3lib" ]; then
+            if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
+                PYTHON_VERSION=`${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
+                echo "using python : ${PYTHON_VERSION} : ${OCL_PYTHON_EXECUTABLE} ;" > ./user-config.jam
+            else
+                echo "using python ;" > ./user-config.jam
+            fi
+            cat ./user-config.jam
+            GOT_USER_CONFIG="1"
         fi
-        cat ./user-config.jam
-        GOT_USER_CONFIG="1"
+        ./bootstrap.sh
+        ./b2 \
+            -a \
+            threading=multi \
+            -j$(nproc) \
+            variant="$2" \
+            link=static \
+            ${OCL_BOOST_ADDRESS_MODEL:+"address-model=${OCL_BOOST_ADDRESS_MODEL}"} \
+            ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
+            --layout=system \
+            --with-python \
+            ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
+            cxxflags='-fPIC' \
+            stage
     fi
-    ./bootstrap.sh
-    ./b2 \
-        threading=multi \
-        -j$(nproc) \
-        variant="$2" \
-        link=static \
-        ${OCL_BOOST_ADDRESS_MODEL:+"address-model=${OCL_BOOST_ADDRESS_MODEL}"} \
-        ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
-        --layout=system \
-        --build-type=minimal \
-        ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
-        cxxflags='-fPIC' \
-        install \
-        --prefix="${OCL_BOOST_PREFIX:-"$HOME/local"}"
 fi

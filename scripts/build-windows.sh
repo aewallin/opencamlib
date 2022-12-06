@@ -14,6 +14,8 @@ while [[ "$#" -gt 0 ]]; do
         --install-prefix) OCL_INSTALL_PREFIX="$2"; shift ;;
         --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
         --python-prefix) OCL_PYTHON_PREFIX="$2"; shift ;;
+        --vs-architecture) OCL_VS_ARCHITECTURE="$2"; shift ;;
+        --use-openmp) OCL_USE_OPENMP="1"; ;;
         --clean) OCL_CLEAN="1"; ;;
         --no-install) OCL_NO_INSTALL="1"; ;;
         --help|--*)
@@ -50,8 +52,10 @@ NUM_PROCS="2"
 if [ "$1" = "cxxlib" ]; then
     cmake \
         ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
+        ${OCL_VS_ARCHITECTURE:+"-A ${OCL_VS_ARCHITECTURE}"} \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_CXX_LIB="ON" \
+        ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
@@ -63,14 +67,17 @@ elif [ "$1" = "nodejslib" ]; then
         --out "." \
         --parallel $NUM_PROCS \
         --CD BUILD_NODEJS_LIB="ON" \
+        ${OCL_USE_OPENMP:+"--CDUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"--CDCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"--CDBoost_ROOT=${OCL_BOOST_PREFIX}"} \
         --config "${BUILD_TYPE}"
 elif [ "$1" = "python3lib" ]; then
     cmake \
         ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
+        ${OCL_VS_ARCHITECTURE:+"-A ${OCL_VS_ARCHITECTURE}"} \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
+        ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \

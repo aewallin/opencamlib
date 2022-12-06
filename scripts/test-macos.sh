@@ -1,12 +1,12 @@
 #!/bin/bash -xe
 
 if [ "$1" = "cxxlib" ]; then
-  cd examples/cpp/point
+  cd examples/cpp/test
   mkdir build || true
   cd build
   cmake ..
   cmake --build .
-  ./point_example
+  ./test_example
 fi
 
 if [ "$1" = "nodejslib" ]; then

@@ -1,13 +1,17 @@
 #!/bin/bash -xe
 
 if [ "$1" = "cxxlib" ]; then
-  cd examples/cpp/point
+  if [ "$2" = "debug" ]; then
+    BUILD_TYPE="Debug"
+  else
+    BUILD_TYPE="Release"
+  fi
+  cd examples/cpp/test
   mkdir build || true
   cd build
-  # todo: fix library / include dirs
-  # cmake ..
-  # cmake --build .
-  # ./point_example
+  cmake -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" ..
+  cmake --build . --config "${BUILD_TYPE}"
+  ./test_example.exe
 fi
 
 if [ "$1" = "nodejslib" ]; then

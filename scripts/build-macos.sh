@@ -15,6 +15,7 @@ while [[ "$#" -gt 0 ]]; do
         --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
         --python-prefix) OCL_PYTHON_PREFIX="$2"; shift ;;
         --clean) OCL_CLEAN="1"; ;;
+        --use-openmp) OCL_USE_OPENMP="1"; ;;
         --no-install) OCL_NO_INSTALL="1"; ;;
         --help|--*)
             print_help ;;
@@ -24,10 +25,6 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 set -- "${POSITIONAL_ARGS[@]}"
-
-if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
-    OCL_BOOST_PREFIX=${OCL_BOOST_PREFIX:-"$HOME/local"}
-fi
 
 BUILD_DIR="build/${1}"
 if [ "$2" = "debug" ]; then
@@ -51,6 +48,7 @@ if [ "$1" = "cxxlib" ]; then
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_CXX_LIB="ON" \
+        ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
@@ -62,6 +60,7 @@ elif [ "$1" = "nodejslib" ]; then
         --out "." \
         --parallel $NUM_PROCS \
         --CD BUILD_NODEJS_LIB="ON" \
+        ${OCL_USE_OPENMP:+"--CDUSE_OPENMP=ON"} \
         ${CMAKE_OSX_ARCHITECTURES:+"--arch=${CMAKE_OSX_ARCHITECTURES}"} \
         ${OCL_INSTALL_PREFIX:+"--CDCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"--CDBoost_ROOT=${OCL_BOOST_PREFIX}"} \
@@ -70,6 +69,7 @@ elif [ "$1" = "python3lib" ]; then
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
+        ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \

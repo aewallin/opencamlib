@@ -15,6 +15,7 @@ while [[ "$#" -gt 0 ]]; do
         --boost-from-source) OCL_BOOST_FROM_SOURCE="1"; ;;
         --boost-address-model) OCL_BOOST_ADDRESS_MODEL="$2"; shift ;;
         --boost-architecture) OCL_BOOST_ARCHITECTURE="$2"; shift ;;
+        --boost-headers-only) OCL_BOOST_HEADERS_ONLY="1"; ;;
         --python-executable) OCL_PYTHON_EXECUTABLE="$2"; shift ;;
         --no-deps) OCL_NO_DEPS="1"; ;;
         --help|--*)
@@ -55,28 +56,29 @@ if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
     fi
     tar -zxf boost_1_80_0.tar.gz -C /c/boost
     cd /c/boost/boost_1_80_0
-    if [ "$1" = "python3lib" ]; then
-        if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
-            PYTHON_VERSION=`${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
-            echo "using python : ${PYTHON_VERSION} : ${OCL_PYTHON_EXECUTABLE} ;" > ./user-config.jam
-        else
-            echo "using python ;" > ./user-config.jam
+    if [ -z $OCL_BOOST_HEADERS_ONLY ]; then
+        if [ "$1" = "python3lib" ]; then
+            if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
+                PYTHON_VERSION=`${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`
+                echo "using python : ${PYTHON_VERSION} : $(echo $OCL_PYTHON_EXECUTABLE | sed 's/\\/\\\\/g')) ;" > ./user-config.jam
+            else
+                echo "using python ;" > ./user-config.jam
+            fi
+            cat ./user-config.jam
+            GOT_USER_CONFIG="1"
         fi
-        cat ./user-config.jam
-        GOT_USER_CONFIG="1"
+        ./bootstrap.bat
+        ./b2 \
+            -a \
+            threading=multi \
+            -j2 \
+            variant="$2" \
+            link=static \
+            address-model=${OCL_BOOST_ADDRESS_MODEL:-"64"} \
+            ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
+            --layout=system \
+            --with-python \
+            ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
+            stage
     fi
-    ./bootstrap.bat
-    ./b2 \
-        threading=multi \
-        -j2 \
-        variant="$2" \
-        link=static \
-        address-model=${OCL_BOOST_ADDRESS_MODEL:-"64"} \
-        ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
-        --layout=system \
-        --build-type=minimal \
-        ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
-        cxxflags='-fPIC' \
-        install \
-        --prefix="${BOOST_PREFIX:-"/c/boost"}"
 fi

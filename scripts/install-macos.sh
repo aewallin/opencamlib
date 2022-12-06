@@ -15,6 +15,7 @@ while [[ "$#" -gt 0 ]]; do
         --boost-from-source) OCL_BOOST_FROM_SOURCE="1"; ;;
         --boost-address-model) OCL_BOOST_ADDRESS_MODEL="$2"; shift ;;
         --boost-architecture) OCL_BOOST_ARCHITECTURE="$2"; shift ;;
+        --boost-headers-only) OCL_BOOST_HEADERS_ONLY="1"; ;;
         --python-executable) OCL_PYTHON_EXECUTABLE="$2"; shift ;;
         --no-deps) OCL_NO_DEPS="1"; ;;
         --download-openmp-multi-arch) OCL_OPENMP_MULTI_ARCH="1"; ;;
@@ -54,7 +55,7 @@ if [ -z $OCL_NO_DEPS ]; then
     fi
     if [ "$1" = "python3lib" ]; then
         if [ -z $OCL_PYTHON_EXECUTABLE ]; then
-            brew install python3
+            brew install python@3.11
         fi
         if [ -z $OCL_BOOST_FROM_SOURCE ]; then
             brew install boost-python3
@@ -94,18 +95,20 @@ if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
         cat ./user-config.jam
         GOT_USER_CONFIG="1"
     fi
-    ./bootstrap.sh
-    ./b2 \
-        threading=multi \
-        -j$(sysctl -n hw.logicalcpu) \
-        variant="$2" \
-        link=static \
-        ${OCL_BOOST_ADDRESS_MODEL:+"address-model=${OCL_BOOST_ADDRESS_MODEL}"} \
-        ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
-        --layout=system \
-        --build-type=minimal \
-        ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
-        cxxflags='-fPIC' \
-        install \
-        --prefix="${OCL_BOOST_PREFIX:-"$HOME/local"}"
+    if [ -z $OCL_BOOST_HEADERS_ONLY ]; then
+        ./bootstrap.sh
+        ./b2 \
+            -a \
+            threading=multi \
+            -j$(sysctl -n hw.logicalcpu) \
+            variant="$2" \
+            link=static \
+            ${OCL_BOOST_ADDRESS_MODEL:+"address-model=${OCL_BOOST_ADDRESS_MODEL}"} \
+            ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
+            --layout=system \
+            --with-python \
+            ${GOT_USER_CONFIG:+"--user-config=./user-config.jam"} \
+            cxxflags='-fPIC' \
+            stage
+    fi
 fi
