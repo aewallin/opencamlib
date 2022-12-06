@@ -1,6 +1,6 @@
 {
-  "name": "opencamlib",
-  "version": "0.0.9",
+  "name": "@opencamlib/opencamlib",
+  "version": "0.0.12",
   "description": "opencamlib for the web compiled with emscripten",
   "main": "./lib/napi/index.js",
   "browser": "./browser.js",
@@ -26,12 +26,11 @@
   "author": "Koen Schmeets",
   "license": "LGPL-3.0",
   "devDependencies": {
-    "@types/node": "^14.14.20",
+    "@types/node": "^18.11.11",
     "browserify": "^17.0.0",
     "browserify-derequire": "^1.1.1",
     "isomorphic-fetch": "^3.0.0",
     "stl": "^1.1.1",
-    "typescript": "^4.1.3"
-  },
-  "dependencies": {}
+    "typescript": "^4.9.3"
+  }
 }

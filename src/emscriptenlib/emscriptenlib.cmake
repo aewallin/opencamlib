@@ -3,7 +3,6 @@ message(STATUS "Will build emscripten js library")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O2 -s DISABLE_EXCEPTION_CATCHING=0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
-find_package(Boost)
 include_directories(${Boost_INCLUDE_DIRS})
 
 # include dirs
@@ -45,5 +44,5 @@ set_target_properties(ocl PROPERTIES LINK_FLAGS "\
 
 install(
   TARGETS ocl
-  RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
+  RUNTIME DESTINATION "."
 )

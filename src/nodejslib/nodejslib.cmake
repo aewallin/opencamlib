@@ -46,19 +46,7 @@ target_link_libraries(
   ${CMAKE_JS_LIB}
 )
 
-execute_process(COMMAND node --print "process.platform" OUTPUT_VARIABLE NODE_PLATFORM)
-string(STRIP ${NODE_PLATFORM} NODE_PLATFORM)
-if(CMAKE_OSX_ARCHITECTURES)
-	if(CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
-		set(NODE_ARCH "arm64")
-	else()
-		set(NODE_ARCH "x64")
-	endif()
-else()
-	execute_process(COMMAND node --print "process.arch" OUTPUT_VARIABLE NODE_ARCH)
-	string(STRIP ${NODE_ARCH} NODE_ARCH)
-endif()
-set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX "-${NODE_PLATFORM}-${NODE_ARCH}.node")
+set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ".node")
 
 add_definitions(-DNAPI_VERSION=3)
 
