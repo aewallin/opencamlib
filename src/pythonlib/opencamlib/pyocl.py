@@ -6,11 +6,7 @@ Copyright 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com)
 Published under the GNU General Public License, see http://www.gnu.org/licenses/
 """
 
-#import vtk
-#import time
-#import datetime
-import ocl
-import math
+from opencamlib import ocl
 
 def CLPointGridZigZag(minx,dx,maxx,miny,dy,maxy,z):
     """ generate and return a zigzag grid of points """

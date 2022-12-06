@@ -7,10 +7,8 @@ Published under the GNU General Public License, see http://www.gnu.org/licenses/
 """
 
 import vtk
-import time
 import datetime
-import ocl
-import pyocl
+from opencamlib import ocl, pyocl
 import math
 
 white = (1,1,1)
