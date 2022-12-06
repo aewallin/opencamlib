@@ -63,10 +63,10 @@ AdaptiveWaterline::AdaptiveWaterline() {
 }
 
 AdaptiveWaterline::~AdaptiveWaterline() {
-    std::cout << "~AdaptiveWaterline(): subOp.size()= " << subOp.size() <<"\n";
-    delete subOp[1];
-    delete subOp[0];
-    subOp.clear();
+    // std::cout << "~AdaptiveWaterline(): subOp.size()= " << subOp.size() <<"\n";
+    // delete subOp[1];
+    // delete subOp[0];
+    // subOp.clear();
 }
 
 void AdaptiveWaterline::run() {
@@ -110,7 +110,7 @@ void AdaptiveWaterline::adaptive_sampling_run() {
 				subOp[0]->run(xstart_f);
 				subOp[0]->run(xstop_f);
 				xfibers.push_back(xstart_f);
-				std::cout << " XFiber adaptive sample \n";
+				// std::cout << " XFiber adaptive sample \n";
 				xfiber_adaptive_sample(linespan, 0.0, 1.0, xstart_f, xstop_f);
 #ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
 		}
@@ -131,7 +131,7 @@ void AdaptiveWaterline::adaptive_sampling_run() {
 				subOp[1]->run(ystart_f);
 				subOp[1]->run(ystop_f);
 				yfibers.push_back(ystart_f);
-				std::cout << " YFiber adaptive sample \n";
+				// std::cout << " YFiber adaptive sample \n";
 				yfiber_adaptive_sample(linespan, 0.0, 1.0, ystart_f, ystop_f);
 #ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
 		}
