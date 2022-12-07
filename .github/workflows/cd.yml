@@ -269,7 +269,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: boost.tar.gz
-          key: boost-1.80.0-${{ matrix.os_short }}-${{ matrix.architecture }}
+          key: boost-1.80.0-${{ matrix.os_short }}-${{ matrix.architecture }}-${{ hashFiles('scripts/ci/*') }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         if: matrix.architecture == 'aarch64'

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PROJECT_DIR=$(pwd)
+
 if [ -f boost.tar.gz ]; then
   echo "Found boost.tar.gz, assuming it is a valid cache, using it..."
   tar -C / -xzf boost.tar.gz
@@ -8,9 +10,11 @@ else
   cd /
   mkdir boost
   cd boost
-  wget -q --no-check-certificate 'https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz' 
+  wget -q --no-check-certificate 'https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz'
   tar zxf boost_1_80_0.tar.gz
-  cd boost_1_80_0
+  cd boost_1_80_0/libs/python
+  git apply "${PROJECT_DIR}/.github/patches/boost-python-3.11.patch"
+  cd ../..
   ./bootstrap.sh
   echo "using python : 3.7 ;" >> ./user-config.jam
   echo "using python : 3.8 ;" >> ./user-config.jam

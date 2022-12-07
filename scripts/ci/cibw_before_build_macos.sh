@@ -1,9 +1,13 @@
 #!/bin/bash -xe
 
+PROJECT_DIR=$(pwd)
 BOOST_ROOT_DIR=$(dirname "${BOOST_ROOT}")
 
 if [ -f "${BOOST_ROOT}/boost_1_80_0.tar.gz" ]; then
   cd "${BOOST_ROOT}/boost_1_80_0"
+  cd libs/python
+  git apply "${PROJECT_DIR}/.github/patches/boost-python-3.11.patch"
+  cd ../..
   ./bootstrap.sh
   PYTHON_VERSION=$(python -c 'import sys; print(str(sys.version_info.major) + "." + str(sys.version_info.minor))')
   PYTHON_BIN=$(which python)

@@ -15,5 +15,4 @@ else
   cd boost
   wget -q --no-check-certificate 'https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz' 
   tar zxf boost_1_80_0.tar.gz
-  cd boost_1_80_0
 fi
