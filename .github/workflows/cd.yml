@@ -78,23 +78,23 @@ jobs:
       - name: cxxlib
         shell: bash
         run: |
-          OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
+          export OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
 
           ./scripts/install-${{ matrix.os_short }}.sh cxxlib release \
             --boost-from-source \
             --boost-headers-only
 
           if [ "${{ matrix.os_short }}" == "macos" ]; then
-            CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
+            export CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
           fi
 
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             if [ "${{ matrix.architecture }}" == "x86_64" ]; then
-              CC="gcc-x86-64-linux-gnu"
-              CXX="g++-x86-64-linux-gnu"
+              export CC="gcc-x86-64-linux-gnu"
+              export CXX="g++-x86-64-linux-gnu"
             else
-              CC="gcc-arm-linux-gnueabi"
-              CXX="g++-arm-linux-gnueabi"
+              export CC="gcc-arm-linux-gnueabi"
+              export CXX="g++-arm-linux-gnueabi"
             fi
           fi
 
@@ -169,23 +169,23 @@ jobs:
       - name: nodejslib
         shell: bash
         run: |
-          OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
+          export OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
 
           ./scripts/install-${{ matrix.os_short }}.sh nodejslib release \
             --boost-from-source \
             --boost-headers-only
 
           if [ "${{ matrix.os_short }}" == "macos" ]; then
-            CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
+            export  CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
           fi
 
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             if [ "${{ matrix.architecture }}" == "x86_64" ]; then
-              CC="gcc-x86-64-linux-gnu"
-              CXX="g++-x86-64-linux-gnu"
+              export CC="gcc-x86-64-linux-gnu"
+              export CXX="g++-x86-64-linux-gnu"
             else
-              CC="gcc-arm-linux-gnueabi"
-              CXX="g++-arm-linux-gnueabi"
+              export CC="gcc-arm-linux-gnueabi"
+              export CXX="g++-arm-linux-gnueabi"
             fi
           fi
 
@@ -354,7 +354,6 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          echo $NPM_CONFIG_USERCONFIG
           mkdir -p src/npmpackage/build/Release
           mv prebuilds/*-nodejs-* src/npmpackage/build/Release
           mv prebuilds/emscripten/ocl.js src/npmpackage/build
