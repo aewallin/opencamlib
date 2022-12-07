@@ -71,7 +71,7 @@ jobs:
           - os: "macos-11.0"
             os_short: "macos"
             boost_prefix: /tmp/boost/boost_1_80_0
-            libdir: darwin-nodejs-x64
+            libdir: macos-nodejs-x64
           - os: "ubuntu-22.04"
             os_short: "linux"
             boost_prefix: /tmp/boost/boost_1_80_0
