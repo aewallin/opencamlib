@@ -4,17 +4,13 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - 'scripts/**'
-      - 'src/**'
+      - develop
   push:
     branches:
       - master
+      - develop
     tags:
       - v*
-    paths:
-      - 'scripts/**'
-      - 'src/**'
 
 jobs:
   cxx:
