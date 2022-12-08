@@ -24,13 +24,10 @@ jobs:
         include:
           - os: "windows-2022"
             os_short: "windows"
-            boost_prefix: /c/boost/boost_1_80_0
           - os: "macos-11.0"
             os_short: "macos"
-            boost_prefix: /tmp/boost/boost_1_80_0
           - os: "ubuntu-22.04"
             os_short: "linux"
-            boost_prefix: /tmp/boost/boost_1_80_0
     steps:
       - uses: actions/checkout@v3
         with:
@@ -38,23 +35,18 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          ./scripts/install-${{ matrix.os_short }}.sh cxxlib release \
-            --boost-from-source \
-            --boost-headers-only
-      - name: Build
-        shell: bash
-        run: |
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             export OCL_SUDO_INSTALL="1"
           fi
-          ./scripts/build-${{ matrix.os_short }}.sh cxxlib release \
+          ./install.sh \
+            --install-ci-deps \
+            --build-library cxx \
+            --build-type release \
+            --install-boost \
+            --boost-prefix $(pwd) \
             --use-openmp \
-            --boost-prefix ${{ matrix.boost_prefix }}
-      - name: Test
-        shell: bash
-        env:
-          BOOST_ROOT: ${{ matrix.boost_prefix }}
-        run: ./scripts/test-${{ matrix.os_short }}.sh cxxlib release
+            --install \
+            --test
   nodejs:
     name: ${{ matrix.os_short }} node.js
     runs-on: ${{ matrix.os }}
@@ -66,15 +58,12 @@ jobs:
         include:
           - os: "windows-2022"
             os_short: "windows"
-            boost_prefix: /c/boost/boost_1_80_0
             libdir: windows-nodejs-x64
           - os: "macos-11.0"
             os_short: "macos"
-            boost_prefix: /tmp/boost/boost_1_80_0
             libdir: macos-nodejs-x64
           - os: "ubuntu-22.04"
             os_short: "linux"
-            boost_prefix: /tmp/boost/boost_1_80_0
             libdir: linux-nodejs-x64
     steps:
       - uses: actions/checkout@v3
@@ -83,19 +72,20 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          ./scripts/install-${{ matrix.os_short }}.sh nodejslib release \
-            --boost-from-source \
-            --boost-headers-only
-      - name: Build
-        shell: bash
-        run: |
-          export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }}"
-          ./scripts/build-${{ matrix.os_short }}.sh nodejslib release \
+          if [ "${{ matrix.os_short }}" == "linux" ]; then
+            export OCL_SUDO_INSTALL="1"
+          fi
+          ./install.sh \
+            --install-ci-deps \
+            --build-library nodejs \
+            --build-type release \
+            --node-architecture x64 \
+            --install-boost \
+            --boost-prefix $(pwd) \
             --use-openmp \
-            --boost-prefix ${{ matrix.boost_prefix }}
-      - name: Test
-        shell: bash
-        run: ./scripts/test-${{ matrix.os_short }}.sh nodejslib release
+            --install \
+            --install-prefix $(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }} \
+            --test
   python:
     name: ${{ matrix.os_short }} python
     runs-on: ${{ matrix.os }}
@@ -107,37 +97,38 @@ jobs:
         include:
           - os: "windows-2022"
             os_short: "windows"
-            python_executable: C:\\hostedtoolcache\\windows\\Python\\3.10.8\\x64\\python3.exe
+            python_version: "3.10"
           - os: "macos-11.0"
             os_short: "macos"
+            python_version: "3.11"
           - os: "ubuntu-22.04"
             os_short: "linux"
+            python_version: "3.10"
             cmake_generator: "Unix Makefiles"
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
       - name: Install
         shell: bash
         run: |
           if [ "${{ matrix.os_short }}" == "linux" ]; then
-            ./scripts/install-${{ matrix.os_short }}.sh python3lib release \
-              --boost-from-source
+            export OCL_INSTALL_BOOST="1"
+            export OCL_BOOST_WITH_PYTHON="1"
+            export OCL_BOOST_PREFIX="$(pwd)"
           else
-            ./scripts/install-${{ matrix.os_short }}.sh python3lib release
+            export OCL_INSTALL_BOOST_FROM_REPO="1"
           fi
-      - name: Build
-        shell: bash
+          ./install.sh \
+            --build-library python \
+            --build-type release \
+            --install-system-deps \
+            --python-executable python \
+            --use-openmp \
+            --python-pip-install \
+            --test
         env:
-          OCL_PYTHON_EXECUTABLE: ${{ matrix.python_executable }}
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}
-        run: |
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            export BOOST_ROOT="/tmp/boost"
-          fi
-          ${OCL_PYTHON_EXECUTABLE:-python3} -m pip install --verbose .
-      - name: Test
-        shell: bash
-        env:
-          OCL_PYTHON_EXECUTABLE: ${{ matrix.python_executable }}
-        run: ./scripts/test-${{ matrix.os_short }}.sh python3lib release

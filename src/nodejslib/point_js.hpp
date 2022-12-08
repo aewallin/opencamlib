@@ -11,6 +11,10 @@ private:
   static Napi::FunctionReference constructor; //reference to store the class definition that needs to be exported to JS
   Napi::Value GetX(const Napi::CallbackInfo& info);
   void SetX(const Napi::CallbackInfo& info, const Napi::Value& value);
+  Napi::Value GetY(const Napi::CallbackInfo& info);
+  void SetY(const Napi::CallbackInfo& info, const Napi::Value& value);
+  Napi::Value GetZ(const Napi::CallbackInfo& info);
+  void SetZ(const Napi::CallbackInfo& info, const Napi::Value& value);
   void Add(const Napi::CallbackInfo& info); // wrapped add function
   ocl::Point *actualClass_; // Internal instance of point used to perform actual operations.
 };

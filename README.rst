@@ -133,8 +133,10 @@ Only the Python bindings need Boost to be **compiled** (with Boost.Python).
 All other libraries **DO NOT** need Boost to be compiled, in those cases, a headers only version will suffice.
 So, if you are not compiling the Python libraries, simply download Boost, extract it into a folder, and tell CMake where to look for it.
 
-We provide a couple of scripts to help with installation of dependencies and building, you might want to take a look at those first.
-They are located in the ``scripts/`` folder, the ``install-$PLATFORM.sh`` scripts install dependencies and the ``build-$PLATFORM.sh`` call CMake.
+Make sure to download Boost from the boost.org downloads page, if you download it from github, you have to make sure to install the git submodules **and** build the headers.
+
+We provide a ``install.sh`` script that helps with installation of dependencies and building OpenCAMLib libraries, you might want to take a look at it first.
+You can run ``./install.sh --help`` to look at the available options, or inspect it's source code to find out more.
 
 ============
 Dependencies
@@ -154,14 +156,14 @@ Ubuntu
 
 ..  code-block:: shell
 
-    sudo apt install -y git cmake build-essential libboost-dev
+    sudo apt install -y git cmake curl build-essential libboost-dev
 
 macOS
 *****
 
 ..  code-block:: shell
 
-    brew install boost python@3.11 boost-python3
+    brew install git cmake curl boost python@3.11 boost-python3
 
 Windows
 *******
@@ -268,7 +270,7 @@ First, download and extract Boost:
 
 ..  code-block:: shell
 
-    wget -nv -O boost_1_80_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
+    curl "https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz" --output "boost_1_80_0.tar.gz" --location
     tar -zxf boost_1_80_0.tar.gz -C /tmp/boost
     cd /tmp/boost/boost_1_80_0
 
@@ -324,7 +326,7 @@ Now, when compiling the C++ or node.js module, add the
 
 ``-D BOOST_ROOT=/path/to/extracted/boost`` flag to the ``cmake ..`` command, or the.
 
-``--boost-prefix /path/to/extracted/boost`` flag to the ``./scripts/build-${PLATFORM}.sh`` command
+``--boost-prefix /path/to/extracted/boost`` flag to the ``./install.sh`` command
 
 **You installed Boost from Github.**
 
@@ -340,6 +342,61 @@ The boost that is hosted on Github does not have the headers yet! To compile tho
 The CMake module that looks for Boost, is usually not aware of the existence of the latest Boost versions.
 You can help it by providing the version number of your Boost with the ``-D Boost_ADDITIONAL_VERSIONS="1.80.0"`` flag.
 Make sure to change 1.80.0 with your version of Boost.
+
+It can also be helpfull to enable ``Boost_DEBUG`` in the CMake configuration.
+
+***************
+Cross Compiling
+***************
+
+To compile OpenCAMLib for other architectures, we recommend the following strategies.
+Always make sure to compile Boost for the correct architecture as well!
+
+=====
+macOS
+=====
+
+Cross compiling on mcaOS is possible by setting the CMake ``CMAKE_OSX_ARCHITECTURES`` flag.
+When using the ``install.sh`` script, you can use the ``--macos-architecture`` flag to accomplish the same thing.
+Make sure to take a look at the other ``--*-architecture`` flags when cross compiling.
+
+=======
+Windows
+=======
+
+Cross compiling on Windows is possible by using the "Visual Studio" generator (default) and by setting the CMake ``CMAKE_GENERATOR_PLATFORM`` flag.
+When using the ``install.sh`` script, you can use the ``--cmake-generator-platform`` flag to accomplish the same thing.
+Make sure to take a look at the other ``--*-architecture`` flags when cross compiling.
+
+=====
+Linux
+=====
+
+To ensure that compiled libraries work on older linux versions, it has to be compiled with an older Glibc version.
+The easiest way to accomplish this is by using Docker, there are images available especially for this purpose.
+When using the ``install.sh`` script, you can use the ``--docker-image`` flag which will make the command run in a container with the given image name.
+
+C++
+---
+
+When cross compiling the C++ library, make sure to use an old Glibc, this is included in the dockcross docker images.
+For a list of supported architectures, take a look at:
+
+https://github.com/dockcross/dockcross#summary-cross-compilers
+
+Node.js
+-------
+
+Cross compilers for node.js are available here:
+
+https://github.com/prebuild/docker-images
+
+Python
+------
+
+Cross compilers for python are here:
+
+https://github.com/pypa/manylinux#manylinux2014-centos-7-based
 
 *****
 Links

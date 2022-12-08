@@ -40,11 +40,14 @@ add_library(ocl
 )
 
 target_link_libraries(
-  ocl
-  ${Boost_LIBRARIES}
-  ${OpenMP_CXX_LIBRARIES}
-  ${CMAKE_JS_LIB}
+  	ocl
+  PUBLIC
+		Boost::boost
+		${CMAKE_JS_LIB}
 )
+if(USE_OPENMP)
+  target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
+endif()
 
 set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ".node")
 

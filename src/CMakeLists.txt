@@ -92,9 +92,10 @@ endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(Boost_DEBUG ON)
-set(Boost_USE_STATIC_LIBS ON)
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+set(Boost_DEBUG ON CACHE BOOL "boost-debug")
+set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
 	set(Boost_USE_DEBUG_LIBS     ON)
 	set(Boost_USE_RELEASE_LIBS   OFF)
 else()
@@ -108,7 +109,9 @@ elseif(USE_OPENMP)
 endif()
 if(WIN32)
   # use static python lib
-  add_definitions(-D BOOST_PYTHON_STATIC_LIB)
+  if(Boost_USE_STATIC_LIBS)
+    add_definitions(-D BOOST_PYTHON_STATIC_LIB)
+  endif()
   # disable autolinking in boost
   add_definitions(-D BOOST_ALL_NO_LIB) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
 endif()
@@ -120,12 +123,11 @@ if(BUILD_EMSCRIPTEN_LIB)
   set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 endif()
 find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
 if(BUILD_EMSCRIPTEN_LIB)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 endif()
-message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
 
 if(USE_OPENMP)
   if(APPLE)

@@ -1,6 +1,6 @@
 [project]
 name = "opencamlib"
-version = "2022.12.8"
+version = "2022.12.9"
 description = "open source computer aided manufacturing algorithms library"
 readme = "README.rst"
 authors = [
@@ -43,6 +43,7 @@ wheel.packages = ["src/pythonlib/opencamlib"]
 [tool.scikit-build.cmake.define]
 BUILD_PY_LIB = "ON"
 USE_OPENMP = "ON"
+Boost_ADDITIONAL_VERSIONS = "1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 
 [tool.cibuildwheel]
 build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*"]
@@ -50,14 +51,15 @@ skip = ["pp*", "*-musllinux*", "*-manylinux_i686"]
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64", "x86", "ARM64"]
-before-all = "cd {package} && bash ./scripts/ci/cibw_before_all_windows.sh"
-before-build = "cd {package} && bash ./scripts/ci/cibw_before_build_windows.sh"
+before-all = "cd {package} && bash ./install.sh --install-ci-deps"
+before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
-before-all = "cd {package} && bash ./scripts/ci/cibw_before_all_linux.sh"
+before-all = "cd {package} && bash ./install.sh --install-ci-deps"
+before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python && cp --recursive --no-clobber boost_1_80_0 /host/home/runner/work/opencamlib/opencamlib"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
-before-all = "cd {package} && bash ./scripts/ci/cibw_before_all_macos.sh"
-before-build = "cd {package} && bash ./scripts/ci/cibw_before_build_macos.sh"
+before-all = "cd {package} && bash ./install.sh --install-ci-deps"
+before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
