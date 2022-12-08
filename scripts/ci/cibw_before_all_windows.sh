@@ -1,5 +1,8 @@
 #!/bin/bash -xe
 
+# bump python version to current date
+sed -i.bak "s/^version = .*/version = \"$(date '+%Y.%-m.%-d')\"/g" pyproject.toml && rm pyproject.toml.bak
+
 BOOST_ROOT_UNIX=$(cygpath -w "${BOOST_ROOT}")
 BOOST_ROOT_DIR=$(dirname "${BOOST_ROOT_UNIX}")
 

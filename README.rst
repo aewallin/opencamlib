@@ -166,7 +166,13 @@ macOS
 Windows
 *******
 
-Install Visual Studio, Git and CMake by downloading the installers from the internet, or by using your package manager.
+Install
+
+- Visual Studio Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/)
+- Git (https://git-scm.com/download/win)
+- CMake (https://git-scm.com/download/win)
+
+By downloading the installers from the internet, or by using your package manager.
 
 ===
 C++
@@ -185,7 +191,7 @@ Make sure you have a compiler, git, cmake and Boost installed (or simply downloa
     make . # try make -j4 for a faster build if you have a multi-core machine
     make install .
 
-When boost is not in a standard location, you can add the ``-D Boost_ROOT=/path/to/boost`` option to the cmake command.
+When boost is not in a standard location, you can add the ``-D BOOST_ROOT=/path/to/boost`` option to the cmake command.
 
 ==========
 Emscripten
@@ -214,7 +220,7 @@ Now you can compile opencamlib like this (make sure to replace the ``path/to/`` 
       -D BUILD_EMSCRIPTEN_LIB="ON" \
       -D USE_OPENMP="OFF" \
       -D CMAKE_INSTALL_PREFIX="/path/to/opencamlib/src/npmpackage/build" \
-      -D Boost_ROOT="/path/to/boost" \
+      -D BOOST_ROOT="/path/to/boost" \
       ..
     emmake make # try emmake make -j4 for a faster build if you have a multi-core machine
 
@@ -247,7 +253,7 @@ Next, use cmake-js to compile the library:
       --CD BUILD_NODEJS_LIB="ON" \
       --CD USE_OPENMP="ON" \
       --CD CMAKE_INSTALL_PREFIX="/path/to/opencamlib/build/Release/$(node --print 'process.platform')-nodejs-$(node --print 'process.arch')" \
-      --CD Boost_ROOT="/path/to/boost" \
+      --CD BOOST_ROOT="/path/to/boost" \
       --config "Release"
 
 ======
@@ -298,6 +304,42 @@ Usage
 Please take a look at the ``examples/`` folder on how to use OpenCAMLib.
 For each language there is an example named ``test`` which calls all of the algorithms.
 
+***************
+Common Problems
+***************
+
+Compiling OpenCAMLib is unfortunately not very easy and there are many things that can go wrong.
+Here is a list of common problems and solutions.
+
+=================================================
+Could NOT find Boost (missing: Boost_INCLUDE_DIR)
+=================================================
+
+This happens a lot, here are some of the reasons why this happens:
+
+**You don't have Boost installed.**
+
+If you forgot to install boost, go ahead and download Boost from from their website: https://www.boost.org/users/download/ and extract it somewhere.
+Now, when compiling the C++ or node.js module, add the
+
+``-D BOOST_ROOT=/path/to/extracted/boost`` flag to the ``cmake ..`` command, or the.
+
+``--boost-prefix /path/to/extracted/boost`` flag to the ``./scripts/build-${PLATFORM}.sh`` command
+
+**You installed Boost from Github.**
+
+The boost that is hosted on Github does not have the headers yet! To compile those, you should run the following commands:
+
+..  code-block:: shell
+
+    ./bootstrap.sh
+    ./b2 headers
+
+**Your CMake version has a FindBoost module which is unaware of your Boost's version.**
+
+The CMake module that looks for Boost, is usually not aware of the existence of the latest Boost versions.
+You can help it by providing the version number of your Boost with the ``-D Boost_ADDITIONAL_VERSIONS="1.80.0"`` flag.
+Make sure to change 1.80.0 with your version of Boost.
 
 *****
 Links

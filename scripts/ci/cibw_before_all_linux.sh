@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# bump python version to current date
+sed -i.bak "s/^version = .*/version = \"$(date '+%Y.%-m.%-d')\"/g" pyproject.toml && rm pyproject.toml.bak
+
 PROJECT_DIR=$(pwd)
 
 if [ -f boost.tar.gz ]; then

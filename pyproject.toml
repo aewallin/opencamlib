@@ -1,6 +1,6 @@
 [project]
 name = "opencamlib"
-version = "0.0.16"
+version = "2022.12.8"
 description = "open source computer aided manufacturing algorithms library"
 readme = "README.rst"
 authors = [

@@ -3,6 +3,8 @@
 set -x
 set -e
 
+PROJECT_DIR="$(pwd)"
+
 print_help() {
     cat "$(dirname $(readlink -f $0))/usage-install.txt"
     exit 1
@@ -56,6 +58,10 @@ if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
     fi
     tar -zxf boost_1_80_0.tar.gz -C /c/boost
     cd /c/boost/boost_1_80_0
+    # @todo: somehow applying the patch on windows doesn't work
+    # cd /c/boost/boost_1_80_0/libs/python
+    # git apply "${PROJECT_DIR}/.github/patches/boost-python-3.11.patch"
+    # cd ../..
     if [ -z $OCL_BOOST_HEADERS_ONLY ]; then
         if [ "$1" = "python3lib" ]; then
             if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then

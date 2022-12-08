@@ -3,6 +3,8 @@
 set -x
 set -e
 
+PROJECT_DIR="$(pwd)"
+
 print_help() {
     cat "$(dirname $(readlink -f $0))/usage-install.txt"
     exit 1
@@ -29,18 +31,22 @@ set -- "${POSITIONAL_ARGS[@]}"
 
 if [ -z $OCL_NO_DEPS ]; then
     sudo apt update
-    sudo apt install -y git cmake build-essential
+    sudo apt install -y --no-install-recommends git cmake build-essential
     if [ -z $OCL_BOOST_FROM_SOURCE ]; then
         sudo apt install -y libboost-dev
     fi
 
     if [ "$1" = "python3lib" ]; then
         if [ -z $OCL_PYTHON_EXECUTABLE ]; then
-            sudo apt install -y python3
+            sudo apt install -y --no-install-recommends python3
         fi
         if [ -z $OCL_BOOST_FROM_SOURCE ]; then
-            sudo apt install -y libboost-python-dev
+            sudo apt install -y --no-install-recommends libboost-python-dev
         fi
+    fi
+
+    if [ "$1" = "nodejslib" ]; then
+        sudo apt install -y --no-install-recommends nodejs npm
     fi
 fi
 
@@ -65,7 +71,9 @@ if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
         wget -nv -O boost_1_80_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
     fi
     tar -zxf boost_1_80_0.tar.gz -C /tmp/boost
-    cd boost/boost_1_80_0
+    cd boost/boost_1_80_0/libs/python
+    git apply "${PROJECT_DIR}/.github/patches/boost-python-3.11.patch"
+    cd ../..
     if [ -z $OCL_BOOST_HEADERS_ONLY ]; then
         if [ "$1" = "python3lib" ]; then
             if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then

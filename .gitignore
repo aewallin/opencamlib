@@ -24,8 +24,5 @@ src/npmpackage/build
 _skbuild/
 dist/
 *.egg-info
-
-publish.sh
-test.sh
-
 _build/
+boost*

@@ -60,49 +60,39 @@ jobs:
             os: "ubuntu-22.04"
             os_short: "linux"
             architecture: "aarch64"
+            docker_image: dockcross/linux-arm64-lts:latest
             boost_prefix: /tmp/boost/boost_1_80_0
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: deps
-        if: matrix.os_short == 'linux'
-        shell: bash
-        run: |
-          sudo dpkg --add-architecture armel
-          sudo dpkg --add-architecture amd64
-          sudo apt-get update
-          sudo apt install \
-            crossbuild-essential-armel \
-            crossbuild-essential-amd64
       - name: cxxlib
         shell: bash
         run: |
           export OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
-
-          ./scripts/install-${{ matrix.os_short }}.sh cxxlib release \
-            --boost-from-source \
-            --boost-headers-only
-
-          if [ "${{ matrix.os_short }}" == "macos" ]; then
-            export CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
-          fi
-
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            if [ "${{ matrix.architecture }}" == "x86_64" ]; then
-              export CC="gcc-x86-64-linux-gnu"
-              export CXX="g++-x86-64-linux-gnu"
+          if [ "${{ matrix.docker_image }}" != "" ]; then
+            export DOCKER_IMAGE="${{ matrix.docker_image }}"
+            ./scripts/ci/cross_linux_cxx.sh
+          else
+            if [ "${{ matrix.os_short }}" == "macos" ]; then
+              export CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
+              export OPENMP_PREFIX_MACOS="/tmp/libomp-${{ matrix.architecture }}/libomp/fixed"
+              ./scripts/install-${{ matrix.os_short }}.sh cxxlib release \
+                --boost-from-source \
+                --boost-headers-only \
+                --download-openmp-multi-arch
             else
-              export CC="gcc-arm-linux-gnueabi"
-              export CXX="g++-arm-linux-gnueabi"
+              ./scripts/install-${{ matrix.os_short }}.sh cxxlib release \
+                --boost-from-source \
+                --boost-headers-only
             fi
-          fi
 
-          ./scripts/build-${{ matrix.os_short }}.sh cxxlib release \
-            --clean \
-            --use-openmp \
-            --boost-prefix ${{ matrix.boost_prefix }} \
-            --install-prefix $(pwd)/dist
+            ./scripts/build-${{ matrix.os_short }}.sh cxxlib release \
+              --clean \
+              --use-openmp \
+              --boost-prefix ${{ matrix.boost_prefix }} \
+              --install-prefix $(pwd)/dist
+          fi
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os_short }}-cxx-${{ matrix.architecture }}
@@ -160,8 +150,10 @@ jobs:
             os: "ubuntu-22.04"
             os_short: "linux"
             architecture: "aarch64"
+            dockcross_image: linux-arm64
             boost_prefix: /tmp/boost/boost_1_80_0
             node_architecture: "arm64"
+            docker_image: ghcr.io/prebuild/linux-arm64-lts:latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -169,31 +161,38 @@ jobs:
       - name: nodejslib
         shell: bash
         run: |
+          # add readme to npm package
+          cp README* src/npmpackage
+
+          # bump version
+          cd src/npmpackage
+          jq '.version="$(date '+%Y.%-m.%-d')"' package.json
+          npm install
+          cd ../..
+
           export OCL_VS_ARCHITECTURE="${{ matrix.vs_architecture }}"
-
-          ./scripts/install-${{ matrix.os_short }}.sh nodejslib release \
-            --boost-from-source \
-            --boost-headers-only
-
-          if [ "${{ matrix.os_short }}" == "macos" ]; then
-            export  CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
-          fi
-
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            if [ "${{ matrix.architecture }}" == "x86_64" ]; then
-              export CC="gcc-x86-64-linux-gnu"
-              export CXX="g++-x86-64-linux-gnu"
+          if [ "${{ matrix.docker_image }}" != "" ]; then
+            export DOCKER_IMAGE="${{ matrix.docker_image }}"
+            ./scripts/ci/cross_linux_node.sh
+          else
+            if [ "${{ matrix.os_short }}" == "macos" ]; then
+              export CMAKE_OSX_ARCHITECTURES="${{ matrix.architecture }}"
+              export OPENMP_PREFIX_MACOS="/tmp/libomp-${{ matrix.architecture }}/libomp/fixed"
+              ./scripts/install-${{ matrix.os_short }}.sh nodejslib release \
+                --boost-from-source \
+                --boost-headers-only \
+                --download-openmp-multi-arch
             else
-              export CC="gcc-arm-linux-gnueabi"
-              export CXX="g++-arm-linux-gnueabi"
+              ./scripts/install-${{ matrix.os_short }}.sh nodejslib release \
+                --boost-from-source \
+                --boost-headers-only
             fi
+            ./scripts/build-${{ matrix.os_short }}.sh nodejslib release \
+              --clean \
+              --use-openmp \
+              --boost-prefix ${{ matrix.boost_prefix }} \
+              --install-prefix $(pwd)/dist
           fi
-
-          ./scripts/build-${{ matrix.os_short }}.sh nodejslib release \
-            --clean \
-            --use-openmp \
-            --boost-prefix ${{ matrix.boost_prefix }} \
-            --install-prefix $(pwd)/dist
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os_short }}-nodejs-${{ matrix.node_architecture }}

@@ -3,6 +3,8 @@
 set -x
 set -e
 
+PROJECT_DIR="$(pwd)"
+
 print_help() {
     cat "$(dirname $(readlink -f $0))/usage-install.txt"
     exit 1
@@ -46,9 +48,14 @@ if [ -z $OCL_NO_DEPS ]; then
         cp $armloc /tmp/libomp-arm64.tar.gz
         mkdir /tmp/libomp-arm64 || true
         tar -xzvf /tmp/libomp-arm64.tar.gz -C /tmp/libomp-arm64
+        LIBOMP_PREFIX=$(find /tmp/libomp-arm64/libomp -depth 1 | head -1)
+        mv "${LIBOMP_PREFIX}" "/tmp/libomp-arm64/libomp/fixed"
+
         cp $x64loc /tmp/libomp-x86_64.tar.gz
         mkdir /tmp/libomp-x86_64 || true
         tar -xzvf /tmp/libomp-x86_64.tar.gz -C /tmp/libomp-x86_64
+        LIBOMP_PREFIX=$(find /tmp/libomp-x86_64/libomp -depth 1 | head -1)
+        mv "${LIBOMP_PREFIX}" "/tmp/libomp-x86_64/libomp/fixed"
     fi
     if [ -z $OCL_BOOST_FROM_SOURCE ]; then
         brew install boost
@@ -84,7 +91,9 @@ if [ -n "$OCL_BOOST_FROM_SOURCE" ]; then
         wget -nv -O boost_1_80_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz
     fi
     tar -zxf boost_1_80_0.tar.gz -C /tmp/boost
-    cd boost/boost_1_80_0
+    cd boost/boost_1_80_0/libs/python
+    git apply "${PROJECT_DIR}/.github/patches/boost-python-3.11.patch"
+    cd ../..
     if [ "$1" = "python3lib" ]; then
         if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
             PYTHON_VERSION=`${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))'`

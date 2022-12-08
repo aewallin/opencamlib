@@ -1,4 +1,3 @@
-from os import environ
 from skbuild import setup
 
 setup(

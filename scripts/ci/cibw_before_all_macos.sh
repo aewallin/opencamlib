@@ -1,5 +1,8 @@
 #!/bin/bash -xe
 
+# bump python version to current date
+sed -i.bak "s/^version = .*/version = \"$(date '+%Y.%-m.%-d')\"/g" pyproject.toml && rm pyproject.toml.bak
+
 armloc=$(brew fetch --bottle-tag=arm64_big_sur libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
 x64loc=$(brew fetch --bottle-tag=big_sur libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
 cp $armloc /tmp/libomp-arm64.tar.gz

@@ -14,6 +14,7 @@ while [[ "$#" -gt 0 ]]; do
         --install-prefix) OCL_INSTALL_PREFIX="$2"; shift ;;
         --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
         --python-prefix) OCL_PYTHON_PREFIX="$2"; shift ;;
+        --architecture) OCL_ARCH="$2"; shift ;;
         --sudo-install) OCL_SUDO_INSTALL="1"; ;;
         --use-openmp) OCL_USE_OPENMP="1"; ;;
         --clean) OCL_CLEAN="1"; ;;
@@ -37,7 +38,7 @@ if [ "$2" = "debug" ]; then
     BUILD_TYPE="Debug"
 else
     BUILD_DIR="$BUILD_DIR/release"
-    BUILD_TYPE="Release"
+    BUILD_TYPE="RelWithDebInfo"
 fi
 
 if [ "$OCL_CLEAN" = "1" ]; then
@@ -53,6 +54,7 @@ if [ "$1" = "cxxlib" ]; then
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_CXX_LIB="ON" \
+        -D Boost_ADDITIONAL_VERSIONS="1.80.0" \
         ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
@@ -64,19 +66,22 @@ elif [ "$1" = "nodejslib" ]; then
         --directory "../../.." \
         --out "." \
         --parallel $NUM_PROCS \
-        --CD BUILD_NODEJS_LIB="ON" \
+        --arch "${OCL_ARCH}" \
+        --CDBUILD_NODEJS_LIB="ON" \
+        --CDBoost_ADDITIONAL_VERSIONS="1.80.0" \
         ${OCL_USE_OPENMP:+"--CDUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"--CDCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"--CDBoost_ROOT=${OCL_BOOST_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"--CDBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         --config "${BUILD_TYPE}"
 elif [ "$1" = "python3lib" ]; then
     cmake \
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_PY_LIB="ON" \
+        -D Boost_ADDITIONAL_VERSIONS="1.80.0" \
         ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
     cmake --build . -j$NUM_PROCS
 elif [ "$1" = "emscriptenlib" ]; then
@@ -85,8 +90,9 @@ elif [ "$1" = "emscriptenlib" ]; then
         -D CMAKE_BUILD_TYPE="${BUILD_TYPE}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
+        -D Boost_ADDITIONAL_VERSIONS="1.80.0" \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"-DBoost_ROOT=${OCL_BOOST_PREFIX}"} \
+        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
     emmake make -j$NUM_PROCS
 else
