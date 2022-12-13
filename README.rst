@@ -151,22 +151,22 @@ To compile OpenCAMLib, you need:
 
 At this time of writing, here are the packages to install:
 
-Ubuntu
-******
+Ubuntu Dependencies
+-------------------
 
 ..  code-block:: shell
 
     sudo apt install -y git cmake curl build-essential libboost-dev
 
-macOS
-*****
+macOS Dependencies
+------------------
 
 ..  code-block:: shell
 
     brew install git cmake curl boost python@3.11 boost-python3
 
-Windows
-*******
+Windows Dependencies
+--------------------
 
 Install
 
@@ -176,9 +176,9 @@ Install
 
 By downloading the installers from the internet, or by using your package manager.
 
-===
-C++
-===
+================
+Building for C++
+================
 
 The C++ library is the easiest to build, it only depends on Boost's headers.
 Make sure you have a compiler, git, cmake and Boost installed (or simply download and extract it somewhere).
@@ -195,9 +195,9 @@ Make sure you have a compiler, git, cmake and Boost installed (or simply downloa
 
 When boost is not in a standard location, you can add the ``-D BOOST_ROOT=/path/to/boost`` option to the cmake command.
 
-==========
-Emscripten
-==========
+=======================
+Building for Emscripten
+=======================
 
 To compile the emscripten library, first download, install and activate it using the following commands:
 
@@ -228,9 +228,9 @@ Now you can compile opencamlib like this (make sure to replace the ``path/to/`` 
 
 Note that USE_OPENMP has been turned off, OpenMP is not supported with Emscripten at the moment
 
-=======
-Node.js
-=======
+====================
+Building for Node.js
+====================
 
 To compile the Node.js library, install the dependencies in ``src/nodejslib``:
 
@@ -258,9 +258,9 @@ Next, use cmake-js to compile the library:
       --CD BOOST_ROOT="/path/to/boost" \
       --config "Release"
 
-======
-Python
-======
+===================
+Building for Python
+===================
 
 The Python library can be compiled similarly to the C++ example above, however, this time Boost.Python has to be compiled first.
 Most systems have Boost.Python available as a download, but only for a specific Python version only (usually the latest Python version).
@@ -356,7 +356,7 @@ Always make sure to compile Boost for the correct architecture as well!
 macOS
 =====
 
-Cross compiling on mcaOS is possible by setting the CMake ``CMAKE_OSX_ARCHITECTURES`` flag.
+Cross compiling on macOS is possible by setting the CMake ``CMAKE_OSX_ARCHITECTURES`` flag.
 When using the ``install.sh`` script, you can use the ``--macos-architecture`` flag to accomplish the same thing.
 Make sure to take a look at the other ``--*-architecture`` flags when cross compiling.
 
@@ -376,23 +376,23 @@ To ensure that compiled libraries work on older linux versions, it has to be com
 The easiest way to accomplish this is by using Docker, there are images available especially for this purpose.
 When using the ``install.sh`` script, you can use the ``--docker-image`` flag which will make the command run in a container with the given image name.
 
-C++
----
+C++ docker image
+----------------
 
 When cross compiling the C++ library, make sure to use an old Glibc, this is included in the dockcross docker images.
 For a list of supported architectures, take a look at:
 
 https://github.com/dockcross/dockcross#summary-cross-compilers
 
-Node.js
--------
+Node.js docker image
+--------------------
 
 Cross compilers for node.js are available here:
 
 https://github.com/prebuild/docker-images
 
-Python
-------
+Python docker image
+-------------------
 
 Cross compilers for python are here:
 
