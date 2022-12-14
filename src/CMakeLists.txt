@@ -95,6 +95,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(Boost_DEBUG ON CACHE BOOL "boost-debug")
 set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
 
+# set(Boost_LIB_PREFIX "lib")
+# set(Boost_ARCHITECTURE "-a64")
+
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	set(Boost_USE_DEBUG_LIBS     ON)
 	set(Boost_USE_RELEASE_LIBS   OFF)

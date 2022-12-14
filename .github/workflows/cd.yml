@@ -175,7 +175,7 @@ jobs:
           path: |
             dist
   python:
-    name: ${{ matrix.os_short }} python ${{ matrix.architecture }}
+    name: ${{ matrix.os_short }} python ${{ matrix.architecture }} cp${{ matrix.python_version }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 240
     strategy:
@@ -190,10 +190,19 @@ jobs:
           "linux-x86_64",
           "linux-aarch64",
         ]
+        python_version: [
+          "37",
+          "38",
+          "39",
+          "310",
+          "311",
+        ]
+        exclude:
+          - os_arch: "macos-arm64"
+            python_version: "37"
         include:
           - os_arch: "windows-ia32"
             os: "windows-2022"
-            # os: [self-hosted]
             os_short: "windows"
             architecture: "ia32"
             boost_architecture: "x86"
@@ -202,7 +211,6 @@ jobs:
             cmake_generator_platform: "Win32"
           - os_arch: "windows-x64"
             os: "windows-2022"
-            # os: [self-hosted]
             os_short: "windows"
             architecture: "x64"
             boost_architecture: "x86"
@@ -219,25 +227,21 @@ jobs:
           #   cmake_generator_platform: "ARM64"
           - os_arch: "macos-x86_64"
             os: "macos-11.0"
-            # os: [self-hosted]
             os_short: "macos"
             architecture: "x86_64"
             boost_architecture: "x86"
           - os_arch: "macos-arm64"
             os: "macos-11.0"
-            # os: [self-hosted]
             os_short: "macos"
             architecture: "arm64"
             boost_architecture: "arm"
           - os_arch: linux-x86_64
             os: "ubuntu-22.04"
-            # os: [self-hosted]
             os_short: "linux"
             architecture: "x86_64"
             boost_architecture: "x86"
           - os_arch: linux-aarch64
             os: "ubuntu-22.04"
-            # os: [self-hosted]
             os_short: "linux"
             architecture: "aarch64"
             boost_architecture: "arm"
@@ -245,12 +249,12 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Cache Boost.Python
-        id: cache-boost-python
-        uses: actions/cache@v3
-        with:
-          path: boost-precompiled.tar.gz
-          key: boost-1.80.0-${{ matrix.os_short }}-${{ matrix.architecture }}
+      # - name: Cache Boost.Python
+      #   id: cache-boost-python
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: boost-precompiled.tar.gz
+      #     key: boost-1.80.0-${{ matrix.os_short }}-${{ matrix.architecture }}
       - name: prepare
         shell: bash
         run: |
@@ -258,7 +262,6 @@ jobs:
             version="${GITHUB_REF##*/}"
           else
             version="$(date '+%Y.%-m.%-d').dev${GITHUB_RUN_NUMBER}"
-            is_dev="1"
           fi
           sed -i.bak "s/^version = .*/version = \"${version}\"/g" pyproject.toml && rm pyproject.toml.bak
           git describe --tags > src/git-tag.txt
@@ -270,35 +273,36 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.11.2
         env:
-          CIBW_PLATFORM: ${{ matrix.os_short }}
+          CIBW_BUILD: "cp${{ matrix.python_version }}-*"
+          CIBW_PLATFORM: "${{ matrix.os_short }}"
           CIBW_BUILD_VERBOSITY: "1"
-          CIBW_ARCHS_WINDOWS: ${{ matrix.cibuildwheel_architecture }}
+          CIBW_ARCHS_WINDOWS: "${{ matrix.cibuildwheel_architecture }}"
           CIBW_ENVIRONMENT_WINDOWS: >
             BOOST_ROOT="$(cygpath -w $(pwd))"
             OCL_BOOST_ADDRESS_MODEL="${{ matrix.boost_address_model }}"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Visual Studio 17 2022"
             CMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
-          CIBW_ENVIRONMENT_PASS_WINDOWS: BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM
-          CIBW_ARCHS_MACOS: ${{ matrix.architecture }}
+          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM"
+          CIBW_ARCHS_MACOS: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_MACOS: >
             BOOST_ROOT="$(pwd)"
             OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
-          CIBW_ENVIRONMENT_PASS_MACOS: BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS
-          CIBW_ARCHS_LINUX: ${{ matrix.architecture }}
+          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS"
+          CIBW_ARCHS_LINUX: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_LINUX: >
             BOOST_ROOT="$(pwd)"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Unix Makefiles"
-          CIBW_ENVIRONMENT_PASS_LINUX: BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR
-      - name: Compress Boost.Python
-        shell: bash
-        run: |
-          if [ -d "boost_1_80_0" ]; then
-            tar -czf boost-precompiled.tar.gz boost_1_80_0 || true
-          fi
+          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR"
+      # - name: Compress Boost.Python
+      #   shell: bash
+      #   run: |
+      #     if [ -d "boost_1_80_0" ]; then
+      #       tar -czf boost-precompiled.tar.gz boost_1_80_0 || true
+      #     fi
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os_short }}-python-${{ matrix.architecture }}
@@ -376,7 +380,11 @@ jobs:
           cd src/npmpackage
           npm install
           npm run build-emscripten
-          npm publish --access public ${is_dev:+"--tag dev"}
+          if [ "${is_dev}" == "1" ]; then
+            npm publish --access public --tag dev
+          else
+            npm publish --access public
+          fi
   publish-pypi:
     name: publish to PyPi
     needs: [
