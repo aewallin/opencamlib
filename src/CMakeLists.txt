@@ -42,7 +42,7 @@ option(BUILD_DOC
   "Build/install the ocl documentation? " ON)
 
 option(USE_OPENMP
-    "Use OpenMP for parallel computation" OFF)
+    "Use OpenMP for parallel computation" ON)
 
 option(VERSION_STRING
     "Set version string" OFF)
@@ -94,9 +94,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(Boost_DEBUG ON CACHE BOOL "boost-debug")
 set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
-
-# set(Boost_LIB_PREFIX "lib")
-# set(Boost_ARCHITECTURE "-a64")
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 	set(Boost_USE_DEBUG_LIBS     ON)

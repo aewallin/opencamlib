@@ -44,7 +44,6 @@ jobs:
             --build-type release \
             --install-boost \
             --boost-prefix $(pwd) \
-            --use-openmp \
             --install \
             --test
   nodejs:
@@ -82,7 +81,6 @@ jobs:
             --node-architecture x64 \
             --install-boost \
             --boost-prefix $(pwd) \
-            --use-openmp \
             --install \
             --install-prefix $(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }} \
             --test
@@ -127,7 +125,6 @@ jobs:
             --build-type release \
             --install-system-deps \
             --python-executable python \
-            --use-openmp \
             --python-pip-install \
             --test
         env:

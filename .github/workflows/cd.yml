@@ -79,7 +79,6 @@ jobs:
             --build-library cxx \
             --build-type release \
             --install-ci-deps \
-            --use-openmp \
             --install-boost \
             --boost-prefix $(pwd) \
             --install \
@@ -165,7 +164,6 @@ jobs:
             --install-ci-deps \
             --install-boost \
             --boost-prefix $(pwd) \
-            --use-openmp \
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
             --install-prefix $(pwd)/dist

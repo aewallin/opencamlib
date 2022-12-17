@@ -14,7 +14,7 @@ Options:
   --clean                     Clean the build folder before compiling a library (only valid with --build-library)
   --build-library             Compile a library with CMake (one of: cxx, nodejs, python, emscripten)
   --build-type                Choose the build type (one of: debug, release) (only valid with --build-library)
-  --use-openmp                Enable OpenMP in the build, so the target library will use multiple cores. (only valid with --build-library)
+  --disable-openmp            Disable OpenMP in the build. (only valid with --build-library)
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
   --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
   --install-boost             Install Boost from source
@@ -59,7 +59,7 @@ while [[ "$#" -gt 0 ]]; do
         --platform) OCL_PLATFORM="$2"; shift ;;
         --install-system-deps) OCL_INSTALL_SYSTEM_DEPS="1"; ;;
         --install-ci-deps) OCL_INSTALL_CI_DEPS="1"; ;;
-        --use-openmp) OCL_USE_OPENMP="1"; ;;
+        --disable-openmp) OCL_DISABLE_OPENMP="1"; ;;
         --install) OCL_INSTALL="1"; ;;
         --sudo-install) OCL_SUDO_INSTALL="1"; ;;
         --install-prefix) OCL_INSTALL_PREFIX="$2"; shift ;;
@@ -98,8 +98,8 @@ verify_args() {
     elif [ -n "${OCL_TEST}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
         echo "Cannot set --test without building a library. add the --build-library [lib] option or remove the --test option"
         exit 1
-    elif [ -n "${OCL_USE_OPENMP}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
-        echo "Cannot set --use-openmp without building a library. add the --build-library [lib] option or remove the --use-openmp option"
+    elif [ -n "${OCL_DISABLE_OPENMP}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
+        echo "Cannot set --disable-openmp without building a library. add the --build-library [lib] option or remove the --disable-openmp option"
         exit 1
     elif [ -n "${OCL_INSTALL_PREFIX}" ] && [ -z "${OCL_INSTALL}" ] && [ -z "${OCL_SUDO_INSTALL}" ]; then
         echo "WARN: Settings --install-prefix without setting --install or --sudo-install. add --install or --sudo-install option or remove the --install-prefix option"
@@ -186,11 +186,9 @@ install_system_dependencies() {
             sudo apt install -y --no-install-recommends nodejs npm
         fi
     elif [ "${determined_os}" = "macos" ]; then
+        brew install libomp
         if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
             brew install boost
-        fi
-        if [ -z "${OCL_USE_OPENMP}" ]; then
-            brew install libomp
         fi
         if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
             if [ -z "${OCL_PYTHON_EXECUTABLE}" ]; then
@@ -432,7 +430,7 @@ build_cxxlib() {
         -D CMAKE_BUILD_TYPE="${build_type}" \
         -D BUILD_CXX_LIB="ON" \
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-        ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
+        ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
@@ -485,7 +483,7 @@ build_nodejslib() {
         --CDBUILD_NODEJS_LIB="ON" \
         --CDBoost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         --CDCMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
-        ${OCL_USE_OPENMP:+"--CDUSE_OPENMP=ON"} \
+        ${OCL_DISABLE_OPENMP:+"--CDUSE_OPENMP=OFF"} \
         ${OCL_BOOST_PREFIX:+"--CDBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ${OCL_BOOST_PREFIX:+"--CDBoost_NO_SYSTEM_PATHS=ON"} \
         --config "${build_type}"
@@ -547,7 +545,7 @@ ${OCL_BOOST_PREFIX:+"-D Boost_NO_SYSTEM_PATHS=ON"}"
             -D BUILD_PY_LIB="ON" \
             -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
             -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
-            ${OCL_USE_OPENMP:+"-DUSE_OPENMP=ON"} \
+            ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
             ${OCL_PYTHON_PREFIX:+"-DPython_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
             ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
             ${OCL_BOOST_PREFIX:+"-DBoost_NO_SYSTEM_PATHS=ON"} \
