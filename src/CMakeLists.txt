@@ -1,6 +1,5 @@
-project(OpenCamLib)
+project(OpenCAMLib)
 
-#set( CMAKE_SOURCE_DIR ${CMAKE_SOURCE_DIR} )
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 if(COMMAND cmake_policy)
@@ -23,16 +22,9 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/$<0:>)
 endforeach()
 
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer")
-if (CMAKE_VERSION VERSION_LESS "3.1")
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-  endif ()
-else ()
-  set (CMAKE_CXX_STANDARD 14)
-endif ()
+set(CMAKE_CXX_STANDARD 14)
 
-if (WIN32)
+if(WIN32)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
@@ -40,10 +32,10 @@ endif()
 option(BUILD_CXX_LIB
   "Build/install the pure c++ ocl library? " OFF)
 
-option(BUILD_PY_LIB 
+option(BUILD_PY_LIB
   "Build/install the python ocl library? " OFF)
 
-option(BUILD_NODEJS_LIB 
+option(BUILD_NODEJS_LIB
   "Build/install the node.js ocl library? " OFF)
 
 option(BUILD_DOC
@@ -58,21 +50,25 @@ option(VERSION_STRING
 option(USE_PY_3
     "Use Python V3" ON)
 
-if (NOT BUILD_CXX_LIB)
+if(NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
-endif(NOT BUILD_CXX_LIB)
+endif()
 
-if (NOT BUILD_PY_LIB)
+if(NOT BUILD_PY_LIB)
   message(STATUS " Note: will NOT build python library")
-endif(NOT BUILD_PY_LIB)
+endif()
 
-if (NOT BUILD_EMSCRIPTEN_LIB)
+if(NOT BUILD_NODEJS_LIB)
+  message(STATUS " Note: will NOT build node.js library")
+endif()
+
+if(NOT BUILD_EMSCRIPTEN_LIB)
   message(STATUS " Note: will NOT build emscripten library")
-endif(NOT BUILD_EMSCRIPTEN_LIB)
+endif()
 
-if (NOT BUILD_DOC)
+if(NOT BUILD_DOC)
   message(STATUS " Note: will NOT build ocl documentation")
-endif(NOT BUILD_DOC)
+endif()
 
 # figure out the gcc version
 include(gcc_version.cmake)
@@ -84,70 +80,59 @@ include(gcc_version.cmake)
 # #include'ing the boost graph-library creates deprecated warnings
 # thus we use now use -Wno-deprecated here.
 #
-if (UNIX)
+if(UNIX)
   if(GCC_4_6)
     message(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
     add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
-  else(GCC_4_6)
+  else()
     message(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
     add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
-  endif(GCC_4_6)
-endif (UNIX)
-
-# option(BUILD_TYPE
-#   "Build type: Release=ON/Debug=OFF  " ON)
-
-# if (BUILD_TYPE)
-#   message(STATUS " CMAKE_BUILD_TYPE = Release")
-#   set(CMAKE_BUILD_TYPE Release)
-# endif(BUILD_TYPE)
-
-# if (NOT BUILD_TYPE)
-#   message(STATUS " CMAKE_BUILD_TYPE = Debug")
-#   set(CMAKE_BUILD_TYPE Debug)
-# endif(NOT BUILD_TYPE)
+  endif()
+endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-set(Boost_DEBUG ON)
-if (WIN32 OR APPLE OR BUILD_EMSCRIPTEN_LIB)
-  set(Boost_USE_STATIC_LIBS ON)
+set(Boost_DEBUG ON CACHE BOOL "boost-debug")
+set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
+if(DEFINED ENV{BOOST_ROOT} OR DEFINED BOOST_ROOT)
+  set(Boost_NO_SYSTEM_PATHS ON)
 endif()
-if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+if(CMAKE_BUILD_TYPE MATCHES Debug)
 	set(Boost_USE_DEBUG_LIBS     ON)
 	set(Boost_USE_RELEASE_LIBS   OFF)
 else()
 	set(Boost_USE_DEBUG_LIBS     OFF)
 	set(Boost_USE_RELEASE_LIBS   ON)
 endif()
-if (BUILD_EMSCRIPTEN_LIB)
+if(BUILD_EMSCRIPTEN_LIB)
   set(Boost_USE_MULTITHREADED  OFF)
 elseif(USE_OPENMP)
   set(Boost_USE_MULTITHREADED  ON)
 endif()
-if (WIN32)
+if(WIN32)
   # use static python lib
-  add_definitions(-D BOOST_PYTHON_STATIC_LIB)
+  if(Boost_USE_STATIC_LIBS)
+    add_definitions(-D BOOST_PYTHON_STATIC_LIB)
+  endif()
   # disable autolinking in boost
   add_definitions(-D BOOST_ALL_NO_LIB) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
 endif()
 
 # when building the emscripten we have to temporarily set
 # the root path mode to BOTH so Boost can be found
-if (BUILD_EMSCRIPTEN_LIB)
+if(BUILD_EMSCRIPTEN_LIB)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
   set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
 endif()
 find_package(Boost REQUIRED)
-if (BUILD_EMSCRIPTEN_LIB)
+include_directories(${Boost_INCLUDE_DIRS})
+if(BUILD_EMSCRIPTEN_LIB)
   set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
   set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 endif()
-message(STATUS "Boost_INCLUDE_DIRS: " ${Boost_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
 
 if(USE_OPENMP)
-  if (APPLE)
+  if(APPLE)
     if(DEFINED ENV{OPENMP_PREFIX_MACOS})
       message(STATUS "Will use libomp at $ENV{OPENMP_PREFIX_MACOS}.")
       set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp")
@@ -158,7 +143,7 @@ if(USE_OPENMP)
       include_directories("$ENV{OPENMP_PREFIX_MACOS}/include")
     else()
       find_program(brew brew)
-      if (brew)
+      if(brew)
         message(STATUS "Found homebrew at ${brew}.")
         execute_process(COMMAND "${brew}" --prefix libomp
           RESULT_VARIABLE brew_libomp_found
@@ -178,26 +163,26 @@ if(USE_OPENMP)
     endif()
   endif(APPLE)
   find_package(OpenMP REQUIRED)
-  if (OPENMP_FOUND)
+  if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
     message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
     include_directories(${OpenMP_CXX_INCLUDE_DIRS})
   endif()
 endif()
 
-IF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
-  file(STRINGS "${OpenCamLib_SOURCE_DIR}/version_string.hpp" OpenCamLib_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
-  if(OpenCamLib_BUILD_SPECIFICATION)
-    string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${OpenCamLib_BUILD_SPECIFICATION})
+if(EXISTS ${PROJECT_SOURCE_DIR}/version_string.hpp)
+  file(STRINGS "${PROJECT_SOURCE_DIR}/version_string.hpp" PROJECT_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
+  if(PROJECT_BUILD_SPECIFICATION)
+    string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${PROJECT_BUILD_SPECIFICATION})
   else()
     message(FATAL_ERROR "Data were not found for the required build specification.")
   endif()
-  SET(version_string ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
-ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+  set(version_string ${PROJECT_SOURCE_DIR}/version_string.hpp)
+else()
   ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
   # include the output directory, where the version_string.hpp file is generated
   include_directories(${CMAKE_CURRENT_BINARY_DIR})
-  if (VERSION_STRING)
+  if(VERSION_STRING)
     set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
                "#ifndef VERSION_STRING\n"
                "#define VERSION_STRING \"${VERSION_STRING}\"\n"
@@ -209,186 +194,164 @@ ELSE(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
   else()
     include(version_string.cmake)
     # now parse the git commit id:
-    STRING(REGEX REPLACE "([0-9]+).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-    STRING(REGEX REPLACE "[0-9]+.([0-9]+)-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-    STRING(REGEX REPLACE "[0-9]+.[0-9]+-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-    SET(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-    SET(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
+    string(REGEX REPLACE "([0-9]+).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
+    string(REGEX REPLACE "[0-9]+.([0-9]+)-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
+    string(REGEX REPLACE "[0-9]+.[0-9]+-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
+    set(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
+    set(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
   endif()
-ENDIF(EXISTS ${OpenCamLib_SOURCE_DIR}/version_string.hpp)
+endif()
 
-message(STATUS "OpenCamLib version: ${MY_VERSION}")
+message(STATUS "OpenCAMLib version: ${MY_VERSION}")
 
 # this defines the source-files
+set(OCL_SRC
+  ${PROJECT_SOURCE_DIR}/ocl.cpp
+  )
+
 set(OCL_GEO_SRC
-  ${OpenCamLib_SOURCE_DIR}/geo/arc.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/bbox.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/clpoint.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/line.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/path.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/point.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlreader.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.cpp
-  ${OpenCamLib_SOURCE_DIR}/geo/triangle.cpp
+  ${PROJECT_SOURCE_DIR}/geo/arc.cpp
+  ${PROJECT_SOURCE_DIR}/geo/bbox.cpp
+  ${PROJECT_SOURCE_DIR}/geo/ccpoint.cpp
+  ${PROJECT_SOURCE_DIR}/geo/clpoint.cpp
+  ${PROJECT_SOURCE_DIR}/geo/line.cpp
+  ${PROJECT_SOURCE_DIR}/geo/path.cpp
+  ${PROJECT_SOURCE_DIR}/geo/point.cpp
+  ${PROJECT_SOURCE_DIR}/geo/stlreader.cpp
+  ${PROJECT_SOURCE_DIR}/geo/stlsurf.cpp
+  ${PROJECT_SOURCE_DIR}/geo/triangle.cpp
   )
 
 set(OCL_CUTTER_SRC
-  ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.cpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/ballcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/bullcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/compositecutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/conecutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/millingcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/cylcutter.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipse.cpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipseposition.cpp
   )
 
 set(OCL_DROPCUTTER_SRC
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
   )
 
 set(OCL_ALGO_SRC
-  ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/interval.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiber.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/waterline.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/weave.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/simple_weave.cpp
-  ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.cpp
+  ${PROJECT_SOURCE_DIR}/algo/batchpushcutter.cpp
+  ${PROJECT_SOURCE_DIR}/algo/fiberpushcutter.cpp
+  ${PROJECT_SOURCE_DIR}/algo/interval.cpp
+  ${PROJECT_SOURCE_DIR}/algo/fiber.cpp
+  ${PROJECT_SOURCE_DIR}/algo/waterline.cpp
+  ${PROJECT_SOURCE_DIR}/algo/adaptivewaterline.cpp
+  ${PROJECT_SOURCE_DIR}/algo/weave.cpp
+  ${PROJECT_SOURCE_DIR}/algo/simple_weave.cpp
+  ${PROJECT_SOURCE_DIR}/algo/smart_weave.cpp
   )
-
 
 set(OCL_COMMON_SRC
-  ${OpenCamLib_SOURCE_DIR}/common/numeric.cpp
-  ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.cpp
+  ${PROJECT_SOURCE_DIR}/common/numeric.cpp
+  ${PROJECT_SOURCE_DIR}/common/lineclfilter.cpp
   )
 
-set( OCL_INCLUDE_FILES  
-  ${OpenCamLib_SOURCE_DIR}/geo/arc.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/bbox.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/ccpoint.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/clpoint.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/line.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/path.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlreader.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/stlsurf.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/triangle.hpp
-  ${OpenCamLib_SOURCE_DIR}/geo/point.hpp
-  
-  ${OpenCamLib_SOURCE_DIR}/cutters/ballcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/bullcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/compositecutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/conecutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/cylcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipseposition.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/millingcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/cutters/ellipse.hpp
-  
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
-  
-  ${OpenCamLib_SOURCE_DIR}/common/brent_zero.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/kdnode.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/kdtree.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/numeric.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/lineclfilter.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/clfilter.hpp
-  ${OpenCamLib_SOURCE_DIR}/common/halfedgediagram.hpp
+set(OCL_INCLUDE_FILES
+  ${PROJECT_SOURCE_DIR}/ocl.hpp
 
-  
-  ${OpenCamLib_SOURCE_DIR}/algo/operation.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/batchpushcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiberpushcutter.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/fiber.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/interval.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/waterline.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/adaptivewaterline.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/weave.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/simple_weave.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/smart_weave.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/weave_typedef.hpp
-  ${OpenCamLib_SOURCE_DIR}/algo/tsp.hpp
+  ${PROJECT_SOURCE_DIR}/geo/arc.hpp
+  ${PROJECT_SOURCE_DIR}/geo/bbox.hpp
+  ${PROJECT_SOURCE_DIR}/geo/ccpoint.hpp
+  ${PROJECT_SOURCE_DIR}/geo/clpoint.hpp
+  ${PROJECT_SOURCE_DIR}/geo/line.hpp
+  ${PROJECT_SOURCE_DIR}/geo/path.hpp
+  ${PROJECT_SOURCE_DIR}/geo/stlreader.hpp
+  ${PROJECT_SOURCE_DIR}/geo/stlsurf.hpp
+  ${PROJECT_SOURCE_DIR}/geo/triangle.hpp
+  ${PROJECT_SOURCE_DIR}/geo/point.hpp
+
+  ${PROJECT_SOURCE_DIR}/cutters/ballcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/bullcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/compositecutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/conecutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/cylcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipseposition.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/millingcutter.hpp
+  ${PROJECT_SOURCE_DIR}/cutters/ellipse.hpp
+
+  ${PROJECT_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
+  ${PROJECT_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
+
+  ${PROJECT_SOURCE_DIR}/common/brent_zero.hpp
+  ${PROJECT_SOURCE_DIR}/common/kdnode.hpp
+  ${PROJECT_SOURCE_DIR}/common/kdtree.hpp
+  ${PROJECT_SOURCE_DIR}/common/numeric.hpp
+  ${PROJECT_SOURCE_DIR}/common/lineclfilter.hpp
+  ${PROJECT_SOURCE_DIR}/common/clfilter.hpp
+  ${PROJECT_SOURCE_DIR}/common/halfedgediagram.hpp
+
+  ${PROJECT_SOURCE_DIR}/algo/operation.hpp
+  ${PROJECT_SOURCE_DIR}/algo/batchpushcutter.hpp
+  ${PROJECT_SOURCE_DIR}/algo/fiberpushcutter.hpp
+  ${PROJECT_SOURCE_DIR}/algo/fiber.hpp
+  ${PROJECT_SOURCE_DIR}/algo/interval.hpp
+  ${PROJECT_SOURCE_DIR}/algo/waterline.hpp
+  ${PROJECT_SOURCE_DIR}/algo/adaptivewaterline.hpp
+  ${PROJECT_SOURCE_DIR}/algo/weave.hpp
+  ${PROJECT_SOURCE_DIR}/algo/simple_weave.hpp
+  ${PROJECT_SOURCE_DIR}/algo/smart_weave.hpp
+  ${PROJECT_SOURCE_DIR}/algo/weave_typedef.hpp
+  ${PROJECT_SOURCE_DIR}/algo/tsp.hpp
   )
 
 # this branches into the dirs and compiles stuff there
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/cutters  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/geo  )
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/algo  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/dropcutter  ) 
-add_subdirectory( ${OpenCamLib_SOURCE_DIR}/common  ) 
-  
-if (BUILD_NODEJS_LIB)
+add_subdirectory(${PROJECT_SOURCE_DIR}/cutters)
+add_subdirectory(${PROJECT_SOURCE_DIR}/geo)
+add_subdirectory(${PROJECT_SOURCE_DIR}/algo)
+add_subdirectory(${PROJECT_SOURCE_DIR}/dropcutter)
+add_subdirectory(${PROJECT_SOURCE_DIR}/common)
+
+if(BUILD_NODEJS_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/nodejslib/nodejslib.cmake)
-endif (BUILD_NODEJS_LIB)
+endif()
 
-if (BUILD_PY_LIB)
+if(BUILD_PY_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/pythonlib/pythonlib.cmake)
-endif (BUILD_PY_LIB)
+endif()
 
-# this is the C++ shared library
-if (BUILD_CXX_LIB)
+if(BUILD_CXX_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/cxxlib/cxxlib.cmake)
-endif (BUILD_CXX_LIB)
+endif()
 
-if (BUILD_EMSCRIPTEN_LIB)
+if(BUILD_EMSCRIPTEN_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/emscriptenlib/emscriptenlib.cmake)
-endif (BUILD_EMSCRIPTEN_LIB)
+endif()
 
-#
-# this installs the examples
-#
-
-# install(
-#     DIRECTORY ../scripts/
-#    DESTINATION share/doc/python-opencam/examples
-#    PATTERN .svn EXCLUDE
-# )
-
-# the example STL files
-# install(
-#     DIRECTORY ../stl/
-#     DESTINATION share/doc/python-opencam/examples/stl
-#     PATTERN .svn EXCLUDE
-# )
-
-
-#
 # build & install documentation (if Doxygen is available)
-#
-
-if (BUILD_DOC)
-
+if(BUILD_DOC)
   find_package(Doxygen)
-  IF (DOXYGEN_FOUND)
+  if(DOXYGEN_FOUND)
     message(STATUS "Found doxygen. Documentation can be built with 'make doc' ")
-    
-    # this works around a bug in cmake 2.4 (Ubuntu Hardy)
-    execute_process(
-      COMMAND mkdir -p doc/html doc/latex
-      )
-
     find_package(LATEX)
-    IF    (NOT LATEX_COMPILER)
+    if(NOT LATEX_COMPILER)
       message(STATUS "latex command LATEX_COMPILER not found but usually required. You will probably get warnings and user inetraction on doxy run.")
-    ENDIF (NOT LATEX_COMPILER)
-    IF    (NOT MAKEINDEX_COMPILER)
+    endif()
+    if(NOT MAKEINDEX_COMPILER)
       message(STATUS "makeindex command MAKEINDEX_COMPILER not found but usually required.")
-    ENDIF (NOT MAKEINDEX_COMPILER)
-    IF    (NOT DVIPS_CONVERTER)
+    endif()
+    if(NOT DVIPS_CONVERTER)
       message(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
-    ENDIF (NOT DVIPS_CONVERTER)
-    
-    #if (EXISTS Doxyfile)
-    set(DOXY_CONFIG ${OpenCamLib_SOURCE_DIR}/Doxyfile)
-    #endif (EXISTS Doxyfile)
+    endif()
+
+    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile COPYONLY)
+    set(DOXY_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+    execute_process(
+      COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/doc/html ${CMAKE_CURRENT_BINARY_DIR}/doc/latex
+    )
 
     add_custom_command(
       OUTPUT
@@ -396,15 +359,14 @@ if (BUILD_DOC)
       doc/html/index.html
       COMMAND ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG}
       COMMENT building LaTex & HTML docs
-      )
+    )
 
     add_custom_target(
       doc
       DEPENDS doc/latex/index.tex
-      )
+    )
 
-
-    IF (EXISTS ${PDFLATEX_COMPILER})
+    if(EXISTS ${PDFLATEX_COMPILER})
       add_custom_command(
         OUTPUT doc/latex/refman.pdf
         DEPENDS doc/latex/index.tex
@@ -412,42 +374,24 @@ if (BUILD_DOC)
         COMMAND make pdf
         COMMENT building PDF docs
         COMMAND mv refman.pdf ../ocl-manual.pdf
-        )
+      )
 
       add_custom_target(
         doc-pdf
         DEPENDS doc/latex/refman.pdf
-        )
+      )
 
       add_dependencies(doc doc-pdf)
-    ELSE (EXISTS ${PDFLATEX_COMPILER}) 
+    else()
       message(STATUS "pdflatex compiler not found, PDF docs will not be built")
-    ENDIF (EXISTS ${PDFLATEX_COMPILER})
-
+    endif()
 
     add_custom_target(
       doc-latex
       DEPENDS doc/latex/index.tex
-      )
-
-    #install(
-    #    DIRECTORY doc/latex/
-    #    DESTINATION share/doc/python-opencam/pdf
-    #    FILES_MATCHING PATTERN *.pdf
-    #)
-
-    #install(
-    #    FILES doc/ocl-manual.pdf
-    #    DESTINATION share/doc/python-opencam/pdf
-    #)
-
-    #install(
-    #    DIRECTORY doc/html
-    #    DESTINATION share/doc/python-opencam/
-    #)
-
-  endif(DOXYGEN_FOUND)
-endif (BUILD_DOC)
+    )
+  endif()
+endif()
 
 # "make spackage"
 add_custom_target(spackage 

@@ -1,4 +1,4 @@
-import ocl
+from opencamlib import ocl
 import math
 
 print(ocl.version())

@@ -10,7 +10,11 @@ const {
   Path,
   Point,
   Line
-} = require('opencamlib')
+} = require('@opencamlib/opencamlib')
+
+function pointToXYZ(point) {
+  return `X${Math.round(point[0] * 100000) / 100000} Y${Math.round(point[1] * 100000) / 100000} Z${Math.round(point[2] * 100000) / 100000}`
+}
 
 async function waterline(surface, cutter, z, sampling) {
   const wl = new Waterline()
@@ -25,7 +29,7 @@ async function waterline(surface, cutter, z, sampling) {
     const loop = loops[i];
     for (var j = 0; j < loop.length; j++) {
       const point = loop[j]
-      gcode += 'G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2] + '\n'
+      gcode += 'G01 ' + pointToXYZ(point) + '\n'
     }
   }
   console.log(gcode)
@@ -46,7 +50,7 @@ async function adaptiveWaterline(surface, cutter, z, sampling, minSampling) {
     const loop = loops[i]
     for (var j = 0; j < loop.length; j++) {
       const point = loop[j]
-      gcode += 'G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2] + '\n'
+      gcode += 'G01 ' + pointToXYZ(point) + '\n'
     }
   }
   console.log(gcode)
@@ -58,13 +62,14 @@ async function pathDropCutter(surface, cutter, sampling, path) {
   pdc.setSTL(surface)
   pdc.setCutter(cutter)
   pdc.setPath(path)
+  pdc.setZ(0)
   pdc.setSampling(sampling)
   pdc.run()
   const points = pdc.getCLPoints()
   let gcode = ''
   for (var j = 0; j < points.length; j++) {
     const point = points[j]
-    gcode += 'G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2] + '\n'
+    gcode += 'G01 ' + pointToXYZ(point) + '\n'
   }
   console.log(gcode)
 }
@@ -75,6 +80,7 @@ async function adaptivePathDropCutter(surface, cutter, sampling, minSampling, pa
   apdc.setSTL(surface)
   apdc.setCutter(cutter)
   apdc.setPath(path)
+  apdc.setZ(0)
   apdc.setSampling(sampling)
   apdc.setMinSampling(minSampling)
   apdc.run()
@@ -82,7 +88,7 @@ async function adaptivePathDropCutter(surface, cutter, sampling, minSampling, pa
   let gcode = ''
   for (var j = 0; j < points.length; j++) {
     const point = points[j]
-    gcode += 'G01 X' + point[0] + ' Y' + point[1] + ' Z' + point[2] + '\n'
+    gcode += 'G01 ' + pointToXYZ(point) + '\n'
   }
   console.log(gcode)
 }
@@ -95,8 +101,8 @@ async function main() {
     await waterline(surface, cutter, 1, 0.1)
     await adaptiveWaterline(surface, cutter, 1, 0.1, 0.001)
     const path = new Path()
-    const p1 = new Point(0, 1, 0)
-    const p2 = new Point(10, 1, 0)
+    const p1 = new Point(-2, 4, 0)
+    const p2 = new Point(11, 4, 0)
     const l = new Line(p1, p2)
     path.append(l)
     await pathDropCutter(surface, cutter, 0.1, path)

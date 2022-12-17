@@ -147,7 +147,7 @@ void BatchPushCutter::pushCutter3() {
     std::vector<Fiber>& fiberr = *fibers;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
 	int n; // loop variable
-    int Nmax = fibers->size();         // the number of fibers to process
+    int Nmax = static_cast<int>(fibers->size());         // the number of fibers to process
 #else
     unsigned int n; // loop variable
     unsigned int Nmax = fibers->size();         // the number of fibers to process

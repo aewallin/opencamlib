@@ -1,9 +1,5 @@
-import ocl
-import camvtk
+from opencamlib import ocl, camvtk
 import time
-import vtk
-import datetime
-import math
 
 def waterline_time(zheights, diam, length,s,sampling):
     t_total = time.time() 

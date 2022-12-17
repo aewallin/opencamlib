@@ -1,5 +1,4 @@
-import sys
-import ocl
+from opencamlib import ocl
 
 # This example shows how to aggregate lines and arcs into path objects and then
 # how to retrieve such data.

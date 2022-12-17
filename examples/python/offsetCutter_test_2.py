@@ -1,8 +1,5 @@
-import ocl
-import camvtk
-import time
+from opencamlib import ocl, camvtk
 import vtk
-import datetime
 import math
 
 def CLPointGrid(minx,dx,maxx,miny,dy,maxy,z):

@@ -4,73 +4,30 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - 'scripts/**'
-      - 'src/**'
+      - develop
   push:
     branches:
       - master
+      - develop
     tags:
       - v*
-    paths:
-      - 'scripts/**'
-      - 'src/**'
 
 jobs:
-  test:
-    name: Test ${{ matrix.os }} ${{ matrix.lib }} ${{ matrix.release_type }}
+  cxx:
+    name: ${{ matrix.os_short }} c++
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        # We only run on a single os version to not run into CI limits.
-        os: [
-          # ubuntu-16.04, # builds on this version are not picked up quickly on the free plan
-          # ubuntu-18.04,
-          # ubuntu-20.04,
-          ubuntu-22.04,
-          # macos-10.5, # builds on this version are not picked up quickly on the free plan
-          macos-11.0,
-          # macos-12.00, # builds on this version are not picked up quickly on the free plan
-          # windows-2019,
-          windows-2022
-        ]
-        lib: [
-          cxxlib,
-          python3lib,
-          nodejslib,
-          emscriptenlib
-        ]
-        release_type: [
-          # debug,
-          release
-        ]
+        os: ["windows-2022", "macos-11.0", "ubuntu-22.04"]
         include:
-          - os: windows-2022
-            lib: python3lib
-            python_executable: C:/hostedtoolcache/windows/Python/3.10.8/x64/python3.exe
-            python_prefix: C:/hostedtoolcache/windows/Python/3.10.8/x64
-            generator: Visual Studio 17 2022
-            boost_from_source: "1"
-          - os: windows-2022
-            lib: emscriptenlib
-            boost_from_source: "1"
-            generator: Visual Studio 17 2022
-          - os: windows-2022
-            lib: cxxlib
-            generator: Visual Studio 17 2022
-          - os: windows-2022
-            lib: nodejslib
-            generator: Visual Studio 17 2022
-          - os: macos-11.0
-            lib: python3lib
-            python_executable: /usr/local/opt/python@3.10/bin/python3
-            python_prefix: /usr/local/opt/python@3.10
-            boost_from_source: "1"
-          - os: ubuntu-22.04
-            lib: emscriptenlib
-            boost_from_source: "1"
+          - os: "windows-2022"
+            os_short: "windows"
+          - os: "macos-11.0"
+            os_short: "macos"
+          - os: "ubuntu-22.04"
+            os_short: "linux"
     steps:
       - uses: actions/checkout@v3
         with:
@@ -78,38 +35,97 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
-          OSNAME="${{ matrix.os }}"
-          ./scripts/install-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
-      - name: Build
-        shell: bash
-        run: |
-          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
-          OSNAME="${{ matrix.os }}"
-          if [ "${OSNAME%%-*}" = "ubuntu" ]; then
+          if [ "${{ matrix.os_short }}" == "linux" ]; then
             export OCL_SUDO_INSTALL="1"
           fi
-          if [ "${{ matrix.lib }}" = "cxxlib" ] && [ "${OSNAME%%-*}" != "windows" ]; then
-            export OCL_INSTALL_PREFIX="/usr/local"
-          elif [ "${{ matrix.lib }}" = "nodejslib" ]; then
-            if [ "${{ matrix.release_type }}" = "debug" ]; then
-              export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build/Debug"
-            else
-              export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build/Release"
-            fi
-          elif [ "${{ matrix.lib }}" = "emscriptenlib" ]; then
-            export OCL_INSTALL_PREFIX="$(pwd)/src/npmpackage/build"
-          fi
-          ./scripts/build-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
-      - name: Test
+          ./install.sh \
+            --install-ci-deps \
+            --build-library cxx \
+            --build-type release \
+            --install-boost \
+            --boost-prefix $(pwd) \
+            --install \
+            --test
+  nodejs:
+    name: ${{ matrix.os_short }} node.js
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["windows-2022", "macos-11.0", "ubuntu-22.04"]
+        include:
+          - os: "windows-2022"
+            os_short: "windows"
+            libdir: windows-nodejs-x64
+          - os: "macos-11.0"
+            os_short: "macos"
+            libdir: macos-nodejs-x64
+          - os: "ubuntu-22.04"
+            os_short: "linux"
+            libdir: linux-nodejs-x64
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install
         shell: bash
         run: |
-          export OCL_PYTHON_EXECUTABLE="${{ matrix.python_executable }}"
-          export OCL_PYTHON_PREFIX="${{ matrix.python_prefix }}"
-          export OCL_BOOST_FROM_SOURCE="${{ matrix.boost_from_source }}"
-          OSNAME="${{ matrix.os }}"
-          ./scripts/test-${OSNAME%%-*}.sh ${{ matrix.lib }} ${{ matrix.release_type }}
+          if [ "${{ matrix.os_short }}" == "linux" ]; then
+            export OCL_SUDO_INSTALL="1"
+          fi
+          ./install.sh \
+            --install-ci-deps \
+            --build-library nodejs \
+            --build-type release \
+            --node-architecture x64 \
+            --install-boost \
+            --boost-prefix $(pwd) \
+            --install \
+            --install-prefix $(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }} \
+            --test
+  python:
+    name: ${{ matrix.os_short }} python
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["windows-2022", "macos-11.0", "ubuntu-22.04"]
+        include:
+          - os: "windows-2022"
+            os_short: "windows"
+            python_version: "3.10"
+          - os: "macos-11.0"
+            os_short: "macos"
+            python_version: "3.11"
+          - os: "ubuntu-22.04"
+            os_short: "linux"
+            python_version: "3.10"
+            cmake_generator: "Unix Makefiles"
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python_version }}
+      - name: Install
+        shell: bash
+        run: |
+          if [ "${{ matrix.os_short }}" == "linux" ]; then
+            export OCL_INSTALL_BOOST="1"
+            export OCL_BOOST_WITH_PYTHON="1"
+            export OCL_BOOST_PREFIX="$(pwd)"
+          else
+            export OCL_INSTALL_BOOST_FROM_REPO="1"
+          fi
+          ./install.sh \
+            --build-library python \
+            --build-type release \
+            --install-system-deps \
+            --python-executable python \
+            --python-pip-install \
+            --test
+        env:
+          CMAKE_GENERATOR: ${{ matrix.cmake_generator }}

@@ -13,6 +13,7 @@ class PathDropCutterJS : public Napi::ObjectWrap<PathDropCutterJS>
     void setBullCutter(const Napi::CallbackInfo &info);
     void setConeCutter(const Napi::CallbackInfo &info);
     void setSampling(const Napi::CallbackInfo &info);
+    void setZ(const Napi::CallbackInfo &info);
     Napi::Value getCLPoints(const Napi::CallbackInfo &info);
     void run(const Napi::CallbackInfo &info);
 

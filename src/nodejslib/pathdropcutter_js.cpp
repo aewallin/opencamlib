@@ -23,6 +23,7 @@ void PathDropCutterJS::Init(Napi::Env env, Napi::Object exports)
         InstanceMethod("setConeCutter", &PathDropCutterJS::setConeCutter),
         InstanceMethod("setSampling", &PathDropCutterJS::setSampling),
         InstanceMethod("getCLPoints", &PathDropCutterJS::getCLPoints),
+        InstanceMethod("setZ", &PathDropCutterJS::setZ),
         InstanceMethod("run", &PathDropCutterJS::run)
     });
     constructor = Napi::Persistent(func);
@@ -98,6 +99,14 @@ void PathDropCutterJS::setSampling(const Napi::CallbackInfo &info)
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
     this->actualClass_->setSampling(s.DoubleValue());
+}
+
+void PathDropCutterJS::setZ(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+    Napi::HandleScope scope(env);
+    Napi::Number s = info[0].As<Napi::Number>();
+    this->actualClass_->setZ(s.DoubleValue());
 }
 
 Napi::Value PathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info)

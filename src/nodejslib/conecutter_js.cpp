@@ -20,7 +20,7 @@ ConeCutterJS::ConeCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Co
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    int length = info.Length();
+    size_t length = info.Length();
     if (length != 3)
     {
         Napi::TypeError::New(env, "Provide 3 argument").ThrowAsJavaScriptException();

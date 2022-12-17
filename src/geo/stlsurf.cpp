@@ -55,7 +55,7 @@ void STLSurf::rotate(double xr, double yr, double zr) {
 }
 
 unsigned int STLSurf::size() const {
-    return tris.size();
+    return static_cast<unsigned int>(tris.size());
 }
 
 std::ostream &operator<<(std::ostream &stream, const STLSurf s) {

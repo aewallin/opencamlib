@@ -1,6 +1,4 @@
-import ocl
-import camvtk
-import time
+from opencamlib import ocl, camvtk
 
 if __name__ == "__main__":
     s= ocl.STLSurf()

@@ -29,6 +29,12 @@ class PathDropCutter extends Operation {
         })
     }
 
+    setZ(z: number) {
+        this.chain = this.chain.then(() => {
+            this.actualClass.setZ(z)
+        })
+    }
+
     run() {
         this.chain = this.chain.then(() => {
            this.actualClass.run()

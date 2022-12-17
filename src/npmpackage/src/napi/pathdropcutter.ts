@@ -21,6 +21,10 @@ class NapiPathDropCutter extends Operation {
         this.actualClass.setPath(actualPath)
     }
 
+    setZ(z: number) {
+        this.actualClass.setZ(z)
+    }
+
     run() {
         this.actualClass.run()
     }

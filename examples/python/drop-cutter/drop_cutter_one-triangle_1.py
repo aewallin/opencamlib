@@ -1,7 +1,4 @@
-import ocl
-import pyocl
-import camvtk
-import vtk
+from opencamlib import ocl, pyocl, camvtk
 import math
 
 if __name__ == "__main__":  

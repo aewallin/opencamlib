@@ -31,6 +31,6 @@ int main() {
     ocl::Point p3 = p1;
     p3.normalize();
     std::cout << "  " << p1 << ".normalize()  = " << p3 << " norm=" << p3.norm() << "\n";
-    
+
     return 0;
 }

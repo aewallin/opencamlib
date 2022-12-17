@@ -20,3 +20,10 @@ node_modules
 src/npmpackage/browser.js
 src/npmpackage/lib
 src/npmpackage/build
+
+_skbuild/
+dist/
+*.egg-info
+_build/
+boost*
+env/

@@ -1,4 +1,4 @@
-import ocl
+from opencamlib import ocl
 
 # this illustrates issue 8
 

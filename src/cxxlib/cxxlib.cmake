@@ -1,50 +1,74 @@
-find_package(Boost)
-include_directories(${Boost_INCLUDE_DIRS})
-
-# include dirs
-include_directories(${OpenCamLib_SOURCE_DIR}/cutters)
-include_directories(${OpenCamLib_SOURCE_DIR}/geo)
-include_directories(${OpenCamLib_SOURCE_DIR}/algo)
-include_directories(${OpenCamLib_SOURCE_DIR}/dropcutter)
-include_directories(${OpenCamLib_SOURCE_DIR}/common)
-include_directories(${OpenCamLib_SOURCE_DIR})
-
-add_library(
-  ocl
+add_library(ocl
   SHARED
-  ${OCL_GEO_SRC}
-  ${OCL_CUTTER_SRC}
-  ${OCL_ALGO_SRC}
-  ${OCL_DROPCUTTER_SRC}
-  ${OCL_COMMON_SRC}
+    ${OCL_SRC}
+    ${OCL_GEO_SRC}
+    ${OCL_CUTTER_SRC}
+    ${OCL_ALGO_SRC}
+    ${OCL_DROPCUTTER_SRC}
+    ${OCL_COMMON_SRC}
 )
 
 if(WIN32)
-  # Prefix all shared libraries with 'lib'.
-  set(CMAKE_SHARED_LIBRARY_PREFIX "lib")
-  # Prefix all static libraries with 'lib'.
-  set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
+  # on windows, prefix the library with lib, and make sure the .lib file is installed as well
+  set_target_properties(ocl PROPERTIES
+      PREFIX "lib"
+      WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
-target_link_libraries(
-  ocl
-  ${Boost_LIBRARIES}
-  ${OpenMP_CXX_LIBRARIES}
+include(GNUInstallDirs)
+
+# add headers
+set_property(TARGET ocl PROPERTY PUBLIC_HEADER ${OCL_INCLUDE_FILES})
+
+# add include directories
+target_include_directories(ocl
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/cutters
+    ${PROJECT_SOURCE_DIR}/geo
+    ${PROJECT_SOURCE_DIR}/algo
+    ${PROJECT_SOURCE_DIR}/dropcutter
+    ${PROJECT_SOURCE_DIR}/common
+    ${PROJECT_SOURCE_DIR}
+  PUBLIC
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+# link with Boost and optionally with OpenMP
+target_link_libraries(ocl PUBLIC Boost::boost)
+if(USE_OPENMP)
+  target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
+endif()
+
+# this installs the ocl library
 install(
   TARGETS ocl
-  LIBRARY
-  DESTINATION lib/opencamlib
-  ARCHIVE DESTINATION lib/opencamlib
+  EXPORT ocltargets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}/opencamlib
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/opencamlib
   PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 
-# this installs the c++ include headers
+# this install the cmake targets
 install(
-  FILES ${OCL_INCLUDE_FILES}
-  DESTINATION include/opencamlib
-  PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  EXPORT ocltargets
+  FILE OpenCAMLibTargets.cmake
+  DESTINATION share/cmake/OpenCAMLib
+  NAMESPACE OpenCAMLib::
+)
+
+# this creates the cmake config
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  "${PROJECT_SOURCE_DIR}/../cmake/${PROJECT_NAME}Config.cmake.in"
+  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake
+)
+
+# this installs the cmake config
+install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME}
 )
 
 if(USE_OPENMP)
@@ -52,7 +76,7 @@ if(USE_OPENMP)
     # copy libomp into install directory
     install(
       FILES ${OpenMP_omp_LIBRARY}
-      DESTINATION lib/opencamlib
+      DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
       PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
     )
     # fix loader path

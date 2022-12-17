@@ -240,7 +240,7 @@ unsigned int degree( Vertex v)  {
 
 /// return number of vertices in graph
 unsigned int num_vertices() const { 
-    return boost::num_vertices( g ); 
+    return static_cast<unsigned int>(boost::num_vertices( g ));
 }
 
 /// return out_edges of given vertex
@@ -314,7 +314,7 @@ unsigned int num_faces() const {
 
 /// return number of edges in graph
 unsigned int num_edges() const { 
-    return boost::num_edges( g ); 
+    return static_cast<unsigned int>(boost::num_edges( g ));
 }
 
 /// inserts given vertex into edge e, and into the twin edge e_twin

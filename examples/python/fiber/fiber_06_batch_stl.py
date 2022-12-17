@@ -1,9 +1,5 @@
-import ocl
-import camvtk
+from opencamlib import ocl, camvtk
 import time
-import vtk
-import datetime
-import math
 
 def generateRange(zmin,zmax,zNmax):
     dz = (float(zmax)-float(zmin))/(zNmax-1)

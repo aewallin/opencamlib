@@ -4,7 +4,7 @@ const {
     STLReader,
     CylCutter,
     AdaptiveWaterline
-} = require('opencamlib')
+} = require('@opencamlib/opencamlib')
 
 const surface = new STLSurf()
 const stlContents = fs.readFileSync(__dirname + '/../../stl/gnu_tux_mod.stl')

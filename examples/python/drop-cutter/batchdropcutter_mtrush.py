@@ -1,10 +1,5 @@
-import ocl
-import pyocl
-import camvtk
+from opencamlib import ocl, pyocl, camvtk
 import time
-import vtk
-import datetime
-import math
 
 if __name__ == "__main__":  
     print(ocl.version())

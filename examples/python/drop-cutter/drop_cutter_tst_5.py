@@ -1,8 +1,5 @@
-import ocl
-import pyocl
-import camvtk
+from opencamlib import ocl, pyocl, camvtk
 import time
-import vtk
 import datetime
 
 if __name__ == "__main__":  

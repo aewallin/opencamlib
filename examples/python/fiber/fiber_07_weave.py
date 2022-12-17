@@ -1,9 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
-import math
+from opencamlib import ocl, camvtk
 
 # note 2018.08:
 # the Weave class is not provided to python, so this deprecated example script won't run

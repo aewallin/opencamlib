@@ -3,17 +3,8 @@
 # Anders Wallin 2014-02-23
 
 import time
-import vtk  # visualization
-import math
 
-import ocl        # https://github.com/aewallin/opencamlib
-#import pyocl     # ocl helper library
-import camvtk     # ocl helper library
-import ngc_writer # G-code output is produced by this module
-
-
-
-
+from opencamlib import ocl, camvtk
 
 # this could be any source of triangles
 # as long as it produces an ocl.STLSurf() we can work with

@@ -1,9 +1,5 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
-import math
+from opencamlib import ocl, camvtk
+
 def drawFiber(myscreen, f, fibercolor=camvtk.red):
     inter = f.getInts()
     for i in inter:

@@ -1,4 +1,4 @@
-import ocl
+from opencamlib import ocl
 
 trilist = []
 trilist.append(ocl.Triangle(ocl.Point(2.91337, 1, 3.93857),

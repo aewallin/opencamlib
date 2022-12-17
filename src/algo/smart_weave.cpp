@@ -120,9 +120,9 @@ void SmartWeave::build() {
     }
     //std::cout << " done.\n" << std::flush ;
     
-    std::cout << " SmartWeave::build() add_all_edges()... " << std::flush ;
+    // std::cout << " SmartWeave::build() add_all_edges()... " << std::flush ;
     add_all_edges();
-    std::cout << " done.\n" << std::flush ;
+    // std::cout << " done.\n" << std::flush ;
 }
 
 // add a new CL-vertex to Weave, also adding it to the interval intersection-set, and to clVertices

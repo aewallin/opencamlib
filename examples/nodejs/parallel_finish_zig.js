@@ -10,7 +10,7 @@ const {
     Path,
     Line,
     Point
-} = require('opencamlib')
+} = require('@opencamlib/opencamlib')
 
 function assert(condition, message) {
     if (!condition) {

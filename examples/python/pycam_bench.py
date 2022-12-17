@@ -1,8 +1,6 @@
-import ocl
-import camvtk
+from opencamlib import ocl, camvtk
 import time
-import vtk
-
+import toolpath_examples.ngc_writer as ngc_writer
 
 def filter_path(path,tol):
     f = ocl.LineCLFilter()
@@ -43,8 +41,8 @@ if __name__ == "__main__":
     print(ocl.version())
     
     myscreen = camvtk.VTKScreen()    
-    #stl = camvtk.STLSurf("../../../stl/demo.stl")
-    stl = camvtk.STLSurf("../../../stl/pycam-textbox.stl") 
+    #stl = camvtk.STLSurf("../../stl/demo.stl")
+    stl = camvtk.STLSurf("../../stl/pycam-textbox.stl") 
     print("STL surface read")
     myscreen.addActor(stl)
     stl.SetWireframe()    
@@ -102,7 +100,7 @@ if __name__ == "__main__":
         cl_paths.append(aclp)
     
     t_after = time.time()
-    print("( OpenCamLib::AdaptivePathDropCutter run took %.2f s )" % ( t_after-t_before ))
+    print("( OpenCAMLib::AdaptivePathDropCutter run took %.2f s )" % ( t_after-t_before ))
     print("( got %d raw CL-points )" % ( n_aclp ))
     # to reduce the G-code size we filter here. (this is not strictly required and could be omitted)
     # we could potentially detect G2/G3 arcs here, if there was a filter for that.

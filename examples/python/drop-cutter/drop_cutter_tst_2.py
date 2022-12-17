@@ -1,6 +1,4 @@
-import ocl
-import camvtk
-import time
+from opencamlib import ocl
 
 if __name__ == "__main__":  
     cutter = ocl.CylCutter(.1, 5)

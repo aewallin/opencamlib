@@ -1,10 +1,4 @@
-import ocl
-import camvtk
-import time
-import vtk
-import datetime
-import math
-import procmemory
+from opencamlib import ocl, camvtk, procmemory
 import csv
 import gc
 

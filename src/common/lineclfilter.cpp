@@ -39,7 +39,7 @@ void LineCLFilter::setTolerance(const double tolerance) {
 
 void LineCLFilter::run() {
     typedef std::list<CLPoint>::iterator cl_itr;
-    int n = clpoints.size();
+    size_t n = clpoints.size();
     if (n<2)
         return; // can't filter lists of length 0, 1, or 2
 
