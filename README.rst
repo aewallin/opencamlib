@@ -26,7 +26,7 @@ Drop-cutter
 
 The drop cutter algorithm drops a cutter, positioned at a predefined (x,y) location, until it touches the 3D model.
 
-.. image:: ./docs/drop-cutter.png
+.. image:: https://github.com/aewallin/opencamlib/blob/master/docs/drop-cutter.png
   :width: 200
   :alt: Drop Cutter
 
@@ -36,7 +36,7 @@ Push-cutter
 
 The Push-cutter is used to create a Waterline toolpath that follows the shape of the model at a constant z-height in the xy-plane.
 
-.. image:: ./docs/push-cutter.png
+.. image:: https://github.com/aewallin/opencamlib/blob/master/docs/push-cutter.png
   :width: 200
   :alt: Push Cutter
 
