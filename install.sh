@@ -455,7 +455,6 @@ test_cxxlib() {
         ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"-DBoost_NO_SYSTEM_PATHS=ON"} \
         ..
     set +x
     cmake_build
@@ -485,7 +484,6 @@ build_nodejslib() {
         --CDCMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         ${OCL_DISABLE_OPENMP:+"--CDUSE_OPENMP=OFF"} \
         ${OCL_BOOST_PREFIX:+"--CDBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"--CDBoost_NO_SYSTEM_PATHS=ON"} \
         --config "${build_type}"
     set +x
     if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
@@ -529,8 +527,7 @@ build_pythonlib() {
 ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM} "}\
 -D CMAKE_BUILD_TYPE=${build_type} \
 -D Boost_ADDITIONAL_VERSIONS=${boost_additional_versions} \
-${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}\
-${OCL_BOOST_PREFIX:+"-D Boost_NO_SYSTEM_PATHS=ON"}"
+${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}"
         cd "${project_dir}"
         ${python_executable} -m pip install --verbose .
     else
@@ -548,7 +545,6 @@ ${OCL_BOOST_PREFIX:+"-D Boost_NO_SYSTEM_PATHS=ON"}"
             ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
             ${OCL_PYTHON_PREFIX:+"-DPython_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
             ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-            ${OCL_BOOST_PREFIX:+"-DBoost_NO_SYSTEM_PATHS=ON"} \
             ../../..
         set +x
         cmake_build
@@ -578,7 +574,6 @@ build_emscriptenlib() {
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"-DBoost_NO_SYSTEM_PATHS=ON"} \
         ../../..
     if [ "${determined_os}" = "windows" ]; then
         emmake make \

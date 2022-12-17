@@ -95,6 +95,13 @@ Note that pip / pip3 is will install packages for to the system installation of 
 
     /path/to/your/custom/python -m pip install opencamlib
 
+Lastly, if you don't know where Python is, but you have access to it's interpreter (FreeCAD and Blender both have a Python console), you can simply enter this command in there to install opencamlib:
+
+..  code-block:: python
+
+    import sys; import subprocess; subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'opencamlib'])
+
+
 ==========
 JavaScript
 ==========
