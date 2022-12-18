@@ -399,13 +399,11 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: prebuilds
-      - name: prepare wheels
+      - name: prepare
         shell: bash
         run: |
-          find prebuilds
           mkdir dist
           mv prebuilds/*-python-*/* dist
-          ls dist
       - name: Publish wheels to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -433,9 +431,14 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: prebuilds
+      - name: prepare
+        shell: bash
+        run: |
+          mkdir dist
+          mv prebuilds/*-cxx-*/* dist
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            prebuilds/*-cxx-*
+            dist/*

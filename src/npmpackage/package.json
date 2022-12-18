@@ -1,6 +1,6 @@
 {
   "name": "@opencamlib/opencamlib",
-  "version": "2022.12.17",
+  "version": "2022.12.18",
   "description": "opencamlib for the web compiled with emscripten",
   "main": "./lib/napi/index.js",
   "browser": "./browser.js",

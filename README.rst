@@ -95,7 +95,7 @@ Note that pip / pip3 is will install packages for to the system installation of 
 
     /path/to/your/custom/python -m pip install opencamlib
 
-Lastly, if you don't know where Python is, but you have access to it's interpreter (FreeCAD and Blender both have a Python console), you can simply enter this command in there to install opencamlib:
+If you don't know where Python is, but you have access to it's interpreter (FreeCAD and Blender both have a Python console), you can simply enter this command in there to install OpenCAMLib:
 
 ..  code-block:: python
 
@@ -118,12 +118,15 @@ Or, using yarn:
 
     yarn add @opencamlib/opencamlib
 
+Note that it is not 100% feature complete and lacking some functionality still.
+
 ===
 C++
 ===
 
-Precompiled C++ libraries are available on the Github Releases page (https://github.com/aewallin/opencamlib/releases).
+Pre-compiled C++ libraries are available on the Github Releases page (https://github.com/aewallin/opencamlib/releases).
 This project also installs a OpenCAMLibConfig.cmake, which, if your project uses CMake, allows you to use ``find_package(OpenCAMLib REQUIRED)``.
+
 You can see an example of that in use over here: ``examples/cpp/test/CMakeLists.txt``
 
 ********************
@@ -215,7 +218,7 @@ To compile the emscripten library, first download, install and activate it using
     ./emsdk install latest
     ./emsdk activate latest
 
-Now you can compile opencamlib like this (make sure to replace the ``path/to/`` sections):
+Now you can compile OpenCAMLib like this (make sure to replace the ``path/to/`` sections):
 
 ..  code-block:: shell
 
@@ -233,7 +236,7 @@ Now you can compile opencamlib like this (make sure to replace the ``path/to/`` 
       ..
     emmake make # try emmake make -j4 for a faster build if you have a multi-core machine
 
-Note that USE_OPENMP has been turned off, OpenMP is not supported with Emscripten at the moment
+Note that ``USE_OPENMP`` has been turned off, OpenMP is not supported with Emscripten at the moment
 
 ====================
 Building for Node.js
@@ -271,7 +274,7 @@ Building for Python
 
 The Python library can be compiled similarly to the C++ example above, however, this time Boost.Python has to be compiled first.
 Most systems have Boost.Python available as a download, but only for a specific Python version only (usually the latest Python version).
-These might work if you are using Python from the same package, unfortunately, this is not a very reliable method, so compiling them yourself is usually the best option.
+These might work if you are using Python from the same package provider, but, unfortunately, this is not a very reliable method, so compiling them yourself is usually the best option.
 
 First, download and extract Boost:
 
@@ -312,6 +315,8 @@ Usage
 
 Please take a look at the ``examples/`` folder on how to use OpenCAMLib.
 For each language there is an example named ``test`` which calls all of the algorithms.
+
+There is also some API documentation over here: https://opencamlib.readthedocs.io
 
 ***************
 Common Problems
