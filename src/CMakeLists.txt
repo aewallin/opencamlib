@@ -45,7 +45,7 @@ option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
 option(VERSION_STRING
-    "Set version string" OFF)
+    "Set version string")
 
 option(USE_PY_3
     "Use Python V3" ON)
