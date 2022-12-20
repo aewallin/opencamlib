@@ -1,4 +1,4 @@
-project(OpenCAMLib)
+project(OpenCAMLib LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
