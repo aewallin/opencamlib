@@ -31,7 +31,7 @@ Options:
   --boost-python-version      Set the python version to look for when compiling Boost (only valid when using --install-boost and --boost-with-python)
 
   --python-executable         Set a custom path (or name of) the Python executable (only valid when using --build-library python)
-  --python-prefix             Set the python prefix, this will be passed to CMake as Python_ROOT_DIR, to make sure CMake is using the correct Python installation. (only valid when using --build-library python)
+  --python-prefix             Set the python prefix, this will be passed to CMake as Python3_ROOT_DIR, to make sure CMake is using the correct Python installation. (only valid when using --build-library python)
   --python-pip-install        Uses "pip install ." to compile and install the Python library (only valid when using --build-library python)
 
   --platform                  Set the platform, for when auto-detection doesn't work (one of: windows, macos, linux)
@@ -541,7 +541,7 @@ ${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}"
             -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
             -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
             ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
-            ${OCL_PYTHON_PREFIX:+"-DPython_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
+            ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
             ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
             ../../..
         set +x
