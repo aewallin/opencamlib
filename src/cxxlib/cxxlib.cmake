@@ -33,6 +33,17 @@ target_include_directories(ocl
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+# disable /GL and enable /LTCG (see https://github.com/luxonis/depthai-core/issues/334)
+if(WIN32 AND MSVC) # AND CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS
+  get_target_property(_INTER_OPT ocl INTERPROCEDURAL_OPTIMIZATION)
+  if(_INTER_OPT)
+    message(STATUS "Workaround MSVC dll exports with INTERPROCEDURAL_OPTIMIZATION")
+    set_target_properties(ocl PROPERTIES INTERPROCEDURAL_OPTIMIZATION OFF)
+    target_link_options(ocl PRIVATE /LTCG)
+  endif()
+  unset(_INTER_OPT)
+endif()
+
 # link with Boost and optionally with OpenMP
 target_link_libraries(ocl PUBLIC Boost::boost)
 if(USE_OPENMP)
