@@ -151,7 +151,7 @@ int main()
   std::vector<ocl::MillingCutter *> cutters;
   cutters.push_back(&cylCutter);
   cutters.push_back(&ballCutter);
-  cutters.push_back(&bullCutter);
+  // cutters.push_back(&bullCutter);
   cutters.push_back(&coneCutter);
   double z = 4;
   double sampling = 0.1;
