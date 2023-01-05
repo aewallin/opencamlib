@@ -61,6 +61,26 @@ install(
   PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
 )
 
+if(APPLE)
+  target_compile_options(ocl PRIVATE
+    $<$<CXX_COMPILER_ID:Clang>:-g>
+  )
+  set(strip_command COMMAND xcrun strip -Sl $<TARGET_FILE:ocl>)
+  # if(CMAKE_CXX_FLAGS MATCHES "-flto")
+    set(lto_object ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/ocl-lto.o)
+    set_property(TARGET ocl APPEND_STRING PROPERTY
+      LINK_FLAGS " -Wl,-object_path_lto -Wl,${lto_object}")
+  # endif()
+  add_custom_command(TARGET ocl POST_BUILD
+    COMMAND xcrun dsymutil $<TARGET_FILE:ocl>
+    ${strip_command})
+  install(
+    FILES $<TARGET_FILE:ocl>.dSYM
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  )
+endif()
+
 # this install the cmake targets
 install(
   EXPORT ocltargets
