@@ -121,11 +121,7 @@ namespace ocl
 #ifdef WIN32
                         sscanf_s(str, " vertex %f %f %f", &(x[vertex][0]), &(x[vertex][1]), &(x[vertex][2]));
 #else
-                        std::istringstream ss(str);
-                        ss.imbue(std::locale("C"));
-                        while(ss.peek() == ' ') ss.seekg(1, ios_base::cur);
-                        ss.seekg(std::string("vertex").size(), ios_base::cur);
-                        ss >> x[vertex][0] >> x[vertex][1] >> x[vertex][2];
+                        sscanf(str, " vertex %f %f %f", &(x[vertex][0]), &(x[vertex][1]), &(x[vertex][2]));
 #endif
                         vertex++;
                         if(vertex > 2)vertex = 2;
@@ -135,11 +131,7 @@ namespace ocl
 #ifdef WIN32
                         sscanf_s(str, " facet normal %f %f %f", &(n[0]), &(n[1]), &(n[2]));
 #else
-                        std::istringstream ss(str);
-                        ss.imbue(std::locale("C"));
-                        while(ss.peek() == ' ') ss.seekg(1, ios_base::cur);
-                        ss.seekg(std::string("facet normal").size(), ios_base::cur);
-                        ss >> n[0] >> n[1] >> n[2];
+                        sscanf(str, " facet normal %f %f %f", &(n[0]), &(n[1]), &(n[2]));
 #endif
                         vertex = 0;
                     }
