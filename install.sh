@@ -121,7 +121,7 @@ if [ "${OCL_BUILD_TYPE}" = "debug" ]; then
     build_type="Debug"
     build_type_lower="debug"
 else
-    build_type="Release"
+    build_type="RelWithDebInfo"
     build_type_lower="release"
 fi
 build_dir="${project_dir}/build/${OCL_BUILD_LIBRARY}/${build_type_lower}"
