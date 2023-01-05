@@ -73,8 +73,9 @@ double Point::dot(const Point &p) const {
 }
 
 void Point::normalize() {
-    if (this->norm() != 0.0)
-        *this *=(1/this->norm());
+    double norm = this->norm();
+    if (norm != 0.0)
+        *this *=(1/norm);
 }
 
 double Point::xyNorm() const {
@@ -248,11 +249,13 @@ bool Point::isInside(const Point& p1, const Point& p2) const {
     // p1 + t*(p2-p1) = p
     // p1*(p2-p1) + t * (p2-p1)*(p2-p1) = p*(p2-p1)
     // t = (p - p1 )*(p2-p1) / (p2-p1)*(p2-p1)
-    double t = (*this - p1).dot( p2-p1 ) / (p2-p1).dot(p2-p1);
-    if (t > 1.0)
+    Point p2minusp1 = p2 - p1;
+    Point thisminusp1 = (*this - p1);
+    double t = thisminusp1.dot(p2minusp1) / p2minusp1.dot(p2minusp1);
+    if (t > 1.0 || t < 0.0)
         return false;
-    else if (t < 0.0)
-        return false;
+    // else if (t < 0.0)
+    //     return false;
     else
         return true;
 }

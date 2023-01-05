@@ -37,10 +37,6 @@ namespace ocl
 
 FiberPushCutter::FiberPushCutter() {
     nCalls = 0;
-    nthreads = 1;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs(); // figure out how many cores we have
-#endif
     cutter = NULL;
     bucketSize = 1;
     root = new KDTree<Triangle>();
@@ -96,7 +92,7 @@ void FiberPushCutter::pushCutter2(Fiber& f) {
     for ( it=tris->begin() ; it!=it_end ; ++it) {
 		i = new Interval();
 		cutter->pushCutter(f,*i,*it);
-		f.addInterval(*i); 
+		f.addInterval(*i);
 		++nCalls;
 		delete i;
     }

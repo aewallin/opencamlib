@@ -82,7 +82,7 @@ void Fiber::addInterval(Interval& i) {
         }
         overlaps.push_back(i);
         // now build a new interval from i and the overlaps
-        Interval sumint;        
+        Interval sumint;
         BOOST_FOREACH(Interval intr, overlaps) {
             sumint.updateLower( intr.lower, intr.lower_cc );
             sumint.updateUpper( intr.upper, intr.upper_cc );
@@ -95,7 +95,8 @@ void Fiber::addInterval(Interval& i) {
 double Fiber::tval(Point& p) const {
     // fiber is  f = p1 + t * (p2-p1)
     // t = (f-p1).dot(p2-p1) / (p2-p1).dot(p2-p1)
-    return  (p-p1).dot(p2-p1) / (p2-p1).dot(p2-p1);
+    Point p2minp1 = p2 - p1;
+    return (p-p1).dot(p2minp1) / (p2minp1).dot(p2minp1);
 }
 
 Point Fiber::point(double t) const {

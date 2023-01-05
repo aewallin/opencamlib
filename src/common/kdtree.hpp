@@ -225,32 +225,45 @@ class KDTree {
                     for (unsigned int m=0;m<dimensions.size();++m) {
                         // dimensions[m] is the dimensions we want to update
                         // t.bb[ dimensions[m] ]   is the update value
+                        double point = dimensions[m];
+                        double tbbpoint = t.bb[point];
                         if (first) {
-                            maxval[ dimensions[m] ] = t.bb[ dimensions[m] ];
-                            minval[ dimensions[m] ] = t.bb[ dimensions[m] ];
+                            maxval[point] = tbbpoint;
+                            minval[point] = tbbpoint;
                             if (m==(dimensions.size()-1) )
                                 first=false;
                         } else {
-                            if (maxval[ dimensions[m] ] < t.bb[ dimensions[m] ] )
-                                maxval[ dimensions[m] ] = t.bb[ dimensions[m] ];
-                            if (minval[ dimensions[m] ] > t.bb[ dimensions[m] ])
-                                minval[ dimensions[m] ] = t.bb[ dimensions[m] ];
+                            if (maxval[point] < tbbpoint )
+                                maxval[point] = tbbpoint;
+                            if (minval[point] > tbbpoint)
+                                minval[point] = tbbpoint;
                         }
                     }
-                } 
-                std::vector<Spread*> spreads;// calculate the spread along each dimension
+                }
+
+                double max = 0;
+                double maxM = 0;
+                // std::vector<Spread*> spreads;// calculate the spread along each dimension
                 for (unsigned int m=0;m<dimensions.size();++m) {   // dim,  spread, start
-                    spreads.push_back( new Spread(dimensions[m] , 
-                                       maxval[dimensions[m]]-minval[dimensions[m]], 
-                                       minval[dimensions[m]] ) );  
+                    double val = maxval[dimensions[m]] - minval[dimensions[m]];
+                    if (val > max) {
+                        max = val;
+                        maxM = m;
+                    }
+                    // spreads.push_back( new Spread(dimensions[m] , 
+                    //                    maxval[dimensions[m]]-minval[dimensions[m]], 
+                    //                    minval[dimensions[m]] ) );  
                 }// priority-queue could also be used ??  
-                assert( !spreads.empty() );
+                // assert( !spreads.empty() );
                 //std::cout << " spreads.size()=" << spreads.size() << "\n";
-                std::sort(spreads.begin(), spreads.end(), Spread::spread_compare); // sort the list
-                Spread* s= new Spread(*spreads[0]); // this is the one we want to return
-                while(!spreads.empty()) delete spreads.back(), spreads.pop_back(); // delete the others
+                // std::sort(spreads.begin(), spreads.end(), Spread::spread_compare); // sort the list
+                // Spread* s= new Spread(*spreads[0]); // this is the one we want to return
+                // while(!spreads.empty()) delete spreads.back(), spreads.pop_back(); // delete the others
                 //std::cout << "calc_spread() done\n";
-                return s; // select the biggest spread and return
+                return new Spread(dimensions[maxM] , 
+                                       maxval[dimensions[maxM]]-minval[dimensions[maxM]], 
+                                       minval[dimensions[maxM]] );
+                // return s; // select the biggest spread and return
             } // end tris->size != 0
         } // end spread();
         

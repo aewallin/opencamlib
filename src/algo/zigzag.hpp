@@ -54,9 +54,9 @@ class ZigZag {
             // calculate a reasonable maximum/minimum step-over dist
             Point perp = dir.xyPerp();
             perp.xyNormalize();
-            std::cout << " minpt = " << bb.minpt << std::endl;
-            std::cout << " maxpt = " << bb.maxpt << std::endl;
-            std::cout << " perp = " << perp << std::endl;
+            // std::cout << " minpt = " << bb.minpt << std::endl;
+            // std::cout << " maxpt = " << bb.maxpt << std::endl;
+            // std::cout << " perp = " << perp << std::endl;
             double max_d = (bb.maxpt - origin).dot( perp );
             double min_d = (bb.minpt - origin).dot( perp );
             if ( max_d < min_d ) {
@@ -65,7 +65,7 @@ class ZigZag {
                 min_d = tmp;
             }
             //int n = min_d / stepOver; // some safety margin here... (required?)
-            std::cout << " max_d= " << max_d << " min_d= "<< min_d << std::endl;
+            // std::cout << " max_d= " << max_d << " min_d= "<< min_d << std::endl;
             
             std::vector<double> distances;
             for (double d = min_d ; d <= max_d ; d += stepOver ) {
