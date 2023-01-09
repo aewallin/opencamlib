@@ -23,10 +23,9 @@
 
 #include <string>
 
-namespace ocl
-{
-  int max_threads();
-  std::string version();
-}
+namespace ocl {
+int max_threads();
+std::string version();
+} // namespace ocl
 
 #endif

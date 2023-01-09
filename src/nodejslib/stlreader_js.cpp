@@ -1,17 +1,15 @@
-#include <sstream>
+#include "stlreader_js.hpp"
 #include "stlreader.hpp"
 #include "stlsurf.hpp"
-#include "stlreader_js.hpp"
 #include "stlsurf_js.hpp"
+#include <sstream>
 
 Napi::FunctionReference STLReaderJS::constructor;
 
-Napi::Object STLReaderJS::Init(Napi::Env env, Napi::Object exports)
-{
+Napi::Object STLReaderJS::Init(Napi::Env env, Napi::Object exports) {
     Napi::HandleScope scope(env);
 
-    Napi::Function func = DefineClass(env, "STLReader", {
-    });
+    Napi::Function func = DefineClass(env, "STLReader", {});
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 
@@ -19,13 +17,11 @@ Napi::Object STLReaderJS::Init(Napi::Env env, Napi::Object exports)
     return exports;
 }
 
-STLReaderJS::STLReaderJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<STLReaderJS>(info)
-{
+STLReaderJS::STLReaderJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<STLReaderJS>(info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     size_t length = info.Length();
-    if (length == 1)
-    {
+    if (length == 1) {
         Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
     }
     Napi::String filepath = info[0].As<Napi::String>();

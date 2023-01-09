@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "bbox.hpp"
+#include <napi.h>
 
-class BboxJS : public Napi::ObjectWrap<BboxJS>
-{
+class BboxJS : public Napi::ObjectWrap<BboxJS> {
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     BboxJS(const Napi::CallbackInfo &info);

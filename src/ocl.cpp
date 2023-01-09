@@ -25,18 +25,13 @@
 #endif
 #include "version_string.hpp"
 
-namespace ocl
-{
-  int max_threads()
-  {
+namespace ocl {
+int max_threads() {
 #ifdef _OPENMP
     return omp_get_max_threads();
 #endif
     return 1;
-  }
-
-  std::string version()
-  {
-    return VERSION_STRING;
-  }
 }
+
+std::string version() { return VERSION_STRING; }
+} // namespace ocl

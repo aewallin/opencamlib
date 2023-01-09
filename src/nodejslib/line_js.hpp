@@ -1,13 +1,14 @@
-#include <napi.h>
 #include "line.hpp"
+#include <napi.h>
 
 class LineJS : public Napi::ObjectWrap<LineJS> {
- public:
-  static Napi::Object Init(Napi::Env env, Napi::Object exports); // Init function for setting the export key to JS
-  LineJS(const Napi::CallbackInfo& info); // Constructor to initialise
-  ocl::Line *GetInternalInstance(const Napi::CallbackInfo &info);
+  public:
+    static Napi::Object Init(Napi::Env env, Napi::Object exports); // Init function for setting the export key to JS
+    LineJS(const Napi::CallbackInfo &info);                        // Constructor to initialise
+    ocl::Line *GetInternalInstance(const Napi::CallbackInfo &info);
 
-private:
-  static Napi::FunctionReference constructor; //reference to store the class definition that needs to be exported to JS
-  ocl::Line *actualClass_; // Internal instance of line used to perform actual operations.
+  private:
+    static Napi::FunctionReference
+        constructor;         // reference to store the class definition that needs to be exported to JS
+    ocl::Line *actualClass_; // Internal instance of line used to perform actual operations.
 };

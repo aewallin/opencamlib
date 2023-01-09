@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "adaptivewaterline.hpp"
+#include <napi.h>
 
-class AdaptiveWaterlineJS : public Napi::ObjectWrap<AdaptiveWaterlineJS>
-{
+class AdaptiveWaterlineJS : public Napi::ObjectWrap<AdaptiveWaterlineJS> {
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     AdaptiveWaterlineJS(const Napi::CallbackInfo &info);

@@ -2,43 +2,42 @@
 #include <emscripten/bind.h>
 
 // GEOMETRY
-#include "point.hpp"
+#include "bbox.hpp"
 #include "ccpoint.hpp"
 #include "clpoint.hpp"
-#include "triangle.hpp"
-#include "bbox.hpp"
-#include "path.hpp"
-#include "line.hpp"
 #include "ellipse.hpp"
 #include "ellipseposition.hpp"
+#include "line.hpp"
+#include "path.hpp"
+#include "point.hpp"
+#include "triangle.hpp"
 
 // STL
-#include "stlsurf.hpp"
 #include "stlreader.hpp"
+#include "stlsurf.hpp"
 
 // ALGO
+#include "adaptivepathdropcutter.hpp"
+#include "adaptivewaterline.hpp"
+#include "compositecutter.hpp"
+#include "lineclfilter.hpp"
 #include "operation.hpp"
 #include "waterline.hpp"
-#include "adaptivepathdropcutter.hpp"
-#include "compositecutter.hpp"
-#include "adaptivewaterline.hpp"
-#include "zigzag.hpp"
 #include "weave.hpp"
-#include "lineclfilter.hpp"
+#include "zigzag.hpp"
 // #include "clsurface.hpp"
 
 // CUTTERS
-#include "millingcutter.hpp"
-#include "cylcutter.hpp"
 #include "ballcutter.hpp"
 #include "bullcutter.hpp"
 #include "conecutter.hpp"
+#include "cylcutter.hpp"
+#include "millingcutter.hpp"
 
 using namespace emscripten;
 using namespace ocl;
 
-EMSCRIPTEN_BINDINGS(opencamlib)
-{
+EMSCRIPTEN_BINDINGS(opencamlib) {
     //////////////
     // GEOMETRY //
     //////////////
@@ -78,9 +77,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .function("__str__", &CCPoint::str);
     // .property("type", &CCPoint::type) // @todo figure out the problem
 
-    class_<Triangle>("Triangle")
-        .constructor()
-        .constructor<Point, Point, Point>();
+    class_<Triangle>("Triangle").constructor().constructor<Point, Point, Point>();
 
     enum_<CCType>("CCType")
         .value("NONE", NONE)
@@ -102,8 +99,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .value("FACET_CYL", FACET_CYL)
         .value("ERROR", ERROR);
 
-    class_<STLReader>("STLReader")
-        .constructor<const std::wstring &, STLSurf &>();
+    class_<STLReader>("STLReader").constructor<const std::wstring &, STLSurf &>();
 
     class_<STLSurf>("STLSurf")
         .constructor()
@@ -142,9 +138,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .property("c", &Arc::c)
         .property("dir", &Arc::dir);
 
-    enum_<SpanType>("SpanType")
-        .value("LineSpanType", LineSpanType)
-        .value("ArcSpanType", ArcSpanType);
+    enum_<SpanType>("SpanType").value("LineSpanType", LineSpanType).value("ArcSpanType", ArcSpanType);
 
     class_<Path>("Path")
         .constructor()
@@ -228,8 +222,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .function("empty", &Interval::empty)
         .function("__str__", &Interval::str);
 
-    class_<Fiber>("Fiber")
-        .constructor<Point, Point>();
+    class_<Fiber>("Fiber").constructor<Point, Point>();
 
     // class_<Fiber, bases<Fiber>>("Fiber")
     //     .constructor<Point, Point>()
@@ -333,20 +326,14 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .constructor<double, double>()
         .function("dropCutterSTL", &BallCutter::dropCutterSTL, allow_raw_pointers());
 
-    class_<BullCutter, emscripten::base<MillingCutter>>("BullCutter")
-        .constructor<double, double, double>();
-    class_<ConeCutter, emscripten::base<MillingCutter>>("ConeCutter")
-        .constructor<double, double, double>();
+    class_<BullCutter, emscripten::base<MillingCutter>>("BullCutter").constructor<double, double, double>();
+    class_<ConeCutter, emscripten::base<MillingCutter>>("ConeCutter").constructor<double, double, double>();
 
-    class_<CompCylCutter, emscripten::base<MillingCutter>>("CompCylCutter")
-        .constructor<double, double>();
-    class_<CompBallCutter, emscripten::base<MillingCutter>>("CompBallCutter")
-        .constructor<double, double>();
+    class_<CompCylCutter, emscripten::base<MillingCutter>>("CompCylCutter").constructor<double, double>();
+    class_<CompBallCutter, emscripten::base<MillingCutter>>("CompBallCutter").constructor<double, double>();
 
-    class_<CylConeCutter, emscripten::base<MillingCutter>>("CylConeCutter")
-        .constructor<double, double, double>();
-    class_<BallConeCutter, emscripten::base<MillingCutter>>("BallConeCutter")
-        .constructor<double, double, double>();
+    class_<CylConeCutter, emscripten::base<MillingCutter>>("CylConeCutter").constructor<double, double, double>();
+    class_<BallConeCutter, emscripten::base<MillingCutter>>("BallConeCutter").constructor<double, double, double>();
     class_<BullConeCutter, emscripten::base<MillingCutter>>("BullConeCutter")
         .constructor<double, double, double, double>();
     class_<ConeConeCutter, emscripten::base<MillingCutter>>("ConeConeCutter")

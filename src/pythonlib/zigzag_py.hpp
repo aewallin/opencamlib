@@ -25,25 +25,21 @@
 #include "zigzag.hpp"
 #include <boost/python.hpp>
 
-namespace ocl
-{
-  /// \brief python wrapper for VoronoiDiagram
-  ///
-  class ZigZag_py : public ZigZag
-  {
+namespace ocl {
+/// \brief python wrapper for VoronoiDiagram
+///
+class ZigZag_py : public ZigZag {
   public:
     ZigZag_py() : ZigZag(){};
 
-    boost::python::list getOutput() const
-    {
-      boost::python::list o;
-      BOOST_FOREACH (Point p, out)
-      {
-        o.append(p);
-      }
-      return o;
+    boost::python::list getOutput() const {
+        boost::python::list o;
+        BOOST_FOREACH (Point p, out) {
+            o.append(p);
+        }
+        return o;
     }
-  };
-} // end ocl namespace
+};
+} // namespace ocl
 #endif
 // end zigzag_py.hpp
