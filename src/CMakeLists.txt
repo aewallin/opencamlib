@@ -90,6 +90,12 @@ if(UNIX)
   endif()
 endif()
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT got_ipo_support)
+if(got_ipo_support)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+endif()
+
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(Boost_DEBUG ON CACHE BOOL "boost-debug")
