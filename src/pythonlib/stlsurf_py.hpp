@@ -25,6 +25,7 @@
 #include <boost/python.hpp>
 
 #include "stlsurf.hpp"
+#include "triangle_py.hpp"
 
 namespace ocl {
 
