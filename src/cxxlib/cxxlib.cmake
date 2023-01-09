@@ -62,10 +62,7 @@ install(
 )
 
 if(APPLE)
-  target_compile_options(ocl PRIVATE
-    $<$<CXX_COMPILER_ID:Clang>:-g>
-  )
-  set(strip_command COMMAND xcrun strip -Sl $<TARGET_FILE:ocl>)
+  target_compile_options(ocl PRIVATE -g)
   # if(CMAKE_CXX_FLAGS MATCHES "-flto")
     set(lto_object ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/ocl-lto.o)
     set_property(TARGET ocl APPEND_STRING PROPERTY
@@ -73,7 +70,7 @@ if(APPLE)
   # endif()
   add_custom_command(TARGET ocl POST_BUILD
     COMMAND xcrun dsymutil $<TARGET_FILE:ocl>
-    ${strip_command})
+    COMMAND xcrun strip -Sl $<TARGET_FILE:ocl>)
   install(
     FILES $<TARGET_FILE:ocl>.dSYM
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
@@ -102,17 +99,18 @@ install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME}
 )
 
-if(USE_OPENMP)
-  if(APPLE)
-    # copy libomp into install directory
-    install(
-      FILES ${OpenMP_omp_LIBRARY}
-      DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
-      PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-    )
-    # fix loader path
-    add_custom_command(TARGET ocl POST_BUILD
-      COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@loader_path/libomp.dylib" $<TARGET_FILE:ocl>
-    )
-  endif()
+if(USE_OPENMP AND APPLE)
+  # add homebrew libomp paths to the INSTALL_RPATH, and the @loader_path last as a fallback.
+  set_target_properties(ocl PROPERTIES
+    INSTALL_RPATH "/opt/homebrew/opt/libomp/lib;/usr/local/opt/libomp/lib;@loader_path")
+  # copy libomp into install directory
+  install(
+    FILES ${OpenMP_CXX_LIBRARIES}
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
+    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+  )
+  # fix loader path
+  add_custom_command(TARGET ocl POST_BUILD
+    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@rpath/libomp.dylib" $<TARGET_FILE:ocl>
+  )
 endif()
