@@ -1,15 +1,12 @@
-#include "cylcutter.hpp"
 #include "cylcutter_js.hpp"
+#include "cylcutter.hpp"
 
 Napi::FunctionReference CylCutterJS::constructor;
 
-Napi::Object CylCutterJS::Init(Napi::Env env, Napi::Object exports)
-{
+Napi::Object CylCutterJS::Init(Napi::Env env, Napi::Object exports) {
     Napi::HandleScope scope(env);
 
-    Napi::Function func = DefineClass(env, "CylCutter", {
-        InstanceMethod("str", &CylCutterJS::str)
-    });
+    Napi::Function func = DefineClass(env, "CylCutter", {InstanceMethod("str", &CylCutterJS::str)});
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 
@@ -17,13 +14,11 @@ Napi::Object CylCutterJS::Init(Napi::Env env, Napi::Object exports)
     return exports;
 }
 
-CylCutterJS::CylCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<CylCutterJS>(info)
-{
+CylCutterJS::CylCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<CylCutterJS>(info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     size_t length = info.Length();
-    if (length != 2)
-    {
+    if (length != 2) {
         Napi::TypeError::New(env, "Provide 2 argument").ThrowAsJavaScriptException();
     }
     Napi::Number d = info[0].As<Napi::Number>();
@@ -31,15 +26,13 @@ CylCutterJS::CylCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<CylC
     this->actualClass_ = new ocl::CylCutter(d.DoubleValue(), l.DoubleValue());
 }
 
-Napi::Value CylCutterJS::str(const Napi::CallbackInfo &info)
-{
+Napi::Value CylCutterJS::str(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     return Napi::String::New(env, this->actualClass_->str());
 }
 
-ocl::CylCutter *CylCutterJS::GetInternalInstance(const Napi::CallbackInfo &info)
-{
+ocl::CylCutter *CylCutterJS::GetInternalInstance(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     return this->actualClass_;

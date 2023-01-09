@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "conecutter.hpp"
+#include <napi.h>
 
-class ConeCutterJS : public Napi::ObjectWrap<ConeCutterJS>
-{
+class ConeCutterJS : public Napi::ObjectWrap<ConeCutterJS> {
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     ConeCutterJS(const Napi::CallbackInfo &info);

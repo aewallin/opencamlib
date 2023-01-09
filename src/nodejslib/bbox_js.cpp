@@ -1,14 +1,12 @@
-#include "bbox.hpp"
 #include "bbox_js.hpp"
+#include "bbox.hpp"
 
 Napi::FunctionReference BboxJS::constructor;
 
-Napi::Object BboxJS::Init(Napi::Env env, Napi::Object exports)
-{
+Napi::Object BboxJS::Init(Napi::Env env, Napi::Object exports) {
     Napi::HandleScope scope(env);
 
-    Napi::Function func = DefineClass(env, "Bbox", {
-    });
+    Napi::Function func = DefineClass(env, "Bbox", {});
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 
@@ -16,15 +14,13 @@ Napi::Object BboxJS::Init(Napi::Env env, Napi::Object exports)
     return exports;
 }
 
-BboxJS::BboxJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<BboxJS>(info)
-{
+BboxJS::BboxJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<BboxJS>(info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     this->actualClass_ = new ocl::Bbox();
 }
 
-ocl::Bbox* BboxJS::GetInternalInstance(const Napi::CallbackInfo &info)
-{
+ocl::Bbox *BboxJS::GetInternalInstance(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     return this->actualClass_;

@@ -2,13 +2,10 @@
 
 Napi::FunctionReference ConeCutterJS::constructor;
 
-Napi::Object ConeCutterJS::Init(Napi::Env env, Napi::Object exports)
-{
+Napi::Object ConeCutterJS::Init(Napi::Env env, Napi::Object exports) {
     Napi::HandleScope scope(env);
 
-    Napi::Function func = DefineClass(env, "ConeCutter", {
-        InstanceMethod("str", &ConeCutterJS::str)
-    });
+    Napi::Function func = DefineClass(env, "ConeCutter", {InstanceMethod("str", &ConeCutterJS::str)});
     constructor = Napi::Persistent(func);
     constructor.SuppressDestruct();
 
@@ -16,13 +13,11 @@ Napi::Object ConeCutterJS::Init(Napi::Env env, Napi::Object exports)
     return exports;
 }
 
-ConeCutterJS::ConeCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ConeCutterJS>(info)
-{
+ConeCutterJS::ConeCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<ConeCutterJS>(info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     size_t length = info.Length();
-    if (length != 3)
-    {
+    if (length != 3) {
         Napi::TypeError::New(env, "Provide 3 argument").ThrowAsJavaScriptException();
     }
     Napi::Number d = info[0].As<Napi::Number>();
@@ -31,15 +26,13 @@ ConeCutterJS::ConeCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Co
     this->actualClass_ = new ocl::ConeCutter(d.DoubleValue(), a.DoubleValue(), l.DoubleValue());
 }
 
-Napi::Value ConeCutterJS::str(const Napi::CallbackInfo &info)
-{
+Napi::Value ConeCutterJS::str(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     return Napi::String::New(env, this->actualClass_->str());
 }
 
-ocl::ConeCutter *ConeCutterJS::GetInternalInstance(const Napi::CallbackInfo &info)
-{
+ocl::ConeCutter *ConeCutterJS::GetInternalInstance(const Napi::CallbackInfo &info) {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     return this->actualClass_;

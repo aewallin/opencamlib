@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "cylcutter.hpp"
+#include <napi.h>
 
-class CylCutterJS : public Napi::ObjectWrap<CylCutterJS>
-{
+class CylCutterJS : public Napi::ObjectWrap<CylCutterJS> {
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     CylCutterJS(const Napi::CallbackInfo &info);

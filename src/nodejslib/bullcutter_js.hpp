@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "bullcutter.hpp"
+#include <napi.h>
 
-class BullCutterJS : public Napi::ObjectWrap<BullCutterJS>
-{
+class BullCutterJS : public Napi::ObjectWrap<BullCutterJS> {
   public:
     static Napi::Object Init(Napi::Env env, Napi::Object exports);
     BullCutterJS(const Napi::CallbackInfo &info);

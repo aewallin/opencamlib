@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "pathdropcutter.hpp"
+#include <napi.h>
 
-class PathDropCutterJS : public Napi::ObjectWrap<PathDropCutterJS>
-{
+class PathDropCutterJS : public Napi::ObjectWrap<PathDropCutterJS> {
   public:
     static void Init(Napi::Env env, Napi::Object exports);
     PathDropCutterJS(const Napi::CallbackInfo &info);

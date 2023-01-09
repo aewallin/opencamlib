@@ -1,8 +1,7 @@
-#include <napi.h>
 #include "adaptivepathdropcutter.hpp"
+#include <napi.h>
 
-class AdaptivePathDropCutterJS : public Napi::ObjectWrap<AdaptivePathDropCutterJS>
-{
+class AdaptivePathDropCutterJS : public Napi::ObjectWrap<AdaptivePathDropCutterJS> {
   public:
     static void Init(Napi::Env env, Napi::Object exports);
     AdaptivePathDropCutterJS(const Napi::CallbackInfo &info);
@@ -17,6 +16,7 @@ class AdaptivePathDropCutterJS : public Napi::ObjectWrap<AdaptivePathDropCutterJ
     void setZ(const Napi::CallbackInfo &info);
     Napi::Value getCLPoints(const Napi::CallbackInfo &info);
     void run(const Napi::CallbackInfo &info);
+
   private:
     static Napi::FunctionReference constructor;
     ocl::AdaptivePathDropCutter *actualClass_;
