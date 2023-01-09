@@ -435,7 +435,11 @@ jobs:
         shell: bash
         run: |
           mkdir dist
-          mv prebuilds/*-cxx-*/* dist
+          zip -r dist/linux-cxx-x86_64.zip prebuilds/linux-cxx-x86_64
+          zip -r dist/macos-cxx-arm64.zip prebuilds/macos-cxx-arm64
+          zip -r dist/macos-cxx-x86_64.zip prebuilds/macos-cxx-x86_64
+          zip -r dist/windows-cxx-ia32.zip prebuilds/windows-cxx-ia32
+          zip -r dist/windows-cxx-x64.zip prebuilds/windows-cxx-x64
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
