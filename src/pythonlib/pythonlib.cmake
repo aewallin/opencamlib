@@ -50,6 +50,9 @@ if(NOT SKBUILD)
 endif()
 
 if(USE_OPENMP AND APPLE)
+  # add homebrew libomp paths to the INSTALL_RPATH, and the @loader_path last as a fallback.
+  set_target_properties(ocl PROPERTIES
+    INSTALL_RPATH "/opt/homebrew/opt/libomp/lib;/usr/local/opt/libomp/lib;@loader_path")
   # copy libomp into install directory
   install(
     FILES ${OpenMP_CXX_LIBRARIES}
@@ -58,6 +61,6 @@ if(USE_OPENMP AND APPLE)
   )
   # fix loader path
   add_custom_command(TARGET ocl POST_BUILD
-    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@loader_path/libomp.dylib" $<TARGET_FILE:ocl>
+    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@rpath/libomp.dylib" $<TARGET_FILE:ocl>
   )
 endif()
