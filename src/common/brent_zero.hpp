@@ -21,6 +21,8 @@
 #ifndef BRENT_ZERO_H
 #define BRENT_ZERO_H
 
+#include <iostream>
+
 namespace ocl {
 
 /// Brent's root finding algorithm
