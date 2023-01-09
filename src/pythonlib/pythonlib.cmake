@@ -52,7 +52,7 @@ endif()
 if(USE_OPENMP AND APPLE)
   # copy libomp into install directory
   install(
-    FILES ${OpenMP_omp_LIBRARY}
+    FILES ${OpenMP_CXX_LIBRARIES}
     DESTINATION "opencamlib"
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
   )
