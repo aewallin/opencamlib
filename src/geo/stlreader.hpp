@@ -22,6 +22,8 @@
 #ifndef STLREADER_H
 #define STLREADER_H
 
+#include <string>
+
 namespace ocl {
 
 class STLSurf;
