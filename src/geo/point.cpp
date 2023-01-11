@@ -73,8 +73,9 @@ double Point::dot(const Point &p) const {
 }
 
 void Point::normalize() {
-    if (this->norm() != 0.0)
-        *this *=(1/this->norm());
+    double norm = this->norm();
+    if (norm != 0.0)
+        *this *=(1/norm);
 }
 
 double Point::xyNorm() const {
@@ -217,30 +218,24 @@ bool Point::isRight(const Point &p1, const Point &p2) const
     if (t > 0.00000000000001) /// \todo FIXME: hardcoded magic number...
         return true;
     else
-        return false;    
+        return false;
 }
 
 bool Point::isInside(const Triangle &t) const {
-    // point in triangle test
-    // http://www.blackpawn.com/texts/pointinpoly/default.html
-    
-    Point v0 = t.p[2] - t.p[0];
-    Point v1 = t.p[1] - t.p[0];
-    Point v2 = *this  - t.p[0];
-    
-    double dot00 = v0.dot(v0);
-    double dot01 = v0.dot(v1);
-    double dot02 = v0.dot(v2);
-    double dot11 = v1.dot(v1);
-    double dot12 = v1.dot(v2);
-    
-    double invD = 1.0 / ( dot00 *dot11 - dot01*dot01 );
-    // barycentric coordinates
-    double u = (dot11 * dot02 - dot01 * dot12) * invD;
-    double v = (dot00 * dot12 - dot01 * dot02) * invD;
+    Point p = *this;
+    Point a = t.p[0];
+    Point b = t.p[1];
+    Point c = t.p[2];
 
-    // Check if point is in triangle
-    return (u > 0.0) && (v > 0.0) && (u + v < 1.0);
+    // Compute barycentric coordinates
+    double u = (a.y * c.x - a.x * c.y + (c.y - a.y) * p.x + (a.x - c.x) * p.y)
+             / (a.y * c.x - a.x * c.y + (c.y - a.y) * b.x + (a.x - c.x) * b.y);
+
+    double v = (a.x * b.y - a.y * b.x + (a.y - b.y) * p.x + (b.x - a.x) * p.y)
+             / (a.x * b.y - a.y * b.x + (a.y - b.y) * c.x + (b.x - a.x) * c.y);
+
+    // Check if point is inside triangle
+    return u > 0.0 && v > 0.0 && (u + v) < 1.0;
 }
 
 bool Point::isInside(const Point& p1, const Point& p2) const {
@@ -248,18 +243,14 @@ bool Point::isInside(const Point& p1, const Point& p2) const {
     // p1 + t*(p2-p1) = p
     // p1*(p2-p1) + t * (p2-p1)*(p2-p1) = p*(p2-p1)
     // t = (p - p1 )*(p2-p1) / (p2-p1)*(p2-p1)
-    double t = (*this - p1).dot( p2-p1 ) / (p2-p1).dot(p2-p1);
-    if (t > 1.0)
+    Point p2minusp1 = p2 - p1;
+    Point thisminusp1 = (*this - p1);
+    double t = thisminusp1.dot(p2minusp1) / p2minusp1.dot(p2minusp1);
+    if (t > 1.0 || t < 0.0) {
         return false;
-    else if (t < 0.0)
-        return false;
-    else
-        return true;
+    }
+    return true;
 }
-
-
-
-
 
 /* **************** Operators ***************  
  *  see

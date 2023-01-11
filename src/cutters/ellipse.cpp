@@ -193,7 +193,7 @@ int Ellipse::solver_brent() {
         return iters;
     } else if ( fabs( error(bpos) ) < OE_ERROR_TOLERANCE ) { // or bpos might be the solution?
         EllipsePosition1 = bpos;
-        find_EllipsePosition2(); 
+        find_EllipsePosition2();
         return iters;
     }
     // neither apos nor bpos is the solution
@@ -232,41 +232,45 @@ bool AlignedEllipse::aligned_solver( const Fiber& f ) {
     bool found_positive=false;
     bool found_negative=false;
     tmp.setDiangle( xyVectorToDiangle(s1,t1) );
-    if (error(tmp.diangle) > 0) {
+    double err = error(tmp.diangle);
+    if (err > 0) {
         found_positive = true;
         apos = tmp;
-    } else if (error(tmp.diangle) < 0) {
+    } else if (err < 0) {
         found_negative = true;
         bpos = tmp;
     }
     tmp.setDiangle( xyVectorToDiangle(s1,-t1) );
-    if (error(tmp.diangle) > 0) {
+    err = error(tmp.diangle);
+    if (err > 0) {
         found_positive = true;
         apos = tmp;
     }
-    else if (error(tmp.diangle) < 0) {
+    else if (err < 0) {
         found_negative = true;
         bpos = tmp;
-    }    
+    }
     tmp.setDiangle( xyVectorToDiangle(-s1,t1) );
-    if (error(tmp.diangle) > 0) {
+    err = error(tmp.diangle);
+    if (err > 0) {
         found_positive = true;
         apos = tmp;
     }
-    else if (error(tmp.diangle) < 0) {
+    else if (err < 0) {
         found_negative = true;
         bpos = tmp;
     }
     tmp.setDiangle( xyVectorToDiangle(-s1,-t1) );
-    if (error(tmp.diangle) > 0) {
+    err = error(tmp.diangle);
+    if (err > 0) {
         found_positive = true;
         apos = tmp;
     }
-    else if (error(tmp.diangle) < 0) {
+    else if (err < 0) {
         found_negative = true;
         bpos = tmp;
     }
-    
+
     if (found_positive) {
         if (found_negative) {
             assert( this->error(apos.diangle) * this->error(bpos.diangle) < 0.0 ); // root is now bracketed.

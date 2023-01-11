@@ -52,7 +52,7 @@ std::pair<Vertex,Vertex> SmartWeave::find_neighbor_vertices( VertexPair v_pair, 
 
 // this is the new smarter build() which uses less RAM
 void SmartWeave::build() {
-    std::cout << " SimpleWeave::build()... \n";
+    // std::cout << " SmartWeave::build()... \n";
     
     // this adds all CL-vertices from x-intervals
     // it also populates the xi.intersections_fibers set of intersecting y-fibers
@@ -296,7 +296,7 @@ void SmartWeave::add_all_edges()
 {
     std::vector<Vertex> vertices = g.vertices(); 
 
-    std::cout << "There are " << vertices.size() << " vertices.\n";
+    // std::cout << "There are " << vertices.size() << " vertices.\n";
     BOOST_FOREACH( Vertex& vertex, vertices ) {
         if( (g[vertex].type == INT) || (g[vertex].type == FULLINT) ) {
             std::vector<Vertex>                adjacent_vertices;

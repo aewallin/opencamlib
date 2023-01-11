@@ -51,23 +51,16 @@ AdaptiveWaterline::AdaptiveWaterline() {
     subOp.push_back( new FiberPushCutter() );
     subOp[0]->setXDirection();
     subOp[1]->setYDirection();
-    nthreads=1;
+    nthreads = 1;
 #ifdef _OPENMP
-    nthreads = omp_get_num_procs(); 
-    // omp_set_dynamic(0);
-    // omp_set_nested(1);
+    nthreads = omp_get_num_procs();
 #endif
     sampling = 1.0;
     min_sampling = 0.1;
     cosLimit = 0.999;
 }
 
-AdaptiveWaterline::~AdaptiveWaterline() {
-    // std::cout << "~AdaptiveWaterline(): subOp.size()= " << subOp.size() <<"\n";
-    // delete subOp[1];
-    // delete subOp[0];
-    // subOp.clear();
-}
+AdaptiveWaterline::~AdaptiveWaterline() {}
 
 void AdaptiveWaterline::run() {
     adaptive_sampling_run();
@@ -86,7 +79,6 @@ void AdaptiveWaterline::adaptive_sampling_run() {
     maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
     Line* line = new Line( Point(minx,miny,zh) , Point(maxx,maxy,zh) );
     Span* linespan = new LineSpan(*line);
-    
 #ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
 	#pragma omp parallel sections
 	{
@@ -144,7 +136,6 @@ void AdaptiveWaterline::adaptive_sampling_run() {
 
     delete line;
     delete linespan;
-    
 }
 
 
@@ -152,8 +143,9 @@ void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t,
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
     //std::cout << "xfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
-    Point mid_p1 = Point( minx, span->getPoint( mid_t ).y,  zh );
-    Point mid_p2 = Point( maxx, span->getPoint( mid_t ).y,  zh );
+    double mid_y = span->getPoint( mid_t ).y;
+    Point mid_p1 = Point( minx, mid_y,  zh );
+    Point mid_p2 = Point( maxx, mid_y,  zh );
     Fiber mid_f = Fiber( mid_p1, mid_p2 );
     subOp[0]->run( mid_f );
     double fw_step = fabs( start_f.p1.y - stop_f.p1.y ) ;
@@ -167,15 +159,16 @@ void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t,
         }
     } else {
         xfibers.push_back(stop_f);
-    } 
+    }
 }
 
 void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
     //std::cout << "yfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
-    Point mid_p1 = Point( span->getPoint( mid_t ).x, miny,  zh );
-    Point mid_p2 = Point( span->getPoint( mid_t ).x, maxy, zh );
+    double mid_x = span->getPoint( mid_t ).x;
+    Point mid_p1 = Point( mid_x, miny,  zh );
+    Point mid_p2 = Point( mid_x, maxy, zh );
     Fiber mid_f = Fiber( mid_p1, mid_p2 );
     subOp[1]->run( mid_f );
     double fw_step = fabs( start_f.p1.x - stop_f.p1.x ) ;
@@ -188,7 +181,7 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
             yfiber_adaptive_sample( span, mid_t  , stop_t, mid_f  , stop_f );
         }
     } else {
-        yfibers.push_back(stop_f); 
+        yfibers.push_back(stop_f);
     }
 }
 
@@ -213,7 +206,7 @@ bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
             }
         }
         return true;
-    } 
+    }
 }
 
 

@@ -1,5 +1,10 @@
-find_package(Python COMPONENTS Interpreter Development.Module REQUIRED)
-find_package(Boost COMPONENTS python${Python_VERSION_MAJOR}${Python_VERSION_MINOR} REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+if(Python3_FOUND)
+  message(STATUS "Found Python: " ${Python3_VERSION})
+  message(STATUS "Python libraries: " ${Python3_LIBRARIES})
+  message(STATUS "Python executable: " ${Python3_EXECUTABLE})
+endif()
+find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
 
 # include dirs
 include_directories(${PROJECT_SOURCE_DIR}/cutters)
@@ -10,7 +15,7 @@ include_directories(${PROJECT_SOURCE_DIR}/common)
 include_directories(${PROJECT_SOURCE_DIR})
 
 # this makes the ocl Python module
-Python_add_library(
+Python3_add_library(
   ocl
 MODULE
   pythonlib/ocl_cutters.cpp
@@ -28,8 +33,8 @@ PRIVATE
   ocl_cutters
   ocl_geo
   ocl_algo
-  Boost::python${Python_VERSION_MAJOR}${Python_VERSION_MINOR}
-  Python::Module
+  Boost::python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}
+  Python3::Module
 )
 
 if(USE_OPENMP)
@@ -45,14 +50,17 @@ if(NOT SKBUILD)
 endif()
 
 if(USE_OPENMP AND APPLE)
+  # add homebrew libomp paths to the INSTALL_RPATH, and the @loader_path last as a fallback.
+  set_target_properties(ocl PROPERTIES
+    INSTALL_RPATH "/opt/homebrew/opt/libomp/lib;/usr/local/opt/libomp/lib;@loader_path")
   # copy libomp into install directory
   install(
-    FILES ${OpenMP_omp_LIBRARY}
+    FILES ${OpenMP_CXX_LIBRARIES}
     DESTINATION "opencamlib"
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
   )
   # fix loader path
   add_custom_command(TARGET ocl POST_BUILD
-    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@loader_path/libomp.dylib" $<TARGET_FILE:ocl>
+    COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@rpath/libomp.dylib" $<TARGET_FILE:ocl>
   )
 endif()

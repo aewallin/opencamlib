@@ -42,8 +42,8 @@ wheel.packages = ["src/pythonlib/opencamlib"]
 
 [tool.scikit-build.cmake.define]
 BUILD_PY_LIB = "ON"
-USE_OPENMP = "ON"
 Boost_ADDITIONAL_VERSIONS = "1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
+BUILD_DOC = "OFF"
 
 [tool.cibuildwheel]
 build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*"]
@@ -63,3 +63,4 @@ before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-p
 archs = ["x86_64", "arm64"]
 before-all = "cd {package} && bash ./install.sh --install-ci-deps"
 before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
+repair-wheel-command = "python src/pythonlib/delocate-wheel.py --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"

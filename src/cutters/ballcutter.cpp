@@ -120,7 +120,7 @@ bool BallCutter::calcCCandUpdateInterval( double t, const Point& p1, const Point
     CCPoint cc_tmp = cl_center.closestPoint(p1,p2); // cc-point on the edge, point on edge closest to center
     cc_tmp.type = EDGE_BALL;
     // require contact with lower hemishphere
-    return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, ((cl_center-cc_tmp).z >=0) );
+    return i.update_ifCCinEdgeAndTrue( t, cc_tmp, p1, p2, (cl_center.z-cc_tmp.z >=0) );
 }
     
 std::string BallCutter::str() const {

@@ -1,4 +1,4 @@
-project(OpenCAMLib)
+project(OpenCAMLib LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
@@ -45,7 +45,7 @@ option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
 option(VERSION_STRING
-    "Set version string" OFF)
+    "Set version string")
 
 option(USE_PY_3
     "Use Python V3" ON)
@@ -88,6 +88,12 @@ if(UNIX)
     message(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
     add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
   endif()
+endif()
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT got_ipo_support)
+if(got_ipo_support)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -142,26 +148,10 @@ if(USE_OPENMP)
       set(OpenMP_omp_LIBRARY "$ENV{OPENMP_PREFIX_MACOS}/lib/libomp.dylib")
       include_directories("$ENV{OPENMP_PREFIX_MACOS}/include")
     else()
-      find_program(brew brew)
-      if(brew)
-        message(STATUS "Found homebrew at ${brew}.")
-        execute_process(COMMAND "${brew}" --prefix libomp
-          RESULT_VARIABLE brew_libomp_found
-          OUTPUT_VARIABLE brew_libomp OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-        if(brew_libomp_found EQUAL 0)
-          message(STATUS "Found libomp at ${brew_libomp}.")
-          set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp")
-          set(OpenMP_C_LIB_NAMES "omp")
-          set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp")
-          set(OpenMP_CXX_LIB_NAMES "omp")
-          set(OpenMP_omp_LIBRARY "${brew_libomp}/lib/libomp.dylib")
-          include_directories("${brew_libomp}/include")
-        endif()
-      else()
-        message(STATUS "Homebrew not found, please install homebrew and run `brew install libomp` for OpenMP support.")
-      endif()
+      list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/libomp")
+      list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/libomp")
     endif()
-  endif(APPLE)
+  endif()
   find_package(OpenMP REQUIRED)
   if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
