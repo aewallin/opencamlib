@@ -63,7 +63,12 @@ jobs:
       - name: cxxlib
         shell: bash
         run: |
-          git describe --tags > src/git-tag.txt
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            version="${GITHUB_REF##*/}"
+          else
+            version="$(date '+%Y.%-m.%-d').dev${GITHUB_RUN_NUMBER}"
+          fi
+          echo "${version}" > src/git-tag.txt
 
           if [ "${{ matrix.docker_image }}" != "" ]; then
             export OCL_DOCKER_IMAGE="${{ matrix.docker_image }}"
@@ -146,7 +151,12 @@ jobs:
       - name: nodejslib
         shell: bash
         run: |
-          git describe --tags > src/git-tag.txt
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            version="${GITHUB_REF##*/}"
+          else
+            version="$(date '+%Y.%-m.%-d')-dev.${GITHUB_RUN_NUMBER}"
+          fi
+          echo "${version}" > src/git-tag.txt
 
           if [ "${{ matrix.docker_image }}" != "" ]; then
             export OCL_DOCKER_IMAGE="${{ matrix.docker_image }}"
@@ -262,7 +272,7 @@ jobs:
             version="$(date '+%Y.%-m.%-d').dev${GITHUB_RUN_NUMBER}"
           fi
           sed -i.bak "s/^version = .*/version = \"${version}\"/g" pyproject.toml && rm pyproject.toml.bak
-          git describe --tags > src/git-tag.txt
+          echo "${version}" > src/git-tag.txt
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         if: matrix.architecture == 'aarch64'

@@ -151,9 +151,9 @@ int main()
   std::vector<ocl::MillingCutter *> cutters;
   cutters.push_back(&cylCutter);
   cutters.push_back(&ballCutter);
-  // cutters.push_back(&bullCutter);
+  cutters.push_back(&bullCutter);
   cutters.push_back(&coneCutter);
-  double z = 4;
+  double z = 0.5;
   double sampling = 0.1;
   for (auto cutter : cutters)
   {
@@ -168,7 +168,7 @@ int main()
   }
   ocl::Path path = ocl::Path();
   int i = 0;
-  for (double y = 0; y <= 0.3; y = y + 0.1)
+  for (double y = 0; y <= 0.2; y = y + 0.1)
   {
     bool ltr = ((int)i % 2) == 0;
     ocl::Point p1 = ocl::Point(ltr ? -2 : 11, y, 0);
