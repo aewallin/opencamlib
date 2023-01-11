@@ -238,9 +238,9 @@ class CutterLocationSurface : public Operation {
             // now loop through edges again:
             f_edges = g.face_edges(f);
             assert( f_edges.size() == 8 );
-            BOOST_FOREACH( CLSEdge e, f_edges ) {
-                std::cout << e << "\n";
-            }
+            // BOOST_FOREACH( CLSEdge e, f_edges ) {
+            //     std::cout << e << "\n";
+            // }
         }
         
         virtual void run() {

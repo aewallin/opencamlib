@@ -82,12 +82,12 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
                 p = s*(2.0*m*a*(q-r)-(b-a)*(r-1.0));
                 q = (q-1.0)*(r-1.0)*(s-1.0);
             }
-            
+
             if (p>0.0)
                 q=-q;
             else
                 p=-p; // make p negative
-            
+
             s=e;
             e=d;
             if ( (2.0*p < (3.0*m*q-fabs(tol*q))) && (p<fabs(0.5*s*q)) ) {
@@ -95,7 +95,7 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
             } else {
                 e = m;
                 d = e;
-            }                
+            }
         }
         a = b; // store the old b-solution in a
         fa = fb;
@@ -106,10 +106,12 @@ double brent_zero( double a, double b, double eps, double t, ErrObj* ell) {
         else
             b = b-tol;
         // std::cout << " brent_zero b=" << b << "\n";
-        
+
         fb = ell->error(b); // f(b);
-        
-        if ( ((fb>0.0) && (fc>0.0)) || ((fb<=0.0) && (fc<=0.0)) ) {
+
+        if (std::signbit(fb) == std::signbit(fc))
+        {
+            // if ((fb > 0.0 && fc > 0.0) || (fb <= 0.0 && fc <= 0.0)) {
             // fb and fc have the same sign
             c = a;  // so change c to a
             fc = fa;

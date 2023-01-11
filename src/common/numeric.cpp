@@ -150,7 +150,7 @@ bool xy_line_line_intersection( const Point& p1, const Point& p2, double& v,
     // =>
     // [ (p2-p1).x  -(p4-p3).x ] [ v ]  = [ (p3-p1).x ]
     // [ (p2-p1).y  -(p4-p3).y ] [ t ]  = [ (p3-p1).y ]
-    return two_by_two_solver( (p2-p1).x , -(p4-p3).x , (p2-p1).y , -(p4-p3).y,  (p3-p1).x, (p3-p1).y, v, t);
+    return two_by_two_solver(p2.x - p1.x, -(p4.x - p3.x), p2.y - p1.y, -(p4.y - p3.y), (p3.x - p1.x), p3.y - p1.y, v, t);
 }
 
 
