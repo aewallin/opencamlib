@@ -39,7 +39,7 @@ namespace ocl
 class BullCutter : public MillingCutter {
     public:
         BullCutter();
-        /// Create bull-cutter with diamter d, corner radius r, and length l.
+        /// Create bull-cutter with diameter d, corner radius r, and length l.
         BullCutter(double diameter, double radius, double length);
         /// offset of Bull is Bull
         MillingCutter* offsetCutter(double offset) const;

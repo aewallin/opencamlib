@@ -355,7 +355,7 @@ The CMake module that looks for Boost, is usually not aware of the existence of 
 You can help it by providing the version number of your Boost with the ``-D Boost_ADDITIONAL_VERSIONS="1.80.0"`` flag.
 Make sure to change 1.80.0 with your version of Boost.
 
-It can also be helpfull to enable ``Boost_DEBUG`` in the CMake configuration.
+It can also be helpful to enable ``Boost_DEBUG`` in the CMake configuration.
 
 ***************
 Cross Compiling
