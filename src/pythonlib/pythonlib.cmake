@@ -26,7 +26,7 @@ MODULE
 )
 
 if(DEFINED VERSION_STRING)
-  target_compile_definitions(ocl VERSION_STRING=${VERSION_STRING})
+  target_compile_definitions(ocl PUBLIC VERSION_STRING=${VERSION_STRING})
 endif()
 
 target_link_libraries(
