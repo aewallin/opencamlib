@@ -427,6 +427,7 @@ build_cxxlib() {
         ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
         -D CMAKE_BUILD_TYPE="${build_type}" \
         -D BUILD_CXX_LIB="ON" \
+        -D USE_STATIC_BOOST="ON" \
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
@@ -478,6 +479,7 @@ build_nodejslib() {
         ${OCL_GENERATOR:+"--generator=${OCL_GENERATOR}"} \
         ${OCL_GENERATOR_PLATFORM:+"--platform=${OCL_GENERATOR_PLATFORM}"} \
         --CDBUILD_NODEJS_LIB="ON" \
+        --CDUSE_STATIC_BOOST="ON" \
         --CDBoost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         --CDCMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         ${OCL_DISABLE_OPENMP:+"--CDUSE_OPENMP=OFF"} \
@@ -538,6 +540,7 @@ ${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}"
             ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
             -D CMAKE_BUILD_TYPE="${build_type}" \
             -D BUILD_PY_LIB="ON" \
+            -D USE_STATIC_BOOST="ON" \
             -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
             -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
             ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
@@ -569,6 +572,7 @@ build_emscriptenlib() {
         -D CMAKE_BUILD_TYPE="${build_type}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
+        -D USE_STATIC_BOOST="ON" \
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \

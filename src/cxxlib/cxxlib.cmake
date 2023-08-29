@@ -8,6 +8,10 @@ add_library(ocl
     ${OCL_COMMON_SRC}
 )
 
+if(DEFINED VERSION_STRING)
+  target_compile_definitions(ocl VERSION_STRING=${VERSION_STRING})
+endif()
+
 if(WIN32)
   # on windows, prefix the library with lib, and make sure the .lib file is installed as well
   set_target_properties(ocl PROPERTIES

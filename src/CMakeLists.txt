@@ -50,6 +50,9 @@ option(VERSION_STRING
 option(USE_PY_3
     "Use Python V3" ON)
 
+option(USE_STATIC_BOOST
+    "Use static boost" OFF)
+
 if(NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
 endif()
@@ -99,7 +102,9 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(Boost_DEBUG ON CACHE BOOL "boost-debug")
-set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
+if(USE_STATIC_BOOST)
+  set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
+endif()
 if(DEFINED ENV{BOOST_ROOT} OR DEFINED BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS ON)
 endif()
@@ -159,40 +164,6 @@ if(USE_OPENMP)
     include_directories(${OpenMP_CXX_INCLUDE_DIRS})
   endif()
 endif()
-
-if(EXISTS ${PROJECT_SOURCE_DIR}/version_string.hpp)
-  file(STRINGS "${PROJECT_SOURCE_DIR}/version_string.hpp" PROJECT_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
-  if(PROJECT_BUILD_SPECIFICATION)
-    string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${PROJECT_BUILD_SPECIFICATION})
-  else()
-    message(FATAL_ERROR "Data were not found for the required build specification.")
-  endif()
-  set(version_string ${PROJECT_SOURCE_DIR}/version_string.hpp)
-else()
-  ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
-  # include the output directory, where the version_string.hpp file is generated
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-  if(VERSION_STRING)
-    set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
-               "#ifndef VERSION_STRING\n"
-               "#define VERSION_STRING \"${VERSION_STRING}\"\n"
-               "#endif\n"
-    )
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp ${vstring} )
-    set(MY_VERSION ${VERSION_STRING})
-    set(version_string ${VERSION_STRING})
-  else()
-    include(version_string.cmake)
-    # now parse the git commit id:
-    string(REGEX REPLACE "([0-9]+).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-    string(REGEX REPLACE "[0-9]+.([0-9]+)-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-    string(REGEX REPLACE "[0-9]+.[0-9]+-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-    set(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-    set(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
-  endif()
-endif()
-
-message(STATUS "OpenCAMLib version: ${MY_VERSION}")
 
 # this defines the source-files
 set(OCL_SRC
@@ -336,7 +307,7 @@ if(BUILD_DOC)
       message(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
     endif()
 
-    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile COPYONLY)
+    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     set(DOXY_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
     execute_process(
