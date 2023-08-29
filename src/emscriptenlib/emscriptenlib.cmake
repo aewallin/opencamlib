@@ -25,9 +25,7 @@ add_executable(ocl
 	${PROJECT_SOURCE_DIR}/emscriptenlib/emscriptenlib.cpp
 )
 
-if(DEFINED VERSION_STRING)
-  target_compile_definitions(ocl PUBLIC VERSION_STRING=${VERSION_STRING})
-endif()
+target_compile_definitions(ocl PUBLIC VERSION_STRING="${VERSION_STRING}")
 
 target_link_libraries(
   ocl

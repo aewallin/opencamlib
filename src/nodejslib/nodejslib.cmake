@@ -46,9 +46,7 @@ target_link_libraries(
 		${CMAKE_JS_LIB}
 )
 
-if(DEFINED VERSION_STRING)
-  target_compile_definitions(ocl PUBLIC VERSION_STRING=${VERSION_STRING})
-endif()
+target_compile_definitions(ocl PUBLIC VERSION_STRING="${VERSION_STRING}")
 
 if(USE_OPENMP)
   target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)

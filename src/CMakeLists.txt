@@ -45,7 +45,7 @@ option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
 option(VERSION_STRING
-    "Set version string" "unknown-version")
+    "Set version string" OFF)
 
 option(USE_PY_3
     "Use Python V3" ON)
@@ -71,6 +71,10 @@ endif()
 
 if(NOT BUILD_DOC)
   message(STATUS " Note: will NOT build ocl documentation")
+endif()
+
+if (NOT VERSION_STRING)
+  set(VERSION_STRING "unknown-version")
 endif()
 
 # figure out the gcc version
