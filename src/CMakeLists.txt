@@ -318,7 +318,7 @@ if(BUILD_DOC)
       OUTPUT
       doc/latex/index.tex
       doc/html/index.html
-      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG}
+      COMMAND Doxygen::doxygen ${DOXY_CONFIG}
       COMMENT building LaTex & HTML docs
     )
 
