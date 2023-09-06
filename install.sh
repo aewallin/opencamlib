@@ -30,9 +30,9 @@ OPTIONS:
   --boost-architecture        Set the architecture for Boost (one of: x86, ia64, sparc, power, loongarch, mips, mips1, mips2, mips3, mips4, mips32, mips32r2, mips64, parisc, arm, riscv, s390x, arm+x86) (only valid when using --install-boost and --boost-with-python)
   --boost-python-version      Set the python version to look for when compiling Boost (only valid when using --install-boost and --boost-with-python)
 
-  --python-executable         Set a custom path (or name of) the Python executable (only valid when using --build-library python)
-  --python-prefix             Set the python prefix, this will be passed to CMake as Python3_ROOT_DIR, to make sure CMake is using the correct Python installation. (only valid when using --build-library python)
-  --python-pip-install        Uses "pip install ." to compile and install the Python library (only valid when using --build-library python)
+  --python-executable         Set a custom path (or name of) the Python executable
+  --python-prefix             Set the python prefix, this will be passed to CMake as Python3_ROOT_DIR, to make sure CMake is using the correct Python installation.
+  --python-pip-install        Uses "pip install ." to compile and install the Python library
 
   --platform                  Set the platform, for when auto-detection doesn't work (one of: windows, macos, linux)
 
@@ -84,7 +84,6 @@ positional_args=()
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --clean) OCL_CLEAN="1"; ;;
-        --build-library) OCL_BUILD_LIBRARY="$2"; shift ;;
         --build-type) OCL_BUILD_TYPE="$2"; shift ;;
         --platform) OCL_PLATFORM="$2"; shift ;;
         --install-system-deps) OCL_INSTALL_SYSTEM_DEPS="1"; ;;
@@ -125,9 +124,6 @@ if [[ ${#positional_args[@]} != 1 ]]; then
 fi
 
 OCL_BUILD_LIBRARY="${positional_args[0]}"
-if [[ "${OCL_BUILD_LIBRARY}" == "cxx" ]]; then
-    OCL_SUDO_INSTALL="1"
-fi
 
 verify_args() {
     if [ -n "${OCL_INSTALL_PREFIX}" ] && [ -z "${OCL_INSTALL}" ] && [ -z "${OCL_SUDO_INSTALL}" ]; then
@@ -448,13 +444,13 @@ build_nodejslib() {
     set -x
     determined_arch=$(node -p 'process.arch')
     install_prefix_fallback="${project_dir}/src/npmpackage/build/Release/${determined_os}-nodejs-${determined_arch}"
+    OCL_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}"
     src/nodejslib/node_modules/.bin/cmake-js \
         build \
         $(get_cmakejs_args) \
         --parallel "${num_procs}" \
         ${OCL_NODE_ARCH:+"--arch=${OCL_NODE_ARCH}"} \
         --CDBUILD_NODEJS_LIB="ON" \
-        --CDCMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         --config "${build_type}"
     set +x
     (cd "${build_dir}" && cmake_install)
@@ -501,11 +497,11 @@ build_emscriptenlib() {
     source "${project_dir}/../emsdk/emsdk_env.sh"
     set -x
     install_prefix_fallback="${project_dir}/src/npmpackage/build"
+    OCL_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}"
     emcmake cmake $(get_cmake_args) \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
-        -D USE_STATIC_BOOST="ON" \
-        -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}"
+        -D USE_STATIC_BOOST="ON"
     cd "${build_dir}"
     if [ "${determined_os}" = "windows" ]; then
         emmake make \
