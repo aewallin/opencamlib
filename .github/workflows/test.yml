@@ -118,7 +118,7 @@ jobs:
             --install-system-deps \
             --python-executable python \
             --test \
-            python || ls -lah /c/hostedtoolcache/windows/Python/3.10.11/x64/lib/site-packages/opencamlib
+            python || (cd /c/hostedtoolcache/windows/Python/3.10.11/x64/lib/site-packages/opencamlib && ls -lah && dumpbin /dependents ocl.pyd)
           fi
         env:
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}
