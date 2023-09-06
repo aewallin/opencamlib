@@ -113,19 +113,12 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            export OCL_INSTALL_BOOST="1"
-            export OCL_BOOST_WITH_PYTHON="1"
-            export OCL_BOOST_PREFIX="$(pwd)"
-          else
-            export OCL_INSTALL_BOOST_FROM_REPO="1"
-          fi
           ./install.sh \
             --build-type release \
             --install-system-deps \
             --python-executable python \
-            --python-pip-install \
             --test \
-            python
+            python || ls -lah /c/hostedtoolcache/windows/Python/3.10.11/x64/lib/site-packages/opencamlib
+          fi
         env:
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}

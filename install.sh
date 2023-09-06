@@ -32,8 +32,7 @@ OPTIONS:
 
   --python-executable         Set a custom path (or name of) the Python executable
   --python-prefix             Set the python prefix, this will be passed to CMake as Python3_ROOT_DIR, to make sure CMake is using the correct Python installation.
-  --python-pip-install        Uses "pip install ." to compile and install the Python library
-
+  
   --platform                  Set the platform, for when auto-detection doesn't work (one of: windows, macos, linux)
 
   --macos-architecture        Set the macOS architecture to compile for (one of: arm64, x86_64), useful for cross compiling.
@@ -105,7 +104,6 @@ while [[ "$#" -gt 0 ]]; do
         --cmake-generator-platform) OCL_GENERATOR_PLATFORM="$2"; shift ;;
         --python-executable) OCL_PYTHON_EXECUTABLE="$2"; shift ;;
         --python-prefix) OCL_PYTHON_PREFIX="$2"; shift ;;
-        --python-pip-install) OCL_PYTHON_PIP_INSTALL="1"; ;;
         --node-architecture) OCL_NODE_ARCH="$2"; shift ;;
         --test) OCL_TEST="1"; ;;
         --help|--*)
