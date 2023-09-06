@@ -13,9 +13,9 @@ Usage: ./install.sh [OPTIONS] [LIBRARY]
 LIBRARY: one of: cxx, nodejs, python, emscripten
 
 OPTIONS:
-  --clean                     Clean the build folder before compiling a library (only valid with --build-library)
-  --build-type                Choose the build type (one of: debug, release) (only valid with --build-library)
-  --disable-openmp            Disable OpenMP in the build. (only valid with --build-library)
+  --clean                     Clean the build folder before compiling a library
+  --build-type                Choose the build type (one of: debug, release)
+  --disable-openmp            Disable OpenMP in the build.
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
   --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
   --install-boost             Install Boost from source
@@ -43,7 +43,7 @@ OPTIONS:
   --cmake-generator-platform  Set the CMake Generator Platform option, useful for cross compiling on Windows with the Visual Studio generator.
   --node-architecture         Set the node.js architecture to compile for, useful for cross compiling.
 
-  --test                      Run a test script after compiling the library (only valid with --build-library)
+  --test                      Run a test script after compiling the library
 
   --help                      Shows this help page
 EOF

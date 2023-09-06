@@ -81,13 +81,13 @@ jobs:
           fi
 
           ./install.sh \
-            --build-library cxx \
             --build-type release \
             --install-ci-deps \
             --install-boost \
             --boost-prefix $(pwd) \
             --install \
-            --install-prefix $(pwd)/dist
+            --install-prefix $(pwd)/dist \
+            cxx
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os_short }}-cxx-${{ matrix.architecture }}
@@ -169,14 +169,14 @@ jobs:
           fi
 
           ./install.sh \
-            --build-library nodejs \
             --build-type release \
             --install-ci-deps \
             --install-boost \
             --boost-prefix $(pwd) \
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
-            --install-prefix $(pwd)/dist
+            --install-prefix $(pwd)/dist \
+            nodejs
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.os_short }}-nodejs-${{ matrix.node_architecture }}
@@ -330,13 +330,13 @@ jobs:
         shell: bash
         run: |
           ./install.sh \
-            --build-library emscripten \
             --build-type release \
             --install-ci-deps \
             --install-boost \
             --boost-prefix $(pwd) \
             --install \
-            --install-prefix $(pwd)/dist
+            --install-prefix $(pwd)/dist \
+            emscripten
       - uses: actions/upload-artifact@v3
         with:
           name: emscripten
