@@ -68,7 +68,7 @@ jobs:
           else
             version="$(date '+%Y.%-m.%-d').dev${GITHUB_RUN_NUMBER}"
           fi
-          echo "${version}" > src/git-tag.txt
+          echo "${version}" > VERSION
 
           if [ "${{ matrix.docker_image }}" != "" ]; then
             export OCL_DOCKER_IMAGE="${{ matrix.docker_image }}"
@@ -156,7 +156,7 @@ jobs:
           else
             version="$(date '+%Y.%-m.%-d')-dev.${GITHUB_RUN_NUMBER}"
           fi
-          echo "${version}" > src/git-tag.txt
+          echo "${version}" > VERSION
 
           if [ "${{ matrix.docker_image }}" != "" ]; then
             export OCL_DOCKER_IMAGE="${{ matrix.docker_image }}"
@@ -272,7 +272,7 @@ jobs:
             version="$(date '+%Y.%-m.%-d').dev${GITHUB_RUN_NUMBER}"
           fi
           sed -i.bak "s/^version = .*/version = \"${version}\"/g" pyproject.toml && rm pyproject.toml.bak
-          echo "${version}" > src/git-tag.txt
+          echo "${version}" > VERSION
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         if: matrix.architecture == 'aarch64'

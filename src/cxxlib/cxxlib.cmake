@@ -64,12 +64,9 @@ install(
 )
 
 if(APPLE)
-  target_compile_options(ocl PRIVATE -g)
-  # if(CMAKE_CXX_FLAGS MATCHES "-flto")
-    set(lto_object ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/ocl-lto.o)
-    set_property(TARGET ocl APPEND_STRING PROPERTY
-      LINK_FLAGS " -Wl,-object_path_lto -Wl,${lto_object}")
-  # endif()
+  # target_compile_options(ocl PRIVATE -g) # commented out because I think Debug and RelWithDebInfo should already use the -g flag
+  set_property(TARGET ocl APPEND_STRING PROPERTY
+    LINK_FLAGS "-Wl,-object_path_lto,ocl-lto.o -Wl,-cache_path_lto,${CMAKE_BINARY_DIR}/LTOCache")
   add_custom_command(TARGET ocl POST_BUILD
     COMMAND xcrun dsymutil $<TARGET_FILE:ocl>
     COMMAND xcrun strip -Sl $<TARGET_FILE:ocl>)

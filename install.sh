@@ -8,17 +8,17 @@ project_dir=$(pwd)
 
 print_help() {
 cat << EOF
-Usage: ./install.sh [OPTIONS]
+Usage: ./install.sh [OPTIONS] [LIBRARY]
 
-Options:
+LIBRARY: one of: cxx, nodejs, python, emscripten
+
+OPTIONS:
   --clean                     Clean the build folder before compiling a library (only valid with --build-library)
-  --build-library             Compile a library with CMake (one of: cxx, nodejs, python, emscripten)
   --build-type                Choose the build type (one of: debug, release) (only valid with --build-library)
   --disable-openmp            Disable OpenMP in the build. (only valid with --build-library)
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
   --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
   --install-boost             Install Boost from source
-  --install-boost-from-repo   Install Boost (pre-compiled) from platform specific package repositories
 
   --install                   Install the CMake install targets to the prefix (see: --install-prefix)
   --sudo-install              Install the CMake install targets to the prefix with root privileges (see: --install-prefix)
@@ -50,7 +50,37 @@ EOF
     exit 1
 }
 
+primary='\033[1;34m'
+secondary='\033[1;35m'
+nc='\033[0m'
+prettyprint() {
+    printf "${primary}${1}${nc}${secondary}${2}${nc}\n"
+}
+
+get_os() {
+    if [ "${OCL_PLATFORM}" ]; then
+        echo "${OCL_PLATFORM}"
+    else
+        if [[ "${OSTYPE}" =~ ^darwin.* ]]; then
+            echo "macos"
+        elif [[ "${OSTYPE}" =~ ^linux.* ]]; then
+            echo "linux"
+        else
+            echo "windows"
+        fi
+    fi
+}
+determined_os=$(get_os)
+prettyprint "Determined OS: " "${determined_os}"
+
+# defaults
+OCL_CLEAN="1"
+OCL_BUILD_TYPE="release"
+OCL_PLATFORM="${determined_os}"
+OCL_INSTALL="1"
+
 original_args="$*"
+positional_args=()
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --clean) OCL_CLEAN="1"; ;;
@@ -64,7 +94,6 @@ while [[ "$#" -gt 0 ]]; do
         --sudo-install) OCL_SUDO_INSTALL="1"; ;;
         --install-prefix) OCL_INSTALL_PREFIX="$2"; shift ;;
         --install-boost) OCL_INSTALL_BOOST="1"; ;;
-        --install-boost-from-repo) OCL_INSTALL_BOOST_FROM_REPO="1"; ;;
         --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
         --boost-address-model) OCL_BOOST_ADDRESS_MODEL="$2"; shift ;;
         --boost-architecture) OCL_BOOST_ARCHITECTURE="$2"; shift ;;
@@ -84,24 +113,24 @@ while [[ "$#" -gt 0 ]]; do
             echo $1
             print_help ;;
         *)
+            # Append unmatched arguments to the positional_args array
+            positional_args+=("$1")
     esac
     shift
 done
 
+if [[ ${#positional_args[@]} != 1 ]]; then
+    print_help
+    exit 0
+fi
+
+OCL_BUILD_LIBRARY="${positional_args[0]}"
+if [[ "${OCL_BUILD_LIBRARY}" == "cxx" ]]; then
+    OCL_SUDO_INSTALL="1"
+fi
+
 verify_args() {
-    if [ -n "${OCL_CLEAN}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
-        echo "Cannot set --clean without building a library. add the --build-library [lib] option or remove the --clean option"
-        exit 1
-    elif [ -n "${OCL_BUILD_TYPE}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
-        echo "Cannot set --build-type without building a library. add the --build-library [lib] option or remove the --build-type option"
-        exit 1
-    elif [ -n "${OCL_TEST}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
-        echo "Cannot set --test without building a library. add the --build-library [lib] option or remove the --test option"
-        exit 1
-    elif [ -n "${OCL_DISABLE_OPENMP}" ] && [ -z "${OCL_BUILD_LIBRARY}" ]; then
-        echo "Cannot set --disable-openmp without building a library. add the --build-library [lib] option or remove the --disable-openmp option"
-        exit 1
-    elif [ -n "${OCL_INSTALL_PREFIX}" ] && [ -z "${OCL_INSTALL}" ] && [ -z "${OCL_SUDO_INSTALL}" ]; then
+    if [ -n "${OCL_INSTALL_PREFIX}" ] && [ -z "${OCL_INSTALL}" ] && [ -z "${OCL_SUDO_INSTALL}" ]; then
         echo "WARN: Settings --install-prefix without setting --install or --sudo-install. add --install or --sudo-install option or remove the --install-prefix option"
     elif [ -n "${OCL_BOOST_WITH_PYTHON}" ] && [ -z "${OCL_INSTALL_BOOST}" ]; then
         echo "WARN: Setting --boost-with-python without setting --install-boost. add --install-boost or remove the --boost-with-python option"
@@ -125,30 +154,8 @@ else
     build_type_lower="release"
 fi
 build_dir="${project_dir}/build/${OCL_BUILD_LIBRARY}/${build_type_lower}"
-primary='\033[1;34m'
-secondary='\033[1;35m'
-nc='\033[0m'
-prettyprint() {
-    printf "${primary}${1}${nc}${secondary}${2}${nc}\n"
-}
 
 prettyprint "./install.sh " "$original_args"
-
-get_os() {
-    if [ "${OCL_PLATFORM}" ]; then
-        echo "${OCL_PLATFORM}"
-    else
-        if [[ "${OSTYPE}" =~ ^darwin.* ]]; then
-            echo "macos"
-        elif [[ "${OSTYPE}" =~ ^linux.* ]]; then
-            echo "linux"
-        else
-            echo "windows"
-        fi
-    fi
-}
-determined_os=$(get_os)
-prettyprint "Determined OS: " "${determined_os}"
 
 num_procs() {
     if [ "${determined_os}" = "macos" ]; then
@@ -170,46 +177,14 @@ fi
 install_system_dependencies() {
     if [ "${determined_os}" = "linux" ]; then
         sudo apt update
-        sudo apt install -y --no-install-recommends git cmake curl build-essential
-        if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            sudo apt install -y --no-install-recommends libboost-dev
-        fi
-        if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
-            if [ -z "${OCL_PYTHON_EXECUTABLE}" ]; then
-                sudo apt install -y --no-install-recommends python3
-            fi
-            if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-                sudo apt install -y --no-install-recommends libboost-python-dev
-            fi
-        fi
-        if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
-            sudo apt install -y --no-install-recommends nodejs npm
-        fi
+        sudo apt install -y --no-install-recommends git cmake curl build-essential libboost-dev python3 libboost-python-dev nodejs npm
     elif [ "${determined_os}" = "macos" ]; then
-        brew install libomp
-        if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            brew install boost
-        fi
-        if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
-            if [ -z "${OCL_PYTHON_EXECUTABLE}" ]; then
-                brew install python@3.11
-            fi
-            if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-                brew install boost-python3
-            fi
-        fi
-        if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
-            brew install node
-        fi
+        brew install libomp boost python boost-python3 node
     else
         # @todo installing git and cmake fails in github's CI
         choco install curl --no-progress
-        if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            choco install boost-msvc-14.3 --no-progress
-        fi
-        if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
-            choco install nodejs
-        fi
+        choco install boost-msvc-14.3 --no-progress
+        choco install nodejs --no-progress
     fi
 }
 
@@ -372,8 +347,7 @@ if [ -n "${OCL_MACOS_ARCHITECTURE}" ]; then
 fi
 
 dependencies_nodejslib () {
-    cd "${project_dir}/src/nodejslib"
-    npm install --silent
+    (cd "${project_dir}/src/nodejslib" && npm install --silent)
 }
 
 dependencies_emscriptenlib () {
@@ -387,6 +361,7 @@ dependencies_emscriptenlib () {
     cd ../emsdk
     ./emsdk install latest
     ./emsdk activate latest
+    cd "${project_dir}"
 }
 
 build_clean() {
@@ -395,49 +370,54 @@ build_clean() {
 
 cmake_build() {
     if [ "${determined_os}" = "windows" ]; then
-        ${OCL_SUDO_INSTALL:+"sudo"} cmake \
+        cmake \
             --build . \
             --config "${build_type}" \
             -j "${num_procs}"
     else
-        ${OCL_SUDO_INSTALL:+"sudo"} cmake \
+        cmake \
             --build . \
             -j "${num_procs}"
     fi
 }
 
 cmake_install() {
-    prettyprint "Installing"
-    if [ "${determined_os}" = "windows" ]; then
-        ${OCL_SUDO_INSTALL:+"sudo"} cmake \
-            --install . \
-            --config "${build_type}"
-    else
-        ${OCL_SUDO_INSTALL:+"sudo"} cmake \
-            --install .
+    if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
+        prettyprint "Installing"
+        if [ "${determined_os}" = "windows" ]; then
+            ${OCL_SUDO_INSTALL:+"sudo"} cmake \
+                --install . \
+                --config "${build_type}"
+        else
+            ${OCL_SUDO_INSTALL:+"sudo"} cmake \
+                --install .
+        fi
     fi
 }
 
+get_cmake_args() {
+    echo "-S . \
+    -B "${build_dir}" \
+    ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
+    ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
+    -D CMAKE_BUILD_TYPE="${build_type}" \
+    -D USE_STATIC_BOOST="ON" \
+    -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
+    -D VERSION_STRING="2023.09.6"
+    ${OCL_DISABLE_OPENMP:+"-D USE_OPENMP=OFF"} \
+    ${OCL_INSTALL_PREFIX:+"-D CMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
+    ${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX}"}"
+}
+
+get_cmakejs_args() {
+    echo "$(get_cmake_args)" | sed -e 's/-D /--CD/g' -e 's/-S/--directory/g' -e 's/-B/--out/g'
+}
+
 build_cxxlib() {
-    mkdir -p "${build_dir}"
-    cd "${build_dir}"
     set -x
-    cmake \
-        ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
-        ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
-        -D CMAKE_BUILD_TYPE="${build_type}" \
-        -D BUILD_CXX_LIB="ON" \
-        -D USE_STATIC_BOOST="ON" \
-        -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-        ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
-        ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-        ../../..
+    cmake $(get_cmake_args) -D BUILD_CXX_LIB="ON"
     set +x
-    cmake_build
-    if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
-        cmake_install
-    fi
+    (cd "${build_dir}" && cmake_build && cmake_install)
 }
 
 test_cxxlib() {
@@ -446,16 +426,16 @@ test_cxxlib() {
         prettyprint "Cleaning build directory..."
         rm -rf build || true
     fi
-    mkdir build || true
-    cd build
     set -x
     cmake \
+        -S . \
+        -B build \
         ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
         ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-        ..
+        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"}
     set +x
+    cd build
     cmake_build
     if [ "${determined_os}" = "windows" ]; then
         ./test_example.exe
@@ -465,30 +445,19 @@ test_cxxlib() {
 }
 
 build_nodejslib() {
-    mkdir -p "${build_dir}"
-    cd "${build_dir}"
     set -x
     determined_arch=$(node -p 'process.arch')
     install_prefix_fallback="${project_dir}/src/npmpackage/build/Release/${determined_os}-nodejs-${determined_arch}"
-    ../../../src/nodejslib/node_modules/.bin/cmake-js \
+    src/nodejslib/node_modules/.bin/cmake-js \
         build \
-        --directory "../../.." \
-        --out "." \
+        $(get_cmakejs_args) \
         --parallel "${num_procs}" \
         ${OCL_NODE_ARCH:+"--arch=${OCL_NODE_ARCH}"} \
-        ${OCL_GENERATOR:+"--generator=${OCL_GENERATOR}"} \
-        ${OCL_GENERATOR_PLATFORM:+"--platform=${OCL_GENERATOR_PLATFORM}"} \
         --CDBUILD_NODEJS_LIB="ON" \
-        --CDUSE_STATIC_BOOST="ON" \
-        --CDBoost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         --CDCMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
-        ${OCL_DISABLE_OPENMP:+"--CDUSE_OPENMP=OFF"} \
-        ${OCL_BOOST_PREFIX:+"--CDBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         --config "${build_type}"
     set +x
-    if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
-        cmake_install
-    fi
+    (cd "${build_dir}" && cmake_install)
 }
 
 test_nodejslib() {
@@ -514,45 +483,12 @@ get_python_executable() {
 
 build_pythonlib() {
     python_executable=$(get_python_executable)
-    if [ -n "${OCL_PYTHON_PIP_INSTALL}" ]; then
-        ${python_executable} -m pip install scikit-build-core distlib pyproject_metadata
-        # ${python_executable} -m venv env
-        # if [ "${determined_os}" = "windows" ]; then
-        #     source env/Scripts/activate
-        # else
-        #     source env/bin/activate
-        # fi
-        # forward cmake args
-        export CMAKE_ARGS="${OCL_GENERATOR:+"-G ${OCL_GENERATOR} "}\
+    export CMAKE_ARGS="${OCL_GENERATOR:+"-G ${OCL_GENERATOR} "}\
 ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM} "}\
 -D CMAKE_BUILD_TYPE=${build_type} \
--D Boost_ADDITIONAL_VERSIONS=${boost_additional_versions} \
 ${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}"
-        cd "${project_dir}"
-        ${python_executable} -m pip install --verbose .
-    else
-        mkdir -p "${build_dir}"
-        cd "${build_dir}"
-        set -x
-        install_prefix_fallback=$(${python_executable} -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')
-        cmake \
-            ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
-            ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
-            -D CMAKE_BUILD_TYPE="${build_type}" \
-            -D BUILD_PY_LIB="ON" \
-            -D USE_STATIC_BOOST="ON" \
-            -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-            -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
-            ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
-            ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
-            ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-            ../../..
-        set +x
-        cmake_build
-        if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
-            cmake_install
-        fi
-    fi
+    cd "${project_dir}"
+    ${python_executable} -m pip install --verbose .
 }
 
 test_pythonlib() {
@@ -562,21 +498,15 @@ test_pythonlib() {
 }
 
 build_emscriptenlib() {
-    mkdir -p "${build_dir}"
-    cd "${build_dir}"
     source "${project_dir}/../emsdk/emsdk_env.sh"
     set -x
     install_prefix_fallback="${project_dir}/src/npmpackage/build"
-    emcmake cmake \
-        -G "Unix Makefiles" \
-        -D CMAKE_BUILD_TYPE="${build_type}" \
+    emcmake cmake $(get_cmake_args) \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
         -D USE_STATIC_BOOST="ON" \
-        -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-        -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
-        ../../..
+        -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}"
+    cd "${build_dir}"
     if [ "${determined_os}" = "windows" ]; then
         emmake make \
             --config "${build_type}" \
@@ -625,7 +555,7 @@ if [ -n "${OCL_CLEAN}" ]; then
     build_clean
 fi
 
-if [ "${OCL_BUILD_LIBRARY}" = "cxx" ]; then
+if [[ "${OCL_BUILD_LIBRARY}" == "cxx" ]]; then
     prettyprint "Building C++ library"
     build_cxxlib
     if [ -n "${OCL_TEST}" ]; then
@@ -634,18 +564,7 @@ if [ "${OCL_BUILD_LIBRARY}" = "cxx" ]; then
     fi
 fi
 
-if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
-    prettyprint "Installing node.js dependencies"
-    dependencies_nodejslib
-    prettyprint "Building node.js library"
-    build_nodejslib
-    if [ -n "${OCL_TEST}" ]; then
-        prettyprint "Testing node.js library"
-        test_nodejslib
-    fi
-fi
-
-if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
+if [[ "${OCL_BUILD_LIBRARY}" == "python" ]]; then
     prettyprint "Building Python library " "${OCL_BOOST_PYTHON_VERSION}"
     build_pythonlib
     if [ -n "${OCL_TEST}" ]; then
@@ -654,7 +573,7 @@ if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
     fi
 fi
 
-if [ "${OCL_BUILD_LIBRARY}" = "emscripten" ]; then
+if [[ "${OCL_BUILD_LIBRARY}" == "emscripten" ]]; then
     prettyprint "Installing emscripten dependencies"
     dependencies_emscriptenlib
     prettyprint "Building emscripten library"
@@ -662,5 +581,16 @@ if [ "${OCL_BUILD_LIBRARY}" = "emscripten" ]; then
     if [ -n "${OCL_TEST}" ]; then
         prettyprint "Testing emscripten library"
         test_emscriptenlib
+    fi
+fi
+
+if [[ "${OCL_BUILD_LIBRARY}" == "nodejs" ]]; then
+    prettyprint "Installing node.js dependencies"
+    dependencies_nodejslib
+    prettyprint "Building node.js library"
+    build_nodejslib
+    if [ -n "${OCL_TEST}" ]; then
+        prettyprint "Testing node.js library"
+        test_nodejslib
     fi
 fi
