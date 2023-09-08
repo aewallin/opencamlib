@@ -116,7 +116,7 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-if [[ ${#positional_args[@]} != 1 ]]; then
+if [[ ${#positional_args[@]} != 1 ]] && [[ -z "${OCL_BUILD_LIBRARY}" ]]; then
     print_help
     exit 0
 fi
