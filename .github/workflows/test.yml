@@ -118,6 +118,6 @@ jobs:
             --install-system-deps \
             --python-executable python \
             --test \
-            python
+            python || (pip install delvewheel && cd /c/hostedtoolcache/windows/Python/3.10.11/x64/lib/site-packages/opencamlib && ls -lah && && delvewheel show opencamlib || delvewheel show ocl.pyd)
         env:
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}
