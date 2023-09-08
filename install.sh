@@ -17,18 +17,12 @@ OPTIONS:
   --build-type                Choose the build type (one of: debug, release)
   --disable-openmp            Disable OpenMP in the build.
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
-  --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
-  --install-boost             Install Boost from source
 
   --install                   Install the CMake install targets to the prefix (see: --install-prefix)
   --sudo-install              Install the CMake install targets to the prefix with root privileges (see: --install-prefix)
   --install-prefix            Set the install prefix location for CMake installs (only valid when using --install)
 
   --boost-prefix              Set a custom path where to look for Boost
-  --boost-with-python         Compile Boost.Python (only valid when using --install-boost)
-  --boost-address-model       Set the address model for Boost (one of: 32, 64) (only valid when using --install-boost and --boost-with-python)
-  --boost-architecture        Set the architecture for Boost (one of: x86, ia64, sparc, power, loongarch, mips, mips1, mips2, mips3, mips4, mips32, mips32r2, mips64, parisc, arm, riscv, s390x, arm+x86) (only valid when using --install-boost and --boost-with-python)
-  --boost-python-version      Set the python version to look for when compiling Boost (only valid when using --install-boost and --boost-with-python)
 
   --python-executable         Set a custom path (or name of) the Python executable
   --python-prefix             Set the python prefix, this will be passed to CMake as Python3_ROOT_DIR, to make sure CMake is using the correct Python installation.
@@ -86,24 +80,17 @@ while [[ "$#" -gt 0 ]]; do
         --build-type) OCL_BUILD_TYPE="$2"; shift ;;
         --platform) OCL_PLATFORM="$2"; shift ;;
         --install-system-deps) OCL_INSTALL_SYSTEM_DEPS="1"; ;;
-        --install-ci-deps) OCL_INSTALL_CI_DEPS="1"; ;;
         --disable-openmp) OCL_DISABLE_OPENMP="1"; ;;
         --install) OCL_INSTALL="1"; ;;
         --sudo-install) OCL_SUDO_INSTALL="1"; ;;
         --install-prefix) OCL_INSTALL_PREFIX="$2"; shift ;;
-        --install-boost) OCL_INSTALL_BOOST="1"; ;;
         --boost-prefix) OCL_BOOST_PREFIX="$2"; shift ;;
-        --boost-address-model) OCL_BOOST_ADDRESS_MODEL="$2"; shift ;;
-        --boost-architecture) OCL_BOOST_ARCHITECTURE="$2"; shift ;;
-        --boost-with-python) OCL_BOOST_WITH_PYTHON="1"; ;;
-        --boost-python-version) OCL_BOOST_PYTHON_VERSION="$2"; shift ;;
         --macos-architecture) OCL_MACOS_ARCHITECTURE="$2"; shift ;;
         --docker-image) OCL_DOCKER_IMAGE="$2"; shift ;;
         --docker-before-install) OCL_DOCKER_IMAGE_BEFORE_INSTALL="$2"; shift ;;
         --cmake-generator) OCL_GENERATOR="$2"; shift ;;
         --cmake-generator-platform) OCL_GENERATOR_PLATFORM="$2"; shift ;;
         --python-executable) OCL_PYTHON_EXECUTABLE="$2"; shift ;;
-        --python-prefix) OCL_PYTHON_PREFIX="$2"; shift ;;
         --node-architecture) OCL_NODE_ARCH="$2"; shift ;;
         --test) OCL_TEST="1"; ;;
         --help|--*)
@@ -121,24 +108,13 @@ if [[ ${#positional_args[@]} != 1 ]] && [[ -z "${OCL_BUILD_LIBRARY}" ]]; then
     exit 0
 fi
 
-OCL_BUILD_LIBRARY="${positional_args[0]}"
+if [[ ${#positional_args[@]} == 1 ]]; then
+    OCL_BUILD_LIBRARY="${positional_args[0]}"
+fi
 
-verify_args() {
-    if [ -n "${OCL_INSTALL_PREFIX}" ] && [ -z "${OCL_INSTALL}" ] && [ -z "${OCL_SUDO_INSTALL}" ]; then
-        echo "WARN: Settings --install-prefix without setting --install or --sudo-install. add --install or --sudo-install option or remove the --install-prefix option"
-    elif [ -n "${OCL_BOOST_WITH_PYTHON}" ] && [ -z "${OCL_INSTALL_BOOST}" ]; then
-        echo "WARN: Setting --boost-with-python without setting --install-boost. add --install-boost or remove the --boost-with-python option"
-    elif [ -n "${OCL_BOOST_WITH_PYTHON}" ] && [ -z "${OCL_BOOST_ARCHITECTURE}" ]; then
-        echo "WARN: Setting --boost-with-python without setting --boost-architecture. add --boost-architecture or remove the --boost-with-python option"
-    elif [ -n "${OCL_BOOST_ADDRESS_MODEL}" ] && [ -z "${OCL_INSTALL_BOOST}" ]; then
-        echo "WARN: Setting --boost-address-model without setting --install-boost. add --install-boost or remove the --boost-address-model option"
-    elif [ -n "${OCL_BOOST_ARCHITECTURE}" ] && [ -z "${OCL_INSTALL_BOOST}" ]; then
-        echo "WARN: Setting --boost-architecture without setting --install-boost. add --install-boost or remove the --boost-address-model option"
-    elif [ -n "${OCL_BOOST_PYTHON_VERSION}" ] && [ -z "${OCL_INSTALL_BOOST}" ]; then
-        echo "WARN: Setting --boost-python-version without setting --install-boost. add --install-boost or remove the --boost-python-version option"
-    fi
-}
-verify_args
+if [ -n "${OCL_INSTALL_PREFIX}" ] && [ -z "${OCL_INSTALL}" ] && [ -z "${OCL_SUDO_INSTALL}" ]; then
+    echo "WARN: Settings --install-prefix without setting --install or --sudo-install. add --install or --sudo-install option or remove the --install-prefix option"
+fi
 
 if [ "${OCL_BUILD_TYPE}" = "debug" ]; then
     build_type="Debug"
@@ -184,92 +160,6 @@ install_system_dependencies() {
 
 command_exists() {
     command -v "${1}" >/dev/null 2>&1;
-}
-
-download_boost() {
-    if [ ! -f "${TMPDIR:-"/tmp"}/boost.tar.gz" ]; then
-        prettyprint "Downloading boost.tar.gz"
-        curl "${boost_url}" --output "${TMPDIR:-"/tmp"}/boost.tar.gz" --silent --location
-    else
-        prettyprint "boost.tar.gz found, re-using..."
-    fi
-    prettyprint "Extracting boost.tar.gz..."
-    tar -zxf "${TMPDIR:-"/tmp"}/boost.tar.gz" -C .
-
-    prettyprint "Applying boost-python-3.11.patch"
-    git apply --ignore-space-change --ignore-whitespace --directory "boost_1_80_0/libs/python" "${project_dir}/.github/patches/boost-python-3.11.patch"
-}
-
-compile_boost_python() {
-    boost_variant="${build_type_lower}"
-    cd "${project_dir}/boost_1_80_0"
-    if [ -n "${OCL_BOOST_WITH_PYTHON}" ]; then
-        if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
-            python_version=$(${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))')
-            python_include_dir=$(${OCL_PYTHON_EXECUTABLE} -c 'from sysconfig import get_paths as gp; print(gp()["include"])')
-            if [ "${determined_os}" = "windows" ]; then
-                python_include_dir=$(cygpath -w "${python_include_dir}")
-            fi
-            echo "using python : ${python_version} : ${OCL_PYTHON_EXECUTABLE//\\/\\\\} : ${python_include_dir//\\/\\\\} ;" > user-config.jam
-        elif [ -n "${OCL_BOOST_PYTHON_VERSION}" ]; then
-            echo "using python : ${OCL_BOOST_PYTHON_VERSION} ;" > user-config.jam
-        else
-            echo "using python ;" > user-config.jam
-        fi
-        cat user-config.jam
-        prettyprint "Bootstrapping boost"
-        if [ "${determined_os}" = "windows" ]; then
-            ./bootstrap.bat
-        else
-            ./bootstrap.sh
-        fi
-        prettyprint "Compiling boost " "${OCL_BOOST_ADDRESS_MODEL:-"64"}-bit ${OCL_BOOST_ARCHITECTURE}"
-        ./b2 \
-            ${OCL_CLEAN:+"-a"} \
-            -j2 \
-            --layout="system" \
-            --with-python \
-            --user-config="user-config.jam" \
-            threading="multi" \
-            variant="${boost_variant}" \
-            link="static" \
-            cxxflags="-fPIC" \
-            address-model="${OCL_BOOST_ADDRESS_MODEL:-"64"}" \
-            ${OCL_BOOST_ARCHITECTURE:+"architecture=${OCL_BOOST_ARCHITECTURE}"} \
-            stage
-    fi
-}
-
-install_boost () {
-    cd "${project_dir}"
-    if [ -d boost_1_80_0 ]; then
-        # boost folder already exists, re-unsing
-        prettyprint "Boost already found, re-using..."
-    elif [ -f boost-precompiled.tar.gz ]; then
-        # boost-precompiled.tar.gz found, re-using
-        prettyprint "Found cached precompiled boost, installing..."
-        tar -zxf boost-precompiled.tar.gz -C .
-    elif [ -n "${OCL_BOOST_ARCHITECTURE}" ] && [ -n "${OCL_BOOST_WITH_PYTHON}" ]; then
-        # got enough information to try and download a pre-compiled boost with python
-        boost_precompiled_url="https://github.com/vespakoen/boost-python-precompiled/releases/download/1.80.0/boost-python-precompiled-${determined_os}-${OCL_BOOST_ARCHITECTURE}-${OCL_BOOST_ADDRESS_MODEL:-"64"}-bit.tar.gz"
-        if curl --output /dev/null --silent --head --fail "$boost_precompiled_url"; then
-            prettyprint "Downloading boost-precompiled.tar.gz for ${OCL_BOOST_ARCHITECTURE} ${OCL_BOOST_ADDRESS_MODEL:-"64"}-bit..."
-            curl "${boost_precompiled_url}" --output "${TMPDIR:-"/tmp"}/boost-precompiled.tar.gz" --silent --location
-            prettyprint "Extracting boost-precompiled.tar.gz..."
-            tar -zxf "${TMPDIR:-"/tmp"}/boost-precompiled.tar.gz" -C .
-        else
-            # precompiled boost python not available for given architecture and address model, installing from source
-            download_boost
-            if [ -n "${OCL_BOOST_WITH_PYTHON}" ]; then
-                compile_boost_python
-            fi
-        fi
-    else
-        download_boost
-        if [ -n "${OCL_BOOST_WITH_PYTHON}" ]; then
-            compile_boost_python
-        fi
-    fi
 }
 
 if [ -n "${OCL_DOCKER_IMAGE}" ]; then
@@ -358,7 +248,7 @@ get_cmake_args() {
     -D CMAKE_BUILD_TYPE="${build_type}" \
     -D USE_STATIC_BOOST="ON" \
     -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-    -D VERSION_STRING="2023.09.6"
+    -D VERSION_STRING="$(cat VERSION)" \
     ${OCL_DISABLE_OPENMP:+"-D USE_OPENMP=OFF"} \
     ${OCL_INSTALL_PREFIX:+"-D CMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
     ${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX}"}"
@@ -372,7 +262,11 @@ build_cxxlib() {
     set -x
     cmake $(get_cmake_args) -D BUILD_CXX_LIB="ON"
     set +x
-    (cd "${build_dir}" && cmake_build && cmake_install)
+    (cd "${build_dir}" && cmake_build)
+    if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
+        prettyprint "Installing"
+        (cd "${build_dir}" && cmake_install)
+    fi
 }
 
 test_cxxlib() {
@@ -412,7 +306,9 @@ build_nodejslib() {
         --CDBUILD_NODEJS_LIB="ON" \
         --config "${build_type}"
     set +x
-    (cd "${build_dir}" && cmake_install)
+    if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
+        (cd "${build_dir}" && cmake_install)
+    fi
 }
 
 test_nodejslib() {
@@ -457,9 +353,9 @@ build_emscriptenlib() {
     set -x
     install_prefix_fallback="${project_dir}/src/npmpackage/build"
     OCL_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}"
+    OCL_DISABLE_OPENMP="1"
     emcmake cmake $(get_cmake_args) \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
-        -D USE_OPENMP="OFF" \
         -D USE_STATIC_BOOST="ON"
     cd "${build_dir}"
     if [ "${determined_os}" = "windows" ]; then
@@ -493,11 +389,6 @@ test_emscriptenlib() {
 if [ -n "${OCL_INSTALL_SYSTEM_DEPS}" ]; then
     prettyprint "Installing system dependencies..."
     install_system_dependencies
-fi
-
-if [ -n "${OCL_INSTALL_BOOST}" ]; then
-    prettyprint "Installing Boost..."
-    install_boost
 fi
 
 if [ -n "${OCL_CLEAN}" ]; then

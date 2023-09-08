@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+set -e
+
+primary='\033[1;34m'
+secondary='\033[1;35m'
+nc='\033[0m'
+prettyprint() {
+    printf "${primary}${1}${nc}${secondary}${2}${nc}\n"
+}
+
 command_exists() {
     command -v "${1}" >/dev/null 2>&1;
 }
@@ -7,6 +16,17 @@ command_exists() {
 is_root() {
     [ "${EUID:-$(id -u)}" -eq 0 ];
 }
+
+get_os() {
+    if [[ "${OSTYPE}" =~ ^darwin.* ]]; then
+        echo "macos"
+    elif [[ "${OSTYPE}" =~ ^linux.* ]]; then
+        echo "linux"
+    else
+        echo "windows"
+    fi
+}
+determined_os=$(get_os)
 
 install_ci_dependencies() {
     if [ "${determined_os}" = "windows" ]; then
@@ -42,3 +62,5 @@ install_ci_dependencies() {
         mv "${libomp_prefix}" "${OPENMP_PREFIX_MACOS}"
     fi
 }
+
+install_ci_dependencies

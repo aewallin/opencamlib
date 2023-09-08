@@ -1,6 +1,6 @@
 [project]
 name = "opencamlib"
-version = "2023.09.6"
+version = "2023.9.6"
 description = "open source computer aided manufacturing algorithms library"
 readme = "README.rst"
 authors = [
@@ -44,7 +44,7 @@ wheel.packages = ["src/pythonlib/opencamlib"]
 BUILD_PY_LIB = "ON"
 Boost_ADDITIONAL_VERSIONS = "1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 BUILD_DOC = "OFF"
-VERSION_STRING="2022.12.18"
+VERSION_STRING="2023.9.6"
 
 [tool.cibuildwheel]
 build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*"]
@@ -53,15 +53,15 @@ skip = ["pp*", "*-musllinux*", "*-manylinux_i686"]
 [tool.cibuildwheel.windows]
 archs = ["AMD64", "x86", "ARM64"]
 before-all = "cd {package} && bash .github/scripts/ci_deps.sh"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
+before-build = "cd {package} && bash ./install_boost.sh --boost-with-python --python-executable python"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
 before-all = "cd {package} && bash .github/scripts/ci_deps.sh"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python && cp --recursive --no-clobber boost_1_80_0 /host/home/runner/work/opencamlib/opencamlib"
+before-build = "cd {package} && bash ./install_boost.sh --boost-with-python --python-executable python && cp --recursive --no-clobber boost_1_80_0 /host/home/runner/work/opencamlib/opencamlib"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
 before-all = "cd {package} && bash .github/scripts/ci_deps.sh"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
+before-build = "cd {package} && bash ./install_boost.sh --boost-with-python --python-executable python"
 repair-wheel-command = "python src/pythonlib/delocate-wheel.py --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"

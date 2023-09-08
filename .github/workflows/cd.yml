@@ -80,10 +80,10 @@ jobs:
             export OCL_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
           fi
 
+          .github/scripts/ci_deps.sh
+          ./install_boost.sh
           ./install.sh \
             --build-type release \
-            --install-ci-deps \
-            --install-boost \
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist \
@@ -168,10 +168,11 @@ jobs:
             export OCL_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
           fi
 
+          .github/scripts/ci_deps.sh
+          ./install_boost.sh
+          export OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
           ./install.sh \
             --build-type release \
-            --install-ci-deps \
-            --install-boost \
             --boost-prefix $(pwd) \
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
@@ -291,20 +292,23 @@ jobs:
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Visual Studio 17 2022"
             CMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
-          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM"
+            USE_STATIC_BOOST="ON"
+          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM USE_STATIC_BOOST"
           CIBW_ARCHS_MACOS: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_MACOS: >
             BOOST_ROOT="$(pwd)"
             OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
-          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS"
+            USE_STATIC_BOOST="ON"
+          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS USE_STATIC_BOOST"
           CIBW_ARCHS_LINUX: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_LINUX: >
             BOOST_ROOT="$(pwd)"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Unix Makefiles"
-          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR"
+            USE_STATIC_BOOST="ON"
+          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR USE_STATIC_BOOST"
       # - name: Compress Boost.Python
       #   shell: bash
       #   run: |
@@ -329,10 +333,10 @@ jobs:
       - name: emscripten
         shell: bash
         run: |
+          .github/scripts/ci_deps.sh
+          ./install_boost.sh
           ./install.sh \
             --build-type release \
-            --install-ci-deps \
-            --install-boost \
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist \
@@ -418,7 +422,7 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
-          repository_url: https://test.pypi.org/legacy/
+          repository-url: https://test.pypi.org/legacy/
       - name: Publish wheels to PyPI
         if: startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1

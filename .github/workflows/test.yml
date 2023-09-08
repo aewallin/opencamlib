@@ -38,10 +38,10 @@ jobs:
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             export OCL_SUDO_INSTALL="1"
           fi
+          .github/scripts/ci_deps.sh
+          ./install_boost.sh
           ./install.sh \
-            --install-ci-deps \
             --build-type release \
-            --install-boost \
             --boost-prefix $(pwd) \
             --install \
             --test \
@@ -74,11 +74,12 @@ jobs:
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             export OCL_SUDO_INSTALL="1"
           fi
+          .github/scripts/ci_deps.sh
+          ./install_boost.sh
+          export OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
           ./install.sh \
-            --install-ci-deps \
             --build-type release \
             --node-architecture x64 \
-            --install-boost \
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }} \
@@ -118,6 +119,6 @@ jobs:
             --install-system-deps \
             --python-executable python \
             --test \
-            python || (pip install delvewheel && cd /c/hostedtoolcache/windows/Python/3.10.11/x64/lib/site-packages/opencamlib && ls -lah && && delvewheel show opencamlib || delvewheel show ocl.pyd)
+            python
         env:
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}
