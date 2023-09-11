@@ -24,8 +24,13 @@ endforeach()
 
 set(CMAKE_CXX_STANDARD 14)
 
-if(WIN32)
-  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+if(MSVC)
+  if(USE_STANDALONE OR (DEFINED ENV{USE_STANDALONE} AND 
+      "$ENV{USE_STANDALONE}" IN_LIST TRUTHY_VALUES))
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+  else()
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+  endif()
 endif()
 
 # some options to set what is built:
@@ -168,7 +173,8 @@ if(USE_OPENMP)
       list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/libomp")
     endif()
   endif()
-  if(MSVC)
+  if(MSVC AND (USE_STANDALONE OR (DEFINED ENV{USE_STANDALONE} AND 
+      "$ENV{USE_STANDALONE}" IN_LIST TRUTHY_VALUES)))
     set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
     include(InstallRequiredSystemLibraries)
   endif()
