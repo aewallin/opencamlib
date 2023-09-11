@@ -45,7 +45,7 @@ option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
 option(USE_STANDALONE
-    "Copy dependencies (OpenMP) into install folder and compile statically" ON)
+    "Copy dependencies (OpenMP) into install folder and compile statically" OFF)
 
 option(VERSION_STRING
     "Set version string" OFF)
