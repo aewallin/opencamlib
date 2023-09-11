@@ -76,7 +76,6 @@ jobs:
           fi
           .github/scripts/ci_deps.sh
           ./install_boost.sh
-          export OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
           ./install.sh \
             --build-type release \
             --node-architecture x64 \
