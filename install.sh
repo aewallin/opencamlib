@@ -16,6 +16,7 @@ OPTIONS:
   --clean                     Clean the build folder before compiling a library
   --build-type                Choose the build type (one of: debug, release)
   --disable-openmp            Disable OpenMP in the build.
+  --standalone                Static linking and copying dependencies (OpenMP) into install destination
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
 
   --install                   Install the CMake install targets to the prefix (see: --install-prefix)
@@ -79,6 +80,7 @@ while [[ "$#" -gt 0 ]]; do
         --clean) OCL_CLEAN="1"; ;;
         --build-type) OCL_BUILD_TYPE="$2"; shift ;;
         --platform) OCL_PLATFORM="$2"; shift ;;
+        --standalone) OCL_STANDALONE="1"; ;;
         --install-system-deps) OCL_INSTALL_SYSTEM_DEPS="1"; ;;
         --disable-openmp) OCL_DISABLE_OPENMP="1"; ;;
         --install) OCL_INSTALL="1"; ;;
@@ -246,7 +248,7 @@ get_cmake_args() {
     ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
     ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
     -D CMAKE_BUILD_TYPE="${build_type}" \
-    -D USE_STATIC_BOOST="ON" \
+    ${OCL_STANDALONE:+"-D USE_STANDALONE=ON"} \
     -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
     -D VERSION_STRING="$(cat VERSION)" \
     ${OCL_DISABLE_OPENMP:+"-D USE_OPENMP=OFF"} \
@@ -356,7 +358,7 @@ build_emscriptenlib() {
     OCL_DISABLE_OPENMP="1"
     emcmake cmake $(get_cmake_args) \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
-        -D USE_STATIC_BOOST="ON"
+        -D USE_STANDALONE="ON"
     cd "${build_dir}"
     if [ "${determined_os}" = "windows" ]; then
         emmake make \

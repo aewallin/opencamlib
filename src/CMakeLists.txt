@@ -44,14 +44,14 @@ option(BUILD_DOC
 option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
+option(USE_STANDALONE
+    "Copy dependencies (OpenMP) into install folder and compile statically" ON)
+
 option(VERSION_STRING
     "Set version string" OFF)
 
 option(USE_PY_3
     "Use Python V3" ON)
-
-option(USE_STATIC_BOOST
-    "Use static boost" OFF)
 
 if(NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
@@ -108,9 +108,8 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(Boost_DEBUG ON CACHE BOOL "boost-debug")
 
 set(TRUTHY_VALUES "ON;YES;TRUE;1")
-if(USE_STATIC_BOOST OR 
-   (DEFINED ENV{USE_STATIC_BOOST} AND 
-    "$ENV{USE_STATIC_BOOST}" IN_LIST TRUTHY_VALUES))
+if(USE_STANDALONE OR (DEFINED ENV{USE_STANDALONE} AND 
+    "$ENV{USE_STANDALONE}" IN_LIST TRUTHY_VALUES))
   set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
 endif()
 if(DEFINED ENV{BOOST_ROOT} OR DEFINED BOOST_ROOT)

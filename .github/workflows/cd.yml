@@ -83,6 +83,7 @@ jobs:
           .github/scripts/ci_deps.sh
           ./install_boost.sh
           ./install.sh \
+            --standalone \
             --build-type release \
             --boost-prefix $(pwd) \
             --install \
@@ -174,6 +175,7 @@ jobs:
           ./install.sh \
             --build-type release \
             --boost-prefix $(pwd) \
+            --standalone \
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
             --install-prefix $(pwd)/dist \
@@ -292,23 +294,23 @@ jobs:
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Visual Studio 17 2022"
             CMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
-            USE_STATIC_BOOST="ON"
-          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM USE_STATIC_BOOST"
+            USE_STANDALONE="ON"
+          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM USE_STANDALONE"
           CIBW_ARCHS_MACOS: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_MACOS: >
             BOOST_ROOT="$(pwd)"
             OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
-            USE_STATIC_BOOST="ON"
-          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS USE_STATIC_BOOST"
+            USE_STANDALONE="ON"
+          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS USE_STANDALONE"
           CIBW_ARCHS_LINUX: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_LINUX: >
             BOOST_ROOT="$(pwd)"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Unix Makefiles"
-            USE_STATIC_BOOST="ON"
-          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR USE_STATIC_BOOST"
+            USE_STANDALONE="ON"
+          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR USE_STANDALONE"
       # - name: Compress Boost.Python
       #   shell: bash
       #   run: |
@@ -338,6 +340,7 @@ jobs:
           ./install.sh \
             --build-type release \
             --boost-prefix $(pwd) \
+            --standalone \
             --install \
             --install-prefix $(pwd)/dist \
             emscripten

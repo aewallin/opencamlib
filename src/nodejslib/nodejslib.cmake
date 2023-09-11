@@ -56,7 +56,12 @@ set_target_properties(ocl PROPERTIES PREFIX "" SUFFIX ".node")
 
 add_definitions(-DNAPI_VERSION=3)
 
-if(USE_OPENMP AND APPLE)
+set(TRUTHY_VALUES "ON;YES;TRUE;1")
+if(
+	(USE_STANDALONE OR (DEFINED ENV{USE_STANDALONE} AND  "$ENV{USE_STANDALONE}" IN_LIST TRUTHY_VALUES))
+	AND USE_OPENMP
+	AND APPLE 
+)
   # copy libomp into install directory
   install(
     FILES ${OpenMP_omp_LIBRARY}
