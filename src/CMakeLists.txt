@@ -25,12 +25,7 @@ endforeach()
 set(CMAKE_CXX_STANDARD 14)
 
 if(MSVC)
-  if(USE_STANDALONE OR (DEFINED ENV{USE_STANDALONE} AND 
-      "$ENV{USE_STANDALONE}" IN_LIST TRUTHY_VALUES))
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-  else()
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-  endif()
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
 endif()
 
 # some options to set what is built:
