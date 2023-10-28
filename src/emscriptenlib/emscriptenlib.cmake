@@ -25,6 +25,8 @@ add_executable(ocl
 	${PROJECT_SOURCE_DIR}/emscriptenlib/emscriptenlib.cpp
 )
 
+target_compile_definitions(ocl PUBLIC VERSION_STRING="${VERSION_STRING}")
+
 target_link_libraries(
   ocl
   ${Boost_LIBRARIES}

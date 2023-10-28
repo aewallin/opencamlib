@@ -1,6 +1,6 @@
 [project]
 name = "opencamlib"
-version = "2022.12.18"
+version = "2023.09.6"
 description = "open source computer aided manufacturing algorithms library"
 readme = "README.rst"
 authors = [
@@ -44,6 +44,7 @@ wheel.packages = ["src/pythonlib/opencamlib"]
 BUILD_PY_LIB = "ON"
 Boost_ADDITIONAL_VERSIONS = "1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 BUILD_DOC = "OFF"
+VERSION_STRING="2022.12.18"
 
 [tool.cibuildwheel]
 build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*"]

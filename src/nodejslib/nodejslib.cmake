@@ -45,6 +45,9 @@ target_link_libraries(
 		Boost::boost
 		${CMAKE_JS_LIB}
 )
+
+target_compile_definitions(ocl PUBLIC VERSION_STRING="${VERSION_STRING}")
+
 if(USE_OPENMP)
   target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
 endif()

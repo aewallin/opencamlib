@@ -183,6 +183,7 @@ Install
 - Visual Studio Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 - Git (https://git-scm.com/download/win)
 - CMake (https://git-scm.com/download/win)
+- Boost (https://www.boost.org/users/download/)
 
 By downloading the installers from the internet, or by using your package manager.
 
@@ -228,7 +229,7 @@ Now you can compile OpenCAMLib like this (make sure to replace the ``path/to/`` 
     mkdir build
     cd build
     emcmake cmake \
-      -D CMAKE_BUILD_TYPE="Release" \
+      -D CMAKE_BUILD_TYPE="RelWithDebInfo" \
       -D BUILD_EMSCRIPTEN_LIB="ON" \
       -D USE_OPENMP="OFF" \
       -D CMAKE_INSTALL_PREFIX="/path/to/opencamlib/src/npmpackage/build" \
@@ -262,10 +263,10 @@ Next, use cmake-js to compile the library:
       --directory ".." \
       --out "." \
       --parallel 4 \
-      --CD BUILD_NODEJS_LIB="ON" \
-      --CD USE_OPENMP="ON" \
-      --CD CMAKE_INSTALL_PREFIX="/path/to/opencamlib/build/Release/$(node --print 'process.platform')-nodejs-$(node --print 'process.arch')" \
-      --CD BOOST_ROOT="/path/to/boost" \
+      --CDBUILD_NODEJS_LIB="ON" \
+      --CDUSE_OPENMP="ON" \
+      --CDCMAKE_INSTALL_PREFIX="/path/to/opencamlib/build/Release/$(node --print 'process.platform')-nodejs-$(node --print 'process.arch')" \
+      --CDBOOST_ROOT="/path/to/boost" \
       --config "Release"
 
 ===================

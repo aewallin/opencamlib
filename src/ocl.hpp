@@ -23,6 +23,10 @@
 
 #include <string>
 
+#ifndef VERSION_STRING
+#define VERSION_STRING "unknown-version"
+#endif
+
 namespace ocl
 {
   int max_threads();

@@ -23,7 +23,6 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-#include "version_string.hpp"
 
 namespace ocl
 {

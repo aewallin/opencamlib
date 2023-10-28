@@ -25,6 +25,8 @@ MODULE
   pythonlib/ocl.cpp
 )
 
+target_compile_definitions(ocl PUBLIC VERSION_STRING="${VERSION_STRING}")
+
 target_link_libraries(
   ocl
 PRIVATE
