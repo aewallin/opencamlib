@@ -41,11 +41,17 @@ if(USE_OPENMP)
   target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-install(TARGETS ocl LIBRARY DESTINATION "opencamlib")
+execute_process(
+    COMMAND ${PYTHON_EXECUTABLE} -c "import site; print(site.getsitepackages()[-2])"
+    OUTPUT_VARIABLE PYTHON_ARCH_PACKAGES
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+install(TARGETS ocl LIBRARY DESTINATION "${PYTHON_ARCH_PACKAGES}/opencamlib")
 if(NOT SKBUILD)
   install(
     DIRECTORY pythonlib/opencamlib/
-    DESTINATION "opencamlib"
+    DESTINATION "${PYTHON_ARCH_PACKAGES}/opencamlib"
   )
 endif()
 
