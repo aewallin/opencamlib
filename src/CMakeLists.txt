@@ -336,7 +336,7 @@ if(BUILD_DOC)
       message(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
     endif()
 
-    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile COPYONLY)
+    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     set(DOXY_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
     execute_process(
