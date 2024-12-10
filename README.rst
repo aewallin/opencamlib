@@ -204,7 +204,7 @@ Make sure you have a compiler, git, cmake and Boost installed (or simply downloa
     make . # try make -j4 for a faster build if you have a multi-core machine
     make install .
 
-When boost is not in a standard location, you can add the ``-D BOOST_ROOT=/path/to/boost`` option to the cmake command.
+When boost is not in a standard location, you can add the ``-D Boost_DIR=/path/to/boost`` option to the cmake command.
 
 =======================
 Building for Emscripten
@@ -233,7 +233,7 @@ Now you can compile OpenCAMLib like this (make sure to replace the ``path/to/`` 
       -D BUILD_EMSCRIPTEN_LIB="ON" \
       -D USE_OPENMP="OFF" \
       -D CMAKE_INSTALL_PREFIX="/path/to/opencamlib/src/npmpackage/build" \
-      -D BOOST_ROOT="/path/to/boost" \
+      -D Boost_DIR="/path/to/boost" \
       ..
     emmake make # try emmake make -j4 for a faster build if you have a multi-core machine
 
@@ -266,7 +266,7 @@ Next, use cmake-js to compile the library:
       --CDBUILD_NODEJS_LIB="ON" \
       --CDUSE_OPENMP="ON" \
       --CDCMAKE_INSTALL_PREFIX="/path/to/opencamlib/build/Release/$(node --print 'process.platform')-nodejs-$(node --print 'process.arch')" \
-      --CDBOOST_ROOT="/path/to/boost" \
+      --CDBoost_DIR="/path/to/boost" \
       --config "Release"
 
 ===================
@@ -337,7 +337,7 @@ This happens a lot, here are some of the reasons why this happens:
 If you forgot to install boost, go ahead and download Boost from from their website: https://www.boost.org/users/download/ and extract it somewhere.
 Now, when compiling the C++ or node.js module, add the
 
-``-D BOOST_ROOT=/path/to/extracted/boost`` flag to the ``cmake ..`` command, or the.
+``-D Boost_DIR=/path/to/extracted/boost`` flag to the ``cmake ..`` command, or the.
 
 ``--boost-prefix /path/to/extracted/boost`` flag to the ``./install.sh`` command
 

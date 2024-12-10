@@ -400,7 +400,7 @@ get_cmake_args() {
     -D VERSION_STRING="2023.09.6"
     ${OCL_DISABLE_OPENMP:+"-D USE_OPENMP=OFF"} \
     ${OCL_INSTALL_PREFIX:+"-D CMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
-    ${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX}"}"
+    ${OCL_BOOST_PREFIX:+"-D Boost_DIR=${OCL_BOOST_PREFIX}"}"
 }
 
 get_cmakejs_args() {
@@ -427,7 +427,7 @@ test_cxxlib() {
         ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
         ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
         -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"}
+        ${OCL_BOOST_PREFIX:+"-DBoost_DIR=${OCL_BOOST_PREFIX}"}
     set +x
     cd build
     cmake_build
@@ -480,7 +480,7 @@ build_pythonlib() {
     export CMAKE_ARGS="${OCL_GENERATOR:+"-G ${OCL_GENERATOR} "}\
 ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM} "}\
 -D CMAKE_BUILD_TYPE=${build_type} \
-${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}"
+${OCL_BOOST_PREFIX:+"-D Boost_DIR=${OCL_BOOST_PREFIX} "}"
     cd "${project_dir}"
     ${python_executable} -m pip install --verbose .
 }
