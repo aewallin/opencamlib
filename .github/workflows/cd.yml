@@ -286,25 +286,25 @@ jobs:
           CIBW_BUILD_VERBOSITY: "1"
           CIBW_ARCHS_WINDOWS: "${{ matrix.cibuildwheel_architecture }}"
           CIBW_ENVIRONMENT_WINDOWS: >
-            Boost_DIR="$(cygpath -w $(pwd))"
+            BOOST_ROOT="$(cygpath -w $(pwd))"
             OCL_BOOST_ADDRESS_MODEL="${{ matrix.boost_address_model }}"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Visual Studio 17 2022"
             CMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
-          CIBW_ENVIRONMENT_PASS_WINDOWS: "Boost_DIR OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM"
+          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM"
           CIBW_ARCHS_MACOS: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_MACOS: >
-            Boost_DIR="$(pwd)"
+            BOOST_ROOT="$(pwd)"
             OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
-          CIBW_ENVIRONMENT_PASS_MACOS: "Boost_DIR OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS"
+          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS"
           CIBW_ARCHS_LINUX: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_LINUX: >
-            Boost_DIR="$(pwd)"
+            BOOST_ROOT="$(pwd)"
             OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Unix Makefiles"
-          CIBW_ENVIRONMENT_PASS_LINUX: "Boost_DIR OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR"
+          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR"
       # - name: Compress Boost.Python
       #   shell: bash
       #   run: |
