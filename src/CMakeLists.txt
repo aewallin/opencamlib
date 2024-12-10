@@ -9,6 +9,7 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0094 NEW) # for Python*_FIND_STRATEGY=LOCATION
   cmake_policy(SET CMP0042 NEW)
   cmake_policy(SET CMP0054 NEW)
+  cmake_policy(SET CMP0167 OLD)
 endif(COMMAND cmake_policy)
 
 # install targets in root of the build dir, using $<0:> generator expression to force it from not being overwritten
