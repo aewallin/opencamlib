@@ -4,7 +4,7 @@ if(Python3_FOUND)
   message(STATUS "Python libraries: " ${Python3_LIBRARIES})
   message(STATUS "Python executable: " ${Python3_EXECUTABLE})
 endif()
-find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
+find_package(Boost CONFIG COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
 
 # include dirs
 include_directories(${PROJECT_SOURCE_DIR}/cutters)
