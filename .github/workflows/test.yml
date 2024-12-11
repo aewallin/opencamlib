@@ -40,12 +40,12 @@ jobs:
           fi
           ./install.sh \
             --install-ci-deps \
-            --build-library cxx \
             --build-type release \
             --install-boost \
             --boost-prefix $(pwd) \
             --install \
-            --test
+            --test \
+            cxx
   nodejs:
     name: ${{ matrix.os_short }} node.js
     runs-on: ${{ matrix.os }}
@@ -76,14 +76,14 @@ jobs:
           fi
           ./install.sh \
             --install-ci-deps \
-            --build-library nodejs \
             --build-type release \
             --node-architecture x64 \
             --install-boost \
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }} \
-            --test
+            --test \
+            nodejs
   python:
     name: ${{ matrix.os_short }} python
     runs-on: ${{ matrix.os }}
@@ -113,19 +113,11 @@ jobs:
       - name: Install
         shell: bash
         run: |
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            export OCL_INSTALL_BOOST="1"
-            export OCL_BOOST_WITH_PYTHON="1"
-            export OCL_BOOST_PREFIX="$(pwd)"
-          else
-            export OCL_INSTALL_BOOST_FROM_REPO="1"
-          fi
           ./install.sh \
-            --build-library python \
             --build-type release \
             --install-system-deps \
             --python-executable python \
-            --python-pip-install \
-            --test
+            --test \
+            python || (pip install delvewheel && cd /c/hostedtoolcache/windows/Python/3.10.11/x64/lib/site-packages/opencamlib && ls -lah && delvewheel show opencamlib || delvewheel show ocl.pyd)
         env:
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}

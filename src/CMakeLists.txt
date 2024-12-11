@@ -9,6 +9,8 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0094 NEW) # for Python*_FIND_STRATEGY=LOCATION
   cmake_policy(SET CMP0042 NEW)
   cmake_policy(SET CMP0054 NEW)
+  cmake_policy(SET CMP0144 NEW)
+  cmake_policy(SET CMP0167 OLD)
 endif(COMMAND cmake_policy)
 
 # install targets in root of the build dir, using $<0:> generator expression to force it from not being overwritten
@@ -45,10 +47,13 @@ option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
 option(VERSION_STRING
-    "Set version string")
+    "Set version string" OFF)
 
 option(USE_PY_3
     "Use Python V3" ON)
+
+option(USE_STATIC_BOOST
+    "Use static boost" OFF)
 
 if(NOT BUILD_CXX_LIB)
   message(STATUS " Note: will NOT build pure c++ library")
@@ -68,6 +73,10 @@ endif()
 
 if(NOT BUILD_DOC)
   message(STATUS " Note: will NOT build ocl documentation")
+endif()
+
+if (NOT VERSION_STRING)
+  set(VERSION_STRING "unknown-version")
 endif()
 
 # figure out the gcc version
@@ -99,7 +108,9 @@ endif()
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 set(Boost_DEBUG ON CACHE BOOL "boost-debug")
-set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
+if(USE_STATIC_BOOST)
+  set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
+endif()
 if(DEFINED ENV{BOOST_ROOT} OR DEFINED BOOST_ROOT)
   set(Boost_NO_SYSTEM_PATHS ON)
 endif()
@@ -152,6 +163,10 @@ if(USE_OPENMP)
       list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/libomp")
     endif()
   endif()
+  if(MSVC)
+    set(CMAKE_INSTALL_OPENMP_LIBRARIES ON)
+    include(InstallRequiredSystemLibraries)
+  endif()
   find_package(OpenMP REQUIRED)
   if(OPENMP_FOUND)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
@@ -159,40 +174,6 @@ if(USE_OPENMP)
     include_directories(${OpenMP_CXX_INCLUDE_DIRS})
   endif()
 endif()
-
-if(EXISTS ${PROJECT_SOURCE_DIR}/version_string.hpp)
-  file(STRINGS "${PROJECT_SOURCE_DIR}/version_string.hpp" PROJECT_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
-  if(PROJECT_BUILD_SPECIFICATION)
-    string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${PROJECT_BUILD_SPECIFICATION})
-  else()
-    message(FATAL_ERROR "Data were not found for the required build specification.")
-  endif()
-  set(version_string ${PROJECT_SOURCE_DIR}/version_string.hpp)
-else()
-  ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
-  # include the output directory, where the version_string.hpp file is generated
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
-  if(VERSION_STRING)
-    set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
-               "#ifndef VERSION_STRING\n"
-               "#define VERSION_STRING \"${VERSION_STRING}\"\n"
-               "#endif\n"
-    )
-    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp ${vstring} )
-    set(MY_VERSION ${VERSION_STRING})
-    set(version_string ${VERSION_STRING})
-  else()
-    include(version_string.cmake)
-    # now parse the git commit id:
-    string(REGEX REPLACE "([0-9]+).*" "\\1" GIT_MAJOR_VERSION "${GIT_COMMIT_ID}" )
-    string(REGEX REPLACE "[0-9]+.([0-9]+)-.*" "\\1" GIT_MINOR_VERSION "${GIT_COMMIT_ID}" )
-    string(REGEX REPLACE "[0-9]+.[0-9]+-(.*)-.*" "\\1" GIT_PATCH_VERSION "${GIT_COMMIT_ID}" )
-    set(MY_VERSION "${GIT_MAJOR_VERSION}.${GIT_MINOR_VERSION}.${GIT_PATCH_VERSION}" CACHE STRING "name")
-    set(version_string ${CMAKE_CURRENT_BINARY_DIR}/version_string.hpp)
-  endif()
-endif()
-
-message(STATUS "OpenCAMLib version: ${MY_VERSION}")
 
 # this defines the source-files
 set(OCL_SRC
@@ -347,7 +328,7 @@ if(BUILD_DOC)
       OUTPUT
       doc/latex/index.tex
       doc/html/index.html
-      COMMAND ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG}
+      COMMAND Doxygen::doxygen ${DOXY_CONFIG}
       COMMENT building LaTex & HTML docs
     )
 
