@@ -1,10 +1,18 @@
-find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+set (CMAKE_FIND_FRAMEWORK NEVER)
+
+if (CMAKE_VERSION VERSION_LESS 3.18)
+  set(DEV_MODULE Development)
+else()
+  set(DEV_MODULE Development.Module)
+endif()
+
+find_package(Python3 COMPONENTS Interpreter ${DEV_MODULE} REQUIRED)
 if(Python3_FOUND)
   message(STATUS "Found Python: " ${Python3_VERSION})
   message(STATUS "Python libraries: " ${Python3_LIBRARIES})
   message(STATUS "Python executable: " ${Python3_EXECUTABLE})
 endif()
-find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
+find_package(Boost CONFIG COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
 
 # include dirs
 include_directories(${PROJECT_SOURCE_DIR}/cutters)
@@ -34,24 +42,17 @@ PRIVATE
   ocl_geo
   ocl_algo
   Boost::python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}
-  Python3::Module
 )
 
 if(USE_OPENMP)
   target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "import site; print(site.getsitepackages()[-2])"
-    OUTPUT_VARIABLE PYTHON_ARCH_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-install(TARGETS ocl LIBRARY DESTINATION "${PYTHON_ARCH_PACKAGES}/opencamlib")
+install(TARGETS ocl LIBRARY DESTINATION "${Python3_SITEARCH}/opencamlib")
 if(NOT SKBUILD)
   install(
     DIRECTORY pythonlib/opencamlib/
-    DESTINATION "${PYTHON_ARCH_PACKAGES}/opencamlib"
+    DESTINATION "${Python3_SITEARCH}/opencamlib"
   )
 endif()
 
@@ -62,7 +63,7 @@ if(USE_OPENMP AND APPLE)
   # copy libomp into install directory
   install(
     FILES ${OpenMP_CXX_LIBRARIES}
-    DESTINATION "opencamlib"
+    DESTINATION "${Python3_SITEARCH}/opencamlib"
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
   )
   # fix loader path
