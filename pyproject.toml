@@ -42,22 +42,22 @@ wheel.packages = ["src/pythonlib/opencamlib"]
 
 [tool.scikit-build.cmake.define]
 BUILD_PY_LIB = "ON"
-Boost_ADDITIONAL_VERSIONS = "1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
+Boost_ADDITIONAL_VERSIONS = "1.87.0;1.86.0;1.85.0;1.84.0;1.83.0;1.82.0;1.81.0;1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 BUILD_DOC = "OFF"
 
 [tool.cibuildwheel]
-build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*"]
+build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*", "cp312*", "cp313*"]
 skip = ["pp*", "*-musllinux*", "*-manylinux_i686"]
 
 [tool.cibuildwheel.windows]
-archs = ["AMD64", "x86", "ARM64"]
+archs = ["AMD64", "ARM64"]
 before-all = "cd {package} && bash ./install.sh --install-ci-deps"
 before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
 before-all = "cd {package} && bash ./install.sh --install-ci-deps"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python && cp --recursive --no-clobber boost_1_80_0 /host/home/runner/work/opencamlib/opencamlib"
+before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python && cp --recursive --no-clobber boost_1_87_0 /host/home/runner/work/opencamlib/opencamlib"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
