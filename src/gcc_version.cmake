@@ -3,9 +3,9 @@
 
 if(CMAKE_COMPILER_IS_GNUCXX)
 
-  exec_program(
-      ${CMAKE_CXX_COMPILER}
-      ARGS                    --version
+  execute_process(
+      COMMAND ${CMAKE_CXX_COMPILER}
+      ARGS --version
       OUTPUT_VARIABLE _compiler_output)
       string(REGEX REPLACE ".*([0-9]\\.[0-9]\\.[0-9]).*" "\\1"
       gcc_compiler_version 
