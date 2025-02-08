@@ -243,9 +243,9 @@ install_ci_dependencies() {
     elif [ "${determined_os}" = "macos" ]; then
         prettyprint "Downloading libomp for: " "${OCL_MACOS_ARCHITECTURE}"
         if [ "${OCL_MACOS_ARCHITECTURE}" = "arm64" ]; then
-            libomp_tar_loc=$(brew fetch --bottle-tag=arm64_big_sur libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
+            libomp_tar_loc=$(brew fetch --bottle-tag=arm64_sonoma libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
         else
-            libomp_tar_loc=$(brew fetch --bottle-tag=big_sur libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
+            libomp_tar_loc=$(brew fetch --bottle-tag=sonoma libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
         fi
         temp_dir="/tmp"
         cp "${libomp_tar_loc}" "${temp_dir}/libomp.tar.gz"
