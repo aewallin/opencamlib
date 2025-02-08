@@ -266,9 +266,6 @@ download_boost() {
     fi
     prettyprint "Extracting boost.tar.gz..."
     tar -zxf "${TMPDIR:-"/tmp"}/boost.tar.gz" -C .
-
-    prettyprint "Applying boost-python-3.11.patch"
-    git apply --ignore-space-change --ignore-whitespace --directory "${boost_dir}/libs/python" "${project_dir}/.github/patches/boost-python-3.11.patch"
 }
 
 compile_boost_python() {
