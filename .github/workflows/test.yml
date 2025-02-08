@@ -28,13 +28,20 @@ jobs:
             os_short: "macos"
           - os: "ubuntu-22.04"
             os_short: "linux"
-    # steps:
-    #   - uses: actions/checkout@v3
-    #     with:
-    #       fetch-depth: 0
-    #   - name: Install
-    #     shell: bash
-    #     run: |
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install
+        shell: bash
+        run: |
+          cmake -S . -B build -G Ninja
+          cmake --build build
+          cmake --install build
+          cd examples/cpp/test
+          cmake -S . -B build -G Ninja
+          cmake --build build
+          ./build/test_example
     #       # if [ "${{ matrix.os_short }}" == "linux" ]; then
     #       #   export OCL_SUDO_INSTALL="1"
     #       # fi
