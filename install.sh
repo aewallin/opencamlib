@@ -2,8 +2,9 @@
 
 set -e
 
-boost_url="https://boostorg.jfrog.io/artifactory/main/release/1.80.0/source/boost_1_80_0.tar.gz"
-boost_additional_versions="1.81.0;1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
+boost_url="https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz"
+boost_dir="boost_1_87_0"
+boost_additional_versions="1.87.0;1.86.0;1.85.0;1.84.0;1.83.0;1.82.0;1.81.0;1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 project_dir=$(pwd)
 
 print_help() {
@@ -242,9 +243,9 @@ install_ci_dependencies() {
     elif [ "${determined_os}" = "macos" ]; then
         prettyprint "Downloading libomp for: " "${OCL_MACOS_ARCHITECTURE}"
         if [ "${OCL_MACOS_ARCHITECTURE}" = "arm64" ]; then
-            libomp_tar_loc=$(brew fetch --bottle-tag=arm64_big_sur libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
+            libomp_tar_loc=$(brew fetch --bottle-tag=arm64_sonoma libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
         else
-            libomp_tar_loc=$(brew fetch --bottle-tag=big_sur libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
+            libomp_tar_loc=$(brew fetch --bottle-tag=sonoma libomp | grep -i downloaded | grep tar.gz | cut -f2 -d ":" | xargs echo)
         fi
         temp_dir="/tmp"
         cp "${libomp_tar_loc}" "${temp_dir}/libomp.tar.gz"
@@ -265,14 +266,11 @@ download_boost() {
     fi
     prettyprint "Extracting boost.tar.gz..."
     tar -zxf "${TMPDIR:-"/tmp"}/boost.tar.gz" -C .
-
-    prettyprint "Applying boost-python-3.11.patch"
-    git apply --ignore-space-change --ignore-whitespace --directory "boost_1_80_0/libs/python" "${project_dir}/.github/patches/boost-python-3.11.patch"
 }
 
 compile_boost_python() {
     boost_variant="${build_type_lower}"
-    cd "${project_dir}/boost_1_80_0"
+    cd "${project_dir}/${boost_dir}"
     if [ -n "${OCL_BOOST_WITH_PYTHON}" ]; then
         if [ -n "${OCL_PYTHON_EXECUTABLE}" ]; then
             python_version=$(${OCL_PYTHON_EXECUTABLE} -c 'import sys; version=sys.version_info[:3]; print("{0}.{1}".format(*version))')
@@ -312,8 +310,8 @@ compile_boost_python() {
 
 install_boost () {
     cd "${project_dir}"
-    if [ -d boost_1_80_0 ]; then
-        # boost folder already exists, re-unsing
+    if [ -d "${boost_dir}" ]; then
+        # boost folder already exists, re-using
         prettyprint "Boost already found, re-using..."
     elif [ -f boost-precompiled.tar.gz ]; then
         # boost-precompiled.tar.gz found, re-using

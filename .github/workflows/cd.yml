@@ -39,11 +39,11 @@ jobs:
             architecture: "x64"
             cmake_generator_platform: "x64"
           - os_arch: "macos-x86_64"
-            os: "macos-11.0"
+            os: "macos-15"
             os_short: "macos"
             architecture: "x86_64"
           - os_arch: "macos-arm64"
-            os: "macos-11.0"
+            os: "macos-15"
             os_short: "macos"
             architecture: "arm64"
           - os_arch: linux-x86_64
@@ -122,13 +122,13 @@ jobs:
             cmake_generator_platform: "x64"
             node_architecture: "x64"
           - os_arch: "macos-x86_64"
-            os: "macos-11.0"
+            os: "macos-15"
             os_short: "macos"
             architecture: "x86_64"
             node_architecture: "x64"
             macos_architecture: "x86_64"
           - os_arch: "macos-arm64"
-            os: "macos-11.0"
+            os: "macos-15"
             os_short: "macos"
             architecture: "arm64"
             node_architecture: "arm64"
@@ -204,6 +204,8 @@ jobs:
           "39",
           "310",
           "311",
+          "312",
+          "313",
         ]
         exclude:
           - os_arch: "macos-arm64"
@@ -234,12 +236,12 @@ jobs:
           #   cibuildwheel_architecture: "ARM64"
           #   cmake_generator_platform: "ARM64"
           - os_arch: "macos-x86_64"
-            os: "macos-11.0"
+            os: "macos-15"
             os_short: "macos"
             architecture: "x86_64"
             boost_architecture: "x86"
           - os_arch: "macos-arm64"
-            os: "macos-11.0"
+            os: "macos-15"
             os_short: "macos"
             architecture: "arm64"
             boost_architecture: "arm"

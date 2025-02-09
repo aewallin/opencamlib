@@ -3,6 +3,7 @@ if(Python3_FOUND)
   message(STATUS "Found Python: " ${Python3_VERSION})
   message(STATUS "Python libraries: " ${Python3_LIBRARIES})
   message(STATUS "Python executable: " ${Python3_EXECUTABLE})
+  message(STATUS "Python (arch-dependant) module destination: " ${Python3_SITEARCH})
 endif()
 find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
 
@@ -41,17 +42,11 @@ if(USE_OPENMP)
   target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-execute_process(
-    COMMAND ${PYTHON_EXECUTABLE} -c "import site; print(site.getsitepackages()[-2])"
-    OUTPUT_VARIABLE PYTHON_ARCH_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-install(TARGETS ocl LIBRARY DESTINATION "${PYTHON_ARCH_PACKAGES}/opencamlib")
+install(TARGETS ocl LIBRARY DESTINATION "${Python3_SITEARCH}/opencamlib")
 if(NOT SKBUILD)
   install(
     DIRECTORY pythonlib/opencamlib/
-    DESTINATION "${PYTHON_ARCH_PACKAGES}/opencamlib"
+    DESTINATION "${Python3_SITEARCH}/opencamlib"
   )
 endif()
 
