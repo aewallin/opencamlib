@@ -199,9 +199,9 @@ Make sure you have a compiler, git, cmake and Boost installed (or simply downloa
     cd opencamlib
     mkdir build
     cd build
-    cmake .. -D CXX_LIB="ON"
-    make . # try make -j4 for a faster build if you have a multi-core machine
-    make install .
+    cmake .. -D BUILD_CXX_LIB="ON"
+    cmake --build . # try make --parallel for a faster build if you have a multi-core machine
+    cmake --install .
 
 When boost is not in a standard location, you can add the ``-D BOOST_ROOT=/path/to/boost`` option to the cmake command.
 
