@@ -182,7 +182,7 @@ Install
 
 - Visual Studio Build Tools (https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 - Git (https://git-scm.com/download/win)
-- CMake (https://git-scm.com/download/win)
+- CMake (https://cmake.org/download/)
 
 By downloading the installers from the internet, or by using your package manager.
 
