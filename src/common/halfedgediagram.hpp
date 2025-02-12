@@ -194,7 +194,7 @@ VertexVector vertices()  {
     return vv;
 }
 
-/// return all vertices adjecent to given vertex
+/// return all vertices adjacent to given vertex
 VertexVector adjacent_vertices(  Vertex v) {
     VertexVector vv;
     BOOST_FOREACH( Edge edge, out_edges( v ) ) {

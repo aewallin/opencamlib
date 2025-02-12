@@ -45,7 +45,7 @@ class Triangle {
         Triangle(Point p1, Point p2, Point p3);   
         
         /// return true if Triangle is sliced by a z-plane at z=zcut
-        /// modify p1 and p2 so that they are intesections of the triangle edges
+        /// modify p1 and p2 so that they are intersections of the triangle edges
         /// and the plane. These vertices are used by CylCutter::edgePush()
         bool zslice_verts(Point& p1, Point& p2, double zcut) const;
         
