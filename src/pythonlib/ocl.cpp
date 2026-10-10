@@ -33,7 +33,8 @@ std::string ocl_docstring() { return "OpenCAMLib docstring"; }
 
 std::string ocl_version() { return VERSION_STRING; }
 
-int ocl_max_threads() {
+int ocl_max_threads()
+{
 #ifdef _OPENMP
     return omp_get_max_threads();
 #endif
@@ -45,14 +46,15 @@ void export_geometry(py::module_& m);
 void export_algo(py::module_& m);
 void export_dropcutter(py::module_& m);
 
-PYBIND11_MODULE(ocl, m) {
+PYBIND11_MODULE(ocl, m)
+{
     m.doc() = ocl_docstring();
 
     m.def("version", &ocl_version, "Return the version string of OpenCAMLib");
     m.def("max_threads", &ocl_max_threads, "Return the maximum number of available threads");
 
-    export_geometry(m);   // defined in ocl_geometry.cpp
-    export_cutters(m);    // defined in ocl_cutters.cpp
-    export_algo(m);       // defined in ocl_algo.cpp
+    export_geometry(m); // defined in ocl_geometry.cpp
+    export_cutters(m); // defined in ocl_cutters.cpp
+    export_algo(m); // defined in ocl_algo.cpp
     export_dropcutter(m); // defined in ocl_dropcutter.cpp
 }

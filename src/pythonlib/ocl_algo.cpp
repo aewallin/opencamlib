@@ -36,7 +36,8 @@
 namespace py = pybind11;
 using namespace ocl;
 
-void export_algo(py::module& m) {
+void export_algo(py::module& m)
+{
     m.def("eps", eps, "machine epsilon, see numeric.cpp");
     m.def("epsF", epsF);
     m.def("epsD", epsD);
@@ -60,7 +61,7 @@ void export_algo(py::module& m) {
         .def("appendFiber", &BatchPushCutter::appendFiber)
         .def("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
         .def("getCLPoints", &BatchPushCutter::getCLPoints)
-        .def("getFibers", &BatchPushCutter::getFibers, py::return_value_policy::reference_internal)
+        .def("getFibers", &BatchPushCutter::getFibers)
         .def("getCalls", &BatchPushCutter::getCalls)
         .def("getThreads", &BatchPushCutter::getThreads)
         .def("setBucketSize", &BatchPushCutter::setBucketSize)
@@ -115,8 +116,7 @@ void export_algo(py::module& m) {
         .def("getVertices", &weave::Weave::getVertices)
         .def("getVerticesByType", &weave::Weave::getVerticesByType)
         .def("getCLVertices", [](const weave::Weave& w) { return w.getVerticesByType(weave::CL); })
-        .def("getINTVertices",
-             [](const weave::Weave& w) { return w.getVerticesByType(weave::INT); })
+        .def("getINTVertices", [](const weave::Weave& w) { return w.getVerticesByType(weave::INT); })
         .def("numVertices", &weave::Weave::numVertices)
         .def("getEdges", &weave::Weave::getEdges)
         .def("getLoops", &weave::Weave::getLoops)

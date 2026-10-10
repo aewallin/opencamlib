@@ -318,6 +318,8 @@ class Ellipse:
 class EllipsePosition:
     s: float
     t: float
+    def __init__(self) -> None:
+        ...
     def __str__(self) -> str:
         ...
     def setDiangle(self, arg0: float) -> None:

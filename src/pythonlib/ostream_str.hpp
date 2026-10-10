@@ -15,7 +15,9 @@
 
 namespace ocl {
 
-template <typename T> std::string ostream_str(const T& obj) {
+template <typename T>
+std::string ostream_str(const T& obj)
+{
     std::ostringstream oss;
     oss << obj;
     return oss.str();

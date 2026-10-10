@@ -33,7 +33,8 @@
 namespace py = pybind11;
 using namespace ocl;
 
-void export_dropcutter(py::module_& m) {
+void export_dropcutter(py::module_& m)
+{
     py::class_<BatchDropCutter>(m, "BatchDropCutter")
         .def(py::init<>())
         .def("run", &BatchDropCutter::run, py::call_guard<py::gil_scoped_release>())

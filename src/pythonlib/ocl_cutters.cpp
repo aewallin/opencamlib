@@ -30,14 +30,15 @@
 namespace py = pybind11;
 using namespace ocl;
 
-void export_cutters(py::module& m) {
+void export_cutters(py::module& m)
+{
     py::class_<MillingCutter>(m, "MillingCutter")
         .def("vertexDrop", &MillingCutter::vertexDrop)
         .def("facetDrop", &MillingCutter::facetDrop)
         .def("edgeDrop", &MillingCutter::edgeDrop)
         .def("dropCutter", &MillingCutter::dropCutter)
         .def("pushCutter", &MillingCutter::pushCutter)
-        .def("offsetCutter", &MillingCutter::offsetCutter)
+        .def("offsetCutter", &MillingCutter::offsetCutter, py::return_value_policy::take_ownership)
         .def("__str__", &MillingCutter::str)
         .def("getRadius", &MillingCutter::getRadius)
         .def("getLength", &MillingCutter::getLength)
@@ -51,13 +52,17 @@ void export_cutters(py::module& m) {
         .def(py::init<double, double>())
         .def("dropCutterSTL", &BallCutter::dropCutterSTL, py::call_guard<py::gil_scoped_release>());
 
-    py::class_<BullCutter, MillingCutter>(m, "BullCutter").def(py::init<double, double, double>());
+    py::class_<BullCutter, MillingCutter>(m, "BullCutter")
+        .def(py::init<double, double, double>());
 
-    py::class_<ConeCutter, MillingCutter>(m, "ConeCutter").def(py::init<double, double, double>());
+    py::class_<ConeCutter, MillingCutter>(m, "ConeCutter")
+        .def(py::init<double, double, double>());
 
-    py::class_<CompCylCutter, MillingCutter>(m, "CompCylCutter").def(py::init<double, double>());
+    py::class_<CompCylCutter, MillingCutter>(m, "CompCylCutter")
+        .def(py::init<double, double>());
 
-    py::class_<CompBallCutter, MillingCutter>(m, "CompBallCutter").def(py::init<double, double>());
+    py::class_<CompBallCutter, MillingCutter>(m, "CompBallCutter")
+        .def(py::init<double, double>());
 
     py::class_<CylConeCutter, MillingCutter>(m, "CylConeCutter")
         .def(py::init<double, double, double>());

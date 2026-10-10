@@ -41,7 +41,8 @@
 namespace py = pybind11;
 using namespace ocl;
 
-void export_geometry(py::module_& m) {
+void export_geometry(py::module_& m)
+{
     auto pyTriangle = py::class_<Triangle>(m, "Triangle"); // for stub generation
 
     py::class_<Point>(m, "Point")
@@ -65,8 +66,7 @@ void export_geometry(py::module_& m) {
         .def("zRotate", &Point::zRotate)
         .def("isRight", &Point::isRight)
         .def("isInside", py::overload_cast<const Triangle&>(&Point::isInside, py::const_))
-        .def("isInside",
-             py::overload_cast<const Point&, const Point&>(&Point::isInside, py::const_))
+        .def("isInside", py::overload_cast<const Point&, const Point&>(&Point::isInside, py::const_))
         .def("xyDistance", &Point::xyDistance)
         .def("__str__", &ostream_str<Point>)
         .def_readwrite("x", &Point::x)
@@ -111,11 +111,9 @@ void export_geometry(py::module_& m) {
 
     pyTriangle
         .def(py::init<Point, Point, Point>())
-        .def("getPoints",
-             [](const Triangle& t) { return std::array<Point, 3>{t.p[0], t.p[1], t.p[2]}; })
+        .def("getPoints", [](const Triangle& t) { return std::array<Point, 3> { t.p[0], t.p[1], t.p[2] }; })
         .def("__str__", &ostream_str<Triangle>)
-        .def_property_readonly(
-            "p", [](const Triangle& t) { return std::array<Point, 3>{t.p[0], t.p[1], t.p[2]}; })
+        .def_property_readonly("p", [](const Triangle& t) { return std::array<Point, 3> { t.p[0], t.p[1], t.p[2] }; })
         .def_readonly("n", &Triangle::n);
 
     py::class_<Bbox>(m, "Bbox")
@@ -130,10 +128,10 @@ void export_geometry(py::module_& m) {
         .def("size", &STLSurf::size)
         .def("rotate", &STLSurf::rotate)
         .def("getBounds",
-             [](const STLSurf& stl) {
-                 return std::array<double, 6>{stl.bb.minpt.x, stl.bb.maxpt.x, stl.bb.minpt.y,
-                                              stl.bb.maxpt.y, stl.bb.minpt.z, stl.bb.maxpt.z};
-             })
+            [](const STLSurf& stl) {
+                return std::array<double, 6> { stl.bb.minpt.x, stl.bb.maxpt.x, stl.bb.minpt.y,
+                    stl.bb.maxpt.y, stl.bb.minpt.z, stl.bb.maxpt.z };
+            })
         .def("getTriangles", [](const STLSurf& stl) { return stl.tris; })
         .def_readonly("tris", &STLSurf::tris)
         .def_readonly("bb", &STLSurf::bb);
@@ -142,6 +140,7 @@ void export_geometry(py::module_& m) {
 
     // EllipsePosition and Ellipse for toroidal tool edge-tests
     py::class_<EllipsePosition>(m, "EllipsePosition")
+        .def(py::init<>())
         .def_readwrite("s", &EllipsePosition::s)
         .def_readwrite("t", &EllipsePosition::t)
         .def("setDiangle", &EllipsePosition::setDiangle)
@@ -176,32 +175,30 @@ void export_geometry(py::module_& m) {
         .def(py::init<>())
         .def(py::init<const Path&>())
         .def("getSpans",
-             [](const Path& p) {
-                 py::list spans;
-                 for (auto span : p.span_list) {
-                     if (span->type() == LineSpanType)
-                         spans.append(static_cast<LineSpan*>(span)->line);
-                     else if (span->type() == ArcSpanType)
-                         spans.append(static_cast<ArcSpan*>(span)->arc);
-                 }
-                 return spans;
-             })
+            [](const Path& p) {
+                py::list spans;
+                for (auto span : p.span_list) {
+                    if (span->type() == LineSpanType)
+                        spans.append(static_cast<LineSpan*>(span)->line);
+                    else if (span->type() == ArcSpanType)
+                        spans.append(static_cast<ArcSpan*>(span)->arc);
+                }
+                return spans;
+            })
         .def("getTypeSpanPairs",
-             [](const Path& p) {
-                 py::list slist;
-                 for (auto span : p.span_list) {
-                     if (span->type() == LineSpanType) {
-                         auto tuple =
-                             py::make_tuple(span->type(), static_cast<LineSpan*>(span)->line);
-                         slist.append(tuple);
-                     } else if (span->type() == ArcSpanType) {
-                         auto tuple =
-                             py::make_tuple(span->type(), static_cast<ArcSpan*>(span)->arc);
-                         slist.append(tuple);
-                     }
-                 }
-                 return slist;
-             })
+            [](const Path& p) {
+                py::list slist;
+                for (auto span : p.span_list) {
+                    if (span->type() == LineSpanType) {
+                        auto tuple = py::make_tuple(span->type(), static_cast<LineSpan*>(span)->line);
+                        slist.append(tuple);
+                    } else if (span->type() == ArcSpanType) {
+                        auto tuple = py::make_tuple(span->type(), static_cast<ArcSpan*>(span)->arc);
+                        slist.append(tuple);
+                    }
+                }
+                return slist;
+            })
         .def("append", py::overload_cast<const Line&>(&Path::append))
         .def("append", py::overload_cast<const Arc&>(&Path::append));
 
