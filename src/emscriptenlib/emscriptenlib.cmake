@@ -25,6 +25,9 @@ add_executable(ocl
 	${PROJECT_SOURCE_DIR}/emscriptenlib/emscriptenlib.cpp
 )
 
+# Current Embind headers require C++17 (std::optional, std::conjunction).
+target_compile_features(ocl PRIVATE cxx_std_17)
+
 target_link_libraries(
   ocl
   ${Boost_LIBRARIES}
