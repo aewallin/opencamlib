@@ -18,6 +18,7 @@
 
 // ALGO
 #include "operation.hpp"
+#include "batchpushcutter.hpp"
 #include "waterline.hpp"
 #include "adaptivepathdropcutter.hpp"
 #include "compositecutter.hpp"
@@ -201,11 +202,9 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         // .function("getOutput", &ZigZag::getOutput)
         .function("__str__", &ZigZag::str);
 
-    class_<BatchPushCutter>("BatchPushCutter")
+    class_<BatchPushCutter, emscripten::base<Operation>>("BatchPushCutter")
         .constructor()
-        // class_<BatchPushCutter, bases<BatchPushCutter>>("BatchPushCutter")
         .function("run", &BatchPushCutter::run)
-        .function("setThreads", &BatchPushCutter::setThreads)
         .function("appendFiber", &BatchPushCutter::appendFiber)
         // .function("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
         // .function("getFibers", &BatchPushCutter::getFibers)
