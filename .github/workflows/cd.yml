@@ -40,7 +40,7 @@ jobs:
             architecture: "x64"
             cmake_generator_platform: "x64"
           - os_arch: "macos-x86_64"
-            os: "macos-15"
+            os: "macos-15-intel"
             os_short: "macos"
             architecture: "x86_64"
           - os_arch: "macos-arm64"
@@ -48,17 +48,17 @@ jobs:
             os_short: "macos"
             architecture: "arm64"
           - os_arch: linux-x86_64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "x86_64"
             docker_image: "dockcross/linux-x64:latest"
           - os_arch: linux-aarch64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "aarch64"
             docker_image: "dockcross/linux-arm64-lts:latest"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: cxxlib
@@ -74,7 +74,7 @@ jobs:
           if [ "${{ matrix.docker_image }}" != "" ]; then
             export OCL_DOCKER_IMAGE="${{ matrix.docker_image }}"
           fi
-          if [ "${{ matrix.macos_architecture }}" != "" ]; then
+          if [ "${{ matrix.os_short }}" == "macos" ]; then
             export OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
           fi
           if [ "${{ matrix.cmake_generator_platform }}" != "" ]; then
@@ -89,7 +89,7 @@ jobs:
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os_short }}-cxx-${{ matrix.architecture }}
           path: |
@@ -123,7 +123,7 @@ jobs:
             cmake_generator_platform: "x64"
             node_architecture: "x64"
           - os_arch: "macos-x86_64"
-            os: "macos-15"
+            os: "macos-15-intel"
             os_short: "macos"
             architecture: "x86_64"
             node_architecture: "x64"
@@ -135,18 +135,19 @@ jobs:
             node_architecture: "arm64"
             macos_architecture: "arm64"
           - os_arch: linux-x86_64
+            # Build native Node binaries against the older glibc baseline.
             os: "ubuntu-22.04"
             os_short: "linux"
             architecture: "x86_64"
             node_architecture: "x64"
           - os_arch: linux-aarch64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "aarch64"
             node_architecture: "arm64"
             docker_image: ghcr.io/prebuild/linux-arm64-lts:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: nodejslib
@@ -178,7 +179,7 @@ jobs:
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
             --install-prefix $(pwd)/dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os_short }}-nodejs-${{ matrix.node_architecture }}
           path: |
@@ -228,7 +229,7 @@ jobs:
           #   cibuildwheel_architecture: "ARM64"
           #   cmake_generator_platform: "ARM64"
           - os_arch: "macos-x86_64"
-            os: "macos-15"
+            os: "macos-15-intel"
             os_short: "macos"
             architecture: "x86_64"
           - os_arch: "macos-arm64"
@@ -236,15 +237,15 @@ jobs:
             os_short: "macos"
             architecture: "arm64"
           - os_arch: linux-x86_64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "x86_64"
           - os_arch: linux-aarch64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "aarch64"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: prepare
@@ -258,7 +259,7 @@ jobs:
           sed -i.bak "s/^version = .*/version = \"${version}\"/g" pyproject.toml && rm pyproject.toml.bak
           echo "${version}" > src/git-tag.txt
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         if: matrix.architecture == 'aarch64'
         with:
           platforms: arm64
@@ -281,19 +282,19 @@ jobs:
           CIBW_ARCHS_LINUX: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_LINUX: >
             CMAKE_GENERATOR="Unix Makefiles"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os_short }}-python-${{ matrix.architecture }}-cp${{ matrix.python_version }}
           path: |
             ./wheelhouse/*.whl
   emscripten:
     name: emscripten
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: emscripten
@@ -307,7 +308,7 @@ jobs:
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: emscripten
           path: |
@@ -321,16 +322,16 @@ jobs:
       python,
       cxx
     ]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           path: prebuilds
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: '14.x'
       - name: Publish node.js library
@@ -371,12 +372,12 @@ jobs:
       python,
       cxx
     ]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           path: prebuilds
       - name: prepare
@@ -403,12 +404,12 @@ jobs:
       python,
       cxx
     ]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v6
         with:
           path: prebuilds
       - name: prepare

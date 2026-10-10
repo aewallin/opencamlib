@@ -15,22 +15,24 @@ on:
 
 jobs:
   cxx:
-    name: ${{ matrix.os_short }} c++
+    name: ${{ matrix.os_short }} c++${{ matrix.os == 'macos-15-intel' && ' x86_64' || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "macos-15", "ubuntu-22.04"]
+        os: ["windows-2022", "macos-15", "macos-15-intel", "ubuntu-24.04"]
         include:
           - os: "windows-2022"
             os_short: "windows"
           - os: "macos-15"
             os_short: "macos"
-          - os: "ubuntu-22.04"
+          - os: "macos-15-intel"
+            os_short: "macos"
+          - os: "ubuntu-24.04"
             os_short: "linux"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install
@@ -41,7 +43,7 @@ jobs:
           fi
           if [ "${{ matrix.os_short }}" == "macos" ]; then
             export OCL_SUDO_INSTALL="1"
-            export OCL_MACOS_ARCHITECTURE="$(arch)"
+            export OCL_MACOS_ARCHITECTURE="$(uname -m)"
           fi
           ./install.sh \
             --install-ci-deps \
@@ -52,22 +54,24 @@ jobs:
             --install \
             --test
   nodejs:
-    name: ${{ matrix.os_short }} node.js
+    name: ${{ matrix.os_short }} node.js${{ matrix.os == 'macos-15-intel' && ' x86_64' || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "macos-15", "ubuntu-22.04"]
+        os: ["windows-2022", "macos-15", "macos-15-intel", "ubuntu-24.04"]
         include:
           - os: "windows-2022"
             os_short: "windows"
           - os: "macos-15"
             os_short: "macos"
-          - os: "ubuntu-22.04"
+          - os: "macos-15-intel"
+            os_short: "macos"
+          - os: "ubuntu-24.04"
             os_short: "linux"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install
@@ -77,7 +81,7 @@ jobs:
             export OCL_SUDO_INSTALL="1"
           fi
           if [ "${{ matrix.os_short }}" == "macos" ]; then
-            export OCL_MACOS_ARCHITECTURE="$(arch)"
+            export OCL_MACOS_ARCHITECTURE="$(uname -m)"
           fi
           ./install.sh \
             --install-ci-deps \
@@ -89,27 +93,30 @@ jobs:
             --install \
             --test
   python:
-    name: ${{ matrix.os_short }} python
+    name: ${{ matrix.os_short }} python${{ matrix.os == 'macos-15-intel' && ' x86_64' || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "macos-15", "ubuntu-22.04"]
+        os: ["windows-2022", "macos-15", "macos-15-intel", "ubuntu-24.04"]
         include:
           - os: "windows-2022"
             os_short: "windows"
+          - os: "macos-15-intel"
+            os_short: "macos"
+            cmake_generator: "Unix Makefiles"
           - os: "macos-15"
             os_short: "macos"
             cmake_generator: "Unix Makefiles"
-          - os: "ubuntu-22.04"
+          - os: "ubuntu-24.04"
             os_short: "linux"
             cmake_generator: "Unix Makefiles"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
       - name: Install
