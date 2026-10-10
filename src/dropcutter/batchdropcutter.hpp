@@ -23,7 +23,10 @@
 #define BDC_H
 
 #include <iostream>
+#include <list>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "clpoint.hpp"
@@ -64,7 +67,8 @@ class BatchDropCutter : public Operation {
         /// Return triangles under cutter, Not for CAM-algorithms, more for visualization and demonstration.
         std::list<Triangle> getTrianglesUnderCutter(CLPoint& cl, MillingCutter& cutter)
         {
-            return *root->search_cutter_overlap(&cutter, &cl);
+            std::unique_ptr<std::list<Triangle>> triangles(root->search_cutter_overlap(&cutter, &cl));
+            return std::move(*triangles);
         }
 
     protected:

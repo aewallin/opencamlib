@@ -19,7 +19,7 @@ Options:
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
   --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
   --install-boost             Install Boost from source
-  --install-boost-from-repo   Install Boost (pre-compiled) from platform specific package repositories
+  --install-boost-from-repo   Install Boost headers from platform specific package repositories
 
   --install                   Install the CMake install targets to the prefix (see: --install-prefix)
   --sudo-install              Install the CMake install targets to the prefix with root privileges (see: --install-prefix)
@@ -193,8 +193,11 @@ install_system_dependencies() {
             sudo apt install -y --no-install-recommends libboost-dev
         fi
         if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
+            if [ -z "${OCL_PYTHON_PIP_INSTALL}" ]; then
+                sudo apt install -y --no-install-recommends pybind11-dev
+            fi
             if [ -z "${OCL_PYTHON_EXECUTABLE}" ]; then
-                sudo apt install -y --no-install-recommends python3
+                sudo apt install -y --no-install-recommends python3 python3-dev
             fi
         fi
         if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
@@ -206,6 +209,9 @@ install_system_dependencies() {
             brew install boost
         fi
         if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
+            if [ -z "${OCL_PYTHON_PIP_INSTALL}" ]; then
+                brew install pybind11
+            fi
             if [ -z "${OCL_PYTHON_EXECUTABLE}" ]; then
                 brew install python
             fi
@@ -217,7 +223,11 @@ install_system_dependencies() {
         # @todo installing git and cmake fails in github's CI
         choco install curl --no-progress
         if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            choco install boost-msvc-14.3 --no-progress
+            if ! command_exists nuget; then
+                choco install nuget.commandline -y --no-progress
+            fi
+            nuget install boost -ExcludeVersion -OutputDirectory "${project_dir}/build/deps" -NonInteractive
+            OCL_BOOST_PREFIX=$(cygpath -m "${project_dir}/build/deps/boost/lib/native/include")
         fi
         if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
             choco install nodejs
@@ -266,7 +276,10 @@ install_ci_dependencies() {
         cp "${libomp_tar_loc}" /tmp/libomp.tar.gz
         mkdir -p /tmp/libomp
         tar -xzf /tmp/libomp.tar.gz -C /tmp/libomp
-        export OPENMP_PREFIX_MACOS="$(find /tmp/libomp/libomp -mindepth 1 -maxdepth 1 -type d -print | head -n1)"
+        libomp_version_dir=$(find /tmp/libomp/libomp -mindepth 1 -maxdepth 1 -type d ! -name fixed -print | sort | tail -n1)
+        [ -n "${libomp_version_dir}" ] || invalid_argument "Failed to locate extracted libomp bottle"
+        ln -sfn "${libomp_version_dir}" /tmp/libomp/libomp/fixed
+        export OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
     fi
 }
 
@@ -275,6 +288,7 @@ install_boost() {
     if [ -d "${boost_dir}" ]; then
         # boost folder already exists, re-using
         prettyprint "Boost already found, re-using..."
+        return
     elif [ ! -f "${TMPDIR:-"/tmp"}/boost.tar.gz" ]; then
         prettyprint "Downloading boost.tar.gz"
         curl "${boost_url}" --output "${TMPDIR:-"/tmp"}/boost.tar.gz" --silent --location
@@ -463,29 +477,53 @@ build_pythonlib() {
     if ! command_exists "${python_executable}"; then
         invalid_argument "Cannot find Python executable: ${python_executable}"
     fi
+    python_path=$("${python_executable}" -c 'import sys; print(sys.executable)')
 
     if [ -n "${OCL_PYTHON_PIP_INSTALL}" ]; then
-        "${python_executable}" -m pip install scikit-build-core distlib pyproject_metadata
-        # forward cmake args
-        export CMAKE_ARGS="${OCL_GENERATOR:+"-G ${OCL_GENERATOR} "}\
-${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM} "}\
--D CMAKE_BUILD_TYPE=${build_type} \
--D Boost_ADDITIONAL_VERSIONS=${boost_additional_versions} \
-${OCL_BOOST_PREFIX:+"-D BOOST_ROOT=${OCL_BOOST_PREFIX} "}"
+        # PEP 517 installs pyproject.toml build dependencies. Arrays preserve spaces.
+        pip_options=(
+            "--config-settings=cmake.build-type=${build_type}"
+            "--config-settings=cmake.define.Python3_EXECUTABLE=${python_path}"
+            "--config-settings=cmake.define.Boost_ADDITIONAL_VERSIONS=${boost_additional_versions}"
+        )
+        if [ -n "${OCL_GENERATOR}" ]; then
+            pip_options+=("--config-settings=cmake.args=-G" "--config-settings=cmake.args=${OCL_GENERATOR}")
+        fi
+        if [ -n "${OCL_GENERATOR_PLATFORM}" ]; then
+            pip_options+=("--config-settings=cmake.args=-A" "--config-settings=cmake.args=${OCL_GENERATOR_PLATFORM}")
+        fi
+        if [ -n "${OCL_DISABLE_OPENMP}" ]; then
+            pip_options+=("--config-settings=cmake.define.USE_OPENMP=OFF")
+        fi
+        if [ -n "${OCL_PYTHON_PREFIX}" ]; then
+            pip_options+=("--config-settings=cmake.define.Python3_ROOT_DIR=${OCL_PYTHON_PREFIX}")
+        fi
+        if [ -n "${OCL_BOOST_PREFIX}" ]; then
+            pip_options+=("--config-settings=cmake.define.BOOST_ROOT=${OCL_BOOST_PREFIX}")
+        fi
         cd "${project_dir}"
-        "${python_executable}" -m pip install --verbose .
+        "${python_executable}" -m pip install --verbose "${pip_options[@]}" .
     else
         mkdir -p "${build_dir}"
         cd "${build_dir}"
+        install_prefix_fallback=$("${python_executable}" -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')
+        python_cmake_options=("-DPython3_EXECUTABLE=${python_path}")
+        if pybind11_cmake_dir=$("${python_executable}" -m pybind11 --cmakedir); then
+            python_cmake_options+=("-Dpybind11_DIR=${pybind11_cmake_dir}")
+        fi
+        if [ -n "${OCL_GENERATOR}" ]; then
+            python_cmake_options+=("-G" "${OCL_GENERATOR}")
+        fi
+        if [ -n "${OCL_GENERATOR_PLATFORM}" ]; then
+            python_cmake_options+=("-A" "${OCL_GENERATOR_PLATFORM}")
+        fi
         set -x
-        install_prefix_fallback=$(${python_executable} -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')
         cmake \
-            ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
-            ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
+            "${python_cmake_options[@]}" \
             -D CMAKE_BUILD_TYPE="${build_type}" \
             -D BUILD_PY_LIB="ON" \
             -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-            -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
+            -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-${install_prefix_fallback}}" \
             ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
             ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
             ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \

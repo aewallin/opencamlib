@@ -111,20 +111,15 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v4
         with:
-          python-version: "3.13"
+          python-version: "3.14"
       - name: Install
         shell: bash
         run: |
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            export OCL_INSTALL_BOOST="1"
-            export OCL_BOOST_PREFIX="$(pwd)"
-          else
-            export OCL_INSTALL_BOOST_FROM_REPO="1"
-          fi
           ./install.sh \
             --build-library python \
             --build-type release \
             --install-system-deps \
+            --install-boost-from-repo \
             --python-executable python \
             --python-pip-install \
             --test

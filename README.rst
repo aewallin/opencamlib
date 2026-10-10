@@ -150,7 +150,7 @@ To compile OpenCAMLib, you need:
 
 - **C++ compiler** (It should at least support C++ 14)
 - **Git** (This is used for cloning the repository, and the emscripten SDK)
-- **CMake** (At least version 3.15)
+- **CMake** (At least version 3.18)
 - **Boost** headers
 
 Building the Python bindings additionally requires Python development headers.
@@ -269,7 +269,7 @@ Next, use cmake-js to compile the library:
 Building for Python
 ===================
 
-The Python bindings use pybind11 and can be built and installed directly with pip.
+The Python bindings require Python 3.8 or later, use pybind11, and can be built and installed directly with pip.
 From the repository root, run:
 
 ..  code-block:: shell
@@ -277,7 +277,16 @@ From the repository root, run:
     python -m pip install .
 
 pip creates an isolated build environment and installs scikit-build-core and pybind11 as declared build dependencies.
-Boost is still required in the system.
+Boost headers are still required. To install them with the base dependencies:
+
+..  code-block:: shell
+
+    ./install.sh --build-library python --install-system-deps --install-boost-from-repo --python-pip-install
+
+``--install-system-deps`` alone does not install Boost; ``--install-boost-from-repo``
+only takes effect with it. Windows uses NuGet headers. Linux release wheels install
+``boost-devel`` inside the manylinux container. ``--install-boost`` remains the
+source archive option.
 
 The package includes a ``py.typed`` marker and type information for the ``opencamlib.ocl`` extension, so Python type checkers and editors can use the bundled API signatures.
 To generate the type stubs, you can use the ``pybind11-stubgen`` tool:
@@ -286,6 +295,9 @@ To generate the type stubs, you can use the ``pybind11-stubgen`` tool:
 
     python -m pip install pybind11-stubgen
     pybind11-stubgen opencamlib -o src/pythonlib/
+
+Python subclasses of ``MillingCutter`` no longer provide callbacks to native
+operations. Use the built-in cutters or implement new cutter behavior in C++.
 
 *****
 Usage
@@ -340,7 +352,7 @@ Cross Compiling
 ***************
 
 To compile OpenCAMLib for other architectures, we recommend the following strategies.
-Always make sure to compile Boost for the correct architecture as well!
+Boost headers can be shared across target architectures; no Boost compilation is needed.
 
 =====
 macOS
