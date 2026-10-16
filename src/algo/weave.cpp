@@ -115,7 +115,33 @@ std::string Weave::str()  {
     o << "  " << yfibers.size() << " Y-fibers\n";
     return o.str();
 }
-        
+
+std::vector<Point> Weave::getVertices() const {
+    std::vector<Point> vertices;
+    for (const auto& v : g.vertices()) {
+        vertices.emplace_back(g[v].position);
+    }
+    return vertices;
+}
+
+std::vector<Point> Weave::getVerticesByType(VertexType t) const {
+    std::vector<Point> vertices;
+    for (const auto& v : g.vertices()) {
+        if (g[v].type == t)
+            vertices.emplace_back(g[v].position);
+    }
+    return vertices;
+}
+
+std::vector<std::pair<Point, Point>> Weave::getEdges() const {
+    std::vector<std::pair<Point, Point>> edge_list;
+    for (const auto& e : g.edges()) {
+        Vertex v1 = g.source(e);
+        Vertex v2 = g.target(e);
+        edge_list.emplace_back(g[v1].position, g[v2].position);
+    }
+    return edge_list;
+}
 
 } // end weave namespace
 

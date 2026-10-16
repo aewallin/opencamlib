@@ -22,15 +22,11 @@
 #ifndef WATERLINE_H
 #define WATERLINE_H
 
-#include <iostream>
-#include <string>
 #include <vector>
 
-#include "point.hpp"
 #include "fiber.hpp"
-#include "batchpushcutter.hpp"
 #include "operation.hpp"
-
+#include "point.hpp"
 
 namespace ocl
 {
@@ -57,9 +53,9 @@ class Waterline : public Operation {
         virtual void run2();
         
         /// returns a vector< vector< Point > > with the resulting waterline loops
-        std::vector< std::vector<Point> >  getLoops() const {
-            return loops;
-        }
+        auto getLoops() const { return loops; }
+        auto getXFibers() const { return xfibers; }
+        auto getYFibers() const { return yfibers; }
         void reset();
         
     protected:

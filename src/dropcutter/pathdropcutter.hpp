@@ -62,7 +62,9 @@ class PathDropCutter : public Operation {
         /// run drop-cutter on the whole Path
         virtual void run();
 
-      protected:
+        std::vector<CLPoint> getCLPoints() { return clpoints; }
+
+    protected:
         /// the path to follow
         const Path* path;
         /// the lowest z height, used when no triangles are touched, default is minimumZ = 0.0

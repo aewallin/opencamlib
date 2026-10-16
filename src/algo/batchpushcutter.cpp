@@ -19,16 +19,14 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
-
-#ifdef _OPENMP  
-    #include <omp.h>
+#ifdef _OPENMP
+#include <omp.h>
 #endif
 
+#include "batchpushcutter.hpp"
 #include "millingcutter.hpp"
 #include "point.hpp"
 #include "triangle.hpp"
-#include "batchpushcutter.hpp"
 
 namespace ocl
 {
@@ -83,8 +81,8 @@ void BatchPushCutter::pushCutter1() {
     // std::cout << "BatchPushCutter1 with " << fibers->size() << 
     //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
-    BOOST_FOREACH(Fiber& f, *fibers) {
-        BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
+    for (Fiber& f : *fibers) {
+        for (const Triangle& t : surf->tris) { // test against all triangles in s
             Interval i;
             cutter->pushCutter(f,i,t);
             f.addInterval(i);
@@ -102,7 +100,7 @@ void BatchPushCutter::pushCutter2() {
     //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
     std::list<Triangle>* overlap_triangles;
-    BOOST_FOREACH(Fiber& f, *fibers) {
+    for (Fiber& f : *fibers) {
         CLPoint cl;
         if (x_direction) {
             cl.x = 0;
@@ -116,8 +114,8 @@ void BatchPushCutter::pushCutter2() {
             assert(0);
         }
         overlap_triangles = root->search_cutter_overlap(cutter, &cl);
-        assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf 
-        BOOST_FOREACH( const Triangle& t, *overlap_triangles) {
+        assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf
+        for (const Triangle& t : *overlap_triangles) {
             //if ( bb->overlaps( t.bb ) ) {
                 Interval i;
                 cutter->pushCutter(f,i,t);
@@ -185,6 +183,51 @@ void BatchPushCutter::pushCutter3() {
     this->nCalls = calls;
     // std::cout << "\nBatchPushCutter3 done." << std::endl;
     return;
+}
+
+std::vector<CLPoint> BatchPushCutter::getCLPoints() {
+    std::vector<CLPoint> clPoints;
+    clPoints.reserve(2 * fibers->size());
+
+    for (const auto& f : *fibers) {
+        for (const auto& i : f.ints) {
+            if (i.empty())
+                continue;
+
+            // Get lower point.
+            const Point lower = f.point(i.lower);
+            CLPoint p1(lower.x, lower.y, lower.z);
+            p1.cc = new CCPoint(i.lower_cc);
+            clPoints.emplace_back(p1);
+
+            // Get upper point.
+            const Point upper = f.point(i.upper);
+            CLPoint p2(upper.x, upper.y, upper.z);
+            p2.cc = new CCPoint(i.upper_cc);
+            clPoints.emplace_back(p2);
+        }
+    }
+    return clPoints;
+}
+
+std::list<Triangle> BatchPushCutter::getOverlapTriangles(Fiber& f) {
+    CLPoint cl;
+    if (x_direction) {
+        cl.x = 0;
+        cl.y = f.p1.y;
+        cl.z = f.p1.z;
+    } else if (y_direction) {
+        cl.x = f.p1.x;
+        cl.y = 0;
+        cl.z = f.p1.z;
+    } else {
+        assert(false);
+    }
+
+    std::list<Triangle>* overlapTriangles = root->search_cutter_overlap(cutter, &cl);
+    std::list<Triangle> ret = *overlapTriangles;
+    delete overlapTriangles;
+    return ret;
 }
 
 }// end namespace

@@ -23,16 +23,18 @@
 #define ZIGZAG_H
 
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <cassert>
 
+#include "bbox.hpp"
 #include "point.hpp"
 
 namespace ocl
 {
 
-/// zgizag 2D operation
+/// zigzag 2D operation
 class ZigZag {
     public:
         ZigZag() { }
@@ -86,6 +88,8 @@ class ZigZag {
             o << "ZigZag: pocket.size()=" << pocket.size() << std::endl;
             return o.str();
         }
+        auto getOutput() const { return out; }
+
     protected:
         /// the step over
         double stepOver;

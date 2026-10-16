@@ -5,7 +5,8 @@ if(Python3_FOUND)
   message(STATUS "Python executable: " ${Python3_EXECUTABLE})
   message(STATUS "Python (arch-dependant) module destination: " ${Python3_SITEARCH})
 endif()
-find_package(Boost COMPONENTS python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR} REQUIRED)
+
+find_package(pybind11 REQUIRED)
 
 # include dirs
 include_directories(${PROJECT_SOURCE_DIR}/cutters)
@@ -16,7 +17,7 @@ include_directories(${PROJECT_SOURCE_DIR}/common)
 include_directories(${PROJECT_SOURCE_DIR})
 
 # this makes the ocl Python module
-Python3_add_library(
+pybind11_add_module(
   ocl
 MODULE
   pythonlib/ocl_cutters.cpp
@@ -34,16 +35,16 @@ PRIVATE
   ocl_cutters
   ocl_geo
   ocl_algo
-  Boost::python${Python3_VERSION_MAJOR}${Python3_VERSION_MINOR}
-  Python3::Module
 )
 
 if(USE_OPENMP)
   target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
 endif()
 
-install(TARGETS ocl LIBRARY DESTINATION "${Python3_SITEARCH}/opencamlib")
-if(NOT SKBUILD)
+if(SKBUILD)
+  install(TARGETS ocl LIBRARY DESTINATION "opencamlib")
+else()
+  install(TARGETS ocl LIBRARY DESTINATION "${Python3_SITEARCH}/opencamlib")
   install(
     DIRECTORY pythonlib/opencamlib/
     DESTINATION "${Python3_SITEARCH}/opencamlib"

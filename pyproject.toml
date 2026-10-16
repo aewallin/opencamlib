@@ -10,18 +10,20 @@ maintainers = [
   { name = "Koen Schmeets", email="koen@schmeets.de" }
 ]
 license = { file = "COPYING" }
-requires-python = ">=3.6"
+requires-python = ">=3.8"
 keywords = ["cam", "cnc", "waterline", "axial tool projection"]
 
 classifiers = [
   "Development Status :: 4 - Beta",
   "Environment :: Console",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Scientific/Engineering :: Physics",
   "Intended Audience :: Manufacturing"
 ]
@@ -32,11 +34,11 @@ documentation = "https://github.com/aewallin/opencamlib"
 repository = "https://github.com/aewallin/opencamlib"
 
 [build-system]
-requires = ["scikit-build-core"]
+requires = ["scikit-build-core>=0.10", "pybind11>=3.0.0"]
 build-backend = "scikit_build_core.build"
 
 [tool.scikit-build]
-cmake.verbose = true
+build.verbose = true
 logging.level = "DEBUG"
 wheel.packages = ["src/pythonlib/opencamlib"]
 
@@ -46,21 +48,23 @@ Boost_ADDITIONAL_VERSIONS = "1.87.0;1.86.0;1.85.0;1.84.0;1.83.0;1.82.0;1.81.0;1.
 BUILD_DOC = "OFF"
 
 [tool.cibuildwheel]
-build = ["cp37*", "cp38*", "cp39*", "cp310*", "cp311*", "cp312*", "cp313*"]
+build = ["cp38*", "cp39*", "cp310*", "cp311*", "cp312*", "cp313*", "cp314-*"]
 skip = ["pp*", "*-musllinux*", "*-manylinux_i686"]
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64", "ARM64"]
-before-all = "cd {package} && bash ./install.sh --install-ci-deps"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
+before-all = 'cd "{package}" && bash ./install.sh --install-system-deps --install-boost-from-repo'
+environment = { CMAKE_PREFIX_PATH = '$(cygpath -m "$(pwd)/build/deps/boost/lib/native")' }
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
-before-all = "cd {package} && bash ./install.sh --install-ci-deps"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python && cp --recursive --no-clobber boost_1_87_0 /host/home/runner/work/opencamlib/opencamlib"
+manylinux-x86_64-image = "manylinux2014"
+manylinux-aarch64-image = "manylinux2014"
+# Runs inside each manylinux container, which already supplies the build tools.
+before-all = "yum install -y boost-devel"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
-before-all = "cd {package} && bash ./install.sh --install-ci-deps"
-before-build = "cd {package} && bash ./install.sh --install-boost --boost-with-python --python-executable python"
+before-all = 'brew install boost && cd "{package}" && bash ./install.sh --install-ci-deps'
+environment = { CMAKE_PREFIX_PATH = "$(brew --prefix)", OPENMP_PREFIX_MACOS = "/tmp/libomp/libomp/fixed" }
 repair-wheel-command = "python src/pythonlib/delocate-wheel.py --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"

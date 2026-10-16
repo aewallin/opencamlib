@@ -22,13 +22,10 @@
 #define CLSURFACE_H
 
 #include <vector>
-#include <list>
-#include <stack>
-#include <queue>
 
-#include "point.hpp"
 #include "halfedgediagram.hpp"
-
+#include "operation.hpp"
+#include "point.hpp"
 
 namespace ocl
 {
@@ -225,7 +222,7 @@ class CutterLocationSurface : public Operation {
             CLSEdgeVector f_edges = g.face_edges(f);
             assert( f_edges.size() == 4 );
             CLSVertex center = g.add_vertex();
-            BOOST_FOREACH( CLSEdge e, f_edges ) {
+            for (CLSEdge e : f_edges) {
                 CLSVertex src = g.source(e);
                 CLSVertex trg = g.target(e);
                 // new vertex at mid-point of each edge
@@ -238,7 +235,7 @@ class CutterLocationSurface : public Operation {
             // now loop through edges again:
             f_edges = g.face_edges(f);
             assert( f_edges.size() == 8 );
-            // BOOST_FOREACH( CLSEdge e, f_edges ) {
+            // for (CLSEdge e : f_edges) {
             //     std::cout << e << "\n";
             // }
         }
@@ -250,31 +247,31 @@ class CutterLocationSurface : public Operation {
         }
         
     // PYTHON
-        boost::python::list getVertices()  {
-            boost::python::list plist;
-            BOOST_FOREACH( CLSVertex v, g.vertices() ) {
-                plist.append( g[v].position );
+        std::vector<Point> getVertices()
+        {
+            std::vector<Point> vertices;
+            for (CLSVertex v : g.vertices()) {
+                vertices.push_back(g[v].position);
             }
-            return plist;
+            return vertices;
         }
-        
-        boost::python::list getEdges()  {
-            boost::python::list edge_list;
-            BOOST_FOREACH( CLSEdge edge, g.edges() ) { // loop through each edge
-                    boost::python::list point_list; // the endpoints of each edge
-                    CLSVertex v1 = g.source( edge );
-                    CLSVertex v2 = g.target( edge );
-                    point_list.append( g[v1].position );
-                    point_list.append( g[v2].position );
-                    edge_list.append(point_list);
+
+        std::vector<std::pair<Point, Point>> getEdges()
+        {
+            std::vector<std::pair<Point, Point>> edges;
+            for (CLSEdge edge : g.edges()) {
+                CLSVertex v1 = g.source(edge);
+                CLSVertex v2 = g.target(edge);
+                edges.emplace_back(std::make_pair(g[v1].position, g[v2].position));
             }
-            return edge_list;
+            return edges;
         }
-        
+
         /// string repr
         std::string str() const {
             std::ostringstream o;
-            o << "CutterLocationSurface (nVerts="<< g.num_vertices() << " , nEdges="<< g.num_edges() <<"\n";
+            o << "CutterLocationSurface (nVerts=" << g.num_vertices()
+              << " , nEdges=" << g.num_edges() << "\n";
             return o.str();
         }
 

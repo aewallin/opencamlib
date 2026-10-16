@@ -171,17 +171,13 @@ Face add_face() {
         
 
 /// return the target vertex of the given edge
-Vertex target( Edge e ) { 
-    return boost::target( e, g);
-}
+Vertex target(Edge e) const { return boost::target(e, g); }
 
 /// return the source vertex of the given edge
-Vertex source( Edge e )  { 
-    return boost::source( e, g); 
-}
+Vertex source(Edge e) const { return boost::source(e, g); }
 
 /// return all vertices in a vector of vertex descriptors
-VertexVector vertices()  {
+VertexVector vertices() const {
     typedef typename boost::graph_traits< BGLGraph >::vertex_descriptor  HEVertex;
     typedef std::vector<HEVertex> VertexVector;
     typedef typename boost::graph_traits< BGLGraph >::vertex_iterator    HEVertexItr;
@@ -256,7 +252,7 @@ EdgeVector out_edges( Vertex v) {
 }
 
 /// return all edges
-EdgeVector  edges() {
+EdgeVector edges() const {
     typedef typename boost::graph_traits< BGLGraph >::edge_iterator      HEEdgeItr; 
     EdgeVector ev;
     HEEdgeItr it, it_end;

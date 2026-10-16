@@ -1,39 +1,37 @@
 /*  $Id$
- * 
+ *
  *  Copyright (c) 2010-2011 Anders Wallin (anders.e.e.wallin "at" gmail.com).
- *  
- *  This file is part of OpenCAMlib 
+ *
+ *  This file is part of OpenCAMlib
  *  (see https://github.com/aewallin/opencamlib).
- *  
+ *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser General Public License as published by
  *  the Free Software Foundation, either version 2.1 of the License, or
  *  (at your option) any later version.
- *  
+ *
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU Lesser General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 #ifndef WEAVE_HPP
 #define WEAVE_HPP
 
 #include <vector>
 
-
 #include "fiber.hpp"
 #include "weave_typedef.hpp"
-#include "halfedgediagram.hpp"
 
 namespace ocl {
 
 namespace weave {
 
-// Abstract base-class for weave-implementations. build() must be implemented in sub-class!
-class Weave {
+    // Abstract base-class for weave-implementations. build() must be implemented in sub-class!
+    class Weave {
     public:
         Weave() {}
         virtual ~Weave() {}
@@ -46,18 +44,23 @@ class Weave {
         /// run planar_face_traversal to get the waterline loops
         void face_traverse();
         /// return list of loops
-        std::vector< std::vector<Point> > getLoops() const;
+        std::vector<std::vector<Point>> getLoops() const;
         /// string representation
-        std::string str() ;
-        void printGraph() ;
-        
-    protected:       
-        WeaveGraph g;                             ///< the weave-graph
-        std::vector< std::vector<Vertex> > loops; ///< output: list of loops in this weave
-        std::vector<Fiber> xfibers;               ///< the X-fibers
-        std::vector<Fiber> yfibers;               ///< the Y-fibers
-        std::set<Vertex> clVertexSet;             ///< set of CL-points
-};
+        std::string str();
+        void printGraph();
+
+        int numVertices() const { return g.num_vertices(); }
+        std::vector<Point> getVertices() const;
+        std::vector<Point> getVerticesByType(VertexType t) const;
+        std::vector<std::pair<Point, Point>> getEdges() const;
+
+    protected:
+        WeaveGraph g;                           ///< the weave-graph
+        std::vector<std::vector<Vertex>> loops; ///< output: list of loops in this weave
+        std::vector<Fiber> xfibers;             ///< the X-fibers
+        std::vector<Fiber> yfibers;             ///< the Y-fibers
+        std::set<Vertex> clVertexSet;           ///< set of CL-points
+    };
 
 } // end weave namespace
 

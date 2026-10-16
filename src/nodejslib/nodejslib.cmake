@@ -56,12 +56,13 @@ add_definitions(-DNAPI_VERSION=3)
 if(USE_OPENMP AND APPLE)
   # copy libomp into install directory
   install(
-    FILES ${OpenMP_omp_LIBRARY}
+    FILES ${OpenMP_CXX_LIBRARIES}
     DESTINATION "."
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
   )
   # fix loader path
   add_custom_command(TARGET ocl POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${OpenMP_CXX_LIBRARIES} $<TARGET_FILE_DIR:ocl>
     COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change `otool -L $<TARGET_FILE:ocl> | grep libomp | cut -d ' ' -f1 | xargs echo` "@loader_path/libomp.dylib" $<TARGET_FILE:ocl>
   )
 endif()

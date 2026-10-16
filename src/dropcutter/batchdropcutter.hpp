@@ -23,7 +23,10 @@
 #define BDC_H
 
 #include <iostream>
+#include <list>
+#include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "clpoint.hpp"
@@ -57,10 +60,17 @@ class BatchDropCutter : public Operation {
         void run() {this->dropCutter5();};
     // getters and setters
         /// return a vector of CLPoints, the result of this operation
-        std::vector<CLPoint> getCLPoints() {return *clpoints;}
-		/// clears the vector of CLPoints
-		void clearCLPoints() {clpoints->clear();}
-        
+        std::vector<CLPoint> getCLPoints() { return *clpoints; }
+        /// clears the vector of CLPoints
+        void clearCLPoints() { clpoints->clear(); }
+
+        /// Return triangles under cutter, Not for CAM-algorithms, more for visualization and demonstration.
+        std::list<Triangle> getTrianglesUnderCutter(CLPoint& cl, MillingCutter& cutter)
+        {
+            std::unique_ptr<std::list<Triangle>> triangles(root->search_cutter_overlap(&cutter, &cl));
+            return std::move(*triangles);
+        }
+
     protected:
         /// unoptimized drop-cutter,  tests against all triangles of surface
         void dropCutter1();

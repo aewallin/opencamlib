@@ -5,6 +5,7 @@ if (process.env.DEBUG) {
 
 const platform = process.platform === 'darwin' ? 'macos' : (process.platform === 'win32' ? 'windows' : 'linux')
 
-const oclLib = require(__dirname + '/../../build/' + buildType + '/' + platform + '-nodejs-' + process.arch + '/ocl.node')
+const oclPath = process.env.OCL_NODE_PATH || (__dirname + '/../../build/' + buildType + '/' + platform + '-nodejs-' + process.arch + '/ocl.node')
+const oclLib = require(oclPath)
 
 export default oclLib

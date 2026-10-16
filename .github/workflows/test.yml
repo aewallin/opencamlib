@@ -11,25 +11,28 @@ on:
       - develop
     tags:
       - v*
+  workflow_dispatch:
 
 jobs:
   cxx:
-    name: ${{ matrix.os_short }} c++
+    name: ${{ matrix.os_short }} c++${{ matrix.os == 'macos-15-intel' && ' x86_64' || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "macos-15", "ubuntu-22.04"]
+        os: ["windows-2022", "macos-15", "macos-15-intel", "ubuntu-24.04"]
         include:
           - os: "windows-2022"
             os_short: "windows"
           - os: "macos-15"
             os_short: "macos"
-          - os: "ubuntu-22.04"
+          - os: "macos-15-intel"
+            os_short: "macos"
+          - os: "ubuntu-24.04"
             os_short: "linux"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install
@@ -37,6 +40,10 @@ jobs:
         run: |
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             export OCL_SUDO_INSTALL="1"
+          fi
+          if [ "${{ matrix.os_short }}" == "macos" ]; then
+            export OCL_SUDO_INSTALL="1"
+            export OCL_MACOS_ARCHITECTURE="$(uname -m)"
           fi
           ./install.sh \
             --install-ci-deps \
@@ -47,25 +54,24 @@ jobs:
             --install \
             --test
   nodejs:
-    name: ${{ matrix.os_short }} node.js
+    name: ${{ matrix.os_short }} node.js${{ matrix.os == 'macos-15-intel' && ' x86_64' || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "macos-15", "ubuntu-22.04"]
+        os: ["windows-2022", "macos-15", "macos-15-intel", "ubuntu-24.04"]
         include:
           - os: "windows-2022"
             os_short: "windows"
-            libdir: windows-nodejs-x64
           - os: "macos-15"
             os_short: "macos"
-            libdir: macos-nodejs-x64
-          - os: "ubuntu-22.04"
+          - os: "macos-15-intel"
+            os_short: "macos"
+          - os: "ubuntu-24.04"
             os_short: "linux"
-            libdir: linux-nodejs-x64
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Install
@@ -74,56 +80,53 @@ jobs:
           if [ "${{ matrix.os_short }}" == "linux" ]; then
             export OCL_SUDO_INSTALL="1"
           fi
+          if [ "${{ matrix.os_short }}" == "macos" ]; then
+            export OCL_MACOS_ARCHITECTURE="$(uname -m)"
+          fi
           ./install.sh \
             --install-ci-deps \
             --build-library nodejs \
             --build-type release \
-            --node-architecture x64 \
+            --node-architecture $(node -p "require('os').arch()") \
             --install-boost \
             --boost-prefix $(pwd) \
             --install \
-            --install-prefix $(pwd)/src/npmpackage/build/Release/${{ matrix.libdir }} \
             --test
   python:
-    name: ${{ matrix.os_short }} python
+    name: ${{ matrix.os_short }} python${{ matrix.os == 'macos-15-intel' && ' x86_64' || '' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
-        os: ["windows-2022", "macos-15", "ubuntu-22.04"]
+        os: ["windows-2022", "macos-15", "macos-15-intel", "ubuntu-24.04"]
         include:
           - os: "windows-2022"
             os_short: "windows"
-            python_version: "3.10"
+          - os: "macos-15-intel"
+            os_short: "macos"
+            cmake_generator: "Unix Makefiles"
           - os: "macos-15"
             os_short: "macos"
-            python_version: "3.11"
-          - os: "ubuntu-22.04"
+            cmake_generator: "Unix Makefiles"
+          - os: "ubuntu-24.04"
             os_short: "linux"
-            python_version: "3.10"
             cmake_generator: "Unix Makefiles"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: "3.14"
       - name: Install
         shell: bash
         run: |
-          if [ "${{ matrix.os_short }}" == "linux" ]; then
-            export OCL_INSTALL_BOOST="1"
-            export OCL_BOOST_WITH_PYTHON="1"
-            export OCL_BOOST_PREFIX="$(pwd)"
-          else
-            export OCL_INSTALL_BOOST_FROM_REPO="1"
-          fi
           ./install.sh \
             --build-library python \
             --build-type release \
             --install-system-deps \
+            --install-boost-from-repo \
             --python-executable python \
             --python-pip-install \
             --test

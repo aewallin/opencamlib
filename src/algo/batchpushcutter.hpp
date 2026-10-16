@@ -22,8 +22,6 @@
 #ifndef BPC_H
 #define BPC_H
 
-#include <iostream>
-#include <string>
 #include <vector>
 
 #include "point.hpp"
@@ -65,6 +63,11 @@ class BatchPushCutter : public Operation {
         
         std::vector<Fiber>* getFibers() const {return fibers;}
         void reset();
+
+        std::vector<CLPoint> getCLPoints();
+
+        std::list<Triangle> getOverlapTriangles(Fiber& f);
+
     protected:
         /// 1st version of algorithm
         void pushCutter1();

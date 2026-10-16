@@ -10,6 +10,7 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
 
 jobs:
   cxx:
@@ -39,7 +40,7 @@ jobs:
             architecture: "x64"
             cmake_generator_platform: "x64"
           - os_arch: "macos-x86_64"
-            os: "macos-15"
+            os: "macos-15-intel"
             os_short: "macos"
             architecture: "x86_64"
           - os_arch: "macos-arm64"
@@ -47,17 +48,17 @@ jobs:
             os_short: "macos"
             architecture: "arm64"
           - os_arch: linux-x86_64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "x86_64"
             docker_image: "dockcross/linux-x64:latest"
           - os_arch: linux-aarch64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "aarch64"
             docker_image: "dockcross/linux-arm64-lts:latest"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: cxxlib
@@ -73,7 +74,7 @@ jobs:
           if [ "${{ matrix.docker_image }}" != "" ]; then
             export OCL_DOCKER_IMAGE="${{ matrix.docker_image }}"
           fi
-          if [ "${{ matrix.macos_architecture }}" != "" ]; then
+          if [ "${{ matrix.os_short }}" == "macos" ]; then
             export OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
           fi
           if [ "${{ matrix.cmake_generator_platform }}" != "" ]; then
@@ -88,7 +89,7 @@ jobs:
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os_short }}-cxx-${{ matrix.architecture }}
           path: |
@@ -122,7 +123,7 @@ jobs:
             cmake_generator_platform: "x64"
             node_architecture: "x64"
           - os_arch: "macos-x86_64"
-            os: "macos-15"
+            os: "macos-15-intel"
             os_short: "macos"
             architecture: "x86_64"
             node_architecture: "x64"
@@ -134,18 +135,19 @@ jobs:
             node_architecture: "arm64"
             macos_architecture: "arm64"
           - os_arch: linux-x86_64
+            # Build native Node binaries against the older glibc baseline.
             os: "ubuntu-22.04"
             os_short: "linux"
             architecture: "x86_64"
             node_architecture: "x64"
           - os_arch: linux-aarch64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "aarch64"
             node_architecture: "arm64"
             docker_image: ghcr.io/prebuild/linux-arm64-lts:latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: nodejslib
@@ -177,7 +179,7 @@ jobs:
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
             --install-prefix $(pwd)/dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.os_short }}-nodejs-${{ matrix.node_architecture }}
           path: |
@@ -199,72 +201,53 @@ jobs:
           "linux-aarch64",
         ]
         python_version: [
-          "37",
           "38",
           "39",
           "310",
           "311",
           "312",
           "313",
+          "314",
         ]
-        exclude:
-          - os_arch: "macos-arm64"
-            python_version: "37"
         include:
           - os_arch: "windows-ia32"
             os: "windows-2022"
             os_short: "windows"
             architecture: "ia32"
-            boost_architecture: "x86"
             cibuildwheel_architecture: "x86"
-            boost_address_model: "32"
             cmake_generator_platform: "Win32"
           - os_arch: "windows-x64"
             os: "windows-2022"
             os_short: "windows"
             architecture: "x64"
-            boost_architecture: "x86"
-            boost_address_model: "64"
             cibuildwheel_architecture: "AMD64"
             cmake_generator_platform: "x64"
           # - os_arch: "windows-arm64"
           #   os: "windows-2022"
           #   os_short: "windows"
           #   architecture: "arm64"
-          #   boost_architecture: "arm"
-          #   boost_address_model: "64"
           #   cibuildwheel_architecture: "ARM64"
           #   cmake_generator_platform: "ARM64"
           - os_arch: "macos-x86_64"
-            os: "macos-15"
+            os: "macos-15-intel"
             os_short: "macos"
             architecture: "x86_64"
-            boost_architecture: "x86"
           - os_arch: "macos-arm64"
             os: "macos-15"
             os_short: "macos"
             architecture: "arm64"
-            boost_architecture: "arm"
           - os_arch: linux-x86_64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "x86_64"
-            boost_architecture: "x86"
           - os_arch: linux-aarch64
-            os: "ubuntu-22.04"
+            os: "ubuntu-24.04"
             os_short: "linux"
             architecture: "aarch64"
-            boost_architecture: "arm"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      # - name: Cache Boost.Python
-      #   id: cache-boost-python
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: boost-precompiled.tar.gz
-      #     key: boost-1.80.0-${{ matrix.os_short }}-${{ matrix.architecture }}
       - name: prepare
         shell: bash
         run: |
@@ -276,56 +259,42 @@ jobs:
           sed -i.bak "s/^version = .*/version = \"${version}\"/g" pyproject.toml && rm pyproject.toml.bak
           echo "${version}" > src/git-tag.txt
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         if: matrix.architecture == 'aarch64'
         with:
           platforms: arm64
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.11.2
+        uses: pypa/cibuildwheel@v3.4.1
         env:
           CIBW_BUILD: "cp${{ matrix.python_version }}-*"
           CIBW_PLATFORM: "${{ matrix.os_short }}"
           CIBW_BUILD_VERBOSITY: "1"
           CIBW_ARCHS_WINDOWS: "${{ matrix.cibuildwheel_architecture }}"
           CIBW_ENVIRONMENT_WINDOWS: >
-            BOOST_ROOT="$(cygpath -w $(pwd))"
-            OCL_BOOST_ADDRESS_MODEL="${{ matrix.boost_address_model }}"
-            OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
+            CMAKE_PREFIX_PATH="$(cygpath -m "$(pwd)/build/deps/boost/lib/native")"
             CMAKE_GENERATOR="Visual Studio 17 2022"
             CMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
-          CIBW_ENVIRONMENT_PASS_WINDOWS: "BOOST_ROOT OCL_BOOST_ADDRESS_MODEL OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR CMAKE_GENERATOR_PLATFORM"
           CIBW_ARCHS_MACOS: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_MACOS: >
-            BOOST_ROOT="$(pwd)"
+            CMAKE_PREFIX_PATH="$(brew --prefix)"
             OCL_MACOS_ARCHITECTURE="${{ matrix.architecture }}"
-            OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
-          CIBW_ENVIRONMENT_PASS_MACOS: "BOOST_ROOT OCL_BOOST_ARCHITECTURE OPENMP_PREFIX_MACOS"
           CIBW_ARCHS_LINUX: "${{ matrix.architecture }}"
           CIBW_ENVIRONMENT_LINUX: >
-            BOOST_ROOT="$(pwd)"
-            OCL_BOOST_ARCHITECTURE="${{ matrix.boost_architecture }}"
             CMAKE_GENERATOR="Unix Makefiles"
-          CIBW_ENVIRONMENT_PASS_LINUX: "BOOST_ROOT OCL_BOOST_ARCHITECTURE CMAKE_GENERATOR"
-      # - name: Compress Boost.Python
-      #   shell: bash
-      #   run: |
-      #     if [ -d "boost_1_80_0" ]; then
-      #       tar -czf boost-precompiled.tar.gz boost_1_80_0 || true
-      #     fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v5
         with:
-          name: ${{ matrix.os_short }}-python-${{ matrix.architecture }}
+          name: ${{ matrix.os_short }}-python-${{ matrix.architecture }}-cp${{ matrix.python_version }}
           path: |
             ./wheelhouse/*.whl
   emscripten:
     name: emscripten
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     strategy:
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: emscripten
@@ -339,7 +308,7 @@ jobs:
             --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v5
         with:
           name: emscripten
           path: |
@@ -353,16 +322,16 @@ jobs:
       python,
       cxx
     ]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v6
         with:
           path: prebuilds
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v6
         with:
           node-version: '14.x'
       - name: Publish node.js library
@@ -403,12 +372,12 @@ jobs:
       python,
       cxx
     ]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v6
         with:
           path: prebuilds
       - name: prepare
@@ -435,12 +404,12 @@ jobs:
       python,
       cxx
     ]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v6
         with:
           path: prebuilds
       - name: prepare

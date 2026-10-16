@@ -9,7 +9,9 @@ if(COMMAND cmake_policy)
   cmake_policy(SET CMP0094 NEW) # for Python*_FIND_STRATEGY=LOCATION
   cmake_policy(SET CMP0042 NEW)
   cmake_policy(SET CMP0054 NEW)
-  cmake_policy(SET CMP0144 NEW)
+  if(POLICY CMP0144)
+    cmake_policy(SET CMP0144 NEW)
+  endif()
 endif(COMMAND cmake_policy)
 
 # install targets in root of the build dir, using $<0:> generator expression to force it from not being overwritten
@@ -125,17 +127,28 @@ if(WIN32)
   add_definitions(-D BOOST_ALL_NO_LIB) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
 endif()
 
-# when building the emscripten we have to temporarily set
-# the root path mode to BOTH so Boost can be found
-if(BUILD_EMSCRIPTEN_LIB)
-  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-  set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
+# Boost is headers-only. Cross toolchains must also be able to find an archive
+# extracted outside their sysroot (for example, /work in dockcross).
+if(CMAKE_CROSSCOMPILING OR BUILD_EMSCRIPTEN_LIB)
+  foreach(_ocl_mode INCLUDE PACKAGE)
+    if(DEFINED CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode})
+      set(_ocl_saved_${_ocl_mode}_mode "${CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode}}")
+    endif()
+    set(CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode} BOTH)
+  endforeach()
 endif()
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
-if(BUILD_EMSCRIPTEN_LIB)
-  set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-  set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+if(CMAKE_CROSSCOMPILING OR BUILD_EMSCRIPTEN_LIB)
+  foreach(_ocl_mode INCLUDE PACKAGE)
+    if(DEFINED _ocl_saved_${_ocl_mode}_mode)
+      set(CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode} "${_ocl_saved_${_ocl_mode}_mode}")
+      unset(_ocl_saved_${_ocl_mode}_mode)
+    else()
+      unset(CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode})
+    endif()
+  endforeach()
+  unset(_ocl_mode)
 endif()
 
 if(USE_OPENMP)

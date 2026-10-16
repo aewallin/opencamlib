@@ -21,18 +21,14 @@
 #ifndef TSP_H
 #define TSP_H
 
+#include <ctime>
 #include <iostream>
 #include <vector>
-#include <fstream>
-#include <set>
-#include <ctime>
 
 #include <boost/assert.hpp>
 #include <boost/graph/adjacency_matrix.hpp>
-#include <boost/graph/simple_point.hpp>
 #include <boost/graph/metric_tsp_approx.hpp>
-
-#include <boost/python.hpp>
+#include <boost/graph/simple_point.hpp>
 
 namespace ocl {
 
@@ -85,25 +81,28 @@ class TSPSolver {
     typedef std::vector< Vertex > Container;
     
 public:
-    TSPSolver () {}
-    virtual ~TSPSolver() {
-        if (g)
-            delete g;
-    }
+    TSPSolver () : length(0.0) {}
+    virtual ~TSPSolver() = default;
     void run() {
-        g = new Graph( points.size() );
-        // connect all vertices
-        WeightMap weight_map = boost::get( boost::edge_weight, *g);
-        connectAllEuclidean( *g, points, weight_map, boost::get( boost::vertex_index, *g) );
+        output.clear();
         length = 0.0;
+        if (points.empty())
+            return;
+        if (points.size() == 1) {
+            // Preserve the closed-tour convention without asking Boost for
+            // an edge from the sole vertex to itself.
+            output.push_back(0);
+            output.push_back(0);
+            return;
+        }
+        // Only the tour and its length survive run(); the graph has no reason
+        // to be owned by the solver or shared by copies of it.
+        Graph g(points.size());
+        // connect all vertices
+        WeightMap weight_map = boost::get( boost::edge_weight, g);
+        connectAllEuclidean( g, points, weight_map, boost::get( boost::vertex_index, g) );
         // Run the TSP approx, creating the visitor on the fly.
-        boost::metric_tsp_approx(*g, boost::make_tsp_tour_len_visitor(*g, std::back_inserter(output), length, weight_map) );
-        //length = len;
-        //std::cout << "Number of points: " << boost::num_vertices(*g) << std::endl;
-        //std::cout << "Number of edges: " << boost::num_edges(*g) << std::endl;
-        //std::cout << "Length of tour: " << len << std::endl;
-        //std::cout << "vertices in tour: " << output.size() << std::endl;
-        //std::cout << "Elapsed: " << t.elapsed() << std::endl;
+        boost::metric_tsp_approx(g, boost::make_tsp_tour_len_visitor(g, std::back_inserter(output), length, weight_map) );
     }
     void addPoint(double x, double y) {
         boost::simple_point<double> pnt;
@@ -114,30 +113,22 @@ public:
     void reset() {
         output.clear();
         points.clear();
-        if (g)
-            delete g;
+        length = 0.0;
     }
     void printOutput() const {
         int n=0;
-        BOOST_FOREACH( Vertex v, output ) {
+        for (Vertex v : output) {
             std::cout << n++ << " : " << v << "\n" ;
         }
     }
     double getLength() const {
         return length;
     }
-    boost::python::list getOutput() const {
-        boost::python::list plist;
-        BOOST_FOREACH(Vertex v, output) {
-            plist.append( v );
-        }
-        return plist;
-    }
-    
+    auto getOutput() const { return output; }
+
 protected:
     Container output;
     PointSet points;
-    Graph* g;
     double length;
 };
 
