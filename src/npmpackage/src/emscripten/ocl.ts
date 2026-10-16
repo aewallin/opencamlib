@@ -1,3 +1,3 @@
-const ocl = require('../../build/ocl')()
+const ocl = require('../../build/browser/ocl')()
 
 export default ocl

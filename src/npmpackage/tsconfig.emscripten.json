@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    // Browserify's parsers cannot handle Emscripten's modern JS (e.g. &&=).
+    "target": "es2019",
+    "module": "commonjs",
+    "outDir": "./build/browser"
+  },
+  "files": ["./build/ocl.js"]
+}
