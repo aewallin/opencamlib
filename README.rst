@@ -406,3 +406,39 @@ Organization of Files
  │   ├── npmpackage              combined Node.js and emscripten wrappers, for publishing to npm
  │   ├── pythonlib               python library bindings and cmake config
  └── stl                         STL files for testing
+
+=================
+Cutter benchmarks
+=================
+
+An optional native benchmark separates KD-tree setup from toolpath execution::
+
+    cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DBUILD_CXX_LIB=ON -DBUILD_PY_LIB=OFF -DBUILD_BENCHMARKS=ON -DUSE_OPENMP=ON
+    cmake --build build/bench --target cutter_benchmark
+    OMP_NUM_THREADS=4 build/bench/cutter_benchmark stl/gnu_tux_mod.stl waterline 4 5
+
+The arguments are the STL file, operation, thread count, and repetition count.
+Operations are ``waterline``, ``adaptive-waterline``, ``dropcutter``, and
+``adaptive-dropcutter``. The fixture uses a diameter-4 cylindrical cutter,
+length 20, sampling 0.1, waterline Z=1, and 25 horizontal drop-cutter spans
+at Z=-1 across the model bounds. Adaptive operations retain their default
+minimum sampling settings.
+
+The final JSON line reports average ``setup_ms``, ``run_ms``, and ``total_ms``;
+STL loading is excluded, while total time includes operation construction,
+configuration, output collection, and destruction. Point counts and coordinate
+checksums help detect changed workloads; use the geometry and cutter tests for
+correctness checks. Compare identical compiler settings, models, and thread
+counts, and alternate old/new runs to reduce timing bias. Set ``OMP_NUM_THREADS``
+too when comparing revisions whose adaptive waterline ignored ``setThreads``.
+
+OpenMP is optional. With it enabled, batch operations distribute individual
+points/fibers, adaptive path drop-cutter distributes independent spans while
+preserving path order, and adaptive waterline uses at most two threads (one per
+fiber direction). ``setThreads(1)`` requests serial execution. A single adaptive
+path span remains serial.
+
+To collect alternating runs from two builds and save the raw samples and
+medians::
+
+    python3 benchmarks/compare.py build/before/cutter_benchmark build/after/cutter_benchmark stl/gnu_tux_mod.stl stl/sphere_on_plate.stl --threads 1 4 --repetitions 5 --output build/comparison.json

@@ -36,6 +36,7 @@ namespace ocl
 
 PointDropCutter::PointDropCutter() {
     nCalls = 0;
+    nthreads = 1;
 #ifdef _OPENMP
     nthreads = omp_get_num_procs(); // figure out how many cores we have
 #endif
@@ -58,25 +59,20 @@ void PointDropCutter::run(CLPoint& clp) {
     //std::cout  << clp << " nCalls = " << nCalls <<"\n ";
 }
 
-// use OpenMP to share work between threads
+// Each query owns its CLPoint; the tree is read-only during traversal.
 void PointDropCutter::pointDropCutter1(CLPoint& clp) {
-    nCalls = 0;
-    int calls=0;
-    std::list<Triangle>* tris;
-    //tris=new std::list<Triangle>();
-    tris = root->search_cutter_overlap( cutter, &clp );
-    std::list<Triangle>::iterator it;
-    for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
-        if ( cutter->overlaps(clp,*it) ) { // cutter overlap triangle? check
-            if (clp.below(*it)) {
-                cutter->dropCutter(clp,*it);
-                ++calls;
-            }
+    nCalls = dropCutter(clp);
+}
+
+int PointDropCutter::dropCutter(CLPoint& clp) const {
+    int calls = 0;
+    root->visit_cutter_overlap(cutter, &clp, [&](const Triangle& t) {
+        if (cutter->overlaps(clp,t) && clp.below(t)) {
+            cutter->dropCutter(clp,t);
+            ++calls;
         }
-    }
-    delete( tris );
-    nCalls = calls;
-    return;
+    });
+    return calls;
 }
 
 }// end namespace

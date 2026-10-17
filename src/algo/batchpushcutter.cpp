@@ -99,7 +99,6 @@ void BatchPushCutter::pushCutter2() {
     // std::cout << "BatchPushCutter2 with " << fibers->size() << 
     //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
-    std::list<Triangle>* overlap_triangles;
     for (Fiber& f : *fibers) {
         CLPoint cl;
         if (x_direction) {
@@ -113,17 +112,12 @@ void BatchPushCutter::pushCutter2() {
         } else {
             assert(0);
         }
-        overlap_triangles = root->search_cutter_overlap(cutter, &cl);
-        assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf
-        for (const Triangle& t : *overlap_triangles) {
-            //if ( bb->overlaps( t.bb ) ) {
-                Interval i;
-                cutter->pushCutter(f,i,t);
-                f.addInterval(i);
-                ++nCalls;
-            //}
-        }
-        delete( overlap_triangles );
+        root->visit_cutter_overlap(cutter, &cl, [&](const Triangle& t) {
+            Interval i;
+            cutter->pushCutter(f,i,t);
+            f.addInterval(i);
+            ++nCalls;
+        });
     }
     // std::cout << "BatchPushCutter2 done." << std::endl;
     return;
@@ -132,28 +126,11 @@ void BatchPushCutter::pushCutter2() {
 /// use kd-tree search to find overlapping triangles
 /// use OpenMP for multi-threading
 void BatchPushCutter::pushCutter3() {
-    // std::cout << "BatchPushCutter3 with " << fibers->size() << 
-    //           " fibers and " << surf->tris.size() << " triangles." << std::endl;
-    // std::cout << " cutter = " << cutter->str() << "\n";
-    nCalls = 0;
-#ifdef _OPENMP
-    omp_set_num_threads(nthreads);
-#endif
-    std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
-    std::list<Triangle>* tris;
     std::vector<Fiber>& fiberr = *fibers;
-#ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
-	int n; // loop variable
-    int Nmax = static_cast<int>(fibers->size());         // the number of fibers to process
-#else
-    unsigned int n; // loop variable
-    unsigned int Nmax = fibers->size();         // the number of fibers to process
-#endif
-    unsigned int calls=0;
-    
-    #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,tris,it,it_end)
-    //#pragma omp parallel for shared( calls, fiberr) private(n,tris,it,it_end)
-    for (n=0; n<Nmax; ++n) { // loop through all fibers
+    const std::ptrdiff_t count = static_cast<std::ptrdiff_t>(fiberr.size());
+    unsigned int calls = 0;
+    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:calls)
+    for (std::ptrdiff_t n=0; n<count; ++n) { // loop through all fibers
         CLPoint cl; // cl-point on the fiber
         if ( x_direction ) {
             cl.x=0;
@@ -164,18 +141,12 @@ void BatchPushCutter::pushCutter3() {
             cl.y=0;
             cl.z=fiberr[n].p1.z;
         }
-        tris = root->search_cutter_overlap(cutter, &cl);
-        it_end = tris->end();
-        for ( it=tris->begin() ; it!=it_end ; ++it) { // loop through the found overlapping triangles
-            //if ( bb->overlaps( it->bb ) ) {
-                // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
-                Interval i;
-                cutter->pushCutter(fiberr[n],i,*it);
-                fiberr[n].addInterval(i);
-                ++calls;
-            //}
-        }
-        delete( tris );
+        root->visit_cutter_overlap(cutter, &cl, [&](const Triangle& t) {
+            Interval i;
+            cutter->pushCutter(fiberr[n],i,t);
+            fiberr[n].addInterval(i);
+            ++calls;
+        });
     } // OpenMP parallel region ends here
     
     this->nCalls = calls;
@@ -195,13 +166,13 @@ std::vector<CLPoint> BatchPushCutter::getCLPoints() {
             // Get lower point.
             const Point lower = f.point(i.lower);
             CLPoint p1(lower.x, lower.y, lower.z);
-            p1.cc = new CCPoint(i.lower_cc);
+            *p1.cc.load() = i.lower_cc;
             clPoints.emplace_back(p1);
 
             // Get upper point.
             const Point upper = f.point(i.upper);
             CLPoint p2(upper.x, upper.y, upper.z);
-            p2.cc = new CCPoint(i.upper_cc);
+            *p2.cc.load() = i.upper_cc;
             clPoints.emplace_back(p2);
         }
     }

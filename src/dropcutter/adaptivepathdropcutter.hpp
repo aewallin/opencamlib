@@ -74,11 +74,18 @@ class AdaptivePathDropCutter : public Operation {
 
     protected:
         /// run adaptive sample on the given Span between t-values of start_t and stop_t
-        void adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl);
+        void adaptive_sample(const Span* span, double start_t, double stop_t, const CLPoint& start_cl, const CLPoint& stop_cl);
         /// flatness predicate for adaptive sampling
-        bool flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl);
+        bool flat(const CLPoint& start_cl, const CLPoint& mid_cl, const CLPoint& stop_cl) const;
         /// run adaptive sampling
         void adaptive_sampling_run();
+    private:
+        int sample_span(const Span* span, std::vector<CLPoint>& points,
+                        const PointDropCutter& dropcutter) const;
+        int adaptive_sample(const Span* span, double start_t, double stop_t,
+                            const CLPoint& start_cl, const CLPoint& stop_cl,
+                            std::vector<CLPoint>& points, const PointDropCutter& dropcutter) const;
+    protected:
     // DATA
         /// the smallest sampling interval used when adaptively subdividing
         double min_sampling;

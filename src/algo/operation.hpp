@@ -42,7 +42,8 @@ class MillingCutter;
 /// base-class for cam algorithms
 class Operation {
     public:
-        Operation() {}
+        Operation() : sampling(0), nCalls(0), bucketSize(1), cutter(nullptr),
+                      surf(nullptr), root(nullptr), nthreads(1) {}
         virtual ~Operation() {
             //std::cout << "~Operation()\n";
         }
@@ -62,7 +63,7 @@ class Operation {
         }
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n) {
-            nthreads = n;
+            nthreads = n > 0 ? n : 1;
             for (Operation* op : subOp) {
                 op->setThreads(nthreads);
             }
@@ -102,8 +103,7 @@ class Operation {
         
         /// return CL-points
         virtual std::vector<CLPoint> getCLPoints() {
-            std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 
-            return *clv;
+            return {};
         }
         virtual void clearCLPoints() {}
         

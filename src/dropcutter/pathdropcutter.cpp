@@ -71,10 +71,8 @@ void PathDropCutter::sample_span(const Span* span) {
     for(unsigned int i = 0; i<=num_steps; i++) {
         double fraction = (double)i / num_steps;
         Point ptmp = span->getPoint(fraction);
-        CLPoint* p = new CLPoint(ptmp.x, ptmp.y, ptmp.z);
-        p->z = minimumZ;
-        subOp[0]->appendPoint( *p );
-        delete p;
+        CLPoint p(ptmp.x, ptmp.y, minimumZ);
+        subOp[0]->appendPoint(p);
     }    
 }
 

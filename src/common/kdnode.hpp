@@ -53,15 +53,9 @@ class KDNode {
             parent = parentNode;
             hi = hi_child;
             lo = lo_child;
-            tris = new std::list<BBObj>();
+            tris = tlist ? new std::list<BBObj>(*tlist) : nullptr;
             depth = nodeDepth;
-            isLeaf = false;
-            if (tlist) {
-                isLeaf = true;
-                for (BBObj bo : *tlist) {
-                    tris->push_back(bo);
-                }
-            }
+            isLeaf = tlist != nullptr;
         }
         virtual ~KDNode() {
             // std::cout << " ~KDNode3()\n";

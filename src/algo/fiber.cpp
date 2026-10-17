@@ -38,7 +38,7 @@ void Fiber::calcDir() {
 }
 
 bool Fiber::contains(Interval& i) const {
-    for (Interval fi : ints) {
+    for (const Interval& fi : ints) {
         if ( i.inside( fi ) )
             return true;
     }
@@ -46,12 +46,11 @@ bool Fiber::contains(Interval& i) const {
 }
 
 bool Fiber::missing(Interval& i) const {
-    bool result = true;
-    for (Interval fi : ints) {
+    for (const Interval& fi : ints) {
         if ( !i.outside( fi ) ) // all existing ints must be non-overlapping
-            result = false; 
+            return false;
     }
-    return result;
+    return true;
 }
 
 void Fiber::addInterval(Interval& i) {
@@ -82,7 +81,7 @@ void Fiber::addInterval(Interval& i) {
         overlaps.push_back(i);
         // now build a new interval from i and the overlaps
         Interval sumint;
-        for (Interval intr : overlaps) {
+        for (Interval& intr : overlaps) {
             sumint.updateLower( intr.lower, intr.lower_cc );
             sumint.updateUpper( intr.upper, intr.upper_cc );
         }

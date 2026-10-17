@@ -286,6 +286,11 @@ if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
   add_subdirectory(${PROJECT_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)
 endif()
 
+option(BUILD_BENCHMARKS "Build cutter performance benchmarks" OFF)
+if(BUILD_BENCHMARKS AND NOT CMAKE_CROSSCOMPILING)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../benchmarks ${CMAKE_CURRENT_BINARY_DIR}/benchmarks)
+endif()
+
 # build & install documentation (if Doxygen is available)
 if(BUILD_DOC)
   find_package(Doxygen)

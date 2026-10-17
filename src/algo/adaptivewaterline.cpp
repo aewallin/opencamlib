@@ -45,6 +45,8 @@ namespace ocl
 //********   ********************** */
 
 AdaptiveWaterline::AdaptiveWaterline() {
+    for (Operation* op : subOp)
+        delete op;
     subOp.clear();
     subOp.push_back( new FiberPushCutter() );
     subOp.push_back( new FiberPushCutter() );
@@ -76,69 +78,38 @@ void AdaptiveWaterline::adaptive_sampling_run() {
     maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
     miny = surf->bb.minpt.y - 2*cutter->getRadius();
     maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
-    Line* line = new Line( Point(minx,miny,zh) , Point(maxx,maxy,zh) );
-    Span* linespan = new LineSpan(*line);
-#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
-	#pragma omp parallel sections
-	{
-		#pragma omp section // Replace OMP Task by Parallel sections
-		{ // first child
-#else
-#pragma omp parallel
-	{
-#pragma omp single nowait
-		{ // initial root task
-#pragma omp task
-			{ // first child task
-#endif // _WIN32
-				xfibers.clear();
-				Point xstart_p1 = Point(minx, linespan->getPoint(0.0).y, zh);
-				Point xstart_p2 = Point(maxx, linespan->getPoint(0.0).y, zh);
-				Point xstop_p1 = Point(minx, linespan->getPoint(1.0).y, zh);
-				Point xstop_p2 = Point(maxx, linespan->getPoint(1.0).y, zh);
-				Fiber xstart_f = Fiber(xstart_p1, xstart_p2);
-				Fiber xstop_f = Fiber(xstop_p1, xstop_p2);
-				subOp[0]->run(xstart_f);
-				subOp[0]->run(xstop_f);
-				xfibers.push_back(xstart_f);
-				// std::cout << " XFiber adaptive sample \n";
-				xfiber_adaptive_sample(linespan, 0.0, 1.0, xstart_f, xstop_f);
-#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
-		}
-		#pragma omp section
-		{ // second child
-#else
-		}
-# pragma omp task
-			{ // second child task
-#endif // _WIN32
-				yfibers.clear();
-				Point ystart_p1 = Point(linespan->getPoint(0.0).x, miny, zh);
-				Point ystart_p2 = Point(linespan->getPoint(0.0).x, maxy, zh);
-				Point ystop_p1 = Point(linespan->getPoint(1.0).x, miny, zh);
-				Point ystop_p2 = Point(linespan->getPoint(1.0).x, maxy, zh);
-				Fiber ystart_f = Fiber(ystart_p1, ystart_p2);
-				Fiber ystop_f = Fiber(ystop_p1, ystop_p2);
-				subOp[1]->run(ystart_f);
-				subOp[1]->run(ystop_f);
-				yfibers.push_back(ystart_f);
-				// std::cout << " YFiber adaptive sample \n";
-				yfiber_adaptive_sample(linespan, 0.0, 1.0, ystart_f, ystop_f);
-#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
-		}
-	} // end omp parallel
-#else
-            }
+    const Line line(Point(minx,miny,zh), Point(maxx,maxy,zh));
+    const LineSpan linespan(line);
+    const Point first = linespan.getPoint(0.0), last = linespan.getPoint(1.0);
+    // Only the two fiber directions are independent. Honor setThreads(1), and
+    // avoid creating a full machine-sized team for two pieces of work.
+    #pragma omp parallel sections num_threads(std::min(nthreads, 2u)) if(nthreads > 1)
+    {
+        #pragma omp section
+        {
+            xfibers.clear();
+            Fiber start(Point(minx,first.y,zh), Point(maxx,first.y,zh));
+            Fiber stop(Point(minx,last.y,zh), Point(maxx,last.y,zh));
+            subOp[0]->run(start);
+            subOp[0]->run(stop);
+            xfibers.push_back(start);
+            xfiber_adaptive_sample(&linespan, 0.0, 1.0, start, stop);
         }
-    } // end omp parallel
-#endif // _WIN32
-
-    delete line;
-    delete linespan;
+        #pragma omp section
+        {
+            yfibers.clear();
+            Fiber start(Point(first.x,miny,zh), Point(first.x,maxy,zh));
+            Fiber stop(Point(last.x,miny,zh), Point(last.x,maxy,zh));
+            subOp[1]->run(start);
+            subOp[1]->run(stop);
+            yfibers.push_back(start);
+            yfiber_adaptive_sample(&linespan, 0.0, 1.0, start, stop);
+        }
+    }
 }
 
 
-void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
+void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
     //std::cout << "xfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
@@ -161,7 +132,7 @@ void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t,
     }
 }
 
-void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
+void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
     assert( mid_t > start_t );  assert( mid_t < stop_t );
     //std::cout << "yfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
@@ -185,7 +156,7 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
 }
 
 // flat predicate to determine when we subdivide
-bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
+bool AdaptiveWaterline::flat( const Fiber& start, const Fiber& mid, const Fiber& stop ) const {
     if ( start.size() != stop.size() ) // start, mid, and stop need to have same size()
         return false;
     else if ( start.size() != mid.size() )

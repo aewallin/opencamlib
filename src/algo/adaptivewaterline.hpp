@@ -62,11 +62,11 @@ class AdaptiveWaterline : public Waterline {
         /// adaptive waterline algorithm
         void adaptive_sampling_run();
         /// x-direction adaptive sampling
-        void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f);
         /// y-direction adaptive sampling
-        void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f);
         /// flatness predicate for fibers. Checks Fiber.size() and then calls flat() on cl-points
-        bool flat( Fiber& start, Fiber& mid, Fiber& stop ) const;
+        bool flat( const Fiber& start, const Fiber& mid, const Fiber& stop ) const;
         /// flatness predicate for cl-points. checks for angle metween start-mid-stop
         bool flat(Point start_cl, Point mid_cl, Point stop_cl) const;
 
