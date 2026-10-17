@@ -315,7 +315,7 @@ jobs:
             dist
 
   publish-npm:
-    name: publish to NPM
+    name: stage publish to NPM
     needs: [
       nodejs,
       emscripten,
@@ -333,8 +333,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v6
         with:
-          node-version: '14.x'
-      - name: Publish node.js library
+          node-version: '24.x'
+      - name: Install npm with staged publishing support
+        run: npm install --global npm@11.15.0
+      - name: Stage node.js library for publishing
         shell: bash
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -360,9 +362,9 @@ jobs:
           npm install
           npm run build-emscripten
           if [ "${is_dev}" == "1" ]; then
-            npm publish --access public --tag dev
+            npm stage publish --access public --tag dev
           else
-            npm publish --access public
+            npm stage publish --access public
           fi
   publish-pypi:
     name: publish to PyPi
