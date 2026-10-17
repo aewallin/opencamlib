@@ -51,7 +51,11 @@ class CLFilter {
         /// the list of CL-points to be processed
         std::list<CLPoint> clpoints;
         /// tolerance
-        double tol;
+#if 1
+        double tol {};
+#else
+        double tol = 0;
+#endif
 };
 
 } // end namespace
