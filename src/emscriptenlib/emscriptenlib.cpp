@@ -304,8 +304,10 @@ EMSCRIPTEN_BINDINGS(opencamlib)
         .constructor()
         .function("addCLPoint", &LineCLFilter::addCLPoint)
         .function("setTolerance", checked<&LineCLFilter::setTolerance>())
-        .function("run", checked<&LineCLFilter::run>());
-    // .function("getCLPoints", &LineCLFilter::getCLPoints);
+        .function("run", checked<&LineCLFilter::run>())
+        .function("getCLPoints", optional_override([](const LineCLFilter& filter) {
+            return std::vector<CLPoint>(filter.clpoints.begin(), filter.clpoints.end());
+        }));
 
     // some strange problem with hedi::face_edges()... let's not compile for now..
     // class_<clsurf::CutterLocationSurface>("CutterLocationSurface")

@@ -201,35 +201,36 @@ jobs:
           node --expose-gc tests/bindings.js emscripten build/contract-wasm/ocl.js > build/contract-wasm.jsonl
           node --expose-gc tests/bindings.js emscripten build/contract-wasm-threads/ocl.js > build/contract-wasm-threads.jsonl
           python tests/compare_bindings.py build/contract-cxx.jsonl build/contract-python.jsonl build/contract-node.jsonl build/contract-wasm.jsonl build/contract-wasm-threads.jsonl
-      - name: Build and test the single-file web demo
+      - name: Build and test the single-file web app
         run: |
           source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
-          emcmake cmake --preset web-demo-serial
-          cmake --build --preset web-demo-serial --parallel 2
-          ctest --preset web-demo-serial
-          python examples/web-demo/build.py --threaded build/contract-wasm-threads/ocl.js
-          node tests/web_demo.mjs
-      - name: Upload the standalone demo
+          emcmake cmake --preset web-serial
+          cmake --build --preset web-serial --parallel 2
+          ctest --preset web-serial
+          python examples/web/build.py --threaded build/contract-wasm-threads/ocl.js
+          node tests/web_cam.mjs
+          node tests/web_app.mjs
+      - name: Upload the standalone app
         uses: actions/upload-artifact@v4
         with:
-          name: opencamlib-web-demo
-          path: examples/web-demo/index.html
+          name: opencamlib-web
+          path: examples/web/index.html
           if-no-files-found: error
       - name: Upload browser screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: web-demo-screenshots
-          path: build/web-demo/*.png
+          name: web-screenshots
+          path: build/web/*.png
           if-no-files-found: ignore
 
-  deploy-demo:
-    name: Publish demo to GitHub Pages
+  deploy-web:
+    name: Publish app to GitHub Pages
     needs: [core-checks, binding-contract]
     # Publishing is opt-in so forks and repositories with an existing site
     # keep running tests without deploying or requiring Pages configuration.
     if: >-
-      vars.OCL_PUBLISH_DEMO == 'true' &&
+      vars.OCL_PUBLISH_WEB == 'true' &&
       (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
     runs-on: ubuntu-24.04
@@ -245,10 +246,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download the tested demo
+      - name: Download the tested app
         uses: actions/download-artifact@v5
         with:
-          name: opencamlib-web-demo
+          name: opencamlib-web
           path: _site
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5

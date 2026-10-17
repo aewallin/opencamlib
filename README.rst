@@ -411,23 +411,23 @@ Organization of Files
 Multithreaded WebAssembly
 ========================
 
-The `Tux toolpath demo <examples/web-demo/README.rst>`_ builds a single HTML file
+The `OpenCAMLib Toolpath Lab <examples/web/README.rst>`_ builds a single HTML file
 containing the model and serial/threaded WASM runtimes, with Three.js loaded from
 a CDN. Build it using the documented presets, or download the
-``opencamlib-web-demo`` artifact from a successful Test workflow run. Open the
+``opencamlib-web`` artifact from a successful Test workflow run. Open the
 HTML file directly for serial execution, or run
-``python3 examples/web-demo/serve.py`` and open http://localhost:8001 to enable
+``python3 examples/web/serve.py`` and open http://localhost:8001 to enable
 threads. It includes STL uploads, cutter and sampling presets, timing statistics,
-playback, and point export. The generated HTML stays out of source control.
-The Test workflow also supports opt-in GitHub Pages publishing; see the demo
+playback, and point/G-code export. The generated HTML stays out of source control.
+The Test workflow also supports opt-in GitHub Pages publishing; see the app
 instructions for setup. Pages runs the serial build in a background worker.
 
 For fast Release WASM builds, check that configuration reports interprocedural
 optimization enabled (``OCL_ENABLE_IPO=ON``). CMake reports a warning if its
 compiler check fails. ``OCL_WASM_NATIVE_EXCEPTIONS=ON`` also reduces exception
-wrapper overhead in supporting WASM runtimes; it is enabled in the web demo.
+wrapper overhead in supporting WASM runtimes; it is enabled in the web app.
 This option defaults to OFF to retain compatibility with older runtimes.
-See the demo instructions for a repeatable adaptive-waterline benchmark.
+See the app instructions for a repeatable adaptive-waterline benchmark.
 
 The Emscripten build supports an optional pthread backend. Enable it with::
 
@@ -611,7 +611,7 @@ waits on one initialization promise, and calls execute in invocation order.
 Initialization failures propagate to every call; a rejected parameter change
 does not prevent later calls. Once initialized, the native calls themselves
 are synchronous, including ``run()``. Promises alone do not move computation
-off the calling thread; use a Web Worker, as the demo does, for a responsive UI.
+off the calling thread; use a Web Worker, as the app does, for a responsive UI.
 
 Browser operations must be disposed to release their WASM objects; Node
 operations also offer explicit disposal. Disposal waits for previously

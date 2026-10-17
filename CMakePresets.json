@@ -50,7 +50,7 @@
       }
     },
     {
-      "name": "web-demo-serial",
+      "name": "web-serial",
       "inherits": "base",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
@@ -63,8 +63,8 @@
       }
     },
     {
-      "name": "web-demo-threaded",
-      "inherits": "web-demo-serial",
+      "name": "web-threaded",
+      "inherits": "web-serial",
       "cacheVariables": {
         "OCL_WASM_THREADS": "ON",
         "OCL_WASM_THREAD_POOL_SIZE": "3"
@@ -89,12 +89,12 @@
       "configurePreset": "sanitizers"
     },
     {
-      "name": "web-demo-serial",
-      "configurePreset": "web-demo-serial"
+      "name": "web-serial",
+      "configurePreset": "web-serial"
     },
     {
-      "name": "web-demo-threaded",
-      "configurePreset": "web-demo-threaded"
+      "name": "web-threaded",
+      "configurePreset": "web-threaded"
     }
   ],
   "testPresets": [
@@ -127,15 +127,15 @@
       }
     },
     {
-      "name": "web-demo-serial",
-      "configurePreset": "web-demo-serial",
+      "name": "web-serial",
+      "configurePreset": "web-serial",
       "output": {
         "outputOnFailure": true
       }
     },
     {
-      "name": "web-demo-threaded",
-      "configurePreset": "web-demo-threaded",
+      "name": "web-threaded",
+      "configurePreset": "web-threaded",
       "output": {
         "outputOnFailure": true
       }

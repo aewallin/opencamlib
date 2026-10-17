@@ -1,4 +1,4 @@
-// Browser regression for the single-file demo. Run from the repository root.
+// Browser regression for the single-file app. Run from the repository root.
 // Fixtures are generated locally; no private STL files are required.
 // Set CHROME_BIN to override the Chrome executable.
 import assert from "node:assert/strict";
@@ -17,7 +17,7 @@ import { join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { setTimeout as delay } from "node:timers/promises";
 
-const html = await readFile("examples/web-demo/index.html");
+const html = await readFile("examples/web/index.html");
 const server = createServer((req, res) => {
   if (req.url === "/favicon.ico") {
     res.writeHead(204);
@@ -38,11 +38,9 @@ const server = createServer((req, res) => {
 });
 await new Promise((r) => server.listen(0, "127.0.0.1", r));
 const base = `http://127.0.0.1:${server.address().port}`;
-const artifacts = resolve(
-  process.env.OCL_WEB_DEMO_ARTIFACTS || "build/web-demo",
-);
+const artifacts = resolve(process.env.OCL_WEB_ARTIFACTS || "build/web");
 await mkdir(artifacts, { recursive: true });
-const profile = await mkdtemp(join(tmpdir(), "ocl-demo-test-"));
+const profile = await mkdtemp(join(tmpdir(), "ocl-web-test-"));
 const downloads = await mkdtemp(join(profile, "downloads-"));
 const screenshots = [];
 const chromeBinary =
@@ -212,6 +210,19 @@ try {
     }
     throw Error("JSON download did not complete");
   }
+  async function exportGcode() {
+    for (const file of await readdir(downloads))
+      await rm(join(downloads, file));
+    await evaluate("document.getElementById('gcode-download').click()");
+    for (let i = 0; i < 100; i++) {
+      for (const file of await readdir(downloads)) {
+        if (file.endsWith(".nc"))
+          return readFile(join(downloads, file), "utf8");
+      }
+      await delay(50);
+    }
+    throw Error("G-code download did not complete");
+  }
   await cdp("Emulation.setDeviceMetricsOverride", {
     width: 1440,
     height: 960,
@@ -226,7 +237,7 @@ try {
       "({isolated:crossOriginIsolated,threads:document.getElementById('threads').value,points:document.getElementById('stat-points').textContent})",
     ),
   );
-  await screenshot("tux-demo-desktop.png");
+  await screenshot("tux-web-desktop.png");
 
   const samplingValues = () =>
     evaluate(
@@ -308,7 +319,7 @@ try {
     "SAMPLING_PRESETS fixed fine defaults, all buttons, custom edits, uniform/adaptive modes and no automatic calculation pass",
   );
 
-  // Observe actual Three.js objects without adding a test API to the demo.
+  // Observe actual Three.js objects without adding a test API to the app.
   await evaluate(`(async()=>{
   const THREE=await import('three');
   const add=THREE.Object3D.prototype.add, update=THREE.PerspectiveCamera.prototype.updateProjectionMatrix;
@@ -424,10 +435,20 @@ try {
   await evaluate(
     "document.getElementById('sampling-fine').click();document.getElementById('sampling-presets').scrollIntoView({block:'center'})",
   );
-  await screenshot("demo-sampling-presets.png");
+  await screenshot("web-sampling-presets.png");
   const threadedExport = await exportPoints();
   assert.equal(threadedExport.parameters.sampling, 0.05);
   assert.equal(threadedExport.parameters.minSampling, 0.005);
+  await evaluate(
+    "document.getElementById('export-gcode').click();document.getElementById('gcode-form').requestSubmit()",
+  );
+  const completeProgram = await exportGcode();
+  assert(completeProgram.split("\n").length > 200);
+  assert.equal(
+    await evaluate("document.getElementById('gcode-preview').value"),
+    completeProgram,
+  );
+  await evaluate("document.getElementById('gcode-close').click()");
   async function checkTip(data, value) {
     await evaluate(
       `document.getElementById('scrub').value='${value}';document.getElementById('scrub').dispatchEvent(new Event('input'))`,
@@ -518,7 +539,7 @@ try {
   );
   await evaluate("document.getElementById('sampling-preview').click()");
   assert.deepEqual(await samplingValues(), [0.05, 0.005]);
-  await screenshot("tux-demo-loading.png");
+  await screenshot("tux-web-loading.png");
   await waitFor(idle);
   const full = await exportPoints();
   console.log("FIVE_LEVELS", JSON.stringify(full.statistics));
@@ -564,7 +585,7 @@ try {
   }
   await run("PathDropCutter", "BallCutter", { length: 37.25 });
   await checkCutter(await exportPoints());
-  await screenshot("demo-full-length-cutter.png");
+  await screenshot("web-full-length-cutter.png");
   console.log(
     "CUTTER_GEOMETRY all four types use full tip-to-top length; Fit includes the cutter",
   );
@@ -609,7 +630,7 @@ try {
       )
       .join("\n") +
     "\nendsolid uploaded";
-  const asciiPath = join(profile, "demo-upload-ascii.stl");
+  const asciiPath = join(profile, "web-upload-ascii.stl");
   await writeFile(asciiPath, ascii);
   const binary = Buffer.alloc(84 + faces.length * 50);
   binary.writeUInt32LE(faces.length, 80);
@@ -618,9 +639,9 @@ try {
       .flat()
       .forEach((v, j) => binary.writeFloatLE(v, 84 + i * 50 + 12 + j * 4)),
   );
-  const binaryPath = join(profile, "demo-upload-binary.stl");
+  const binaryPath = join(profile, "web-upload-binary.stl");
   await writeFile(binaryPath, binary);
-  const invalidPath = join(profile, "demo-invalid.stl");
+  const invalidPath = join(profile, "web-invalid.stl");
   await writeFile(invalidPath, "not a valid stl");
   async function upload(file) {
     await evaluate("document.getElementById('stl-file').value=''");
@@ -715,10 +736,10 @@ try {
   console.log(
     "MODEL_DEFAULTS absolute top Z, both shortcuts, validation and spacing pass",
   );
-  await screenshot("tux-demo-upload.png");
+  await screenshot("tux-web-upload.png");
   console.log("UPLOAD_ASCII", await run("PathDropCutter", "BallCutter"));
   const asciiExport = await exportPoints();
-  assert.equal(asciiExport.model, "demo-upload-ascii.stl");
+  assert.equal(asciiExport.model, "web-upload-ascii.stl");
   await upload(binaryPath);
   await waitFor(modelReady);
   assert.equal(
@@ -730,6 +751,263 @@ try {
   const binaryExport = await exportPoints();
   assert.deepEqual(binaryExport.paths, asciiExport.paths);
   console.log("UPLOAD_BINARY_MATCH");
+  assert.deepEqual(
+    await evaluate(
+      "['center-x','center-y','inner-radius'].map(id=>Number(document.getElementById(id).value))",
+    ),
+    [105, 205, 0],
+  );
+  // Exercise real line/arc paths in WASM, including separation of adjacent spans.
+  for (const algorithm of ["PathDropCutter", "AdaptivePathDropCutter"]) {
+    for (const [pattern, direction] of [
+      ["zig", "x"],
+      ["zig", "y"],
+      ["zigzag", "-y"],
+      ["circles", "x"],
+    ]) {
+      await run(algorithm, "BallCutter", {
+        pattern,
+        "scan-direction": direction,
+        "circle-direction": "cw",
+        stepover: 2,
+        sampling: 0.25,
+        "min-sampling": 0.05,
+        "path-filter": "none",
+      });
+      const output = await exportPoints();
+      assert.equal(output.parameters.pattern, pattern);
+      assert(output.paths.every((p) => p.length >= 2));
+      if (pattern === "circles") {
+        for (const path of output.paths.slice(1)) {
+          assert.deepEqual(path[0], path.at(-1));
+          const radius = Math.hypot(path[0][0] - 105, path[0][1] - 205);
+          assert(
+            path.every(
+              (p) =>
+                Math.abs(Math.hypot(p[0] - 105, p[1] - 205) - radius) < 1e-8,
+            ),
+          );
+        }
+      } else {
+        const axis = direction.endsWith("x") ? 0 : 1;
+        output.paths.forEach((path, i) => {
+          assert(path.every((p) => p[1 - axis] === path[0][1 - axis]));
+          const sign = direction.startsWith("-") ? -1 : 1;
+          assert.equal(
+            Math.sign(path.at(-1)[axis] - path[0][axis]),
+            sign * (pattern === "zigzag" && i % 2 ? -1 : 1),
+          );
+        });
+      }
+    }
+  }
+  await run("AdaptivePathDropCutter", "BallCutter", {
+    "path-filter": "line",
+    "filter-tolerance": 0.01,
+  });
+  const filteredCircles = await exportPoints();
+  assert(
+    filteredCircles.statistics.count < filteredCircles.statistics.rawCount,
+  );
+  for (const path of filteredCircles.paths.slice(1))
+    assert.deepEqual(path[0], path.at(-1));
+  await run("PathDropCutter", "BallCutter", {
+    "center-x": 104,
+    "center-y": 205.5,
+    "inner-radius": 1,
+    "outer-radius": 4,
+    "start-angle": 30,
+    "radial-order": "inward",
+    "path-filter": "none",
+    stepover: 1,
+  });
+  const customCircles = await exportPoints();
+  assert.equal(customCircles.paths.length, 4);
+  customCircles.paths.forEach((path, i) => {
+    assert(
+      Math.abs(Math.hypot(path[0][0] - 104, path[0][1] - 205.5) - (4 - i)) <
+        1e-8,
+    );
+    assert.deepEqual(path[0], path.at(-1));
+  });
+  for (const algorithm of ["PathDropCutter", "AdaptivePathDropCutter"]) {
+    for (const [order, rotation] of [
+      ["outward", "cw"],
+      ["inward", "ccw"],
+    ]) {
+      await run(algorithm, "BallCutter", {
+        pattern: "spiral",
+        "radial-order": order,
+        "circle-direction": rotation,
+      });
+      const output = await exportPoints();
+      assert.equal(output.paths.length, 1);
+      const path = output.paths[0];
+      assert(path.length > 100);
+      const radius = (point) => Math.hypot(point[0] - 104, point[1] - 205.5);
+      assert(Math.abs(radius(path[0]) - (order === "outward" ? 1 : 4)) < 1e-8);
+      assert(
+        Math.abs(radius(path.at(-1)) - (order === "outward" ? 4 : 1)) < 1e-8,
+      );
+      assert(
+        Math.abs(
+          Math.atan2(path[0][1] - 205.5, path[0][0] - 104) - Math.PI / 6,
+        ) < 1e-8,
+      );
+      assert(path.some((point) => point[2] > output.parameters.floor));
+      for (let i = 1; i < path.length; i++) {
+        const a = [path[i - 1][0] - 104, path[i - 1][1] - 205.5],
+          b = [path[i][0] - 104, path[i][1] - 205.5];
+        assert(
+          (rotation === "ccw" ? 1 : -1) * (a[0] * b[1] - a[1] * b[0]) >= -1e-10,
+        );
+      }
+    }
+  }
+  await evaluate(
+    "document.getElementById('export-gcode').click();document.getElementById('gcode-form').requestSubmit()",
+  );
+  const spiralProgram = await exportGcode();
+  assert.equal(spiralProgram.match(/^G0 X/gm).length, 1);
+  assert.equal(spiralProgram.match(/^G1 Z/gm).length, 1);
+  await evaluate(
+    "document.getElementById('gcode-close').click();document.getElementById('pattern').scrollIntoView({block:'start'})",
+  );
+  await screenshot("web-spiral-controls.png");
+  await dimension("center-x", 104);
+  await dimension("inner-radius", 1);
+  await evaluate(
+    "document.getElementById('inner-radius').value='4';document.getElementById('settings').requestSubmit()",
+  );
+  assert.match(
+    await evaluate("document.getElementById('error').textContent"),
+    /Outer radius/,
+  );
+  await evaluate("document.getElementById('fit-circles').click()");
+  assert.deepEqual(
+    await evaluate(
+      "['center-x','center-y','inner-radius'].map(id=>Number(document.getElementById(id).value))",
+    ),
+    [105, 205, 0],
+  );
+  assert.equal(await evaluate("document.getElementById('error').hidden"), true);
+  await evaluate(
+    "document.getElementById('start-angle').value='0';document.getElementById('radial-order').value='outward'",
+  );
+  console.log(
+    "RADIAL_OPTIONS custom circles, continuous spirals, rotation/order, XY tolerance, fit shortcut and one-plunge G-code pass",
+  );
+  for (const algorithm of ["Waterline", "AdaptiveWaterline"]) {
+    for (const weave of ["simple", "smart"]) {
+      await run(algorithm, "BallCutter", {
+        weave,
+        height: 59,
+        layers: 2,
+        "z-step": 1,
+        "path-filter": "line",
+      });
+      const output = await exportPoints();
+      assert.equal(output.parameters.weave, weave);
+      assert.deepEqual(
+        output.statistics.levels.map((l) => l.z),
+        [59, 58],
+      );
+      for (const path of output.paths) assert.deepEqual(path[0], path.at(-1));
+    }
+  }
+  console.log(
+    "PATH_OPTIONS line/arc patterns, both weaves and per-path filtering pass",
+  );
+  const gcodePaths = await exportPoints();
+  await evaluate("document.getElementById('export-gcode').click()");
+  assert.equal(
+    await evaluate("document.getElementById('gcode-dialog').open"),
+    true,
+  );
+  assert.equal(
+    await evaluate("Number(document.getElementById('gcode-retract').value)"),
+    65,
+  );
+  await dimension("gcode-retract", 65);
+  await evaluate(
+    "document.getElementById('gcode-retract').value='59';document.getElementById('gcode-form').requestSubmit()",
+  );
+  assert.match(
+    await evaluate("document.getElementById('gcode-error').textContent"),
+    /Retract Z/,
+  );
+  assert.equal(
+    await evaluate("document.getElementById('gcode-download').disabled"),
+    true,
+  );
+  await evaluate(
+    "document.getElementById('gcode-retract').value='65';document.getElementById('gcode-feed').value='432.1';document.getElementById('gcode-plunge').value='87.6';document.getElementById('gcode-form').requestSubmit()",
+  );
+  assert.equal(
+    await evaluate("document.getElementById('gcode-error').hidden"),
+    true,
+  );
+  const program = await exportGcode();
+  assert(program.includes("G21\nG90\nG17\nG94\n"));
+  assert(program.includes("F432.1000") && program.includes("F87.6000"));
+  assert(program.includes("M3 S12000\nG4 P1.0000"));
+  assert.equal(
+    (program.match(/^\(Path /gm) || []).length,
+    gcodePaths.paths.length,
+  );
+  let retract = false;
+  for (const line of program.split("\n")) {
+    if (/^G0 Z/.test(line)) {
+      assert.equal(line, "G0 Z65.0000");
+      retract = true;
+    }
+    if (/^G0 X/.test(line)) assert(retract, "No XY rapid before retract");
+    if (/^G1 /.test(line)) retract = false;
+  }
+  assert(program.endsWith("M9\nM5\nM2\n"));
+  await screenshot("web-gcode-desktop.png");
+  await evaluate(
+    "document.getElementById('gcode-feed').value='500';document.getElementById('gcode-feed').dispatchEvent(new Event('input', {bubbles:true}))",
+  );
+  assert.equal(
+    await evaluate("document.getElementById('gcode-download').disabled"),
+    true,
+  );
+  await evaluate(
+    "document.getElementById('gcode-spindle').value='off';document.getElementById('gcode-spindle').dispatchEvent(new Event('change', {bubbles:true}))",
+  );
+  assert.equal(
+    await evaluate(
+      "document.getElementById('gcode-rpm').disabled && document.getElementById('gcode-dwell').disabled",
+    ),
+    true,
+  );
+  await cdp("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  assert.equal(
+    await evaluate(
+      "document.getElementById('gcode-dialog').scrollWidth <= document.getElementById('gcode-dialog').clientWidth",
+    ),
+    true,
+  );
+  await screenshot("web-gcode-mobile.png");
+  await evaluate("document.getElementById('gcode-close').click()");
+  await cdp("Emulation.setDeviceMetricsOverride", {
+    width: 1440,
+    height: 960,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await evaluate(
+    "(()=>{for(const [id,value] of Object.entries({pattern:'zigzag','scan-direction':'x',weave:'simple','path-filter':'none',height:60})){const e=document.getElementById(id);e.value=value;e.dispatchEvent(new Event('change',{bubbles:true}));}})()",
+  );
+  console.log(
+    "GCODE preview, clearance validation, feeds, spindle and download pass",
+  );
   // Starting exactly at the pointed summit must also complete, even if that
   // level has no contour; the following layer supplies a nonempty path.
   for (const algorithm of ["AdaptiveWaterline", "Waterline"]) {
@@ -862,7 +1140,7 @@ try {
   );
   console.log("PREVIEW", await run("AdaptiveWaterline", "BallCutter"));
   assert.equal((await exportPoints()).statistics.levels.length, 1);
-  await screenshot("tux-demo-waterline.png");
+  await screenshot("tux-web-waterline.png");
   await cdp("Emulation.setDeviceMetricsOverride", {
     width: 390,
     height: 844,
@@ -876,7 +1154,7 @@ try {
     await evaluate("document.documentElement.scrollWidth <= innerWidth"),
     true,
   );
-  await screenshot("tux-demo-mobile.png");
+  await screenshot("tux-web-mobile.png");
   await evaluate(
     "document.getElementById('sampling-presets').scrollIntoView({block:'center'})",
   );
@@ -892,7 +1170,7 @@ try {
     ),
     true,
   );
-  await screenshot("demo-sampling-mobile.png");
+  await screenshot("web-sampling-mobile.png");
   await cdp("Emulation.setDeviceMetricsOverride", {
     width: 1440,
     height: 960,
@@ -910,9 +1188,23 @@ try {
     "PAGES: project subpath loads; serial and threaded coordinates match exactly",
   );
   console.log("SERIAL", await run("PathDropCutter", "BallCutter"));
+  await run("PathDropCutter", "BallCutter", {
+    pattern: "circles",
+    "path-filter": "line",
+    stepover: 1,
+    sampling: 0.25,
+  });
+  assert((await exportPoints()).statistics.rawCount > 0);
+  await run("Waterline", "BallCutter", { weave: "smart" });
+  assert(
+    (await exportPoints()).paths.every((p) =>
+      p[0].every((v, i) => v === p.at(-1)[i]),
+    ),
+  );
+  console.log("SERIAL_OPTIONS circles, Smart weave and native filtering pass");
   // The delivered file must also work without any local HTTP server.
   await cdp("Page.navigate", {
-    url: pathToFileURL(resolve("examples/web-demo/index.html")).href,
+    url: pathToFileURL(resolve("examples/web/index.html")).href,
   });
   await waitFor(idle);
   console.log(
