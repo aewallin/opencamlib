@@ -140,7 +140,6 @@ void BatchPushCutter::pushCutter3() {
     omp_set_num_threads(nthreads);
 #endif
     std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
-    Interval* i;
     std::list<Triangle>* tris;
     std::vector<Fiber>& fiberr = *fibers;
 #ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
@@ -152,8 +151,8 @@ void BatchPushCutter::pushCutter3() {
 #endif
     unsigned int calls=0;
     
-    #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)
-    //#pragma omp parallel for shared( calls, fiberr) private(n,i,tris,it,it_end)
+    #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,tris,it,it_end)
+    //#pragma omp parallel for shared( calls, fiberr) private(n,tris,it,it_end)
     for (n=0; n<Nmax; ++n) { // loop through all fibers
         CLPoint cl; // cl-point on the fiber
         if ( x_direction ) {
@@ -170,11 +169,10 @@ void BatchPushCutter::pushCutter3() {
         for ( it=tris->begin() ; it!=it_end ; ++it) { // loop through the found overlapping triangles
             //if ( bb->overlaps( it->bb ) ) {
                 // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
-                i = new Interval();
-                cutter->pushCutter(fiberr[n],*i,*it);  
-                fiberr[n].addInterval(*i); 
+                Interval i;
+                cutter->pushCutter(fiberr[n],i,*it);
+                fiberr[n].addInterval(i);
                 ++calls;
-                delete i;
             //}
         }
         delete( tris );

@@ -74,7 +74,6 @@ void FiberPushCutter::pushCutter1(Fiber& f) {
 
 void FiberPushCutter::pushCutter2(Fiber& f) {
     std::list<Triangle>::iterator it,it_end;    // for looping over found triangles
-    Interval* i;
     std::list<Triangle>* tris;
     CLPoint cl;
     if ( x_direction ) {
@@ -89,11 +88,10 @@ void FiberPushCutter::pushCutter2(Fiber& f) {
     tris = root->search_cutter_overlap(cutter, &cl);
     it_end = tris->end();
     for ( it=tris->begin() ; it!=it_end ; ++it) {
-		i = new Interval();
-		cutter->pushCutter(f,*i,*it);
-		f.addInterval(*i);
+		Interval i;
+		cutter->pushCutter(f,i,*it);
+		f.addInterval(i);
 		++nCalls;
-		delete i;
     }
     delete( tris );
 }
