@@ -26,7 +26,7 @@ Options:
 
   --platform                  Set the platform, for when auto-detection doesn't work (one of: windows, macos, linux)
 
-  --macos-architecture        Set the macOS architecture to compile for (one of: arm64, x86_64), useful for cross compiling. Default is arm64.
+  --macos-architecture        Set the macOS architecture to compile for (one of: arm64, x86_64), useful for cross compiling. Defaults to the host architecture.
   --docker-image              Set the docker image to forward this install command to, useful for cross compiling
   --docker-before-install     Run given commands in the docker container before running ./install.sh, (only valid when using --docker-image)
   --cmake-generator           Set the CMake Generator option
@@ -239,23 +239,35 @@ install_ci_dependencies() {
             ${maybe_sudo} yum install curl
         fi
     elif [ "${determined_os}" = "macos" ]; then
-        OCL_MACOS_ARCHITECTURE="${OCL_MACOS_ARCHITECTURE:-arm64}"  # default to arm64
-        prettyprint "Downloading libomp for: " "${OCL_MACOS_ARCHITECTURE}"
-        brew_cache=$(brew --cache)
-        if [ "${OCL_MACOS_ARCHITECTURE}" = "arm64" ]; then
-            brew fetch --bottle-tag=arm64_sequoia libomp >/dev/null
-            libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*arm64_sequoia.bottle.tar.gz" -print | tail -n1)
+        OCL_MACOS_ARCHITECTURE="${OCL_MACOS_ARCHITECTURE:-$(uname -m)}"
+        if [ "${OCL_MACOS_ARCHITECTURE}" = "$(uname -m)" ]; then
+            prettyprint "Installing libomp for: " "${OCL_MACOS_ARCHITECTURE}"
+            brew install libomp
+            libomp_prefix=$(brew --prefix libomp)
         else
-            arch -x86_64 brew fetch --bottle-tag=sonoma libomp >/dev/null
-            libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*sonoma.bottle.tar.gz" -print | tail -n1)
+            prettyprint "Downloading libomp for cross compilation: " "${OCL_MACOS_ARCHITECTURE}"
+            brew_cache=$(brew --cache)
+            if [ "${OCL_MACOS_ARCHITECTURE}" = "arm64" ]; then
+                brew fetch --bottle-tag=arm64_sequoia libomp >/dev/null
+                libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*arm64_sequoia.bottle.tar.gz" -print | tail -n1)
+            else
+                arch -x86_64 brew fetch --bottle-tag=sonoma libomp >/dev/null
+                libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*sonoma.bottle.tar.gz" -print | tail -n1)
+            fi
+            [ -n "${libomp_tar_loc}" ] || invalid_argument "Failed to locate ${OCL_MACOS_ARCHITECTURE} libomp bottle in Homebrew cache"
+            cp "${libomp_tar_loc}" /tmp/libomp.tar.gz
+            mkdir -p /tmp/libomp
+            tar -xzf /tmp/libomp.tar.gz -C /tmp/libomp
+            libomp_prefix=$(find /tmp/libomp/libomp -mindepth 1 -maxdepth 1 -type d ! -name fixed -print | sort | tail -n1)
+            [ -n "${libomp_prefix}" ] || invalid_argument "Failed to locate extracted libomp bottle"
+            # Raw bottles retain Homebrew's placeholder install name. Relocate it
+            # before linking so executables can load this runtime through CMake's rpath.
+            install_name_tool -id "@rpath/libomp.dylib" "${libomp_prefix}/lib/libomp.dylib"
+            codesign --force --sign - "${libomp_prefix}/lib/libomp.dylib"
         fi
-        [ -n "${libomp_tar_loc}" ] || invalid_argument "Failed to locate ${OCL_MACOS_ARCHITECTURE} libomp bottle in Homebrew cache"
-        cp "${libomp_tar_loc}" /tmp/libomp.tar.gz
-        mkdir -p /tmp/libomp
-        tar -xzf /tmp/libomp.tar.gz -C /tmp/libomp
-        libomp_version_dir=$(find /tmp/libomp/libomp -mindepth 1 -maxdepth 1 -type d ! -name fixed -print | sort | tail -n1)
-        [ -n "${libomp_version_dir}" ] || invalid_argument "Failed to locate extracted libomp bottle"
-        ln -sfn "${libomp_version_dir}" /tmp/libomp/libomp/fixed
+        # Keep the same dependency path for CMake and cibuildwheel subprocesses.
+        mkdir -p /tmp/libomp/libomp
+        ln -sfn "${libomp_prefix}" /tmp/libomp/libomp/fixed
         export OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
     fi
 }
