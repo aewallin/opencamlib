@@ -43,21 +43,24 @@ class FiberPushCutter : public Operation {
         virtual ~FiberPushCutter();
         
         /// set the STL-surface and build kd-tree
-        void setSTL(const STLSurf& s);
+        void setSTL(const STLSurf& s) override;
 
         /// set this bpc to be x-direction
-        void setXDirection() {x_direction=true;y_direction=false;}
+        void setXDirection() override {x_direction=true;y_direction=false;}
         /// set this bpc to be Y-direction
-        void setYDirection() {x_direction=false;y_direction=true;}
+        void setYDirection() override {x_direction=false;y_direction=true;}
         /// run() is an error.
-        void run() {assert(0);}
-        void run(Fiber& f) {pushCutter2(f);}
+        void run() override {throw std::logic_error("FiberPushCutter requires an input fiber");}
+        void run(Fiber& f) override {validateInputs(); nCalls += pushCutter2(f);}
+        void reset() override {nCalls = 0;}
         
     protected:
+        void setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) override;
         /// input fiber is tested against all triangles of surface
         void pushCutter1(Fiber& f);
-        /// use kd-tree search to find overlapping triangles
-        void pushCutter2(Fiber& f);
+        /// Evaluate a fiber without changing shared state; return contact tests.
+        unsigned int pushCutter2(Fiber& f) const;
+        friend class AdaptiveWaterline;
         
     // DATA
         /// true if this we have only x-direction fibers

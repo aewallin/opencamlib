@@ -52,7 +52,7 @@ class STLSurf {
         /// bounding-box
         Bbox bb;
         /// STLSurf string repr
-        friend std::ostream &operator<<(std::ostream& stream, const STLSurf s);
+        friend std::ostream &operator<<(std::ostream& stream, const STLSurf& s);
 };
 
 } // end namespace

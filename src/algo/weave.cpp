@@ -34,7 +34,7 @@ namespace weave
 
 int VertexProps::count = 0;
 
-void Weave::addFiber(Fiber& f) {
+void Weave::addFiber(const Fiber& f) {
     if ( f.dir.xParallel() && !f.empty() ) {
         xfibers.push_back(f);
     } else if ( f.dir.yParallel() && !f.empty() ) {

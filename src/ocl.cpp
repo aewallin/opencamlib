@@ -20,16 +20,16 @@
  */
 
 #include "ocl.hpp"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
+#include "parallel.hpp"
 #include "version_string.hpp"
 
 namespace ocl
 {
   int max_threads()
   {
-#ifdef _OPENMP
+#ifdef OCL_WASM_THREAD_POOL_SIZE
+    return OCL_WASM_THREAD_POOL_SIZE + 1;
+#elif defined(_OPENMP)
     return omp_get_max_threads();
 #endif
     return 1;

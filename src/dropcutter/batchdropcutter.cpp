@@ -20,9 +20,7 @@
 */
 
 
-#ifdef _OPENMP // this should really not be a check for Windows, but a check for OpenMP
-    #include <omp.h>
-#endif
+#include "parallel.hpp"
 
 #include "point.hpp"
 #include "triangle.hpp"
@@ -34,29 +32,28 @@ namespace ocl
 //********   ********************** */
 
 BatchDropCutter::BatchDropCutter() {
-    clpoints = new std::vector<CLPoint>();
+    clpoints = std::make_unique<std::vector<CLPoint>>();
     nCalls = 0;
-    nthreads = 1;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs(); // figure out how many cores we have
-#endif
+    nthreads = detail::default_threads();
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree<Triangle>();
+    root = std::make_unique<KDTree<Triangle>>();
 }
 
 BatchDropCutter::~BatchDropCutter() { 
     clpoints->clear();
-    delete clpoints;
-    delete root;
 }
  
 void BatchDropCutter::setSTL(const STLSurf &s) {
+    Operation::setSTL(s);
+}
+
+void BatchDropCutter::setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
     // std::cout << "bdc::setSTL()\n";
-    surf = &s;
     root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     root->setBucketSize( bucketSize );
-    root->build(s.tris);
+    root->buildSnapshot(std::move(snapshot));
+    surf = &s;
     // std::cout << "bdc::setSTL() done.\n";
 }
 
@@ -173,21 +170,19 @@ void BatchDropCutter::dropCutter4() {
     return;
 }
 
-// use OpenMP to share work between threads
+// Share independent points between the configured threads.
 void BatchDropCutter::dropCutter5() {
     std::vector<CLPoint>& clref = *clpoints;
-    const std::ptrdiff_t count = static_cast<std::ptrdiff_t>(clref.size());
-    unsigned int calls = 0;
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:calls)
-    for (std::ptrdiff_t n=0; n<count; ++n) {
+    nCalls = detail::parallel_sum(clref.size(), nthreads, [&](std::size_t n) {
+        unsigned int calls = 0;
         root->visit_cutter_overlap(cutter, &clref[n], [&](const Triangle& t) {
             if (cutter->overlaps(clref[n],t) && clref[n].below(t)) {
                 cutter->dropCutter(clref[n],t);
                 ++calls;
             }
         });
-    }
-    nCalls = calls;
+        return calls;
+    });
 }
 
 }// end namespace

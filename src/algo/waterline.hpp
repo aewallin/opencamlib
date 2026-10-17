@@ -45,6 +45,7 @@ class Waterline : public Operation {
         
         /// Set the z-coordinate for the waterline we generate
         void setZ(const double z) {
+            requireFinite(z, "Z must be finite");
             zh = z;
         }
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must

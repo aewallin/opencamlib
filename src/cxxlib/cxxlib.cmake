@@ -1,12 +1,6 @@
-add_library(ocl
-  SHARED
-    ${OCL_SRC}
-    ${OCL_GEO_SRC}
-    ${OCL_CUTTER_SRC}
-    ${OCL_ALGO_SRC}
-    ${OCL_DROPCUTTER_SRC}
-    ${OCL_COMMON_SRC}
-)
+add_library(ocl SHARED)
+target_link_libraries(ocl PRIVATE $<BUILD_INTERFACE:ocl_core>)
+ocl_configure_target(ocl)
 
 if(WIN32)
   # on windows, prefix the library with lib, and make sure the .lib file is installed as well
@@ -20,18 +14,15 @@ include(GNUInstallDirs)
 # add headers
 set_property(TARGET ocl PROPERTY PUBLIC_HEADER ${OCL_INCLUDE_FILES})
 
-# add include directories
-target_include_directories(ocl
-  PRIVATE
-    ${PROJECT_SOURCE_DIR}/cutters
-    ${PROJECT_SOURCE_DIR}/geo
-    ${PROJECT_SOURCE_DIR}/algo
-    ${PROJECT_SOURCE_DIR}/dropcutter
-    ${PROJECT_SOURCE_DIR}/common
-    ${PROJECT_SOURCE_DIR}
-  PUBLIC
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
+# Export the same header layout for in-tree and installed consumers.
+target_include_directories(ocl PUBLIC
+  $<BUILD_INTERFACE:${OCL_SOURCE_DIR}>
+  $<BUILD_INTERFACE:${OCL_SOURCE_DIR}/cutters>
+  $<BUILD_INTERFACE:${OCL_SOURCE_DIR}/geo>
+  $<BUILD_INTERFACE:${OCL_SOURCE_DIR}/algo>
+  $<BUILD_INTERFACE:${OCL_SOURCE_DIR}/dropcutter>
+  $<BUILD_INTERFACE:${OCL_SOURCE_DIR}/common>
+  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 # disable /GL and enable /LTCG (see https://github.com/luxonis/depthai-core/issues/334)
 if(WIN32 AND MSVC) # AND CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS
@@ -61,19 +52,18 @@ install(
 )
 
 if(APPLE)
-  target_compile_options(ocl PRIVATE -g)
+  target_compile_options(ocl PRIVATE $<$<CONFIG:RelWithDebInfo>:-g>)
   # if(CMAKE_CXX_FLAGS MATCHES "-flto")
     set(lto_object ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/ocl-lto.o)
     set_property(TARGET ocl APPEND_STRING PROPERTY
       LINK_FLAGS " -Wl,-object_path_lto -Wl,${lto_object}")
   # endif()
   add_custom_command(TARGET ocl POST_BUILD
-    COMMAND xcrun dsymutil $<TARGET_FILE:ocl>
-    COMMAND xcrun strip -Sl $<TARGET_FILE:ocl>)
+    COMMAND xcrun dsymutil $<TARGET_FILE:ocl>)
   install(
-    FILES $<TARGET_FILE:ocl>.dSYM
+    DIRECTORY $<TARGET_FILE:ocl>.dSYM
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/opencamlib
-    PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+    USE_SOURCE_PERMISSIONS
   )
 endif()
 
@@ -88,13 +78,13 @@ install(
 # this creates the cmake config
 include(CMakePackageConfigHelpers)
 configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/../cmake/${PROJECT_NAME}Config.cmake.in"
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  "${OCL_SOURCE_DIR}/../cmake/${PROJECT_NAME}Config.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake
 )
 
 # this installs the cmake config
-install(FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cmake/${PROJECT_NAME}
 )
 

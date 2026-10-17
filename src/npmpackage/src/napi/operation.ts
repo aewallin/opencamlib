@@ -1,3 +1,4 @@
+import { buildSurface } from '../native'
 import STLSurf from '../stlsurf'
 import MillingCutter from '../millingcutter'
 import ocl from './ocl'
@@ -10,19 +11,10 @@ class Operation {
     protected actualClass: any
 
     setSTL(surface: STLSurf) {
-        if (!surface.triangles) {
-            throw new Error('Please provide a valid STLSurf, use STLReader to read a file into it')
-        }
-        const actualSurface = new ocl.STLSurf()
-        surface.triangles.forEach((vertice: [number, number, number][]) => {
-            const p1 = new ocl.Point(vertice[0][0], vertice[0][1], vertice[0][2])
-            const p2 = new ocl.Point(vertice[1][0], vertice[1][1], vertice[1][2])
-            const p3 = new ocl.Point(vertice[2][0], vertice[2][1], vertice[2][2])
-            const triangle = new ocl.Triangle(p1, p2, p3)
-            actualSurface.addTriangle(triangle)
-        })
-        this.actualClass.setSTL(actualSurface)
+        this.actualClass.setSTL(buildSurface(ocl, surface))
     }
+
+    dispose() { this.actualClass.dispose() }
 
     setCutter(cutter: MillingCutter) {
         const cutterDef = cutter.serialize()

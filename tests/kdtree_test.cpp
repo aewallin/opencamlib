@@ -94,6 +94,24 @@ int main() {
         tree.visit(ocl::Bbox(-10,10,-10,10,-10,10), [&](const Object& o) { ids.push_back(o.id); });
         CHECK(ids == std::vector<int>({3,2,1,0}));
     }
+    // Prepared geometry can outlive its creator and be shared across search planes.
+    {
+        auto snapshot = std::make_shared<const std::vector<Object>>(
+            std::initializer_list<Object>{{ocl::Bbox(0,1,0,1,0,1), 42}});
+        ocl::KDTree<Object> xy, yz;
+        xy.setXYDimensions(); yz.setYZDimensions();
+        Object::copies = 0;
+        xy.buildSnapshot(snapshot); yz.buildSnapshot(snapshot);
+        snapshot.reset();
+        CHECK(Object::copies == 0);
+        for (auto* tree : {&xy, &yz}) {
+            int visits = 0;
+            tree->visit(ocl::Bbox(-1,2,-1,2,-1,2), [&](const Object& object) {
+                CHECK(object.id == 42); ++visits;
+            });
+            CHECK(visits == 1);
+        }
+    }
     // Coincident objects cannot be split, even with bucket size one.
     ocl::KDTree<Object> tree;
     tree.setXYDimensions();

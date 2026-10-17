@@ -298,23 +298,28 @@ std::string CompositeCutter::str() const {
 
 // TESTING
 CompCylCutter::CompCylCutter(double diam2, double clength) {
-    MillingCutter* shaft = new CylCutter(diam2, clength );
+    auto shaft = std::make_shared<CylCutter>(diam2, clength );
+    ownedCutters.push_back(shaft);
     addCutter( *shaft, diam2/2.0, clength , 0.0 );
     length = clength;
 }
 
 // TESTING
 CompBallCutter::CompBallCutter(double diam2, double clength) {
-    MillingCutter* shaft = new BallCutter(diam2, clength );
+    auto shaft = std::make_shared<BallCutter>(diam2, clength );
+    ownedCutters.push_back(shaft);
     addCutter( *shaft, diam2/2.0, clength , 0.0 );
     length = clength;
 }
 
 
 CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
-    MillingCutter* cyl = new CylCutter(diam1, 1 );
-    MillingCutter* cone = new ConeCutter(diam2, angle);
-    MillingCutter* shaft = new CylCutter(diam2, 20 ); // FIXME: dummy height
+    auto cyl = std::make_shared<CylCutter>(diam1, 1 );
+    ownedCutters.push_back(cyl);
+    auto cone = std::make_shared<ConeCutter>(diam2, angle);
+    ownedCutters.push_back(cone);
+    auto shaft = std::make_shared<CylCutter>(diam2, 20 );
+    ownedCutters.push_back(shaft); // FIXME: dummy height
 
     double cone_offset= - (diam1/2)/tan(angle);
     double cyl_height = 0.0;
@@ -328,9 +333,12 @@ CylConeCutter::CylConeCutter(double diam1, double diam2, double angle) {
 
 
 BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
-    MillingCutter* c1 = new BallCutter(diam1, 1); // at offset zero
-    MillingCutter* c2 = new ConeCutter(diam2, angle);
-    MillingCutter* shaft = new CylCutter(diam2, 20); // FIXME: length
+    auto c1 = std::make_shared<BallCutter>(diam1, 1);
+    ownedCutters.push_back(c1); // at offset zero
+    auto c2 = std::make_shared<ConeCutter>(diam2, angle);
+    ownedCutters.push_back(c2);
+    auto shaft = std::make_shared<CylCutter>(diam2, 20);
+    ownedCutters.push_back(shaft); // FIXME: length
 
     double radius1 = diam1/2.0;
     double radius2 = diam2/2.0;
@@ -348,9 +356,12 @@ BallConeCutter::BallConeCutter(double diam1, double diam2, double angle) {
 }
 
 BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, double angle) {
-    MillingCutter* c1 = new BullCutter(diam1, radius1, 1.0); // at offset zero
-    MillingCutter* c2 = new ConeCutter(diam2, angle);
-    MillingCutter* shaft = new CylCutter(diam2, 20);
+    auto c1 = std::make_shared<BullCutter>(diam1, radius1, 1.0);
+    ownedCutters.push_back(c1); // at offset zero
+    auto c2 = std::make_shared<ConeCutter>(diam2, angle);
+    ownedCutters.push_back(c2);
+    auto shaft = std::make_shared<CylCutter>(diam2, 20);
+    ownedCutters.push_back(shaft);
 
     double h1 = radius1*sin(angle); // the contact point is this much down from the toroid-ring
     double rad = sqrt( square(radius1) - square(h1) );
@@ -368,9 +379,12 @@ BullConeCutter::BullConeCutter(double diam1, double radius1, double diam2, doubl
 
 ConeConeCutter::ConeConeCutter(double diam1, double angle1, double diam2, double angle2)
 {
-    MillingCutter* c1 = new ConeCutter(diam1, angle1); // at offset zero
-    MillingCutter* c2 = new ConeCutter(diam2, angle2);
-    MillingCutter* shaft = new CylCutter(diam2, 20);
+    auto c1 = std::make_shared<ConeCutter>(diam1, angle1);
+    ownedCutters.push_back(c1); // at offset zero
+    auto c2 = std::make_shared<ConeCutter>(diam2, angle2);
+    ownedCutters.push_back(c2);
+    auto shaft = std::make_shared<CylCutter>(diam2, 20);
+    ownedCutters.push_back(shaft);
 
     double height1 = (diam1/2.0)/tan(angle1);
     double tmp = (diam1/2.0)/tan(angle2);

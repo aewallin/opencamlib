@@ -22,6 +22,9 @@
 #define PATH_H
 
 #include <list>
+#include <memory>
+#include <stdexcept>
+#include <vector>
 
 #include "point.hpp"
 #include "line.hpp"
@@ -42,6 +45,10 @@ enum SpanType{
 /// location along span is based on a parameter t for which 0 <= t <= 1.0
 class Span{
     public:
+        /// Custom spans may override this to support copying a Path.
+        virtual std::unique_ptr<Span> clone() const {
+            throw std::logic_error("This span does not support copying");
+        }
         /// return type of span
         virtual SpanType type()const = 0;
         /// return the length of the span in the xy-plane
@@ -57,18 +64,21 @@ class LineSpan : public Span {
     public:
         /// create a line span from Line l
         LineSpan(const Line& l) : line(l){}
+        std::unique_ptr<Span> clone() const override {
+            return std::make_unique<LineSpan>(*this);
+        }
         /// the line
         Line line;
 
         // Span's virtual functions
         /// return span type
-        SpanType type()const{return LineSpanType;}
+        SpanType type()const override {return LineSpanType;}
         /// return span length
-        double length2d() const {
+        double length2d() const override {
             return line.length2d();
         }
         /// return point on span
-        Point getPoint(double t) const {
+        Point getPoint(double t) const override {
             return line.getPoint(t);
         }
 };
@@ -78,16 +88,19 @@ class ArcSpan : public Span {
     public:
         /// create span
         ArcSpan(const Arc& a) : arc(a){}
+        std::unique_ptr<Span> clone() const override {
+            return std::make_unique<ArcSpan>(*this);
+        }
         /// arc
         Arc arc;
 
         // Span's virtual functions
         /// return type
-        SpanType type()const{return ArcSpanType;}
+        SpanType type()const override {return ArcSpanType;}
         /// return length in xy-plane
-        double length2d()const{return arc.length2d();}
+        double length2d()const override {return arc.length2d();}
         /// return a point on the span
-        Point getPoint(double t)const{return arc.getPoint(t);}
+        Point getPoint(double t)const override {return arc.getPoint(t);}
 };
 
 ///
@@ -99,10 +112,14 @@ class Path {
         Path();
         /// copy constructor
         Path(const Path &p);
+        Path(Path&& p) noexcept;
+        Path& operator=(Path p);
+        void swap(Path& p) noexcept;
         /// destructor
         virtual ~Path();
 
-        /// list of spans in this path
+        /// Non-owning view of spans. append() owns its spans until Path destruction.
+        /// Directly inserted pointers remain owned by the caller.
         std::list<Span*> span_list;
 
         // FIXME: this looks wrong
@@ -111,6 +128,11 @@ class Path {
         void append(const Line &l);
         /// append an Arc to this path
         void append(const Arc &a);
+        /// Append an owned copy, including user-defined spans implementing clone().
+        void append(const Span& span);
+    private:
+        void append_owned(std::unique_ptr<Span> span);
+        std::vector<std::unique_ptr<Span>> owned_spans;
 };
 
 } // end namespace

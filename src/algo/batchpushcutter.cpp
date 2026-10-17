@@ -19,11 +19,8 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "batchpushcutter.hpp"
+#include "parallel.hpp"
 #include "millingcutter.hpp"
 #include "point.hpp"
 #include "triangle.hpp"
@@ -33,25 +30,23 @@ namespace ocl
 
 //********   ********************** */
 
-BatchPushCutter::BatchPushCutter() {
-    fibers = new std::vector<Fiber>();
+BatchPushCutter::BatchPushCutter() : x_direction(false), y_direction(false) {
+    fibers = std::make_unique<std::vector<Fiber>>();
     nCalls = 0;
-    nthreads = 1;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs(); // figure out how many cores we have
-#endif
+    nthreads = detail::default_threads();
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree<Triangle>();
+    root = std::make_unique<KDTree<Triangle>>();
 }
 
 BatchPushCutter::~BatchPushCutter() {
-    delete fibers;
-    delete root;
 }
 
 void BatchPushCutter::setSTL(const STLSurf &s) {
-    surf = &s;
+    Operation::setSTL(s);
+}
+
+void BatchPushCutter::setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
     // std::cout << "BPC::setSTL() Building kd-tree... bucketSize=" << bucketSize << "..";
     root->setBucketSize( bucketSize );
     if (x_direction)
@@ -59,11 +54,11 @@ void BatchPushCutter::setSTL(const STLSurf &s) {
     else if (y_direction)
         root->setXZDimensions();
     else {
-        std::cerr << "ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
-        assert(0);
+        throw std::logic_error("Set fiber direction before setting the surface");
     }
     // std::cout << "BPC::setSTL() root->build()...";
-    root->build(s.tris);
+    root->buildSnapshot(std::move(snapshot));
+    surf = &s;
     // std::cout << "done.\n";
 }
 
@@ -127,10 +122,8 @@ void BatchPushCutter::pushCutter2() {
 /// use OpenMP for multi-threading
 void BatchPushCutter::pushCutter3() {
     std::vector<Fiber>& fiberr = *fibers;
-    const std::ptrdiff_t count = static_cast<std::ptrdiff_t>(fiberr.size());
-    unsigned int calls = 0;
-    #pragma omp parallel for schedule(dynamic) num_threads(nthreads) reduction(+:calls)
-    for (std::ptrdiff_t n=0; n<count; ++n) { // loop through all fibers
+    nCalls = detail::parallel_sum(fiberr.size(), nthreads, [&](std::size_t n) {
+        unsigned int calls = 0;
         CLPoint cl; // cl-point on the fiber
         if ( x_direction ) {
             cl.x=0;
@@ -147,9 +140,8 @@ void BatchPushCutter::pushCutter3() {
             fiberr[n].addInterval(i);
             ++calls;
         });
-    } // OpenMP parallel region ends here
-    
-    this->nCalls = calls;
+        return calls;
+    });
     // std::cout << "\nBatchPushCutter3 done." << std::endl;
     return;
 }

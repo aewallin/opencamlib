@@ -34,19 +34,21 @@ namespace ocl
 
 //********   ********************** */
 
-FiberPushCutter::FiberPushCutter() {
+FiberPushCutter::FiberPushCutter() : x_direction(false), y_direction(false) {
     nCalls = 0;
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree<Triangle>();
+    root = std::make_unique<KDTree<Triangle>>();
 }
 
 FiberPushCutter::~FiberPushCutter() {
-    delete root;
 }
 
 void FiberPushCutter::setSTL(const STLSurf &s) {
-    surf = &s;
+    Operation::setSTL(s);
+}
+
+void FiberPushCutter::setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
     // std::cout << "BPC::setSTL() Building kd-tree... bucketSize=" << bucketSize << "..";
     root->setBucketSize( bucketSize );
     if (x_direction)
@@ -54,11 +56,11 @@ void FiberPushCutter::setSTL(const STLSurf &s) {
     else if (y_direction)
         root->setXZDimensions();
     else {
-        std::cout << " ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
-        assert(0);
+        throw std::logic_error("Set fiber direction before setting the surface");
     }
     // std::cout << "BPC::setSTL() root->build()";
-    root->build(s.tris);
+    root->buildSnapshot(std::move(snapshot));
+    surf = &s;
     // std::cout << " done.\n";
 }
 
@@ -72,7 +74,8 @@ void FiberPushCutter::pushCutter1(Fiber& f) {
     }
 }
 
-void FiberPushCutter::pushCutter2(Fiber& f) {
+unsigned int FiberPushCutter::pushCutter2(Fiber& f) const {
+    unsigned int calls = 0;
     CLPoint cl;
     if ( x_direction ) {
         cl.x=0;
@@ -87,8 +90,9 @@ void FiberPushCutter::pushCutter2(Fiber& f) {
         Interval i;
         cutter->pushCutter(f,i,t);
         f.addInterval(i);
-        ++nCalls;
+        ++calls;
     });
+    return calls;
 }
 
 }// end namespace

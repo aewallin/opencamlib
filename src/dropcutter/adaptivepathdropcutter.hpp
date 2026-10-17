@@ -52,19 +52,21 @@ class AdaptivePathDropCutter : public Operation {
         virtual void run();
         /// set the minimum sapling interval
         void setMinSampling(double s) {
-            assert( s > 0.0 );
+            requirePositive(s, "Minimum sampling must be finite and positive");
             //std::cout << " apdc::setMinSampling = " << s << "\n";
             min_sampling=s;
         }
         /// set the cosine limit for the flat() predicate
-        void setCosLimit(double lim) {cosLimit=lim;}
+        void setCosLimit(double lim) {requireCosine(lim); cosLimit=lim;}
         void setZ(const double z) {
+            requireFinite(z, "Z must be finite");
             minimumZ = z;
         }
         double getZ() const {
             return minimumZ;
         }
         void setPath(const Path* p) {
+            if (!p) throw std::invalid_argument("Path must not be null");
             path = p;
             
             subOp[0]->clearCLPoints();

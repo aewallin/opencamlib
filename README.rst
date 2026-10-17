@@ -407,6 +407,98 @@ Organization of Files
  │   ├── pythonlib               python library bindings and cmake config
  └── stl                         STL files for testing
 
+========================
+Multithreaded WebAssembly
+========================
+
+The `Tux toolpath demo <examples/web-demo/README.rst>`_ builds a single HTML file
+containing the model and serial/threaded WASM runtimes, with Three.js loaded from
+a CDN. Build it using the documented presets, or download the
+``opencamlib-web-demo`` artifact from a successful Test workflow run. Open the
+HTML file directly for serial execution, or run
+``python3 examples/web-demo/serve.py`` and open http://localhost:8001 to enable
+threads. It includes STL uploads, cutter and sampling presets, timing statistics,
+playback, and point export. The generated HTML stays out of source control.
+The Test workflow also supports opt-in GitHub Pages publishing; see the demo
+instructions for setup. Pages runs the serial build in a background worker.
+
+For fast Release WASM builds, check that configuration reports interprocedural
+optimization enabled (``OCL_ENABLE_IPO=ON``). CMake reports a warning if its
+compiler check fails. ``OCL_WASM_NATIVE_EXCEPTIONS=ON`` also reduces exception
+wrapper overhead in supporting WASM runtimes; it is enabled in the web demo.
+This option defaults to OFF to retain compatibility with older runtimes.
+See the demo instructions for a repeatable adaptive-waterline benchmark.
+
+The Emscripten build supports an optional pthread backend. Enable it with::
+
+    ./install.sh --build-library emscripten --build-type release --emscripten-threads --install
+
+Or configure a separate build after activating the Emscripten SDK::
+
+    emcmake cmake -S . -B build/wasm-threads -DCMAKE_BUILD_TYPE=Release \
+      -DBUILD_EMSCRIPTEN_LIB=ON -DBUILD_DOC=OFF -DUSE_OPENMP=OFF \
+      -DOCL_WASM_THREADS=ON -DOCL_WASM_THREAD_POOL_SIZE=3
+    cmake --build build/wasm-threads --parallel
+    ctest --test-dir build/wasm-threads --output-on-failure
+
+``OCL_WASM_THREAD_POOL_SIZE`` counts preloaded workers in addition to the calling
+thread: the default of 3 supports up to 4 threads per operation. The installer
+also accepts this setting as an environment variable. ``setThreads(1)`` runs
+serially; zero also means one. Larger requests are capped to the pool size plus
+one. Defaults use the smaller of this limit and the reported CPU count.
+``module.maxThreads()`` reports the build's limit, and operations expose
+``setThreads`` and ``getThreads`` in both Embind and the browser package.
+
+Batch drop/push-cutter work is distributed by point/fiber. Adaptive path
+drop-cutter distributes independent spans and preserves output order; a single
+span stays serial. Adaptive waterline batches independent midpoint fibers
+across both directions using the selected threads, then restores the original
+fiber order before serial contour assembly. Native builds retain their OpenMP
+backend.
+
+Serve the page and assets over HTTPS (or localhost), with these response headers::
+
+    Cross-Origin-Opener-Policy: same-origin
+    Cross-Origin-Embedder-Policy: require-corp
+
+The page must report ``crossOriginIsolated === true``. External assets must also
+satisfy the embedding policy. The threaded module uses SharedArrayBuffer and
+cannot fall back on browsers without it; keep a separate build with
+``OCL_WASM_THREADS=OFF`` for those deployments. See the
+`Emscripten pthread documentation <https://emscripten.org/docs/porting/pthreads.html>`_.
+
+The generated ``ocl.js`` remains a single file. Load it directly to obtain the
+Embind factory, or install it into ``src/npmpackage/build`` and run
+``npm run build-emscripten`` there to build the browser package. When bundling,
+also serve the original generated ``ocl.js`` as a separate asset and configure
+its absolute URL **before constructing any operations**::
+
+    await ocl.initialize({
+        mainScriptUrlOrBlob: new URL('/assets/ocl.js', location.href).href
+    })
+    const operation = new ocl.PathDropCutter()
+    await operation.setThreads(4)
+    // Configure surface, cutter, path, sampling and Z, then run and dispose.
+
+For direct Embind use, call ``await ocl()`` after loading the generated script;
+when its URL cannot be inferred, pass the same ``mainScriptUrlOrBlob`` option to
+that factory. The default environment supports both pages and Web Workers. Add
+``-DOCL_WASM_ENVIRONMENT=web,worker,node`` to also run the module under Node.
+
+The worker pool is ready when initialization resolves. Toolpath calls remain
+synchronous inside WASM, even when the browser wrapper returns a promise. Run
+the module and operations in a dedicated Web Worker to keep the page responsive,
+and send inputs/results using messages. The pthread workers share that module's
+memory; do not mutate or dispose an operation or its inputs during ``run()``.
+
+``ctest`` runs real WASM concurrency and cutter-equivalence tests under Node.
+To test the browser package on both the page and a dedicated worker with a
+temporary Chrome profile and an isolated local server::
+
+    python3 tests/wasm_browser.py build/wasm-threads/ocl.js src/npmpackage/browser.js
+
+Use ``--chrome /path/to/chrome`` or ``CHROME_BIN`` if Chrome is not on PATH.
+
 =================
 Cutter benchmarks
 =================
@@ -440,11 +532,107 @@ too when comparing revisions whose adaptive waterline ignored ``setThreads``.
 
 OpenMP is optional. With it enabled, batch operations distribute individual
 points/fibers, adaptive path drop-cutter distributes independent spans while
-preserving path order, and adaptive waterline uses at most two threads (one per
-fiber direction). ``setThreads(1)`` requests serial execution. A single adaptive
-path span remains serial.
+preserving path order, and adaptive waterline batches independent refinement
+fibers across both directions. Contour assembly remains serial.
+``setThreads(1)`` requests serial execution. A single adaptive path span remains
+serial.
 
 To collect alternating runs from two builds and save the raw samples and
 medians::
 
     python3 benchmarks/compare.py build/before/cutter_benchmark build/after/cutter_benchmark stl/gnu_tux_mod.stl stl/sphere_on_plate.stl --threads 1 4 --repetitions 5 --output build/comparison.json
+
+
+==================
+Development checks
+==================
+
+With CMake 3.21+ and Ninja installed, use the same configurations as CI::
+
+    cmake --preset debug
+    cmake --build --preset debug
+    ctest --preset debug
+
+Other presets are ``release``, ``release-openmp``, and ``sanitizers``. The
+sanitizer preset enables AddressSanitizer, UndefinedBehaviorSanitizer, and
+floating-point-to-integer conversion checks with GCC or Clang. Linux CI also
+enables leak detection. Debug and sanitizer builds retain debug symbols and
+disable interprocedural optimization. Manual CMake configuration still supports
+CMake 3.18+. ``OCL_ENABLE_IPO=OFF`` disables optimization across translation units.
+
+Core sources are compiled once into ``ocl_core`` and reused by the selected
+binding, tests, and benchmarks. Configure each binding in its own build directory.
+
+The binding contract uses ``tests/fixtures/path_contract.txt`` for C++, Python,
+Node, and WebAssembly. It checks complete, ordered line/arc paths, minimum Z,
+repeatability, input lifetimes, and invalid inputs. To run the native reference::
+
+    build/debug/binding_fixture tests/fixtures/path_contract.txt > build/cxx.jsonl
+
+``tests/bindings.py [python-module-directory]`` and
+``tests/bindings.js napi`` emit the same format; the Node runner uses
+``OCL_NODE_PATH`` and requires ``npm run build-node`` in ``src/npmpackage``.
+``tests/bindings.js emscripten path/to/ocl.js`` accepts a WASM build configured
+with ``OCL_WASM_ENVIRONMENT=web,node``. Compare the outputs with
+``tests/compare_bindings.py``. The CI workflow contains a complete example.
+
+======================
+Behavior and lifetimes
+======================
+
+* ``setZ`` sets the minimum Z for both path drop-cutter algorithms, including
+  adaptive samples. Input path Z does not override this floor.
+* Repeated path drop-cutter and waterline ``run()`` calls replace previous
+  results. Waterline ``reset()`` also clears its output loops.
+* Sampling intervals must be finite and positive. Missing surfaces, cutters,
+  or paths produce exceptions. Empty surfaces are valid: drop-cutter returns
+  the floor, while waterline returns no loops.
+* ``Path`` owns spans created by ``append``, supports deep copying and moving,
+  and retains the public ``span_list`` as a non-owning view. Do not manually
+  delete spans created by ``append``. Directly inserted pointers remain owned
+  by the caller. Custom spans implement ``clone()`` to support path copying.
+* Operations own their internal trees and sub-operations and cannot be copied.
+  C++ callers keep their surface, cutter, and path alive until the operation
+  is finished. Python and Node bindings retain these inputs automatically.
+  Call ``setSTL`` again after modifying a surface. These ownership/layout changes
+  require rebuilding C++ consumers against the updated library.
+* The native STL reader accepts ASCII and binary STL, including binary headers
+  beginning with ``solid``. It rejects unreadable, truncated, malformed, and
+  degenerate geometry with exceptions. Parsing is transactional: invalid files
+  do not partially append triangles. ASCII coordinates retain double precision;
+  older versions rounded them to float precision.
+
+Both JavaScript backends support lines and arcs and expose ``getCLPoints()``
+with ``getPoints()`` as an alias. Node methods are synchronous; browser methods
+return promises. Using ``await`` works with either backend. Browser operations
+can be constructed and called before the runtime is ready: each operation
+waits on one initialization promise, and calls execute in invocation order.
+Initialization failures propagate to every call; a rejected parameter change
+does not prevent later calls. Once initialized, the native calls themselves
+are synchronous, including ``run()``. Promises alone do not move computation
+off the calling thread; use a Web Worker, as the demo does, for a responsive UI.
+
+Browser operations must be disposed to release their WASM objects; Node
+operations also offer explicit disposal. Disposal waits for previously
+requested calls, is idempotent, and rejects further use immediately::
+
+    const operation = new ocl.AdaptivePathDropCutter()
+    try {
+        await operation.setSTL(surface)
+        await operation.setCutter(cutter)
+        await operation.setPath(path)
+        await operation.setSampling(0.1)
+        await operation.setZ(-1)
+        await operation.run()
+        const points = await operation.getCLPoints()
+    } finally {
+        await operation.dispose()
+    }
+
+KD-trees retain immutable contiguous triangle snapshots. Waterline shares one
+snapshot between its directional indexes. C++ users building multiple indexes
+can explicitly reuse a ``KDTree<Triangle>::Snapshot`` with ``buildSnapshot``;
+the tree retains ownership, and the caller must not mutate the backing vector.
+Stable partitioning preserves candidate order and equal-height contact choices.
+When comparing performance across STL reader versions, use the same binary STL
+inputs so ASCII precision changes do not change the workload.

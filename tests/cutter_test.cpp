@@ -8,10 +8,16 @@
 #include "compositecutter.hpp"
 #include "cylcutter.hpp"
 #include "stlsurf.hpp"
+#include "parallel.hpp"
 #include "check.hpp"
 
 #include <cmath>
 #include <vector>
+#if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
+#include <atomic>
+#include <chrono>
+#include <thread>
+#endif
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -115,19 +121,75 @@ static void adaptive(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
         }
     }
     ocl::AdaptiveWaterline operation;
-    operation.setSTL(surface); operation.setCutter(&cutter); operation.setSampling(.3); operation.setZ(1);
-    operation.setThreads(1); operation.run();
-    const auto x = operation.getXFibers(), y = operation.getYFibers();
-    const auto loops = operation.getLoops();
-    operation.reset(); operation.setThreads(4); operation.run();
-    equal(x,operation.getXFibers()); equal(y,operation.getYFibers());
-    const auto parallel = operation.getLoops();
-    CHECK(loops.size() == parallel.size());
-    for (std::size_t i = 0; i < loops.size(); ++i) {
-        CHECK(loops[i].size() == parallel[i].size());
-        for (std::size_t j = 0; j < loops[i].size(); ++j) equal(loops[i][j],parallel[i][j]);
+    operation.setSTL(surface); operation.setCutter(&cutter);
+    const std::vector<int> thread_counts = ocl::detail::thread_count(4, 4) > 1
+        ? std::vector<int>{4,2} : std::vector<int>{4};
+    struct Settings {double z, sampling, minimum;};
+    // Dense refinement, minimum-spacing cutoffs, then a coarse empty contour.
+    // Reuse the operation across heights and thread counts to catch stale data.
+    for (const auto& settings : {Settings{1,.3,.03}, Settings{1.3,.7,.7}, Settings{3,20,.1}}) {
+        operation.setSampling(settings.sampling); operation.setMinSampling(settings.minimum);
+        operation.setZ(settings.z);
+        for (bool smart_weave : {false,true}) {
+            const auto run = [&] {if (smart_weave) operation.run2(); else operation.run();};
+            operation.setThreads(1); run(); // Original depth-first reference.
+            const auto x = operation.getXFibers(), y = operation.getYFibers();
+            const auto loops = operation.getLoops();
+            const int calls = operation.getCalls();
+            if (settings.z == 3) CHECK(loops.empty());
+            else CHECK(calls > 0);
+            for (int threads : thread_counts) {
+                operation.setThreads(threads); run();
+                equal(x,operation.getXFibers()); equal(y,operation.getYFibers());
+                CHECK(calls == operation.getCalls());
+                const auto parallel = operation.getLoops();
+                CHECK(loops.size() == parallel.size());
+                for (std::size_t i = 0; i < loops.size(); ++i) {
+                    CHECK(loops[i].size() == parallel[i].size());
+                    for (std::size_t j = 0; j < loops[i].size(); ++j) equal(loops[i][j],parallel[i][j]);
+                }
+            }
+        }
     }
+    ocl::STLSurf empty;
+    operation.setSTL(empty); operation.setThreads(4); operation.run();
+    CHECK(operation.getCalls() == 0);
+    CHECK(operation.getXFibers().empty() && operation.getYFibers().empty() && operation.getLoops().empty());
 }
+
+#if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
+// Rendezvous inside real contact calculations: the four quarter-position
+// fibers must run concurrently, not just the original pair of axis tasks.
+struct ConcurrentBall : ocl::BallCutter {
+    const unsigned int expected = ocl::detail::thread_count(4, 4);
+    mutable std::atomic<unsigned int> entered{0};
+    ConcurrentBall() : ocl::BallCutter(.6, 5) {}
+    bool vertexPush(const ocl::Fiber& fiber, ocl::Interval& interval, const ocl::Triangle& triangle) const override {
+        const double coordinate = fiber.p1.y == fiber.p2.y ? fiber.p1.y : fiber.p1.x;
+        if (std::abs(std::abs(coordinate) - 2.3) < 1e-10) {
+            if (entered.fetch_add(1) < expected) {
+                const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(5);
+                while (entered.load() < expected && std::chrono::steady_clock::now() < deadline)
+                    std::this_thread::yield();
+                CHECK(entered.load() >= expected);
+            }
+        }
+        return ocl::BallCutter::vertexPush(fiber, interval, triangle);
+    }
+};
+
+static void concurrent_waterline() {
+    ocl::STLSurf surface;
+    ocl::Triangle triangle(ocl::Point(-4,-4,1), ocl::Point(4,-4,1), ocl::Point(0,4,1));
+    surface.addTriangle(triangle);
+    ConcurrentBall cutter;
+    ocl::AdaptiveWaterline operation;
+    operation.setCutter(&cutter); operation.setSTL(surface);
+    operation.setSampling(.3); operation.setZ(1); operation.setThreads(4);
+    operation.run();
+    CHECK(cutter.entered.load() >= cutter.expected);
+}
+#endif
 // Components are borrowed by CompositeCutter; keep their ownership in the test.
 struct Composite : ocl::CompositeCutter {
     explicit Composite(ocl::MillingCutter& component) {
@@ -173,6 +235,9 @@ static void composite_contacts() {
 
 int main() {
     composite_contacts();
+#if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
+    concurrent_waterline();
+#endif
 #ifdef _OPENMP
     const int original_threads = omp_get_max_threads();
 #endif

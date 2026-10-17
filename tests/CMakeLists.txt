@@ -1,18 +1,13 @@
-foreach(test_name halfedge tsp geometry kdtree cutter)
+foreach(test_name halfedge tsp geometry kdtree cutter lifecycle stlreader parallel)
   add_executable(${test_name}_test ${test_name}_test.cpp)
-  target_include_directories(${test_name}_test PRIVATE
-    ${PROJECT_SOURCE_DIR}/common
-    ${PROJECT_SOURCE_DIR}/geo
-    ${PROJECT_SOURCE_DIR}/algo
-    ${PROJECT_SOURCE_DIR}/cutters
-    ${PROJECT_SOURCE_DIR}/dropcutter)
+  target_link_libraries(${test_name}_test PRIVATE ocl_core)
+  ocl_configure_target(${test_name}_test)
   add_test(NAME ${test_name} COMMAND ${test_name}_test)
+  set_tests_properties(${test_name} PROPERTIES TIMEOUT 120)
 endforeach()
 
-foreach(test_name geometry kdtree cutter)
-  target_link_libraries(${test_name}_test PRIVATE
-    ocl_dropcutter ocl_algo ocl_cutters ocl_geo ocl_common)
-  if(USE_OPENMP)
-    target_link_libraries(${test_name}_test PRIVATE OpenMP::OpenMP_CXX)
-  endif()
-endforeach()
+add_executable(binding_fixture binding_fixture.cpp)
+target_link_libraries(binding_fixture PRIVATE ocl_core)
+ocl_configure_target(binding_fixture)
+add_test(NAME binding_contract COMMAND binding_fixture ${CMAKE_CURRENT_SOURCE_DIR}/fixtures/path_contract.txt)
+set_tests_properties(binding_contract PROPERTIES TIMEOUT 120)

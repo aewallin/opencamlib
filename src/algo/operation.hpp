@@ -23,12 +23,18 @@
 #define OP_H
 
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <vector>
+#include <cmath>
+#include <limits>
+#include <memory>
+#include <stdexcept>
 
 #include "point.hpp"
 #include "fiber.hpp"
 #include "kdtree.hpp"
+#include "stlsurf.hpp"
 
 namespace ocl
 {
@@ -44,38 +50,45 @@ class Operation {
     public:
         Operation() : sampling(0), nCalls(0), bucketSize(1), cutter(nullptr),
                       surf(nullptr), root(nullptr), nthreads(1) {}
+        Operation(const Operation&) = delete;
+        Operation& operator=(const Operation&) = delete;
         virtual ~Operation() {
             //std::cout << "~Operation()\n";
         }
         /// set the STL-surface and build kd-tree
         virtual void setSTL(const STLSurf& s) {
-            surf = &s;
-            for (Operation* op : subOp) {
-                op->setSTL(s);
-            }
+            setSTLSnapshot(s, std::make_shared<const std::vector<Triangle>>(s.tris.begin(), s.tris.end()));
         }
         /// set the MillingCutter to use
         virtual void setCutter(const MillingCutter* c) {
+            if (!c) throw std::invalid_argument("Cutter must not be null");
             cutter = c;
-            for (Operation* op : subOp) {
+            for (const auto& op : subOp) {
                 op->setCutter(cutter);
             }
         }
-        /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
+        /// Set the requested thread count (zero means one). WASM caps it to its pool.
         void setThreads(unsigned int n) {
+            if (n > static_cast<unsigned int>(std::numeric_limits<int>::max()))
+                throw std::invalid_argument("Thread count is too large");
             nthreads = n > 0 ? n : 1;
-            for (Operation* op : subOp) {
+#ifdef OCL_WASM_THREAD_POOL_SIZE
+            nthreads = std::min<unsigned int>(nthreads, OCL_WASM_THREAD_POOL_SIZE + 1);
+#endif
+            for (const auto& op : subOp) {
                 op->setThreads(nthreads);
             }
         }
-        /// return number of OpenMP threads
+        /// Return the configured thread count.
         int  getThreads() const {return nthreads;}
         /// return the kd-tree bucket-size
         int getBucketSize() const {return bucketSize;}
         /// set the kd-tree bucket-size
         void setBucketSize(unsigned int s) {
+            if (s == 0 || s > static_cast<unsigned int>(std::numeric_limits<int>::max()))
+                throw std::invalid_argument("Bucket size must be a positive integer");
             bucketSize = s;
-            for (Operation* op : subOp) {
+            for (const auto& op : subOp) {
                 op->setBucketSize(bucketSize);
             }
         }
@@ -84,8 +97,9 @@ class Operation {
         
         /// set the sampling interval for this Operation and all sub-operations
         virtual void setSampling(double s) {
+            requirePositive(s, "Sampling must be finite and positive");
             sampling=s;
-            for (Operation* op : subOp) {
+            for (const auto& op : subOp) {
                 op->setSampling(sampling);
             }
         }
@@ -95,9 +109,9 @@ class Operation {
         /// run the algorithm
         virtual void run() = 0;
         /// run algorithm on a single input CLPoint
-        virtual void run(CLPoint& cl) {assert(0);}
+        virtual void run(CLPoint&) {throw std::logic_error("Operation does not accept a point");}
         /// run push-cutter type algorithm on input Fiber
-        virtual void run(Fiber& f) {assert(0);}
+        virtual void run(Fiber&) {throw std::logic_error("Operation does not accept a fiber");}
         
         virtual void reset() {}
         
@@ -119,6 +133,24 @@ class Operation {
         virtual std::vector<Fiber>* getFibers() const {return 0;}
         
     protected:
+        virtual void setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
+            surf = &s;
+            for (const auto& op : subOp) op->setSTLSnapshot(s, snapshot);
+        }
+        static void requireFinite(double value, const char* message) {
+            if (!std::isfinite(value)) throw std::invalid_argument(message);
+        }
+        static void requirePositive(double value, const char* message) {
+            if (!std::isfinite(value) || value <= 0) throw std::invalid_argument(message);
+        }
+        static void requireCosine(double value) {
+            if (!std::isfinite(value) || value < -1 || value > 1)
+                throw std::invalid_argument("Cosine limit must be between -1 and 1");
+        }
+        void validateInputs(bool needsSampling = false) const {
+            if (!surf || !cutter) throw std::logic_error("Set surface and cutter before running");
+            if (needsSampling) requirePositive(sampling, "Sampling must be finite and positive");
+        }
         /// sampling interval
         double sampling;
         /// how many low-level calls were made
@@ -130,11 +162,11 @@ class Operation {
         /// the STLSurf which we test against.
         const STLSurf* surf;
         /// root of a kd-tree
-        KDTree<Triangle>* root;
+        std::unique_ptr<KDTree<Triangle>> root;
         /// number of threads to use
         unsigned int nthreads;
         /// sub-operations, if any, of this operation
-        std::vector<Operation*> subOp;
+        std::vector<std::unique_ptr<Operation>> subOp;
 };
 
 } // end namespace

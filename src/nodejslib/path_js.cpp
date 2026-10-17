@@ -1,6 +1,7 @@
 #include "path.hpp"
 #include "path_js.hpp"
 #include "line_js.hpp"
+#include "arc_js.hpp"
 
 Napi::FunctionReference PathJS::constructor;
 
@@ -21,23 +22,26 @@ PathJS::PathJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<PathJS>(info) 
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
 
-  this->actualClass_ = new ocl::Path();
+  this->actualClass_ = std::make_unique<ocl::Path>();
 }
 
 ocl::Path *PathJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
-  return this->actualClass_;
+  return this->actualClass_.get();
 }
 
 void PathJS::append(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
   if (info.Length() != 1) {
-    Napi::TypeError::New(env, "Argument expected").ThrowAsJavaScriptException();
+    throw Napi::TypeError::New(env, "Argument expected");
   }
-  LineJS* ljs = Napi::ObjectWrap<LineJS>::Unwrap(info[0].As<Napi::Object>());
-  ocl::Line* ocll = ljs->GetInternalInstance(info);
-  this->actualClass_->append(*ocll);
+  nativeCall(env, [&] {
+      if (ArcJS::IsInstance(info[0]))
+          actualClass_->append(*ArcJS::UnwrapChecked(info[0])->GetInternalInstance(info));
+      else
+          actualClass_->append(*LineJS::UnwrapChecked(info[0])->GetInternalInstance(info));
+  });
 }

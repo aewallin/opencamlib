@@ -53,16 +53,16 @@ class BatchDropCutter : public Operation {
         BatchDropCutter();
         virtual ~BatchDropCutter();
         /// set the STL-surface and build kd-tree to enable optimized algorithm
-        void setSTL(const STLSurf &s);
+        void setSTL(const STLSurf &s) override;
         /// append to list of CL-points to evaluate
-        void appendPoint(CLPoint& p);
+        void appendPoint(CLPoint& p) override;
         /// run drop-cutter on all clpoints
-        void run() {this->dropCutter5();};
+        void run() override {validateInputs(); this->dropCutter5();};
     // getters and setters
         /// return a vector of CLPoints, the result of this operation
-        std::vector<CLPoint> getCLPoints() { return *clpoints; }
+        std::vector<CLPoint> getCLPoints() override { return *clpoints; }
         /// clears the vector of CLPoints
-        void clearCLPoints() { clpoints->clear(); }
+        void clearCLPoints() override { clpoints->clear(); }
 
         /// Return triangles under cutter, Not for CAM-algorithms, more for visualization and demonstration.
         std::list<Triangle> getTrianglesUnderCutter(CLPoint& cl, MillingCutter& cutter)
@@ -72,6 +72,7 @@ class BatchDropCutter : public Operation {
         }
 
     protected:
+        void setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) override;
         /// unoptimized drop-cutter,  tests against all triangles of surface
         void dropCutter1();
         /// better, kd-tree optimized version      
@@ -84,7 +85,7 @@ class BatchDropCutter : public Operation {
         void dropCutter5();
     // DATA
         /// pointer to list of CL-points on which to run drop-cutter.
-        std::vector<CLPoint>* clpoints;
+        std::unique_ptr<std::vector<CLPoint>> clpoints;
 
 };
 

@@ -49,6 +49,7 @@ class PathDropCutter : public Operation {
         void setPath(const Path* path);
         /// set the minimum z-value, or "floor" for drop-cutter
         void setZ(const double z) {
+            requireFinite(z, "Z must be finite");
             minimumZ = z;
         }
         /// return Z

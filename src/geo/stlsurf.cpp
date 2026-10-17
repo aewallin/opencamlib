@@ -20,7 +20,9 @@
 */
 
 #include <list>
-#include <cassert>
+#include <cmath>
+#include <algorithm>
+#include <stdexcept>
 
 
 #include "stlsurf.hpp"
@@ -30,11 +32,19 @@ namespace ocl
 
 void STLSurf::addTriangle(const Triangle &t) {
     
-    // some sanity-checking:
-    assert( (t.p[0]-t.p[1]).norm() > 0.0 );
-    assert( (t.p[1]-t.p[2]).norm() > 0.0 );
-    assert( (t.p[2]-t.p[0]).norm() > 0.0 );
-    
+    for (const auto& p : t.p)
+        if (!std::isfinite(p.x) || !std::isfinite(p.y) || !std::isfinite(p.z))
+            throw std::invalid_argument("Triangle coordinates must be finite");
+    Point a = t.p[1] - t.p[0], b = t.p[2] - t.p[0];
+    const double scale = std::max({std::abs(a.x), std::abs(a.y), std::abs(a.z),
+                                   std::abs(b.x), std::abs(b.y), std::abs(b.z)});
+    if (!std::isfinite(scale) || scale == 0)
+        throw std::invalid_argument("Triangle edges must have finite, nonzero length");
+    a = Point(a.x/scale, a.y/scale, a.z/scale);
+    b = Point(b.x/scale, b.y/scale, b.z/scale);
+    if (a.cross(b).norm() == 0)
+        throw std::invalid_argument("Triangle vertices must not be collinear");
+
     tris.push_back(t);
     bb.addTriangle(t);
     return;
@@ -57,7 +67,7 @@ unsigned int STLSurf::size() const {
     return static_cast<unsigned int>(tris.size());
 }
 
-std::ostream &operator<<(std::ostream &stream, const STLSurf s) {
+std::ostream &operator<<(std::ostream &stream, const STLSurf& s) {
   stream << "STLSurf(N="<< s.tris.size() <<")";
   return stream;
 }

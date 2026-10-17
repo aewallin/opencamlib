@@ -13,6 +13,7 @@ Options:
   --build-library             Compile a library with CMake (one of: cxx, nodejs, python, emscripten)
   --build-type                Choose the build type (one of: debug, release) (only valid with --build-library)
   --disable-openmp            Disable OpenMP in the build. (only valid with --build-library)
+  --emscripten-threads        Enable WebAssembly pthreads (only valid with --build-library emscripten)
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
   --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
 
@@ -60,6 +61,7 @@ while [[ "$#" -gt 0 ]]; do
         --install-system-deps) OCL_INSTALL_SYSTEM_DEPS="1"; ;;
         --install-ci-deps) OCL_INSTALL_CI_DEPS="1"; ;;
         --disable-openmp) OCL_DISABLE_OPENMP="1"; ;;
+        --emscripten-threads) OCL_WASM_THREADS="ON"; ;;
         --install) OCL_INSTALL="1"; ;;
         --sudo-install) OCL_SUDO_INSTALL="1"; ;;
         --install-prefix) require_option_value "$@"; OCL_INSTALL_PREFIX="$2"; shift ;;
@@ -81,6 +83,9 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 verify_args() {
+    if [ -n "${OCL_WASM_THREADS:-}" ] && [ "${OCL_BUILD_LIBRARY:-}" != "emscripten" ]; then
+        invalid_argument "--emscripten-threads requires --build-library emscripten"
+    fi
     case "${OCL_BUILD_LIBRARY:-}" in
         ""|cxx|nodejs|python|emscripten) ;;
         *) invalid_argument "Invalid library type: ${OCL_BUILD_LIBRARY}" ;;
@@ -426,6 +431,7 @@ test_nodejslib() {
     cd "${project_dir}/src/npmpackage"
     npm install
     npm run build-node
+    node --expose-gc "${project_dir}/tests/bindings.js" napi
     cd ../../examples/nodejs
     npm link ../../src/npmpackage
     if [ "${build_type_lower}" = "debug" ]; then
@@ -505,6 +511,7 @@ test_pythonlib() {
     python_executable=$(get_python_executable)
     cd "${project_dir}/examples/python"
     "${python_executable}" test.py
+    "${python_executable}" "${project_dir}/tests/bindings.py"
 }
 
 build_emscriptenlib() {
@@ -518,6 +525,8 @@ build_emscriptenlib() {
         -D CMAKE_BUILD_TYPE="${build_type}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
+        -D OCL_WASM_THREADS="${OCL_WASM_THREADS:-OFF}" \
+        -D OCL_WASM_THREAD_POOL_SIZE="${OCL_WASM_THREAD_POOL_SIZE:-3}" \
         -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         ../../..
     if [ "${determined_os}" = "windows" ]; then

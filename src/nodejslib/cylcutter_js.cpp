@@ -24,11 +24,11 @@ CylCutterJS::CylCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<CylC
     size_t length = info.Length();
     if (length != 2)
     {
-        Napi::TypeError::New(env, "Provide 2 argument").ThrowAsJavaScriptException();
+        throw Napi::TypeError::New(env, "Provide 2 argument");
     }
     Napi::Number d = info[0].As<Napi::Number>();
     Napi::Number l = info[1].As<Napi::Number>();
-    this->actualClass_ = new ocl::CylCutter(d.DoubleValue(), l.DoubleValue());
+    this->actualClass_ = std::make_unique<ocl::CylCutter>(d.DoubleValue(), l.DoubleValue());
 }
 
 Napi::Value CylCutterJS::str(const Napi::CallbackInfo &info)
@@ -42,5 +42,5 @@ ocl::CylCutter *CylCutterJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    return this->actualClass_;
+    return this->actualClass_.get();
 }

@@ -23,21 +23,21 @@ TriangleJS::TriangleJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Triang
     size_t length = info.Length();
     if (length == 0)
     {
-        this->actualClass_ = new ocl::Triangle();
+        this->actualClass_ = std::make_unique<ocl::Triangle>();
     }
     else if (length == 3)
     {
-        PointJS *p1js = Napi::ObjectWrap<PointJS>::Unwrap(info[0].As<Napi::Object>());
+        PointJS *p1js = PointJS::UnwrapChecked(info[0]);
         ocl::Point *p1 = p1js->GetInternalInstance(info);
-        PointJS *p2js = Napi::ObjectWrap<PointJS>::Unwrap(info[1].As<Napi::Object>());
+        PointJS *p2js = PointJS::UnwrapChecked(info[1]);
         ocl::Point *p2 = p2js->GetInternalInstance(info);
-        PointJS *p3js = Napi::ObjectWrap<PointJS>::Unwrap(info[2].As<Napi::Object>());
+        PointJS *p3js = PointJS::UnwrapChecked(info[2]);
         ocl::Point *p3 = p3js->GetInternalInstance(info);
-        this->actualClass_ = new ocl::Triangle(*p1, *p2, *p3);
+        this->actualClass_ = std::make_unique<ocl::Triangle>(*p1, *p2, *p3);
     }
     else
     {
-        Napi::TypeError::New(env, "Provide at 3 or 0 arguments").ThrowAsJavaScriptException();
+        throw Napi::TypeError::New(env, "Provide at 3 or 0 arguments");
     }
 }
 
@@ -45,5 +45,5 @@ ocl::Triangle *TriangleJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    return this->actualClass_;
+    return this->actualClass_.get();
 }

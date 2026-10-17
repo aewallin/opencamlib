@@ -23,6 +23,8 @@
 #define KDTREE_H
 
 #include <array>
+#include <algorithm>
+#include <stdexcept>
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -76,175 +78,144 @@ class Spread {
 /// that overlap the cutter
 template <class BBObj>
 class KDTree {
-    public:
-        KDTree() : bucketSize(1), root(nullptr) {}
-        virtual ~KDTree() {
-            // std::cout << " ~KDTree()" << std::endl;
-	    delete root;
-        }
-        /// set the bucket-size 
-        void setBucketSize(int b){
-            //std::cout << "KDTree::setBucketSize = " << b << "\n"; 
-            bucketSize = b;
-        }
-        /// set the search dimension to the XY-plane
-        void setXYDimensions(){
-            //std::cout << "KDTree::setXYDimensions()\n"; 
-            dimensions.clear();
-            dimensions.push_back(0); // x
-            dimensions.push_back(1); // x
-            dimensions.push_back(2); // y
-            dimensions.push_back(3); // y
-        } // for drop-cutter search in XY plane
-        /// set search-plane to YZ
-        void setYZDimensions(){ // for X-fibers
-            //std::cout << "KDTree::setYZDimensions()\n"; 
-            dimensions.clear();
-            dimensions.push_back(2); // y
-            dimensions.push_back(3); // y
-            dimensions.push_back(4); // z
-            dimensions.push_back(5); // z
-        } // for X-fibers
-        /// set search plane to XZ
-        void setXZDimensions(){ // for Y-fibers
-            //std::cout << "KDTree::setXZDimensions()\n";
-            dimensions.clear();
-            dimensions.push_back(0); // x
-            dimensions.push_back(1); // x
-            dimensions.push_back(4); // z
-            dimensions.push_back(5); // z
-        } // for Y-fibers
-        /// build the kd-tree based on a list of input objects
-        void build(const std::list<BBObj>& list) {
-            assert(!dimensions.empty());
-            KDNode<BBObj>* replacement = build_node(&list, 0, nullptr);
-            delete root;
-            root = replacement;
-        }
-        /// search for overlap with input Bbox bb, return found objects
-        std::list<BBObj>* search( const Bbox& bb ){
-            assert( !dimensions.empty() );
-            std::list<BBObj>* tris = new std::list<BBObj>();
-            this->search_node( tris, bb, root );
-            return tris;
-        }
-        /// search for overlap with a MillingCutter c positioned at cl, return found objects
-        std::list<BBObj>* search_cutter_overlap(const MillingCutter* c, CLPoint* cl ){
-            double r = c->getRadius();
-            // build a bounding-box at the current CL
-            Bbox bb( cl->x-r, cl->x+r, cl->y-r, cl->y+r, cl->z, cl->z+c->getLength() );    
-            return this->search( bb );
-        }
-        /// Visit candidates in search order without copying them or allocating a result list.
-        /// References belong to the tree and remain valid until it is rebuilt or destroyed.
-        /// Concurrent visits are safe if callbacks do not modify the tree or shared state.
-        template<class Visitor>
-        void visit(const Bbox& bb, Visitor&& visitor) const {
-            assert(!dimensions.empty());
-            visit_node(bb, root, visitor);
-        }
-        template<class Visitor>
-        void visit_cutter_overlap(const MillingCutter* c, const CLPoint* cl,
-                                  Visitor&& visitor) const {
-            const double r = c->getRadius();
-            const Bbox bb(cl->x-r, cl->x+r, cl->y-r, cl->y+r, cl->z, cl->z+c->getLength());
-            visit(bb, visitor);
-        }
-        /// string repr
-        std::string str() const;
-        
-    protected:
-        /// Take one owned snapshot; partition by relinking nodes, not copying triangles.
-        KDNode<BBObj>* build_node(const std::list<BBObj>* tris, int dep, KDNode<BBObj>* par) {
-            std::list<BBObj> owned(*tris);
-            return partition_node(owned, dep, par);
-        }
+public:
+    using Snapshot = std::shared_ptr<const std::vector<BBObj>>;
+    KDTree() = default;
+    virtual ~KDTree() = default;
+    KDTree(const KDTree&) = delete;
+    KDTree& operator=(const KDTree&) = delete;
+    KDTree(KDTree&&) = default;
+    KDTree& operator=(KDTree&&) = default;
+    void setBucketSize(int size) {
+        if (size <= 0) throw std::invalid_argument("Bucket size must be positive");
+        bucketSize = static_cast<unsigned int>(size);
+    }
+    void setXYDimensions() { dimensions = {0,1,2,3}; }
+    void setYZDimensions() { dimensions = {2,3,4,5}; }
+    void setXZDimensions() { dimensions = {0,1,4,5}; }
 
-        KDNode<BBObj>* partition_node(std::list<BBObj>& tris, int dep, KDNode<BBObj>* par) {
-            if (tris.empty())
-                return nullptr;
-            const Spread spread = spread_value(tris);
-            const double cutvalue = spread.start + spread.val/2;
-            if (tris.size() <= bucketSize || isZero_tol(spread.val)) {
-                const std::list<BBObj> empty;
-                std::unique_ptr<KDNode<BBObj>> bucket(
-                    new KDNode<BBObj>(spread.d, cutvalue, par, nullptr, nullptr, &empty, dep));
-                bucket->tris->splice(bucket->tris->end(), tris);
-                return bucket.release();
-            }
-            std::list<BBObj> lo, hi;
-            for (auto it = tris.begin(); it != tris.end();) {
-                auto current = it++;
-                auto& partition = current->bb[spread.d] > cutvalue ? hi : lo;
-                partition.splice(partition.end(), tris, current);
-            }
-            std::unique_ptr<KDNode<BBObj>> node(
-                new KDNode<BBObj>(spread.d, cutvalue, par, nullptr, nullptr, nullptr, dep));
-            node->hi = partition_node(hi, dep+1, node.get());
-            node->lo = partition_node(lo, dep+1, node.get());
-            return node.release();
-        }
-
-        Spread* calc_spread(const std::list<BBObj>* tris) {
-            return new Spread(spread_value(*tris));
-        }
-
-        Spread spread_value(const std::list<BBObj>& tris) const {
-            assert(!tris.empty() && !dimensions.empty());
-            std::array<double, 6> minval{}, maxval{};
-            for (int dim : dimensions)
-                minval[dim] = maxval[dim] = tris.front().bb[dim];
-            for (const BBObj& object : tris) {
-                for (int dim : dimensions) {
-                    const double value = object.bb[dim];
-                    if (value > maxval[dim]) maxval[dim] = value;
-                    if (value < minval[dim]) minval[dim] = value;
-                }
-            }
-            int widest = dimensions.front();
-            double width = 0;
+    /// Copy input once into immutable contiguous storage.
+    void build(const std::list<BBObj>& input) {
+        buildSnapshot(std::make_shared<const std::vector<BBObj>>(input.begin(), input.end()));
+    }
+    /// Reuse immutable geometry between independently indexed search planes.
+    /// The snapshot is retained by the tree and must never be mutated by its creator.
+    void buildSnapshot(Snapshot input) {
+        if (dimensions.empty()) throw std::logic_error("Set search dimensions before building");
+        if (!input) throw std::invalid_argument("Snapshot must not be null");
+        KDTree replacement;
+        replacement.bucketSize = bucketSize;
+        replacement.dimensions = dimensions;
+        replacement.objects = std::move(input);
+        replacement.order.resize(replacement.objects->size());
+        for (std::size_t i = 0; i < replacement.order.size(); ++i)
+            replacement.order[i] = &(*replacement.objects)[i];
+        if (replacement.order.size() > replacement.nodes.max_size()/2)
+            throw std::length_error("Too many objects for KDTree");
+        replacement.nodes.reserve(replacement.order.size()*2);
+        std::vector<const BBObj*> scratch(replacement.order.size());
+        if (!replacement.order.empty()) replacement.partition(0, replacement.order.size(), scratch);
+        objects.swap(replacement.objects);
+        order.swap(replacement.order);
+        nodes.swap(replacement.nodes);
+    }
+    /// Owning compatibility API; prefer visit() to avoid allocating result copies.
+    std::list<BBObj>* search(const Bbox& bb) {
+        auto result = std::make_unique<std::list<BBObj>>();
+        visit(bb, [&](const BBObj& object) { result->push_back(object); });
+        return result.release();
+    }
+    std::list<BBObj>* search_cutter_overlap(const MillingCutter* cutter, CLPoint* cl) {
+        const double r = cutter->getRadius();
+        return search(Bbox(cl->x-r, cl->x+r, cl->y-r, cl->y+r, cl->z, cl->z+cutter->getLength()));
+    }
+    /// Concurrent visits are safe when callbacks do not modify shared state.
+    /// References remain valid until the snapshot is released.
+    template<class Visitor>
+    void visit(const Bbox& bb, Visitor&& visitor) const {
+        if (dimensions.empty()) throw std::logic_error("Set search dimensions before querying");
+        if (!nodes.empty()) visit_node(bb, nodes.data(), visitor);
+    }
+    template<class Visitor>
+    void visit_cutter_overlap(const MillingCutter* cutter, const CLPoint* cl, Visitor&& visitor) const {
+        const double r = cutter->getRadius();
+        visit(Bbox(cl->x-r, cl->x+r, cl->y-r, cl->y+r, cl->z, cl->z+cutter->getLength()), visitor);
+    }
+    std::string str() const {
+        return "KDTree(objects=" + std::to_string(order.size()) + ", nodes=" + std::to_string(nodes.size()) + ")";
+    }
+private:
+    struct Node {
+        int dim;
+        double cut;
+        std::size_t first, last;
+        const Node* hi = nullptr;
+        const Node* lo = nullptr;
+        bool leaf = true;
+    };
+    Spread spread(std::size_t first, std::size_t last) const {
+        std::array<double, 6> minval{}, maxval{};
+        for (int dim : dimensions) minval[dim] = maxval[dim] = order[first]->bb[dim];
+        for (auto i = first; i < last; ++i) {
+            const auto& object = *order[i];
             for (int dim : dimensions) {
-                const double value = maxval[dim] - minval[dim];
-                if (value > width) {
-                    width = value;
-                    widest = dim;
-                }
-            }
-            return Spread(widest, maxval[widest]-minval[widest], minval[widest]);
-        }
-
-        /// Keep the owning search API for callers that need independent copies.
-        void search_node(std::list<BBObj>* tris, const Bbox& bb, KDNode<BBObj>* node) {
-            auto append = [tris](const BBObj& object) { tris->push_back(object); };
-            visit_node(bb, node, append);
-        }
-
-        template<class Visitor>
-        void visit_node(const Bbox& bb, const KDNode<BBObj>* node, Visitor& visitor) const {
-            if (!node)
-                return;
-            if (node->isLeaf) {
-                for (const BBObj& object : *node->tris)
-                    visitor(object);
-            } else if ((node->dim % 2) == 0 && node->cutval > bb[node->dim+1]) {
-                visit_node(bb, node->lo, visitor);
-            } else if ((node->dim % 2) != 0 && node->cutval < bb[node->dim-1]) {
-                visit_node(bb, node->hi, visitor);
-            } else {
-                // Preserve hi-before-lo order: equal-height contacts depend on it.
-                visit_node(bb, node->hi, visitor);
-                visit_node(bb, node->lo, visitor);
+                const double value = object.bb[dim];
+                if (value > maxval[dim]) maxval[dim] = value;
+                if (value < minval[dim]) minval[dim] = value;
             }
         }
-    // DATA
-        /// bucket size of tree
-        unsigned int bucketSize;
-        /// pointer to root KDNode
-        KDNode<BBObj>* root;
-        /// the dimensions in this kd-tree
-        std::vector<int> dimensions;
+        int widest = dimensions.front();
+        double width = 0;
+        for (int dim : dimensions) {
+            const double value = maxval[dim] - minval[dim];
+            if (value > width) { width = value; widest = dim; }
+        }
+        return Spread(widest, maxval[widest]-minval[widest], minval[widest]);
+    }
+    const Node* partition(std::size_t first, std::size_t last, std::vector<const BBObj*>& scratch) {
+        const auto extent = spread(first, last);
+        Node node{extent.d, extent.start + extent.val/2, first, last};
+        const auto index = nodes.size();
+        nodes.push_back(node);
+        if (last-first <= bucketSize || isZero_tol(extent.val)) return &nodes[index];
+        std::size_t lower = 0;
+        for (auto i = first; i < last; ++i)
+            lower += order[i]->bb[node.dim] <= node.cut;
+        // Rounded midpoints may equal an endpoint; never recurse without progress.
+        if (lower == 0 || lower == last-first) return &nodes[index];
+        auto lo = first, hi = first + lower;
+        for (auto i = first; i < last; ++i) {
+            const auto object = order[i];
+            scratch[object->bb[node.dim] > node.cut ? hi++ : lo++] = object;
+        }
+        std::copy(scratch.begin()+first, scratch.begin()+last, order.begin()+first);
+        node.leaf = false;
+        node.hi = partition(first+lower, last, scratch);
+        node.lo = partition(first, first+lower, scratch);
+        nodes[index] = node;
+        return &nodes[index];
+    }
+    template<class Visitor>
+    void visit_node(const Bbox& bb, const Node* current, Visitor& visitor) const {
+        const auto& node = *current;
+        if (node.leaf) {
+            for (auto i = node.first; i < node.last; ++i) visitor(*order[i]);
+        } else if (node.dim % 2 == 0 && node.cut > bb[node.dim+1]) {
+            visit_node(bb, node.lo, visitor);
+        } else if (node.dim % 2 != 0 && node.cut < bb[node.dim-1]) {
+            visit_node(bb, node.hi, visitor);
+        } else {
+            // Stable partitioning and hi-before-lo traversal preserve contact ties.
+            visit_node(bb, node.hi, visitor);
+            visit_node(bb, node.lo, visitor);
+        }
+    }
+    unsigned int bucketSize = 1;
+    std::vector<int> dimensions;
+    Snapshot objects;
+    std::vector<const BBObj*> order;
+    std::vector<Node> nodes;
 };
 
-} // end ocl namespace
+} // namespace ocl
 #endif
-// end file kdtree.hpp

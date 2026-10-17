@@ -20,9 +20,7 @@
 */
 
 
-#ifdef _OPENMP
-    #include <omp.h>
-#endif
+#include "parallel.hpp"
 
 #include "millingcutter.hpp"
 #include "point.hpp"
@@ -38,25 +36,18 @@ namespace ocl
 
 //********   ********************** */
 
-Waterline::Waterline() {
+Waterline::Waterline() : zh(0) {
     subOp.clear();
-    subOp.push_back( new BatchPushCutter() );
-    subOp.push_back( new BatchPushCutter() );
+    subOp.push_back(std::make_unique<BatchPushCutter>());
+    subOp.push_back(std::make_unique<BatchPushCutter>());
     subOp[0]->setXDirection();
     subOp[1]->setYDirection();
-    nthreads=1;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs();
-    //omp_set_dynamic(0);
-    //omp_set_nested(1);
-#endif
+    nthreads = detail::default_threads();
 
 }
 
 Waterline::~Waterline() {
     // std::cout << "~Waterline(): subOp.size()= " << subOp.size() <<"\n";
-    delete subOp[1];
-    delete subOp[0];
     subOp.clear();
 }
 
@@ -87,6 +78,7 @@ void Waterline::run() {
 
 
 void Waterline::reset() {
+    loops.clear();
     xfibers.clear();
     yfibers.clear();
     subOp[0]->reset();
@@ -96,10 +88,10 @@ void Waterline::reset() {
 void Waterline::weave_process() {
     // std::cout << "Weave...\n" << std::flush;
     weave::SimpleWeave weave;
-    for (Fiber f : xfibers) {
+    for (const Fiber& f : xfibers) {
         weave.addFiber(f);
     }
-    for (Fiber f : yfibers) {
+    for (const Fiber& f : yfibers) {
         weave.addFiber(f);
     }
    
@@ -119,10 +111,10 @@ void Waterline::weave_process() {
 void Waterline::weave_process2() {
     // std::cout << "Weave...\n" << std::flush;
     weave::SmartWeave weave;
-    for (Fiber f : xfibers) {
+    for (const Fiber& f : xfibers) {
         weave.addFiber(f);
     }
-    for (Fiber f : yfibers) {
+    for (const Fiber& f : yfibers) {
         weave.addFiber(f);
     }
    
@@ -140,13 +132,20 @@ void Waterline::weave_process2() {
 }
 
 void Waterline::init_fibers() {
+    validateInputs(true);
+    reset();
+    if (surf->tris.empty()) return;
     // std::cout << " Waterline::init_fibers()\n";
     double minx = surf->bb.minpt.x - 2*cutter->getRadius();
     double maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
     double miny = surf->bb.minpt.y - 2*cutter->getRadius();
     double maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
-    int Nx = (int)( (maxx-minx)/sampling );
-    int Ny = (int)( (maxy-miny)/sampling );
+    const double nx = (maxx-minx)/sampling, ny = (maxy-miny)/sampling;
+    if (!std::isfinite(nx) || !std::isfinite(ny) ||
+        std::max(nx, ny) >= std::numeric_limits<int>::max())
+        throw std::invalid_argument("Waterline sampling requires too many fibers");
+    int Nx = std::max(1, static_cast<int>(nx));
+    int Ny = std::max(1, static_cast<int>(ny));
     std::vector<double> xvals = generate_range(minx,maxx,Nx);
     std::vector<double> yvals = generate_range(miny,maxy,Ny);
     for (double y : yvals) {

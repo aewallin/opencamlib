@@ -1,4 +1,5 @@
 export { default as AdaptiveWaterline } from './adaptivewaterline'
+export { default as initialize, ModuleOptions } from './ocl'
 export { default as Waterline } from './waterline'
 export { default as AdaptivePathDropCutter } from './adaptivepathdropcutter'
 export { default as PathDropCutter } from './pathdropcutter'
@@ -13,3 +14,5 @@ export { default as Path } from '../path'
 export { default as Point } from '../point'
 export { default as Line } from '../line'
 export { default as Triangle } from '../triangle'
+
+export { default as Arc } from '../arc'

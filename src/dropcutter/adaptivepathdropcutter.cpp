@@ -21,6 +21,7 @@
 
 
 #include <algorithm>
+#include "parallel.hpp"
 
 #include "millingcutter.hpp"
 #include "clpoint.hpp"
@@ -39,7 +40,7 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
     path = NULL;
     minimumZ = 0.0;
     subOp.clear();
-    subOp.push_back( new PointDropCutter() ); // we delegate to PointDropCutter, who does the heavy lifting
+    subOp.push_back(std::make_unique<PointDropCutter>()); // we delegate to PointDropCutter, who does the heavy lifting
     nthreads = subOp[0]->getThreads();
     sampling = 0.1;
     min_sampling = 0.01;
@@ -48,7 +49,6 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
 
 AdaptivePathDropCutter::~AdaptivePathDropCutter() {
     // std::cout << " ~AdaptivePathDropCutter() " << std::endl;
-    delete subOp[0];
     subOp.clear();
 }
 
@@ -57,13 +57,16 @@ void AdaptivePathDropCutter::run() {
 }
 
 void AdaptivePathDropCutter::adaptive_sampling_run() {
+    validateInputs(true);
+    if (!path) throw std::logic_error("Set a path before running");
+    for (const Span* span : path->span_list) {
+        if (!span || !std::isfinite(span->length2d()))
+            throw std::invalid_argument("Path contains an invalid span");
+    }
     clpoints.clear();
     const auto& dropcutter = static_cast<const PointDropCutter&>(*subOp[0]);
     nCalls = 0;
-    unsigned int threads = 1;
-#ifdef _OPENMP
-    threads = static_cast<unsigned int>(std::min<std::size_t>(nthreads, path->span_list.size()));
-#endif
+    const auto threads = detail::thread_count(nthreads, path->span_list.size());
     if (threads <= 1) {
         for (const Span* span : path->span_list)
             nCalls += sample_span(span, clpoints, dropcutter);
@@ -71,24 +74,22 @@ void AdaptivePathDropCutter::adaptive_sampling_run() {
     }
     const std::vector<const Span*> spans(path->span_list.begin(), path->span_list.end());
     std::vector<std::vector<CLPoint>> results(spans.size());
-    const std::ptrdiff_t count = static_cast<std::ptrdiff_t>(spans.size());
-    int calls = 0;
     // Each span owns its output; concatenate in path order after the parallel work.
-    #pragma omp parallel for schedule(dynamic) num_threads(threads) reduction(+:calls)
-    for (std::ptrdiff_t i = 0; i < count; ++i)
-        calls += sample_span(spans[i], results[i], dropcutter);
+    nCalls = detail::parallel_sum(spans.size(), threads, [&](std::size_t i) {
+        return sample_span(spans[i], results[i], dropcutter);
+    });
     std::size_t size = 0;
     for (const auto& points : results) size += points.size();
     clpoints.reserve(size);
     for (const auto& points : results)
         clpoints.insert(clpoints.end(), points.begin(), points.end());
-    nCalls = calls;
 }
 
 int AdaptivePathDropCutter::sample_span(const Span* span, std::vector<CLPoint>& points,
                                       const PointDropCutter& dropcutter) const {
     CLPoint start = span->getPoint(0.0);
     CLPoint stop = span->getPoint(1.0);
+    start.z = stop.z = minimumZ;
     int calls = dropcutter.dropCutter(start);
     calls += dropcutter.dropCutter(stop);
     points.push_back(start);
@@ -105,8 +106,12 @@ int AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, do
                                           std::vector<CLPoint>& points,
                                           const PointDropCutter& dropcutter) const {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
-    assert( mid_t > start_t );  assert( mid_t < stop_t );
+    if (mid_t <= start_t || mid_t >= stop_t) {
+        points.push_back(stop_cl);
+        return 0;
+    }
     CLPoint mid_cl = span->getPoint(mid_t);
+    mid_cl.z = minimumZ;
     //std::cout << " apdc sampling at " << mid_t << "\n";
     int calls = dropcutter.dropCutter(mid_cl);
     double fw_step = (stop_cl-start_cl).xyNorm();

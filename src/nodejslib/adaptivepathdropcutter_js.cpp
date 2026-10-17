@@ -25,6 +25,7 @@ void AdaptivePathDropCutterJS::Init(Napi::Env env, Napi::Object exports)
         InstanceMethod("setMinSampling", &AdaptivePathDropCutterJS::setMinSampling),
         InstanceMethod("setZ", &AdaptivePathDropCutterJS::setZ),
         InstanceMethod("getCLPoints", &AdaptivePathDropCutterJS::getCLPoints),
+        InstanceMethod("dispose", &AdaptivePathDropCutterJS::dispose),
         InstanceMethod("run", &AdaptivePathDropCutterJS::run)
     });
     constructor = Napi::Persistent(func);
@@ -37,89 +38,105 @@ AdaptivePathDropCutterJS::AdaptivePathDropCutterJS(const Napi::CallbackInfo &inf
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_ = new ocl::AdaptivePathDropCutter();
+    this->actualClass_ = std::make_unique<ocl::AdaptivePathDropCutter>();
 }
 
 void AdaptivePathDropCutterJS::setSTL(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    STLSurfJS *sjs = Napi::ObjectWrap<STLSurfJS>::Unwrap(info[0].As<Napi::Object>());
+    STLSurfJS *sjs = STLSurfJS::UnwrapChecked(info[0]);
     ocl::STLSurf *surface = sjs->GetInternalInstance(info);
-    this->actualClass_->setSTL(*surface);
+    nativeCall(info.Env(), [&] { this->actualClass_->setSTL(*surface); });
+    surface_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptivePathDropCutterJS::setPath(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    PathJS *pjs = Napi::ObjectWrap<PathJS>::Unwrap(info[0].As<Napi::Object>());
+    PathJS *pjs = PathJS::UnwrapChecked(info[0]);
     ocl::Path *path = pjs->GetInternalInstance(info);
-    this->actualClass_->setPath(path);
+    nativeCall(info.Env(), [&] { this->actualClass_->setPath(path); });
+    path_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptivePathDropCutterJS::setCylCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    CylCutterJS *cjs = Napi::ObjectWrap<CylCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    CylCutterJS *cjs = CylCutterJS::UnwrapChecked(info[0]);
     ocl::CylCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptivePathDropCutterJS::setBallCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    BallCutterJS *cjs = Napi::ObjectWrap<BallCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    BallCutterJS *cjs = BallCutterJS::UnwrapChecked(info[0]);
     ocl::BallCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptivePathDropCutterJS::setBullCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    BullCutterJS *cjs = Napi::ObjectWrap<BullCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    BullCutterJS *cjs = BullCutterJS::UnwrapChecked(info[0]);
     ocl::BullCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptivePathDropCutterJS::setConeCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    ConeCutterJS *cjs = Napi::ObjectWrap<ConeCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ConeCutterJS *cjs = ConeCutterJS::UnwrapChecked(info[0]);
     ocl::ConeCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptivePathDropCutterJS::setSampling(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
-    this->actualClass_->setSampling(s.DoubleValue());
+    nativeCall(info.Env(), [&] { this->actualClass_->setSampling(s.DoubleValue()); });
 }
 
 void AdaptivePathDropCutterJS::setMinSampling(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
-    this->actualClass_->setMinSampling(s.DoubleValue());
+    nativeCall(info.Env(), [&] { this->actualClass_->setMinSampling(s.DoubleValue()); });
 }
 
 void AdaptivePathDropCutterJS::setZ(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
-    this->actualClass_->setZ(s.DoubleValue());
+    nativeCall(info.Env(), [&] { this->actualClass_->setZ(s.DoubleValue()); });
 }
 
 Napi::Value AdaptivePathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Array result = Napi::Array::New(env);
@@ -143,7 +160,13 @@ Napi::Value AdaptivePathDropCutterJS::getCLPoints(const Napi::CallbackInfo &info
 
 void AdaptivePathDropCutterJS::run(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_->run();
+    nativeCall(info.Env(), [&] { this->actualClass_->run(); });
+}
+
+void AdaptivePathDropCutterJS::dispose(const Napi::CallbackInfo&) {
+    actualClass_.reset();
+    surface_ref.Reset(); cutter_ref.Reset(); path_ref.Reset();
 }

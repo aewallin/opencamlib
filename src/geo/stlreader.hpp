@@ -22,6 +22,8 @@
 #ifndef STLREADER_H
 #define STLREADER_H
 
+#include <string>
+
 namespace ocl
 {
     
@@ -34,7 +36,8 @@ class STLSurf;
 class STLReader {
     public:
         STLReader(){};
-        /// construct with file name and surface to fill
+        /// Append a complete ASCII or binary STL. Throws std::runtime_error for
+        /// unreadable/malformed files; the surface is unchanged on parse failure.
         STLReader(const std::wstring &filepath, STLSurf& surface);
         /// destructor
         virtual ~STLReader();

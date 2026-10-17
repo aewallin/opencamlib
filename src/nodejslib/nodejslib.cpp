@@ -5,6 +5,7 @@
 #include "bbox_js.hpp"
 #include "path_js.hpp"
 #include "line_js.hpp"
+#include "arc_js.hpp"
 
 #include "stlsurf_js.hpp"
 #include "stlreader_js.hpp"
@@ -27,6 +28,7 @@ Napi::Object InitAll(Napi::Env env, Napi::Object exports) {
   BboxJS::Init(env, exports);
   PathJS::Init(env, exports);
   LineJS::Init(env, exports);
+  ArcJS::Init(env, exports);
 
   WaterlineJS::Init(env, exports);
   PathDropCutterJS::Init(env, exports);

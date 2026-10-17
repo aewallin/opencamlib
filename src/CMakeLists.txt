@@ -1,6 +1,4 @@
-project(OpenCAMLib LANGUAGES CXX)
-
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(OCL_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 if(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
@@ -25,7 +23,6 @@ foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/$<0:>)
 endforeach()
 
-set(CMAKE_CXX_STANDARD 14)
 
 if(WIN32)
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
@@ -41,14 +38,33 @@ option(BUILD_PY_LIB
 option(BUILD_NODEJS_LIB
   "Build/install the node.js ocl library? " OFF)
 
+option(BUILD_EMSCRIPTEN_LIB "Build the WebAssembly library" OFF)
+
 option(BUILD_DOC
   "Build/install the ocl documentation? " ON)
 
 option(USE_OPENMP
     "Use OpenMP for parallel computation" ON)
 
-option(VERSION_STRING
-    "Set version string")
+option(OCL_WASM_THREADS "Enable Emscripten pthread parallelism" OFF)
+option(OCL_WASM_NATIVE_EXCEPTIONS "Use native WebAssembly exceptions (requires a supporting runtime)" OFF)
+if(OCL_WASM_NATIVE_EXCEPTIONS AND NOT EMSCRIPTEN)
+  message(FATAL_ERROR "OCL_WASM_NATIVE_EXCEPTIONS requires an Emscripten toolchain")
+endif()
+set(OCL_WASM_THREAD_POOL_SIZE "3" CACHE STRING "Preloaded WebAssembly workers (in addition to the calling thread)")
+if(OCL_WASM_THREADS)
+  if(NOT EMSCRIPTEN OR NOT BUILD_EMSCRIPTEN_LIB)
+    message(FATAL_ERROR "OCL_WASM_THREADS requires an Emscripten toolchain and BUILD_EMSCRIPTEN_LIB=ON")
+  endif()
+  if(USE_OPENMP)
+    message(FATAL_ERROR "Set USE_OPENMP=OFF when using OCL_WASM_THREADS")
+  endif()
+  if(NOT OCL_WASM_THREAD_POOL_SIZE MATCHES "^[1-9][0-9]*$" OR OCL_WASM_THREAD_POOL_SIZE GREATER 1024)
+    message(FATAL_ERROR "OCL_WASM_THREAD_POOL_SIZE must be an integer between 1 and 1024")
+  endif()
+endif()
+
+set(VERSION_STRING "" CACHE STRING "Override the generated version string")
 
 option(USE_PY_3
     "Use Python V3" ON)
@@ -73,31 +89,41 @@ if(NOT BUILD_DOC)
   message(STATUS " Note: will NOT build ocl documentation")
 endif()
 
-# figure out the gcc version
-include(gcc_version.cmake)
-
-#
-# Turn compiler warnings up to 11, at least with gcc.  I don't know how to
-# do this with other compilers we might support and I'm leaving it up to
-# the relevant platform maintainers...
-#
-if(UNIX)
-  if(GCC_4_6)
-    message(STATUS "setting gcc options: -Wall -Werror -pedantic-errors")
-    add_definitions(-Wall  -Werror -pedantic-errors)
+option(OCL_ENABLE_IPO "Enable interprocedural optimization in optimized builds" ON)
+option(OCL_ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" OFF)
+if(OCL_ENABLE_IPO AND NOT OCL_ENABLE_SANITIZERS)
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT got_ipo_support OUTPUT ipo_error)
+  if(got_ipo_support)
+    message(STATUS "Interprocedural optimization enabled for optimized builds")
   else()
-    message(STATUS "setting gcc options: -Wall  -pedantic-errors")
-    add_definitions(-Wall  -pedantic-errors)
+    message(WARNING "Interprocedural optimization was requested but its compiler check failed. Optimized builds will omit IPO.\n${ipo_error}")
   endif()
 endif()
-
-include(CheckIPOSupported)
-check_ipo_supported(RESULT got_ipo_support)
-if(got_ipo_support)
-  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+if(OCL_ENABLE_SANITIZERS AND (MSVC OR EMSCRIPTEN))
+  message(FATAL_ERROR "The sanitizer preset requires native GCC or Clang")
 endif()
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+function(ocl_configure_target target)
+  target_compile_features(${target} PUBLIC cxx_std_14)
+  if(MSVC)
+    target_compile_options(${target} PRIVATE /W4)
+  else()
+    target_compile_options(${target} PRIVATE -Wall -pedantic-errors)
+    if(NOT USE_OPENMP)
+      target_compile_options(${target} PRIVATE -Wno-unknown-pragmas)
+    endif()
+  endif()
+  if(got_ipo_support AND NOT (MSVC AND BUILD_CXX_LIB))
+    set_target_properties(${target} PROPERTIES
+      INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE
+      INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO TRUE)
+  endif()
+  if(OCL_ENABLE_SANITIZERS)
+    target_compile_options(${target} PRIVATE -fsanitize=address,undefined,float-cast-overflow -fno-omit-frame-pointer)
+    target_link_options(${target} PRIVATE -fsanitize=address,undefined,float-cast-overflow)
+  endif()
+endfunction()
 
 if(USE_OPENMP)
   if(APPLE)
@@ -108,32 +134,28 @@ if(USE_OPENMP)
       set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp")
       set(OpenMP_CXX_LIB_NAMES "omp")
       set(OpenMP_omp_LIBRARY "$ENV{OPENMP_PREFIX_MACOS}/lib/libomp.dylib")
-      include_directories("$ENV{OPENMP_PREFIX_MACOS}/include")
+      set(OpenMP_CXX_INCLUDE_DIR "$ENV{OPENMP_PREFIX_MACOS}/include")
     else()
       list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/libomp")
       list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/libomp")
     endif()
   endif()
   find_package(OpenMP REQUIRED)
-  if(OPENMP_FOUND)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    message(STATUS "found OpenMP, compiling with flags: " ${OpenMP_CXX_FLAGS} )
-    include_directories(${OpenMP_CXX_INCLUDE_DIRS})
-  endif()
+
 endif()
 
-if(EXISTS ${PROJECT_SOURCE_DIR}/version_string.hpp)
-  file(STRINGS "${PROJECT_SOURCE_DIR}/version_string.hpp" PROJECT_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
+if(EXISTS ${OCL_SOURCE_DIR}/version_string.hpp)
+  file(STRINGS "${OCL_SOURCE_DIR}/version_string.hpp" PROJECT_BUILD_SPECIFICATION REGEX "^[ \t]*#define[ \t]+VERSION_STRING[ \t]+.*$")
   if(PROJECT_BUILD_SPECIFICATION)
     string(REGEX REPLACE ".*#define[ \t]+VERSION_STRING[ \t]+\"(.*)\".*" "\\1" MY_VERSION ${PROJECT_BUILD_SPECIFICATION})
   else()
     message(FATAL_ERROR "Data were not found for the required build specification.")
   endif()
-  set(version_string ${PROJECT_SOURCE_DIR}/version_string.hpp)
+  set(version_string ${OCL_SOURCE_DIR}/version_string.hpp)
 else()
   ################ create version_string.hpp, http://stackoverflow.com/questions/3780667
   # include the output directory, where the version_string.hpp file is generated
-  include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
   if(VERSION_STRING)
     set( vstring "//version_string.hpp - written by cmake. changes will be lost!\n"
                "#ifndef VERSION_STRING\n"
@@ -158,113 +180,136 @@ message(STATUS "OpenCAMLib version: ${MY_VERSION}")
 
 # this defines the source-files
 set(OCL_SRC
-  ${PROJECT_SOURCE_DIR}/ocl.cpp
+  ${OCL_SOURCE_DIR}/ocl.cpp
   )
 
 set(OCL_GEO_SRC
-  ${PROJECT_SOURCE_DIR}/geo/arc.cpp
-  ${PROJECT_SOURCE_DIR}/geo/bbox.cpp
-  ${PROJECT_SOURCE_DIR}/geo/ccpoint.cpp
-  ${PROJECT_SOURCE_DIR}/geo/clpoint.cpp
-  ${PROJECT_SOURCE_DIR}/geo/line.cpp
-  ${PROJECT_SOURCE_DIR}/geo/path.cpp
-  ${PROJECT_SOURCE_DIR}/geo/point.cpp
-  ${PROJECT_SOURCE_DIR}/geo/stlreader.cpp
-  ${PROJECT_SOURCE_DIR}/geo/stlsurf.cpp
-  ${PROJECT_SOURCE_DIR}/geo/triangle.cpp
+  ${OCL_SOURCE_DIR}/geo/arc.cpp
+  ${OCL_SOURCE_DIR}/geo/bbox.cpp
+  ${OCL_SOURCE_DIR}/geo/ccpoint.cpp
+  ${OCL_SOURCE_DIR}/geo/clpoint.cpp
+  ${OCL_SOURCE_DIR}/geo/line.cpp
+  ${OCL_SOURCE_DIR}/geo/path.cpp
+  ${OCL_SOURCE_DIR}/geo/point.cpp
+  ${OCL_SOURCE_DIR}/geo/stlreader.cpp
+  ${OCL_SOURCE_DIR}/geo/stlsurf.cpp
+  ${OCL_SOURCE_DIR}/geo/triangle.cpp
   )
 
 set(OCL_CUTTER_SRC
-  ${PROJECT_SOURCE_DIR}/cutters/ballcutter.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/bullcutter.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/compositecutter.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/conecutter.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/millingcutter.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/cylcutter.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/ellipse.cpp
-  ${PROJECT_SOURCE_DIR}/cutters/ellipseposition.cpp
+  ${OCL_SOURCE_DIR}/cutters/ballcutter.cpp
+  ${OCL_SOURCE_DIR}/cutters/bullcutter.cpp
+  ${OCL_SOURCE_DIR}/cutters/compositecutter.cpp
+  ${OCL_SOURCE_DIR}/cutters/conecutter.cpp
+  ${OCL_SOURCE_DIR}/cutters/millingcutter.cpp
+  ${OCL_SOURCE_DIR}/cutters/cylcutter.cpp
+  ${OCL_SOURCE_DIR}/cutters/ellipse.cpp
+  ${OCL_SOURCE_DIR}/cutters/ellipseposition.cpp
   )
 
 set(OCL_DROPCUTTER_SRC
-  ${PROJECT_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
-  ${PROJECT_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
-  ${PROJECT_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
-  ${PROJECT_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
+  ${OCL_SOURCE_DIR}/dropcutter/batchdropcutter.cpp
+  ${OCL_SOURCE_DIR}/dropcutter/pointdropcutter.cpp
+  ${OCL_SOURCE_DIR}/dropcutter/pathdropcutter.cpp
+  ${OCL_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.cpp
   )
 
 set(OCL_ALGO_SRC
-  ${PROJECT_SOURCE_DIR}/algo/batchpushcutter.cpp
-  ${PROJECT_SOURCE_DIR}/algo/fiberpushcutter.cpp
-  ${PROJECT_SOURCE_DIR}/algo/interval.cpp
-  ${PROJECT_SOURCE_DIR}/algo/fiber.cpp
-  ${PROJECT_SOURCE_DIR}/algo/waterline.cpp
-  ${PROJECT_SOURCE_DIR}/algo/adaptivewaterline.cpp
-  ${PROJECT_SOURCE_DIR}/algo/weave.cpp
-  ${PROJECT_SOURCE_DIR}/algo/simple_weave.cpp
-  ${PROJECT_SOURCE_DIR}/algo/smart_weave.cpp
+  ${OCL_SOURCE_DIR}/algo/batchpushcutter.cpp
+  ${OCL_SOURCE_DIR}/algo/fiberpushcutter.cpp
+  ${OCL_SOURCE_DIR}/algo/interval.cpp
+  ${OCL_SOURCE_DIR}/algo/fiber.cpp
+  ${OCL_SOURCE_DIR}/algo/waterline.cpp
+  ${OCL_SOURCE_DIR}/algo/adaptivewaterline.cpp
+  ${OCL_SOURCE_DIR}/algo/weave.cpp
+  ${OCL_SOURCE_DIR}/algo/simple_weave.cpp
+  ${OCL_SOURCE_DIR}/algo/smart_weave.cpp
   )
 
 set(OCL_COMMON_SRC
-  ${PROJECT_SOURCE_DIR}/common/numeric.cpp
-  ${PROJECT_SOURCE_DIR}/common/lineclfilter.cpp
+  ${OCL_SOURCE_DIR}/common/numeric.cpp
+  ${OCL_SOURCE_DIR}/common/lineclfilter.cpp
   )
 
 set(OCL_INCLUDE_FILES
-  ${PROJECT_SOURCE_DIR}/ocl.hpp
+  ${OCL_SOURCE_DIR}/ocl.hpp
 
-  ${PROJECT_SOURCE_DIR}/geo/arc.hpp
-  ${PROJECT_SOURCE_DIR}/geo/bbox.hpp
-  ${PROJECT_SOURCE_DIR}/geo/ccpoint.hpp
-  ${PROJECT_SOURCE_DIR}/geo/clpoint.hpp
-  ${PROJECT_SOURCE_DIR}/geo/line.hpp
-  ${PROJECT_SOURCE_DIR}/geo/path.hpp
-  ${PROJECT_SOURCE_DIR}/geo/stlreader.hpp
-  ${PROJECT_SOURCE_DIR}/geo/stlsurf.hpp
-  ${PROJECT_SOURCE_DIR}/geo/triangle.hpp
-  ${PROJECT_SOURCE_DIR}/geo/point.hpp
+  ${OCL_SOURCE_DIR}/geo/arc.hpp
+  ${OCL_SOURCE_DIR}/geo/bbox.hpp
+  ${OCL_SOURCE_DIR}/geo/ccpoint.hpp
+  ${OCL_SOURCE_DIR}/geo/clpoint.hpp
+  ${OCL_SOURCE_DIR}/geo/line.hpp
+  ${OCL_SOURCE_DIR}/geo/path.hpp
+  ${OCL_SOURCE_DIR}/geo/stlreader.hpp
+  ${OCL_SOURCE_DIR}/geo/stlsurf.hpp
+  ${OCL_SOURCE_DIR}/geo/triangle.hpp
+  ${OCL_SOURCE_DIR}/geo/point.hpp
 
-  ${PROJECT_SOURCE_DIR}/cutters/ballcutter.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/bullcutter.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/compositecutter.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/conecutter.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/cylcutter.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/ellipseposition.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/millingcutter.hpp
-  ${PROJECT_SOURCE_DIR}/cutters/ellipse.hpp
+  ${OCL_SOURCE_DIR}/cutters/ballcutter.hpp
+  ${OCL_SOURCE_DIR}/cutters/bullcutter.hpp
+  ${OCL_SOURCE_DIR}/cutters/compositecutter.hpp
+  ${OCL_SOURCE_DIR}/cutters/conecutter.hpp
+  ${OCL_SOURCE_DIR}/cutters/cylcutter.hpp
+  ${OCL_SOURCE_DIR}/cutters/ellipseposition.hpp
+  ${OCL_SOURCE_DIR}/cutters/millingcutter.hpp
+  ${OCL_SOURCE_DIR}/cutters/ellipse.hpp
 
-  ${PROJECT_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
-  ${PROJECT_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
-  ${PROJECT_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
-  ${PROJECT_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
+  ${OCL_SOURCE_DIR}/dropcutter/adaptivepathdropcutter.hpp
+  ${OCL_SOURCE_DIR}/dropcutter/pathdropcutter.hpp
+  ${OCL_SOURCE_DIR}/dropcutter/batchdropcutter.hpp
+  ${OCL_SOURCE_DIR}/dropcutter/pointdropcutter.hpp
 
-  ${PROJECT_SOURCE_DIR}/common/brent_zero.hpp
-  ${PROJECT_SOURCE_DIR}/common/kdnode.hpp
-  ${PROJECT_SOURCE_DIR}/common/kdtree.hpp
-  ${PROJECT_SOURCE_DIR}/common/numeric.hpp
-  ${PROJECT_SOURCE_DIR}/common/lineclfilter.hpp
-  ${PROJECT_SOURCE_DIR}/common/clfilter.hpp
-  ${PROJECT_SOURCE_DIR}/common/halfedgediagram.hpp
+  ${OCL_SOURCE_DIR}/common/brent_zero.hpp
+  ${OCL_SOURCE_DIR}/common/kdnode.hpp
+  ${OCL_SOURCE_DIR}/common/kdtree.hpp
+  ${OCL_SOURCE_DIR}/common/numeric.hpp
+  ${OCL_SOURCE_DIR}/common/lineclfilter.hpp
+  ${OCL_SOURCE_DIR}/common/clfilter.hpp
+  ${OCL_SOURCE_DIR}/common/halfedgediagram.hpp
 
-  ${PROJECT_SOURCE_DIR}/algo/operation.hpp
-  ${PROJECT_SOURCE_DIR}/algo/batchpushcutter.hpp
-  ${PROJECT_SOURCE_DIR}/algo/fiberpushcutter.hpp
-  ${PROJECT_SOURCE_DIR}/algo/fiber.hpp
-  ${PROJECT_SOURCE_DIR}/algo/interval.hpp
-  ${PROJECT_SOURCE_DIR}/algo/waterline.hpp
-  ${PROJECT_SOURCE_DIR}/algo/adaptivewaterline.hpp
-  ${PROJECT_SOURCE_DIR}/algo/weave.hpp
-  ${PROJECT_SOURCE_DIR}/algo/simple_weave.hpp
-  ${PROJECT_SOURCE_DIR}/algo/smart_weave.hpp
-  ${PROJECT_SOURCE_DIR}/algo/weave_typedef.hpp
-  ${PROJECT_SOURCE_DIR}/algo/tsp.hpp
+  ${OCL_SOURCE_DIR}/algo/operation.hpp
+  ${OCL_SOURCE_DIR}/algo/batchpushcutter.hpp
+  ${OCL_SOURCE_DIR}/algo/fiberpushcutter.hpp
+  ${OCL_SOURCE_DIR}/algo/fiber.hpp
+  ${OCL_SOURCE_DIR}/algo/interval.hpp
+  ${OCL_SOURCE_DIR}/algo/waterline.hpp
+  ${OCL_SOURCE_DIR}/algo/adaptivewaterline.hpp
+  ${OCL_SOURCE_DIR}/algo/weave.hpp
+  ${OCL_SOURCE_DIR}/algo/simple_weave.hpp
+  ${OCL_SOURCE_DIR}/algo/smart_weave.hpp
+  ${OCL_SOURCE_DIR}/algo/weave_typedef.hpp
+  ${OCL_SOURCE_DIR}/algo/tsp.hpp
   )
 
-# this branches into the dirs and compiles stuff there
-add_subdirectory(${PROJECT_SOURCE_DIR}/cutters)
-add_subdirectory(${PROJECT_SOURCE_DIR}/geo)
-add_subdirectory(${PROJECT_SOURCE_DIR}/algo)
-add_subdirectory(${PROJECT_SOURCE_DIR}/dropcutter)
-add_subdirectory(${PROJECT_SOURCE_DIR}/common)
+# Compile the core once; each selected binding and native test reuses its objects.
+add_library(ocl_core OBJECT ${OCL_SRC} ${OCL_GEO_SRC} ${OCL_CUTTER_SRC}
+  ${OCL_ALGO_SRC} ${OCL_DROPCUTTER_SRC} ${OCL_COMMON_SRC})
+set_target_properties(ocl_core PROPERTIES POSITION_INDEPENDENT_CODE ON)
+target_include_directories(ocl_core PUBLIC
+  ${OCL_SOURCE_DIR} ${OCL_SOURCE_DIR}/common ${OCL_SOURCE_DIR}/geo
+  ${OCL_SOURCE_DIR}/algo ${OCL_SOURCE_DIR}/cutters ${OCL_SOURCE_DIR}/dropcutter
+  ${CMAKE_CURRENT_BINARY_DIR})
+ocl_configure_target(ocl_core)
+if(USE_OPENMP)
+  target_link_libraries(ocl_core PUBLIC OpenMP::OpenMP_CXX)
+endif()
+if(EMSCRIPTEN)
+  # Compile the core, bindings, and tests with the same exception ABI. Native
+  # Wasm EH avoids JS invoke wrappers in the contact-calculation hot paths.
+  if(OCL_WASM_NATIVE_EXCEPTIONS)
+    set(ocl_exception_flag -fwasm-exceptions)
+  else()
+    set(ocl_exception_flag -fexceptions)
+  endif()
+  target_compile_options(ocl_core PUBLIC ${ocl_exception_flag})
+  target_link_options(ocl_core INTERFACE ${ocl_exception_flag})
+endif()
+if(OCL_WASM_THREADS)
+  target_compile_definitions(ocl_core PUBLIC OCL_WASM_THREAD_POOL_SIZE=${OCL_WASM_THREAD_POOL_SIZE})
+  target_compile_options(ocl_core PUBLIC -pthread)
+  target_link_options(ocl_core PUBLIC -pthread
+    "-sPTHREAD_POOL_SIZE=${OCL_WASM_THREAD_POOL_SIZE}" -sPTHREAD_POOL_SIZE_STRICT=2)
+endif()
 
 if(BUILD_NODEJS_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/nodejslib/nodejslib.cmake)
@@ -283,12 +328,12 @@ if(BUILD_EMSCRIPTEN_LIB)
 endif()
 
 if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)
+  add_subdirectory(${OCL_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)
 endif()
 
 option(BUILD_BENCHMARKS "Build cutter performance benchmarks" OFF)
 if(BUILD_BENCHMARKS AND NOT CMAKE_CROSSCOMPILING)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/../benchmarks ${CMAKE_CURRENT_BINARY_DIR}/benchmarks)
+  add_subdirectory(${OCL_SOURCE_DIR}/../benchmarks ${CMAKE_CURRENT_BINARY_DIR}/benchmarks)
 endif()
 
 # build & install documentation (if Doxygen is available)
@@ -307,7 +352,7 @@ if(BUILD_DOC)
       message(STATUS "dvips command DVIPS_CONVERTER not found but usually required.")
     endif()
 
-    configure_file(${PROJECT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    configure_file(${OCL_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
     set(DOXY_CONFIG ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
 
     execute_process(
@@ -355,20 +400,20 @@ if(BUILD_DOC)
 endif()
 
 # "make spackage"
-add_custom_target(spackage 
-  ${CMAKE_COMMAND} 
-  -D SRC_DIR:STRING=${CMAKE_CURRENT_SOURCE_DIR} 
-  -D MY_VERSION:STRING=${MY_VERSION} 
+add_custom_target(spackage
+  ${CMAKE_COMMAND}
+  -D SRC_DIR:STRING=${CMAKE_CURRENT_SOURCE_DIR}
+  -D MY_VERSION:STRING=${MY_VERSION}
   -C ${CMAKE_CURRENT_SOURCE_DIR}/deb/package_details.cmake
-  -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
-  ) 
+  -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake
+  )
 #add_custom_target(spackage-oneiric
-#              ${CMAKE_COMMAND} 
-#              -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR} 
-#              -D MY_VERSION:STRING=${MY_VERSION} 
+#              ${CMAKE_COMMAND}
+#              -D SRC_DIR:STRING=${CMAKE_SOURCE_DIR}
+#              -D MY_VERSION:STRING=${MY_VERSION}
 #              -D MY_DISTRIBUTION_RELEASES:STRING="oneiric"
 #              -C ${CMAKE_SOURCE_DIR}/package_details.cmake
-#              -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake 
+#              -P ${CMAKE_CURRENT_SOURCE_DIR}/deb/DebSourcePPA.cmake
 #            )
 
 message(STATUS "type:")

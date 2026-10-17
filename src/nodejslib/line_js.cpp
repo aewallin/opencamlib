@@ -21,21 +21,21 @@ LineJS::LineJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<LineJS>(info) 
   Napi::HandleScope scope(env);
 
   size_t length = info.Length();
-  if (length == 1) {
-    Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
+  if (length != 2) {
+    throw Napi::TypeError::New(env, "Provide at least 2 arguments");
   }
   else if (length == 2)
   {
-    PointJS* p1in = Napi::ObjectWrap<PointJS>::Unwrap(info[0].As<Napi::Object>());
-    PointJS* p2in = Napi::ObjectWrap<PointJS>::Unwrap(info[1].As<Napi::Object>());
+    PointJS* p1in = PointJS::UnwrapChecked(info[0]);
+    PointJS* p2in = PointJS::UnwrapChecked(info[1]);
     ocl::Point* p1 = p1in->GetInternalInstance(info);
     ocl::Point* p2 = p2in->GetInternalInstance(info);
-    actualClass_ = new ocl::Line(*p1, *p2);
+    actualClass_ = std::make_unique<ocl::Line>(*p1, *p2);
   }
 }
 
 ocl::Line* LineJS::GetInternalInstance(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
-  return this->actualClass_;
+  return this->actualClass_.get();
 }
