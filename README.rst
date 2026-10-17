@@ -557,8 +557,9 @@ Other presets are ``release``, ``release-openmp``, and ``sanitizers``. The
 sanitizer preset enables AddressSanitizer, UndefinedBehaviorSanitizer, and
 floating-point-to-integer conversion checks with GCC or Clang. Linux CI also
 enables leak detection. Debug and sanitizer builds retain debug symbols and
-disable interprocedural optimization. Manual CMake configuration still supports
-CMake 3.18+. ``OCL_ENABLE_IPO=OFF`` disables optimization across translation units.
+disable interprocedural optimization. Sanitizer builds use ``-O1``.
+Manual CMake configuration still supports CMake 3.18+.
+``OCL_ENABLE_IPO=OFF`` disables optimization across translation units.
 
 Core sources are compiled once into ``ocl_core`` and reused by the selected
 binding, tests, and benchmarks. Configure each binding in its own build directory.

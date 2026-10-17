@@ -1,10 +1,16 @@
-foreach(test_name halfedge tsp geometry kdtree cutter lifecycle stlreader parallel)
+foreach(test_name halfedge tsp geometry kdtree lifecycle stlreader parallel)
   add_executable(${test_name}_test ${test_name}_test.cpp)
   target_link_libraries(${test_name}_test PRIVATE ocl_core)
   ocl_configure_target(${test_name}_test)
   add_test(NAME ${test_name} COMMAND ${test_name}_test)
   set_tests_properties(${test_name} PROPERTIES TIMEOUT 120)
 endforeach()
+
+add_executable(cutter_test cutter_test.cpp)
+target_link_libraries(cutter_test PRIVATE ocl_core)
+ocl_configure_target(cutter_test)
+include("${CMAKE_CURRENT_LIST_DIR}/cutter_tests.cmake")
+ocl_add_cutter_tests(cutter_test cutter)
 
 add_executable(binding_fixture binding_fixture.cpp)
 target_link_libraries(binding_fixture PRIVATE ocl_core)

@@ -12,6 +12,9 @@
 #include "check.hpp"
 
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <string>
 #include <vector>
 #if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
 #include <atomic>
@@ -60,7 +63,8 @@ static void model(ocl::STLSurf& surface) {
         }
     }
 }
-static void batches(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
+
+static void batch_drop(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
     std::vector<ocl::CLPoint> expected;
     int calls = 0;
     for (int threads : {1,4}) {
@@ -75,8 +79,13 @@ static void batches(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
         else { equal(expected,operation.getCLPoints()); CHECK(calls == operation.getCalls()); }
     }
     CHECK(calls > 0);
+}
+
+static void batch_push(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
     for (int axis : {0,1}) {
+        std::vector<ocl::CLPoint> expected;
         std::vector<ocl::Fiber> fibers;
+        int calls = 0;
         for (int threads : {1,4}) {
             ocl::BatchPushCutter operation;
             if (axis == 0) operation.setXDirection(); else operation.setYDirection();
@@ -98,7 +107,12 @@ static void batches(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
         CHECK(calls > 0);
     }
 }
-static void adaptive(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
+
+static void adaptive_path(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
+    // Serial builds still check repeatability and a requested parallel count,
+    // but need not repeat the same serial calculation for every thread count.
+    const std::vector<int> thread_counts = ocl::detail::thread_count(4, 4) > 1
+        ? std::vector<int>{4,2,1} : std::vector<int>{4};
     for (int spans : {0,1,8}) {
         ocl::Path path;
         for (int i = 0; i < spans; ++i) {
@@ -114,12 +128,15 @@ static void adaptive(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
         const auto expected = operation.getPoints();
         const int calls = operation.getCalls();
         CHECK(expected.empty() == (spans == 0));
-        for (int threads : {4,2,1}) {
+        for (int threads : thread_counts) {
             operation.setThreads(threads); operation.run();
             equal(expected,operation.getPoints());
             CHECK(calls == operation.getCalls());
         }
     }
+}
+
+static void adaptive_waterline(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
     ocl::AdaptiveWaterline operation;
     operation.setSTL(surface); operation.setCutter(&cutter);
     const std::vector<int> thread_counts = ocl::detail::thread_count(4, 4) > 1
@@ -233,29 +250,70 @@ static void composite_contacts() {
     CHECK(populated.ints.size() == 10);
 }
 
-int main() {
-    composite_contacts();
-#if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
-    concurrent_waterline();
-#endif
+int main(int argc, char** argv) {
 #ifdef _OPENMP
     const int original_threads = omp_get_max_threads();
 #endif
-    ocl::STLSurf surface; model(surface);
-    ocl::CylCutter cylinder(.6,5);
-    ocl::BallCutter ball(.6,5);
-    ocl::BullCutter bull(.6,.1,5);
-    ocl::ConeCutter cone(.6,.7,5);
-    for (auto* cutter : std::vector<ocl::MillingCutter*>{&cylinder,&ball,&bull,&cone}) {
-        batches(surface,*cutter);
-        adaptive(surface,*cutter);
+    const bool all = argc == 1;
+    const std::string selected_test = argc > 1 ? argv[1] : "";
+    const std::string selected_cutter = argc == 3 ? argv[2] : "";
+    bool matched = false;
+    if (all || (argc == 2 && selected_test == "composite_contacts")) {
+        composite_contacts();
+        matched = true;
     }
-    Composite composite_cylinder(cylinder), composite_ball(ball);
-    for (auto* cutter : std::vector<ocl::MillingCutter*>{&composite_cylinder,&composite_ball}) {
-        batches(surface,*cutter);
-        adaptive(surface,*cutter);
+#if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
+    if (all || (argc == 2 && selected_test == "concurrent_waterline")) {
+        concurrent_waterline();
+        matched = true;
+    }
+#endif
+    if (all || argc == 3) {
+        ocl::STLSurf surface; model(surface);
+        ocl::CylCutter cylinder(.6,5);
+        ocl::BallCutter ball(.6,5);
+        ocl::BullCutter bull(.6,.1,5);
+        ocl::ConeCutter cone(.6,.7,5);
+        Composite composite_cylinder(cylinder), composite_ball(ball);
+        struct Cutter {
+            const char* name;
+            ocl::MillingCutter* value;
+        };
+        const Cutter cutters[] = {
+            {"cylinder", &cylinder}, {"ball", &ball}, {"bull", &bull}, {"cone", &cone},
+            {"composite_cylinder", &composite_cylinder}, {"composite_ball", &composite_ball}
+        };
+        struct Test {
+            const char* name;
+            void (*run)(ocl::STLSurf&, ocl::MillingCutter&);
+        };
+        const Test tests[] = {
+            {"batch_drop", batch_drop}, {"batch_push", batch_push},
+            {"adaptive_path", adaptive_path}, {"adaptive_waterline", adaptive_waterline}
+        };
+        for (const auto& cutter : cutters) {
+            if (!all && selected_cutter != cutter.name) continue;
+            for (const auto& test : tests) {
+                if (!all && selected_test != test.name) continue;
+                test.run(surface, *cutter.value);
+                matched = true;
+            }
+        }
+    }
+    if (!matched) {
+        std::cerr << "Usage: " << argv[0]
+                  << " [composite_contacts|"
+#if defined(OCL_WASM_THREAD_POOL_SIZE) || defined(_OPENMP)
+                  << "concurrent_waterline|"
+#endif
+                  << "<algorithm> <cutter>]\n"
+                  << "Algorithms: batch_drop, batch_push, adaptive_path, adaptive_waterline\n"
+                  << "Cutters: cylinder, ball, bull, cone, composite_cylinder, composite_ball\n"
+                  << "With no arguments, run all cases.\n";
+        return EXIT_FAILURE;
     }
 #ifdef _OPENMP
     CHECK(omp_get_max_threads() == original_threads);
 #endif
+    return EXIT_SUCCESS;
 }

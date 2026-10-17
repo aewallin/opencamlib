@@ -44,6 +44,7 @@
       "name": "sanitizers",
       "inherits": "debug",
       "cacheVariables": {
+        "CMAKE_CXX_FLAGS_DEBUG": "-O1 -g",
         "OCL_ENABLE_SANITIZERS": "ON",
         "OCL_ENABLE_IPO": "OFF"
       }
