@@ -66,25 +66,25 @@ void Fiber::addInterval(Interval& i) {
         ints.push_back(i);
         return;
     } else {
-        // this is the messier general case with partial overlap
-        std::vector<Interval>::iterator itr;
-        itr = ints.begin();
-        std::vector<Interval> overlaps;
-        while (itr!=ints.end()) { // loop through all intervals
-            if ( ! (itr->outside( i )) ) {
-                overlaps.push_back(*itr); // add overlaps here
-                itr = ints.erase(itr); // erase overlaps from ints
+        // Merge in traversal order so equal endpoints retain the same contacts.
+        // Compact non-overlapping intervals once instead of repeatedly erasing
+        // them and allocating a temporary vector of overlaps.
+        Interval sumint;
+        std::size_t kept = 0;
+        for (std::size_t n = 0; n < ints.size(); ++n) {
+            Interval& intr = ints[n];
+            if (!intr.outside(i)) {
+                sumint.updateLower(intr.lower, intr.lower_cc);
+                sumint.updateUpper(intr.upper, intr.upper_cc);
             } else {
-                ++itr;
+                if (kept != n)
+                    ints[kept] = intr;
+                ++kept;
             }
         }
-        overlaps.push_back(i);
-        // now build a new interval from i and the overlaps
-        Interval sumint;
-        for (Interval& intr : overlaps) {
-            sumint.updateLower( intr.lower, intr.lower_cc );
-            sumint.updateUpper( intr.upper, intr.upper_cc );
-        }
+        sumint.updateLower(i.lower, i.lower_cc);
+        sumint.updateUpper(i.upper, i.upper_cc);
+        ints.resize(kept);
         ints.push_back(sumint); // add the sum-interval to ints
         return;
     }

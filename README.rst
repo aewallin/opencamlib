@@ -424,6 +424,12 @@ length 20, sampling 0.1, waterline Z=1, and 25 horizontal drop-cutter spans
 at Z=-1 across the model bounds. Adaptive operations retain their default
 minimum sampling settings.
 
+An optional fifth argument selects ``cyl`` (the default), ``ball``, ``bull``,
+``cone``, or ``cyl-cone``. The ball, bull, and cone cutters also have diameter 4
+and length 20; the bull has corner radius 1 and the cone angle is 0.7 radians.
+The composite cutter uses ``CylConeCutter(2, 4, 0.7)``. Pass ``--cutter cyl-cone``
+to ``compare.py`` to compare this workload with the same cutter in both builds.
+
 The final JSON line reports average ``setup_ms``, ``run_ms``, and ``total_ms``;
 STL loading is excluded, while total time includes operation construction,
 configuration, output collection, and destruction. Point counts and coordinate

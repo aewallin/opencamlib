@@ -1,6 +1,10 @@
 #include "adaptivepathdropcutter.hpp"
 #include "adaptivewaterline.hpp"
 #include "cylcutter.hpp"
+#include "ballcutter.hpp"
+#include "bullcutter.hpp"
+#include "conecutter.hpp"
+#include "compositecutter.hpp"
 #include "pathdropcutter.hpp"
 #include "stlreader.hpp"
 #include "waterline.hpp"
@@ -8,6 +12,7 @@
 #include <chrono>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 
@@ -50,9 +55,10 @@ void dropcutter(ocl::STLSurf& surface, ocl::MillingCutter& cutter,
     for (const auto& p : operation.getPoints()) result.add(p);
 }
 int main(int argc, char** argv) {
-    if (argc != 5) {
+    if (argc != 5 && argc != 6) {
         std::cerr << "Usage: cutter_benchmark model.stl "
-                     "waterline|adaptive-waterline|dropcutter|adaptive-dropcutter threads repetitions\n";
+                     "waterline|adaptive-waterline|dropcutter|adaptive-dropcutter threads repetitions "
+                     "[cyl|ball|bull|cone|cyl-cone]\n";
         return 1;
     }
     const std::string filename = argv[1], mode = argv[2];
@@ -60,7 +66,17 @@ int main(int argc, char** argv) {
     if (threads < 1 || repetitions < 1) return 1;
     ocl::STLSurf surface;
     ocl::STLReader(std::wstring(filename.begin(), filename.end()), surface);
-    ocl::CylCutter cutter(4, 20);
+    const std::string cutter_type = argc == 6 ? argv[5] : "cyl";
+    std::unique_ptr<ocl::MillingCutter> cutter;
+    if (cutter_type == "cyl") cutter.reset(new ocl::CylCutter(4,20));
+    else if (cutter_type == "ball") cutter.reset(new ocl::BallCutter(4,20));
+    else if (cutter_type == "bull") cutter.reset(new ocl::BullCutter(4,1,20));
+    else if (cutter_type == "cone") cutter.reset(new ocl::ConeCutter(4,.7,20));
+    else if (cutter_type == "cyl-cone") cutter.reset(new ocl::CylConeCutter(2,4,.7));
+    else {
+        std::cerr << "Unknown cutter: " << cutter_type << '\n';
+        return 1;
+    }
     ocl::Path path;
     for (int row = 0; row < 25; ++row) {
         const double y = surface.bb.minpt.y + (surface.bb.maxpt.y - surface.bb.minpt.y) * row / 24;
@@ -70,10 +86,10 @@ int main(int argc, char** argv) {
     Result result;
     for (int r = 0; r < repetitions; ++r) {
         const auto start = Clock::now();
-        if (mode == "waterline") waterline<ocl::Waterline>(surface,cutter,threads,result);
-        else if (mode == "adaptive-waterline") waterline<ocl::AdaptiveWaterline>(surface,cutter,threads,result);
-        else if (mode == "dropcutter") dropcutter<ocl::PathDropCutter>(surface,cutter,path,threads,result);
-        else if (mode == "adaptive-dropcutter") dropcutter<ocl::AdaptivePathDropCutter>(surface,cutter,path,threads,result);
+        if (mode == "waterline") waterline<ocl::Waterline>(surface,*cutter,threads,result);
+        else if (mode == "adaptive-waterline") waterline<ocl::AdaptiveWaterline>(surface,*cutter,threads,result);
+        else if (mode == "dropcutter") dropcutter<ocl::PathDropCutter>(surface,*cutter,path,threads,result);
+        else if (mode == "adaptive-dropcutter") dropcutter<ocl::AdaptivePathDropCutter>(surface,*cutter,path,threads,result);
         else return 1;
         result.total_ms += elapsed(start);
     }

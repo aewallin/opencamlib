@@ -9,9 +9,12 @@ import statistics
 import subprocess
 
 
-def run(binary, model, mode, threads):
+def run(binary, model, mode, threads, cutter):
+    command = [str(binary.resolve()), str(model), mode, str(threads), "1"]
+    if cutter is not None:
+        command.append(cutter)
     result = subprocess.run(
-        [str(binary.resolve()), str(model), mode, str(threads), "1"],
+        command,
         env=dict(os.environ, OMP_NUM_THREADS=str(threads)),
         check=True, capture_output=True, text=True,
     )
@@ -25,11 +28,13 @@ def main():
     parser.add_argument("models", nargs="+", type=Path)
     parser.add_argument("--threads", nargs="+", type=int, default=[1, 4])
     parser.add_argument("--repetitions", type=int, default=5)
+    parser.add_argument("--cutter", choices=["cyl", "ball", "bull", "cone", "cyl-cone"])
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.repetitions < 1 or any(t < 1 for t in args.threads):
         parser.error("threads and repetitions must be positive")
-    report = {"before": str(args.before), "after": str(args.after), "results": []}
+    report = {"before": str(args.before), "after": str(args.after),
+              "cutter": args.cutter or "cyl", "results": []}
     for model in args.models:
         for mode in ["waterline", "adaptive-waterline", "dropcutter", "adaptive-dropcutter"]:
             for threads in args.threads:
@@ -38,7 +43,7 @@ def main():
                     order = [("before", args.before), ("after", args.after)]
                     if iteration % 2: order.reverse()
                     for name, binary in order:
-                        samples[name].append(run(binary, model, mode, threads))
+                        samples[name].append(run(binary, model, mode, threads, args.cutter))
                 reference = samples["before"][0]
                 for result in samples["before"] + samples["after"]:
                     if (result["points"] != reference["points"]

@@ -18,6 +18,7 @@
  *  You should have received a copy of the GNU Lesser General Public License
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
+#include <array>
 #include <cassert>
 
 
@@ -77,31 +78,31 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
     if ( (zcut <= this->bb.minpt.z) || ((zcut >= this->bb.maxpt.z)) )
         return false; // no zslice
     // find out how many vertices are below zcut
-    std::vector<Point> below;
-    std::vector<Point> above;
+    std::array<Point, 3> below, above;
+    std::size_t nbelow = 0, nabove = 0;
     for (int m=0;m<3;++m) {
         if ( p[m].z <= zcut )
-            below.push_back(p[m]);
+            below[nbelow++] = p[m];
         else
-            above.push_back(p[m]);
+            above[nabove++] = p[m];
     }
-    if ( !(below.size() == 1) && !(below.size() == 2) ) {
+    if ( !(nbelow == 1) && !(nbelow == 2) ) {
         std::cout << "triangle.cpp: zslice_verts() error while trying to z-slice\n";
         std::cout << " triangle=" << *this << "\n";
         std::cout << " zcut=" << zcut << "\n";
-        std::cout << above.size() << " above points:\n";
-        for (Point p : above) {
-            std::cout << "   " << p << "\n";
+        std::cout << nabove << " above points:\n";
+        for (std::size_t m = 0; m < nabove; ++m) {
+            std::cout << "   " << above[m] << "\n";
         }
-        std::cout << below.size() << " below points:\n";
-        for (Point p : below) {
-            std::cout << "   " << p << "\n";
+        std::cout << nbelow << " below points:\n";
+        for (std::size_t m = 0; m < nbelow; ++m) {
+            std::cout << "   " << below[m] << "\n";
         }
     }
-    assert( (below.size() == 1) || (below.size() == 2) );
+    assert( (nbelow == 1) || (nbelow == 2) );
     
-    if ( below.size() == 2 ) {
-        assert( above.size() == 1 );
+    if ( nbelow == 2 ) {
+        assert( nabove == 1 );
         // find two new intersection points 
         // edge is p1 + t*(p2-p1) = zcut
         // so t = zcut-p1 / (p2-p1)
@@ -110,8 +111,8 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
         p1 = above[0] + t1*(below[0] - above[0]);
         p2 = above[0] + t2*(below[1] - above[0]);
         return true;
-    } else if ( below.size() == 1 ) {
-        assert( above.size() == 2 );
+    } else if ( nbelow == 1 ) {
+        assert( nabove == 2 );
         // find intersection points and add two new triangles
         // t = (zcut -p1) / (p2-p1)
         double t1 = (zcut - above[0].z) / (below[0].z - above[0].z); 

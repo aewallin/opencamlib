@@ -146,7 +146,70 @@ static Loop dropcutter(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
     return points;
 }
 
+static void triangle_slices() {
+    const std::array<ocl::Point, 3> vertices{{{0,0,0}, {4,0,2}, {0,4,4}}};
+    std::array<int, 3> order{{0,1,2}};
+    do {
+        ocl::Triangle triangle(vertices[order[0]], vertices[order[1]], vertices[order[2]]);
+        for (int z : {1,2,3}) {
+            ocl::Point a, b;
+            CHECK(triangle.zslice_verts(a,b,z));
+            const ocl::Point first = z == 1 ? ocl::Point(2,0,1) :
+                                     z == 2 ? ocl::Point(4,0,2) : ocl::Point(2,2,3);
+            const ocl::Point second(0,z,z);
+            CHECK((a == first && b == second) || (a == second && b == first));
+        }
+        for (int z : {-1,0,4,5}) {
+            ocl::Point a(9,8,7), b(6,5,4);
+            CHECK(!triangle.zslice_verts(a,b,z));
+            CHECK(a == ocl::Point(9,8,7) && b == ocl::Point(6,5,4));
+        }
+    } while (std::next_permutation(order.begin(),order.end()));
+}
+
+static ocl::Interval interval(double lower, double upper, double id) {
+    ocl::Interval value(lower,upper);
+    value.lower_cc = ocl::CCPoint(id,0,0,ocl::VERTEX);
+    value.upper_cc = ocl::CCPoint(id,1,0,ocl::EDGE);
+    return value;
+}
+
+static void interval_merges() {
+    ocl::Fiber fiber;
+    auto a = interval(.8,.9,1), b = interval(.1,.2,2), c = interval(.4,.5,3);
+    fiber.addInterval(a); fiber.addInterval(b); fiber.addInterval(c);
+    // Preserve non-overlapping order and append the union after the survivors.
+    auto overlap = interval(.2,.4,4);
+    fiber.addInterval(overlap);
+    CHECK(fiber.ints.size() == 2);
+    CHECK(fiber.ints[0].lower == .8 && fiber.ints[0].upper == .9);
+    CHECK(fiber.ints[1].lower == .1 && fiber.ints[1].upper == .5);
+    CHECK(fiber.ints[1].lower_cc.x == 2 && fiber.ints[1].upper_cc.x == 3);
+    // Equal endpoints retain the earlier contact, including its contact type.
+    auto tied = interval(.1,.5,5);
+    fiber.addInterval(tied);
+    CHECK(fiber.ints.size() == 2);
+    CHECK(fiber.ints[1].lower_cc.x == 2 && fiber.ints[1].lower_cc.type == ocl::VERTEX);
+    CHECK(fiber.ints[1].upper_cc.x == 3 && fiber.ints[1].upper_cc.type == ocl::EDGE);
+    auto contained = interval(.2,.3,6);
+    fiber.ints[1].in_weave = true;
+    fiber.addInterval(contained);
+    CHECK(fiber.ints[1].in_weave);
+    // A containing interval replaces all endpoints and resets weave metadata.
+    auto enclosing = interval(-1,2,7);
+    fiber.addInterval(enclosing);
+    CHECK(fiber.ints.size() == 1);
+    CHECK(fiber.ints[0].lower == -1 && fiber.ints[0].upper == 2);
+    CHECK(fiber.ints[0].lower_cc.x == 7 && fiber.ints[0].upper_cc.x == 7);
+    CHECK(!fiber.ints[0].in_weave);
+    ocl::Interval empty;
+    fiber.addInterval(empty);
+    CHECK(fiber.ints.size() == 1);
+}
+
 int main(int argc, char**) {
+    triangle_slices();
+    interval_merges();
     bool print = argc > 1; // Full coordinates for comparison with another build.
     for (bool hole : {false, true}) {
         auto simple = weave<ocl::weave::SimpleWeave>(hole);

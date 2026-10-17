@@ -5,6 +5,7 @@
 #include "ballcutter.hpp"
 #include "bullcutter.hpp"
 #include "conecutter.hpp"
+#include "compositecutter.hpp"
 #include "cylcutter.hpp"
 #include "stlsurf.hpp"
 #include "check.hpp"
@@ -127,7 +128,51 @@ static void adaptive(ocl::STLSurf& surface, ocl::MillingCutter& cutter) {
         for (std::size_t j = 0; j < loops[i].size(); ++j) equal(loops[i][j],parallel[i][j]);
     }
 }
+// Components are borrowed by CompositeCutter; keep their ownership in the test.
+struct Composite : ocl::CompositeCutter {
+    explicit Composite(ocl::MillingCutter& component) {
+        length = component.getLength();
+        addCutter(component,component.getRadius(),length,0);
+    }
+};
+
+struct TrackedContact : ocl::CCPoint {
+    int& destroyed;
+    explicit TrackedContact(int& count) : destroyed(count) {}
+    ~TrackedContact() override { ++destroyed; }
+};
+
+static void composite_contacts() {
+    ocl::CylCutter cylinder(2,5);
+    Composite composite(cylinder);
+    const ocl::Triangle triangle(ocl::Point(-2,-2,1),ocl::Point(2,-2,1),ocl::Point(0,2,1));
+    for (bool facet : {true,false}) {
+        int destroyed = 0;
+        ocl::CLPoint point(0,0,-1);
+        delete point.cc.exchange(new TrackedContact(destroyed));
+        CHECK(facet ? composite.facetDrop(point,triangle) : composite.edgeDrop(point,triangle));
+        CHECK(destroyed == 1);
+        CHECK(point.z == 1);
+        CHECK(point.cc.load()->type == (facet ? ocl::FACET : ocl::EDGE));
+    }
+    // Existing fiber intervals are output accumulated from other triangles;
+    // they must not affect the next triangle's contact calculation.
+    ocl::Fiber empty(ocl::Point(-5,0,0),ocl::Point(5,0,0));
+    ocl::Fiber populated = empty;
+    for (int n = 0; n < 10; ++n) {
+        ocl::Interval interval(n*.05,n*.05+.02);
+        populated.addInterval(interval);
+    }
+    ocl::Interval a, b;
+    CHECK(composite.pushCutter(empty,a,triangle));
+    CHECK(composite.pushCutter(populated,b,triangle));
+    CHECK(a.lower == b.lower && a.upper == b.upper);
+    equal(a.lower_cc,b.lower_cc); equal(a.upper_cc,b.upper_cc);
+    CHECK(populated.ints.size() == 10);
+}
+
 int main() {
+    composite_contacts();
 #ifdef _OPENMP
     const int original_threads = omp_get_max_threads();
 #endif
@@ -137,6 +182,11 @@ int main() {
     ocl::BullCutter bull(.6,.1,5);
     ocl::ConeCutter cone(.6,.7,5);
     for (auto* cutter : std::vector<ocl::MillingCutter*>{&cylinder,&ball,&bull,&cone}) {
+        batches(surface,*cutter);
+        adaptive(surface,*cutter);
+    }
+    Composite composite_cylinder(cylinder), composite_ball(ball);
+    for (auto* cutter : std::vector<ocl::MillingCutter*>{&composite_cylinder,&composite_ball}) {
         batches(surface,*cutter);
         adaptive(surface,*cutter);
     }
