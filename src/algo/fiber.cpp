@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #include "fiber.hpp"
 
@@ -39,7 +38,7 @@ void Fiber::calcDir() {
 }
 
 bool Fiber::contains(Interval& i) const {
-    BOOST_FOREACH( Interval fi, ints) {
+    for (Interval fi : ints) {
         if ( i.inside( fi ) )
             return true;
     }
@@ -48,7 +47,7 @@ bool Fiber::contains(Interval& i) const {
 
 bool Fiber::missing(Interval& i) const {
     bool result = true;
-    BOOST_FOREACH( Interval fi, ints) {
+    for (Interval fi : ints) {
         if ( !i.outside( fi ) ) // all existing ints must be non-overlapping
             result = false; 
     }
@@ -83,7 +82,7 @@ void Fiber::addInterval(Interval& i) {
         overlaps.push_back(i);
         // now build a new interval from i and the overlaps
         Interval sumint;
-        BOOST_FOREACH(Interval intr, overlaps) {
+        for (Interval intr : overlaps) {
             sumint.updateLower( intr.lower, intr.lower_cc );
             sumint.updateUpper( intr.upper, intr.upper_cc );
         }
@@ -106,7 +105,7 @@ Point Fiber::point(double t) const {
 
 void Fiber::printInts() const {
     int n=0;
-    BOOST_FOREACH( Interval i, ints) {
+    for (Interval i : ints) {
         std::cout << n << ": [ " << i.lower << " , " << i.upper << " ]" << "\n";
         ++n;
     }

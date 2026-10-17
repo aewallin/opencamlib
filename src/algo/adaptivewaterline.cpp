@@ -23,7 +23,6 @@
 #include <vector>
 
 
-#include <boost/foreach.hpp> 
 
 #ifdef _OPENMP
     #include <omp.h>

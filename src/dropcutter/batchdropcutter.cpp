@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #ifdef _OPENMP // this should really not be a check for Windows, but a check for OpenMP
     #include <omp.h>
@@ -71,8 +70,8 @@ void BatchDropCutter::dropCutter1() {
     // std::cout << "dropCutterSTL1 " << clpoints->size() << 
     //           " cl-points and " << surf->tris.size() << " triangles...";
     nCalls = 0;
-    BOOST_FOREACH(CLPoint &cl, *clpoints) {
-        BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
+    for (CLPoint &cl : *clpoints) {
+        for (const Triangle& t : surf->tris) {// test against all triangles in s
             cutter->dropCutter(cl,t);
             ++nCalls;
         }
@@ -89,9 +88,9 @@ void BatchDropCutter::dropCutter2() {
     std::cout.flush();
     nCalls = 0;
     std::list<Triangle> *triangles_under_cutter;
-    BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
+    for (CLPoint &cl : *clpoints) { //loop through each CL-point
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
-        BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
+        for (const Triangle& t : *triangles_under_cutter) {
             cutter->dropCutter(cl,t);
             ++nCalls;
         }
@@ -109,9 +108,9 @@ void BatchDropCutter::dropCutter3() {
     //         " cl-points and " << surf->tris.size() << " triangles.\n";
     nCalls = 0;
     std::list<Triangle> *triangles_under_cutter;
-    BOOST_FOREACH(CLPoint &cl, *clpoints) { //loop through each CL-point
+    for (CLPoint &cl : *clpoints) { //loop through each CL-point
         triangles_under_cutter = root->search_cutter_overlap( cutter , &cl);
-        BOOST_FOREACH( const Triangle& t, *triangles_under_cutter) {
+        for (const Triangle& t : *triangles_under_cutter) {
             if (cutter->overlaps(cl,t)) {
                 if ( cl.below(t) ) {
                     cutter->dropCutter(cl,t);

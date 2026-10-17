@@ -25,7 +25,6 @@
 #include <iostream>
 #include <list>
 
-#include <boost/foreach.hpp>
 
 #include "kdnode.hpp"
 #include "bbox.hpp"
@@ -162,7 +161,7 @@ class KDTree {
             // build lists of triangles for hi and lo child nodes
             std::list<BBObj>* lolist = new std::list<BBObj>();
             std::list<BBObj>* hilist = new std::list<BBObj>();
-            BOOST_FOREACH(BBObj t, *tris) { // loop through each triangle and put it in either lolist or hilist
+            for (BBObj t : *tris) { // loop through each triangle and put it in either lolist or hilist
                 if (t.bb[spr->d] > cutvalue) 
                     hilist->push_back(t);
                 else
@@ -175,7 +174,7 @@ class KDTree {
                 std::cout << "kdtree: tris->size()= " << tris->size()<< "\n";
                 std::cout << "kdtree: hilist.size()= " << hilist->size()<< "\n";
                 std::cout << "kdtree: lolist.size()= " << lolist->size()<< "\n";
-                BOOST_FOREACH(BBObj t, *tris) {
+                for (BBObj t : *tris) {
                     std::cout << t << "\n";
                     std::cout << t.bb << "\n";
                 }
@@ -221,7 +220,7 @@ class KDTree {
                 // find out the maximum spread
                 //std::cout << "calc_spread()...\n";
                 bool first=true;
-                BOOST_FOREACH(BBObj t, *tris) { // check each triangle
+                for (BBObj t : *tris) { // check each triangle
                     for (unsigned int m=0;m<dimensions.size();++m) {
                         // dimensions[m] is the dimensions we want to update
                         // t.bb[ dimensions[m] ]   is the update value
@@ -273,7 +272,7 @@ class KDTree {
         void search_node( std::list<BBObj> *tris, const Bbox& bb, KDNode<BBObj> *node) {
             if (node->isLeaf ) { // we found a bucket node, so add all triangles and return.
             
-                BOOST_FOREACH( BBObj t, *(node->tris) ) {
+                for (BBObj t : *(node->tris)) {
                         tris->push_back(t); 
                 } 
                 //std::cout << " search_node Leaf bucket tris-size() = " << tris->size() << "\n";

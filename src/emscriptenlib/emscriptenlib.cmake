@@ -3,8 +3,6 @@ message(STATUS "Will build emscripten js library")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g3 -O2 -s DISABLE_EXCEPTION_CATCHING=0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
-include_directories(${Boost_INCLUDE_DIRS})
-
 # include dirs
 include_directories(${PROJECT_SOURCE_DIR}/cutters)
 include_directories(${PROJECT_SOURCE_DIR}/geo)
@@ -27,11 +25,6 @@ add_executable(ocl
 
 # Current Embind headers require C++17 (std::optional, std::conjunction).
 target_compile_features(ocl PRIVATE cxx_std_17)
-
-target_link_libraries(
-  ocl
-  ${Boost_LIBRARIES}
-)
 
 set_target_properties(ocl PROPERTIES LINK_FLAGS "\
 	-lembind \

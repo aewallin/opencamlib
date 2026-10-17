@@ -20,6 +20,7 @@
 */
 
 #include <iostream>
+#include <tuple>
 #include <sstream>
 #include <string>
 
@@ -63,9 +64,9 @@ void SimpleWeave::build() {
     // provide this "via" connection
     //int n_xfiber=0;
     // std::cout << " SimpleWeave::build()... \n";
-    BOOST_FOREACH( Fiber& xf, xfibers) {
+    for (Fiber& xf : xfibers) {
         assert( !xf.empty() ); // no empty fibers please
-        BOOST_FOREACH( Interval& xi, xf.ints ) {
+        for (Interval& xi : xf.ints) {
             //std::cout << "x-fiber " << n_xfiber++ << "\n";
             double xmin = xf.point(xi.lower).x;
             double xmax = xf.point(xi.upper).x;
@@ -86,9 +87,9 @@ void SimpleWeave::build() {
             g[e1].prev = e2;
             g[e2].prev = e1;
             //int n_yfiber=0;
-            BOOST_FOREACH( Fiber& yf, yfibers ) { // loop through all y-fibers for all x-intervals
+            for (Fiber& yf : yfibers) { // loop through all y-fibers for all x-intervals
                 if ( (xmin < yf.p1.x) && ( yf.p1.x < xmax ) ) {// potential intersection between y-fiber and x-interval
-                    BOOST_FOREACH( Interval& yi, yf.ints ) {
+                    for (Interval& yi : yf.ints) {
                         //std::cout << "y-fiber " << n_yfiber++ << "\n";
                         double ymin = yf.point(yi.lower).y ;
                         double ymax = yf.point(yi.upper).y ;
@@ -112,10 +113,10 @@ void SimpleWeave::build() {
                             Vertex x_u, x_l;
                             
                             //std::cout << " fins neighbor to x= " << v_position.x << "\n";
-                            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi );
+                            std::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(v, v_position.x), xi );
                             //std::cout << "found: x_u , x_l : " << x_u << " , " << x_l << "\n";
                             Vertex y_u, y_l;
-                            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
+                            std::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(v, v_position.y), yi );
                             
                             //std::cout << "found: y_u , y_l : " << y_u << " , " << y_l << "\n";
                             
@@ -166,10 +167,9 @@ void SimpleWeave::add_int_vertex(  const Point& v_position, // position of new v
     Vertex v = g.add_vertex(); //hedi::add_vertex( VertexProps( v_position, INT ), g);
     g[v].position = v_position;
     g[v].type = INT;
-    assert( g.has_edge(x_l,x_u) ); 
-    assert( g.has_edge(x_u,x_l) ); 
     Edge xe_lu = g.edge(x_l,x_u); 
     Edge xe_ul = g.edge(x_u,x_l); 
+    assert(xe_lu != Edge() && xe_ul != Edge());
     Edge xe_lu_next = g[xe_lu].next;
     Edge xe_lu_prev = g[xe_lu].prev; 
     Edge xe_ul_next = g[xe_ul].next;
@@ -178,15 +178,14 @@ void SimpleWeave::add_int_vertex(  const Point& v_position, // position of new v
     // the next/prev data we need
     Edge ye_lu_next, ye_lu_prev ;
     Edge ye_ul_next, ye_ul_prev ;
-    Edge ye_lu, ye_ul;
+    Edge ye_lu = g.edge(y_l, y_u), ye_ul;
 
-    bool y_lu_edge = g.has_edge(y_l,y_u); // flag indicating existing y_l - y_u edge
+    bool y_lu_edge = ye_lu != Edge(); // flag indicating existing y_l - y_u edge
     // the case where y_l and y_u are already connected.
 
     if ( y_lu_edge ) {
-        assert( g.has_edge( y_u, y_l ) ); // twin must also exist
-        ye_lu = g.edge( y_l, y_u);
         ye_ul = g.edge( y_u, y_l);
+        assert(ye_ul != Edge()); // twin must also exist
         ye_lu_next = g[ye_lu].next;
         ye_lu_prev = g[ye_lu].prev; 
         ye_ul_next = g[ye_ul].next;
@@ -241,13 +240,11 @@ void SimpleWeave::add_int_vertex(  const Point& v_position, // position of new v
     g[yu_v].next = v_xl;        g[v_xl].prev = yu_v;
     g[v_xl].next = xe_ul_next;  g[xe_ul_next].prev = v_xl;
     // delete the old x-edges
-    g.remove_edge( x_l, x_u);
-    g.remove_edge( x_u, x_l);
+    g.remove_edge(xe_lu);
+    g.remove_edge(xe_ul);
     if( y_lu_edge ) { // delete old y-edges
-        assert( g.has_edge( y_l, y_u) );
-        assert( g.has_edge( y_u, y_l) );
-        g.remove_edge( y_l, y_u);
-        g.remove_edge( y_u, y_l);
+        g.remove_edge(ye_lu);
+        g.remove_edge(ye_ul);
     }
     
     // finally add new intersection vertex to the interval sets

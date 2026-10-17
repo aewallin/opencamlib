@@ -57,7 +57,7 @@ void Weave::face_traverse() {
             assert( g[current].type == CL ); // we only want cl-points in the loop
             loop.push_back(current);
             clVertexSet.erase(current); // remove from set of unprocesser cl-verts
-            std::vector<Edge> outEdges = g.out_edges(current);  // find the edge to follow
+            const auto& outEdges = g.out_edges_view(current); // find the edge to follow
             //if (outEdges.size() != 1 )
             //    std::cout << " outEdges.size() = " << outEdges.size() << "\n";
             assert( outEdges.size() == 1 ); // cl-points are always at ends of intervals, so they have only one out-edge
@@ -75,12 +75,14 @@ void Weave::face_traverse() {
 
 std::vector< std::vector<Point> > Weave::getLoops() const {
     std::vector< std::vector<Point> > loop_list;
-    BOOST_FOREACH( std::vector<Vertex> loop, loops ) {
-        std::vector<Point> point_list;
-        BOOST_FOREACH( Vertex v, loop ) {
+    loop_list.reserve(loops.size());
+    for (const auto& loop : loops) {
+        loop_list.emplace_back();
+        auto& point_list = loop_list.back();
+        point_list.reserve(loop.size());
+        for (Vertex v : loop) {
             point_list.push_back( g[v].position );
         }
-        loop_list.push_back(point_list);
     }
     return loop_list;
 }
@@ -94,7 +96,7 @@ void Weave::printGraph()  {
     std::cout << " number of edges: " << g.num_edges()  << "\n"; 
 
     int n=0, n_cl=0, n_internal=0;
-    BOOST_FOREACH(Vertex v, g.vertices() ) {
+    for (Vertex v : g.vertices()) {
         if ( g[v].type == CL )
             ++n_cl;
         else

@@ -49,8 +49,6 @@ jobs:
             --install-ci-deps \
             --build-library cxx \
             --build-type release \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --install \
             --test
   nodejs:
@@ -88,8 +86,6 @@ jobs:
             --build-library nodejs \
             --build-type release \
             --node-architecture $(node -p "require('os').arch()") \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --install \
             --test
   python:
@@ -126,7 +122,6 @@ jobs:
             --build-library python \
             --build-type release \
             --install-system-deps \
-            --install-boost-from-repo \
             --python-executable python \
             --python-pip-install \
             --test

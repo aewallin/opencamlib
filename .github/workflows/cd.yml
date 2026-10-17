@@ -85,8 +85,6 @@ jobs:
             --build-library cxx \
             --build-type release \
             --install-ci-deps \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist
       - uses: actions/upload-artifact@v5
@@ -174,8 +172,6 @@ jobs:
             --build-library nodejs \
             --build-type release \
             --install-ci-deps \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --node-architecture ${{ matrix.node_architecture }} \
             --install \
             --install-prefix $(pwd)/dist
@@ -271,7 +267,6 @@ jobs:
           CIBW_BUILD_VERBOSITY: "1"
           CIBW_ARCHS_WINDOWS: "${{ matrix.cibuildwheel_architecture }}"
           CIBW_ENVIRONMENT_WINDOWS: >
-            CMAKE_PREFIX_PATH="$(cygpath -m "$(pwd)/build/deps/boost/lib/native")"
             CMAKE_GENERATOR="Visual Studio 17 2022"
             CMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_generator_platform }}"
           CIBW_ARCHS_MACOS: "${{ matrix.architecture }}"
@@ -304,8 +299,6 @@ jobs:
             --build-library emscripten \
             --build-type release \
             --install-ci-deps \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --install \
             --install-prefix $(pwd)/dist
       - uses: actions/upload-artifact@v5

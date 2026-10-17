@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #ifdef _OPENMP  
     #include <omp.h>
@@ -65,7 +64,7 @@ void FiberPushCutter::setSTL(const STLSurf &s) {
 
 void FiberPushCutter::pushCutter1(Fiber& f) {
     nCalls = 0;
-    BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
+    for (const Triangle& t : surf->tris) {// test against all triangles in s
         Interval i;
         cutter->pushCutter(f,i,t);
         f.addInterval(i);

@@ -22,7 +22,6 @@
 #include <list>
 #include <cassert>
 
-#include <boost/foreach.hpp>
 
 #include "stlsurf.hpp"
 
@@ -44,7 +43,7 @@ void STLSurf::addTriangle(const Triangle &t) {
 void STLSurf::rotate(double xr, double yr, double zr) {
     //std::cout << " before " << t << "\n";
     bb.clear();
-    BOOST_FOREACH(Triangle& t, tris) {
+    for (Triangle& t : tris) {
         //std::cout << " before " << t << "\n";
         t.rotate(xr,yr,zr);
         //std::cout << " after " << t << "\n";

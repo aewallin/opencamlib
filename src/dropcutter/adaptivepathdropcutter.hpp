@@ -26,7 +26,6 @@
 #include <string>
 #include <list>
 
-#include <boost/foreach.hpp>
 
 #include "pathdropcutter.hpp"
 #include "pointdropcutter.hpp"

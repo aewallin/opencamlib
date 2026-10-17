@@ -21,436 +21,329 @@
 #ifndef HALFEDGEDIAGRAM_HPP
 #define HALFEDGEDIAGRAM_HPP
 
+#include <algorithm>
+#include <cassert>
+#include <cstddef>
+#include <deque>
+#include <limits>
+#include <ostream>
+#include <set>
 #include <vector>
-#include <list>
-
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/foreach.hpp> 
-
-// bundled BGL properties, see: http://www.boost.org/doc/libs/1_44_0/libs/graph/doc/bundles.html
-
-// dcel notes from http://www.holmes3d.net/graphics/dcel/
-
-// vertex (boost::out_edges)
-//  -leaving pointer to HalfEdge that has this vertex as origin
-//   if many HalfEdges have this vertex as origin, choose one arbitrarily
-
-// HalfEdge
-//  - origin pointer to vertex (boost::source)
-//  - face to the left of halfedge
-//  - twin pointer to HalfEdge (on the right of this edge)
-//  - next pointer to HalfEdge
-//     this edge starts from h->twin->origin and ends at next vertex in h->face
-//     traveling ccw around boundary
-//     (allows face traverse, follow h->next until we arrive back at h)
-
-// Face
-//  - edge pointer to HalfEdge
-//    this edge has this Face object as face
-//    half-edge can be any one on the boundary of face
-// special "infinite face", face on "outside" of boundary
-// may or may not store edge pointer
-
-
-/// HEDIGraph is a A half-edge diagram class.
-/// Templated on Vertex/Edge/Face property classes which allow
-/// attaching information to vertices/edges/faces that is 
-/// required for a particular algorithm.
-/// 
-/// Inherits from boost::adjacency_list
-/// minor additions allow storing face-properties.
-///
-/// the hedi namespace contains functions for manipulating HEDIGraphs
-///
-/// For a general description of the half-edge data structure see e.g.:
-///  - http://www.holmes3d.net/graphics/dcel/
-///  - http://openmesh.org/index.php?id=228
 
 namespace ocl {
+namespace hedi { // half-edge diagram
 
-namespace hedi  { 
+/// Distinct, graph-local handles. A default handle is invalid.
+/// Deleting an element invalidates its handle; its slot can subsequently be reused.
+template <class Tag>
+class Descriptor {
+public:
+    Descriptor() : index_((std::numeric_limits<std::size_t>::max)()) {}
+    explicit Descriptor(std::size_t index) : index_(index) {}
+    std::size_t index() const { return index_; }
+    friend bool operator==(Descriptor a, Descriptor b) { return a.index_ == b.index_; }
+    friend bool operator!=(Descriptor a, Descriptor b) { return !(a == b); }
+    friend bool operator<(Descriptor a, Descriptor b) { return a.index_ < b.index_; }
+    friend std::ostream& operator<<(std::ostream& out, Descriptor value) {
+        return out << value.index_;
+    }
+private:
+    std::size_t index_;
+};
 
-template <class TOutEdgeList, 
-          class TVertexList,
-          class TDirected, 
-          class TVertexProperties,
-          class TEdgeProperties,
-          class TFaceProperties,
-          class TGraphProperties,
-          class TEdgeList 
-          >
+struct VertexTag;
+struct EdgeTag;
+using VertexDescriptor = Descriptor<VertexTag>;
+using EdgeDescriptor = Descriptor<EdgeTag>;
+
+/// Directed half-edge storage with stable handles and property references.
+/// Block storage avoids one allocation per graph element, and vacant slots are
+/// reused. Small contiguous adjacency lists retain insertion order and support
+/// parallel edges and self-loops. Enumeration returns snapshots so callers may
+/// delete elements while traversing them. Copies preserve all internal handles.
+/// Face, next, previous and twin relationships are maintained by the caller,
+/// except in twin_edges() and insert_vertex_in_edge().
+template <class TVertexProperties, class TEdgeProperties, class TFaceProperties>
 class HEDIGraph {
-    public:
-        
-        typedef typename boost::adjacency_list< TOutEdgeList,            
-                                                TVertexList,            
-                                                TDirected,   
-                                                TVertexProperties,             
-                                                TEdgeProperties,                
-                                                TGraphProperties,
-                                                TEdgeList
-                                                > BGLGraph;
-        typedef unsigned int Face; 
-        typedef typename boost::graph_traits< BGLGraph >::edge_descriptor Edge;
-        typedef typename boost::graph_traits< BGLGraph >::vertex_descriptor Vertex;
-        typedef typename boost::graph_traits< BGLGraph >::vertex_iterator    VertexItr;
-        typedef typename boost::graph_traits< BGLGraph >::edge_iterator      EdgeItr;
-        typedef typename boost::graph_traits< BGLGraph >::out_edge_iterator  OutEdgeItr;
-        typedef typename boost::graph_traits< BGLGraph >::adjacency_iterator AdjacencyItr;
-                
-        typedef std::vector<Vertex> VertexVector;
-        typedef std::vector<Face> FaceVector;
-        typedef std::vector<Edge> EdgeVector;  
+public:
+    using Vertex = VertexDescriptor;
+    using Edge = EdgeDescriptor;
+    using Face = unsigned int;
+    using VertexVector = std::vector<Vertex>;
+    using EdgeVector = std::vector<Edge>;
+    using FaceVector = std::vector<Face>;
+    using VertexItr = typename VertexVector::iterator;
+    using EdgeItr = typename EdgeVector::iterator;
+    using OutEdgeItr = EdgeItr;
+    using AdjacencyItr = VertexItr;
 
-        inline TFaceProperties& operator[](Face f)  { return faces[f];  }
-        inline const TFaceProperties& operator[](Face f) const  { return faces[f]; } 
-        
-        inline TEdgeProperties& operator[](Edge e)  { return g[e];  }
-        inline const TEdgeProperties& operator[](Edge e) const  { return g[e];  }
-        
-        inline TVertexProperties& operator[](Vertex v)  { return g[v];  }
-        inline const TVertexProperties& operator[](Vertex v) const  { return g[v];  }
-        
-//DATA
-        std::vector< TFaceProperties > faces;
-        BGLGraph g;
+    TVertexProperties& operator[](Vertex v) { return vertex_record(v).properties; }
+    const TVertexProperties& operator[](Vertex v) const { return vertex_record(v).properties; }
+    TEdgeProperties& operator[](Edge e) { return edge_record(e).properties; }
+    const TEdgeProperties& operator[](Edge e) const { return edge_record(e).properties; }
+    TFaceProperties& operator[](Face f) { return faces[f]; }
+    const TFaceProperties& operator[](Face f) const { return faces[f]; }
 
-Vertex null_vertex() {
-    return boost::graph_traits<BGLGraph>::null_vertex();
-}
+    std::vector<TFaceProperties> faces;
 
-/// add a blank vertex and return its descriptor
-Vertex add_vertex() { 
-    return boost::add_vertex( g );
-}
+    static Vertex null_vertex() { return Vertex(); }
 
-/*
-/// add a vertex with given properties, return vertex descriptor
-template < class FVertexProperty>
-typename boost::graph_traits< BGLGraph >::vertex_descriptor add_vertex(typedef const FVertexProperty& prop) {
-    return boost::add_vertex( prop, g );
-}*/
-
-/// add an edge between vertices v1-v2
-Edge add_edge(Vertex v1, Vertex v2) {
-    Edge e;
-    bool b;
-    boost::tie( e , b ) = boost::add_edge( v1, v2, g);
-    return e;
-}
-
-/// add an edge with given properties between vertices v1-v2
-//template < class EdgeProperty>
-/*
-typename boost::graph_traits< BGLGraph >::edge_descriptor add_edge( 
-                                                       typename boost::graph_traits< BGLGraph >::vertex_descriptor v1, 
-                                                       typename boost::graph_traits< BGLGraph >::vertex_descriptor v2, 
-                                                       typename  TEdgeProperties prop
-                                                       ) {
-    typename boost::graph_traits< BGLGraph >::edge_descriptor e;
-    bool b;
-    boost::tie( e , b ) = boost::add_edge( v1, v2, prop, g);
-    return e;
-}*/
-
-/// make e1 the twin of e2 (and vice versa)
-void twin_edges( Edge e1, Edge e2 ) {
-    g[e1].twin = e2;
-    g[e2].twin = e1;
-}
-
-
-/// add a face 
-Face add_face() {
-    TFaceProperties f_prop;
-    faces.push_back( f_prop); 
-    Face index = faces.size()-1;
-    faces[index].idx = index;
-    return index;    
-}
-        
-
-/// return the target vertex of the given edge
-Vertex target(Edge e) const { return boost::target(e, g); }
-
-/// return the source vertex of the given edge
-Vertex source(Edge e) const { return boost::source(e, g); }
-
-/// return all vertices in a vector of vertex descriptors
-VertexVector vertices() const {
-    typedef typename boost::graph_traits< BGLGraph >::vertex_descriptor  HEVertex;
-    typedef std::vector<HEVertex> VertexVector;
-    typedef typename boost::graph_traits< BGLGraph >::vertex_iterator    HEVertexItr;
-    VertexVector vv;
-    HEVertexItr it_begin, it_end, itr;
-    boost::tie( it_begin, it_end ) = boost::vertices( g );
-    for ( itr=it_begin ; itr != it_end ; ++itr ) {
-        vv.push_back( *itr );
+    Vertex add_vertex() {
+        std::size_t index;
+        if (free_vertices_.empty()) {
+            index = vertices_.size();
+            vertices_.emplace_back();
+        } else {
+            index = free_vertices_.back();
+            vertices_[index].properties = TVertexProperties();
+            free_vertices_.pop_back();
+        }
+        vertices_[index].active = true;
+        return Vertex(index);
     }
-    return vv;
-}
 
-/// return all vertices adjacent to given vertex
-VertexVector adjacent_vertices(  Vertex v) {
-    VertexVector vv;
-    BOOST_FOREACH( Edge edge, out_edges( v ) ) {
-        vv.push_back( target( edge ) );
+    Edge add_edge(Vertex from, Vertex to) {
+        auto& source_record = vertex_record(from);
+        auto& target_record = vertex_record(to);
+        // Allocate adjacency capacity before changing the graph.
+        grow_adjacency(source_record.out);
+        grow_adjacency(target_record.in);
+        std::size_t index;
+        if (free_edges_.empty()) {
+            index = edges_.size();
+            edges_.emplace_back();
+        } else {
+            index = free_edges_.back();
+            edges_[index].properties = TEdgeProperties();
+            free_edges_.pop_back();
+        }
+        auto& record = edges_[index];
+        record.from = from;
+        record.to = to;
+        record.active = true;
+        Edge e(index);
+        source_record.out.push_back(e);
+        target_record.in.push_back(e);
+        return e;
     }
-    return vv;
-}
 
-/// return all vertices of given face
-
-VertexVector face_vertices(Face face_idx) {
-    VertexVector verts;
-    Edge startedge = faces[face_idx].edge; // the edge where we start
-    Vertex start_target = boost::target( startedge, g); 
-    verts.push_back(start_target);
-    Edge current = g[startedge].next;
-    do {
-        Vertex current_target = boost::target( current, g); 
-        verts.push_back(current_target);
-        current = g[current].next;
-    } while ( current != startedge );
-    return verts;
-}
-
-/// return edges of face f
-EdgeVector face_edges( Face f ) {
-    //Edge start_edge = g[ f ].edge; // was cast: (Face)f
-    Edge start_edge = faces[f].edge;
-    Edge current_edge = start_edge;
-    EdgeVector out;
-    do {
-        out.push_back(current_edge);
-        current_edge = g[current_edge].next;
-    } while( current_edge != start_edge );
-    return out;
-}
-
-
-/// return degree of given vertex
-unsigned int degree( Vertex v)  { 
-    return boost::degree( v, g); 
-}
-
-/// return number of vertices in graph
-unsigned int num_vertices() const { 
-    return static_cast<unsigned int>(boost::num_vertices( g ));
-}
-
-/// return out_edges of given vertex
-EdgeVector out_edges( Vertex v) { 
-    typedef typename boost::graph_traits< BGLGraph >::out_edge_iterator  HEOutEdgeItr;
-    EdgeVector ev;
-    HEOutEdgeItr it, it_end;
-    boost::tie( it, it_end ) = boost::out_edges( v, g );
-    for ( ; it != it_end ; ++it ) {
-        ev.push_back(*it);
+    Face add_face() {
+        faces.emplace_back();
+        Face index = static_cast<Face>(faces.size() - 1);
+        faces.back().idx = index;
+        return index;
     }
-    return ev;
-}
 
-/// return all edges
-EdgeVector edges() const {
-    typedef typename boost::graph_traits< BGLGraph >::edge_iterator      HEEdgeItr; 
-    EdgeVector ev;
-    HEEdgeItr it, it_end;
-    boost::tie( it, it_end ) = boost::edges( g );
-    for ( ; it != it_end ; ++it ) {
-        ev.push_back(*it);
+    void twin_edges(Edge a, Edge b) {
+        (*this)[a].twin = b;
+        (*this)[b].twin = a;
     }
-    return ev;
-}
 
-/// return v1-v2 edge descriptor
-Edge edge( Vertex v1, Vertex v2 ) {
-    typedef typename std::pair<Edge, bool> EdgeBool;
-    EdgeBool result = boost::edge(v1, v2, g );
-    return result.first;
-}
+    Vertex source(Edge e) const { return edge_record(e).from; }
+    Vertex target(Edge e) const { return edge_record(e).to; }
 
-/// return the previous edge. traverses all edges in face until previous found.
-Edge previous_edge( Edge e ) {
-    Edge previous = g[e].next;
-    while ( g[previous].next != e ) {
-        previous = g[previous].next;
+    VertexVector vertices() const {
+        VertexVector result;
+        result.reserve(num_vertices());
+        for (std::size_t i = 0; i < vertices_.size(); ++i)
+            if (vertices_[i].active)
+                result.emplace_back(i);
+        return result;
     }
-    return previous;
-}
 
-
-/// return true if v1-v2 edge exists
-bool has_edge( Vertex v1, Vertex v2) {
-    typedef typename std::pair<Edge, bool> EdgeBool;
-    EdgeBool result = boost::edge(v1, v2, g );
-    return result.second;
-}
-
-/// return adjacent faces to the given vertex
-FaceVector adjacent_faces( Vertex q ) {
-    typedef typename boost::graph_traits< BGLGraph >::out_edge_iterator  HEOutEdgeItr;
-    std::set<unsigned int> face_set;
-    HEOutEdgeItr itr, itr_end;
-    boost::tie( itr, itr_end) = boost::out_edges(q, g);
-    for ( ; itr!=itr_end ; ++itr ) {
-        face_set.insert( g[*itr].face );
+    EdgeVector edges() const {
+        EdgeVector result;
+        result.reserve(num_edges());
+        for (std::size_t i = 0; i < edges_.size(); ++i)
+            if (edges_[i].active)
+                result.emplace_back(i);
+        return result;
     }
-    FaceVector fv;
-    BOOST_FOREACH(unsigned int m, face_set) {
-        fv.push_back(m);
+
+    EdgeVector out_edges(Vertex v) const { return vertex_record(v).out; }
+
+    /// Borrow the adjacency list without allocating a snapshot. Its iterators
+    /// and entries must not be retained across changes to this vertex's edges.
+    const EdgeVector& out_edges_view(Vertex v) const { return vertex_record(v).out; }
+
+    VertexVector adjacent_vertices(Vertex v) const {
+        VertexVector result;
+        const auto& out = vertex_record(v).out;
+        result.reserve(out.size());
+        for (Edge e : out)
+            result.push_back(target(e));
+        return result;
     }
-    return fv;
-}
 
-/// return number of faces in graph
-unsigned int num_faces() const { 
-    return faces.size(); 
-}
+    unsigned int degree(Vertex v) const {
+        const auto& record = vertex_record(v);
+        return static_cast<unsigned int>(record.in.size() + record.out.size());
+    }
+    unsigned int num_vertices() const {
+        return static_cast<unsigned int>(vertices_.size() - free_vertices_.size());
+    }
+    unsigned int num_edges() const {
+        return static_cast<unsigned int>(edges_.size() - free_edges_.size());
+    }
+    unsigned int num_faces() const { return static_cast<unsigned int>(faces.size()); }
 
-/// return number of edges in graph
-unsigned int num_edges() const { 
-    return static_cast<unsigned int>(boost::num_edges( g ));
-}
+    /// Returns an invalid handle when no directed edge exists.
+    Edge edge(Vertex from, Vertex to) const {
+        for (Edge e : vertex_record(from).out)
+            if (target(e) == to)
+                return e;
+        return Edge();
+    }
+    bool has_edge(Vertex from, Vertex to) const { return edge(from, to) != Edge(); }
 
-/// inserts given vertex into edge e, and into the twin edge e_twin
-void insert_vertex_in_edge(Vertex v, Edge e ) {
-    // the vertex v is in the middle of edge e
-    //                    face
-    //                    e1   e2
-    // previous-> source  -> v -> target -> next
-    //            tw_trg  <- v <- tw_src <- tw_previous
-    //                    te2  te1
-    //                    twin_face
-    
-    Edge twin = g[e].twin;
-    Vertex source = boost::source( e , g );
-    Vertex target = boost::target( e , g);
-    Vertex twin_source = boost::source( twin , g);
-    Vertex twin_target = boost::target( twin , g );
-    assert( source == twin_target );    
-    assert( target == twin_source );
-    
-    Face face = g[e].face;
-    Face twin_face = g[twin].face;
-    Edge previous = previous_edge(e);
-    assert( g[previous].face == g[e].face );
-    Edge twin_previous = previous_edge(twin);
-    assert( g[twin_previous].face == g[twin].face );
-    
-    Edge e1 = add_edge( source, v );
-    Edge e2 = add_edge( v, target );
-    
-    // preserve the left/right face link
-    g[e1].face = face;
-    g[e2].face = face;
-    // next-pointers
-    g[previous].next = e1;
-    g[e1].next = e2;
-    g[e2].next = g[e].next;
-    
-    
-    Edge te1 = add_edge( twin_source, v  );
-    Edge te2 = add_edge( v, twin_target  );
-    
-    g[te1].face = twin_face;
-    g[te2].face = twin_face;
-    
-    g[twin_previous].next = te1;
-    g[te1].next = te2;
-    g[te2].next = g[twin].next;
-    
-    // TWINNING (note indices 'cross', see ASCII art above)
-    g[e1].twin = te2;
-    g[te2].twin = e1;
-    g[e2].twin = te1;
-    g[te1].twin = e2;
-    
-    // update the faces (required here?)
-    faces[face].edge = e1;
-    faces[twin_face].edge = te1;
-    
-    // finally, remove the old edge
-    boost::remove_edge( e   , g);
-    boost::remove_edge( twin, g);
-}
+    EdgeVector face_edges(Face f) const {
+        EdgeVector result;
+        Edge start = faces[f].edge;
+        Edge current = start;
+        do {
+            result.push_back(current);
+            current = (*this)[current].next;
+        } while (current != start);
+        return result;
+    }
 
+    VertexVector face_vertices(Face f) const {
+        VertexVector result;
+        for (Edge e : face_edges(f))
+            result.push_back(target(e));
+        return result;
+    }
 
-/// inserts given vertex into edge e
-/*
-template <class BGLGraph>
-void insert_vertex_in_half_edge(typename boost::graph_traits< BGLGraph >::vertex_descriptor  v, 
-                           typename boost::graph_traits< BGLGraph >::edge_descriptor e, 
-                           BGLGraph& g) {
-    typedef typename boost::graph_traits< BGLGraph >::edge_descriptor    HEEdge;
-    typedef typename boost::graph_traits< BGLGraph >::vertex_descriptor  HEVertex;
-    // the vertex v is in the middle of edge e
-    //                    face
-    //                    e1   e2
-    // previous-> source  -> v -> target -> next
-    
-    HEVertex source = boost::source( e , g );
-    HEVertex target = boost::target( e , g);
-    unsigned int face = g[e].face;
-    HEEdge previous = previous_edge(e, g);
-    assert( g[previous].face == g[e].face );
-    HEEdge e1 = add_edge( source, v , g);
-    HEEdge e2 = add_edge( v, target , g);
-    // preserve the left/right face link
-    g[e1].face = face;
-    g[e2].face = face;
-    // next-pointers
-    g[previous].next = e1;
-    g[e1].next = e2;
-    g[e2].next = g[e].next;
-    // update the faces (required here?)
-    g.faces[face].edge = e1;
-    // finally, remove the old edge
-    boost::remove_edge( e   , g);
-    // NOTE: twinning is not done here, since the twin edge is not split...
-}
+    Edge previous_edge(Edge e) const {
+        Edge previous = (*this)[e].next;
+        while ((*this)[previous].next != e)
+            previous = (*this)[previous].next;
+        return previous;
+    }
 
-*/
-        /// check that all edges belong to the correct face, TODO: template this to make it a useful check
-        /*
-        bool checkFaces() {
-            BOOST_FOREACH(FaceProps f, faces) {
-                BOOST_FOREACH( HEEdge e, face_edges(f.idx)) {
-                    if ( g[e].face != f.idx )
-                        return false;
-                }
-            }
-            return true;
-        }*/
+    FaceVector adjacent_faces(Vertex v) const {
+        std::set<Face> unique;
+        for (Edge e : vertex_record(v).out)
+            unique.insert((*this)[e].face);
+        return FaceVector(unique.begin(), unique.end());
+    }
 
-/// delete a vertex
-void delete_vertex(Vertex v) { 
-    clear_vertex(v);
-    remove_vertex(v); 
-}
+    /// Split both halves of an edge, preserving face cycles and twin links.
+    void insert_vertex_in_edge(Vertex v, Edge e) {
+        Edge twin = (*this)[e].twin;
+        Vertex from = source(e), to = target(e);
+        assert(from == target(twin) && to == source(twin));
+        assert(e != twin);
+        Face face = (*this)[e].face, twin_face = (*this)[twin].face;
+        Edge previous = previous_edge(e), twin_previous = previous_edge(twin);
+        Edge next = (*this)[e].next, twin_next = (*this)[twin].next;
 
-/// clear given vertex. this removes all edges connecting to the vertex.
-void clear_vertex( Vertex v) { 
-    boost::clear_vertex( v, g ); 
-}
-/// remove given vertex
-void remove_vertex( Vertex v) { 
-    boost::remove_vertex( v , g );
-}
+        Edge e1 = add_edge(from, v), e2 = add_edge(v, to);
+        Edge t1 = add_edge(to, v), t2 = add_edge(v, from);
+        (*this)[e1].face = (*this)[e2].face = face;
+        (*this)[t1].face = (*this)[t2].face = twin_face;
+        // The old edges may be neighbors, or form an entire two-edge face.
+        auto replacement = [=](Edge old) { return old == e ? e1 : (old == twin ? t1 : old); };
+        (*this)[e1].next = e2;
+        (*this)[e2].next = replacement(next);
+        (*this)[t1].next = t2;
+        (*this)[t2].next = replacement(twin_next);
+        if (previous != e && previous != twin)
+            (*this)[previous].next = e1;
+        if (twin_previous != e && twin_previous != twin)
+            (*this)[twin_previous].next = t1;
+        twin_edges(e1, t2);
+        twin_edges(e2, t1);
+        faces[face].edge = e1;
+        faces[twin_face].edge = t1;
+        remove_edge(e);
+        remove_edge(twin);
+    }
 
-void remove_edge( Vertex v1, Vertex v2) {
-    boost::remove_edge( v1, v2  , g);
-}
+    void remove_edge(Edge e) {
+        auto& record = edge_record(e);
+        free_edges_.push_back(e.index());
+        erase(vertex_record(record.from).out, e);
+        erase(vertex_record(record.to).in, e);
+        record.active = false;
+    }
 
-void remove_edge( Edge e) {
-    boost::remove_edge( e   , g);
-}
+    /// Remove all parallel edges from v1 to v2.
+    void remove_edge(Vertex v1, Vertex v2) {
+        const auto& out = vertex_record(v1).out;
+        for (std::size_t i = 0; i < out.size();) {
+            Edge e = out[i];
+            if (target(e) == v2)
+                remove_edge(e); // The following entry shifts into index i.
+            else
+                ++i;
+        }
+    }
 
-}; // end class definition
+    void clear_vertex(Vertex v) {
+        auto& record = vertex_record(v);
+        while (!record.out.empty())
+            remove_edge(record.out.back());
+        while (!record.in.empty())
+            remove_edge(record.in.back());
+    }
 
+    /// The vertex must already be isolated. Use delete_vertex for connected vertices.
+    void remove_vertex(Vertex v) {
+        auto& record = vertex_record(v);
+        assert(record.in.empty() && record.out.empty());
+        free_vertices_.push_back(v.index());
+        record.active = false;
+    }
+    void delete_vertex(Vertex v) {
+        clear_vertex(v);
+        remove_vertex(v);
+    }
 
-} // end hedi namespace
+private:
+    struct VertexRecord {
+        TVertexProperties properties{};
+        EdgeVector out, in;
+        bool active = false;
+    };
+    struct EdgeRecord {
+        TEdgeProperties properties{};
+        Vertex from, to;
+        bool active = false;
+    };
+    // Deques keep references valid on growth, while descriptors remain small
+    // integer indices. These storage and adjacency choices are local to this class.
+    std::deque<VertexRecord> vertices_;
+    std::deque<EdgeRecord> edges_;
+    std::vector<std::size_t> free_vertices_, free_edges_;
 
-} // end ocl namespace
+    VertexRecord& vertex_record(Vertex v) {
+        assert(v.index() < vertices_.size() && vertices_[v.index()].active);
+        return vertices_[v.index()];
+    }
+    const VertexRecord& vertex_record(Vertex v) const {
+        assert(v.index() < vertices_.size() && vertices_[v.index()].active);
+        return vertices_[v.index()];
+    }
+    EdgeRecord& edge_record(Edge e) {
+        assert(e.index() < edges_.size() && edges_[e.index()].active);
+        return edges_[e.index()];
+    }
+    const EdgeRecord& edge_record(Edge e) const {
+        assert(e.index() < edges_.size() && edges_[e.index()].active);
+        return edges_[e.index()];
+    }
+    static void erase(EdgeVector& list, Edge e) {
+        auto it = std::find(list.begin(), list.end(), e);
+        assert(it != list.end());
+        list.erase(it);
+    }
+    static void grow_adjacency(EdgeVector& list) {
+        if (list.size() == list.capacity())
+            list.reserve(std::max<std::size_t>(4, list.capacity() * 2));
+    }
+};
+
+} // namespace hedi
+} // namespace ocl
 #endif
-// end halfedgediagram.hpp

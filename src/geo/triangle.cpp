@@ -20,7 +20,6 @@
 */
 #include <cassert>
 
-#include <boost/foreach.hpp>
 
 #include "triangle.hpp"
 #include "numeric.hpp"
@@ -91,11 +90,11 @@ bool Triangle::zslice_verts(Point& p1, Point& p2, double zcut) const {
         std::cout << " triangle=" << *this << "\n";
         std::cout << " zcut=" << zcut << "\n";
         std::cout << above.size() << " above points:\n";
-        BOOST_FOREACH(Point p, above) {
+        for (Point p : above) {
             std::cout << "   " << p << "\n";
         }
         std::cout << below.size() << " below points:\n";
-        BOOST_FOREACH(Point p, below) {
+        for (Point p : below) {
             std::cout << "   " << p << "\n";
         }
     }

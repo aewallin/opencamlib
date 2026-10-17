@@ -49,21 +49,21 @@ class Operation {
         /// set the STL-surface and build kd-tree
         virtual void setSTL(const STLSurf& s) {
             surf = &s;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setSTL(s);
             }
         }
         /// set the MillingCutter to use
         virtual void setCutter(const MillingCutter* c) {
             cutter = c;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setCutter(cutter);
             }
         }
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n) {
             nthreads = n;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setThreads(nthreads);
             }
         }
@@ -74,7 +74,7 @@ class Operation {
         /// set the kd-tree bucket-size
         void setBucketSize(unsigned int s) {
             bucketSize = s;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setBucketSize(bucketSize);
             }
         }
@@ -84,7 +84,7 @@ class Operation {
         /// set the sampling interval for this Operation and all sub-operations
         virtual void setSampling(double s) {
             sampling=s;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setSampling(sampling);
             }
         }

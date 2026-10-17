@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #include "millingcutter.hpp"
 #include "clpoint.hpp"
@@ -58,7 +57,7 @@ void AdaptivePathDropCutter::adaptive_sampling_run() {
     //std::cout << " apdc::adaptive_sampling_run()... ";
     
     clpoints.clear();
-    BOOST_FOREACH( const Span* span, path->span_list ) {  // this loop could run in parallel, since spans don't depend on eachother
+    for (const Span* span : path->span_list) {  // this loop could run in parallel, since spans don't depend on eachother
         CLPoint start = span->getPoint(0.0);
         CLPoint stop = span->getPoint(1.0);
         subOp[0]->run(start);

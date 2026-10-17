@@ -58,7 +58,7 @@ class KDNode {
             isLeaf = false;
             if (tlist) {
                 isLeaf = true;
-                BOOST_FOREACH(BBObj bo, *tlist) {
+                for (BBObj bo : *tlist) {
                     tris->push_back(bo);
                 }
             }
