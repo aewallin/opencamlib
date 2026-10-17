@@ -1,4 +1,5 @@
-#include <sstream>
+#include <codecvt>
+#include <locale>
 #include "stlreader.hpp"
 #include "stlsurf.hpp"
 #include "stlreader_js.hpp"
@@ -24,15 +25,15 @@ STLReaderJS::STLReaderJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<STLR
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     size_t length = info.Length();
-    if (length == 1)
+    if (length != 2)
     {
-        Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
+        throw Napi::TypeError::New(env, "Provide at least 2 arguments");
     }
     Napi::String filepath = info[0].As<Napi::String>();
-    STLSurfJS *surface = Napi::ObjectWrap<STLSurfJS>::Unwrap(info[1].As<Napi::Object>());
+    STLSurfJS *surface = STLSurfJS::UnwrapChecked(info[1]);
     ocl::STLSurf *surfaceInstance = surface->GetInternalInstance(info);
     std::wstring filepathWstring;
     std::string filepathStr = filepath.Utf8Value();
-    filepathWstring.assign(filepathStr.begin(), filepathStr.end());
-    ocl::STLReader(filepathWstring, *surfaceInstance);
+    filepathWstring = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(filepathStr);
+    nativeCall(info.Env(), [&] { ocl::STLReader reader(filepathWstring, *surfaceInstance); });
 }

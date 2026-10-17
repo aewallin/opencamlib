@@ -28,7 +28,7 @@
  * <kbd>svn checkout http://opencamlib.googlecode.com/svn/trunk/ opencamlib-read-only
  * </kbd>
  * 
- * Building requires the Boost libraries and a compiler that supports OpenMP. Visualizations require VTK. 
+ * Building requires a C++14 compiler. OpenMP support is optional. Visualizations require VTK.
  * It should be as simple as:
  * 
  * <kbd>cmake .
@@ -55,7 +55,7 @@
  * The following command is appropriate for SVN r95, check the source file
  * for current dependencies for your version:
  *
- * <kbd>shell> apt-get install debhelper libboost-python-dev python-dev python-support </kbd>
+ * <kbd>shell> apt-get install debhelper pybind11-dev python3-dev </kbd>
  *
  * Next build the OCL source tree into a debian package:
  *

@@ -27,7 +27,7 @@ endif()
 
 if(GIT_FOUND)
     execute_process(
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        WORKING_DIRECTORY ${OCL_SOURCE_DIR}
         COMMAND ${GIT_EXECUTABLE} describe --tags 
         RESULT_VARIABLE res_var 
         OUTPUT_VARIABLE GIT_COM_ID 
@@ -36,7 +36,7 @@ if(GIT_FOUND)
     )
     if( NOT ${res_var} EQUAL 0 )
         message( WARNING "Git failed (not a repo, or no tags)." )
-        file(READ "git-tag.txt" GIT_COM_ID)
+        file(READ "${OCL_SOURCE_DIR}/git-tag.txt" GIT_COM_ID)
         string( REPLACE "\n" "" GIT_COMMIT_ID ${GIT_COM_ID} )
         message( STATUS "version_string.cmake read from file GIT_COMMIT_ID: " ${GIT_COMMIT_ID})
     else()
@@ -46,7 +46,7 @@ if(GIT_FOUND)
     
 else()
     # if we don't have git, try to read git-tag from file instead
-    file(READ "git-tag.txt" GIT_COMMIT_ID)
+    file(READ "${OCL_SOURCE_DIR}/git-tag.txt" GIT_COMMIT_ID)
     
     #set( GIT_COMMIT_ID "unknown (git not found!)")
     message( STATUS "version_string.cmake read from file git-tag.txt: " ${GIT_COMMIT_ID})

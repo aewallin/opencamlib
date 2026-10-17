@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #ifdef _OPENMP  
     #include <omp.h>
@@ -35,19 +34,21 @@ namespace ocl
 
 //********   ********************** */
 
-FiberPushCutter::FiberPushCutter() {
+FiberPushCutter::FiberPushCutter() : x_direction(false), y_direction(false) {
     nCalls = 0;
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree<Triangle>();
+    root = std::make_unique<KDTree<Triangle>>();
 }
 
 FiberPushCutter::~FiberPushCutter() {
-    delete root;
 }
 
 void FiberPushCutter::setSTL(const STLSurf &s) {
-    surf = &s;
+    Operation::setSTL(s);
+}
+
+void FiberPushCutter::setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
     // std::cout << "BPC::setSTL() Building kd-tree... bucketSize=" << bucketSize << "..";
     root->setBucketSize( bucketSize );
     if (x_direction)
@@ -55,17 +56,17 @@ void FiberPushCutter::setSTL(const STLSurf &s) {
     else if (y_direction)
         root->setXZDimensions();
     else {
-        std::cout << " ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
-        assert(0);
+        throw std::logic_error("Set fiber direction before setting the surface");
     }
     // std::cout << "BPC::setSTL() root->build()";
-    root->build(s.tris);
+    root->buildSnapshot(std::move(snapshot));
+    surf = &s;
     // std::cout << " done.\n";
 }
 
 void FiberPushCutter::pushCutter1(Fiber& f) {
     nCalls = 0;
-    BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
+    for (const Triangle& t : surf->tris) {// test against all triangles in s
         Interval i;
         cutter->pushCutter(f,i,t);
         f.addInterval(i);
@@ -73,10 +74,8 @@ void FiberPushCutter::pushCutter1(Fiber& f) {
     }
 }
 
-void FiberPushCutter::pushCutter2(Fiber& f) {
-    std::list<Triangle>::iterator it,it_end;    // for looping over found triangles
-    Interval* i;
-    std::list<Triangle>* tris;
+unsigned int FiberPushCutter::pushCutter2(Fiber& f) const {
+    unsigned int calls = 0;
     CLPoint cl;
     if ( x_direction ) {
         cl.x=0;
@@ -87,16 +86,13 @@ void FiberPushCutter::pushCutter2(Fiber& f) {
         cl.y=0;
         cl.z=f.p1.z;
     }
-    tris = root->search_cutter_overlap(cutter, &cl);
-    it_end = tris->end();
-    for ( it=tris->begin() ; it!=it_end ; ++it) {
-		i = new Interval();
-		cutter->pushCutter(f,*i,*it);
-		f.addInterval(*i);
-		++nCalls;
-		delete i;
-    }
-    delete( tris );
+    root->visit_cutter_overlap(cutter, &cl, [&](const Triangle& t) {
+        Interval i;
+        cutter->pushCutter(f,i,t);
+        f.addInterval(i);
+        ++calls;
+    });
+    return calls;
 }
 
 }// end namespace

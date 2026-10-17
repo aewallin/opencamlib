@@ -1,5 +1,6 @@
 #include <emscripten.h>
 #include <emscripten/bind.h>
+#include "ocl.hpp"
 
 // GEOMETRY
 #include "point.hpp"
@@ -38,8 +39,25 @@
 using namespace emscripten;
 using namespace ocl;
 
+// Translate core validation failures to ordinary JavaScript errors.
+template<class Method> struct CheckedMethod;
+template<class Result, class Class, class... Args>
+struct CheckedMethod<Result (Class::*)(Args...)> {
+    template<Result (Class::*method)(Args...)>
+    static Result call(Class& self, Args... args) {
+        try { return (self.*method)(args...); }
+        catch (const std::exception& error) {
+            val::global("Error").new_(std::string(error.what())).throw_();
+            throw;
+        }
+    }
+};
+template<auto method>
+auto checked() { return &CheckedMethod<decltype(method)>::template call<method>; }
+
 EMSCRIPTEN_BINDINGS(opencamlib)
 {
+    function("maxThreads", &ocl::max_threads);
     //////////////
     // GEOMETRY //
     //////////////
@@ -108,7 +126,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
 
     class_<STLSurf>("STLSurf")
         .constructor()
-        .function("addTriangle", &STLSurf::addTriangle)
+        .function("addTriangle", checked<&STLSurf::addTriangle>())
         .function("size", &STLSurf::size);
 
     class_<Bbox>("Bbox")
@@ -120,7 +138,7 @@ EMSCRIPTEN_BINDINGS(opencamlib)
     class_<EllipsePosition>("EllipsePosition")
         .property("s", &EllipsePosition::s)
         .property("t", &EllipsePosition::t)
-        .function("setDiangle", &EllipsePosition::setDiangle)
+        .function("setDiangle", checked<&EllipsePosition::setDiangle>())
         .function("__str__", &EllipsePosition::str);
 
     // class_<Ellipse>("Ellipse")
@@ -157,64 +175,66 @@ EMSCRIPTEN_BINDINGS(opencamlib)
     // ALGO //
     //////////
     class_<Operation>("Operation")
-        .function("setCutter", &Operation::setCutter, allow_raw_pointers())
+        .function("setCutter", checked<&Operation::setCutter>(), allow_raw_pointers())
         .function("getCLPoints", &Operation::getCLPoints)
-        .function("setSTL", &Operation::setSTL, allow_raw_pointers())
-        .function("setSampling", &Operation::setSampling);
+        .function("setSTL", checked<&Operation::setSTL>(), allow_raw_pointers())
+        .function("setSampling", checked<&Operation::setSampling>())
+        .function("setThreads", checked<&Operation::setThreads>())
+        .function("getThreads", &Operation::getThreads);
 
     class_<BatchDropCutter, emscripten::base<Operation>>("BatchDropCutter")
         .constructor()
-        .function("run", &BatchDropCutter::run)
-        .function("setThreads", &BatchDropCutter::setThreads)
+        .function("run", checked<&BatchDropCutter::run>())
+        .function("setThreads", checked<&BatchDropCutter::setThreads>())
         .function("getThreads", &BatchDropCutter::getThreads)
         .function("appendPoint", &BatchDropCutter::appendPoint)
         // .function("getTrianglesUnderCutter", &BatchDropCutter::getTrianglesUnderCutter.)
         .function("getCalls", &BatchDropCutter::getCalls)
         .function("getBucketSize", &BatchDropCutter::getBucketSize)
-        .function("setBucketSize", &BatchDropCutter::setBucketSize);
+        .function("setBucketSize", checked<&BatchDropCutter::setBucketSize>());
 
     class_<PathDropCutter, emscripten::base<Operation>>("PathDropCutter")
         .constructor()
-        .function("run", &PathDropCutter::run)
-        .function("setPath", &PathDropCutter::setPath, allow_raw_pointers())
+        .function("run", checked<&PathDropCutter::run>())
+        .function("setPath", checked<&PathDropCutter::setPath>(), allow_raw_pointers())
         .function("getZ", &PathDropCutter::getZ)
-        .function("setZ", &PathDropCutter::setZ)
+        .function("setZ", checked<&PathDropCutter::setZ>())
         .function("getPoints", &PathDropCutter::getPoints);
 
     class_<AdaptivePathDropCutter, emscripten::base<Operation>>("AdaptivePathDropCutter")
         .constructor()
-        .function("run", &AdaptivePathDropCutter::run)
-        .function("setMinSampling", &AdaptivePathDropCutter::setMinSampling)
-        .function("setCosLimit", &AdaptivePathDropCutter::setCosLimit)
+        .function("run", checked<&AdaptivePathDropCutter::run>())
+        .function("setMinSampling", checked<&AdaptivePathDropCutter::setMinSampling>())
+        .function("setCosLimit", checked<&AdaptivePathDropCutter::setCosLimit>())
         .function("getSampling", &AdaptivePathDropCutter::getSampling)
-        .function("setPath", &AdaptivePathDropCutter::setPath, allow_raw_pointers())
+        .function("setPath", checked<&AdaptivePathDropCutter::setPath>(), allow_raw_pointers())
         .function("getZ", &AdaptivePathDropCutter::getZ)
-        .function("setZ", &AdaptivePathDropCutter::setZ)
+        .function("setZ", checked<&AdaptivePathDropCutter::setZ>())
         .function("getPoints", &AdaptivePathDropCutter::getPoints);
 
     class_<ZigZag>("ZigZag")
         .constructor()
-        .function("run", &ZigZag::run)
-        .function("setDirection", &ZigZag::setDirection, allow_raw_pointers())
-        .function("setOrigin", &ZigZag::setOrigin, allow_raw_pointers())
-        .function("setStepOver", &ZigZag::setStepOver)
+        .function("run", checked<&ZigZag::run>())
+        .function("setDirection", checked<&ZigZag::setDirection>(), allow_raw_pointers())
+        .function("setOrigin", checked<&ZigZag::setOrigin>(), allow_raw_pointers())
+        .function("setStepOver", checked<&ZigZag::setStepOver>())
         .function("addPoint", &ZigZag::addPoint)
         // .function("getOutput", &ZigZag::getOutput)
         .function("__str__", &ZigZag::str);
 
     class_<BatchPushCutter, emscripten::base<Operation>>("BatchPushCutter")
         .constructor()
-        .function("run", &BatchPushCutter::run)
+        .function("run", checked<&BatchPushCutter::run>())
         .function("appendFiber", &BatchPushCutter::appendFiber)
         // .function("getOverlapTriangles", &BatchPushCutter::getOverlapTriangles)
         // .function("getFibers", &BatchPushCutter::getFibers)
         .function("getCalls", &BatchPushCutter::getCalls)
-        .function("setThreads", &BatchPushCutter::setThreads)
+        .function("setThreads", checked<&BatchPushCutter::setThreads>())
         .function("getThreads", &BatchPushCutter::getThreads)
-        .function("setBucketSize", &BatchPushCutter::setBucketSize)
+        .function("setBucketSize", checked<&BatchPushCutter::setBucketSize>())
         .function("getBucketSize", &BatchPushCutter::getBucketSize)
-        .function("setXDirection", &BatchPushCutter::setXDirection)
-        .function("setYDirection", &BatchPushCutter::setYDirection);
+        .function("setXDirection", checked<&BatchPushCutter::setXDirection>())
+        .function("setYDirection", checked<&BatchPushCutter::setYDirection>());
 
     class_<Interval>("Interval")
         .constructor<double, double>()
@@ -246,28 +266,28 @@ EMSCRIPTEN_BINDINGS(opencamlib)
 
     class_<Waterline, emscripten::base<Operation>>("Waterline")
         .constructor()
-        .function("setCutter", &Waterline::setCutter, allow_raw_pointers())
-        .function("setSTL", &Waterline::setSTL, allow_raw_pointers())
-        .function("setZ", &Waterline::setZ)
-        .function("setSampling", &Waterline::setSampling)
-        .function("run", &Waterline::run)
-        .function("run2", &Waterline::run2)
+        .function("setCutter", checked<&Waterline::setCutter>(), allow_raw_pointers())
+        .function("setSTL", checked<&Waterline::setSTL>(), allow_raw_pointers())
+        .function("setZ", checked<&Waterline::setZ>())
+        .function("setSampling", checked<&Waterline::setSampling>())
+        .function("run", checked<&Waterline::run>())
+        .function("run2", checked<&Waterline::run2>())
         .function("reset", &Waterline::reset)
         .function("getLoops", &Waterline::getLoops)
-        .function("setThreads", &Waterline::setThreads)
+        .function("setThreads", checked<&Waterline::setThreads>())
         .function("getThreads", &Waterline::getThreads);
     // .function("getXFibers", &Waterline::py_getXFibers)
     // .function("getYFibers", &Waterline::py_getYFibers);
 
     class_<AdaptiveWaterline, emscripten::base<Waterline>>("AdaptiveWaterline")
         .constructor()
-        .function("setZ", &AdaptiveWaterline::setZ)
-        .function("setMinSampling", &AdaptiveWaterline::setMinSampling)
-        .function("run", &AdaptiveWaterline::run)
-        .function("run2", &AdaptiveWaterline::run2)
+        .function("setZ", checked<&AdaptiveWaterline::setZ>())
+        .function("setMinSampling", checked<&AdaptiveWaterline::setMinSampling>())
+        .function("run", checked<&AdaptiveWaterline::run>())
+        .function("run2", checked<&AdaptiveWaterline::run2>())
         .function("reset", &AdaptiveWaterline::reset)
         // .function("getLoops", &AdaptiveWaterline::py_getLoops)
-        .function("setThreads", &AdaptiveWaterline::setThreads)
+        .function("setThreads", checked<&AdaptiveWaterline::setThreads>())
         .function("getThreads", &AdaptiveWaterline::getThreads);
     // .function("getXFibers", &AdaptiveWaterline::getXFibers)
     // .function("getYFibers", &AdaptiveWaterline::getYFibers);
@@ -283,25 +303,27 @@ EMSCRIPTEN_BINDINGS(opencamlib)
     class_<LineCLFilter>("LineCLFilter")
         .constructor()
         .function("addCLPoint", &LineCLFilter::addCLPoint)
-        .function("setTolerance", &LineCLFilter::setTolerance)
-        .function("run", &LineCLFilter::run);
-    // .function("getCLPoints", &LineCLFilter::getCLPoints);
+        .function("setTolerance", checked<&LineCLFilter::setTolerance>())
+        .function("run", checked<&LineCLFilter::run>())
+        .function("getCLPoints", optional_override([](const LineCLFilter& filter) {
+            return std::vector<CLPoint>(filter.clpoints.begin(), filter.clpoints.end());
+        }));
 
     // some strange problem with hedi::face_edges()... let's not compile for now..
     // class_<clsurf::CutterLocationSurface>("CutterLocationSurface")
     //     .constructor<double>()
-    //     .function("run", &clsurf::CutterLocationSurface::run)
-    //     .function("setMinSampling", &clsurf::CutterLocationSurface::setMinSampling)
-    //     .function("setSampling", &clsurf::CutterLocationSurface::setSampling)
-    //     .function("setSTL", &clsurf::CutterLocationSurface::setSTL, allow_raw_pointers())
-    //     .function("setCutter", &clsurf::CutterLocationSurface::setCutter, allow_raw_pointers())
+    //     .function("run", checked<&clsurf::CutterLocationSurface::run>())
+    //     .function("setMinSampling", checked<&clsurf::CutterLocationSurface::setMinSampling>())
+    //     .function("setSampling", checked<&clsurf::CutterLocationSurface::setSampling>())
+    //     .function("setSTL", checked<&clsurf::CutterLocationSurface::setSTL>(), allow_raw_pointers())
+    //     .function("setCutter", checked<&clsurf::CutterLocationSurface::setCutter>(), allow_raw_pointers())
     //     // .function("getVertices", &clsurf::CutterLocationSurface::getVertices)
     //     // .function("getEdges", &clsurf::CutterLocationSurface::getEdges)
     //     .function("__str__", &clsurf::CutterLocationSurface::str);
     /*
     class_<tsp::TSPSolver >("TSPSolver")
         .function("addPoint", &tsp::TSPSolver::addPoint)
-        .function("run", &tsp::TSPSolver::run)
+        .function("run", checked<&tsp::TSPSolver::run>())
         .function("getOutput", &tsp::TSPSolver::getOutput)
         .function("getLength", &tsp::TSPSolver::getLength)
         .function("reset", &tsp::TSPSolver::reset)

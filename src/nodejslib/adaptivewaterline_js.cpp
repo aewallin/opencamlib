@@ -21,6 +21,7 @@ Napi::Object AdaptiveWaterlineJS::Init(Napi::Env env, Napi::Object exports)
         InstanceMethod("setConeCutter", &AdaptiveWaterlineJS::setConeCutter),
         InstanceMethod("setSampling", &AdaptiveWaterlineJS::setSampling),
         InstanceMethod("setMinSampling", &AdaptiveWaterlineJS::setMinSampling),
+        InstanceMethod("dispose", &AdaptiveWaterlineJS::dispose),
         InstanceMethod("run", &AdaptiveWaterlineJS::run),
         InstanceMethod("getLoops", &AdaptiveWaterlineJS::getLoops)
     });
@@ -35,87 +36,102 @@ AdaptiveWaterlineJS::AdaptiveWaterlineJS(const Napi::CallbackInfo &info) : Napi:
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_ = new ocl::AdaptiveWaterline();
+    this->actualClass_ = std::make_unique<ocl::AdaptiveWaterline>();
 }
 
 void AdaptiveWaterlineJS::setZ(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Number z = info[0].As<Napi::Number>();
-    this->actualClass_->setZ(z.DoubleValue());
+    nativeCall(info.Env(), [&] { this->actualClass_->setZ(z.DoubleValue()); });
 }
 
 void AdaptiveWaterlineJS::setSTL(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    STLSurfJS *sjs = Napi::ObjectWrap<STLSurfJS>::Unwrap(info[0].As<Napi::Object>());
+    STLSurfJS *sjs = STLSurfJS::UnwrapChecked(info[0]);
     ocl::STLSurf *surface = sjs->GetInternalInstance(info);
-    this->actualClass_->setSTL(*surface);
+    nativeCall(info.Env(), [&] { this->actualClass_->setSTL(*surface); });
+    surface_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptiveWaterlineJS::setCylCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    CylCutterJS *cjs = Napi::ObjectWrap<CylCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    CylCutterJS *cjs = CylCutterJS::UnwrapChecked(info[0]);
     ocl::CylCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptiveWaterlineJS::setBallCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    BallCutterJS *cjs = Napi::ObjectWrap<BallCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    BallCutterJS *cjs = BallCutterJS::UnwrapChecked(info[0]);
     ocl::BallCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptiveWaterlineJS::setBullCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    BullCutterJS *cjs = Napi::ObjectWrap<BullCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    BullCutterJS *cjs = BullCutterJS::UnwrapChecked(info[0]);
     ocl::BullCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptiveWaterlineJS::setConeCutter(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    ConeCutterJS *cjs = Napi::ObjectWrap<ConeCutterJS>::Unwrap(info[0].As<Napi::Object>());
+    ConeCutterJS *cjs = ConeCutterJS::UnwrapChecked(info[0]);
     ocl::ConeCutter *cutter = cjs->GetInternalInstance(info);
-    this->actualClass_->setCutter(cutter);
+    nativeCall(info.Env(), [&] { this->actualClass_->setCutter(cutter); });
+    cutter_ref = Napi::Persistent(info[0].As<Napi::Object>());
 }
 
 void AdaptiveWaterlineJS::setSampling(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
-    this->actualClass_->setSampling(s.DoubleValue());
+    nativeCall(info.Env(), [&] { this->actualClass_->setSampling(s.DoubleValue()); });
 }
 
 void AdaptiveWaterlineJS::setMinSampling(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Number s = info[0].As<Napi::Number>();
-    this->actualClass_->setMinSampling(s.DoubleValue());
+    nativeCall(info.Env(), [&] { this->actualClass_->setMinSampling(s.DoubleValue()); });
 }
 
 void AdaptiveWaterlineJS::run(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_->run();
+    nativeCall(info.Env(), [&] { this->actualClass_->run(); });
 }
 
 Napi::Value AdaptiveWaterlineJS::getLoops(const Napi::CallbackInfo &info)
 {
+    if (!actualClass_) throw Napi::Error::New(info.Env(), "Operation has been disposed");
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
     Napi::Array result = Napi::Array::New(env);
@@ -141,4 +157,9 @@ Napi::Value AdaptiveWaterlineJS::getLoops(const Napi::CallbackInfo &info)
         loopI++;
     }
     return result;
+}
+
+void AdaptiveWaterlineJS::dispose(const Napi::CallbackInfo&) {
+    actualClass_.reset();
+    surface_ref.Reset(); cutter_ref.Reset(); path_ref.Reset();
 }

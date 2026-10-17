@@ -63,18 +63,19 @@ PointJS::PointJS(const Napi::CallbackInfo& info) : Napi::ObjectWrap<PointJS>(inf
   Napi::HandleScope scope(env);
 
   size_t length = static_cast<int>(info.Length());
-  if (length == 1) {
-    Napi::TypeError::New(env, "Provide at least 2 arguments").ThrowAsJavaScriptException();
+  if (length != 0 && length != 2 && length != 3) {
+    throw Napi::TypeError::New(env, "Provide at least 2 arguments");
   }
+  if (length == 0) actualClass_ = std::make_unique<ocl::Point>();
   if (length == 2) {
     Napi::Number x = info[0].As<Napi::Number>();
     Napi::Number y = info[1].As<Napi::Number>();
-    this->actualClass_ = new ocl::Point(x.DoubleValue(), y.DoubleValue());
+    this->actualClass_ = std::make_unique<ocl::Point>(x.DoubleValue(), y.DoubleValue());
   } else if (length == 3) {
     Napi::Number x = info[0].As<Napi::Number>();
     Napi::Number y = info[1].As<Napi::Number>();
     Napi::Number z = info[2].As<Napi::Number>();
-    this->actualClass_ = new ocl::Point(x.DoubleValue(), y.DoubleValue(), z.DoubleValue());
+    this->actualClass_ = std::make_unique<ocl::Point>(x.DoubleValue(), y.DoubleValue(), z.DoubleValue());
   }
 }
 
@@ -82,16 +83,16 @@ ocl::Point *PointJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
-  return this->actualClass_;
+  return this->actualClass_.get();
 }
 
 void PointJS::Add(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
   Napi::HandleScope scope(env);
   if (info.Length() != 1) {
-    Napi::TypeError::New(env, "Argument expected").ThrowAsJavaScriptException();
+    throw Napi::TypeError::New(env, "Argument expected");
   }
-  PointJS* pjs = Napi::ObjectWrap<PointJS>::Unwrap(info[0].As<Napi::Object>());
+  PointJS* pjs = PointJS::UnwrapChecked(info[0]);
   ocl::Point* oclp = pjs->GetInternalInstance(info);
   ocl::Point p = *oclp;
   this->actualClass_->operator+=(ocl::Point(p.x, p.y, p.z));

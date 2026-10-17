@@ -1,0 +1,144 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "BUILD_CXX_LIB": "ON",
+        "BUILD_DOC": "OFF",
+        "BUILD_TESTING": "ON",
+        "USE_OPENMP": "OFF"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_BENCHMARKS": "ON"
+      }
+    },
+    {
+      "name": "release-openmp",
+      "inherits": "release",
+      "cacheVariables": {
+        "USE_OPENMP": "ON"
+      }
+    },
+    {
+      "name": "sanitizers",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS_DEBUG": "-O1 -g",
+        "OCL_ENABLE_SANITIZERS": "ON",
+        "OCL_ENABLE_IPO": "OFF"
+      }
+    },
+    {
+      "name": "web-serial",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BUILD_CXX_LIB": "OFF",
+        "BUILD_EMSCRIPTEN_LIB": "ON",
+        "OCL_ENABLE_IPO": "ON",
+        "OCL_WASM_ENVIRONMENT": "web,worker,node",
+        "OCL_WASM_NATIVE_EXCEPTIONS": "ON",
+        "OCL_WASM_THREADS": "OFF"
+      }
+    },
+    {
+      "name": "web-threaded",
+      "inherits": "web-serial",
+      "cacheVariables": {
+        "OCL_WASM_THREADS": "ON",
+        "OCL_WASM_THREAD_POOL_SIZE": "3"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "release-openmp",
+      "configurePreset": "release-openmp"
+    },
+    {
+      "name": "sanitizers",
+      "configurePreset": "sanitizers"
+    },
+    {
+      "name": "web-serial",
+      "configurePreset": "web-serial"
+    },
+    {
+      "name": "web-threaded",
+      "configurePreset": "web-threaded"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "release-openmp",
+      "configurePreset": "release-openmp",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "sanitizers",
+      "configurePreset": "sanitizers",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "web-serial",
+      "configurePreset": "web-serial",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "web-threaded",
+      "configurePreset": "web-threaded",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ]
+}

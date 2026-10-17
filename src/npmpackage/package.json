@@ -7,7 +7,7 @@
   "scripts": {
     "start": "tsc -w",
     "build-node": "tsc",
-    "build-emscripten": "tsc && tsc -p tsconfig.emscripten.json && browserify -p browserify-derequire --standalone ocl lib/emscripten/index.js > browser.js",
+    "build-emscripten": "tsc && tsc -p tsconfig.emscripten.json && node build-browser.js",
     "build": "npm run build-emscripten"
   },
   "keywords": [

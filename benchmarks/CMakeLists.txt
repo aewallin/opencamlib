@@ -1,0 +1,3 @@
+add_executable(cutter_benchmark cutter_benchmark.cpp)
+target_link_libraries(cutter_benchmark PRIVATE ocl_core)
+ocl_configure_target(cutter_benchmark)

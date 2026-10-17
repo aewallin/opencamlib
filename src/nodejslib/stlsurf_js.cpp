@@ -24,14 +24,14 @@ STLSurfJS::STLSurfJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<STLSurfJ
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    this->actualClass_ = new ocl::STLSurf();
+    this->actualClass_ = std::make_unique<ocl::STLSurf>();
 }
 
 ocl::STLSurf *STLSurfJS::GetInternalInstance(const Napi::CallbackInfo &info)
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    return this->actualClass_;
+    return this->actualClass_.get();
 }
 
 void STLSurfJS::addTriangle(const Napi::CallbackInfo &info)
@@ -40,11 +40,11 @@ void STLSurfJS::addTriangle(const Napi::CallbackInfo &info)
     Napi::HandleScope scope(env);
     if (info.Length() != 1)
     {
-        Napi::TypeError::New(env, "Argument expected").ThrowAsJavaScriptException();
+        throw Napi::TypeError::New(env, "Argument expected");
     }
-    TriangleJS *tjs = Napi::ObjectWrap<TriangleJS>::Unwrap(info[0].As<Napi::Object>());
+    TriangleJS *tjs = TriangleJS::UnwrapChecked(info[0]);
     ocl::Triangle *oclt = tjs->GetInternalInstance(info);
-    this->actualClass_->addTriangle(*oclt);
+    nativeCall(info.Env(), [&] { this->actualClass_->addTriangle(*oclt); });
 }
 
 Napi::Value STLSurfJS::getTriangles(const Napi::CallbackInfo &info)

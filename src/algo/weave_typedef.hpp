@@ -29,11 +29,7 @@ namespace ocl {
 namespace weave {
 
 
-// we use the traits-class here so that EdgeProps can have Edge as a member
-typedef boost::adjacency_list_traits<boost::listS, 
-                                     boost::listS, 
-                                     boost::bidirectionalS, 
-                                     boost::listS >::edge_descriptor Edge;
+typedef hedi::EdgeDescriptor Edge;
 
 /// vertex type: CL-point, internal point, adjacent point
 enum VertexType {CL, CL_DONE, ADJ, TWOADJ, INT, FULLINT};
@@ -61,7 +57,7 @@ struct VertexProps {
         index = count;
         count++;
     }
-    VertexType type;
+    VertexType type = CL;
 // HE data
     /// the position of the vertex
     Point position;
@@ -104,26 +100,10 @@ struct FaceProps {
 
  
   
-// the graph type for the weave
-typedef ocl::hedi::HEDIGraph<     boost::listS,             // out-edges stored here
-                       boost::listS,             // vertex set stored here
-                       boost::bidirectionalS,    // undirecgted or bidirectional graph?
-                       VertexProps,              // vertex properties
-                       EdgeProps,                // edge properties
-                       FaceProps,                // face properties
-                       boost::no_property,       // graph properties
-                       boost::listS             // edge storage
-                       > WeaveGraph;
-
+// The graph type for the weave.
+typedef hedi::HEDIGraph<VertexProps, EdgeProps, FaceProps> WeaveGraph;
 typedef WeaveGraph::Vertex Vertex;
-typedef WeaveGraph::VertexItr    VertexItr;
-
-//typedef boost::graph_traits< WeaveGraph >::vertex_descriptor  Vertex;
-//
-// typedef boost::graph_traits< WeaveGraph >::edge_descriptor    Edge;
-//typedef boost::graph_traits< WeaveGraph >::edge_iterator      EdgeItr;
-//typedef boost::graph_traits< WeaveGraph >::out_edge_iterator  OutEdgeItr;
-//typedef boost::graph_traits< WeaveGraph >::adjacency_iterator AdjacencyItr;
+typedef WeaveGraph::VertexItr VertexItr;
 
 /// intersections between intervals are stored as a VertexPair
 /// pair.first is a vertex descriptor of the weave graph

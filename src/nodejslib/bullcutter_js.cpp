@@ -23,12 +23,12 @@ BullCutterJS::BullCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Bu
     size_t length = info.Length();
     if (length != 3)
     {
-        Napi::TypeError::New(env, "Provide 3 argument").ThrowAsJavaScriptException();
+        throw Napi::TypeError::New(env, "Provide 3 argument");
     }
     Napi::Number d = info[0].As<Napi::Number>();
     Napi::Number r = info[1].As<Napi::Number>();
     Napi::Number l = info[2].As<Napi::Number>();
-    this->actualClass_ = new ocl::BullCutter(d.DoubleValue(), r.DoubleValue(), l.DoubleValue());
+    this->actualClass_ = std::make_unique<ocl::BullCutter>(d.DoubleValue(), r.DoubleValue(), l.DoubleValue());
 }
 
 Napi::Value BullCutterJS::str(const Napi::CallbackInfo &info)
@@ -42,5 +42,5 @@ ocl::BullCutter *BullCutterJS::GetInternalInstance(const Napi::CallbackInfo &inf
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    return this->actualClass_;
+    return this->actualClass_.get();
 }

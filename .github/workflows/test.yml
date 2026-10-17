@@ -49,8 +49,6 @@ jobs:
             --install-ci-deps \
             --build-library cxx \
             --build-type release \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --install \
             --test
   nodejs:
@@ -88,8 +86,6 @@ jobs:
             --build-library nodejs \
             --build-type release \
             --node-architecture $(node -p "require('os').arch()") \
-            --install-boost \
-            --boost-prefix $(pwd) \
             --install \
             --test
   python:
@@ -126,9 +122,141 @@ jobs:
             --build-library python \
             --build-type release \
             --install-system-deps \
-            --install-boost-from-repo \
             --python-executable python \
             --python-pip-install \
             --test
         env:
           CMAKE_GENERATOR: ${{ matrix.cmake_generator }}
+
+  core-checks:
+    name: core / ${{ matrix.preset }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [debug, release, release-openmp, sanitizers]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - run: cmake --preset ${{ matrix.preset }}
+      - run: cmake --build --preset ${{ matrix.preset }} --parallel 2
+      - run: ctest --preset ${{ matrix.preset }}
+        env:
+          ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+          UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+
+  binding-contract:
+    name: shared C++ / Python / Node / WASM contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Build native fixtures and Python
+        run: |
+          python -m pip install pybind11
+          cmake --preset debug
+          cmake --build --preset debug --target binding_fixture --parallel 2
+          cmake -S . -B build/contract-python -DBUILD_PY_LIB=ON -DBUILD_DOC=OFF -DBUILD_TESTING=OFF -DUSE_OPENMP=OFF -Dpybind11_DIR="$(python -m pybind11 --cmakedir)"
+          cmake --build build/contract-python --parallel 2
+      - name: Build Node bindings
+        run: |
+          npm ci --prefix src/nodejslib
+          npm ci --prefix src/npmpackage
+          src/nodejslib/node_modules/.bin/cmake-js build --directory . --out build/contract-node --parallel 2 --CDBUILD_NODEJS_LIB=ON --CDBUILD_DOC=OFF --CDBUILD_TESTING=OFF --CDUSE_OPENMP=OFF
+          npm run build-node --prefix src/npmpackage
+      - name: Build WebAssembly bindings
+        run: |
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git "$RUNNER_TEMP/emsdk"
+          "$RUNNER_TEMP/emsdk/emsdk" install 4.0.22
+          "$RUNNER_TEMP/emsdk/emsdk" activate 4.0.22
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          emcmake cmake -S . -B build/contract-wasm -DCMAKE_BUILD_TYPE=Debug -DBUILD_EMSCRIPTEN_LIB=ON -DBUILD_DOC=OFF -DBUILD_TESTING=OFF -DUSE_OPENMP=OFF -DOCL_WASM_ENVIRONMENT=web,node
+          cmake --build build/contract-wasm --parallel 2
+      - name: Build and test threaded WebAssembly exception modes
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          for native_exceptions in OFF ON; do
+            emcmake cmake -S . -B build/contract-wasm-threads -DCMAKE_BUILD_TYPE=Release -DBUILD_EMSCRIPTEN_LIB=ON -DBUILD_DOC=OFF -DBUILD_TESTING=ON -DUSE_OPENMP=OFF -DOCL_WASM_THREADS=ON -DOCL_WASM_ENVIRONMENT=web,worker,node -DOCL_WASM_NATIVE_EXCEPTIONS="$native_exceptions"
+            cmake --build build/contract-wasm-threads --parallel 2
+            ctest --test-dir build/contract-wasm-threads --output-on-failure
+            cmake --install build/contract-wasm-threads --prefix "$PWD/src/npmpackage/build"
+            npm run build-emscripten --prefix src/npmpackage
+            python tests/wasm_browser.py build/contract-wasm-threads/ocl.js src/npmpackage/browser.js
+          done
+      - name: Compare complete ordered toolpaths
+        run: |
+          build/debug/binding_fixture tests/fixtures/path_contract.txt > build/contract-cxx.jsonl
+          python tests/bindings.py build/contract-python > build/contract-python.jsonl
+          OCL_NODE_PATH="$PWD/build/contract-node/ocl.node" node --expose-gc tests/bindings.js napi > build/contract-node.jsonl
+          node --expose-gc tests/bindings.js emscripten build/contract-wasm/ocl.js > build/contract-wasm.jsonl
+          node --expose-gc tests/bindings.js emscripten build/contract-wasm-threads/ocl.js > build/contract-wasm-threads.jsonl
+          python tests/compare_bindings.py build/contract-cxx.jsonl build/contract-python.jsonl build/contract-node.jsonl build/contract-wasm.jsonl build/contract-wasm-threads.jsonl
+      - name: Build and test the single-file web app
+        run: |
+          source "$RUNNER_TEMP/emsdk/emsdk_env.sh"
+          emcmake cmake --preset web-serial
+          cmake --build --preset web-serial --parallel 2
+          ctest --preset web-serial
+          python examples/web/build.py --threaded build/contract-wasm-threads/ocl.js
+          node tests/web_cam.mjs
+          node tests/web_app.mjs
+      - name: Upload the standalone app
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencamlib-web
+          path: examples/web/index.html
+          if-no-files-found: error
+      - name: Upload browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-screenshots
+          path: build/web/*.png
+          if-no-files-found: ignore
+
+  deploy-web:
+    name: Publish app to GitHub Pages
+    needs: [core-checks, binding-contract]
+    # Publishing is opt-in so forks and repositories with an existing site
+    # keep running tests without deploying or requiring Pages configuration.
+    if: >-
+      vars.OCL_PUBLISH_WEB == 'true' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download the tested app
+        uses: actions/download-artifact@v5
+        with:
+          name: opencamlib-web
+          path: _site
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

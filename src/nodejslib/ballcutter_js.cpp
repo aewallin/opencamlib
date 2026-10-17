@@ -23,11 +23,11 @@ BallCutterJS::BallCutterJS(const Napi::CallbackInfo &info) : Napi::ObjectWrap<Ba
     size_t length = info.Length();
     if (length != 2)
     {
-        Napi::TypeError::New(env, "Provide 2 argument").ThrowAsJavaScriptException();
+        throw Napi::TypeError::New(env, "Provide 2 argument");
     }
     Napi::Number d = info[0].As<Napi::Number>();
     Napi::Number l = info[1].As<Napi::Number>();
-    this->actualClass_ = new ocl::BallCutter(d.DoubleValue(), l.DoubleValue());
+    this->actualClass_ = std::make_unique<ocl::BallCutter>(d.DoubleValue(), l.DoubleValue());
 }
 
 Napi::Value BallCutterJS::str(const Napi::CallbackInfo &info)
@@ -41,5 +41,5 @@ ocl::BallCutter *BallCutterJS::GetInternalInstance(const Napi::CallbackInfo &inf
 {
     Napi::Env env = info.Env();
     Napi::HandleScope scope(env);
-    return this->actualClass_;
+    return this->actualClass_.get();
 }

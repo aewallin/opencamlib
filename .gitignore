@@ -27,3 +27,8 @@ dist/
 _build/
 boost*
 env/
+
+# Local Python caches and generated, self-contained app bundle.
+__pycache__/
+*.py[cod]
+examples/web/index.html

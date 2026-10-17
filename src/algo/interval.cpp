@@ -62,16 +62,12 @@ void Interval::updateUpper(const double t, CCPoint& p) {
     if (upper_cc.type == NONE) {
         upper = t;
         lower = t;
-        CCPoint* tmp = new CCPoint(p);
-        upper_cc = *tmp;
-        lower_cc = *tmp;
-        delete tmp;
+        upper_cc = p;
+        lower_cc = p;
     }
     if ( t > upper ) {
         upper = t;
-        CCPoint* tmp = new CCPoint(p);
-        upper_cc = *tmp;
-        delete tmp;
+        upper_cc = p;
     } 
 }
 
@@ -79,16 +75,12 @@ void Interval::updateLower(const double t, CCPoint& p) {
     if (lower_cc.type == NONE) {
         lower = t;
         upper = t;
-        CCPoint* tmp = new CCPoint(p);
-        lower_cc = *tmp;
-        upper_cc = *tmp;
-        delete tmp;
+        lower_cc = p;
+        upper_cc = p;
     }
     if ( t < lower ) {
         lower = t; 
-        CCPoint* tmp = new CCPoint(p);
-        lower_cc = *tmp;
-        delete tmp;
+        lower_cc = p;
     }
 }
 

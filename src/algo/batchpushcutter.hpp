@@ -47,28 +47,29 @@ class BatchPushCutter : public Operation {
         virtual ~BatchPushCutter();
         
         /// set the STL-surface and build kd-tree
-        void setSTL(const STLSurf& s);
+        void setSTL(const STLSurf& s) override;
 
         /// set this bpc to be x-direction
-        void setXDirection() {x_direction=true;y_direction=false;}
+        void setXDirection() override {x_direction=true;y_direction=false;}
         /// set this bpc to be Y-direction
-        void setYDirection() {x_direction=false;y_direction=true;}
+        void setYDirection() override {x_direction=false;y_direction=true;}
         /// append to list of Fibers to evaluate
-        void appendFiber(Fiber& f);
+        void appendFiber(Fiber& f) override;
 
         
         /// run push-cutter
-        void run() {this->pushCutter3();}
-        //void run() {this->pushCutter1();}
+        void run() override {validateInputs(); this->pushCutter3();}
+        //void run() override {this->pushCutter1();}
         
-        std::vector<Fiber>* getFibers() const {return fibers;}
-        void reset();
+        std::vector<Fiber>* getFibers() const override {return fibers.get();}
+        void reset() override;
 
-        std::vector<CLPoint> getCLPoints();
+        std::vector<CLPoint> getCLPoints() override;
 
         std::list<Triangle> getOverlapTriangles(Fiber& f);
 
     protected:
+        void setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) override;
         /// 1st version of algorithm
         void pushCutter1();
         /// 2nd version of algorithm
@@ -77,7 +78,7 @@ class BatchPushCutter : public Operation {
         void pushCutter3();
         
         /// pointer to list of Fibers
-        std::vector<Fiber>* fibers;
+        std::unique_ptr<std::vector<Fiber>> fibers;
         
     // DATA
         /// true if this we have only x-direction fibers

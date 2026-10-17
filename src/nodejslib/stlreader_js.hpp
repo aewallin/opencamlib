@@ -1,4 +1,4 @@
-#include <napi.h>
+#include "binding_utils.hpp"
 #include "stlreader.hpp"
 
 class STLReaderJS : public Napi::ObjectWrap<STLReaderJS>

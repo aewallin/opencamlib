@@ -26,7 +26,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/foreach.hpp>
 
 #include "waterline.hpp"
 #include "fiber.hpp"
@@ -44,9 +43,9 @@ class AdaptiveWaterline : public Waterline {
         AdaptiveWaterline(); 
         virtual ~AdaptiveWaterline();
         /// set the minimum sampling interval
-        void setMinSampling(double s) {min_sampling=s;}
+        void setMinSampling(double s) {requirePositive(s, "Minimum sampling must be finite and positive"); min_sampling=s;}
         /// set the cosine limit for the flat() predicate
-        void setCosLimit(double lim) {cosLimit=lim;}
+        void setCosLimit(double lim) {requireCosine(lim); cosLimit=lim;}
         
         /// run the Waterline algorithm. setSTL, setCutter, setSampling, and setZ must
         /// be called before a call to run()
@@ -54,7 +53,7 @@ class AdaptiveWaterline : public Waterline {
         void run2();
         
         virtual void setSampling(double s) {
-            sampling=s;
+            Operation::setSampling(s);
             min_sampling = sampling/10.0; // default to this when setMinSampling is not called
         }
         
@@ -62,12 +61,14 @@ class AdaptiveWaterline : public Waterline {
     protected:
         /// adaptive waterline algorithm
         void adaptive_sampling_run();
+        /// Evaluate independent midpoint samples together, retaining fiber order.
+        void adaptive_sampling_batch(const Span& span);
         /// x-direction adaptive sampling
-        void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        void xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f);
         /// y-direction adaptive sampling
-        void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f);
+        void yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f);
         /// flatness predicate for fibers. Checks Fiber.size() and then calls flat() on cl-points
-        bool flat( Fiber& start, Fiber& mid, Fiber& stop ) const;
+        bool flat( const Fiber& start, const Fiber& mid, const Fiber& stop ) const;
         /// flatness predicate for cl-points. checks for angle metween start-mid-stop
         bool flat(Point start_cl, Point mid_cl, Point stop_cl) const;
 

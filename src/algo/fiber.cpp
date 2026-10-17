@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #include "fiber.hpp"
 
@@ -39,7 +38,7 @@ void Fiber::calcDir() {
 }
 
 bool Fiber::contains(Interval& i) const {
-    BOOST_FOREACH( Interval fi, ints) {
+    for (const Interval& fi : ints) {
         if ( i.inside( fi ) )
             return true;
     }
@@ -47,12 +46,11 @@ bool Fiber::contains(Interval& i) const {
 }
 
 bool Fiber::missing(Interval& i) const {
-    bool result = true;
-    BOOST_FOREACH( Interval fi, ints) {
+    for (const Interval& fi : ints) {
         if ( !i.outside( fi ) ) // all existing ints must be non-overlapping
-            result = false; 
+            return false;
     }
-    return result;
+    return true;
 }
 
 void Fiber::addInterval(Interval& i) {
@@ -68,25 +66,25 @@ void Fiber::addInterval(Interval& i) {
         ints.push_back(i);
         return;
     } else {
-        // this is the messier general case with partial overlap
-        std::vector<Interval>::iterator itr;
-        itr = ints.begin();
-        std::vector<Interval> overlaps;
-        while (itr!=ints.end()) { // loop through all intervals
-            if ( ! (itr->outside( i )) ) {
-                overlaps.push_back(*itr); // add overlaps here
-                itr = ints.erase(itr); // erase overlaps from ints
+        // Merge in traversal order so equal endpoints retain the same contacts.
+        // Compact non-overlapping intervals once instead of repeatedly erasing
+        // them and allocating a temporary vector of overlaps.
+        Interval sumint;
+        std::size_t kept = 0;
+        for (std::size_t n = 0; n < ints.size(); ++n) {
+            Interval& intr = ints[n];
+            if (!intr.outside(i)) {
+                sumint.updateLower(intr.lower, intr.lower_cc);
+                sumint.updateUpper(intr.upper, intr.upper_cc);
             } else {
-                ++itr;
+                if (kept != n)
+                    ints[kept] = intr;
+                ++kept;
             }
         }
-        overlaps.push_back(i);
-        // now build a new interval from i and the overlaps
-        Interval sumint;
-        BOOST_FOREACH(Interval intr, overlaps) {
-            sumint.updateLower( intr.lower, intr.lower_cc );
-            sumint.updateUpper( intr.upper, intr.upper_cc );
-        }
+        sumint.updateLower(i.lower, i.lower_cc);
+        sumint.updateUpper(i.upper, i.upper_cc);
+        ints.resize(kept);
         ints.push_back(sumint); // add the sum-interval to ints
         return;
     }
@@ -106,7 +104,7 @@ Point Fiber::point(double t) const {
 
 void Fiber::printInts() const {
     int n=0;
-    BOOST_FOREACH( Interval i, ints) {
+    for (Interval i : ints) {
         std::cout << n << ": [ " << i.lower << " , " << i.upper << " ]" << "\n";
         ++n;
     }

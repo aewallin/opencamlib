@@ -109,7 +109,7 @@ void export_algo(py::module& m)
         .value("FULLINT", weave::FULLINT);
 
     py::class_<weave::Weave>(m, "Weave")
-        .def("addFiber", &weave::Weave::addFiber)
+        .def("addFiber", py::overload_cast<const Fiber&>(&weave::Weave::addFiber))
         .def("build", &weave::Weave::build, py::call_guard<py::gil_scoped_release>())
         .def("printGraph", &weave::Weave::printGraph)
         .def("face_traverse", &weave::Weave::face_traverse, py::call_guard<py::gil_scoped_release>())

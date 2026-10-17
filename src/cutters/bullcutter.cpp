@@ -22,7 +22,6 @@
 #include <sstream>
 #include <string>
 
-#include <boost/foreach.hpp>
 
 #include "bullcutter.hpp"
 #include "numeric.hpp"

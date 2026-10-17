@@ -20,14 +20,13 @@
 */
 
 #include <algorithm>
+#include <array>
+#include <deque>
 #include <vector>
 
 
-#include <boost/foreach.hpp> 
 
-#ifdef _OPENMP
-    #include <omp.h>
-#endif
+#include "parallel.hpp"
 
 #include "millingcutter.hpp"
 #include "point.hpp"
@@ -47,14 +46,11 @@ namespace ocl
 
 AdaptiveWaterline::AdaptiveWaterline() {
     subOp.clear();
-    subOp.push_back( new FiberPushCutter() );
-    subOp.push_back( new FiberPushCutter() );
+    subOp.push_back(std::make_unique<FiberPushCutter>());
+    subOp.push_back(std::make_unique<FiberPushCutter>());
     subOp[0]->setXDirection();
     subOp[1]->setYDirection();
-    nthreads = 1;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs();
-#endif
+    nthreads = detail::default_threads();
     sampling = 1.0;
     min_sampling = 0.1;
     cosLimit = 0.999;
@@ -73,75 +69,136 @@ void AdaptiveWaterline::run2() {
 }
 
 void AdaptiveWaterline::adaptive_sampling_run() {
+    validateInputs(true);
+    reset();
+    nCalls = 0;
+    if (surf->tris.empty()) return;
     minx = surf->bb.minpt.x - 2*cutter->getRadius();
     maxx = surf->bb.maxpt.x + 2*cutter->getRadius();
     miny = surf->bb.minpt.y - 2*cutter->getRadius();
     maxy = surf->bb.maxpt.y + 2*cutter->getRadius();
-    Line* line = new Line( Point(minx,miny,zh) , Point(maxx,maxy,zh) );
-    Span* linespan = new LineSpan(*line);
-#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
-	#pragma omp parallel sections
-	{
-		#pragma omp section // Replace OMP Task by Parallel sections
-		{ // first child
-#else
-#pragma omp parallel
-	{
-#pragma omp single nowait
-		{ // initial root task
-#pragma omp task
-			{ // first child task
-#endif // _WIN32
-				xfibers.clear();
-				Point xstart_p1 = Point(minx, linespan->getPoint(0.0).y, zh);
-				Point xstart_p2 = Point(maxx, linespan->getPoint(0.0).y, zh);
-				Point xstop_p1 = Point(minx, linespan->getPoint(1.0).y, zh);
-				Point xstop_p2 = Point(maxx, linespan->getPoint(1.0).y, zh);
-				Fiber xstart_f = Fiber(xstart_p1, xstart_p2);
-				Fiber xstop_f = Fiber(xstop_p1, xstop_p2);
-				subOp[0]->run(xstart_f);
-				subOp[0]->run(xstop_f);
-				xfibers.push_back(xstart_f);
-				// std::cout << " XFiber adaptive sample \n";
-				xfiber_adaptive_sample(linespan, 0.0, 1.0, xstart_f, xstop_f);
-#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
-		}
-		#pragma omp section
-		{ // second child
-#else
-		}
-# pragma omp task
-			{ // second child task
-#endif // _WIN32
-				yfibers.clear();
-				Point ystart_p1 = Point(linespan->getPoint(0.0).x, miny, zh);
-				Point ystart_p2 = Point(linespan->getPoint(0.0).x, maxy, zh);
-				Point ystop_p1 = Point(linespan->getPoint(1.0).x, miny, zh);
-				Point ystop_p2 = Point(linespan->getPoint(1.0).x, maxy, zh);
-				Fiber ystart_f = Fiber(ystart_p1, ystart_p2);
-				Fiber ystop_f = Fiber(ystop_p1, ystop_p2);
-				subOp[1]->run(ystart_f);
-				subOp[1]->run(ystop_f);
-				yfibers.push_back(ystart_f);
-				// std::cout << " YFiber adaptive sample \n";
-				yfiber_adaptive_sample(linespan, 0.0, 1.0, ystart_f, ystop_f);
-#ifdef _WIN32 // OpenMP task not supported with the version 2 of VS2013 OpenMP
-		}
-	} // end omp parallel
-#else
+    const Line line(Point(minx,miny,zh), Point(maxx,maxy,zh));
+    const LineSpan linespan(line);
+    if (detail::thread_count(nthreads, 4) > 1) {
+        adaptive_sampling_batch(linespan);
+        return;
+    }
+    const Point first = linespan.getPoint(0.0), last = linespan.getPoint(1.0);
+    // Keep the depth-first traversal for serial builds: it needs only a stack
+    // of intermediate fibers, and provides the same ordered output as batching.
+    nCalls = detail::parallel_sum(2, 1, [&](std::size_t direction) {
+        if (direction == 0) {
+            xfibers.clear();
+            Fiber start(Point(minx,first.y,zh), Point(maxx,first.y,zh));
+            Fiber stop(Point(minx,last.y,zh), Point(maxx,last.y,zh));
+            subOp[0]->run(start);
+            subOp[0]->run(stop);
+            xfibers.push_back(start);
+            xfiber_adaptive_sample(&linespan, 0.0, 1.0, start, stop);
+        } else {
+            yfibers.clear();
+            Fiber start(Point(first.x,miny,zh), Point(first.x,maxy,zh));
+            Fiber stop(Point(last.x,miny,zh), Point(last.x,maxy,zh));
+            subOp[1]->run(start);
+            subOp[1]->run(stop);
+            yfibers.push_back(start);
+            yfiber_adaptive_sample(&linespan, 0.0, 1.0, start, stop);
+        }
+        return static_cast<unsigned int>(subOp[direction]->getCalls());
+    });
+}
+
+void AdaptiveWaterline::adaptive_sampling_batch(const Span& span) {
+    struct Sample {
+        double t;
+        unsigned int direction;
+        Fiber fiber;
+    };
+    struct Segment {std::size_t start, stop, mid;};
+    // Stable storage lets neighboring segments share their already evaluated
+    // endpoints without copying interval/contact data or recalculating fibers.
+    std::deque<Sample> samples;
+    std::array<std::vector<std::size_t>, 2> retained;
+    const auto append = [&](double t, unsigned int direction) {
+        const Point p = span.getPoint(t);
+        samples.push_back({t, direction, direction == 0
+            ? Fiber(Point(minx,p.y,zh), Point(maxx,p.y,zh))
+            : Fiber(Point(p.x,miny,zh), Point(p.x,maxy,zh))});
+        return samples.size() - 1;
+    };
+    const auto evaluate = [&](std::size_t first) {
+        return detail::parallel_sum(samples.size() - first, nthreads, [&](std::size_t offset) {
+            auto& sample = samples[first + offset];
+            const auto& operation = static_cast<const FiberPushCutter&>(*subOp[sample.direction]);
+            return operation.pushCutter2(sample.fiber);
+        });
+    };
+    std::vector<Segment> pending;
+    for (unsigned int direction = 0; direction < 2; ++direction) {
+        const auto start = append(0.0, direction), stop = append(1.0, direction);
+        retained[direction].push_back(start);
+        pending.push_back({start, stop, 0});
+    }
+    nCalls = evaluate(0);
+    while (!pending.empty()) {
+        const auto first = samples.size();
+        std::vector<Segment> active;
+        active.reserve(pending.size());
+        for (auto segment : pending) {
+            const auto& start = samples[segment.start];
+            const auto& stop = samples[segment.stop];
+            const double mid = start.t + (stop.t - start.t) / 2.0;
+            if (mid <= start.t || mid >= stop.t) {
+                retained[start.direction].push_back(segment.stop);
+            } else {
+                segment.mid = append(mid, start.direction);
+                active.push_back(segment);
             }
         }
-    } // end omp parallel
-#endif // _WIN32
-
-    delete line;
-    delete linespan;
+        // All workers read immutable geometry and write their own midpoint.
+        // Reduce counters after joining; no shared FiberPushCutter counters.
+        nCalls += evaluate(first);
+        pending.clear();
+        for (const auto& segment : active) {
+            const auto& start = samples[segment.start];
+            const auto& stop = samples[segment.stop];
+            const auto& mid = samples[segment.mid];
+            const double step = start.direction == 0
+                ? fabs(start.fiber.p1.y - stop.fiber.p1.y)
+                : fabs(start.fiber.p1.x - stop.fiber.p1.x);
+            bool subdivide = step > sampling;
+            if (!subdivide) {
+                if (flat(start.fiber, mid.fiber, stop.fiber))
+                    retained[start.direction].push_back(segment.stop);
+                else
+                    subdivide = step > min_sampling;
+                // Match the recursive sampler: a non-flat segment at minimum
+                // spacing contributes no stop fiber.
+            }
+            if (subdivide) {
+                pending.push_back({segment.start, segment.mid, 0});
+                pending.push_back({segment.mid, segment.stop, 0});
+            }
+        }
+    }
+    for (unsigned int direction = 0; direction < 2; ++direction) {
+        auto& indices = retained[direction];
+        std::sort(indices.begin(), indices.end(), [&](std::size_t a, std::size_t b) {
+            return samples[a].t < samples[b].t;
+        });
+        auto& fibers = direction == 0 ? xfibers : yfibers;
+        fibers.reserve(indices.size());
+        for (auto index : indices) fibers.push_back(samples[index].fiber);
+    }
 }
 
 
-void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
+void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
-    assert( mid_t > start_t );  assert( mid_t < stop_t );
+    if (mid_t <= start_t || mid_t >= stop_t) {
+        xfibers.push_back(stop_f);
+        return;
+    }
     //std::cout << "xfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
     double mid_y = span->getPoint( mid_t ).y;
     Point mid_p1 = Point( minx, mid_y,  zh );
@@ -162,9 +219,12 @@ void AdaptiveWaterline::xfiber_adaptive_sample(const Span* span, double start_t,
     }
 }
 
-void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, Fiber start_f, Fiber stop_f) {
+void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t, double stop_t, const Fiber& start_f, const Fiber& stop_f) {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
-    assert( mid_t > start_t );  assert( mid_t < stop_t );
+    if (mid_t <= start_t || mid_t >= stop_t) {
+        yfibers.push_back(stop_f);
+        return;
+    }
     //std::cout << "yfiber sample= ( " << start_t << " , " << stop_t << " ) \n";
     double mid_x = span->getPoint( mid_t ).x;
     Point mid_p1 = Point( mid_x, miny,  zh );
@@ -186,7 +246,7 @@ void AdaptiveWaterline::yfiber_adaptive_sample(const Span* span, double start_t,
 }
 
 // flat predicate to determine when we subdivide
-bool AdaptiveWaterline::flat( Fiber& start, Fiber& mid, Fiber& stop ) const {
+bool AdaptiveWaterline::flat( const Fiber& start, const Fiber& mid, const Fiber& stop ) const {
     if ( start.size() != stop.size() ) // start, mid, and stop need to have same size()
         return false;
     else if ( start.size() != mid.size() )

@@ -1,71 +1,118 @@
 import STLSurf from '../stlsurf'
 import MillingCutter from '../millingcutter'
-import opencamlib from './ocl'
+import Path from '../path'
+import { buildPath, buildSurface, release } from '../native'
+import initialize from './ocl'
+
+export type Point3 = [number, number, number]
 
 class Operation {
     protected actualClass: any
-    protected chain: Promise<void> = Promise.resolve()
+    protected module: any
+    private readonly ready: Promise<void>
+    private disposal?: Promise<void>
+    private surface: any
+    private cutter: any
+    private path: any
+
+    constructor(name: string) {
+        this.ready = initialize().then((ocl: any) => {
+            this.module = ocl
+            this.actualClass = new ocl[name]()
+        })
+    }
+
+    protected whenReady<T>(action: () => T): Promise<T> {
+        if (this.disposal) return Promise.reject(new Error('Operation has been disposed'))
+        // These callbacks do synchronous WASM work. Promise reactions preserve
+        // call order, so no separate queue is needed after initialization.
+        return this.ready.then(action)
+    }
+
+    private replaceInput(key: 'surface' | 'cutter' | 'path',
+                         create: () => any, attach: (input: any) => void) {
+        return this.whenReady(() => {
+            const native = create()
+            try { attach(native) }
+            catch (error) { release(native); throw error }
+            release(this[key])
+            this[key] = native
+        })
+    }
 
     setSTL(surface: STLSurf) {
-        this.chain = this.chain.then(() => {
-            return opencamlib.then((ocl: any) => {
-                if (!surface.triangles) {
-                    throw new Error('Please provide a valid STLSurf, use STLReader to read a file into it')
-                }
-                const actualSurface = new ocl.STLSurf()
-                surface.triangles.forEach((vertice: [number, number, number][]) => {
-                    const p1 = new ocl.Point(vertice[0][0], vertice[0][1], vertice[0][2])
-                    const p2 = new ocl.Point(vertice[1][0], vertice[1][1], vertice[1][2])
-                    const p3 = new ocl.Point(vertice[2][0], vertice[2][1], vertice[2][2])
-                    const triangle = new ocl.Triangle(p1, p2, p3)
-                    actualSurface.addTriangle(triangle)
-                })
-                this.actualClass.setSTL(actualSurface)
-            })
-        })
+        return this.replaceInput('surface', () => buildSurface(this.module, surface),
+            native => this.actualClass.setSTL(native))
     }
 
     setCutter(cutter: MillingCutter) {
-        this.chain = this.chain.then(() => {
-            return opencamlib.then((ocl: any) => {
-                const cutterDef = cutter.serialize()
-                const [cutterType, cutterArgs] = cutterDef
-                const Cutter = ocl[cutterType]
-                const actualCutter = new Cutter(...cutterArgs)
-                this.actualClass.setCutter(actualCutter)
-            })
-        })
+        return this.replaceInput('cutter', () => {
+            const [kind, args] = cutter.serialize()
+            return new this.module[kind](...args)
+        }, native => this.actualClass.setCutter(native))
+    }
+
+    protected setNativePath(path: Path) {
+        return this.replaceInput('path', () => buildPath(this.module, path),
+            native => this.actualClass.setPath(native))
     }
 
     setSampling(sampling: number) {
-        this.chain = this.chain.then(() => {
-            this.actualClass.setSampling(sampling)
+        return this.whenReady(() => { this.actualClass.setSampling(sampling) })
+    }
+
+    setThreads(threads: number) {
+        return this.whenReady(() => {
+            if (!Number.isInteger(threads) || threads < 0 || threads > 2147483647)
+                throw new Error('Thread count must be a nonnegative 32-bit integer')
+            this.actualClass.setThreads(threads)
         })
     }
 
-    loopsToArray(loops: any): any {
-        const result = []
-        for (var i = 0; i < loops.size(); i++) {
-            const loop = loops.get(i)
-            const points = []
-            for (var j = 0; j < loop.size(); j++) {
-                const point = loop.get(j)
-                points.push([point.x, point.y, point.z] as [number, number, number])
+    getThreads(): Promise<number> {
+        return this.whenReady(() => this.actualClass.getThreads())
+    }
+
+    setZ(z: number) {
+        return this.whenReady(() => { this.actualClass.setZ(z) })
+    }
+
+    run() {
+        return this.whenReady(() => { this.actualClass.run() })
+    }
+
+    dispose(): Promise<void> {
+        if (this.disposal) return this.disposal
+        const cleanup = () => {
+            release(this.actualClass)
+            release(this.path)
+            release(this.cutter)
+            release(this.surface)
+            this.actualClass = this.path = this.cutter = this.surface = undefined
+        }
+        // Runs after already registered calls, even when startup fails.
+        this.disposal = this.ready.then(cleanup, cleanup)
+        return this.disposal
+    }
+
+    protected pointsToArray(points: any): Point3[] {
+        const result: Point3[] = []
+        try {
+            for (let i = 0; i < points.size(); i++) {
+                const point = points.get(i)
+                try { result.push([point.x, point.y, point.z]) }
+                finally { release(point) }
             }
-            result.push(points)
-        }
+        } finally { release(points) }
         return result
     }
 
-    pointsToArray(points: any): any {
-        const result = []
-        for (var j = 0; j < points.size(); j++) {
-            const point = points.get(j)
-            result.push([point.x, point.y, point.z] as [number, number, number])
-        }
+    protected loopsToArray(loops: any): Point3[][] {
+        const result: Point3[][] = []
+        try {
+            for (let i = 0; i < loops.size(); i++) result.push(this.pointsToArray(loops.get(i)))
+        } finally { release(loops) }
         return result
     }
-
 }
-
 export default Operation

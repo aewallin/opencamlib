@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #include "millingcutter.hpp"
 #include "clpoint.hpp"
@@ -36,16 +35,17 @@ PathDropCutter::PathDropCutter() {
     path = NULL;
     minimumZ = 0.0;
     subOp.clear();
-    subOp.push_back( new BatchDropCutter() );  // we delegate to BatchDropCutter, who does the heavy lifting
+    subOp.push_back(std::make_unique<BatchDropCutter>());  // we delegate to BatchDropCutter, who does the heavy lifting
+    nthreads = subOp[0]->getThreads();
     sampling = 0.1;
 }
 
 PathDropCutter::~PathDropCutter() {
-    delete subOp[0];
     subOp.clear();
 }
 
 void PathDropCutter::setPath(const Path *p) {
+    if (!p) throw std::invalid_argument("Path must not be null");
     path = p;
     // ((BatchDropCutter*)(subOp[0]))->clearCLPoints();
     subOp[0]->clearCLPoints();
@@ -57,8 +57,11 @@ void PathDropCutter::run() {
 }
 
 void PathDropCutter::uniform_sampling_run() {
+    validateInputs(true);
+    if (!path) throw std::logic_error("Set a path before running");
     clpoints.clear();
-    BOOST_FOREACH( const Span* span, path->span_list ) { // loop through the spans calling run() on each
+    subOp[0]->clearCLPoints();
+    for (const Span* span : path->span_list) { // loop through the spans calling run() on each
         this->sample_span(span); // append points to bdc
     }
     subOp[0]->run();
@@ -67,15 +70,17 @@ void PathDropCutter::uniform_sampling_run() {
 
 // this samples the Span and pushes the corresponding sampled points to bdc
 void PathDropCutter::sample_span(const Span* span) {
-    assert( sampling > 0.0 );
-    unsigned int num_steps = (unsigned int)(span->length2d() / sampling + 1);
+    if (!span) throw std::invalid_argument("Path contains a null span");
+    const double steps = span->length2d() / sampling + 1;
+    if (!std::isfinite(steps) || steps < 1 ||
+        steps >= std::numeric_limits<unsigned int>::max())
+        throw std::invalid_argument("Path sampling requires too many points");
+    unsigned int num_steps = static_cast<unsigned int>(steps);
     for(unsigned int i = 0; i<=num_steps; i++) {
         double fraction = (double)i / num_steps;
         Point ptmp = span->getPoint(fraction);
-        CLPoint* p = new CLPoint(ptmp.x, ptmp.y, ptmp.z);
-        p->z = minimumZ;
-        subOp[0]->appendPoint( *p );
-        delete p;
+        CLPoint p(ptmp.x, ptmp.y, minimumZ);
+        subOp[0]->appendPoint(p);
     }    
 }
 

@@ -19,11 +19,8 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-
 #include "batchpushcutter.hpp"
+#include "parallel.hpp"
 #include "millingcutter.hpp"
 #include "point.hpp"
 #include "triangle.hpp"
@@ -33,25 +30,23 @@ namespace ocl
 
 //********   ********************** */
 
-BatchPushCutter::BatchPushCutter() {
-    fibers = new std::vector<Fiber>();
+BatchPushCutter::BatchPushCutter() : x_direction(false), y_direction(false) {
+    fibers = std::make_unique<std::vector<Fiber>>();
     nCalls = 0;
-    nthreads = 1;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs(); // figure out how many cores we have
-#endif
+    nthreads = detail::default_threads();
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree<Triangle>();
+    root = std::make_unique<KDTree<Triangle>>();
 }
 
 BatchPushCutter::~BatchPushCutter() {
-    delete fibers;
-    delete root;
 }
 
 void BatchPushCutter::setSTL(const STLSurf &s) {
-    surf = &s;
+    Operation::setSTL(s);
+}
+
+void BatchPushCutter::setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
     // std::cout << "BPC::setSTL() Building kd-tree... bucketSize=" << bucketSize << "..";
     root->setBucketSize( bucketSize );
     if (x_direction)
@@ -59,11 +54,11 @@ void BatchPushCutter::setSTL(const STLSurf &s) {
     else if (y_direction)
         root->setXZDimensions();
     else {
-        std::cerr << "ERROR: setXDirection() or setYDirection() must be called before setSTL() \n";
-        assert(0);
+        throw std::logic_error("Set fiber direction before setting the surface");
     }
     // std::cout << "BPC::setSTL() root->build()...";
-    root->build(s.tris);
+    root->buildSnapshot(std::move(snapshot));
+    surf = &s;
     // std::cout << "done.\n";
 }
 
@@ -99,7 +94,6 @@ void BatchPushCutter::pushCutter2() {
     // std::cout << "BatchPushCutter2 with " << fibers->size() << 
     //           " fibers and " << surf->tris.size() << " triangles..." << std::endl;
     nCalls = 0;
-    std::list<Triangle>* overlap_triangles;
     for (Fiber& f : *fibers) {
         CLPoint cl;
         if (x_direction) {
@@ -113,17 +107,12 @@ void BatchPushCutter::pushCutter2() {
         } else {
             assert(0);
         }
-        overlap_triangles = root->search_cutter_overlap(cutter, &cl);
-        assert( overlap_triangles->size() <= surf->size() ); // can't possibly find more triangles than in the STLSurf
-        for (const Triangle& t : *overlap_triangles) {
-            //if ( bb->overlaps( t.bb ) ) {
-                Interval i;
-                cutter->pushCutter(f,i,t);
-                f.addInterval(i);
-                ++nCalls;
-            //}
-        }
-        delete( overlap_triangles );
+        root->visit_cutter_overlap(cutter, &cl, [&](const Triangle& t) {
+            Interval i;
+            cutter->pushCutter(f,i,t);
+            f.addInterval(i);
+            ++nCalls;
+        });
     }
     // std::cout << "BatchPushCutter2 done." << std::endl;
     return;
@@ -132,29 +121,9 @@ void BatchPushCutter::pushCutter2() {
 /// use kd-tree search to find overlapping triangles
 /// use OpenMP for multi-threading
 void BatchPushCutter::pushCutter3() {
-    // std::cout << "BatchPushCutter3 with " << fibers->size() << 
-    //           " fibers and " << surf->tris.size() << " triangles." << std::endl;
-    // std::cout << " cutter = " << cutter->str() << "\n";
-    nCalls = 0;
-#ifdef _OPENMP
-    omp_set_num_threads(nthreads);
-#endif
-    std::list<Triangle>::iterator it,it_end;    // for looping over found triabgles
-    Interval* i;
-    std::list<Triangle>* tris;
     std::vector<Fiber>& fiberr = *fibers;
-#ifdef _WIN32 // OpenMP version 2 of VS2013 OpenMP need signed loop variable
-	int n; // loop variable
-    int Nmax = static_cast<int>(fibers->size());         // the number of fibers to process
-#else
-    unsigned int n; // loop variable
-    unsigned int Nmax = fibers->size();         // the number of fibers to process
-#endif
-    unsigned int calls=0;
-    
-    #pragma omp parallel for schedule(dynamic) shared(calls, fiberr) private(n,i,tris,it,it_end)
-    //#pragma omp parallel for shared( calls, fiberr) private(n,i,tris,it,it_end)
-    for (n=0; n<Nmax; ++n) { // loop through all fibers
+    nCalls = detail::parallel_sum(fiberr.size(), nthreads, [&](std::size_t n) {
+        unsigned int calls = 0;
         CLPoint cl; // cl-point on the fiber
         if ( x_direction ) {
             cl.x=0;
@@ -165,22 +134,14 @@ void BatchPushCutter::pushCutter3() {
             cl.y=0;
             cl.z=fiberr[n].p1.z;
         }
-        tris = root->search_cutter_overlap(cutter, &cl);
-        it_end = tris->end();
-        for ( it=tris->begin() ; it!=it_end ; ++it) { // loop through the found overlapping triangles
-            //if ( bb->overlaps( it->bb ) ) {
-                // todo: optimization where method-calls are skipped if triangle bbox already in the fiber
-                i = new Interval();
-                cutter->pushCutter(fiberr[n],*i,*it);  
-                fiberr[n].addInterval(*i); 
-                ++calls;
-                delete i;
-            //}
-        }
-        delete( tris );
-    } // OpenMP parallel region ends here
-    
-    this->nCalls = calls;
+        root->visit_cutter_overlap(cutter, &cl, [&](const Triangle& t) {
+            Interval i;
+            cutter->pushCutter(fiberr[n],i,t);
+            fiberr[n].addInterval(i);
+            ++calls;
+        });
+        return calls;
+    });
     // std::cout << "\nBatchPushCutter3 done." << std::endl;
     return;
 }
@@ -197,13 +158,13 @@ std::vector<CLPoint> BatchPushCutter::getCLPoints() {
             // Get lower point.
             const Point lower = f.point(i.lower);
             CLPoint p1(lower.x, lower.y, lower.z);
-            p1.cc = new CCPoint(i.lower_cc);
+            *p1.cc.load() = i.lower_cc;
             clPoints.emplace_back(p1);
 
             // Get upper point.
             const Point upper = f.point(i.upper);
             CLPoint p2(upper.x, upper.y, upper.z);
-            p2.cc = new CCPoint(i.upper_cc);
+            *p2.cc.load() = i.upper_cc;
             clPoints.emplace_back(p2);
         }
     }

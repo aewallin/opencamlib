@@ -1,54 +1,11 @@
-import Operation from './operation';
-import opencamlib from './ocl'
-
+import Operation, { Point3 } from './operation'
 class AdaptiveWaterline extends Operation {
-    constructor() {
-        super()
-        this.chain = this.chain.then(() => {
-            return opencamlib.then((ocl: any) => {
-                this.actualClass = new ocl.AdaptiveWaterline()
-            })
-        })
+    constructor() { super('AdaptiveWaterline') }
+    setMinSampling(value: number) {
+        return this.whenReady(() => { this.actualClass.setMinSampling(value) })
     }
-
-    setMinSampling(minSampling: number) {
-        this.chain = this.chain.then(() => {
-            this.actualClass.setMinSampling(minSampling)
-        })
-    }
-
-    setZ(z: number) {
-        this.chain = this.chain.then(() => {
-            this.actualClass.setZ(z)
-        })
-    }
-
-    loopsToArray(loops: any): any {
-        const result = []
-        for (var i = 0; i < loops.size(); i++) {
-            const loop = loops.get(i)
-            const points = []
-            for (var j = 0; j < loop.size(); j++) {
-                const point = loop.get(j)
-                points.push([point.x, point.y, point.z] as [number, number, number])
-            }
-            result.push(points)
-        }
-        return result
-    }
-
-    run() {
-        this.chain = this.chain.then(() => {
-            this.actualClass.run()
-        })
-    }
-
-    getLoops() {
-        this.chain = this.chain.then(() => {
-            return this.loopsToArray(this.actualClass.getLoops())
-        })
-        return this.chain
+    getLoops(): Promise<Point3[][]> {
+        return this.whenReady(() => this.loopsToArray(this.actualClass.getLoops()))
     }
 }
-
 export default AdaptiveWaterline

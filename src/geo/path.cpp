@@ -29,18 +29,48 @@ Path::Path() {
 }
 
 Path::Path(const Path &p) {
+    for (const Span* span : p.span_list) {
+        if (!span) throw std::invalid_argument("Path contains a null span");
+        append(*span);
+    }
 }
 
-Path::~Path() {
+Path::Path(Path&& p) noexcept {
+    swap(p);
+}
+
+Path& Path::operator=(Path p) {
+    swap(p);
+    return *this;
+}
+
+void Path::swap(Path& p) noexcept {
+    span_list.swap(p.span_list);
+    owned_spans.swap(p.owned_spans);
+}
+
+Path::~Path() = default;
+
+void Path::append_owned(std::unique_ptr<Span> span) {
+    if (!span) throw std::invalid_argument("Cannot append a null span");
+    owned_spans.push_back(std::move(span));
+    try {
+        span_list.push_back(owned_spans.back().get());
+    } catch (...) {
+        owned_spans.pop_back();
+        throw;
+    }
 }
 
 void Path::append(const Line &l) {
-        span_list.push_back(new LineSpan(l));
+    append_owned(std::make_unique<LineSpan>(l));
 }
 
 void Path::append(const Arc &a) {
-        span_list.push_back(new ArcSpan(a));
+    append_owned(std::make_unique<ArcSpan>(a));
 }
+
+void Path::append(const Span& span) { append_owned(span.clone()); }
 
 } // end namespace
 // end file path.cpp

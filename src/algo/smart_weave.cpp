@@ -19,7 +19,9 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <array>
 #include <iostream>
+#include <tuple>
 #include <sstream>
 #include <string>
 
@@ -67,7 +69,7 @@ void SmartWeave::build() {
     //std::cout << " done.\n" << std::flush ;
     
     //std::cout << " build2() looping over xfibers ... " << std::flush ;
-    BOOST_FOREACH( Fiber& xf, xfibers ) {
+    for (Fiber& xf : xfibers) {
         std::vector<Interval>::iterator xi;
         for( xi = xf.ints.begin(); xi < xf.ints.end(); xi++ ) {
             std::set<std::vector<Fiber>::iterator>::const_iterator current, prev;
@@ -94,7 +96,7 @@ void SmartWeave::build() {
     //std::cout << " build2() looping over yfibers ... " << std::flush ;
     //std::cout << yfibers.size() << " fibers to loop over \n"<< std::flush ; 
     //int ny = 0;
-    BOOST_FOREACH( Fiber& yf, yfibers ) {
+    for (Fiber& yf : yfibers) {
         //std::cout << " fiber nr: " << ny++ << " has " << yf.ints.size() << " intervals\n" << std::flush ;
         std::vector<Interval>::iterator yi;
         //int ny_int=0;
@@ -276,7 +278,7 @@ bool SmartWeave::add_vertex( Fiber& xf, Fiber& yf,
                         std::vector<Interval>::iterator yi,
                         enum VertexType type ) {
     //test if vertex exists
-    BOOST_FOREACH( std::vector<Fiber>::iterator it_xf, yi->intersections_fibers ) {
+    for (std::vector<Fiber>::iterator it_xf : yi->intersections_fibers) {
         if( *it_xf == xf )
             return false;
     }
@@ -291,126 +293,45 @@ bool SmartWeave::add_vertex( Fiber& xf, Fiber& yf,
     return true;
 }
 
-//add_all_edges
+// Connect the four neighbors in their cyclic order around each intersection.
 void SmartWeave::add_all_edges()
 {
-    std::vector<Vertex> vertices = g.vertices(); 
+    for (Vertex vertex : g.vertices()) {
+        const auto& properties = g[vertex];
+        if (properties.type != INT && properties.type != FULLINT)
+            continue;
 
-    // std::cout << "There are " << vertices.size() << " vertices.\n";
-    BOOST_FOREACH( Vertex& vertex, vertices ) {
-        if( (g[vertex].type == INT) || (g[vertex].type == FULLINT) ) {
-            std::vector<Vertex>                adjacent_vertices;
-            std::vector<Vertex>::iterator    adj_itr;
-            std::vector<Edge>                in_edges, out_edges;
-            std::vector<Edge>::iterator        in_edge_itr, out_edge_itr;
+        Vertex x_u, x_l, y_u, y_l;
+        std::tie(x_u, x_l) = find_neighbor_vertices(
+            VertexPair(vertex, properties.position.x), *properties.xi, false);
+        std::tie(y_u, y_l) = find_neighbor_vertices(
+            VertexPair(vertex, properties.position.y), *properties.yi, false);
 
-            Vertex x_u, x_l, y_u, y_l;
-            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.x), *(g[vertex].xi), false );
-            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.y), *(g[vertex].yi), false );
-            
-            adjacent_vertices.push_back( x_l );
-            adjacent_vertices.push_back( y_u );
-            adjacent_vertices.push_back( x_u );
-            adjacent_vertices.push_back( y_l );
-
-            for( adj_itr=adjacent_vertices.begin(); adj_itr<adjacent_vertices.end(); adj_itr++ ) {
-                Edge in, out;
-                if( g.has_edge( *adj_itr, vertex ) ) { 
-                    in =  g.edge( *adj_itr, vertex );
-                    out = g.edge( vertex, *adj_itr );
-                    in_edges.push_back( in );
-                    out_edges.push_back( out );
-                }
-                else {
-                    in = g.add_edge( *adj_itr, vertex );
-                    out = g.add_edge( vertex, *adj_itr );
-                    in_edges.push_back( in );
-                    out_edges.push_back( out );
-                }
-
-                if( g[*adj_itr].type == CL ) {
-                    g[in].prev = out;
-                    g[out].next = in;
-                }
+        const std::array<Vertex, 4> adjacent_vertices{{x_l, y_u, x_u, y_l}};
+        std::array<Edge, 4> in_edges, out_edges;
+        for (std::size_t i = 0; i < adjacent_vertices.size(); ++i) {
+            Vertex neighbor = adjacent_vertices[i];
+            Edge in = g.edge(neighbor, vertex);
+            Edge out;
+            if (in != Edge()) {
+                out = g.edge(vertex, neighbor);
+                assert(out != Edge());
+            } else {
+                in = g.add_edge(neighbor, vertex);
+                out = g.add_edge(vertex, neighbor);
             }
-
-            for(    in_edge_itr = in_edges.begin(),    out_edge_itr = out_edges.begin();
-                    in_edge_itr < in_edges.end() &&    out_edge_itr < out_edges.end();
-                    in_edge_itr++,                    out_edge_itr++ )
-            {
-                if( in_edge_itr == in_edges.begin() ) {
-                    g[*in_edge_itr].next = *(out_edge_itr+1);
-                    g[*out_edge_itr].prev = *(in_edges.end()-1);
-                }
-                else if( in_edge_itr == (in_edges.end() - 1) ) {
-                    g[*in_edge_itr].next = *(out_edges.begin());
-                    g[*out_edge_itr].prev = *(in_edge_itr-1);
-                }
-                else {
-                    g[*in_edge_itr].next = *(out_edge_itr+1);
-                    g[*out_edge_itr].prev = *(in_edge_itr-1);
-                }
+            in_edges[i] = in;
+            out_edges[i] = out;
+            if (g[neighbor].type == CL) {
+                g[in].prev = out;
+                g[out].next = in;
             }
         }
-        /*else if( g[vertex].type == FULLINT ) {
-            std::vector<Vertex> adjacent_vertices;
-            Vertex x_u, x_l, y_u, y_l;
-            boost::tie( x_u, x_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.x), *(g[vertex].xi), false );
-            boost::tie( y_u, y_l ) = find_neighbor_vertices( VertexPair(vertex, g[vertex].position.y), *(g[vertex].yi), false );
 
-            if( g[x_l].type == INT ) adjacent_vertices.push_back( x_l );
-            if( g[y_u].type == INT ) adjacent_vertices.push_back( y_u );
-            if( g[x_u].type == INT ) adjacent_vertices.push_back( x_u );
-            if( g[y_l].type == INT ) adjacent_vertices.push_back( y_l );
-            
-            if( adjacent_vertices.size() == 1 ) {
-                Edge in, out;
-                std::vector<Vertex>::iterator adj_itr = adjacent_vertices.begin();
-
-                if( hedi::has_edge( *adj_itr, vertex, g ) ) {
-                    in  = hedi::edge( *adj_itr, vertex, g );
-                    out = hedi::edge( vertex, *adj_itr, g );
-                }
-                else {
-                    in  = hedi::add_edge( *adj_itr, vertex, g );
-                    out = hedi::add_edge( vertex, *adj_itr, g );
-                }
-                g[in].next = out;
-                g[out].prev = in;
-            }
-            else {
-                std::vector<Vertex>::iterator adj_itr;
-                std::vector<Edge> out_edges, in_edges;
-                std::vector<Edge>::iterator edge_itr;
-
-                for( adj_itr=adjacent_vertices.begin(); adj_itr<adjacent_vertices.end(); adj_itr++ ) {
-                    if( !hedi::has_edge( *adj_itr, vertex, g ) ) {    
-                        in_edges.push_back( hedi::add_edge( *adj_itr, vertex, g ) );
-                        out_edges.push_back( hedi::add_edge( vertex, *adj_itr, g ) );
-                    }
-                    else {
-                        in_edges.push_back( hedi::edge( *adj_itr, vertex, g ) );
-                        out_edges.push_back( hedi::edge( vertex, *adj_itr, g ) );
-                    }
-                }
-
-                for( unsigned int i=0; i<in_edges.size(); i++ ) {
-                    if( i == (in_edges.size() - 1) ) {
-                        g[in_edges[i] ].next = out_edges[ 0 ];
-                        g[out_edges[i]].prev =  in_edges[i-1];
-                    }
-                    else if( i == 0 ) {
-                        g[in_edges[i] ].next = out_edges[i+1];
-                        g[out_edges[i]].prev =  in_edges[in_edges.size()-1];
-                    }
-                    else {
-                        g[in_edges[i] ].next = out_edges[i+1];
-                        g[out_edges[i]].prev =  in_edges[i-1];
-                    }
-                }
-            }
-
-        }*/
+        for (std::size_t i = 0; i < in_edges.size(); ++i) {
+            g[in_edges[i]].next = out_edges[(i + 1) % 4];
+            g[out_edges[i]].prev = in_edges[(i + 3) % 4];
+        }
     }
 }
 

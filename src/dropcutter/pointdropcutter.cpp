@@ -19,11 +19,8 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
-#ifdef _OPENMP 
-    #include <omp.h>
-#endif
+#include "parallel.hpp"
 
 #include "point.hpp"
 #include "triangle.hpp"
@@ -37,20 +34,22 @@ namespace ocl
 
 PointDropCutter::PointDropCutter() {
     nCalls = 0;
-#ifdef _OPENMP
-    nthreads = omp_get_num_procs(); // figure out how many cores we have
-#endif
+    nthreads = detail::default_threads();
     cutter = NULL;
     bucketSize = 1;
-    root = new KDTree<Triangle>();
+    root = std::make_unique<KDTree<Triangle>>();
 }
 
 void PointDropCutter::setSTL(const STLSurf &s) {
+    Operation::setSTL(s);
+}
+
+void PointDropCutter::setSTLSnapshot(const STLSurf& s, KDTree<Triangle>::Snapshot snapshot) {
     //std::cout << "PointDropCutter::setSTL()\n";
-    surf = &s;
     root->setXYDimensions(); // we search for triangles in the XY plane, don't care about Z-coordinate
     root->setBucketSize( bucketSize );
-    root->build(s.tris);
+    root->buildSnapshot(std::move(snapshot));
+    surf = &s;
 }
 
 void PointDropCutter::run(CLPoint& clp) {
@@ -59,25 +58,21 @@ void PointDropCutter::run(CLPoint& clp) {
     //std::cout  << clp << " nCalls = " << nCalls <<"\n ";
 }
 
-// use OpenMP to share work between threads
+// Each query owns its CLPoint; the tree is read-only during traversal.
 void PointDropCutter::pointDropCutter1(CLPoint& clp) {
-    nCalls = 0;
-    int calls=0;
-    std::list<Triangle>* tris;
-    //tris=new std::list<Triangle>();
-    tris = root->search_cutter_overlap( cutter, &clp );
-    std::list<Triangle>::iterator it;
-    for( it=tris->begin(); it!=tris->end() ; ++it) { // loop over found triangles  
-        if ( cutter->overlaps(clp,*it) ) { // cutter overlap triangle? check
-            if (clp.below(*it)) {
-                cutter->dropCutter(clp,*it);
-                ++calls;
-            }
+    nCalls = dropCutter(clp);
+}
+
+int PointDropCutter::dropCutter(CLPoint& clp) const {
+    validateInputs();
+    int calls = 0;
+    root->visit_cutter_overlap(cutter, &clp, [&](const Triangle& t) {
+        if (cutter->overlaps(clp,t) && clp.below(t)) {
+            cutter->dropCutter(clp,t);
+            ++calls;
         }
-    }
-    delete( tris );
-    nCalls = calls;
-    return;
+    });
+    return calls;
 }
 
 }// end namespace

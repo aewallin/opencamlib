@@ -8,14 +8,6 @@ endif()
 
 find_package(pybind11 REQUIRED)
 
-# include dirs
-include_directories(${PROJECT_SOURCE_DIR}/cutters)
-include_directories(${PROJECT_SOURCE_DIR}/geo)
-include_directories(${PROJECT_SOURCE_DIR}/algo)
-include_directories(${PROJECT_SOURCE_DIR}/dropcutter)
-include_directories(${PROJECT_SOURCE_DIR}/common)
-include_directories(${PROJECT_SOURCE_DIR})
-
 # this makes the ocl Python module
 pybind11_add_module(
   ocl
@@ -27,19 +19,8 @@ MODULE
   pythonlib/ocl.cpp
 )
 
-target_link_libraries(
-  ocl
-PRIVATE
-  ocl_common
-  ocl_dropcutter
-  ocl_cutters
-  ocl_geo
-  ocl_algo
-)
-
-if(USE_OPENMP)
-  target_link_libraries(ocl PRIVATE OpenMP::OpenMP_CXX)
-endif()
+target_link_libraries(ocl PRIVATE ocl_core)
+ocl_configure_target(ocl)
 
 if(SKBUILD)
   install(TARGETS ocl LIBRARY DESTINATION "opencamlib")

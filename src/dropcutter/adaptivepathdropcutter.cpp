@@ -19,7 +19,9 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
+
+#include <algorithm>
+#include "parallel.hpp"
 
 #include "millingcutter.hpp"
 #include "clpoint.hpp"
@@ -38,7 +40,8 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
     path = NULL;
     minimumZ = 0.0;
     subOp.clear();
-    subOp.push_back( new PointDropCutter() ); // we delegate to PointDropCutter, who does the heavy lifting
+    subOp.push_back(std::make_unique<PointDropCutter>()); // we delegate to PointDropCutter, who does the heavy lifting
+    nthreads = subOp[0]->getThreads();
     sampling = 0.1;
     min_sampling = 0.01;
     cosLimit = 0.999;
@@ -46,7 +49,6 @@ AdaptivePathDropCutter::AdaptivePathDropCutter() {
 
 AdaptivePathDropCutter::~AdaptivePathDropCutter() {
     // std::cout << " ~AdaptivePathDropCutter() " << std::endl;
-    delete subOp[0];
     subOp.clear();
 }
 
@@ -55,39 +57,77 @@ void AdaptivePathDropCutter::run() {
 }
 
 void AdaptivePathDropCutter::adaptive_sampling_run() {
-    //std::cout << " apdc::adaptive_sampling_run()... ";
-    
-    clpoints.clear();
-    BOOST_FOREACH( const Span* span, path->span_list ) {  // this loop could run in parallel, since spans don't depend on eachother
-        CLPoint start = span->getPoint(0.0);
-        CLPoint stop = span->getPoint(1.0);
-        subOp[0]->run(start);
-        subOp[0]->run(stop);
-        clpoints.push_back(start);
-        adaptive_sample( span, 0.0, 1.0, start, stop);
+    validateInputs(true);
+    if (!path) throw std::logic_error("Set a path before running");
+    for (const Span* span : path->span_list) {
+        if (!span || !std::isfinite(span->length2d()))
+            throw std::invalid_argument("Path contains an invalid span");
     }
-    //std::cout << " DONE clpoints.size()=" << clpoints.size() << "\n";
+    clpoints.clear();
+    const auto& dropcutter = static_cast<const PointDropCutter&>(*subOp[0]);
+    nCalls = 0;
+    const auto threads = detail::thread_count(nthreads, path->span_list.size());
+    if (threads <= 1) {
+        for (const Span* span : path->span_list)
+            nCalls += sample_span(span, clpoints, dropcutter);
+        return;
+    }
+    const std::vector<const Span*> spans(path->span_list.begin(), path->span_list.end());
+    std::vector<std::vector<CLPoint>> results(spans.size());
+    // Each span owns its output; concatenate in path order after the parallel work.
+    nCalls = detail::parallel_sum(spans.size(), threads, [&](std::size_t i) {
+        return sample_span(spans[i], results[i], dropcutter);
+    });
+    std::size_t size = 0;
+    for (const auto& points : results) size += points.size();
+    clpoints.reserve(size);
+    for (const auto& points : results)
+        clpoints.insert(clpoints.end(), points.begin(), points.end());
 }
 
-void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, CLPoint start_cl, CLPoint stop_cl) {
+int AdaptivePathDropCutter::sample_span(const Span* span, std::vector<CLPoint>& points,
+                                      const PointDropCutter& dropcutter) const {
+    CLPoint start = span->getPoint(0.0);
+    CLPoint stop = span->getPoint(1.0);
+    start.z = stop.z = minimumZ;
+    int calls = dropcutter.dropCutter(start);
+    calls += dropcutter.dropCutter(stop);
+    points.push_back(start);
+    return calls + adaptive_sample(span, 0.0, 1.0, start, stop, points, dropcutter);
+}
+
+void AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t, const CLPoint& start_cl, const CLPoint& stop_cl) {
+    const auto& dropcutter = static_cast<const PointDropCutter&>(*subOp[0]);
+    nCalls += adaptive_sample(span, start_t, stop_t, start_cl, stop_cl, clpoints, dropcutter);
+}
+
+int AdaptivePathDropCutter::adaptive_sample(const Span* span, double start_t, double stop_t,
+                                          const CLPoint& start_cl, const CLPoint& stop_cl,
+                                          std::vector<CLPoint>& points,
+                                          const PointDropCutter& dropcutter) const {
     const double mid_t = start_t + (stop_t-start_t)/2.0; // mid point sample
-    assert( mid_t > start_t );  assert( mid_t < stop_t );
+    if (mid_t <= start_t || mid_t >= stop_t) {
+        points.push_back(stop_cl);
+        return 0;
+    }
     CLPoint mid_cl = span->getPoint(mid_t);
+    mid_cl.z = minimumZ;
     //std::cout << " apdc sampling at " << mid_t << "\n";
-    subOp[0]->run( mid_cl );
+    int calls = dropcutter.dropCutter(mid_cl);
     double fw_step = (stop_cl-start_cl).xyNorm();
     if ( (fw_step > sampling) || // above minimum step-forward, need to sample more
           ( (!flat(start_cl,mid_cl,stop_cl)) && (fw_step > min_sampling) ) ) { // OR not flat, and not max sampling
-        adaptive_sample( span, start_t, mid_t , start_cl, mid_cl  );
-        adaptive_sample( span, mid_t  , stop_t, mid_cl  , stop_cl );
+        calls += adaptive_sample(span, start_t, mid_t, start_cl, mid_cl, points, dropcutter);
+        calls += adaptive_sample(span, mid_t, stop_t, mid_cl, stop_cl, points, dropcutter);
     } else {
-        clpoints.push_back(stop_cl); 
+        points.push_back(stop_cl);
     }
+    return calls;
 }
 
-bool AdaptivePathDropCutter::flat(CLPoint& start_cl, CLPoint& mid_cl, CLPoint& stop_cl)  {
-    CLPoint v1 = mid_cl-start_cl;
-    CLPoint v2 = stop_cl-mid_cl;
+bool AdaptivePathDropCutter::flat(const CLPoint& start_cl, const CLPoint& mid_cl, const CLPoint& stop_cl) const {
+    Point v1 = mid_cl-start_cl;
+    Point v2 = stop_cl-mid_cl;
     v1.normalize();
     v2.normalize();
     return (v1.dot(v2) > cosLimit);

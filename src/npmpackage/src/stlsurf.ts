@@ -4,10 +4,10 @@ type Point = [number, number, number]
 type Triangles = Point[][]
 
 class STLSurf {
-    public triangles?: Triangles
+    public triangles: Triangles = []
 
     addTriangle(triangle: Triangle) {
-        this.triangles?.push(triangle.serialize()[1])
+        this.triangles.push(triangle.serialize()[1].map(point => [point.x, point.y, point.z] as Point))
     }
 
     serialize(): Triangles | undefined {
