@@ -42,7 +42,6 @@ add_library(ocl
 target_link_libraries(
   	ocl
   PUBLIC
-		Boost::boost
 		${CMAKE_JS_LIB}
 )
 if(USE_OPENMP)

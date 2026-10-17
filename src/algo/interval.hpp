@@ -70,10 +70,7 @@ class Interval {
         /// intersections with other intervals are stored in this set of
         /// VertexPairs of type std::pair<VertexDescriptor, double>
         
-        typedef boost::adjacency_list_traits<boost::listS, 
-                                     boost::listS, 
-                                     boost::bidirectionalS, 
-                                     boost::listS >::vertex_descriptor WeaveVertex;
+        typedef hedi::VertexDescriptor WeaveVertex;
         typedef std::pair< WeaveVertex, double > VertexPair;
 
         /// compare based on pair.second, the coordinate of the intersection

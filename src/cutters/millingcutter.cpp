@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #include "millingcutter.hpp"
 #include "numeric.hpp"
@@ -35,7 +34,7 @@ MillingCutter* MillingCutter::offsetCutter(double d) const {
 // general purpose vertex-drop which delegates to this->height(r) of subclass 
 bool MillingCutter::vertexDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
-    BOOST_FOREACH( const Point& p, t.p) {           // test each vertex of triangle
+    for (const Point& p : t.p) {           // test each vertex of triangle
         double q = cl.xyDistance(p);                // distance in XY-plane from cl to p
         if ( q <= radius ) {                        // p is inside the cutter
             CCPoint cc_tmp(p, VERTEX);
@@ -138,7 +137,7 @@ bool MillingCutter::singleEdgeDrop(CLPoint& cl, const Point& p1, const Point& p2
 // general purpose vertexPush, delegates to this->width(h) 
 bool MillingCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
-    BOOST_FOREACH( const Point& p, t.p) {
+    for (const Point& p : t.p) {
         if (this->singleVertexPush(f,i,p, VERTEX) )
             result = true;
     }
@@ -411,7 +410,7 @@ bool MillingCutter::dropCutter(CLPoint &cl, const Triangle &t) const {
 // TESTING ONLY, don't use for real
 bool MillingCutter::dropCutterSTL(CLPoint &cl, const STLSurf &s) const {
     bool result=false;
-    BOOST_FOREACH( const Triangle& t, s.tris) {
+    for (const Triangle& t : s.tris) {
         if ( this->dropCutter(cl,t) )
             result = true;
     }

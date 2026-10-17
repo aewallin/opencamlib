@@ -19,7 +19,6 @@
  *  along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <boost/foreach.hpp>
 
 #ifdef _OPENMP  
     #include <omp.h>
@@ -65,7 +64,7 @@ void FiberPushCutter::setSTL(const STLSurf &s) {
 
 void FiberPushCutter::pushCutter1(Fiber& f) {
     nCalls = 0;
-    BOOST_FOREACH( const Triangle& t, surf->tris) {// test against all triangles in s
+    for (const Triangle& t : surf->tris) {// test against all triangles in s
         Interval i;
         cutter->pushCutter(f,i,t);
         f.addInterval(i);
@@ -74,9 +73,6 @@ void FiberPushCutter::pushCutter1(Fiber& f) {
 }
 
 void FiberPushCutter::pushCutter2(Fiber& f) {
-    std::list<Triangle>::iterator it,it_end;    // for looping over found triangles
-    Interval* i;
-    std::list<Triangle>* tris;
     CLPoint cl;
     if ( x_direction ) {
         cl.x=0;
@@ -87,16 +83,12 @@ void FiberPushCutter::pushCutter2(Fiber& f) {
         cl.y=0;
         cl.z=f.p1.z;
     }
-    tris = root->search_cutter_overlap(cutter, &cl);
-    it_end = tris->end();
-    for ( it=tris->begin() ; it!=it_end ; ++it) {
-		i = new Interval();
-		cutter->pushCutter(f,*i,*it);
-		f.addInterval(*i);
-		++nCalls;
-		delete i;
-    }
-    delete( tris );
+    root->visit_cutter_overlap(cutter, &cl, [&](const Triangle& t) {
+        Interval i;
+        cutter->pushCutter(f,i,t);
+        f.addInterval(i);
+        ++nCalls;
+    });
 }
 
 }// end namespace

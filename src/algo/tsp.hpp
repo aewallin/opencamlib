@@ -21,119 +21,109 @@
 #ifndef TSP_H
 #define TSP_H
 
-#include <ctime>
+#include <cmath>
+#include <cstddef>
 #include <iostream>
+#include <limits>
 #include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/graph/adjacency_matrix.hpp>
-#include <boost/graph/metric_tsp_approx.hpp>
-#include <boost/graph/simple_point.hpp>
-
 namespace ocl {
-
 namespace tsp {
 
-// loosely based on metric tsp example:
-// http://www.boost.org/doc/libs/1_46_1/libs/graph/test/metric_tsp_approx.cpp
-
-//add edges to the graph (for each node connect it to all other nodes)
-template< typename VertexListGraph, 
-          typename PointContainer,
-          typename WeightMap, 
-          typename VertexIndexMap>
-void connectAllEuclidean(VertexListGraph& g,
-                        const PointContainer& points,  // vector of (x,y) points
-                        WeightMap wmap,            // Property maps passed by value
-                        const VertexIndexMap vmap) // Property maps passed by value
-{
-    using namespace boost;
-    using namespace std;
-    typedef typename graph_traits<VertexListGraph>::edge_descriptor Edge;
-    typedef typename graph_traits<VertexListGraph>::vertex_iterator VItr;
-    Edge e;
-    bool inserted;
-    pair<VItr, VItr> verts(vertices(g));
-    for (VItr src(verts.first); src != verts.second; src++) {
-        for (VItr dest(src); dest != verts.second; dest++) {
-            if (dest != src) {
-                double weight( sqrt(
-                    pow(static_cast<double>( points[vmap[*src ]].x - points[vmap[*dest]].x), 2.0) +
-                    pow(static_cast<double>( points[vmap[*dest]].y - points[vmap[*src ]].y), 2.0)) );
-                boost::tie(e, inserted) = add_edge(*src, *dest, g);
-                wmap[e] = weight; // passed by value??
-            }
-        }
-    }
-}
-
+/// Euclidean metric TSP approximation: preorder traversal of a minimum
+/// spanning tree, shortcutting repeated vertices. For finite Euclidean distances
+/// the closed tour is at most twice the optimal length. Dense Prim takes O(n^2)
+/// time and O(n) auxiliary space; no complete graph or distance matrix is stored.
 class TSPSolver {
-    typedef boost::adjacency_matrix< boost::undirectedS, 
-                                     boost::no_property,
-                                     boost::property< boost::edge_weight_t, double,
-                                     boost::property< boost::edge_index_t, long unsigned int> >,
-                                     boost::no_property 
-                                    > Graph;
-    typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-    typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-    typedef boost::property_map<Graph, boost::edge_weight_t>::type WeightMap;
-    typedef std::vector< boost::simple_point<double> > PointSet; // was std::set
-    typedef std::vector< Vertex > Container;
-    
+    using Vertex = std::size_t;
+    struct Point { double x, y; };
+    using PointSet = std::vector<Point>;
+    using Container = std::vector<Vertex>;
+
 public:
-    TSPSolver () : length(0.0) {}
+    TSPSolver() : length(0.0) {}
     virtual ~TSPSolver() = default;
+
     void run() {
         output.clear();
         length = 0.0;
-        if (points.empty())
+        const std::size_t n = points.size();
+        if (n == 0)
             return;
-        if (points.size() == 1) {
-            // Preserve the closed-tour convention without asking Boost for
-            // an edge from the sole vertex to itself.
-            output.push_back(0);
-            output.push_back(0);
-            return;
+
+        std::vector<double> nearest(n, (std::numeric_limits<double>::infinity)());
+        Container parent(n, 0);
+        std::vector<bool> visited(n, false);
+        nearest[0] = 0.0;
+        for (std::size_t step = 0; step < n; ++step) {
+            Vertex current = n;
+            // Resolve equal weights by vertex index for reproducible tours.
+            for (Vertex v = 0; v < n; ++v)
+                if (!visited[v] && (current == n || nearest[v] < nearest[current]))
+                    current = v;
+            visited[current] = true;
+            for (Vertex v = 0; v < n; ++v) {
+                if (visited[v])
+                    continue;
+                double weight = distance(current, v);
+                if (weight < nearest[v]) {
+                    nearest[v] = weight;
+                    parent[v] = current;
+                }
+            }
         }
-        // Only the tour and its length survive run(); the graph has no reason
-        // to be owned by the solver or shared by copies of it.
-        Graph g(points.size());
-        // connect all vertices
-        WeightMap weight_map = boost::get( boost::edge_weight, g);
-        connectAllEuclidean( g, points, weight_map, boost::get( boost::vertex_index, g) );
-        // Run the TSP approx, creating the visitor on the fly.
-        boost::metric_tsp_approx(g, boost::make_tsp_tour_len_visitor(g, std::back_inserter(output), length, weight_map) );
+
+        // Child lists in flat arrays avoid a separate allocation for each node.
+        Container first_child(n, n), next_sibling(n, n);
+        for (Vertex v = n - 1; v > 0; --v) {
+            next_sibling[v] = first_child[parent[v]];
+            first_child[parent[v]] = v;
+        }
+        // Iterative preorder also handles arbitrarily deep trees.
+        output.reserve(n + 1);
+        Vertex current = 0;
+        for (;;) {
+            output.push_back(current);
+            if (first_child[current] != n) {
+                current = first_child[current];
+                continue;
+            }
+            while (current != 0 && next_sibling[current] == n)
+                current = parent[current];
+            if (current == 0)
+                break;
+            current = next_sibling[current];
+        }
+        output.push_back(0);
+        for (std::size_t i = 1; i < output.size(); ++i)
+            length += distance(output[i - 1], output[i]);
     }
-    void addPoint(double x, double y) {
-        boost::simple_point<double> pnt;
-        pnt.x=x;
-        pnt.y=y;
-        points.push_back(pnt);
-    }
+
+    void addPoint(double x, double y) { points.push_back({x, y}); }
     void reset() {
         output.clear();
         points.clear();
         length = 0.0;
     }
     void printOutput() const {
-        int n=0;
-        for (Vertex v : output) {
-            std::cout << n++ << " : " << v << "\n" ;
-        }
+        std::size_t n = 0;
+        for (Vertex v : output)
+            std::cout << n++ << " : " << v << "\n";
     }
-    double getLength() const {
-        return length;
-    }
+    double getLength() const { return length; }
     auto getOutput() const { return output; }
 
 protected:
     Container output;
     PointSet points;
     double length;
+
+private:
+    double distance(Vertex a, Vertex b) const {
+        return std::hypot(points[a].x - points[b].x, points[a].y - points[b].y);
+    }
 };
 
-
-} // end tsp namespace
-
-} // end ocl namespace
+} // namespace tsp
+} // namespace ocl
 #endif

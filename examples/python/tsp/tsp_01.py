@@ -12,8 +12,7 @@ import gzip
 #
 # uses data from TSPLIB (not included in opencamlib)
 #
-# ocl.TSPSolver() is a wrapper for boost::metric_tsp_approx()
-# https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/metric_tsp_approx.html
+# ocl.TSPSolver() approximates Euclidean TSP using a minimum spanning tree.
 
 
 def drawPoints(myscreen, pts):

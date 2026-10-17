@@ -136,8 +136,8 @@ Building from Source
 Having trouble with a pre-compiled library? Please report it to us.
 If there are no pre-compiled libraries for your platform or architecture, or want to customize or package opencamlib, this is for you.
 
-OpenCAMLib uses functionality from a library called Boost.
-Only Boost headers are required; Boost does not need to be compiled.
+The core C++ algorithms use the C++ standard library and project-owned data structures.
+OpenMP is optional; configure with ``-D USE_OPENMP=OFF`` to build without it.
 
 We provide a ``install.sh`` script that helps with installation of dependencies and building OpenCAMLib libraries, you might want to take a look at it first.
 You can run ``./install.sh --help`` to look at the available options, or inspect it's source code to find out more.
@@ -151,7 +151,6 @@ To compile OpenCAMLib, you need:
 - **C++ compiler** (It should at least support C++ 14)
 - **Git** (This is used for cloning the repository, and the emscripten SDK)
 - **CMake** (At least version 3.18)
-- **Boost** headers
 
 Building the Python bindings additionally requires Python development headers.
 pybind11 is installed automatically when building the package with pip.
@@ -163,14 +162,14 @@ Ubuntu Dependencies
 
 ..  code-block:: shell
 
-    sudo apt install -y git cmake curl build-essential libboost-dev python3-dev python3-pip
+    sudo apt install -y git cmake curl build-essential python3-dev python3-pip
 
 macOS Dependencies
 ------------------
 
 ..  code-block:: shell
 
-    brew install git cmake curl boost python
+    brew install git cmake curl libomp python
 
 Windows Dependencies
 --------------------
@@ -187,8 +186,8 @@ By downloading the installers from the internet, or by using your package manage
 Building for C++
 ================
 
-The C++ library is the easiest to build, it only depends on Boost's headers.
-Make sure you have a compiler, git, cmake and Boost installed (or simply download and extract it somewhere).
+The C++ library requires a C++14 compiler, Git, and CMake.
+Install OpenMP for parallel computation, or configure with ``-D USE_OPENMP=OFF``.
 
 ..  code-block:: shell
 
@@ -200,7 +199,25 @@ Make sure you have a compiler, git, cmake and Boost installed (or simply downloa
     cmake --build . # try make --parallel for a faster build if you have a multi-core machine
     cmake --install .
 
-When boost is not in a standard location, you can add the ``-D BOOST_ROOT=/path/to/boost`` option to the cmake command.
+The native regression tests build by default. Run ``ctest --output-on-failure``
+from the build directory, or set ``-D BUILD_TESTING=OFF`` to omit them.
+
+The half-edge graph in ``src/common/halfedgediagram.hpp`` owns its storage and
+adjacency operations. Vertex and edge handles are distinct index types; insertion
+preserves existing handles and property references, and deletion makes a slot
+available for reuse. Graph enumeration returns snapshots. Code using the low-level
+graph template should use ``HEDIGraph<VertexProps, EdgeProps, FaceProps>`` and the
+``hedi::VertexDescriptor`` / ``hedi::EdgeDescriptor`` types. Rebuild C++ consumers
+when upgrading because the graph and interval layouts have changed.
+
+Read-only adjacency traversal can use ``out_edges_view()`` to avoid copying a
+snapshot; do not modify that vertex's edges while iterating the borrowed list.
+
+``TSPSolver`` uses dense Prim followed by an iterative preorder traversal, requiring
+O(n^2) time and O(n) auxiliary memory. Tours remain closed and satisfy the metric
+two-approximation bound. Equal-distance ties are deterministic, so tour order may
+differ from earlier releases. Storage, adjacency, and distance calculations can be
+tuned directly in these implementations.
 
 =======================
 Building for Emscripten
@@ -229,7 +246,6 @@ Now you can compile OpenCAMLib like this (make sure to replace the ``path/to/`` 
       -D BUILD_EMSCRIPTEN_LIB="ON" \
       -D USE_OPENMP="OFF" \
       -D CMAKE_INSTALL_PREFIX="/path/to/opencamlib/src/npmpackage/build" \
-      -D BOOST_ROOT="/path/to/boost" \
       ..
     emmake make # try emmake make -j4 for a faster build if you have a multi-core machine
 
@@ -262,7 +278,6 @@ Next, use cmake-js to compile the library:
       --CD BUILD_NODEJS_LIB="ON" \
       --CD USE_OPENMP="ON" \
       --CD CMAKE_INSTALL_PREFIX="/path/to/opencamlib/build/Release/$(node --print 'process.platform')-nodejs-$(node --print 'process.arch')" \
-      --CD BOOST_ROOT="/path/to/boost" \
       --config "Release"
 
 ===================
@@ -277,16 +292,11 @@ From the repository root, run:
     python -m pip install .
 
 pip creates an isolated build environment and installs scikit-build-core and pybind11 as declared build dependencies.
-Boost headers are still required. To install them with the base dependencies:
+To install the base dependencies and build the Python package:
 
 ..  code-block:: shell
 
-    ./install.sh --build-library python --install-system-deps --install-boost-from-repo --python-pip-install
-
-``--install-system-deps`` alone does not install Boost; ``--install-boost-from-repo``
-only takes effect with it. Windows uses NuGet headers. Linux release wheels install
-``boost-devel`` inside the manylinux container. ``--install-boost`` remains the
-source archive option.
+    ./install.sh --build-library python --install-system-deps --python-pip-install
 
 The package includes a ``py.typed`` marker and type information for the ``opencamlib.ocl`` extension, so Python type checkers and editors can use the bundled API signatures.
 To generate the type stubs, you can use the ``pybind11-stubgen`` tool:
@@ -309,50 +319,10 @@ For each language there is an example named ``test`` which calls all of the algo
 There is also some API documentation over here: https://opencamlib.readthedocs.io
 
 ***************
-Common Problems
-***************
-
-Compiling OpenCAMLib is unfortunately not very easy and there are many things that can go wrong.
-Here is a list of common problems and solutions.
-
-=================================================
-Could NOT find Boost (missing: Boost_INCLUDE_DIR)
-=================================================
-
-This happens a lot, here are some of the reasons why this happens:
-
-**You don't have Boost installed.**
-
-If you forgot to install boost, go ahead and download Boost from from their website: https://www.boost.org/users/download/ and extract it somewhere.
-Now, when compiling the C++ or node.js module, add the
-
-``-D BOOST_ROOT=/path/to/extracted/boost`` flag to the ``cmake ..`` command, or the.
-
-``--boost-prefix /path/to/extracted/boost`` flag to the ``./install.sh`` command
-
-**You installed Boost from Github.**
-
-The boost that is hosted on Github does not have the headers yet! To compile those, you should run the following commands:
-
-..  code-block:: shell
-
-    ./bootstrap.sh
-    ./b2 headers
-
-**Your CMake version has a FindBoost module which is unaware of your Boost's version.**
-
-The CMake module that looks for Boost, is usually not aware of the existence of the latest Boost versions.
-You can help it by providing the version number of your Boost with the ``-D Boost_ADDITIONAL_VERSIONS="1.80.0"`` flag.
-Make sure to change 1.80.0 with your version of Boost.
-
-It can also be helpful to enable ``Boost_DEBUG`` in the CMake configuration.
-
-***************
 Cross Compiling
 ***************
 
 To compile OpenCAMLib for other architectures, we recommend the following strategies.
-Boost headers can be shared across target architectures; no Boost compilation is needed.
 
 =====
 macOS
@@ -436,3 +406,45 @@ Organization of Files
  │   ├── npmpackage              combined Node.js and emscripten wrappers, for publishing to npm
  │   ├── pythonlib               python library bindings and cmake config
  └── stl                         STL files for testing
+
+=================
+Cutter benchmarks
+=================
+
+An optional native benchmark separates KD-tree setup from toolpath execution::
+
+    cmake -S . -B build/bench -DCMAKE_BUILD_TYPE=Release -DBUILD_CXX_LIB=ON -DBUILD_PY_LIB=OFF -DBUILD_BENCHMARKS=ON -DUSE_OPENMP=ON
+    cmake --build build/bench --target cutter_benchmark
+    OMP_NUM_THREADS=4 build/bench/cutter_benchmark stl/gnu_tux_mod.stl waterline 4 5
+
+The arguments are the STL file, operation, thread count, and repetition count.
+Operations are ``waterline``, ``adaptive-waterline``, ``dropcutter``, and
+``adaptive-dropcutter``. The fixture uses a diameter-4 cylindrical cutter,
+length 20, sampling 0.1, waterline Z=1, and 25 horizontal drop-cutter spans
+at Z=-1 across the model bounds. Adaptive operations retain their default
+minimum sampling settings.
+
+An optional fifth argument selects ``cyl`` (the default), ``ball``, ``bull``,
+``cone``, or ``cyl-cone``. The ball, bull, and cone cutters also have diameter 4
+and length 20; the bull has corner radius 1 and the cone angle is 0.7 radians.
+The composite cutter uses ``CylConeCutter(2, 4, 0.7)``. Pass ``--cutter cyl-cone``
+to ``compare.py`` to compare this workload with the same cutter in both builds.
+
+The final JSON line reports average ``setup_ms``, ``run_ms``, and ``total_ms``;
+STL loading is excluded, while total time includes operation construction,
+configuration, output collection, and destruction. Point counts and coordinate
+checksums help detect changed workloads; use the geometry and cutter tests for
+correctness checks. Compare identical compiler settings, models, and thread
+counts, and alternate old/new runs to reduce timing bias. Set ``OMP_NUM_THREADS``
+too when comparing revisions whose adaptive waterline ignored ``setThreads``.
+
+OpenMP is optional. With it enabled, batch operations distribute individual
+points/fibers, adaptive path drop-cutter distributes independent spans while
+preserving path order, and adaptive waterline uses at most two threads (one per
+fiber direction). ``setThreads(1)`` requests serial execution. A single adaptive
+path span remains serial.
+
+To collect alternating runs from two builds and save the raw samples and
+medians::
+
+    python3 benchmarks/compare.py build/before/cutter_benchmark build/after/cutter_benchmark stl/gnu_tux_mod.stl stl/sphere_on_plate.stl --threads 1 4 --repetitions 5 --output build/comparison.json

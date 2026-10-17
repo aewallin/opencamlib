@@ -42,28 +42,29 @@ class MillingCutter;
 /// base-class for cam algorithms
 class Operation {
     public:
-        Operation() {}
+        Operation() : sampling(0), nCalls(0), bucketSize(1), cutter(nullptr),
+                      surf(nullptr), root(nullptr), nthreads(1) {}
         virtual ~Operation() {
             //std::cout << "~Operation()\n";
         }
         /// set the STL-surface and build kd-tree
         virtual void setSTL(const STLSurf& s) {
             surf = &s;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setSTL(s);
             }
         }
         /// set the MillingCutter to use
         virtual void setCutter(const MillingCutter* c) {
             cutter = c;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setCutter(cutter);
             }
         }
         /// set number of OpenMP threads. Defaults to OpenMP::omp_get_num_procs()
         void setThreads(unsigned int n) {
-            nthreads = n;
-            BOOST_FOREACH(Operation* op, subOp) {
+            nthreads = n > 0 ? n : 1;
+            for (Operation* op : subOp) {
                 op->setThreads(nthreads);
             }
         }
@@ -74,7 +75,7 @@ class Operation {
         /// set the kd-tree bucket-size
         void setBucketSize(unsigned int s) {
             bucketSize = s;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setBucketSize(bucketSize);
             }
         }
@@ -84,7 +85,7 @@ class Operation {
         /// set the sampling interval for this Operation and all sub-operations
         virtual void setSampling(double s) {
             sampling=s;
-            BOOST_FOREACH(Operation* op, subOp) {
+            for (Operation* op : subOp) {
                 op->setSampling(sampling);
             }
         }
@@ -102,8 +103,7 @@ class Operation {
         
         /// return CL-points
         virtual std::vector<CLPoint> getCLPoints() {
-            std::vector<CLPoint>* clv = new std::vector<CLPoint>(); 
-            return *clv;
+            return {};
         }
         virtual void clearCLPoints() {}
         

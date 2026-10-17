@@ -72,7 +72,7 @@ void LineCLFilter::run() {
         }
     }
     new_list.push_back(clpoints.back());
-    clpoints = new_list;
+    clpoints.swap(new_list);
     return;
 }
 

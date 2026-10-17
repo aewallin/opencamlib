@@ -37,20 +37,9 @@ namespace clsurf
 
 
 
-typedef boost::adjacency_list_traits<boost::listS, 
-                                     boost::listS, 
-                                     boost::bidirectionalS, 
-                                     boost::listS >::edge_descriptor CLSEdge;
-
-
-typedef boost::adjacency_list_traits<boost::listS, 
-                                     boost::listS, 
-                                     boost::bidirectionalS, 
-                                     boost::listS >::vertex_descriptor CLSVertex;
-//typedef CLSGraph::Edge CLSEdge;
-//typedef CLSGraph::Vertex CLSVertex;
+typedef hedi::EdgeDescriptor CLSEdge;
+typedef hedi::VertexDescriptor CLSVertex;
 typedef unsigned int CLSFace;
-//typedef hedi::HEDIGraph::Face CLSFace;
 
 typedef std::vector<CLSVertex> CLSVertexVector;
 typedef std::vector<CLSFace> CLSFaceVector;
@@ -88,7 +77,7 @@ struct CLSEdgeProps {
     }
     CLSEdge next; ///< the next edge, counterclockwise, from this edge
     CLSEdge twin; ///< the twin edge
-    CLSFace face;  ///< the face to which this edge belongs
+    CLSFace face = 0;  ///< the face to which this edge belongs
 };
 
 /// properties of a face 
@@ -105,18 +94,8 @@ struct CLSFaceProps {
 };
 
 
-// the cutter location surface graph
-typedef hedi::HEDIGraph<  boost::listS,             // out-edge storage
-                          boost::listS,             // vertex set storage
-                          boost::bidirectionalS,    // bidirectional graph.
-                          CLSVertexProps,           // vertex properties
-                          CLSEdgeProps,             // edge properties
-                          CLSFaceProps,             // face properties
-                          boost::no_property,       // graph properties
-                          boost::listS              // edge storage
-                          > CLSGraph;
-
-
+// The cutter location surface graph.
+typedef hedi::HEDIGraph<CLSVertexProps, CLSEdgeProps, CLSFaceProps> CLSGraph;
 
 /// \brief cutter location surface.
 ///

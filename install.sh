@@ -2,9 +2,6 @@
 
 set -e
 
-boost_url="https://archives.boost.io/release/1.87.0/source/boost_1_87_0.tar.gz"
-boost_dir="boost_1_87_0"
-boost_additional_versions="1.87.0;1.86.0;1.85.0;1.84.0;1.83.0;1.82.0;1.81.0;1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 project_dir=$(pwd)
 
 print_help() {
@@ -18,14 +15,10 @@ Options:
   --disable-openmp            Disable OpenMP in the build. (only valid with --build-library)
   --install-system-deps       Install dependencies for compiling libraries (only aware of apt, brew and choco at the moment)
   --install-ci-deps           Install curl and, when the platform is macos, installs OpenMP for the given architecture (see: --macos-architecture)
-  --install-boost             Install Boost from source
-  --install-boost-from-repo   Install Boost headers from platform specific package repositories
 
   --install                   Install the CMake install targets to the prefix (see: --install-prefix)
   --sudo-install              Install the CMake install targets to the prefix with root privileges (see: --install-prefix)
   --install-prefix            Set the install prefix location for CMake installs (only valid when using --install)
-
-  --boost-prefix              Set a custom path where to look for Boost
 
   --python-executable         Set a custom path (or name of) the Python executable (only valid when using --build-library python)
   --python-prefix             Set the python prefix, this will be passed to CMake as Python3_ROOT_DIR, to make sure CMake is using the correct Python installation. (only valid when using --build-library python)
@@ -33,7 +26,7 @@ Options:
 
   --platform                  Set the platform, for when auto-detection doesn't work (one of: windows, macos, linux)
 
-  --macos-architecture        Set the macOS architecture to compile for (one of: arm64, x86_64), useful for cross compiling. Default is arm64.
+  --macos-architecture        Set the macOS architecture to compile for (one of: arm64, x86_64), useful for cross compiling. Defaults to the host architecture.
   --docker-image              Set the docker image to forward this install command to, useful for cross compiling
   --docker-before-install     Run given commands in the docker container before running ./install.sh, (only valid when using --docker-image)
   --cmake-generator           Set the CMake Generator option
@@ -70,9 +63,6 @@ while [[ "$#" -gt 0 ]]; do
         --install) OCL_INSTALL="1"; ;;
         --sudo-install) OCL_SUDO_INSTALL="1"; ;;
         --install-prefix) require_option_value "$@"; OCL_INSTALL_PREFIX="$2"; shift ;;
-        --install-boost) OCL_INSTALL_BOOST="1"; ;;
-        --install-boost-from-repo) OCL_INSTALL_BOOST_FROM_REPO="1"; ;;
-        --boost-prefix) require_option_value "$@"; OCL_BOOST_PREFIX="$2"; shift ;;
         --macos-architecture) require_option_value "$@"; OCL_MACOS_ARCHITECTURE="$2"; shift ;;
         --docker-image) require_option_value "$@"; OCL_DOCKER_IMAGE="$2"; shift ;;
         --docker-before-install) require_option_value "$@"; OCL_DOCKER_IMAGE_BEFORE_INSTALL="$2"; docker_before_install_argument="1"; shift ;;
@@ -189,9 +179,6 @@ install_system_dependencies() {
     if [ "${determined_os}" = "linux" ]; then
         sudo apt update
         sudo apt install -y --no-install-recommends git cmake curl build-essential
-        if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            sudo apt install -y --no-install-recommends libboost-dev
-        fi
         if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
             if [ -z "${OCL_PYTHON_PIP_INSTALL}" ]; then
                 sudo apt install -y --no-install-recommends pybind11-dev
@@ -205,9 +192,6 @@ install_system_dependencies() {
         fi
     elif [ "${determined_os}" = "macos" ]; then
         brew install libomp
-        if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            brew install boost
-        fi
         if [ "${OCL_BUILD_LIBRARY}" = "python" ]; then
             if [ -z "${OCL_PYTHON_PIP_INSTALL}" ]; then
                 brew install pybind11
@@ -222,13 +206,6 @@ install_system_dependencies() {
     else
         # @todo installing git and cmake fails in github's CI
         choco install curl --no-progress
-        if [ -n "${OCL_INSTALL_BOOST_FROM_REPO}" ]; then
-            if ! command_exists nuget; then
-                choco install nuget.commandline -y --no-progress
-            fi
-            nuget install boost -ExcludeVersion -OutputDirectory "${project_dir}/build/deps" -NonInteractive
-            OCL_BOOST_PREFIX=$(cygpath -m "${project_dir}/build/deps/boost/lib/native/include")
-        fi
         if [ "${OCL_BUILD_LIBRARY}" = "nodejs" ]; then
             choco install nodejs
         fi
@@ -262,41 +239,37 @@ install_ci_dependencies() {
             ${maybe_sudo} yum install curl
         fi
     elif [ "${determined_os}" = "macos" ]; then
-        OCL_MACOS_ARCHITECTURE="${OCL_MACOS_ARCHITECTURE:-arm64}"  # default to arm64
-        prettyprint "Downloading libomp for: " "${OCL_MACOS_ARCHITECTURE}"
-        brew_cache=$(brew --cache)
-        if [ "${OCL_MACOS_ARCHITECTURE}" = "arm64" ]; then
-            brew fetch --bottle-tag=arm64_sequoia libomp >/dev/null
-            libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*arm64_sequoia.bottle.tar.gz" -print | tail -n1)
+        OCL_MACOS_ARCHITECTURE="${OCL_MACOS_ARCHITECTURE:-$(uname -m)}"
+        if [ "${OCL_MACOS_ARCHITECTURE}" = "$(uname -m)" ]; then
+            prettyprint "Installing libomp for: " "${OCL_MACOS_ARCHITECTURE}"
+            brew install libomp
+            libomp_prefix=$(brew --prefix libomp)
         else
-            arch -x86_64 brew fetch --bottle-tag=sonoma libomp >/dev/null
-            libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*sonoma.bottle.tar.gz" -print | tail -n1)
+            prettyprint "Downloading libomp for cross compilation: " "${OCL_MACOS_ARCHITECTURE}"
+            brew_cache=$(brew --cache)
+            if [ "${OCL_MACOS_ARCHITECTURE}" = "arm64" ]; then
+                brew fetch --bottle-tag=arm64_sequoia libomp >/dev/null
+                libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*arm64_sequoia.bottle.tar.gz" -print | tail -n1)
+            else
+                arch -x86_64 brew fetch --bottle-tag=sonoma libomp >/dev/null
+                libomp_tar_loc=$(find "${brew_cache}/downloads" -maxdepth 1 -name "*--libomp--*sonoma.bottle.tar.gz" -print | tail -n1)
+            fi
+            [ -n "${libomp_tar_loc}" ] || invalid_argument "Failed to locate ${OCL_MACOS_ARCHITECTURE} libomp bottle in Homebrew cache"
+            cp "${libomp_tar_loc}" /tmp/libomp.tar.gz
+            mkdir -p /tmp/libomp
+            tar -xzf /tmp/libomp.tar.gz -C /tmp/libomp
+            libomp_prefix=$(find /tmp/libomp/libomp -mindepth 1 -maxdepth 1 -type d ! -name fixed -print | sort | tail -n1)
+            [ -n "${libomp_prefix}" ] || invalid_argument "Failed to locate extracted libomp bottle"
+            # Raw bottles retain Homebrew's placeholder install name. Relocate it
+            # before linking so executables can load this runtime through CMake's rpath.
+            install_name_tool -id "@rpath/libomp.dylib" "${libomp_prefix}/lib/libomp.dylib"
+            codesign --force --sign - "${libomp_prefix}/lib/libomp.dylib"
         fi
-        [ -n "${libomp_tar_loc}" ] || invalid_argument "Failed to locate ${OCL_MACOS_ARCHITECTURE} libomp bottle in Homebrew cache"
-        cp "${libomp_tar_loc}" /tmp/libomp.tar.gz
-        mkdir -p /tmp/libomp
-        tar -xzf /tmp/libomp.tar.gz -C /tmp/libomp
-        libomp_version_dir=$(find /tmp/libomp/libomp -mindepth 1 -maxdepth 1 -type d ! -name fixed -print | sort | tail -n1)
-        [ -n "${libomp_version_dir}" ] || invalid_argument "Failed to locate extracted libomp bottle"
-        ln -sfn "${libomp_version_dir}" /tmp/libomp/libomp/fixed
+        # Keep the same dependency path for CMake and cibuildwheel subprocesses.
+        mkdir -p /tmp/libomp/libomp
+        ln -sfn "${libomp_prefix}" /tmp/libomp/libomp/fixed
         export OPENMP_PREFIX_MACOS="/tmp/libomp/libomp/fixed"
     fi
-}
-
-install_boost() {
-    cd "${project_dir}"
-    if [ -d "${boost_dir}" ]; then
-        # boost folder already exists, re-using
-        prettyprint "Boost already found, re-using..."
-        return
-    elif [ ! -f "${TMPDIR:-"/tmp"}/boost.tar.gz" ]; then
-        prettyprint "Downloading boost.tar.gz"
-        curl "${boost_url}" --output "${TMPDIR:-"/tmp"}/boost.tar.gz" --silent --location
-    else
-        prettyprint "boost.tar.gz found, re-using..."
-    fi
-    prettyprint "Extracting boost.tar.gz..."
-    tar -zxf "${TMPDIR:-"/tmp"}/boost.tar.gz" -C .
 }
 
 if [ -n "${OCL_DOCKER_IMAGE}" ]; then
@@ -384,10 +357,8 @@ build_cxxlib() {
         ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
         -D CMAKE_BUILD_TYPE="${build_type}" \
         -D BUILD_CXX_LIB="ON" \
-        -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
         ${OCL_INSTALL_PREFIX:+"-DCMAKE_INSTALL_PREFIX=${OCL_INSTALL_PREFIX}"} \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
     set +x
     cmake_build
@@ -397,6 +368,10 @@ build_cxxlib() {
 }
 
 test_cxxlib() {
+    (
+        cd "${build_dir}"
+        ctest --build-config "${build_type}" --output-on-failure
+    )
     cd "${project_dir}/examples/cpp/test"
     if [ -n "${OCL_CLEAN}" ]; then
         prettyprint "Cleaning build directory..."
@@ -408,8 +383,6 @@ test_cxxlib() {
     cmake \
         ${OCL_GENERATOR:+"-G ${OCL_GENERATOR}"} \
         ${OCL_GENERATOR_PLATFORM:+"-A ${OCL_GENERATOR_PLATFORM}"} \
-        -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ..
     set +x
     cmake_build
@@ -435,10 +408,8 @@ build_nodejslib() {
         ${OCL_GENERATOR:+"--generator=${OCL_GENERATOR}"} \
         ${OCL_GENERATOR_PLATFORM:+"--platform=${OCL_GENERATOR_PLATFORM}"} \
         --CDBUILD_NODEJS_LIB="ON" \
-        --CDBoost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         --CDCMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
         ${OCL_DISABLE_OPENMP:+"--CDUSE_OPENMP=OFF"} \
-        ${OCL_BOOST_PREFIX:+"--CDBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         --config "${build_type}"
     set +x
     if [ -n "${OCL_INSTALL}" ] || [ -n "${OCL_SUDO_INSTALL}" ]; then
@@ -484,7 +455,6 @@ build_pythonlib() {
         pip_options=(
             "--config-settings=cmake.build-type=${build_type}"
             "--config-settings=cmake.define.Python3_EXECUTABLE=${python_path}"
-            "--config-settings=cmake.define.Boost_ADDITIONAL_VERSIONS=${boost_additional_versions}"
         )
         if [ -n "${OCL_GENERATOR}" ]; then
             pip_options+=("--config-settings=cmake.args=-G" "--config-settings=cmake.args=${OCL_GENERATOR}")
@@ -497,9 +467,6 @@ build_pythonlib() {
         fi
         if [ -n "${OCL_PYTHON_PREFIX}" ]; then
             pip_options+=("--config-settings=cmake.define.Python3_ROOT_DIR=${OCL_PYTHON_PREFIX}")
-        fi
-        if [ -n "${OCL_BOOST_PREFIX}" ]; then
-            pip_options+=("--config-settings=cmake.define.BOOST_ROOT=${OCL_BOOST_PREFIX}")
         fi
         cd "${project_dir}"
         "${python_executable}" -m pip install --verbose "${pip_options[@]}" .
@@ -522,11 +489,9 @@ build_pythonlib() {
             "${python_cmake_options[@]}" \
             -D CMAKE_BUILD_TYPE="${build_type}" \
             -D BUILD_PY_LIB="ON" \
-            -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
             -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-${install_prefix_fallback}}" \
             ${OCL_DISABLE_OPENMP:+"-DUSE_OPENMP=OFF"} \
             ${OCL_PYTHON_PREFIX:+"-DPython3_ROOT_DIR=${OCL_PYTHON_PREFIX}"} \
-            ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
             ../../..
         set +x
         cmake_build
@@ -553,9 +518,7 @@ build_emscriptenlib() {
         -D CMAKE_BUILD_TYPE="${build_type}" \
         -D BUILD_EMSCRIPTEN_LIB="ON" \
         -D USE_OPENMP="OFF" \
-        -D Boost_ADDITIONAL_VERSIONS="${boost_additional_versions}" \
         -D CMAKE_INSTALL_PREFIX="${OCL_INSTALL_PREFIX:-"${install_prefix_fallback}"}" \
-        ${OCL_BOOST_PREFIX:+"-DBOOST_ROOT=${OCL_BOOST_PREFIX}"} \
         ../../..
     if [ "${determined_os}" = "windows" ]; then
         emmake make \
@@ -593,11 +556,6 @@ fi
 if [ -n "${OCL_INSTALL_CI_DEPS}" ]; then
     prettyprint "Installing ci dependencies..."
     install_ci_dependencies
-fi
-
-if [ -n "${OCL_INSTALL_BOOST}" ]; then
-    prettyprint "Installing Boost..."
-    install_boost
 fi
 
 if [ -n "${OCL_CLEAN}" ]; then

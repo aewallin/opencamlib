@@ -80,16 +80,14 @@ include(gcc_version.cmake)
 # Turn compiler warnings up to 11, at least with gcc.  I don't know how to
 # do this with other compilers we might support and I'm leaving it up to
 # the relevant platform maintainers...
-# #include'ing the boost graph-library creates deprecated warnings
-# thus we use now use -Wno-deprecated here.
 #
 if(UNIX)
   if(GCC_4_6)
-    message(STATUS "setting gcc options: -Wall -Werror -Wno-deprecated -pedantic-errors")
-    add_definitions(-Wall  -Wno-deprecated -Werror -pedantic-errors)
+    message(STATUS "setting gcc options: -Wall -Werror -pedantic-errors")
+    add_definitions(-Wall  -Werror -pedantic-errors)
   else()
-    message(STATUS "setting gcc options: -Wall  -Wno-deprecated -pedantic-errors")
-    add_definitions(-Wall  -Wno-deprecated -pedantic-errors)
+    message(STATUS "setting gcc options: -Wall  -pedantic-errors")
+    add_definitions(-Wall  -pedantic-errors)
   endif()
 endif()
 
@@ -100,56 +98,6 @@ if(got_ipo_support)
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-
-set(Boost_DEBUG ON CACHE BOOL "boost-debug")
-#set(Boost_USE_STATIC_LIBS ON CACHE BOOL "boost-use-static-libs")
-if(DEFINED ENV{BOOST_ROOT} OR DEFINED BOOST_ROOT)
-  set(Boost_NO_SYSTEM_PATHS ON)
-endif()
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-	set(Boost_USE_DEBUG_LIBS     ON)
-	set(Boost_USE_RELEASE_LIBS   OFF)
-else()
-	set(Boost_USE_DEBUG_LIBS     OFF)
-	set(Boost_USE_RELEASE_LIBS   ON)
-endif()
-if(BUILD_EMSCRIPTEN_LIB)
-  set(Boost_USE_MULTITHREADED  OFF)
-elseif(USE_OPENMP)
-  set(Boost_USE_MULTITHREADED  ON)
-endif()
-if(WIN32)
-  # use static python lib
-  if(Boost_USE_STATIC_LIBS)
-    add_definitions(-D BOOST_PYTHON_STATIC_LIB)
-  endif()
-  # disable autolinking in boost
-  add_definitions(-D BOOST_ALL_NO_LIB) # avoid LNK1104 on Windows: http://stackoverflow.com/a/28902261/122441
-endif()
-
-# Boost is headers-only. Cross toolchains must also be able to find an archive
-# extracted outside their sysroot (for example, /work in dockcross).
-if(CMAKE_CROSSCOMPILING OR BUILD_EMSCRIPTEN_LIB)
-  foreach(_ocl_mode INCLUDE PACKAGE)
-    if(DEFINED CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode})
-      set(_ocl_saved_${_ocl_mode}_mode "${CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode}}")
-    endif()
-    set(CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode} BOTH)
-  endforeach()
-endif()
-find_package(Boost REQUIRED)
-include_directories(${Boost_INCLUDE_DIRS})
-if(CMAKE_CROSSCOMPILING OR BUILD_EMSCRIPTEN_LIB)
-  foreach(_ocl_mode INCLUDE PACKAGE)
-    if(DEFINED _ocl_saved_${_ocl_mode}_mode)
-      set(CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode} "${_ocl_saved_${_ocl_mode}_mode}")
-      unset(_ocl_saved_${_ocl_mode}_mode)
-    else()
-      unset(CMAKE_FIND_ROOT_PATH_MODE_${_ocl_mode})
-    endif()
-  endforeach()
-  unset(_ocl_mode)
-endif()
 
 if(USE_OPENMP)
   if(APPLE)
@@ -332,6 +280,15 @@ endif()
 
 if(BUILD_EMSCRIPTEN_LIB)
   include(${CMAKE_CURRENT_SOURCE_DIR}/emscriptenlib/emscriptenlib.cmake)
+endif()
+
+if(BUILD_TESTING AND NOT CMAKE_CROSSCOMPILING)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../tests ${CMAKE_CURRENT_BINARY_DIR}/tests)
+endif()
+
+option(BUILD_BENCHMARKS "Build cutter performance benchmarks" OFF)
+if(BUILD_BENCHMARKS AND NOT CMAKE_CROSSCOMPILING)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../benchmarks ${CMAKE_CURRENT_BINARY_DIR}/benchmarks)
 endif()
 
 # build & install documentation (if Doxygen is available)

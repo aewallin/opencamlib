@@ -44,7 +44,6 @@ wheel.packages = ["src/pythonlib/opencamlib"]
 
 [tool.scikit-build.cmake.define]
 BUILD_PY_LIB = "ON"
-Boost_ADDITIONAL_VERSIONS = "1.87.0;1.86.0;1.85.0;1.84.0;1.83.0;1.82.0;1.81.0;1.80.0;1.79.0;1.78.0;1.77.0;1.76.0;1.75.0;1.74.0;1.73.0;1.72.0;1.71.0;1.70.0"
 BUILD_DOC = "OFF"
 
 [tool.cibuildwheel]
@@ -53,18 +52,15 @@ skip = ["pp*", "*-musllinux*", "*-manylinux_i686"]
 
 [tool.cibuildwheel.windows]
 archs = ["AMD64", "ARM64"]
-before-all = 'cd "{package}" && bash ./install.sh --install-system-deps --install-boost-from-repo'
-environment = { CMAKE_PREFIX_PATH = '$(cygpath -m "$(pwd)/build/deps/boost/lib/native")' }
+before-all = 'cd "{package}" && bash ./install.sh --install-system-deps'
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64", "aarch64"]
 manylinux-x86_64-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
-# Runs inside each manylinux container, which already supplies the build tools.
-before-all = "yum install -y boost-devel"
 
 [tool.cibuildwheel.macos]
 archs = ["x86_64", "arm64"]
-before-all = 'brew install boost && cd "{package}" && bash ./install.sh --install-ci-deps'
+before-all = 'cd "{package}" && bash ./install.sh --install-ci-deps'
 environment = { CMAKE_PREFIX_PATH = "$(brew --prefix)", OPENMP_PREFIX_MACOS = "/tmp/libomp/libomp/fixed" }
 repair-wheel-command = "python src/pythonlib/delocate-wheel.py --require-archs {delocate_archs} -w {dest_dir} -v {wheel}"

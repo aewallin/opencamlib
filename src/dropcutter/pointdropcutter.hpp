@@ -46,6 +46,9 @@ class PointDropCutter : public Operation {
         }
         void setSTL(const STLSurf &s);
         void run(CLPoint& cl);
+        /// Evaluate one point without changing operation state; return the call count.
+        /// Concurrent evaluations must use distinct CLPoints and a read-only surface/cutter.
+        int dropCutter(CLPoint& cl) const;
         void run() {
             std::cout << "ERROR: can't call run() on PointDropCutter()\n";
             assert(0);

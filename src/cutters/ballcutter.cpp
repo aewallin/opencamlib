@@ -23,7 +23,6 @@
 #include <sstream>
 #include <string>
 
-#include <boost/foreach.hpp>
 
 #include "ballcutter.hpp"
 

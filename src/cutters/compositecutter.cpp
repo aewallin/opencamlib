@@ -152,19 +152,14 @@ bool CompositeCutter::validRadius(unsigned int n, double r) const {
 bool CompositeCutter::facetDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
-        CLPoint cl_tmp = cl + CLPoint(0,0,zoffset[n]);
-        CCPoint* cc_tmp;
+        CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
         if ( cutter[n]->facetDrop(cl_tmp, t) ) {
             assert( cl_tmp.cc != 0);
             if ( ccValidRadius(n,cl_tmp) ) { // cc-point is valid
-                cc_tmp = new CCPoint(*cl_tmp.cc);
-                if (cl.liftZ( cl_tmp.z - zoffset[n] )) { // we need to lift the cutter
-                    cc_tmp->type = FACET;
-                    cl.cc = cc_tmp;
+                CCPoint cc_tmp = *cl_tmp.cc;
+                cc_tmp.type = FACET;
+                if (cl.liftZ(cl_tmp.z - zoffset[n], cc_tmp))
                     result = true;
-                } else {
-                    delete cc_tmp;
-                }
             }
         }
     }
@@ -176,17 +171,12 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
     bool result = false;
     for (unsigned int n=0; n<cutter.size(); ++n) { // loop through cutters
         CLPoint cl_tmp = cl + Point(0,0,zoffset[n]);
-        CCPoint* cc_tmp;
         if ( cutter[n]->edgeDrop(cl_tmp,t) ) { // drop sub-cutter against edge
             if ( ccValidRadius(n,cl_tmp) ) { // check if cc-point is valid
-                cc_tmp = new CCPoint(*cl_tmp.cc);
-                if (cl.liftZ( cl_tmp.z - zoffset[n] ) ) { // we need to lift the cutter
-                    cc_tmp->type = EDGE;
-                    cl.cc = cc_tmp;
+                CCPoint cc_tmp = *cl_tmp.cc;
+                cc_tmp.type = EDGE;
+                if (cl.liftZ(cl_tmp.z - zoffset[n], cc_tmp))
                     result = true;
-                } else {
-                    delete cc_tmp;
-                }
             }
         }
     }
@@ -195,24 +185,28 @@ bool CompositeCutter::edgeDrop(CLPoint &cl, const Triangle &t) const {
 
 bool CompositeCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
-    std::vector< std::pair<double, CCPoint> > contacts;
+    // Only the fiber geometry is needed by the component cutters. Copying
+    // its accumulated intervals here repeats unrelated work for every triangle.
+    Fiber cf;
+    cf.p1 = f.p1;
+    cf.p2 = f.p2;
+    cf.dir = f.dir;
     for (unsigned int n=0; n<cutter.size(); ++n) {
         Interval ci;
-        Fiber cf(f);
         cf.p1.z = f.p1.z + zoffset[n];
         cf.p2.z = f.p2.z + zoffset[n]; // raised/lowered fiber to push along
         if ( cutter[n]->vertexPush(cf,ci,t) ) {
-            if ( ccValidHeight( n, ci.upper_cc, f ) )
-                contacts.push_back( std::pair<double,CCPoint>(ci.upper, ci.upper_cc) );
-            if ( ccValidHeight( n, ci.lower_cc, f ) )
-                contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
+            if (ccValidHeight(n, ci.upper_cc, f)) {
+                i.update(ci.upper, ci.upper_cc);
+                result = true;
+            }
+            if (ccValidHeight(n, ci.lower_cc, f)) {
+                i.update(ci.lower, ci.lower_cc);
+                result = true;
+            }
         }
     }
 
-    for( unsigned int n=0; n<contacts.size(); ++n ) {
-        i.update( contacts[n].first, contacts[n].second );
-        result = true;
-    }
     return result;
 }
 
@@ -222,24 +216,28 @@ bool CompositeCutter::vertexPush(const Fiber& f, Interval& i, const Triangle& t)
 bool CompositeCutter::facetPush(const Fiber& f, Interval& i, const Triangle& t) const {
     // run facetPush for each cutter, retain valid results, and return union of all
     bool result = false;
-    std::vector< std::pair<double, CCPoint> > contacts;
+    // Only the fiber geometry is needed by the component cutters. Copying
+    // its accumulated intervals here repeats unrelated work for every triangle.
+    Fiber cf;
+    cf.p1 = f.p1;
+    cf.p2 = f.p2;
+    cf.dir = f.dir;
     for (unsigned int n=0; n<cutter.size(); ++n) {
         Interval ci;
-        Fiber cf(f);
         cf.p1.z = f.p1.z + zoffset[n];
         cf.p2.z = f.p2.z + zoffset[n]; // raised/lowered fiber to push along
         if ( cutter[n]->facetPush(cf,ci,t) ) {
-            if ( ccValidHeight( n, ci.upper_cc, f ) )
-                contacts.push_back( std::pair<double,CCPoint>(ci.upper, ci.upper_cc) );
-            if ( ccValidHeight( n, ci.lower_cc, f ) )
-                contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
+            if (ccValidHeight(n, ci.upper_cc, f)) {
+                i.update(ci.upper, ci.upper_cc);
+                result = true;
+            }
+            if (ccValidHeight(n, ci.lower_cc, f)) {
+                i.update(ci.lower, ci.lower_cc);
+                result = true;
+            }
         }
     }
 
-    for( unsigned int n=0; n<contacts.size(); ++n ) {
-        i.update( contacts[n].first, contacts[n].second );
-        result = true;
-    }
     return result;
 }
 
@@ -247,24 +245,28 @@ bool CompositeCutter::facetPush(const Fiber& f, Interval& i, const Triangle& t) 
 
 bool CompositeCutter::edgePush(const Fiber& f, Interval& i, const Triangle& t) const {
     bool result = false;
-    std::vector< std::pair<double, CCPoint> > contacts;
+    // Only the fiber geometry is needed by the component cutters. Copying
+    // its accumulated intervals here repeats unrelated work for every triangle.
+    Fiber cf;
+    cf.p1 = f.p1;
+    cf.p2 = f.p2;
+    cf.dir = f.dir;
     for (unsigned int n=0; n<cutter.size(); ++n) {
         Interval ci; // interval for this cutter
-        Fiber cf(f); // fiber for this cutter
         cf.p1.z = f.p1.z + zoffset[n];
         cf.p2.z = f.p2.z + zoffset[n]; // raised/lowered fiber to push along
         if ( cutter[n]->edgePush(cf,ci,t) ) {
-            if ( ccValidHeight( n, ci.upper_cc, f ) )
-                contacts.push_back( std::pair<double,CCPoint>(ci.upper, ci.upper_cc) );
-            if ( ccValidHeight( n, ci.lower_cc, f ) )
-                contacts.push_back( std::pair<double,CCPoint>(ci.lower, ci.lower_cc) );
+            if (ccValidHeight(n, ci.upper_cc, f)) {
+                i.update(ci.upper, ci.upper_cc);
+                result = true;
+            }
+            if (ccValidHeight(n, ci.lower_cc, f)) {
+                i.update(ci.lower, ci.lower_cc);
+                result = true;
+            }
         }
     }
 
-    for( unsigned int n=0; n<contacts.size(); ++n ) {
-        i.update( contacts[n].first, contacts[n].second );
-        result = true;
-    }
 
     return result;
 }
